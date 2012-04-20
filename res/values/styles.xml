@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2005 - 2012 Jaspersoft Corporation. All rights reserved.
+    http://www.jaspersoft.com.
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<resources>
+
+    <!-- Default ListView Style -->
+    <style name="list.view">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:drawSelectorOnTop">false</item>
+        <item name="android:cacheColorHint">@android:color/white</item>
+        <item name="android:divider">@color/js_lighter_grey</item>
+        <item name="android:dividerHeight">1px</item>
+    </style>
+
+    <!-- Default Label Style -->
+    <style name="label">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginTop">2dip</item>
+        <item name="android:layout_marginLeft">5dip</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+        <style name="label.blue">
+            <item name="android:textColor">@color/js_blue</item>
+        </style>
+
+    <!-- Default EditText Style-->
+    <style name="editText">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+        <style name="editText.singleLine">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:singleLine">true</item>
+        </style>
+
+        <style name="editText.multiLine">
+            <item name="android:gravity">left</item>
+            <item name="android:lines">7</item>
+        </style>
+
+    <!-- Action Bar Layout -->
+    <style name="actionBar" />
+
+        <style name="actionBar.layout">
+            <item name="android:layout_height">46dp</item>
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:background">@color/js_grey</item>
+        </style>
+
+        <!-- Container with bread crumbs -->
+        <style name="actionBar.bcContainer" />
+
+            <style name="actionBar.bcContainer.layout">
+                <item name="android:layout_height">45dp</item>
+                <item name="android:layout_width">wrap_content</item>
+                <item name="android:layout_weight">1</item>
+                <item name="android:background">@drawable/gradient_light_grey</item>
+                <item name="android:layout_marginBottom">1px</item>
+            </style>
+
+            <style name="actionBar.bcContainer.appIcon">
+                <item name="android:layout_height">39dp</item>
+                <item name="android:layout_width">39dp</item>
+                <item name="android:background">@drawable/ic_launcher_jaspermobile</item>
+                <item name="android:layout_marginBottom">3dp</item>
+                <item name="android:layout_marginLeft">3dp</item>
+                <item name="android:layout_marginTop">3dp</item>
+            </style>
+
+            <style name="actionBar.bcContainer.breadCrumbs">
+                <item name="android:layout_height">45dp</item>
+                <item name="android:layout_width">wrap_content</item>
+            </style>
+
+        <!-- Action Buttons -->
+        <style name="actionBar.actionButton">
+            <item name="android:layout_height">45dp</item>
+            <item name="android:layout_width">40dp</item>
+            <item name="android:layout_marginLeft">1px</item>
+            <item name="android:layout_marginBottom">1px</item>
+            <item name="android:background">@drawable/gradient_light_grey</item>
+        </style>
+
+            <style name="actionBar.actionButton.favorites">
+                <item name="android:src">@drawable/ic_action_favorites</item>
+            </style>
+
+            <style name="actionBar.actionButton.search">
+                <item name="android:src">@drawable/ic_action_search</item>
+            </style>
+
+    <!-- Server Profiles Manager Layout -->
+    <style name="serverProfileManager" />
+
+    <style name="serverProfileManager.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <!-- Server Profile Layout -->
+    <style name="serverProfile" />
+
+    <style name="serverProfile.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="serverProfile.scrollView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:fillViewport">true</item>
+    </style>
+
+    <style name="serverProfile.editsContainer" />
+
+        <style name="serverProfile.editsContainer.layout">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">fill_parent</item>
+            <item name="android:padding">10dp</item>
+        </style>
+
+    <style name="serverProfile.button">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">15dip</item>
+    </style>
+
+    <!-- Home Layout -->
+    <style name="home" />
+
+    <style name="home.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="home.header" />
+
+    <style name="home.header.layout">
+        <item name="android:layout_height">96dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:background">@drawable/ic_ha_header_tiled_bg</item>
+        <item name="android:layout_gravity">left</item>
+    </style>
+
+        <style name="home.header.logo">
+            <item name="android:layout_width">wrap_content</item>
+            <item name="android:layout_height">96dp</item>
+            <item name="android:background">@null</item>
+            <item name="android:src">@drawable/ic_ha_header_logo</item>
+        </style>
+
+    <style name="home.scrollView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:fillViewport">true</item>
+    </style>
+
+    <style name="home.list" />
+
+    <style name="home.list.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+        <style name="home.list.item" />
+
+        <style name="home.list.item.layout">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:background">@drawable/bs_white_blue</item>
+            <item name="android:gravity">center</item>
+        </style>
+
+            <style name="home.list.item.icon">
+                <item name="android:layout_width">65dp</item>
+                <item name="android:layout_height">65dp</item>
+                <item name="android:scaleType">center</item>
+            </style>
+
+                <style name="home.list.item.icon.repository">
+                    <item name="android:src">@drawable/ic_ha_repository</item>
+                </style>
+
+                <style name="home.list.item.icon.reports">
+                    <item name="android:src">@drawable/ic_ha_reports</item>
+                </style>
+
+                <style name="home.list.item.icon.search">
+                    <item name="android:src">@drawable/ic_ha_search</item>
+                </style>
+
+                <style name="home.list.item.icon.favorites">
+                    <item name="android:src">@drawable/ic_ha_favorites</item>
+                </style>
+
+            <style name="home.list.item.txtContainer" />
+
+            <style name="home.list.item.txtContainer.layout">
+                <item name="android:layout_width">fill_parent</item>
+                <item name="android:layout_height">wrap_content</item>
+                <item name="android:paddingRight">4dp</item>
+            </style>
+
+                <style name="home.list.item.txtContainer.text">
+                    <item name="android:layout_width">wrap_content</item>
+                    <item name="android:layout_height">wrap_content</item>
+                    <item name="android:singleLine">true</item>
+                </style>
+
+                    <style name="home.list.item.txtContainer.text.label">
+                        <item name="android:textSize">18sp</item>
+                        <item name="android:textColor">@color/cs_dark_grey_white</item>
+                    </style>
+
+                    <style name="home.list.item.txtContainer.text.description">
+                        <item name="android:textColor">@color/cs_grey_white</item>
+                        <item name="android:textSize">13sp</item>
+                    </style>
+
+        <style name="home.list.spacer">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">1px</item>
+            <item name="android:background">@color/js_lighter_grey</item>
+        </style>
+
+
+    <!-- Repository Layout -->
+    <style name="repository" />
+
+    <style name="repository.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="repository.nothingToDisplayLabel">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@color/js_light_grey</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Resource Edit Layout -->
+    <style name="resourceEdit" />
+
+    <style name="resourceEdit.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="resourceEdit.editsContainer" />
+
+    <style name="resourceEdit.editsContainer.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:paddingTop">10dip</item>
+        <item name="android:paddingBottom">10dip</item>
+        <item name="android:paddingLeft">20dip</item>
+        <item name="android:paddingRight">20dip</item>
+    </style>
+
+    <style name="resourceEdit.button">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">15dip</item>
+    </style>
+
+    <!-- Resource Info Layout -->
+    <style name="resourceInfo" />
+
+    <style name="resourceInfo.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="resourceInfo.table" />
+
+    <style name="resourceInfo.table.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+        <style name="resourceInfo.table.name">
+            <item name="android:textSize">18sp</item>
+            <item name="android:textStyle">bold</item>
+            <item name="android:paddingRight">10dp</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:textColor">@color/js_dark_grey</item>
+        </style>
+
+        <style name="resourceInfo.table.info">
+            <item name="android:textSize">18sp</item>
+            <item name="android:textStyle">bold</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:textColor">@color/js_blue</item>
+        </style>
+
+    <style name="resourceInfo.spacer">
+        <item name="android:layout_height">1px</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:background">@color/js_light_grey</item>
+    </style>
+
+    <style name="resourceInfo.spacer.short">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+    </style>
+
+    <style name="resourceInfo.propertiesTitle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@color/js_lighter_grey</item>
+        <item name="android:textColor">@color/js_dark_grey</item>
+    </style>
+
+    <!-- Resource Property Item -->
+    <style name="resourceInfo.property" />
+
+    <style name="resourceInfo.property.layout">
+        <item name="android:background">@drawable/bs_white_blue</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+        <style name="resourceInfo.property.name">
+            <item name="android:textSize">18sp</item>
+            <item name="android:paddingRight">4dp</item>
+            <item name="android:layout_width">wrap_content</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:textStyle">bold</item>
+            <item name="android:textColor">@color/cs_blue_white</item>
+            <item name="android:singleLine">true</item>
+        </style>
+
+        <style name="resourceInfo.property.value">
+            <item name="android:textSize">14sp</item>
+            <item name="android:paddingRight">4dp</item>
+            <item name="android:layout_width">wrap_content</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:singleLine">true</item>
+            <item name="android:textColor">@color/cs_orange_white</item>
+        </style>
+
+    <!-- Report Options Layout -->
+    <style name="reportOptions" />
+
+    <style name="reportOptions.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="reportOptions.scrollView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:fillViewport">true</item>
+    </style>
+
+    <style name="reportOptions.container" />
+
+    <style name="reportOptions.container.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+        <style name="reportOptions.container.inputControls" />
+
+        <style name="reportOptions.container.inputControls.layout">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">wrap_content</item>
+        </style>
+
+        <style name="reportOptions.container.reportOutputFormat" />
+
+            <style name="reportOptions.container.reportOutputFormat.label">
+                <item name="android:layout_margin">5dp</item>
+                <item name="android:textStyle">bold</item>
+                <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+                <item name="android:layout_width">wrap_content</item>
+                <item name="android:layout_height">wrap_content</item>
+                <item name="android:textColor">@color/js_blue</item>
+            </style>
+
+            <style name="reportOptions.container.reportOutputFormat.spinner">
+                <item name="android:layout_width">fill_parent</item>
+                <item name="android:layout_height">wrap_content</item>
+            </style>
+
+    <style name="reportOptions.button">
+        <item name="android:layout_marginTop">25dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <!-- Report HTML Viewer Layout -->
+    <style name="htmlViewer" />
+
+    <style name="htmlViewer.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="htmlViewer.webView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+    </style>
+
+    <style name="htmlViewer.progressBar" parent="@android:style/Widget.ProgressBar.Inverse">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+    </style>
+
+</resources>

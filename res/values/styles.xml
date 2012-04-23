@@ -179,8 +179,9 @@
         </style>
 
     <style name="home.scrollView">
+        <item name="android:layout_weight">1</item>
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:fillViewport">true</item>
     </style>
 
@@ -251,7 +252,22 @@
             <item name="android:layout_height">1px</item>
             <item name="android:background">@color/js_lighter_grey</item>
         </style>
+    <style name="home.footer" />
 
+        <style name="home.footer.layout">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:background">@color/js_dark_grey</item>
+            <item name="android:gravity">center</item>
+            <item name="android:padding">5dp</item>
+        </style>
+
+        <style name="home.footer.text">
+            <item name="android:layout_width">wrap_content</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:singleLine">true</item>
+            <item name="android:textSize">18sp</item>
+        </style>
 
     <!-- Repository Layout -->
     <style name="repository" />

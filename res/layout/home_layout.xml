@@ -198,4 +198,23 @@
 
     </ScrollView>
 
+    <!-- Footer -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        style="@style/home.footer.layout" >
+
+        <TextView
+            style="@style/home.footer.text"
+            android:text="@string/h_server_profile_label"
+            android:textColor="@color/js_light_grey"
+        />
+
+        <TextView
+            android:id="@+id/profile_name_text"
+            style="@style/home.footer.text"
+            android:textColor="@color/js_lighter_blue"
+        />
+
+    </LinearLayout>
+
 </LinearLayout>

@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
@@ -42,6 +43,7 @@ import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.CacheUtils;
 import com.jaspersoft.android.jaspermobile.util.FileUtils;
 import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
 import roboguice.util.RoboAsyncTask;
 
 import java.io.File;
@@ -63,8 +65,7 @@ public class HomeActivity extends RoboActivity {
     // Options Menu IDs
     public static final int ID_OM_SWITCH_SERVER = 10;
 
-//    @InjectView(R.id.breadcrumbs_title_large)   private TextView breadCrumbsTitleLarge;
-//    @InjectView(R.id.app_icon_button)      private ImageButton logoutButton;
+    @InjectView(R.id.profile_name_text)   private TextView profileNameText;
 
     @Inject
     private JsRestClient jsRestClient;
@@ -99,9 +100,8 @@ public class HomeActivity extends RoboActivity {
 
         setContentView(R.layout.home_layout);
 
-        //update bread crumbs
-//        logoutButton.setEnabled(false);
-//        breadCrumbsTitleLarge.setText(R.string.h_title);
+        // update footer
+        profileNameText.setText(jsRestClient.getServerProfile().getAlias());
 
         // Clear report output cache folders and, sure, do it asynchronously
         clearReportOutputCacheFolders();
@@ -183,9 +183,14 @@ public class HomeActivity extends RoboActivity {
 
                     setCurrentServerProfile(rowId);
 
+                    String profileName = jsRestClient.getServerProfile().getAlias();
+
                     // the feedback about an operation
-                    String profileName = getString(R.string.h_server_switched_toast, jsRestClient.getServerProfile().getAlias());
-                    Toast.makeText(this, profileName, Toast.LENGTH_SHORT).show();
+                    String toastMsg = getString(R.string.h_server_switched_toast, profileName);
+                    Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
+                    // update footer
+                    profileNameText.setText(profileName);
+
                     break;
             }
         }

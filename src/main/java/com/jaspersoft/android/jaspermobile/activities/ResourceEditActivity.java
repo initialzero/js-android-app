@@ -132,6 +132,7 @@ public class ResourceEditActivity extends RoboActivity implements JsOnTaskCallba
                             .show();
                     finish();
                 }
+                break;
             case GET_RESOURCE_TASK:
                  if (task.isCancelled()) {
                      // Report about resource canceling

@@ -88,20 +88,18 @@ public class HomeActivity extends RoboActivity {
         Cursor cursor = dbProvider.fetchServerProfile(rowId);
         startManagingCursor(cursor);
 
+        setContentView(R.layout.home_layout);
+
         // check if the server profile exists in db
         if (cursor.getCount() != 0) {
             setCurrentServerProfile(rowId);
+            profileNameText.setText(jsRestClient.getServerProfile().getAlias());
         } else {
             // Launch activity to select the server profile
             Intent intent = new Intent();
             intent.setClass(this, ServerProfilesManagerActivity.class);
             startActivityForResult(intent, ID_OM_SWITCH_SERVER);
         }
-
-        setContentView(R.layout.home_layout);
-
-        // update footer
-        profileNameText.setText(jsRestClient.getServerProfile().getAlias());
 
         // Clear report output cache folders and, sure, do it asynchronously
         clearReportOutputCacheFolders();

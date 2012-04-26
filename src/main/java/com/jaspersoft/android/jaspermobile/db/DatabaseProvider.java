@@ -67,8 +67,8 @@ public class DatabaseProvider {
             values.put(ServerProfiles.KEY_ALIAS, "Mobile Demo");
             values.put(ServerProfiles.KEY_SERVER_URL, "http://mobiledemo.jaspersoft.com/jasperserver-pro");
             values.put(ServerProfiles.KEY_ORGANIZATION, "");
-            values.put(ServerProfiles.KEY_USERNAME, "jasperadmin");
-            values.put(ServerProfiles.KEY_PASSWORD, "jasperadmin");
+            values.put(ServerProfiles.KEY_USERNAME, "phoneuser");
+            values.put(ServerProfiles.KEY_PASSWORD, "phoneuser");
 
             db.insert(ServerProfiles.TABLE_NAME, null, values);
         }

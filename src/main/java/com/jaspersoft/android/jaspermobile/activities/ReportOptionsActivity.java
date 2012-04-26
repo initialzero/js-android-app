@@ -49,6 +49,7 @@ import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHa
 import com.jaspersoft.android.jaspermobile.util.CacheUtils;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
+import roboguice.util.Ln;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -160,7 +161,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         }
     }
 
-    public void RunReportButtonClickHandler(View view) {
+    public void runReportButtonClickHandler(View view) {
         // generate report output according to selected format
         String outputFormat = formatSpinner.getSelectedItem().toString();
 
@@ -586,7 +587,11 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
     private File getReportOutputCacheDir() {
         File cacheDir = (isExternalStorageWritable()) ? CacheUtils.getExternalCacheDir(this) : getCacheDir() ;
         File outputDir = new File(cacheDir, JasperMobileApplication.REPORT_OUTPUT_DIR_NAME);
-        outputDir.mkdirs();
+
+        if (!outputDir.exists() && !outputDir.mkdirs()){
+            Ln.e("Unable to create %s", outputDir);
+        }
+
         return outputDir;
     }
     

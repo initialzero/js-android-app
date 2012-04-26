@@ -55,7 +55,7 @@
             android:id="@+id/modifyResourceButton"
             style="@style/resourceEdit.button"
             android:text="@string/re_modify_btn"
-            android:onClick="ModifyResourceClickHandler"
+            android:onClick="modifyResourceClickHandler"
         />
 
     </LinearLayout>

@@ -59,7 +59,7 @@
                 android:id="@+id/runReportButton"
                 style="@style/reportOptions.button"
                 android:text="@string/ro_run_report_btn"
-                android:onClick="RunReportButtonClickHandler"
+                android:onClick="runReportButtonClickHandler"
             />
 
         </LinearLayout>

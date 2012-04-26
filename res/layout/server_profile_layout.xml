@@ -96,7 +96,7 @@
                 android:id="@+id/saveProfileButton"
                 style="@style/serverProfile.button"
                 android:text="@string/sp_save_btn"
-                android:onClick="SaveButtonClickHandler"
+                android:onClick="saveButtonClickHandler"
             />
 
         </LinearLayout>

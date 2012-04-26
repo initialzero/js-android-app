@@ -105,7 +105,7 @@ public class ServerProfileActivity extends RoboActivity {
         }
     }
 
-    public void SaveButtonClickHandler(View view) {
+    public void saveButtonClickHandler(View view) {
         // Get the server profile values from edits
         String alias = aliasEdit.getText().toString();
         String url = serverUrlEdit.getText().toString();

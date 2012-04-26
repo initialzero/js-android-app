@@ -95,10 +95,6 @@ public class ResourceInfoActivity extends RoboActivity implements JsOnTaskCallba
         return jsAsyncTaskManager.retainTasks();
     }
 
-    public void BackToRepositoryClickHandler(View v) {
-        finish();
-    }
-
     //On success async task complete handling
     public void onTaskComplete(JsAsyncTask task) {
         switch (task.getId()) {

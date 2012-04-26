@@ -21,6 +21,8 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import roboguice.util.Ln;
+
 import java.io.File;
 
 /**
@@ -36,20 +38,23 @@ public final class FileUtils {
     /**
      * Recursively delete files in the specified folder.
      * @param directory directory file
+     * @return {@code true} if these files were deleted, {@code false} otherwise.
      */
-    public static void deleteFilesInDirectory(File directory) {
+    public static boolean deleteFilesInDirectory(File directory) {
         if(directory.exists()) {
             File[] childFiles = directory.listFiles();
             if (childFiles != null) {
                 for (File childFile : childFiles) {
                     if (childFile.isDirectory()) {
                         deleteFilesInDirectory(childFile);
-                        childFile.delete();
-                    } else {
-                        childFile.delete();
+                    }
+                    if (!childFile.delete()){
+                        Ln.e("Unable to delete %s", childFile);
+                        return false;
                     }
                 }
             }
         }
+        return true;
     }
 }

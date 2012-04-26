@@ -103,7 +103,7 @@ public class ResourceEditActivity extends RoboActivity implements JsOnTaskCallba
         return jsAsyncTaskManager.retainTasks();
     }
 
-    public void ModifyResourceClickHandler(View v) {
+    public void modifyResourceClickHandler(View v) {
         //Updates current resource descriptor with edit resource UI values
         resourceDescriptor.setLabel(resourceLabel.getText().toString());
         resourceDescriptor.setDescription(resourceDescription.getText().toString());

@@ -197,7 +197,6 @@ public class HomeActivity extends RoboActivity {
     @Override
     public boolean onSearchRequested() {
         // Provide additional data in the intent that the system sends to the searchable activity
-        Intent intent = getIntent();
         Bundle appData = new Bundle();
         appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, jsRestClient.getServerProfile().getAlias());
         appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");

@@ -104,15 +104,13 @@ public class ResourceInfoActivity extends RoboActivity implements JsOnTaskCallba
                     Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    ResourceDescriptor resourceDescriptor = null;
+                    ResourceDescriptor resourceDescriptor;
                     try {
                         resourceDescriptor = ((GetResourceAsyncTask)task).get();
-                    } catch (InterruptedException e) {
-                        //TODO
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        //TODO
-                        e.printStackTrace();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (ExecutionException ex) {
+                        throw new RuntimeException(ex);
                     }
 
                     //update bread crumbs

@@ -39,6 +39,9 @@
     <string name="h_server_switched_toast">Server was switched to \"%s\".</string>
     <!-- Options Menu -->
     <string name="h_om_switch_server">Change Server</string>
+    <!-- Connection Dialog -->
+    <string name="h_ad_title_no_connection">No connection</string>
+    <string name="h_ad_msg_no_connection">Please check your mobile network settings and try again.</string>
 
 
     <!-- Server Profiles Manager Activity -->

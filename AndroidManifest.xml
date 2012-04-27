@@ -31,6 +31,8 @@
         android:targetSdkVersion="10"
     />
 
+    <!-- Allows applications to access information about networks -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Allows application to open network sockets -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Allows an application to write to external storage -->

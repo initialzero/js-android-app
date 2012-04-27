@@ -21,11 +21,15 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -106,33 +110,51 @@ public class HomeActivity extends RoboActivity {
     }
 
     public void dashButtonOnClickListener(View view) {
-        switch (view.getId()) {
-            case R.id.home_item_repository:
-                Intent loginIntent = new Intent();
-                loginIntent.setClass(this, RepositoryBrowserActivity.class);
-                loginIntent.putExtra(RepositoryBrowserActivity.EXTRA_BC_TITLE_LARGE, jsRestClient.getServerProfile().getAlias());
-                loginIntent.putExtra(RepositoryBrowserActivity.EXTRA_RESOURCE_URI, "/");
-                startActivity(loginIntent);
-                break;
-            case R.id.home_item_reports:
-                Intent searchIntent = new Intent();
-                searchIntent.setClass(this, RepositorySearchActivity.class);
-                Bundle appData = new Bundle();
-                appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_reports_label));
-                appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
-                appData.putString(RepositorySearchActivity.EXTRA_RESOURCE_TYPE, ResourceDescriptor.WsType.reportUnit.toString());
-                searchIntent.putExtra(SearchManager.APP_DATA, appData);
-                startActivity(searchIntent);
-                break;
-            case R.id.home_item_search:
-                onSearchRequested();
-                break;
-            case R.id.home_item_favorites:
-                Intent favoritesIntent = new Intent();
-                favoritesIntent.setClass(this, RepositoryFavoritesActivity.class);
-                favoritesIntent.putExtra(RepositoryFavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
-                startActivity(favoritesIntent);
-                break;
+        final ConnectivityManager conMgr =  (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo activeNetwork = conMgr.getActiveNetworkInfo();
+        if (activeNetwork != null && activeNetwork.getState() == NetworkInfo.State.CONNECTED) {
+            // online
+            switch (view.getId()) {
+                case R.id.home_item_repository:
+                    Intent loginIntent = new Intent();
+                    loginIntent.setClass(this, RepositoryBrowserActivity.class);
+                    loginIntent.putExtra(RepositoryBrowserActivity.EXTRA_BC_TITLE_LARGE, jsRestClient.getServerProfile().getAlias());
+                    loginIntent.putExtra(RepositoryBrowserActivity.EXTRA_RESOURCE_URI, "/");
+                    startActivity(loginIntent);
+                    break;
+                case R.id.home_item_reports:
+                    Intent searchIntent = new Intent();
+                    searchIntent.setClass(this, RepositorySearchActivity.class);
+                    Bundle appData = new Bundle();
+                    appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_reports_label));
+                    appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
+                    appData.putString(RepositorySearchActivity.EXTRA_RESOURCE_TYPE, ResourceDescriptor.WsType.reportUnit.toString());
+                    searchIntent.putExtra(SearchManager.APP_DATA, appData);
+                    startActivity(searchIntent);
+                    break;
+                case R.id.home_item_search:
+                    onSearchRequested();
+                    break;
+                case R.id.home_item_favorites:
+                    Intent favoritesIntent = new Intent();
+                    favoritesIntent.setClass(this, RepositoryFavoritesActivity.class);
+                    favoritesIntent.putExtra(RepositoryFavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
+                    startActivity(favoritesIntent);
+                    break;
+            }
+        } else {
+            // prepare the alert box
+            AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+            alertbox.setTitle(getString(R.string.h_ad_title_no_connection)).setIcon(android.R.drawable.ic_dialog_alert);
+            // set the message to display
+            alertbox.setMessage(getString(R.string.h_ad_msg_no_connection));
+            // add a neutral button to the alert box and assign a click listener
+            alertbox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                // click listener on the alert box
+                public void onClick(DialogInterface arg0, int arg1) { }
+            });
+
+            alertbox.show();
         }
     }
 

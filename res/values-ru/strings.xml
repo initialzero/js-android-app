@@ -35,6 +35,9 @@
     <string name="h_server_switched_toast">Сервер был изменен на \"%s\".</string>
     <!-- Options Menu -->
     <string name="h_om_switch_server">Изменить Сервер</string>
+    <!-- Connection Dialog -->
+    <string name="h_ad_title_no_connection">Нет соединения</string>
+    <string name="h_ad_msg_no_connection">Проверьте настройки вашей мобильной сети и попробуйте еще раз.</string>
 
 
     <!-- Server Profiles Manager Activity -->

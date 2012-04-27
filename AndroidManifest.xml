@@ -43,6 +43,11 @@
         android:label="@string/app_label"
         android:name=".JasperMobileApplication"
         android:theme="@android:style/Theme.NoTitleBar" >
+        <!--
+         Note: Add this option to application description if you have
+         problems with flash charts (for Android 3.x and greater):
+         android:hardwareAccelerated="true"
+        -->
 
         <!-- Main activity -->
         <activity android:name=".activities.HomeActivity">

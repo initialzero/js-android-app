@@ -34,7 +34,18 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
@@ -100,6 +111,11 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // workaround for http://bugzilla.jaspersoft.com/show_bug.cgi?id=27735 (only for api 11+)
+        // StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
+        // StrictMode.setThreadPolicy(policy);
+
         setContentView(R.layout.report_options_layout);
 
         // external storage should be writable when using output formats other than HTML

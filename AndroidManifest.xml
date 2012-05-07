@@ -22,14 +22,26 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile"
-    android:versionCode="1"
+    android:versionCode="70100"
     android:versionName="1.0">
+    <!--
+        Pattern for versionCode:
+            android:versionCode="xxyyzz"
+        where:
+            xx - min android sdk version
+            yy - major version number
+            zz - minor version number
+     -->
 
     <!-- the minimum API Level required for the application to run, as well as the target version -->
     <uses-sdk
         android:minSdkVersion="7"
         android:targetSdkVersion="10"
     />
+    <!--<uses-sdk-->
+        <!--android:minSdkVersion="11"-->
+        <!--android:targetSdkVersion="11"-->
+    <!--/>-->
 
     <!-- Allows applications to access information about networks -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

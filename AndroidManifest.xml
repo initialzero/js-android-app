@@ -39,12 +39,8 @@
     <!-- the minimum API Level required for the application to run, as well as the target version -->
     <uses-sdk
         android:minSdkVersion="7"
-        android:targetSdkVersion="10"
+        android:targetSdkVersion="14"
     />
-    <!--<uses-sdk-->
-        <!--android:minSdkVersion="11"-->
-        <!--android:targetSdkVersion="11"-->
-    <!--/>-->
 
     <!-- Allows applications to access information about networks -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -57,12 +53,8 @@
         android:icon="@drawable/ic_launcher_jaspermobile"
         android:label="@string/app_label"
         android:name=".JasperMobileApplication"
-        android:theme="@android:style/Theme.NoTitleBar" >
-        <!--
-         Note: Add this option to application description if you have
-         problems with flash charts (for Android 3.x and greater):
-         android:hardwareAccelerated="true"
-        -->
+        android:theme="@android:style/Theme.NoTitleBar"
+        android:hardwareAccelerated="true" >
 
         <!-- Main activity -->
         <activity android:name=".activities.HomeActivity">

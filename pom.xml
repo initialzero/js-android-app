@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
-            <version>2.1.2</version>
+            <version>4.0.1.2</version>
             <scope>provided</scope>
         </dependency>
 		<dependency>
@@ -75,6 +75,9 @@
                  <version>3.1.1</version>
                  <extensions>true</extensions>
                  <configuration>
+                     <sdk>
+                         <platform>14</platform>
+                     </sdk>
                      <!-- Configuration for the dex command execution -->
                      <dex>
                          <jvmArguments>

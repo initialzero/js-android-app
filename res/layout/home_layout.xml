@@ -197,6 +197,43 @@
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             style="@style/home.list.spacer" />
 
+        <!-- Servers item -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      style="@style/home.list.item.layout"
+                      android:id="@+id/home_item_servers"
+                      android:clickable="true"
+                      android:focusable="true"
+                      android:onClick="dashButtonOnClickListener" >
+
+            <ImageView
+                    style="@style/home.list.item.icon.servers"
+                    android:contentDescription="@string/h_servers_label"
+                    />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                          style="@style/home.list.item.txtContainer.layout"
+                          android:orientation="vertical"
+                          android:duplicateParentState="true" >
+
+                <TextView
+                        style="@style/home.list.item.txtContainer.text.label"
+                        android:text="@string/h_servers_label"
+                        android:duplicateParentState="true"
+                        />
+
+                <TextView
+                        style="@style/home.list.item.txtContainer.text.description"
+                        android:text="@string/h_servers_descr"
+                        android:duplicateParentState="true"
+                        />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.spacer" />
+
     </LinearLayout>
 
     </ScrollView>

@@ -34,6 +34,8 @@
     <string name="h_search_descr">Поиск ресурсов в вашем репозитории.</string>
     <string name="h_favorites_label">Избранное</string>
     <string name="h_favorites_descr">Обзор и просмотр избранных элементов.</string>
+    <string name="h_servers_label">Серверы</string>
+    <string name="h_servers_descr">Просмотр и изменение профилей серверов.</string>
     <string name="h_server_profile_label">"Профиль Сервера: "</string>
     <string name="h_server_switched_toast">Сервер был изменен на \"%s\".</string>
     <!-- Options Menu -->

@@ -62,4 +62,12 @@
         android:visibility="gone"
     />
 
+    <!-- Add Button -->
+    <ImageButton
+            android:id="@+id/action_add_button"
+            style="@style/actionBar.actionButton.add"
+            android:onClick="actionButtonOnClickListener"
+            android:visibility="gone"
+            />
+
 </LinearLayout>

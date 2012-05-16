@@ -118,6 +118,10 @@
                 <item name="android:src">@drawable/ic_action_search</item>
             </style>
 
+            <style name="actionBar.actionButton.add">
+                <item name="android:src">@drawable/ic_action_add</item>
+            </style>
+
     <!-- Server Profiles Manager Layout -->
     <style name="serverProfileManager" />
 
@@ -224,6 +228,10 @@
 
                 <style name="home.list.item.icon.favorites">
                     <item name="android:src">@drawable/ic_ha_favorites</item>
+                </style>
+
+                <style name="home.list.item.icon.servers">
+                    <item name="android:src">@drawable/ic_ha_servers</item>
                 </style>
 
             <style name="home.list.item.txtContainer" />

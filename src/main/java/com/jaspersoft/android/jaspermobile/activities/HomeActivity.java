@@ -144,6 +144,12 @@ public class HomeActivity extends RoboActivity {
                     favoritesIntent.putExtra(RepositoryFavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
                     startActivity(favoritesIntent);
                     break;
+                case R.id.home_item_servers:
+                    // Launch activity to switch the server profile
+                    Intent intent = new Intent();
+                    intent.setClass(this, ServerProfilesManagerActivity.class);
+                    startActivityForResult(intent, ID_OM_SWITCH_SERVER);
+                    break;
             }
         } else {
             // prepare the alert box
@@ -163,29 +169,29 @@ public class HomeActivity extends RoboActivity {
 
     /* Options Menu */
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Add the menu options
-        menu.add(Menu.NONE, ID_OM_SWITCH_SERVER, Menu.NONE, R.string.h_om_switch_server)
-                .setIcon(R.drawable.ic_menu_server_profile);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case ID_OM_SWITCH_SERVER:
-                // Launch activity to switch the server profile
-                Intent intent = new Intent();
-                intent.setClass(this, ServerProfilesManagerActivity.class);
-                startActivityForResult(intent, ID_OM_SWITCH_SERVER);
-                return true;
-            default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Add the menu options
+//        menu.add(Menu.NONE, ID_OM_SWITCH_SERVER, Menu.NONE, R.string.h_om_switch_server)
+//                .setIcon(R.drawable.ic_menu_server_profile);
+//        return super.onCreateOptionsMenu(menu);
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle item selection
+//        switch (item.getItemId()) {
+//            case ID_OM_SWITCH_SERVER:
+//                // Launch activity to switch the server profile
+//                Intent intent = new Intent();
+//                intent.setClass(this, ServerProfilesManagerActivity.class);
+//                startActivityForResult(intent, ID_OM_SWITCH_SERVER);
+//                return true;
+//            default:
+//                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

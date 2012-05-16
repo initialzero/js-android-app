@@ -38,6 +38,8 @@
     <string name="h_search_descr">Search for resources in your repository.</string>
     <string name="h_favorites_label">Favorites</string>
     <string name="h_favorites_descr">Browse and view favorite items.</string>
+    <string name="h_servers_label">Servers</string>
+    <string name="h_servers_descr">View and change server profiles.</string>
     <string name="h_server_profile_label">"Server Profile: "</string>
     <string name="h_server_switched_toast">Server was switched to \"%s\".</string>
     <!-- Options Menu -->

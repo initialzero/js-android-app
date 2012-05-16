@@ -63,6 +63,7 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
 
     @InjectView(R.id.breadcrumbs_title_large)   private TextView breadCrumbsTitleLarge;
     @InjectView(R.id.app_icon_button)           private ImageButton appIconButton;
+    @InjectView(R.id.action_add_button)         private ImageButton addButton;
     @InjectView(android.R.id.list)              private ListView listView;
 
     @Inject private JsRestClient jsRestClient;
@@ -71,6 +72,9 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.server_profiles_manager_layout);
+
+        // Enable action buttons
+        addButton.setVisibility(View.VISIBLE);
 
         //update bread crumbs
         breadCrumbsTitleLarge.setText(getString(R.string.spm_list_title));
@@ -100,30 +104,30 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
 
     /* Options Menu */
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Add the menu options
-        menu.add(Menu.NONE, ID_OM_ADD_SERVER_PROFILE, Menu.NONE, R.string.spm_om_add_profile)
-                .setIcon(R.drawable.ic_menu_add);
-        return super.onCreateOptionsMenu(menu);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Add the menu options
+//        menu.add(Menu.NONE, ID_OM_ADD_SERVER_PROFILE, Menu.NONE, R.string.spm_om_add_profile)
+//                .setIcon(R.drawable.ic_menu_add);
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case ID_OM_ADD_SERVER_PROFILE:
-                // Launch activity to add a new server profile
-                Intent intent = new Intent();
-                intent.setClass(this, ServerProfileActivity.class);
-                intent.setAction(ServerProfileActivity.ADD_SERVER_PROFILE_ACTION);
-                startActivityForResult(intent, ID_OM_ADD_SERVER_PROFILE);
-                return true;
-            default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle item selection
+//        switch (item.getItemId()) {
+//            case ID_OM_ADD_SERVER_PROFILE:
+//                // Launch activity to add a new server profile
+//                Intent intent = new Intent();
+//                intent.setClass(this, ServerProfileActivity.class);
+//                intent.setAction(ServerProfileActivity.ADD_SERVER_PROFILE_ACTION);
+//                startActivityForResult(intent, ID_OM_ADD_SERVER_PROFILE);
+//                return true;
+//            default:
+//                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
     /* Context Menu */
 
@@ -226,6 +230,12 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
         switch (view.getId()) {
             case R.id.app_icon_button:
                 HomeActivity.goHome(this);
+                break;
+            case R.id.action_add_button:
+                Intent intent = new Intent();
+                intent.setClass(this, ServerProfileActivity.class);
+                intent.setAction(ServerProfileActivity.ADD_SERVER_PROFILE_ACTION);
+                startActivityForResult(intent, ID_OM_ADD_SERVER_PROFILE);
                 break;
         }
     }

@@ -43,8 +43,8 @@ public class AsyncTaskExceptionHandler {
 
     /**
      *
-     * @param task  task in which exception is occurred.
-     * @param activity activity in which task throw exception.
+     * @param task  task in which exception occurred.
+     * @param activity activity in which task threw the exception.
      */
     public static void handle(JsAsyncTask task, Activity activity, boolean finishActivity) {
         Exception exception = task.getTaskException();

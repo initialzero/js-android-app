@@ -31,17 +31,17 @@
     <!-- Home Activity -->
     <string name="h_title">JasperMobile</string>
     <string name="h_repository_label">Repository</string>
-    <string name="h_repository_descr">Browse and view repository items.</string>
+    <string name="h_repository_descr">Browse and view repository items</string>
     <string name="h_reports_label">Reports</string>
-    <string name="h_reports_descr">List of your reports.</string>
+    <string name="h_reports_descr">List of your reports</string>
     <string name="h_search_label">Search</string>
-    <string name="h_search_descr">Search for resources in your repository.</string>
+    <string name="h_search_descr">Search for resources in your repository</string>
     <string name="h_favorites_label">Favorites</string>
-    <string name="h_favorites_descr">Browse and view favorite items.</string>
+    <string name="h_favorites_descr">Browse and view favorite items</string>
     <string name="h_servers_label">Servers</string>
-    <string name="h_servers_descr">View and change server profiles.</string>
+    <string name="h_servers_descr">View and change server profiles</string>
     <string name="h_server_profile_label">"Server Profile: "</string>
-    <string name="h_server_switched_toast">Server was switched to \"%s\".</string>
+    <string name="h_server_switched_toast">Server was switched to \"%s\"</string>
     <!-- Options Menu -->
     <string name="h_om_switch_server">Change Server</string>
     <!-- Connection Dialog -->
@@ -82,8 +82,8 @@
     <string name="sp_password_hint">my password</string>
     <string name="sp_save_btn">Save</string>
     <!-- Error messages -->
-    <string name="sp_error_field_required">This field is required</string>
-    <string name="sp_error_url_not_valid">URL is not valid</string>
+    <string name="sp_error_field_required">This field is required.</string>
+    <string name="sp_error_url_not_valid">URL is not valid.</string>
 
 
     <!-- Repository Activity -->

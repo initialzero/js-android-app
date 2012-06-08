@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    http://www.jasperforge.org/projects/androidmobile
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+
+<resources>
+
+    <!-- Home Activity -->
+    <string name="h_repository_label">Репозиторий</string>
+    <string name="h_repository_descr">Обзор и просмотр элементов репозитория.</string>
+    <string name="h_reports_label">Отчеты</string>
+    <string name="h_reports_descr">Список ваших отчетов.</string>
+    <string name="h_search_label">Поиск</string>
+    <string name="h_search_descr">Поиск ресурсов в вашем репозитории.</string>
+    <string name="h_favorites_label">Избранное</string>
+    <string name="h_favorites_descr">Обзор и просмотр избранных элементов.</string>
+    <string name="h_servers_label">Серверы</string>
+    <string name="h_servers_descr">Просмотр и изменение профилей серверов.</string>
+    <string name="h_server_profile_label">"Профиль Сервера: "</string>
+    <string name="h_server_switched_toast">Сервер был изменен на \"%s\".</string>
+    <!-- Options Menu -->
+    <string name="h_om_switch_server">Изменить Сервер</string>
+    <!-- Connection Dialog -->
+    <string name="h_ad_title_no_connection">Нет соединения</string>
+    <string name="h_ad_msg_no_connection">Проверьте настройки вашей мобильной сети и попробуйте еще раз.</string>
+
+
+    <!-- Server Profiles Manager Activity -->
+    <string name="spm_list_title">Профили Серверов</string>
+    <!-- Toasts -->
+    <string name="spm_profile_created_toast">Новый профиль сервера успешно создан.</string>
+    <string name="spm_profile_updated_toast">Профиль сервера успешно обновлен.</string>
+    <string name="spm_profile_deleted_toast">Профиль сервера успешно удален.</string>
+    <!-- Context Menu -->
+    <string name="spm_cm_switch">Подключиться</string>
+    <string name="spm_cm_edit">Изменить</string>
+    <string name="spm_cm_delete">Удалить</string>
+    <!-- Options Menu -->
+    <string name="spm_om_add_profile">Добавить Профиль Сервера</string>
+    <!-- Delete Dialog -->
+    <string name="spm_ad_delete_profile_msg">Вы уверены, что хотите удалить этот профиль сервера?</string>
+    <string name="spm_delete_btn">Удалить</string>
+    <string name="spm_cancel_btn">Отменить</string>
+
+
+    <!-- Server Profile Activity -->
+    <string name="sp_bc_add_profile">Новый Профиль Сервера</string>
+    <string name="sp_bc_edit_profile">Изменить Профиль Сервера</string>
+    <string name="sp_name_label">Имя:</string>
+    <string name="sp_url_label">URL сервера:</string>
+    <string name="sp_org_label">Организация:</string>
+    <string name="sp_username_label">Имя пользователя:</string>
+    <string name="sp_password_label">Пароль:</string>
+    <string name="sp_save_btn">Сохранить</string>
+    <!-- Error messages -->
+    <string name="sp_error_field_required">Это поле обязательно</string>
+    <string name="sp_error_url_not_valid">Недопустимый URL</string>
+
+
+    <!-- Repository Activity -->
+    <string name="r_browser_nothing_to_display">В этой папке нет ресурсов.</string>
+    <string name="r_search_nothing_to_display">Ничего не найдено.</string>
+    <!--Options Menu -->
+    <string name="r_om_refresh">Обновить</string>
+    <!-- Context Menu -->
+    <string name="r_cm_open">Открыть</string>
+    <string name="r_cm_run">Выполнить</string>
+    <string name="r_cm_edit">Изменить</string>
+    <string name="r_cm_delete">Удалить</string>
+    <string name="r_cm_view_details">Информация</string>
+    <string name="r_cm_add_to_favorites">Добавить в избранное</string>
+    <string name="r_cm_remove_from_favorites">Удалить из избранного</string>
+    <!-- Delete Dialog -->
+    <string name="r_ad_delete_resource_msg">Вы уверены, что хотите удалить этот ресурс?</string>
+    <string name="r_delete_btn">Удалить</string>
+    <string name="r_cancel_btn">Отменить</string>
+    <!-- Progress Dialog -->
+    <string name="r_pd_loading_msg">Загрузка…</string>
+    <string name="r_pd_deleting_msg">Удаление…</string>
+    <!-- Notifications -->
+    <string name="r_resource_deleted_toast">Ресурс успешно удален.</string>
+
+
+    <!-- Search Activity -->
+    <string name="s_title">Результаты Поиска</string>
+    <string name="s_hint">Поиск ресурсов</string>
+    <!-- Progress Dialog -->
+    <string name="s_pd_searching_msg">Поиск…</string>
+
+
+    <!-- Resource Edit Activity -->
+    <string name="re_title">Изменить Ресурс</string>
+    <string name="re_label">Название:</string>
+    <string name="re_description">Описание:</string>
+    <string name="re_modify_btn">Сохранить</string>
+    <!-- Progress Dialog -->
+    <string name="re_pd_saving_msg">Сохранение…</string>
+    <!-- Notifications -->
+    <string name="re_resource_saved_toast">Ресурс успешно сохранен.</string>
+
+
+    <!-- Resource Info Activity -->
+    <string name="ri_title">Информация о ресурсе</string>
+    <string name="ri_properties">Свойства Ресурса:</string>
+    <string name="ri_name">Имя:</string>
+    <string name="ri_label">Название:</string>
+    <string name="ri_description">Описание:</string>
+    <string name="ri_type">Тип:</string>
+
+
+    <!-- Report Options Activity -->
+    <string name="ro_output_format_label">Формат вывода отчета:</string>
+    <string name="ro_run_report_btn">Выполнить Отчет</string>
+    <!-- Notifications -->
+    <string name="ro_no_app_available_toast">Не установлен просмотрщик для \"%s\".</string>
+    <!-- Progress Dialog -->
+    <string name="ro_pd_loading_report_info_msg">Загрузка отчета…</string>
+    <string name="ro_pd_running_report_msg">Выполнение отчета…</string>
+    <string name="ro_pd_downloading_report_msg">Скачивание отчета…</string>
+    <!-- Error messages -->
+    <string name="ro_error_field_is_mandatory">Это поле обязательно.</string>
+
+
+    <!-- Favorites activity -->
+    <string name="f_title">Избранное</string>
+
+
+    <!-- Error messages -->
+    <string name="error_http_400">400 - Плохой Запрос. Запрос был неверным.</string>
+    <string name="error_http_401">401 - Неавторизован. Данные аутентификации неправильные или отсутствуют.</string>
+    <string name="error_http_403">403 - Доступ Запрещен. Запрос был получен, но в нем было отказано.</string>
+    <string name="error_http_404">404 - Не Найдено. Запрошенный URI неправильный, или запрошенный ресурс не найден.</string>
+    <string name="error_http_500">500 - Внутренняя Ошибка Сервера.</string>
+    <string name="error_http_502">502 - Плохой шлюз.</string>
+    <string name="error_http_503">503 - Сервис Недоступен.</string>
+    <string name="error_http_504">504 - Шлюз не отвечает.</string>
+
+    <!-- Others -->
+    <string name="error_msg">Ошибка</string>
+    <string name="cancelled_msg">Отменено</string>
+
+
+</resources>

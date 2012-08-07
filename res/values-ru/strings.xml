@@ -28,8 +28,8 @@
     <!-- Home Activity -->
     <string name="h_repository_label">Репозиторий</string>
     <string name="h_repository_descr">Обзор и просмотр элементов репозитория.</string>
-    <string name="h_reports_label">Отчеты</string>
-    <string name="h_reports_descr">Список ваших отчетов.</string>
+    <string name="h_library_label">Библиотека</string>
+    <string name="h_library_descr">Список всех отчетов.</string>
     <string name="h_search_label">Поиск</string>
     <string name="h_search_descr">Поиск ресурсов в вашем репозитории.</string>
     <string name="h_favorites_label">Избранное</string>
@@ -43,6 +43,11 @@
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">Нет соединения</string>
     <string name="h_ad_msg_no_connection">Проверьте настройки вашей мобильной сети и попробуйте еще раз.</string>
+    <!-- Password Dialog -->
+    <string name="h_ad_title_enter_password">Введите пароль</string>
+    <string name="h_ad_label_server_profile">Профиль:</string>
+    <string name="h_ad_label_organization">Организация:</string>
+    <string name="h_ad_label_username">Пользователь:</string>
 
 
     <!-- Server Profiles Manager Activity -->
@@ -71,6 +76,7 @@
     <string name="sp_org_label">Организация:</string>
     <string name="sp_username_label">Имя пользователя:</string>
     <string name="sp_password_label">Пароль:</string>
+    <string name="sp_ask_password_text">всегда спрашивать пароль</string>
     <string name="sp_save_btn">Сохранить</string>
     <!-- Error messages -->
     <string name="sp_error_field_required">Это поле обязательно</string>
@@ -147,7 +153,9 @@
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Плохой Запрос. Запрос был неверным.</string>
-    <string name="error_http_401">401 - Неавторизован. Данные аутентификации неправильные или отсутствуют.</string>
+    <string name="error_http_401">401 - Неавторизован.
+                                  \nДанные аутентификации неправильные или отсутствуют.
+                                  \n\nХотите изменить профиль сервера?</string>
     <string name="error_http_403">403 - Доступ Запрещен. Запрос был получен, но в нем было отказано.</string>
     <string name="error_http_404">404 - Не Найдено. Запрошенный URI неправильный, или запрошенный ресурс не найден.</string>
     <string name="error_http_500">500 - Внутренняя Ошибка Сервера.</string>

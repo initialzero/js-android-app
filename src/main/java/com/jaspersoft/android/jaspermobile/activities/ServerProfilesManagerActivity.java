@@ -254,7 +254,7 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
     private void returnSelectedServerProfileId(long id) {
         // return result with specified server profile id to home activity
         Intent resultIntent = new Intent();
-        resultIntent.putExtra(HomeActivity.EXTRA_SERVER_PROFILE_ID, id);
+        resultIntent.putExtra(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID, id);
         setResult(RESULT_OK, resultIntent);
         finish();
     }

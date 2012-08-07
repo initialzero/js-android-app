@@ -160,6 +160,13 @@
         <item name="android:layout_marginTop">15dip</item>
     </style>
 
+    <style name="serverProfile.checkBox">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@color/js_blue</item>
+    </style>
+
     <!-- Home Layout -->
     <style name="home" />
 
@@ -219,8 +226,8 @@
                     <item name="android:src">@drawable/ic_ha_repository</item>
                 </style>
 
-                <style name="home.list.item.icon.reports">
-                    <item name="android:src">@drawable/ic_ha_reports</item>
+                <style name="home.list.item.icon.library">
+                    <item name="android:src">@drawable/ic_ha_library</item>
                 </style>
 
                 <style name="home.list.item.icon.search">
@@ -279,6 +286,35 @@
             <item name="android:layout_height">wrap_content</item>
             <item name="android:singleLine">true</item>
             <item name="android:textSize">18sp</item>
+        </style>
+
+    <style name="home.dialog" />
+
+        <style name="home.dialog.layout">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">fill_parent</item>
+            <item name="android:padding">10dp</item>
+        </style>
+
+        <style name="home.dialog.table" />
+
+            <style name="home.dialog.table.layout">
+                <item name="android:layout_width">fill_parent</item>
+                <item name="android:layout_height">wrap_content</item>
+                <item name="android:shrinkColumns">1</item>
+                <item name="android:paddingBottom">10dp</item>
+            </style>
+
+            <style name="home.dialog.table.label">
+                <item name="android:textStyle">bold</item>
+                <item name="android:layout_marginLeft">5dp</item>
+                <item name="android:paddingRight">10dp</item>
+            </style>
+
+        <style name="home.dialog.passwordEdit">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:inputType">textPassword</item>
         </style>
 
     <!-- Repository Layout -->

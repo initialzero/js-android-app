@@ -35,7 +35,7 @@
 	<groupId>com.jaspersoft.android</groupId>
     <artifactId>js-android-jaspermobile</artifactId>
     <name>js-android-jaspermobile</name>
-	<version>1.0</version>
+	<version>1.1</version>
     <packaging>apk</packaging>
 
     <dependencies>
@@ -72,7 +72,7 @@
              <plugin>
                  <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                  <artifactId>android-maven-plugin</artifactId>
-                 <version>3.1.1</version>
+                 <version>3.3.0</version>
                  <extensions>true</extensions>
                  <configuration>
                      <sdk>
@@ -97,4 +97,77 @@
              </plugin>
          </plugins>
      </build>
+
+    <profiles>
+        <!-- the release profile does sign and zipalign -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <version>1.2</version>
+                        <executions>
+                            <execution>
+                                <id>signing</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <removeExistingSignatures>true</removeExistingSignatures>
+                                    <archiveDirectory/>
+                                    <includes>
+                                        <include>${project.build.directory}/${project.artifactId}.apk</include>
+                                    </includes>
+                                    <!-- actual values of these properties should be in the ~/.m2/settings.xml -->
+                                    <keystore>${jma.keystore.location}</keystore>
+                                    <storepass>${jma.keystore.password}</storepass>
+                                    <keypass>${jma.keystore.keypass}</keypass>
+                                    <alias>${jma.keystore.alias}</alias>
+                                    <arguments>
+                                        <argument>-sigalg</argument><argument>MD5withRSA</argument>
+                                        <argument>-digestalg</argument><argument>SHA1</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                        <artifactId>android-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- ProGuard support -->
+                            <proguard>
+                                <skip>false</skip>
+                            </proguard>
+                            <!-- debug signing should be deactivated-->
+                            <sign>
+                                <debug>false</debug>
+                            </sign>
+                            <zipalign>
+                                <verbose>true</verbose>
+                                <inputApk>${project.build.directory}/${project.artifactId}.apk</inputApk>
+                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-signed-aligned.apk
+                                </outputApk>
+                            </zipalign>
+                        </configuration>
+                        <executions>
+                            <!-- the signed apk then needs to be zipaligned -->
+                            <execution>
+                                <id>alignApk</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>zipalign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

@@ -69,7 +69,7 @@ public class DatabaseProvider {
 
             values.put(ServerProfiles.KEY_ALIAS, "Mobile Demo");
             values.put(ServerProfiles.KEY_SERVER_URL, "http://mobiledemo.jaspersoft.com/jasperserver-pro");
-            values.put(ServerProfiles.KEY_ORGANIZATION, "");
+            values.put(ServerProfiles.KEY_ORGANIZATION, "organization_1");
             values.put(ServerProfiles.KEY_USERNAME, "phoneuser");
             values.put(ServerProfiles.KEY_PASSWORD, "phoneuser");
 
@@ -216,7 +216,7 @@ public class DatabaseProvider {
         updateValues.put(ServerProfiles.KEY_USERNAME, username);
         updateValues.put(ServerProfiles.KEY_PASSWORD, password);
 
-        return  db.update(ServerProfiles.TABLE_NAME, updateValues, ServerProfiles._ID + "=" + rowId, null);
+        return db.update(ServerProfiles.TABLE_NAME, updateValues, ServerProfiles._ID + "=" + rowId, null);
     }
 
     public int deleteServerProfile(long rowId) {

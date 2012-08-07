@@ -25,8 +25,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile"
-    android:versionCode="70100"
-    android:versionName="1.0">
+    android:versionCode="70101"
+    android:versionName="1.1">
     <!--
         Pattern for versionCode:
             android:versionCode="xxyyzz"
@@ -60,6 +60,7 @@
         <activity android:name=".activities.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <!-- enable the search dialog to send searches to RepositorySearchActivity -->

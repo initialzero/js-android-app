@@ -32,8 +32,8 @@
     <string name="h_title">JasperMobile</string>
     <string name="h_repository_label">Repository</string>
     <string name="h_repository_descr">Browse and view repository items</string>
-    <string name="h_reports_label">Reports</string>
-    <string name="h_reports_descr">List of your reports</string>
+    <string name="h_library_label">Library</string>
+    <string name="h_library_descr">List of all reports</string>
     <string name="h_search_label">Search</string>
     <string name="h_search_descr">Search for resources in your repository</string>
     <string name="h_favorites_label">Favorites</string>
@@ -47,6 +47,11 @@
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">No connection</string>
     <string name="h_ad_msg_no_connection">Please check your mobile network settings and try again.</string>
+    <!-- Password Dialog -->
+    <string name="h_ad_title_enter_password">Enter Password</string>
+    <string name="h_ad_label_server_profile">Server Profile:</string>
+    <string name="h_ad_label_organization">Organization:</string>
+    <string name="h_ad_label_username">Username:</string>
 
 
     <!-- Server Profiles Manager Activity -->
@@ -80,6 +85,7 @@
     <string name="sp_username_hint">my user name</string>
     <string name="sp_password_label">Password:</string>
     <string name="sp_password_hint">my password</string>
+    <string name="sp_ask_password_text">always ask for password</string>
     <string name="sp_save_btn">Save</string>
     <!-- Error messages -->
     <string name="sp_error_field_required">This field is required.</string>
@@ -156,7 +162,9 @@
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
-    <string name="error_http_401">401 - Unauthorized. Authentication credentials were missing or incorrect.</string>
+    <string name="error_http_401">401 - Unauthorized.
+                                  \nAuthentication credentials were missing or incorrect.
+                                  \n\nDo you want to edit server profile?</string>
     <string name="error_http_403">403 - Permission Denied. The request is understood, but it has been refused.</string>
     <string name="error_http_404">404 - Not Found. The URI requested is invalid or the resource requested does not exists.</string>
     <string name="error_http_500">500 - Internal Server Error.</string>

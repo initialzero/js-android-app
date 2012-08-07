@@ -27,8 +27,10 @@ package com.jaspersoft.android.jaspermobile.activities.async;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
+import android.content.Intent;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
@@ -58,7 +60,7 @@ public class AsyncTaskExceptionHandler {
                             showErrorDialog(R.string.error_http_400, activity, finishActivity);
                             break;
                         case UNAUTHORIZED:
-                            showErrorDialog(R.string.error_http_401, activity, finishActivity);
+                            showAuthErrorDialog(R.string.error_http_401, activity, finishActivity);
                             break;
                         case FORBIDDEN:
                             showErrorDialog(R.string.error_http_403, activity, finishActivity);
@@ -96,22 +98,52 @@ public class AsyncTaskExceptionHandler {
 
     private static void showErrorDialog(String message, final Activity activity, final boolean finishActivity) {
         // prepare the alert box
-        AlertDialog.Builder alertbox = new AlertDialog.Builder(activity);
-        alertbox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
+        AlertDialog.Builder alertBox = new AlertDialog.Builder(activity);
+        alertBox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
 
         // set the message to display
-        alertbox.setMessage(message);
+        alertBox.setMessage(message);
 
         // add a neutral button to the alert box and assign a click listener
-        alertbox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        alertBox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    // click listener on the alert box
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        if (finishActivity) activity.finish();
+                    }
+                });
 
-            // click listener on the alert box
-            public void onClick(DialogInterface arg0, int arg1) {
-                if (finishActivity) activity.finish();
-            }
-        });
+        alertBox.show();
+    }
 
-        alertbox.show();
+    private static void showAuthErrorDialog(int messageId, Activity activity, boolean finishActivity) {
+        showAuthErrorDialog(activity.getString(messageId), activity, finishActivity);
+    }
+
+    private static void showAuthErrorDialog(String message, final Activity activity, final boolean finishActivity) {
+        // prepare the alert box
+        AlertDialog.Builder alertBox = new AlertDialog.Builder(activity);
+        alertBox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
+
+        // set the message to display
+        alertBox.setMessage(message);
+
+        alertBox.setCancelable(false)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent intent = new Intent();
+                        intent.setClass(activity, HomeActivity.class);
+                        intent.setAction(HomeActivity.EDIT_SERVER_PROFILE_ACTION);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        activity.startActivity(intent);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (finishActivity) activity.finish();
+                    }
+                });
+
+        alertBox.show();
     }
     
 }

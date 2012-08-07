@@ -85,18 +85,18 @@
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             style="@style/home.list.spacer" />
 
-        <!-- Reports Item -->
+        <!-- Library Item -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             style="@style/home.list.item.layout"
-            android:id="@+id/home_item_reports"
+            android:id="@+id/home_item_library"
             android:orientation="horizontal"
             android:clickable="true"
             android:focusable="true"
             android:onClick="dashButtonOnClickListener" >
 
             <ImageView
-                style="@style/home.list.item.icon.reports"
-                android:contentDescription="@string/h_reports_label"
+                style="@style/home.list.item.icon.library"
+                android:contentDescription="@string/h_library_label"
             />
 
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -106,12 +106,12 @@
 
                 <TextView
                     style="@style/home.list.item.txtContainer.text.label"
-                    android:text="@string/h_reports_label"
+                    android:text="@string/h_library_label"
                     android:duplicateParentState="true"
                 />
                 <TextView
                     style="@style/home.list.item.txtContainer.text.description"
-                    android:text="@string/h_reports_descr"
+                    android:text="@string/h_library_descr"
                     android:duplicateParentState="true"
                 />
 

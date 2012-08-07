@@ -272,6 +272,12 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                 View view = inflater.inflate(R.layout.ic_boolean_layout, baseLayout, false);
                                 CheckBox checkBox = (CheckBox) view.findViewById(R.id.ic_checkbox);
                                 checkBox.setText(inputControl.getLabel());
+                                // set default value
+                                List<ResourceParameter> params = new ArrayList<ResourceParameter>();
+                                params.add(new ResourceParameter(inputControl.getName(), false, false));
+                                inputControl.setListOfSelectedValues(params);
+                                //update dependent controls if exist
+                                updateDependentControls(inputControl);
                                 //listener
                                 checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                                     @Override

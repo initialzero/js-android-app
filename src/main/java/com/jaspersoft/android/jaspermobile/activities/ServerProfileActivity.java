@@ -29,6 +29,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.URLUtil;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.google.inject.Inject;
@@ -60,11 +61,12 @@ public class ServerProfileActivity extends RoboActivity {
     @InjectView(R.id.breadcrumbs_title_small)   private TextView breadCrumbsTitleSmall;
     @InjectView(R.id.breadcrumbs_title_large)   private TextView breadCrumbsTitleLarge;
     
-    @InjectView(R.id.aliasEdit)         private EditText aliasEdit;
-    @InjectView(R.id.serverUrlEdit)     private EditText serverUrlEdit;
-    @InjectView(R.id.organizationEdit)  private EditText organizationEdit;
-    @InjectView(R.id.usernameEdit)      private EditText usernameEdit;
-    @InjectView(R.id.passwordEdit)      private EditText passwordEdit;
+    @InjectView(R.id.aliasEdit)             private EditText aliasEdit;
+    @InjectView(R.id.serverUrlEdit)         private EditText serverUrlEdit;
+    @InjectView(R.id.organizationEdit)      private EditText organizationEdit;
+    @InjectView(R.id.usernameEdit)          private EditText usernameEdit;
+    @InjectView(R.id.passwordEdit)          private EditText passwordEdit;
+    @InjectView(R.id.askPasswordCheckBox)   private CheckBox askPasswordCheckBox;
 
 
     @Override
@@ -101,11 +103,29 @@ public class ServerProfileActivity extends RoboActivity {
             serverUrlEdit.setText(cursor.getString(urlId));
             organizationEdit.setText(cursor.getString(orgId));
             usernameEdit.setText(cursor.getString(usrId));
-            passwordEdit.setText(cursor.getString(pwdId));
+
+            String pwd = cursor.getString(pwdId);
+            if (pwd.length() == 0) {
+                passwordEdit.setEnabled(false);
+                passwordEdit.setFocusable(false);
+                passwordEdit.setFocusableInTouchMode(false);
+
+                askPasswordCheckBox.setChecked(true);
+            } else {
+                passwordEdit.setText(cursor.getString(pwdId));
+            }
         } else {
             // just update bread crumbs
             breadCrumbsTitleLarge.setText(getString(R.string.sp_bc_add_profile));
         }
+    }
+
+    public void onAskPasswordCheckboxClicked(View view) {
+        boolean checked = ((CheckBox) view).isChecked();
+        passwordEdit.setEnabled(!checked);
+        passwordEdit.setFocusable(!checked);
+        passwordEdit.setFocusableInTouchMode(!checked);
+        passwordEdit.setError(null);
     }
 
     public void saveButtonClickHandler(View view) {
@@ -114,13 +134,16 @@ public class ServerProfileActivity extends RoboActivity {
         String url = serverUrlEdit.getText().toString();
         String org = organizationEdit.getText().toString();
         String usr = usernameEdit.getText().toString();
-        String pwd = passwordEdit.getText().toString();
+        String pwd = (askPasswordCheckBox.isChecked()) ? "" : passwordEdit.getText().toString() ;
 
         // validate edits
         if(alias.length() == 0) aliasEdit.setError(getString(R.string.sp_error_field_required));
         if(!URLUtil.isValidUrl(url)) serverUrlEdit.setError(getString(R.string.sp_error_url_not_valid));
         if(usr.length() == 0) usernameEdit.setError(getString(R.string.sp_error_field_required));
-        if(pwd.length() == 0) passwordEdit.setError(getString(R.string.sp_error_field_required));
+
+        if (!askPasswordCheckBox.isChecked() && pwd.length() == 0) {
+            passwordEdit.setError(getString(R.string.sp_error_field_required));
+        }
         
         if (aliasEdit.getError() != null || serverUrlEdit.getError() != null
                 || usernameEdit.getError() != null || passwordEdit.getError() != null) {
@@ -128,15 +151,19 @@ public class ServerProfileActivity extends RoboActivity {
         }
 
         // add or update server profile according to the activity action
+        long rowId;
         if (EDIT_SERVER_PROFILE_ACTION.equals(getIntent().getAction())) {
-            long rowId = getIntent().getLongExtra(EXTRA_SERVER_PROFILE_ID, 0);
+            rowId = getIntent().getLongExtra(EXTRA_SERVER_PROFILE_ID, 0);
             dbProvider.updateServerProfile(rowId, alias, url, org, usr, pwd);
         } else {
-            dbProvider.insertServerProfile(alias, url, org, usr, pwd);
+            rowId = dbProvider.insertServerProfile(alias, url, org, usr, pwd);
         }
 
+        // return result with specified server profile id to parent activity
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, rowId);
         // result code to propagate back to the originating activity
-        setResult(RESULT_OK);
+        setResult(RESULT_OK, resultIntent);
         // activity is done and should be closed
         finish();
 

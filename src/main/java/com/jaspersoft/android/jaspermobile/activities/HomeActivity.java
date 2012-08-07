@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,9 +35,11 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.inject.Inject;
@@ -64,13 +67,16 @@ import java.util.concurrent.Executors;
  */
 public class HomeActivity extends RoboActivity {
 
+    // Special intent actions
+    public static final String EDIT_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.EDIT_SERVER_PROFILE";
+    // Request Codes
+    public static final int RC_UPDATE_SERVER_PROFILE = 10;
+    public static final int RC_SWITCH_SERVER_PROFILE = 11;
+    // Dialog IDs
+    protected static final int ID_D_ASK_PASSWORD = 20;
     // Preferences
     protected static final String PREFS_NAME = "RepositoryBrowser.SharedPreferences";
     protected static final String PREFS_CURRENT_SERVER_PROFILE_ID = "CURRENT_SERVER_PROFILE_ID";
-    // Extras
-    public static final String EXTRA_SERVER_PROFILE_ID = "HomeActivity.EXTRA_SERVER_PROFILE_ID";
-    // Options Menu IDs
-    public static final int ID_OM_SWITCH_SERVER = 10;
 
     @InjectView(R.id.profile_name_text)   private TextView profileNameText;
 
@@ -101,15 +107,33 @@ public class HomeActivity extends RoboActivity {
         if (cursor.getCount() != 0) {
             setCurrentServerProfile(rowId);
             profileNameText.setText(jsRestClient.getServerProfile().getAlias());
+
+            //  savedInstanceState is null on first start, non-null on restart
+            if (savedInstanceState == null && jsRestClient.getServerProfile().getPassword().length() == 0) {
+                showDialog(ID_D_ASK_PASSWORD);
+            }
         } else {
             // Launch activity to select the server profile
             Intent intent = new Intent();
             intent.setClass(this, ServerProfilesManagerActivity.class);
-            startActivityForResult(intent, ID_OM_SWITCH_SERVER);
+            startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
         }
 
         // Clear report output cache folders and, sure, do it asynchronously
         clearReportOutputCacheFolders();
+    }
+
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (EDIT_SERVER_PROFILE_ACTION.equals(intent.getAction())) {
+            // Launch activity to edit current server profile
+            Intent editIntent = new Intent();
+            editIntent.setClass(this, ServerProfileActivity.class);
+            editIntent.setAction(ServerProfileActivity.EDIT_SERVER_PROFILE_ACTION);
+            editIntent.putExtra(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID, jsRestClient.getServerProfile().getId());
+            startActivityForResult(editIntent, RC_UPDATE_SERVER_PROFILE);
+        }
     }
 
     public void dashButtonOnClickListener(View view) {
@@ -125,11 +149,11 @@ public class HomeActivity extends RoboActivity {
                     loginIntent.putExtra(RepositoryBrowserActivity.EXTRA_RESOURCE_URI, "/");
                     startActivity(loginIntent);
                     break;
-                case R.id.home_item_reports:
+                case R.id.home_item_library:
                     Intent searchIntent = new Intent();
                     searchIntent.setClass(this, RepositorySearchActivity.class);
                     Bundle appData = new Bundle();
-                    appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_reports_label));
+                    appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
                     appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
                     appData.putString(RepositorySearchActivity.EXTRA_RESOURCE_TYPE, ResourceDescriptor.WsType.reportUnit.toString());
                     searchIntent.putExtra(SearchManager.APP_DATA, appData);
@@ -148,7 +172,7 @@ public class HomeActivity extends RoboActivity {
                     // Launch activity to switch the server profile
                     Intent intent = new Intent();
                     intent.setClass(this, ServerProfilesManagerActivity.class);
-                    startActivityForResult(intent, ID_OM_SWITCH_SERVER);
+                    startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
                     break;
             }
         } else {
@@ -197,11 +221,30 @@ public class HomeActivity extends RoboActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
+            Bundle extras;
+            long rowId;
             switch (requestCode) {
-                case ID_OM_SWITCH_SERVER:
+                case RC_UPDATE_SERVER_PROFILE:
+                    // get updated server profile id from result data
+                    extras = data.getExtras();
+                    rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
+
+                    // update current profile
+                    setCurrentServerProfile(rowId);
+
+                    // check if the password is not specified
+                    if (jsRestClient.getServerProfile().getPassword().length() == 0) {
+                        showDialog(ID_D_ASK_PASSWORD);
+                    }
+
+                    // the feedback about an operation
+                    Toast.makeText(this, R.string.spm_profile_updated_toast, Toast.LENGTH_SHORT).show();
+                    break;
+
+                case RC_SWITCH_SERVER_PROFILE:
                     // get selected server profile id from result data
-                    Bundle extras = data.getExtras();
-                    long rowId = extras.getLong(EXTRA_SERVER_PROFILE_ID);
+                    extras = data.getExtras();
+                    rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
 
                     // put new server profile id to shared prefs
                     SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -212,6 +255,11 @@ public class HomeActivity extends RoboActivity {
 
                     setCurrentServerProfile(rowId);
 
+                    // check if the password is not specified
+                    if (jsRestClient.getServerProfile().getPassword().length() == 0) {
+                        showDialog(ID_D_ASK_PASSWORD);
+                    }
+
                     String profileName = jsRestClient.getServerProfile().getAlias();
 
                     // the feedback about an operation
@@ -219,7 +267,6 @@ public class HomeActivity extends RoboActivity {
                     Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
                     // update footer
                     profileNameText.setText(profileName);
-
                     break;
             }
         }
@@ -243,6 +290,79 @@ public class HomeActivity extends RoboActivity {
         intent.setClass(context, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog;
+        switch(id) {
+            case ID_D_ASK_PASSWORD:
+                // do the work to define the password Dialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.h_ad_title_enter_password);
+                // inflate custom layout
+                LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                final View layout = inflater.inflate(R.layout.ask_pwd_dialog_layout, (ViewGroup) findViewById(R.id.pwdDialogLayoutRoot));
+                builder.setView(layout);
+                // define actions
+                builder.setCancelable(false)
+                       .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                JsServerProfile currentProfile = jsRestClient.getServerProfile();
+
+                                EditText passwordEdit = (EditText) layout.findViewById(R.id.dialogPasswordEdit);
+                                String password = passwordEdit.getText().toString();
+                                currentProfile.setPassword(password);
+
+                                jsRestClient.setServerProfile(currentProfile);
+                            }
+                       })
+                       .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                          }
+                       });
+                dialog = builder.create();
+                break;
+            default:
+                dialog = null;
+        }
+        return dialog;
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        super.onPrepareDialog(id, dialog);
+        switch (id) {
+            case ID_D_ASK_PASSWORD:
+                String alias = jsRestClient.getServerProfile().getAlias();
+                String org = jsRestClient.getServerProfile().getOrganization();
+                String usr = jsRestClient.getServerProfile().getUsername();
+
+                // Update username
+                TextView profileNameText = (TextView) dialog.findViewById(R.id.dialogProfileNameText);
+                profileNameText.setText(alias);
+
+                // Update organization
+                View organizationTableRow = dialog.findViewById(R.id.dialogOrganizationTableRow);
+                TextView organizationEdit = (TextView) dialog.findViewById(R.id.dialogOrganizationText);
+
+                if (TextUtils.isEmpty(org)) {
+                    organizationTableRow.setVisibility(View.GONE);
+                } else {
+                    organizationEdit.setText(org);
+                    organizationTableRow.setVisibility(View.VISIBLE);
+                }
+
+                // Update username
+                TextView usernameEdit = (TextView) dialog.findViewById(R.id.dialogUsernameText);
+                usernameEdit.setText(usr);
+
+                // Clear password
+                EditText passwordEdit = (EditText) dialog.findViewById(R.id.dialogPasswordEdit);
+                passwordEdit.setText("");
+                break;
+        }
     }
 
     @Override

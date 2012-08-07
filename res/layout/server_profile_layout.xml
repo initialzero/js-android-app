@@ -93,7 +93,13 @@
                 style="@style/editText.singleLine"
                 android:password="true"
             />
-
+            <CheckBox
+                    android:id="@+id/askPasswordCheckBox"
+                    style="@style/serverProfile.checkBox"
+                    android:checked="false"
+                    android:onClick="onAskPasswordCheckboxClicked"
+                    android:text="@string/sp_ask_password_text"
+            />
             <!-- Save Button -->
             <Button
                 android:id="@+id/saveProfileButton"

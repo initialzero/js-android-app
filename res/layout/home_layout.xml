@@ -47,44 +47,6 @@
         style="@style/home.list.layout"
         android:orientation="vertical" >
 
-        <!-- Repository item -->
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/home_item_repository"
-            style="@style/home.list.item.layout"
-            android:orientation="horizontal"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="dashButtonOnClickListener" >
-
-            <ImageView
-                style="@style/home.list.item.icon.repository"
-                android:contentDescription="@string/h_repository_label"
-            />
-
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                style="@style/home.list.item.txtContainer.layout"
-                android:orientation="vertical"
-                android:duplicateParentState="true" >
-
-                <TextView
-                    style="@style/home.list.item.txtContainer.text.label"
-                    android:text="@string/h_repository_label"
-                    android:duplicateParentState="true"
-                />
-                <TextView
-                    android:id="@+id/server_profiles_list_item_uri"
-                    style="@style/home.list.item.txtContainer.text.description"
-                    android:text="@string/h_repository_descr"
-                    android:duplicateParentState="true"
-                />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            style="@style/home.list.spacer" />
-
         <!-- Library Item -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             style="@style/home.list.item.layout"
@@ -109,9 +71,49 @@
                     android:text="@string/h_library_label"
                     android:duplicateParentState="true"
                 />
+
                 <TextView
                     style="@style/home.list.item.txtContainer.text.description"
                     android:text="@string/h_library_descr"
+                    android:duplicateParentState="true"
+                />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.spacer" />
+
+        <!-- Repository item -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/home_item_repository"
+            style="@style/home.list.item.layout"
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="dashButtonOnClickListener" >
+
+            <ImageView
+                style="@style/home.list.item.icon.repository"
+                android:contentDescription="@string/h_repository_label"
+            />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/home.list.item.txtContainer.layout"
+                android:orientation="vertical"
+                android:duplicateParentState="true" >
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.label"
+                    android:text="@string/h_repository_label"
+                    android:duplicateParentState="true"
+                />
+
+                <TextView
+                    android:id="@+id/server_profiles_list_item_uri"
+                    style="@style/home.list.item.txtContainer.text.description"
+                    android:text="@string/h_repository_descr"
                     android:duplicateParentState="true"
                 />
 
@@ -199,33 +201,33 @@
 
         <!-- Servers item -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                      style="@style/home.list.item.layout"
-                      android:id="@+id/home_item_servers"
-                      android:clickable="true"
-                      android:focusable="true"
-                      android:onClick="dashButtonOnClickListener" >
+            style="@style/home.list.item.layout"
+            android:id="@+id/home_item_servers"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="dashButtonOnClickListener" >
 
             <ImageView
-                    style="@style/home.list.item.icon.servers"
-                    android:contentDescription="@string/h_servers_label"
-                    />
+                style="@style/home.list.item.icon.servers"
+                android:contentDescription="@string/h_servers_label"
+            />
 
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                          style="@style/home.list.item.txtContainer.layout"
-                          android:orientation="vertical"
-                          android:duplicateParentState="true" >
+                style="@style/home.list.item.txtContainer.layout"
+                android:orientation="vertical"
+                android:duplicateParentState="true" >
 
                 <TextView
-                        style="@style/home.list.item.txtContainer.text.label"
-                        android:text="@string/h_servers_label"
-                        android:duplicateParentState="true"
-                        />
+                    style="@style/home.list.item.txtContainer.text.label"
+                    android:text="@string/h_servers_label"
+                    android:duplicateParentState="true"
+                />
 
                 <TextView
-                        style="@style/home.list.item.txtContainer.text.description"
-                        android:text="@string/h_servers_descr"
-                        android:duplicateParentState="true"
-                        />
+                    style="@style/home.list.item.txtContainer.text.description"
+                    android:text="@string/h_servers_descr"
+                    android:duplicateParentState="true"
+                />
 
             </LinearLayout>
 

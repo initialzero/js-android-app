@@ -35,7 +35,7 @@
     <string name="h_library_label">Library</string>
     <string name="h_library_descr">List of all reports</string>
     <string name="h_search_label">Search</string>
-    <string name="h_search_descr">Search for resources in your repository</string>
+    <string name="h_search_descr">Search for items in your repository</string>
     <string name="h_favorites_label">Favorites</string>
     <string name="h_favorites_descr">Browse and view favorite items</string>
     <string name="h_servers_label">Servers</string>

@@ -1,4 +1,4 @@
-JasperMobile for Android Readme
+JasperMobile for Android version 1.1 Readme
 
 JasperMobile for Android is a native application which allows you to browse your JasperReports Server repository and view reports in several formats.
 
@@ -14,8 +14,14 @@ General Information
 Please see the JasperForge JasperMobile for Android project page:
 http://jasperforge.org/projects/androidmobile
 
+What's New
+--------------------
 
-Build source
+* added option to always force password entry
+* added "Library" view
+* bug fixes
+
+Source Build
 --------------------
 
 We use Apache Maven and the Android Maven Plugin to build JasperMobile application for Android.

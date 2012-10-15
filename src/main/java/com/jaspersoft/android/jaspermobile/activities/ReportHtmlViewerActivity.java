@@ -75,6 +75,8 @@ public class ReportHtmlViewerActivity extends RoboActivity {
                 super.onPageFinished(view, url);
                 // hide progress bar after page load
                 progressBar.setVisibility(View.GONE);
+                // workaround for http://bugzilla.jaspersoft.com/show_bug.cgi?id=29257
+                if (jsRestClient.getRestApiDescriptor().getVersion() == 1 ) webView.clearCache(true);
             }
         });
 

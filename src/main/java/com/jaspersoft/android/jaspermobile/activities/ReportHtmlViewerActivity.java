@@ -25,12 +25,16 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
 import android.widget.ProgressBar;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 
@@ -43,9 +47,14 @@ public class ReportHtmlViewerActivity extends RoboActivity {
 
     // Extras
     public static final String EXTRA_REPORT_FILE_URI = "ReportHtmlViewerActivity.EXTRA_REPORT_FILE_URI";
+
+    public static final String HTTP_SESSION_ID_NAME = "JSESSIONID";
     
     @InjectView(R.id.report_webView)                private WebView webView;
     @InjectView(R.id.report_webView_progressBar)    private ProgressBar progressBar;
+
+    @Inject
+    protected JsRestClient jsRestClient;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +77,29 @@ public class ReportHtmlViewerActivity extends RoboActivity {
                 progressBar.setVisibility(View.GONE);
             }
         });
+
+        if (jsRestClient.getRestApiDescriptor().getVersion() > 1 ) {
+            // Set Cookies
+            HttpComponentsClientHttpRequestFactory requestFactory = (HttpComponentsClientHttpRequestFactory) jsRestClient.getRestTemplate().getRequestFactory();
+            DefaultHttpClient httpClient = (DefaultHttpClient) requestFactory.getHttpClient();
+
+            Cookie sessionCookie = null;
+            for(Cookie cookie : httpClient.getCookieStore().getCookies()) {
+                if(cookie.getName().equalsIgnoreCase(HTTP_SESSION_ID_NAME)) {
+                    sessionCookie = cookie;
+                }
+            }
+
+            CookieSyncManager.createInstance(this);
+            CookieManager cookieManager = CookieManager.getInstance();
+            if (sessionCookie != null) {
+                cookieManager.removeSessionCookie();
+                SystemClock.sleep(500);
+                String cookieString = sessionCookie.getName() + "=" + sessionCookie.getValue() + "; domain=" + sessionCookie.getDomain();
+                cookieManager.setCookie(sessionCookie.getDomain(), cookieString);
+                CookieSyncManager.getInstance().sync();
+            }
+        }
 
         //get report file uri from the intent extras
         String uri = getIntent().getExtras().getString(EXTRA_REPORT_FILE_URI);

@@ -204,14 +204,22 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         }
         
         if (hasErrors) return;
-        
-        resourceDescriptor.setParameters(parameters);
 
-        GetReportAsyncTask getReportAsyncTask =  new GetReportAsyncTask(GET_REPORT_DESCRIPTOR_TASK,
-                getString(R.string.ro_pd_running_report_msg), 0, jsRestClient, resourceDescriptor, outputFormat);
-        jsAsyncTaskManager.executeTask(getReportAsyncTask);
-
-        
+        if (RUN_OUTPUT_FORMAT_HTML.equalsIgnoreCase(outputFormat) && jsRestClient.getRestApiDescriptor().getVersion() > 1 ) {
+            // REST v2
+            String reportUrl = jsRestClient.generateReportUrl(resourceDescriptor, parameters);
+            // run the html report viewer
+            Intent htmlViewer = new Intent();
+            htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
+            htmlViewer.putExtra(ReportHtmlViewerActivity.EXTRA_REPORT_FILE_URI, reportUrl);
+            startActivity(htmlViewer);
+        } else {
+            // REST v1
+            resourceDescriptor.setParameters(parameters);
+            GetReportAsyncTask getReportAsyncTask =  new GetReportAsyncTask(GET_REPORT_DESCRIPTOR_TASK,
+                    getString(R.string.ro_pd_running_report_msg), 0, jsRestClient, resourceDescriptor, outputFormat);
+            jsAsyncTaskManager.executeTask(getReportAsyncTask);
+        }
     }
 
     public void actionButtonOnClickListener(View view) {

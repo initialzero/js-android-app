@@ -116,7 +116,7 @@ public class RepositoryFavoritesActivity extends BaseRepositoryActivity{
         switch (item.getItemId()) {
             case ID_CM_REMOVE_FROM_FAVORITES:
                 //Remove favorite item by uri, serverProfileId, username, organization
-                dbProvider.deleteFavoriteItem(resourceDescriptor.getUriString(), serverProfileId, userName, organization);
+                dbProvider.deleteFavoriteItems(resourceDescriptor.getUriString(), serverProfileId, userName, organization);
                 ((ResourceDescriptorArrayAdapter) getListAdapter()).remove(resourceDescriptor);
                 ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
                 return true;

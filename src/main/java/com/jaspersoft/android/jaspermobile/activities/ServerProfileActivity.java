@@ -138,6 +138,7 @@ public class ServerProfileActivity extends RoboActivity {
 
         // validate edits
         if(alias.length() == 0) aliasEdit.setError(getString(R.string.sp_error_field_required));
+        if(url.endsWith("/")) url = url.substring(0, url.length()-1);
         if(!URLUtil.isValidUrl(url)) serverUrlEdit.setError(getString(R.string.sp_error_url_not_valid));
         if(usr.length() == 0) usernameEdit.setError(getString(R.string.sp_error_field_required));
 

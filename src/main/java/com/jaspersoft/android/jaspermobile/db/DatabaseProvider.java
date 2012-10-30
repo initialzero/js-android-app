@@ -30,6 +30,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
 import roboguice.util.Ln;
@@ -49,7 +50,7 @@ public class DatabaseProvider {
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
-        private static final int DATABASE_VERSION = 1;
+        private static final int DATABASE_VERSION = 2;
 
         private static final String DATABASE_NAME = "jasper_mobile_db";
 
@@ -63,6 +64,7 @@ public class DatabaseProvider {
             // Create DB
             db.execSQL(ServerProfiles.TABLE_CREATE_SQL);
             db.execSQL(Favorites.TABLE_CREATE_SQL);
+            db.execSQL(ReportOptions.TABLE_CREATE_SQL);
 
             // Add initial values
             ContentValues values = new ContentValues();
@@ -78,10 +80,10 @@ public class DatabaseProvider {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Ln.w("Upgrading database from version %d to %d, which will destroy all old data", oldVersion, newVersion);
-            db.execSQL("DROP TABLE IF EXISTS " + ServerProfiles.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + Favorites.TABLE_NAME);
-            onCreate(db);
+            Ln.w("Upgrading database from version %d to %d", oldVersion, newVersion);
+            if (oldVersion < 2) {
+                db.execSQL(ReportOptions.TABLE_CREATE_SQL);
+            }
         }
     }
 
@@ -99,6 +101,10 @@ public class DatabaseProvider {
         if (dbHelper != null) dbHelper.close();
     }
 
+    //---------------------------------------------------------------------
+    // Server Profiles
+    //---------------------------------------------------------------------
+
     public Cursor fetchServerProfile(long rowId) throws SQLException {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] columns = new String[] {
@@ -113,6 +119,59 @@ public class DatabaseProvider {
         return cursor;
 
     }
+
+    public Cursor fetchAllServerProfiles() throws SQLException {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] columns = new String[] {
+                ServerProfiles._ID,
+                ServerProfiles.KEY_ALIAS,
+                ServerProfiles.KEY_SERVER_URL,
+                ServerProfiles.KEY_ORGANIZATION,
+                ServerProfiles.KEY_USERNAME,
+                ServerProfiles.KEY_PASSWORD
+        };
+        return db.query(ServerProfiles.TABLE_NAME, columns, null , null, null, null, null);
+    }
+
+    public long insertServerProfile(String alias, String serverUrl, String organization, String username, String password) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues initialValues = new ContentValues();
+        initialValues.put(ServerProfiles.KEY_ALIAS, alias);
+        initialValues.put(ServerProfiles.KEY_SERVER_URL, serverUrl);
+        initialValues.put(ServerProfiles.KEY_ORGANIZATION, organization);
+        initialValues.put(ServerProfiles.KEY_USERNAME, username);
+        initialValues.put(ServerProfiles.KEY_PASSWORD, password);
+
+        return db.insert(ServerProfiles.TABLE_NAME, null, initialValues);
+    }
+
+    public int updateServerProfile(long rowId, String alias, String serverUrl, String organization, String username, String password) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(ServerProfiles.KEY_ALIAS, alias);
+        updateValues.put(ServerProfiles.KEY_SERVER_URL, serverUrl);
+        updateValues.put(ServerProfiles.KEY_ORGANIZATION, organization);
+        updateValues.put(ServerProfiles.KEY_USERNAME, username);
+        updateValues.put(ServerProfiles.KEY_PASSWORD, password);
+
+        return db.update(ServerProfiles.TABLE_NAME, updateValues, ServerProfiles._ID + "=" + rowId, null);
+    }
+
+    public int deleteServerProfile(long rowId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        // remove dependent favorite records
+        db.delete(Favorites.TABLE_NAME, Favorites.KEY_SERVER_PROFILE_ID + "=" + rowId, null);
+        // remove dependent report options
+        db.delete(ReportOptions.TABLE_NAME, ReportOptions.KEY_SERVER_PROFILE_ID + "=" + rowId, null);
+        // delete profile
+        return db.delete(ServerProfiles.TABLE_NAME, ServerProfiles._ID + "=" + rowId, null);
+    }
+
+    //---------------------------------------------------------------------
+    // Favorites
+    //---------------------------------------------------------------------
 
     public Cursor fetchFavoriteItem(long rowId) throws SQLException {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -132,19 +191,6 @@ public class DatabaseProvider {
 
     }
 
-    public Cursor fetchAllServerProfiles() throws SQLException {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] columns = new String[] {
-                ServerProfiles._ID,
-                ServerProfiles.KEY_ALIAS,
-                ServerProfiles.KEY_SERVER_URL,
-                ServerProfiles.KEY_ORGANIZATION,
-                ServerProfiles.KEY_USERNAME,
-                ServerProfiles.KEY_PASSWORD
-        };
-        return db.query(ServerProfiles.TABLE_NAME, columns, null , null, null, null, null);
-    }
-
     public Cursor fetchFavoriteItemsByParams(long serverProfileId, String username, String organization) throws SQLException {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] columns = new String[] {
@@ -162,26 +208,13 @@ public class DatabaseProvider {
                 new String[] { username,organization }, null, null, Favorites.KEY_TITLE);
     }
 
-    public long insertServerProfile(String alias, String serverUrl, String organization, String username, String password) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        ContentValues initialValues = new ContentValues();
-        initialValues.put(ServerProfiles.KEY_ALIAS, alias);
-        initialValues.put(ServerProfiles.KEY_SERVER_URL, serverUrl);
-        initialValues.put(ServerProfiles.KEY_ORGANIZATION, organization);
-        initialValues.put(ServerProfiles.KEY_USERNAME, username);
-        initialValues.put(ServerProfiles.KEY_PASSWORD, password);
-
-        return db.insert(ServerProfiles.TABLE_NAME, null, initialValues);
-    }
-
     public long insertFavoriteItem(String title, String name, String uri, String description, String wsType, Long serverProfileId, String username, String organization) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues initialValues = new ContentValues();
         initialValues.put(Favorites.KEY_SERVER_PROFILE_ID, serverProfileId);
         initialValues.put(Favorites.KEY_USERNAME, username);
-        initialValues.put(Favorites.KEY_ORGANIZATION, organization);  
+        initialValues.put(Favorites.KEY_ORGANIZATION, organization);
         initialValues.put(Favorites.KEY_TITLE, title);
         initialValues.put(Favorites.KEY_URI, uri);
         initialValues.put(Favorites.KEY_NAME, name);
@@ -190,7 +223,7 @@ public class DatabaseProvider {
 
         // Seek in DB if Favorite already present
         Cursor foundFavorite = db.query(Favorites.TABLE_NAME, new String[] {Favorites._ID},
-                          Favorites.KEY_SERVER_PROFILE_ID + "= ? and "
+                Favorites.KEY_SERVER_PROFILE_ID + "= ? and "
                         + Favorites.KEY_URI + "= ? and "
                         + Favorites.KEY_USERNAME + "= ? and "
                         + Favorites.KEY_ORGANIZATION + "= ? ",
@@ -206,35 +239,87 @@ public class DatabaseProvider {
         }
     }
 
-    public int updateServerProfile(long rowId, String alias, String serverUrl, String organization, String username, String password) {
+    public int deleteFavoriteItem(long rowId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        ContentValues updateValues = new ContentValues();
-        updateValues.put(ServerProfiles.KEY_ALIAS, alias);
-        updateValues.put(ServerProfiles.KEY_SERVER_URL, serverUrl);
-        updateValues.put(ServerProfiles.KEY_ORGANIZATION, organization);
-        updateValues.put(ServerProfiles.KEY_USERNAME, username);
-        updateValues.put(ServerProfiles.KEY_PASSWORD, password);
-
-        return db.update(ServerProfiles.TABLE_NAME, updateValues, ServerProfiles._ID + "=" + rowId, null);
+        return db.delete(Favorites.TABLE_NAME, Favorites._ID + "=" + rowId, null);
     }
 
-    public int deleteServerProfile(long rowId) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        // remove dependent favorite records
-        db.delete(Favorites.TABLE_NAME,Favorites.KEY_SERVER_PROFILE_ID + "=" + rowId, null);
-
-        return db.delete(ServerProfiles.TABLE_NAME, ServerProfiles._ID + "=" + rowId, null);
-    }
-
-    public int deleteFavoriteItem(String uri, Long serverProfileId, String username, String organization) {
+    public int deleteFavoriteItems(String uri, Long serverProfileId, String username, String organization) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         return db.delete(Favorites.TABLE_NAME,
-                          Favorites.KEY_URI + "= ? and "
+                Favorites.KEY_URI + "= ? and "
                         + Favorites.KEY_SERVER_PROFILE_ID +"= ? and "
                         + Favorites.KEY_USERNAME +"= ? and "
                         + Favorites.KEY_ORGANIZATION + "= ?",
                 new String[] {uri,serverProfileId.toString(),username,organization} );
+    }
+
+    //---------------------------------------------------------------------
+    // Report Options
+    //---------------------------------------------------------------------
+
+    public Cursor fetchReportOption(long rowId) throws SQLException {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] columns = new String[] {
+                ReportOptions.KEY_NAME,
+                ReportOptions.KEY_VALUE,
+                ReportOptions.KEY_IS_LIST_ITEM,
+                ReportOptions.KEY_SERVER_PROFILE_ID,
+                ReportOptions.KEY_USERNAME,
+                ReportOptions.KEY_ORGANIZATION,
+                ReportOptions.KEY_REPORT_URI
+        };
+        Cursor cursor = db.query(ReportOptions.TABLE_NAME, columns, ReportOptions._ID + "=" + rowId , null, null, null, null);
+        if (cursor != null) cursor.moveToFirst();
+        return cursor;
+
+    }
+
+    public Cursor fetchReportOptions(long serverProfileId, String username, String organization, String reportUri) throws SQLException {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] columns = new String[] {
+                ReportOptions._ID,
+                ReportOptions.KEY_NAME,
+                ReportOptions.KEY_VALUE,
+                ReportOptions.KEY_IS_LIST_ITEM
+        };
+        return db.query(ReportOptions.TABLE_NAME, columns,
+                ReportOptions.KEY_SERVER_PROFILE_ID + "=" + serverProfileId
+                        + " and " + ReportOptions.KEY_USERNAME + "= ? "
+                        + " and " + ReportOptions.KEY_ORGANIZATION + "= ?"
+                        + " and " + ReportOptions.KEY_REPORT_URI + "= ?",
+                new String[] { username, organization, reportUri }, null, null, ReportOptions.KEY_NAME);
+    }
+
+    public long insertReportOption(String name, String value, boolean isListItem, long serverProfileId,
+                                   String username, String organization, String reportUri) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues initialValues = new ContentValues();
+        initialValues.put(ReportOptions.KEY_NAME, name);
+        initialValues.put(ReportOptions.KEY_VALUE, value);
+        initialValues.put(ReportOptions.KEY_IS_LIST_ITEM, isListItem);
+        initialValues.put(ReportOptions.KEY_SERVER_PROFILE_ID, serverProfileId);
+        initialValues.put(ReportOptions.KEY_USERNAME, username);
+        initialValues.put(ReportOptions.KEY_ORGANIZATION, organization);
+        initialValues.put(ReportOptions.KEY_REPORT_URI, reportUri);
+
+        return db.insert(ReportOptions.TABLE_NAME, null, initialValues);
+    }
+
+    public int deleteReportOption(long rowId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(ReportOptions.TABLE_NAME, ReportOptions._ID + "=" + rowId, null);
+    }
+
+    public int deleteReportOptions(Long serverProfileId, String username, String organization, String reportUri) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(ReportOptions.TABLE_NAME,
+                ReportOptions.KEY_SERVER_PROFILE_ID + "= "+ serverProfileId + " and "
+                        + ReportOptions.KEY_USERNAME + "= ? and "
+                        + ReportOptions.KEY_ORGANIZATION + "= ? and "
+                        + ReportOptions.KEY_REPORT_URI + "= ?",
+                new String[] {username, organization, reportUri} );
     }
 
 }

@@ -29,6 +29,7 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -52,7 +53,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
+import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
 import com.jaspersoft.android.sdk.client.async.task.*;
@@ -112,6 +116,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
     @Inject private JsRestClient jsRestClient;
 
     private JsAsyncTaskManager jsAsyncTaskManager;
+    private DatabaseProvider dbProvider;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,6 +130,9 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         }
 
         setContentView(R.layout.report_options_layout);
+
+        // Get the database provider
+        dbProvider = new DatabaseProvider(this);
 
         // external storage should be writable when using output formats other than HTML
         String[] outputFormats;
@@ -205,9 +213,20 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         
         if (hasErrors) return;
 
+        JsServerProfile profile = jsRestClient.getServerProfile();
+
+        //delete previous values for this report
+        dbProvider.deleteReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), resourceDescriptor.getUriString());
+        // Save new values
+        for (ResourceParameter parameter : parameters) {
+            dbProvider.insertReportOption(parameter.getName(), parameter.getValue(), parameter.isListItem(),
+                    profile.getId(), profile.getUsername(), profile.getOrganization(), resourceDescriptor.getUriString());
+        }
+
+
         if (RUN_OUTPUT_FORMAT_HTML.equalsIgnoreCase(outputFormat) && jsRestClient.getRestApiDescriptor().getVersion() > 1 ) {
             // REST v2
-            String reportUrl = jsRestClient.generateReportUrl(resourceDescriptor, parameters);
+            String reportUrl = jsRestClient.generateReportUrl(resourceDescriptor.getUriString(), parameters);
             // run the html report viewer
             Intent htmlViewer = new Intent();
             htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
@@ -271,6 +290,25 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                     // remove controls with transitive dependencies to avoid duplicate requests
                     cleanupDependencies(inputControls);
 
+                    // Get a cursor with saved options for current report
+                    JsServerProfile profile = jsRestClient.getServerProfile();
+                    Cursor cursor = dbProvider.fetchReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), resourceDescriptor.getUriString());
+                    startManagingCursor(cursor);
+
+                    List<ResourceParameter> savedParameters = new ArrayList<ResourceParameter>();
+                    if (cursor.getCount() != 0) {
+                        // Iterate DB Records
+                        cursor.moveToFirst();
+                        while (!cursor.isAfterLast()) {
+                            ResourceParameter parameter = new ResourceParameter();
+                            parameter.setName(cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_NAME)));
+                            parameter.setValue(cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_VALUE)));
+                            parameter.isListItem(cursor.getInt(cursor.getColumnIndex(ReportOptions.KEY_IS_LIST_ITEM)) > 0);
+                            savedParameters.add(parameter);
+                            cursor.moveToNext();
+                        }
+                    }
+
                     // init UI components for ICs
                     for(final InputControlWrapper inputControl : inputControls) {
                         String mandatoryPrefix = (inputControl.isMandatory()) ? "* " : "" ;
@@ -280,10 +318,17 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                 View view = inflater.inflate(R.layout.ic_boolean_layout, baseLayout, false);
                                 CheckBox checkBox = (CheckBox) view.findViewById(R.id.ic_checkbox);
                                 checkBox.setText(inputControl.getLabel());
+
                                 // set default value
-                                List<ResourceParameter> params = new ArrayList<ResourceParameter>();
-                                params.add(new ResourceParameter(inputControl.getName(), false, false));
-                                inputControl.setListOfSelectedValues(params);
+                                setDefaultValues(inputControl, savedParameters);
+                                if (inputControl.getListOfSelectedValues().isEmpty()) {
+                                    // check-box is false by default
+                                    List<ResourceParameter> params = new ArrayList<ResourceParameter>();
+                                    params.add(new ResourceParameter(inputControl.getName(), false, false));
+                                    inputControl.setListOfSelectedValues(params);
+                                }
+                                checkBox.setChecked(Boolean.valueOf(inputControl.getListOfSelectedValues().get(0).getValue()));
+
                                 //update dependent controls if exist
                                 updateDependentControls(inputControl);
                                 //listener
@@ -320,6 +365,14 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                             editText.setInputType(InputType.TYPE_CLASS_NUMBER
                                                     | InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                                         }
+
+                                        // set default value
+                                        setDefaultValues(inputControl, savedParameters);
+
+                                        if (!inputControl.getListOfSelectedValues().isEmpty()) {
+                                            editText.setText(inputControl.getListOfSelectedValues().get(0).getValue());
+                                        }
+
                                         // add listener
                                         editText.addTextChangedListener(new TextWatcher() {
                                             @Override
@@ -354,11 +407,8 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                         textView.setText(mandatoryPrefix + inputControl.getLabel() + ":");
                                         final EditText editText = (EditText) view.findViewById(R.id.ic_date_text);
 
-                                        boolean isDateTime = (inputControl.getDataType() == ResourceDescriptor.DT_TYPE_DATE_TIME);
-
                                         // get the current date
                                         final Calendar startDate = Calendar.getInstance();
-
                                         // init the date picker
                                         ImageButton datePicker = (ImageButton) view.findViewById(R.id.ic_date_picker_button);
                                         // add a click listener
@@ -367,6 +417,8 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                                 showDateDialog(inputControl ,editText, startDate);
                                             }
                                         });
+
+                                        boolean isDateTime = (inputControl.getDataType() == ResourceDescriptor.DT_TYPE_DATE_TIME);
 
                                         if (isDateTime) {
                                             // init the time picker
@@ -378,6 +430,13 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                                     showTimeDialog(inputControl ,editText, startDate);
                                                 }
                                             });
+                                        }
+
+                                        // set default value
+                                        setDefaultValues(inputControl, savedParameters);
+                                        if (!inputControl.getListOfSelectedValues().isEmpty()) {
+                                            startDate.setTimeInMillis(Long.parseLong(inputControl.getListOfSelectedValues().get(0).getValue()));
+                                            updateDateDisplay(editText, startDate, isDateTime);
                                         }
 
                                         TextView errorTextView = (TextView) view.findViewById(R.id.ic_error_text);
@@ -402,11 +461,12 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                 textView.setText(mandatoryPrefix + inputControl.getLabel() + ":");
                                 Spinner spinner = (Spinner) view.findViewById(R.id.ic_spinner);
                                 spinner.setPrompt(inputControl.getLabel());
+
                                 // listener
                                 spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                     @Override
                                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                        // // update selected value and update dependent controls if exist
+                                        // update selected value and update dependent controls if exist
                                         updateSingleSelectControl(inputControl, (ResourceProperty) parent.getSelectedItem());
                                     }
                                     @Override
@@ -433,21 +493,17 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                 textView.setText(mandatoryPrefix + inputControl.getLabel() + ":");
                                 MultiSelectSpinner multiSpinner = (MultiSelectSpinner) view.findViewById(R.id.ic_multi_spinner);
                                 multiSpinner.setPrompt(inputControl.getLabel());
+
                                 // listener
                                 multiSpinner.setOnItemsSelectedListener(
                                         new MultiSelectSpinner.OnItemsSelectedListener() {
                                             @Override
                                             public void onItemsSelected(List selectedItems) {
-                                                // update selected values
-                                                List<ResourceParameter> params = new ArrayList<ResourceParameter>();
-                                                for (ResourceProperty item : (List<ResourceProperty>) selectedItems) {
-                                                    params.add(new ResourceParameter(inputControl.getName(), item.getName(), true));
-                                                }
-                                                inputControl.setListOfSelectedValues(params);
-                                                // update dependent controls if exist
-                                                updateDependentControls(inputControl);
+                                                // update selected values and update dependent controls if exist
+                                                updateMultiSelectControl(inputControl, selectedItems);
                                             }
                                         });
+
                                 TextView errorTextView = (TextView) view.findViewById(R.id.ic_error_text);
 
                                 // assign views to the control
@@ -471,48 +527,22 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                         switch (inputControl.getType()) {
                             case ResourceDescriptor.IC_TYPE_SINGLE_SELECT_LIST_OF_VALUES:
                             case ResourceDescriptor.IC_TYPE_SINGLE_SELECT_LIST_OF_VALUES_RADIO: {
-                                Spinner spinner = (Spinner) inputControl.getInputView();
-                                // set initial values for spinner
-                                if (!inputControl.isMandatory()) {
-                                    addBlankPropertyToList(inputControl.getListOfValues());
-                                }
-                                ArrayAdapter<ResourceProperty> lovAdapter =
-                                        new ArrayAdapter<ResourceProperty>(this, android.R.layout.simple_spinner_item, inputControl.getListOfValues());
-                                lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                spinner.setAdapter(lovAdapter);
-
-                                // set selected value and update dependent controls if exist
-                                updateSingleSelectControl(inputControl, (ResourceProperty) spinner.getSelectedItem());
+                                updateSingleSelectValues(inputControl, false, savedParameters);
                                 break;
                             }
-
                             case ResourceDescriptor.IC_TYPE_MULTI_SELECT_LIST_OF_VALUES:
                             case ResourceDescriptor.IC_TYPE_MULTI_SELECT_LIST_OF_VALUES_CHECKBOX: {
-                                MultiSelectSpinner multiSpinner = (MultiSelectSpinner) inputControl.getInputView();
-                                // set initial values for multispinner
-                                multiSpinner.setItemsList(inputControl.getListOfValues(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
-
-                                // set selected values
-                                List<ResourceParameter> params = new ArrayList<ResourceParameter>();
-                                for (ResourceProperty item : (List<ResourceProperty>) multiSpinner.getSelectedItems()) {
-                                    params.add(new ResourceParameter(inputControl.getName(), item.getName(), true));
-                                }
-                                inputControl.setListOfSelectedValues(params);
-
-                                //update dependent controls if exist
-                                updateDependentControls(inputControl);
-
+                                updateMultiSelectValues(inputControl, false, savedParameters);
                                 break;
                             }
-
                             case ResourceDescriptor.IC_TYPE_SINGLE_SELECT_QUERY:
                             case ResourceDescriptor.IC_TYPE_SINGLE_SELECT_QUERY_RADIO: {
-                                updateSingleSelectQueryControl(inputControl);
+                                updateSingleSelectValues(inputControl, true, savedParameters);
                                 break;
                             }
                             case ResourceDescriptor.IC_TYPE_MULTI_SELECT_QUERY:
                             case ResourceDescriptor.IC_TYPE_MULTI_SELECT_QUERY_CHECKBOX: {
-                                updateMultiSelectQueryControl(inputControl);
+                                updateMultiSelectValues(inputControl, true, savedParameters);
                                 break;
                             }
                         }
@@ -605,6 +635,13 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         AsyncTaskExceptionHandler.handle(task, this, true);
     }
 
+    @Override
+    public void onDestroy() {
+        // close any open database object
+        if (dbProvider != null) dbProvider.close();
+        super.onDestroy();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -632,33 +669,142 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
 
         return outputDir;
     }
-    
+
+    private void setDefaultValues(InputControlWrapper inputControl, List<ResourceParameter> savedParameters) {
+        if(inputControl.getListOfSelectedValues().isEmpty()) {
+            if (!savedParameters.isEmpty()) {
+                Iterator<ResourceParameter> iterator = savedParameters.iterator();
+                while (iterator.hasNext()) {
+                    ResourceParameter parameter = iterator.next();
+                    if(inputControl.getName().equals(parameter.getName())) {
+                        inputControl.getListOfSelectedValues().add(parameter);
+                        iterator.remove();
+                    }
+                }
+
+            }
+        }
+    }
+
     private void updateDependentControls(InputControlWrapper inputControl) {
+        updateDependentControls(inputControl, null);
+    }
+
+    private void updateDependentControls(InputControlWrapper inputControl, List<ResourceParameter> savedParameters) {
         for (InputControlWrapper dependentControl : inputControl.getSlaveDependencies()) {
             // update view
             switch (dependentControl.getType()) {
                 case ResourceDescriptor.IC_TYPE_SINGLE_SELECT_QUERY:
                 case ResourceDescriptor.IC_TYPE_SINGLE_SELECT_QUERY_RADIO: {
-                    updateSingleSelectQueryControl(dependentControl);
+                    updateSingleSelectValues(dependentControl, true, savedParameters);
                     break;
                 }
                 case ResourceDescriptor.IC_TYPE_MULTI_SELECT_QUERY:
                 case ResourceDescriptor.IC_TYPE_MULTI_SELECT_QUERY_CHECKBOX:
-                    updateMultiSelectQueryControl(dependentControl);
+                    updateMultiSelectValues(dependentControl, true, savedParameters);
                     break;
             }
 
         }
     }
 
+    private void updateSingleSelectControl(InputControlWrapper inputControl, ResourceProperty selectedItem) {
+        List<ResourceParameter> params = new ArrayList<ResourceParameter>();
+        if (selectedItem != null && !(InputControlWrapper.NOTHING_SUBSTITUTE).equals(selectedItem.getName())) {
+            params.add(new ResourceParameter(inputControl.getName(), selectedItem.getName(), false));
+        }
+        inputControl.setListOfSelectedValues(params);
+        //update dependent controls if exist
+        updateDependentControls(inputControl);
+    }
+
+    private void updateMultiSelectControl(InputControlWrapper inputControl, List<ResourceProperty> selectedItems) {
+        List<ResourceParameter> params = new ArrayList<ResourceParameter>();
+        // update selected values
+        for (ResourceProperty item : (List<ResourceProperty>) selectedItems) {
+            params.add(new ResourceParameter(inputControl.getName(), item.getName(), true));
+        }
+        inputControl.setListOfSelectedValues(params);
+        // update dependent controls if exist
+        updateDependentControls(inputControl);
+    }
+
+    private void updateSingleSelectValues(InputControlWrapper inputControl, boolean isQueryValues,
+                                          List<ResourceParameter> savedParameters) {
+        // get View from input control
+        Spinner spinner = (Spinner) inputControl.getInputView();
+
+        // update list of values from query
+        if (isQueryValues) {
+            updateInputControlQueryData(inputControl);
+        }
+
+        // set initial values for spinner
+        if (!inputControl.isMandatory()) {
+            addBlankPropertyToList(inputControl.getListOfValues());
+        }
+        ArrayAdapter<ResourceProperty> lovAdapter =
+                new ArrayAdapter<ResourceProperty>(this, android.R.layout.simple_spinner_item, inputControl.getListOfValues());
+        lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(lovAdapter);
+
+        // set default value
+        if (savedParameters != null) {
+            setDefaultValues(inputControl, savedParameters);
+            if (!inputControl.getListOfSelectedValues().isEmpty()) {
+                for (ResourceProperty property : inputControl.getListOfValues()) {
+                    if (property.getName().equals(inputControl.getListOfSelectedValues().get(0).getValue())) {
+                        int position = lovAdapter.getPosition(property);
+                        spinner.setSelection(position);
+                        break;
+                    }
+                }
+            }
+        }
+
+        //update dependent controls if exist
+        updateDependentControls(inputControl, savedParameters);
+    }
+
+    private void updateMultiSelectValues(InputControlWrapper inputControl, boolean isQueryValues,
+                                         List<ResourceParameter> savedParameters) {
+        // get View from input control
+        MultiSelectSpinner multiSpinner = (MultiSelectSpinner) inputControl.getInputView();
+        // update list of values from query
+        if (isQueryValues) {
+            updateInputControlQueryData(inputControl);
+        }
+        // set initial values for multispinner
+        multiSpinner.setItemsList(inputControl.getListOfValues(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
+
+        // set default value
+        if (savedParameters != null) {
+            setDefaultValues(inputControl, savedParameters);
+            if (!inputControl.getListOfSelectedValues().isEmpty()) {
+                List<Integer> positons = new ArrayList<Integer>();
+                for (ResourceProperty property : inputControl.getListOfValues()) {
+                    for (ResourceParameter parameter : inputControl.getListOfSelectedValues()) {
+                        if (property.getName().equals(parameter.getValue())) {
+                            positons.add(multiSpinner.getItemPosition(property));
+                        }
+                    }
+                }
+                multiSpinner.setSelection(positons);
+            }
+        }
+
+        //update dependent controls if exist
+        updateDependentControls(inputControl, savedParameters);
+    }
+
     private void updateInputControlQueryData(InputControlWrapper inputControl) {
         // get the parameter values
         List<ResourceParameter> parameters = new ArrayList<ResourceParameter>();
-        
+
         for (InputControlWrapper dependency : inputControl.getMasterDependencies()) {
             parameters.addAll(dependency.getListOfSelectedValues());
         }
-        
+
         String datasourceUri = inputControl.getDataSourceUri();
         // get data source from report if it isn't available for input control
         if (datasourceUri == null) {
@@ -676,52 +822,6 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         }
 
         inputControl.setListOfValues(values);
-    }
-
-    private void updateSingleSelectControl(InputControlWrapper inputControl, ResourceProperty selectedItem) {
-        List<ResourceParameter> params = new ArrayList<ResourceParameter>();
-        if (selectedItem != null && !(InputControlWrapper.NOTHING_SUBSTITUTE).equals(selectedItem.getName())) {
-            params.add(new ResourceParameter(inputControl.getName(), selectedItem.getName(), false));
-        }
-        inputControl.setListOfSelectedValues(params);
-
-        //update dependent controls if exist
-        updateDependentControls(inputControl);
-    }
-
-    private void updateSingleSelectQueryControl(InputControlWrapper inputControl) {
-        // get View from input control
-        Spinner spinner = (Spinner) inputControl.getInputView();
-        // update list of values from query
-        updateInputControlQueryData(inputControl);
-        // update list of values for spinner
-        if (!inputControl.isMandatory()) {
-            addBlankPropertyToList(inputControl.getListOfValues());
-        }
-        ArrayAdapter<ResourceProperty> lovAdapter =
-                new ArrayAdapter<ResourceProperty>(this, android.R.layout.simple_spinner_item, inputControl.getListOfValues());
-        lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(lovAdapter);
-
-        // set selected value and update dependent controls if exist
-        updateSingleSelectControl(inputControl, (ResourceProperty) spinner.getSelectedItem());
-    }
-
-    private void updateMultiSelectQueryControl(InputControlWrapper inputControl) {
-        // get View from input control
-        MultiSelectSpinner multiSpinner = (MultiSelectSpinner) inputControl.getInputView();
-        // update list of values from query
-        updateInputControlQueryData(inputControl);
-        // update list of values for multispinner
-        multiSpinner.setItemsList(inputControl.getListOfValues(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
-        // set selected values
-        List<ResourceParameter> params = new ArrayList<ResourceParameter>();
-        for (ResourceProperty item : (List<ResourceProperty>) multiSpinner.getSelectedItems()) {
-            params.add(new ResourceParameter(inputControl.getName(), item.getName(), true));
-        }
-        inputControl.setListOfSelectedValues(params);
-        //update dependent controls if exist
-        updateDependentControls(inputControl);
     }
     
     private void cleanupDependencies(List<InputControlWrapper> inputControls) {

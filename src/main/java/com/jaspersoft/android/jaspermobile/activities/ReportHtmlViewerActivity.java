@@ -32,6 +32,7 @@ import android.widget.ProgressBar;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -76,11 +77,13 @@ public class ReportHtmlViewerActivity extends RoboActivity {
                 // hide progress bar after page load
                 progressBar.setVisibility(View.GONE);
                 // workaround for http://bugzilla.jaspersoft.com/show_bug.cgi?id=29257
-                if (jsRestClient.getRestApiDescriptor().getVersion() == 1 ) webView.clearCache(true);
+                if (jsRestClient.getServerInfo().getVersionCode() < ServerInfo.VERSION_CODES.EMERALD) {
+                    webView.clearCache(true);
+                }
             }
         });
 
-        if (jsRestClient.getRestApiDescriptor().getVersion() > 1 ) {
+        if (jsRestClient.getServerInfo().getVersionCode() >= ServerInfo.VERSION_CODES.EMERALD) {
             // Set Cookies
             HttpComponentsClientHttpRequestFactory requestFactory = (HttpComponentsClientHttpRequestFactory) jsRestClient.getRestTemplate().getRequestFactory();
             DefaultHttpClient httpClient = (DefaultHttpClient) requestFactory.getHttpClient();

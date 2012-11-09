@@ -58,7 +58,7 @@ import com.jaspersoft.android.sdk.client.oxm.ReportDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.ResourceParameter;
 import com.jaspersoft.android.sdk.client.oxm.ResourceProperty;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlDescriptor;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
@@ -106,8 +106,8 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
 
     private TextView activeDateDisplay;
     private Calendar activeDate;
-    private InputControlWrapper activeInputControl;
-    private InputControlDescriptor activeInputControlDesc;
+    private InputControlWrapper activeInputControlWrapper;
+    private InputControl activeInputControl;
 
     private String reportUri;
     private ResourceDescriptor resourceDescriptor;
@@ -199,7 +199,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
             LayoutInflater inflater = getLayoutInflater();
 
             // init UI components for ICs
-            for (final InputControlDescriptor inputControl : (List<InputControlDescriptor>) inputControls) {
+            for (final InputControl inputControl : (List<InputControl>) inputControls) {
                 String mandatoryPrefix = (inputControl.isMandatory()) ? "* " : "" ;
                 restoreLastValues(inputControl, savedOptions);
                 switch (inputControl.getType()) {
@@ -236,7 +236,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                         textView.setText(mandatoryPrefix + inputControl.getLabel() + ":");
                         EditText editText = (EditText) view.findViewById(R.id.ic_edit_text);
                         // allow only numbers if data type is numeric
-                        if (inputControl.getType() == InputControlDescriptor.Type.singleValueNumber) {
+                        if (inputControl.getType() == InputControl.Type.singleValueNumber) {
                             editText.setInputType(InputType.TYPE_CLASS_NUMBER
                                     | InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                         }
@@ -299,7 +299,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                             }
                         });
 
-                        boolean isDateTime = (inputControl.getType() == InputControlDescriptor.Type.singleValueDatetime);
+                        boolean isDateTime = (inputControl.getType() == InputControl.Type.singleValueDatetime);
 
                         if (isDateTime) {
                             // init the time picker
@@ -431,16 +431,16 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         }
     }
 
-    private void updateDependentControls(InputControlDescriptor inputControl) {
+    private void updateDependentControls(InputControl inputControl) {
         updateDependentControls(inputControl, true);
     }
 
-    private void updateDependentControls(InputControlDescriptor inputControl, boolean updateViews) {
+    private void updateDependentControls(InputControl inputControl, boolean updateViews) {
         if(!inputControl.getSlaveDependencies().isEmpty()) {
             List<ReportParameter> selectedValues = new ArrayList<ReportParameter>();
             // get values from master dependencies
             for (String masterId : inputControl.getMasterDependencies()) {
-                for (InputControlDescriptor control : (List<InputControlDescriptor>) inputControls) {
+                for (InputControl control : (List<InputControl>) inputControls) {
                     if(control.getId().equals(masterId)) {
                         selectedValues.add(new ReportParameter(control.getId(), control.getSelectedValues()));
                     }
@@ -452,7 +452,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
             List<InputControlState> stateList =
                     jsRestClient.getUpdatedInputControlsValues(reportUri, inputControl.getSlaveDependencies(), selectedValues);
             for (InputControlState state : stateList) {
-                for(InputControlDescriptor slaveControl : (List<InputControlDescriptor>) inputControls) {
+                for(InputControl slaveControl : (List<InputControl>) inputControls) {
                     if (slaveControl.getId().equals(state.getId())) {
                         slaveControl.setState(state);
                         if(updateViews) {
@@ -548,7 +548,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                 List<InputControlState> stateList = jsRestClient.validateInputControlsValues(reportUri, inputControls);
                 if(!stateList.isEmpty()) {
                     for (InputControlState state : stateList) {
-                        for (InputControlDescriptor control : (List<InputControlDescriptor>) inputControls) {
+                        for (InputControl control : (List<InputControl>) inputControls) {
                             TextView textView = (TextView) control.getErrorView();
                             if (textView != null) {
                                 if(control.getId().equals(state.getId())) {
@@ -564,7 +564,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                     return;
                 }
 
-                for (InputControlDescriptor inputControl : (List<InputControlDescriptor>) inputControls) {
+                for (InputControl inputControl : (List<InputControl>) inputControls) {
                     parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
                 }
 
@@ -1096,7 +1096,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
     }
 
     // REST v2
-    private void restoreLastValues(InputControlDescriptor inputControl, Map<String, List<String>> savedOptions) {
+    private void restoreLastValues(InputControl inputControl, Map<String, List<String>> savedOptions) {
         if (savedOptions.containsKey(inputControl.getId())) {
             List<String> values = savedOptions.get(inputControl.getId());
             if (!values.isEmpty()) {
@@ -1308,10 +1308,10 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
 
     // Date/Time Dialogs
 
-    private void showDateDialog(int id, InputControlWrapper inputControl, InputControlDescriptor inputControlDescriptor,
+    private void showDateDialog(int id, InputControlWrapper inputControlWrapper, InputControl InputControl,
                                 TextView dateDisplay, Calendar date) {
-        activeInputControl = inputControl;
-        activeInputControlDesc = inputControlDescriptor;
+        activeInputControlWrapper = inputControlWrapper;
+        activeInputControl = InputControl;
         activeDateDisplay = dateDisplay;
         activeDate = date;
         showDialog(id);
@@ -1338,22 +1338,22 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
     };
 
     private void updateDisplayAndValueOnDateSet() {
-        if (activeInputControl != null) {
-            boolean isDateTime = (activeInputControl.getDataType() == ResourceDescriptor.DT_TYPE_DATE_TIME);
+        if (activeInputControlWrapper != null) {
+            boolean isDateTime = (activeInputControlWrapper.getDataType() == ResourceDescriptor.DT_TYPE_DATE_TIME);
             updateDateDisplay(activeDateDisplay, activeDate, isDateTime);
             // update control
             List<ResourceParameter> parameters = new ArrayList<ResourceParameter>();
-            parameters.add(new ResourceParameter(activeInputControl.getName(), String.valueOf(activeDate.getTimeInMillis()), false));
-            activeInputControl.setListOfSelectedValues(parameters);
-        } else if (activeInputControlDesc != null) {
+            parameters.add(new ResourceParameter(activeInputControlWrapper.getName(), String.valueOf(activeDate.getTimeInMillis()), false));
+            activeInputControlWrapper.setListOfSelectedValues(parameters);
+        } else if (activeInputControl != null) {
             String format = DEFAULT_DATE_FORMAT;
-            for (DateTimeFormatValidationRule validationRule : activeInputControlDesc.getValidationRules(DateTimeFormatValidationRule.class)) {
+            for (DateTimeFormatValidationRule validationRule : activeInputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
                 format = validationRule.getFormat();
             }
             DateFormat formatter = new SimpleDateFormat(format);
             String date = formatter.format(activeDate.getTime()) ;
             activeDateDisplay.setText(date);
-            activeInputControlDesc.getState().setValue(date);
+            activeInputControl.getState().setValue(date);
         }
         unregisterDateDisplay();
     }
@@ -1372,8 +1372,8 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
     private void unregisterDateDisplay() {
         activeDateDisplay = null;
         activeDate = null;
+        activeInputControlWrapper = null;
         activeInputControl = null;
-        activeInputControlDesc = null;
     }
 
 }

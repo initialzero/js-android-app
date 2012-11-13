@@ -24,15 +24,16 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/htmlViewer.layout" >
+    android:id="@+id/htmlViewer_layout"
+    style="@style/htmlViewer.layout">
 
     <WebView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/report_webView"
+        android:id="@+id/htmlViewer_webView"
         style="@style/htmlViewer.webView"
     />
 
     <ProgressBar
-        android:id="@+id/report_webView_progressBar"
+        android:id="@+id/htmlViewer_webView_progressBar"
         style="@style/htmlViewer.progressBar"
     />
 

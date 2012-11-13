@@ -585,7 +585,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                 // run the html report viewer
                 Intent htmlViewer = new Intent();
                 htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
-                htmlViewer.putExtra(ReportHtmlViewerActivity.EXTRA_REPORT_FILE_URI, reportUrl);
+                htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL, reportUrl);
                 startActivity(htmlViewer);
             } else {
                 String contentType, extension;
@@ -1009,7 +1009,8 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                     Intent htmlViewer = new Intent();
                     htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
                     File outputDir = ((SaveReportAttachmentsAsyncTask) task).getOutputDir();
-                    htmlViewer.putExtra(ReportHtmlViewerActivity.EXTRA_REPORT_FILE_URI, Uri.fromFile(outputDir) + File.separator + REPORT_FILE_NAME);
+                    htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL,
+                                        Uri.fromFile(outputDir) + File.separator + REPORT_FILE_NAME);
                     startActivity(htmlViewer);
                 }
                 break;

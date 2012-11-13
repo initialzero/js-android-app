@@ -130,6 +130,9 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
             case reportUnit:
                 runReport(resourceDescriptor.getLabel(), resourceDescriptor.getUriString());
                 break;
+            case dashboard:
+                runDashboard(resourceDescriptor.getUriString());
+                break;
             default:
                 viewResource(resourceDescriptor.getUriString());
                 break;
@@ -172,11 +175,16 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
         // Retrieve the label for that particular item and use as title for the menu
         menu.setHeaderTitle(resourceDescriptor.getLabel());
         // Add all the menu options
-        if (resourceDescriptor.getWsType() == ResourceDescriptor.WsType.folder) {
-            menu.add(Menu.NONE, ID_CM_OPEN, Menu.NONE, R.string.r_cm_open);
-        } else if (resourceDescriptor.getWsType() == ResourceDescriptor.WsType.reportUnit) {
-            menu.add(Menu.NONE, ID_CM_RUN, Menu.NONE, R.string.r_cm_run);
+        switch (resourceDescriptor.getWsType()) {
+            case folder:
+                menu.add(Menu.NONE, ID_CM_OPEN, Menu.NONE, R.string.r_cm_open);
+                break;
+            case reportUnit:
+            case dashboard:
+                menu.add(Menu.NONE, ID_CM_RUN, Menu.NONE, R.string.r_cm_run);
+                break;
         }
+
         menu.add(Menu.NONE, ID_CM_EDIT, Menu.NONE, R.string.r_cm_edit);
         menu.add(Menu.NONE, ID_CM_DELETE, Menu.NONE, R.string.r_cm_delete);
         menu.add(Menu.NONE, ID_CM_VIEW_DETAILS, Menu.NONE, R.string.r_cm_view_details);
@@ -195,7 +203,14 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
                 openFolderByDescriptor(resourceDescriptor);
                 return true;
             case ID_CM_RUN:
-                runReport(resourceDescriptor.getLabel(), resourceDescriptor.getUriString());
+                switch (resourceDescriptor.getWsType()) {
+                    case reportUnit:
+                        runReport(resourceDescriptor.getLabel(), resourceDescriptor.getUriString());
+                        break;
+                    case dashboard:
+                        runDashboard(resourceDescriptor.getUriString());
+                        break;
+                }
                 return true;
             case ID_CM_EDIT:
                 editResource(resourceDescriptor.getUriString());
@@ -329,6 +344,18 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
         startActivity(intent);
+    }
+
+    private void runDashboard(String dashboardUri) {
+        // generate url
+        String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
+                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
+                + dashboardUri;
+        // run the html dashboard viewer
+        Intent htmlViewer = new Intent();
+        htmlViewer.setClass(this, DashboardHtmlViewerActivity.class);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL, dashboardUrl);
+        startActivity(htmlViewer);
     }
 
     //On success task complete handling

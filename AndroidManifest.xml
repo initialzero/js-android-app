@@ -117,6 +117,9 @@
         <!-- Activity that performs report viewing in HTML format -->
         <activity android:name=".activities.ReportHtmlViewerActivity" />
 
+        <!-- Activity that performs dashboard viewing in HTML format -->
+        <activity android:name=".activities.DashboardHtmlViewerActivity" />
+
     </application>
 
 </manifest>

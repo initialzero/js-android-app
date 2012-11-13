@@ -24,39 +24,30 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
-import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import android.os.Bundle;
+import android.widget.RelativeLayout;
+import com.jaspersoft.android.jaspermobile.R;
+import roboguice.inject.InjectView;
 
 /**
  * @author Ivan Gadzhega
  * @version $Id$
  * @since 1.4
  */
-public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
+public class DashboardHtmlViewerActivity extends BaseHtmlViewerActivity {
+
+    @InjectView(R.id.htmlViewer_layout) protected RelativeLayout layout;
 
     @Override
-    protected void setWebViewClient() {
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                // hide progress bar after page load
-                progressBar.setVisibility(View.GONE);
-                // workaround for http://bugzilla.jaspersoft.com/show_bug.cgi?id=29257
-                if (jsRestClient.getServerInfo().getVersionCode() < ServerInfo.VERSION_CODES.EMERALD) {
-                    webView.clearCache(true);
-                }
-            }
-        });
-    }
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    @Override
-    protected void setCookiesFromRestClient() {
-        if (jsRestClient.getServerInfo().getVersionCode() >= ServerInfo.VERSION_CODES.EMERALD) {
-            super.setCookiesFromRestClient();
-        }
+        // Get the screen's density scale
+        final float scale = getResources().getDisplayMetrics().density;
+        // Convert the dps to pixels, based on density scale
+        int padding_2dp = (int) (2 * scale + 0.5f);
+        // set padding in dp for layout
+        layout.setPadding(padding_2dp, padding_2dp, padding_2dp, padding_2dp);
     }
 
 }

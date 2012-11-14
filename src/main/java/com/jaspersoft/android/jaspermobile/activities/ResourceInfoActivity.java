@@ -88,7 +88,7 @@ public class ResourceInfoActivity extends RoboActivity implements JsOnTaskCallba
 
         // Create and run getting resource task and proper progress dialog
         GetResourceAsyncTask getResourceAsyncTask = new GetResourceAsyncTask(GET_RESOURCE_TASK,
-                getString(R.string.r_pd_loading_msg), jsRestClient, resourceUri);
+                getString(R.string.loading_msg), jsRestClient, resourceUri);
         jsAsyncTaskManager.executeTask(getResourceAsyncTask);
     }
 

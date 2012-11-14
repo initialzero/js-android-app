@@ -110,7 +110,6 @@
     <string name="r_delete_btn">Delete</string>
     <string name="r_cancel_btn">Cancel</string>
     <!-- Progress Dialog -->
-    <string name="r_pd_loading_msg">Loading…</string>
     <string name="r_pd_deleting_msg">Deleting…</string>
     <!-- Notifications -->
     <string name="r_resource_deleted_toast">Resource successfully deleted.</string>
@@ -173,6 +172,7 @@
     <string name="error_http_504">504 - Gateway Timeout.</string>
 
     <!-- Others -->
+    <string name="loading_msg">Loading…</string>
     <string name="error_msg">Error</string>
     <string name="cancelled_msg">Cancelled</string>
 

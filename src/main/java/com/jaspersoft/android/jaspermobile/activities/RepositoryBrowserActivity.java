@@ -92,7 +92,7 @@ public class RepositoryBrowserActivity extends BaseRepositoryActivity implements
         breadCrumbsTitleLarge.setText(titleLarge);
 
         // Create and run browse resources task
-        jsAsyncTaskManager.executeTask(new GetResourcesListAsyncTask(GET_RESOURCE_TASK, getString(R.string.r_pd_loading_msg),
+        jsAsyncTaskManager.executeTask(new GetResourcesListAsyncTask(GET_RESOURCE_TASK, getString(R.string.loading_msg),
                 jsRestClient, uri));
     }
 

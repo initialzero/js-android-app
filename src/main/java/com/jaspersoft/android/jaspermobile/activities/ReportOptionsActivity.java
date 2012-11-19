@@ -124,6 +124,8 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
     private JsAsyncTaskManager jsAsyncTaskManager;
     private DatabaseProvider dbProvider;
 
+    private boolean skipRecursiveUpdate;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -190,6 +192,8 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
             // get updated values for slaves
             List<InputControlState> stateList =
                     jsRestClient.getUpdatedInputControlsValues(reportUri, inputControl.getSlaveDependencies(), selectedValues);
+            // don't update recursively
+            skipRecursiveUpdate = true;
             for (InputControlState state : stateList) {
                 for(InputControl slaveControl : (List<InputControl>) inputControls) {
                     if (slaveControl.getId().equals(state.getId())) {
@@ -242,6 +246,7 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                     }
                 }
             }
+            skipRecursiveUpdate = false;
         }
     }
 
@@ -544,7 +549,9 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                 // update selected value
                                 inputControl.getState().setValue(String.valueOf(isChecked));
                                 // update dependent controls if exist
-                                updateDependentControls(inputControl);
+                                if (!skipRecursiveUpdate) {
+                                    updateDependentControls(inputControl);
+                                }
                             }
                         });
                         // assign views to the control
@@ -574,7 +581,9 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                 // update selected value
                                 inputControl.getState().setValue(s.toString());
                                 // update dependent controls if exist
-                                updateDependentControls(inputControl);
+                                if (!skipRecursiveUpdate) {
+                                    updateDependentControls(inputControl);
+                                }
                             }
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -643,9 +652,10 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                             @Override
                             public void afterTextChanged(Editable s) {
                                 // update dependent controls if exist
-                                updateDependentControls(inputControl);
+                                if (!skipRecursiveUpdate) {
+                                    updateDependentControls(inputControl);
+                                }
                             }
-
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                                 /* Do nothing */
@@ -695,7 +705,9 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                     option.setSelected(option.equals(parent.getSelectedItem()));
                                 }
                                 // update dependent controls if exist
-                                updateDependentControls(inputControl);
+                                if (!skipRecursiveUpdate) {
+                                    updateDependentControls(inputControl);
+                                }
                             }
                             @Override
                             public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
@@ -740,7 +752,9 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                                             option.setSelected(isSelected);
                                         }
                                         // update dependent controls if exist
-                                        updateDependentControls(inputControl);
+                                        if (!skipRecursiveUpdate) {
+                                            updateDependentControls(inputControl);
+                                        }
                                     }
                                 });
 

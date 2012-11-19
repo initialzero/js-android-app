@@ -44,19 +44,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.CacheUtils;
 import com.jaspersoft.android.jaspermobile.util.FileUtils;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.RoboAsyncTask;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -155,7 +156,10 @@ public class HomeActivity extends RoboActivity {
                     Bundle appData = new Bundle();
                     appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
                     appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
-                    appData.putString(RepositorySearchActivity.EXTRA_RESOURCE_TYPE, ResourceDescriptor.WsType.reportUnit.toString());
+                    ArrayList<String> types = new ArrayList<String>();
+                    types.add(ResourceDescriptor.WsType.reportUnit.toString());
+                    types.add(ResourceDescriptor.WsType.dashboard.toString());
+                    appData.putStringArrayList(RepositorySearchActivity.EXTRA_RESOURCE_TYPES, types);
                     searchIntent.putExtra(SearchManager.APP_DATA, appData);
                     startActivity(searchIntent);
                     break;
@@ -190,32 +194,6 @@ public class HomeActivity extends RoboActivity {
             alertbox.show();
         }
     }
-
-    /* Options Menu */
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Add the menu options
-//        menu.add(Menu.NONE, ID_OM_SWITCH_SERVER, Menu.NONE, R.string.h_om_switch_server)
-//                .setIcon(R.drawable.ic_menu_server_profile);
-//        return super.onCreateOptionsMenu(menu);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle item selection
-//        switch (item.getItemId()) {
-//            case ID_OM_SWITCH_SERVER:
-//                // Launch activity to switch the server profile
-//                Intent intent = new Intent();
-//                intent.setClass(this, ServerProfilesManagerActivity.class);
-//                startActivityForResult(intent, ID_OM_SWITCH_SERVER);
-//                return true;
-//            default:
-//                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

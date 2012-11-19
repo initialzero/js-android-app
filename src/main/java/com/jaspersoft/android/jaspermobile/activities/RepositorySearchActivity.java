@@ -37,6 +37,7 @@ import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
 import com.jaspersoft.android.jaspermobile.R;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -48,7 +49,7 @@ import java.util.List;
 public class RepositorySearchActivity extends BaseRepositoryActivity implements JsOnTaskCallbackListener {
 
     // Extras
-    public static final String EXTRA_RESOURCE_TYPE = "RepositorySearchActivity.EXTRA_RESOURCE_TYPE";
+    public static final String EXTRA_RESOURCE_TYPES = "RepositorySearchActivity.EXTRA_RESOURCE_TYPES";
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,7 +93,7 @@ public class RepositorySearchActivity extends BaseRepositoryActivity implements 
         String titleSmall = appData.getString(EXTRA_BC_TITLE_SMALL);
         String titleLarge = getString(R.string.s_title);
         String uri = appData.getString(EXTRA_RESOURCE_URI);
-        String type = appData.getString(EXTRA_RESOURCE_TYPE);
+        ArrayList<String> types = appData.getStringArrayList(EXTRA_RESOURCE_TYPES);
         //update bread crumbs
         if (titleSmall != null && titleSmall.length() > 0) {
             breadCrumbsTitleSmall.setText(titleSmall);
@@ -102,7 +103,7 @@ public class RepositorySearchActivity extends BaseRepositoryActivity implements 
 
         // Create and run search resources task
         jsAsyncTaskManager.executeTask(new SearchResourcesAsyncTask(SEARCH_RESOURCES_TASK, getString(R.string.s_pd_searching_msg),
-                jsRestClient, uri, query, type, true, 0));
+                jsRestClient, uri, query, types, true, 0));
     }
 
     public void onTaskComplete(JsAsyncTask task) {

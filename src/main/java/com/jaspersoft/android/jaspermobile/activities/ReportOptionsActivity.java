@@ -873,6 +873,12 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
                     }
 
                     case ResourceDescriptor.IC_TYPE_SINGLE_VALUE: {
+                        // if data type specified as reference
+                        if (inputControl.getDataType() == 0) {
+                            ResourceDescriptor dataType = jsRestClient.getResource(inputControl.getDataTypeUri());
+                            ResourceProperty prop = dataType.getPropertyByName(ResourceDescriptor.PROP_DATATYPE_TYPE);
+                            inputControl.setDataType(Byte.parseByte(prop.getValue()));
+                        }
                         switch (inputControl.getDataType()) {
                             case ResourceDescriptor.DT_TYPE_TEXT:
                             case ResourceDescriptor.DT_TYPE_NUMBER: {

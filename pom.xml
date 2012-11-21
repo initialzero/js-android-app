@@ -35,7 +35,7 @@
 	<groupId>com.jaspersoft.android</groupId>
     <artifactId>js-android-jaspermobile</artifactId>
     <name>js-android-jaspermobile</name>
-	<version>1.1</version>
+	<version>1.4</version>
     <packaging>apk</packaging>
 
     <dependencies>
@@ -48,12 +48,12 @@
 		<dependency>
             <groupId>com.jaspersoft.android.sdk</groupId>
             <artifactId>js-android-sdk-client</artifactId>
-            <version>1.0</version>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>com.jaspersoft.android.sdk</groupId>
             <artifactId>js-android-sdk-ui</artifactId>
-            <version>1.0</version>
+            <version>1.4</version>
             <type>apklib</type>
         </dependency>
 

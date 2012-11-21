@@ -31,10 +31,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
+import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorComparator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,9 @@ public class RepositoryFavoritesActivity extends BaseRepositoryActivity{
             nothingToDisplayText.setVisibility(View.VISIBLE);
         } else {
             nothingToDisplayText.setVisibility(View.GONE);
-            setListAdapter(new ResourceDescriptorArrayAdapter(this, resourceDescriptors));
+            ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
+            arrayAdapter.sort(new ResourceDescriptorComparator()); // sort: non-case-sensitive, folders firs
+            setListAdapter(arrayAdapter);
         }
     }
 

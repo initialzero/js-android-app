@@ -30,15 +30,15 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
 import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
 import com.jaspersoft.android.sdk.client.async.task.SearchResourcesAsyncTask;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
-import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorComparator;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -122,12 +122,7 @@ public class RepositorySearchActivity extends BaseRepositoryActivity implements 
                             nothingToDisplayText.setVisibility(View.GONE);
                             ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
                             // sort the search results
-                            arrayAdapter.sort( new Comparator<ResourceDescriptor>() {
-                                @Override
-                                public int compare(ResourceDescriptor object1, ResourceDescriptor object2) {
-                                    return object1.getLabel().compareTo(object2.getLabel());
-                                }
-                            });
+                            arrayAdapter.sort(new ResourceDescriptorComparator());
                             setListAdapter(arrayAdapter);
                         } else {
                             // Show text that there are no results from search

@@ -29,12 +29,13 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
 import com.jaspersoft.android.sdk.client.async.task.GetResourcesListAsyncTask;
 import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
-import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorComparator;
 
 import java.util.List;
 
@@ -112,7 +113,9 @@ public class RepositoryBrowserActivity extends BaseRepositoryActivity implements
                         List<ResourceDescriptor> resourceDescriptors = ((GetResourcesListAsyncTask)task).get();
                         if (resourceDescriptors != null) {
                             nothingToDisplayText.setVisibility(View.GONE);
-                            setListAdapter(new ResourceDescriptorArrayAdapter(this, resourceDescriptors));
+                            ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
+                            arrayAdapter.sort(new ResourceDescriptorComparator()); // sort: non-case-sensitive, folders first
+                            setListAdapter(arrayAdapter);
                         } else {
                             // Show text that there are no resources in the folder
                             nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);

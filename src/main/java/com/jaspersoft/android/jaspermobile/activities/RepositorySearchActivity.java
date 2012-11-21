@@ -117,17 +117,16 @@ public class RepositorySearchActivity extends BaseRepositoryActivity implements 
                 } else {
                     try {
                         List<ResourceDescriptor> resourceDescriptors = ((SearchResourcesAsyncTask)task).get();
-
-                        if (resourceDescriptors != null) {
+                        if (resourceDescriptors.isEmpty()) {
+                            // Show text that there are no results from search
+                            nothingToDisplayText.setText(R.string.r_search_nothing_to_display);
+                            nothingToDisplayText.setVisibility(View.VISIBLE);
+                        } else {
                             nothingToDisplayText.setVisibility(View.GONE);
                             ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
                             // sort the search results
                             arrayAdapter.sort(new ResourceDescriptorComparator());
                             setListAdapter(arrayAdapter);
-                        } else {
-                            // Show text that there are no results from search
-                            nothingToDisplayText.setText(R.string.r_search_nothing_to_display);
-                            nothingToDisplayText.setVisibility(View.VISIBLE);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

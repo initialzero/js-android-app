@@ -111,15 +111,15 @@ public class RepositoryBrowserActivity extends BaseRepositoryActivity implements
                 } else {
                     try {
                         List<ResourceDescriptor> resourceDescriptors = ((GetResourcesListAsyncTask)task).get();
-                        if (resourceDescriptors != null) {
+                        if (resourceDescriptors.isEmpty()) {
+                            // Show text that there are no resources in the folder
+                            nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);
+                            nothingToDisplayText.setVisibility(View.VISIBLE);
+                        } else {
                             nothingToDisplayText.setVisibility(View.GONE);
                             ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
                             arrayAdapter.sort(new ResourceDescriptorComparator()); // sort: non-case-sensitive, folders first
                             setListAdapter(arrayAdapter);
-                        } else {
-                            // Show text that there are no resources in the folder
-                            nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);
-                            nothingToDisplayText.setVisibility(View.VISIBLE);
                         }
 
                     } catch (Exception e) {

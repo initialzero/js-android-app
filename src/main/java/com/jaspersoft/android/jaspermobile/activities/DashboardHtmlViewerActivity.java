@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
- * http://www.jasperforge.org/projects/androidmobile
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
  * the following license terms apply:

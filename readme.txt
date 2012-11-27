@@ -3,7 +3,7 @@ JasperMobile for Android version 1.4 Readme
 JasperMobile for Android is a native application which allows you to browse your JasperReports Server repository and view reports in several formats.
 
 It is built using the Jaspersoft Mobile SDK for Android, and is compatible with JasperReports Server 4.5.1 or higher.  It can be used with JRS CE
-version 4.5.0, after installing the compatibility hotfix - hotfix_JRS_CE_4.5.0_Android_compat.zip (available from http://jasperforge.org/projects/androidsdk/downloads).
+version 4.5.0, after installing the compatibility hotfix - hotfix_JRS_CE_4.5.0_Android_compat.zip (available from http://community.jaspersoft.com/project/mobile-sdk-android/releases).
 
 The source code of JasperMobile for Android is freely available and can be used as a good example of how to integrate reporting and analysis services of JasperReports Server with their native applications.
 
@@ -11,8 +11,8 @@ The source code of JasperMobile for Android is freely available and can be used 
 General Information
 --------------------
 
-Please see the JasperForge JasperMobile for Android project page:
-http://jasperforge.org/projects/androidmobile
+Please see the JasperMobile for Android project page:
+http://community.jaspersoft.com/project/jaspermobile-android
 
 What's New
 --------------------
@@ -31,7 +31,7 @@ We use Apache Maven and the Android Maven Plugin to build JasperMobile applicati
 - Install the Android SDK and Android 4.0 (API 14) SDK Platform
   (the minimum API Level required for the application to run is API 7, but API 14 is required for build the application)
 
-- Install the Jaspersoft Android SDK for Android from http://jasperforge.org/projects/androidsdk
+- Install the Jaspersoft Android SDK for Android from http://community.jaspersoft.com/project/mobile-sdk-android
   Please see "Getting Started.html" included with the SDK for details.
 
 - Run

@@ -172,8 +172,8 @@
 
     <repositories>
         <repository>
-            <id>JasperForge Maven Repository</id>
-            <url>http://anonsvn:anonsvn@jasperforge.org/svn/repos/maven2</url>
+            <id>Jaspersoft Maven Repository</id>
+            <url>http://anonsvn:anonsvn@code.jaspersoft.com/svn/repos/maven2</url>
             <snapshots><enabled>true</enabled></snapshots>
             <releases><enabled>true</enabled></releases>
         </repository>

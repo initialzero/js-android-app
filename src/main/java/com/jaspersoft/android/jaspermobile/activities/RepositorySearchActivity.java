@@ -31,12 +31,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHandler;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
 import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
 import com.jaspersoft.android.sdk.client.async.task.SearchResourcesAsyncTask;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorComparator;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,6 +135,24 @@ public class RepositorySearchActivity extends BaseRepositoryActivity implements 
                         e.printStackTrace();
                     }
             }
+        }
+    }
+
+    @Override
+    public void onTaskException(JsAsyncTask task) {
+        Exception exception = task.getTaskException();
+        SearchResourcesAsyncTask searchTask = (SearchResourcesAsyncTask) task;
+        // workaround for JRS CE (it doesn't know about dashboards)
+        if (exception != null
+            && exception instanceof HttpStatusCodeException
+            && ((HttpStatusCodeException) exception).getStatusCode() == HttpStatus.BAD_REQUEST
+            && searchTask.getTypes().remove(ResourceDescriptor.WsType.dashboard.toString())) {
+                SearchResourcesAsyncTask newTask = new SearchResourcesAsyncTask(SEARCH_RESOURCES_TASK,
+                        getString(R.string.s_pd_searching_msg), jsRestClient, searchTask.getResourceUri(),
+                        searchTask.getQuery(), searchTask.getTypes(), true, 0);
+                jsAsyncTaskManager.executeTask(newTask);
+        } else {
+            AsyncTaskExceptionHandler.handle(task, this, true);
         }
     }
 

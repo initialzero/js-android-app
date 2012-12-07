@@ -80,6 +80,9 @@ public class AsyncTaskExceptionHandler {
                         case GATEWAY_TIMEOUT:
                             showErrorDialog(R.string.error_http_504, activity, finishActivity);
                             break;
+                        default:
+                            showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);
+                            break;
                     }
                 } else {
                     showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);

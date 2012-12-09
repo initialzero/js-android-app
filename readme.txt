@@ -7,7 +7,6 @@ version 4.5.0, after installing the compatibility hotfix - hotfix_JRS_CE_4.5.0_A
 
 The source code of JasperMobile for Android is freely available and can be used as a good example of how to integrate reporting and analysis services of JasperReports Server with their native applications.
 
-
 General Information
 --------------------
 
@@ -17,8 +16,12 @@ http://community.jaspersoft.com/project/jaspermobile-android
 What's New
 --------------------
 
-* added option to always force password entry
-* added "Library" view
+* new Dashboard viewer
+* support for JasperReports Server REST v2 services
+* support for new interactive (HTML 5) charts
+* support for localized input controls
+* re-use the last set of input control values
+* ability to move the app to SD card
 * bug fixes
 
 Source Build
@@ -34,15 +37,10 @@ We use Apache Maven and the Android Maven Plugin to build JasperMobile applicati
 - Install the Jaspersoft Android SDK for Android from http://community.jaspersoft.com/project/mobile-sdk-android
   Please see "Getting Started.html" included with the SDK for details.
 
-- Run
-  mvn clean install
-  to build JasperMobile application for Android.
+- To build JasperMobile application for Android, from the command line, run:
+  mvn clean install 
 
 - Deploy application on a connected devitce/emulator
 
-
 Documentation about using the Android Maven Plugin including archetypes for project creation,
 issues tracker, mailing list of oon thers users  and more can be found at http://code.google.com/p/maven-android-plugin/
-
-
-

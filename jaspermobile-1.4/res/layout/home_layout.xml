@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/home.layout"
+    android:orientation="vertical" >
+
+    <!-- Header -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        style="@style/home.header.layout"
+        android:orientation="horizontal" >
+
+        <ImageView
+            style="@style/home.header.logo"
+            android:contentDescription="@string/app_label"
+        />
+
+    </LinearLayout>
+
+    <!-- Items list -->
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        style="@style/home.scrollView" >
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        style="@style/home.list.layout"
+        android:orientation="vertical" >
+
+        <!-- Library Item -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.item.layout"
+            android:id="@+id/home_item_library"
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="dashButtonOnClickListener" >
+
+            <ImageView
+                style="@style/home.list.item.icon.library"
+                android:contentDescription="@string/h_library_label"
+            />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/home.list.item.txtContainer.layout"
+                android:orientation="vertical"
+                android:duplicateParentState="true" >
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.label"
+                    android:text="@string/h_library_label"
+                    android:duplicateParentState="true"
+                />
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.description"
+                    android:text="@string/h_library_descr"
+                    android:duplicateParentState="true"
+                />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.spacer" />
+
+        <!-- Repository item -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/home_item_repository"
+            style="@style/home.list.item.layout"
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="dashButtonOnClickListener" >
+
+            <ImageView
+                style="@style/home.list.item.icon.repository"
+                android:contentDescription="@string/h_repository_label"
+            />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/home.list.item.txtContainer.layout"
+                android:orientation="vertical"
+                android:duplicateParentState="true" >
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.label"
+                    android:text="@string/h_repository_label"
+                    android:duplicateParentState="true"
+                />
+
+                <TextView
+                    android:id="@+id/server_profiles_list_item_uri"
+                    style="@style/home.list.item.txtContainer.text.description"
+                    android:text="@string/h_repository_descr"
+                    android:duplicateParentState="true"
+                />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.spacer" />
+
+        <!-- Search item -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.item.layout"
+            android:id="@+id/home_item_search"
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="dashButtonOnClickListener" >
+
+            <ImageView
+                style="@style/home.list.item.icon.search"
+                android:contentDescription="@string/h_search_label"
+            />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/home.list.item.txtContainer.layout"
+                android:orientation="vertical"
+                android:duplicateParentState="true" >
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.label"
+                    android:text="@string/h_search_label"
+                    android:duplicateParentState="true"
+                />
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.description"
+                    android:text="@string/h_search_descr"
+                    android:duplicateParentState="true"
+                />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.spacer" />
+
+        <!-- Favorites item -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.item.layout"
+            android:id="@+id/home_item_favorites"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="dashButtonOnClickListener" >
+
+            <ImageView
+                style="@style/home.list.item.icon.favorites"
+                android:contentDescription="@string/h_favorites_label"
+            />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/home.list.item.txtContainer.layout"
+                android:orientation="vertical"
+                android:duplicateParentState="true" >
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.label"
+                    android:text="@string/h_favorites_label"
+                    android:duplicateParentState="true"
+                />
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.description"
+                    android:text="@string/h_favorites_descr"
+                    android:duplicateParentState="true"
+                />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.spacer" />
+
+        <!-- Servers item -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.item.layout"
+            android:id="@+id/home_item_servers"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="dashButtonOnClickListener" >
+
+            <ImageView
+                style="@style/home.list.item.icon.servers"
+                android:contentDescription="@string/h_servers_label"
+            />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/home.list.item.txtContainer.layout"
+                android:orientation="vertical"
+                android:duplicateParentState="true" >
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.label"
+                    android:text="@string/h_servers_label"
+                    android:duplicateParentState="true"
+                />
+
+                <TextView
+                    style="@style/home.list.item.txtContainer.text.description"
+                    android:text="@string/h_servers_descr"
+                    android:duplicateParentState="true"
+                />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            style="@style/home.list.spacer" />
+
+    </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Footer -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        style="@style/home.footer.layout" >
+
+        <TextView
+            style="@style/home.footer.text"
+            android:text="@string/h_server_profile_label"
+            android:textColor="@color/js_light_grey"
+        />
+
+        <TextView
+            android:id="@+id/profile_name_text"
+            style="@style/home.footer.text"
+            android:textColor="@color/js_lighter_blue"
+        />
+
+    </LinearLayout>
+
+</LinearLayout>

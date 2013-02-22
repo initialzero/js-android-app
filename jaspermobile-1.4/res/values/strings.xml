@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+
+<resources>
+
+    <string name="app_label">JasperMobile</string>
+
+
+    <!-- Home Activity -->
+    <string name="h_title">JasperMobile</string>
+    <string name="h_repository_label">Repository</string>
+    <string name="h_repository_descr">Browse and view repository items</string>
+    <string name="h_library_label">Library</string>
+    <string name="h_library_descr">List of all reports</string>
+    <string name="h_search_label">Search</string>
+    <string name="h_search_descr">Search for items in your repository</string>
+    <string name="h_favorites_label">Favorites</string>
+    <string name="h_favorites_descr">Browse and view favorite items</string>
+    <string name="h_servers_label">Servers</string>
+    <string name="h_servers_descr">View and change server profiles</string>
+    <string name="h_server_profile_label">"Server Profile: "</string>
+    <string name="h_server_switched_toast">Server was switched to \"%s\"</string>
+    <!-- Options Menu -->
+    <string name="h_om_switch_server">Change Server</string>
+    <!-- Connection Dialog -->
+    <string name="h_ad_title_no_connection">No connection</string>
+    <string name="h_ad_msg_no_connection">Please check your mobile network settings and try again.</string>
+    <!-- Password Dialog -->
+    <string name="h_ad_title_enter_password">Enter Password</string>
+    <string name="h_ad_label_server_profile">Server Profile:</string>
+    <string name="h_ad_label_organization">Organization:</string>
+    <string name="h_ad_label_username">Username:</string>
+
+
+    <!-- Server Profiles Manager Activity -->
+    <string name="spm_list_title">Server Profiles</string>
+    <!-- Toasts -->
+    <string name="spm_profile_created_toast">New server profile successfully created.</string>
+    <string name="spm_profile_updated_toast">Server profile successfully updated.</string>
+    <string name="spm_profile_deleted_toast">Server profile successfully deleted.</string>
+    <!-- Context Menu -->
+    <string name="spm_cm_switch">Connect</string>
+    <string name="spm_cm_edit">Edit</string>
+    <string name="spm_cm_delete">Delete</string>
+    <!-- Options Menu -->
+    <string name="spm_om_add_profile">Add Server Profile</string>
+    <!-- Delete Dialog -->
+    <string name="spm_ad_delete_profile_msg">Are you sure you want to delete this server profile?</string>
+    <string name="spm_delete_btn">Delete</string>
+    <string name="spm_cancel_btn">Cancel</string>
+
+
+    <!-- Server Profile Activity -->
+    <string name="sp_bc_add_profile">New Server Profile</string>
+    <string name="sp_bc_edit_profile">Edit Server Profile</string>
+    <string name="sp_name_label">Name:</string>
+    <string name="sp_name_hint">my server name</string>
+    <string name="sp_url_label">Server URL:</string>
+    <string name="sp_url_hint">http://myserver.com</string>
+    <string name="sp_org_label">Organization:</string>
+    <string name="sp_organization_hint">organization id</string>
+    <string name="sp_username_label">Username:</string>
+    <string name="sp_username_hint">my user name</string>
+    <string name="sp_password_label">Password:</string>
+    <string name="sp_password_hint">my password</string>
+    <string name="sp_ask_password_text">always ask for password</string>
+    <string name="sp_save_btn">Save</string>
+    <!-- Error messages -->
+    <string name="sp_error_field_required">This field is required.</string>
+    <string name="sp_error_url_not_valid">URL is not valid.</string>
+
+
+    <!-- Repository Activity -->
+    <string name="r_browser_nothing_to_display">There are no resources in this folder.</string>
+    <string name="r_search_nothing_to_display">No results from search.</string>
+    <!--Options Menu -->
+    <string name="r_om_refresh">Refresh</string>
+    <!-- Context Menu -->
+    <string name="r_cm_open">Open</string>
+    <string name="r_cm_run">Run</string>
+    <string name="r_cm_edit">Edit</string>
+    <string name="r_cm_delete">Delete</string>
+    <string name="r_cm_view_details">View Details</string>
+    <string name="r_cm_add_to_favorites">Add to favorites</string>
+    <string name="r_cm_remove_from_favorites">Remove from favorites</string>
+    <!-- Delete Dialog -->
+    <string name="r_ad_delete_resource_msg">Are you sure you want to delete this resource?</string>
+    <string name="r_delete_btn">Delete</string>
+    <string name="r_cancel_btn">Cancel</string>
+    <!-- Progress Dialog -->
+    <string name="r_pd_deleting_msg">Deleting…</string>
+    <!-- Notifications -->
+    <string name="r_resource_deleted_toast">Resource successfully deleted.</string>
+
+
+    <!-- Search Activity -->
+    <string name="s_title">Search Results</string>
+    <string name="s_hint">Search resources</string>
+    <!-- Progress Dialog -->
+    <string name="s_pd_searching_msg">Searching…</string>
+
+
+    <!-- Resource Edit Activity -->
+    <string name="re_title">Edit Resource</string>
+    <string name="re_label">Label:</string>
+    <string name="re_description">Description:</string>
+    <string name="re_modify_btn">Save</string>
+    <!-- Progress Dialog -->
+    <string name="re_pd_saving_msg">Saving…</string>
+    <!-- Notifications -->
+    <string name="re_resource_saved_toast">Resource successfully saved.</string>
+
+
+    <!-- Resource Info Activity -->
+    <string name="ri_title">Resource Info</string>
+    <string name="ri_properties">Resource Properties:</string>
+    <string name="ri_name">Name:</string>
+    <string name="ri_label">Label:</string>
+    <string name="ri_description">Description:</string>
+    <string name="ri_type">Type:</string>
+
+
+    <!-- Report Options Activity -->
+    <string name="ro_output_format_label">Report Output Format:</string>
+    <string name="ro_run_report_btn">Run Report</string>
+    <!-- Notifications -->
+    <string name="ro_no_app_available_toast">No \"%s\" viewer installed.</string>
+    <!-- Progress Dialog -->
+    <string name="ro_pd_loading_report_info_msg">Loading report…</string>
+    <string name="ro_pd_running_report_msg">Running report…</string>
+    <string name="ro_pd_downloading_report_msg">Downloading report…</string>
+    <!-- Error messages -->
+    <string name="ro_error_field_is_mandatory">This field is required.</string>
+
+
+    <!-- Favorites activity -->
+    <string name="f_title">Favorites</string>
+
+
+    <!-- Error messages -->
+    <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
+    <string name="error_http_401">401 - Unauthorized.
+                                  \nAuthentication credentials were missing or incorrect.
+                                  \n\nDo you want to edit server profile?</string>
+    <string name="error_http_403">403 - Permission Denied. The request is understood, but it has been refused.</string>
+    <string name="error_http_404">404 - Not Found. The URI requested is invalid or the resource requested does not exists.</string>
+    <string name="error_http_500">500 - Internal Server Error.</string>
+    <string name="error_http_502">502 - Bad Gateway.</string>
+    <string name="error_http_503">503 - Service Unavailable.</string>
+    <string name="error_http_504">504 - Gateway Timeout.</string>
+
+    <!-- Others -->
+    <string name="loading_msg">Loading…</string>
+    <string name="error_msg">Error</string>
+    <string name="cancelled_msg">Cancelled</string>
+
+
+</resources>

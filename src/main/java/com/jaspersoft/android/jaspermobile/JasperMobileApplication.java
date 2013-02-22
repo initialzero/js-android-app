@@ -24,23 +24,16 @@
 
 package com.jaspersoft.android.jaspermobile;
 
-import com.google.inject.Module;
-import roboguice.application.RoboApplication;
-
-import java.util.List;
+import android.app.Application;
 
 /**
  * @author Ivan Gadzhega
  * @version $Id$
  * @since 1.0
  */
-public class JasperMobileApplication extends RoboApplication {
+public class JasperMobileApplication extends Application {
 
     // Report output cache directory name
     public static final String REPORT_OUTPUT_DIR_NAME = "report.output";
 
-    @Override
-    protected void addApplicationModules(List<Module> modules) {
-        modules.add(new JasperMobileModule());
-    }
 }

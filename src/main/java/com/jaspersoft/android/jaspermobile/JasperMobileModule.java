@@ -26,14 +26,14 @@ package com.jaspersoft.android.jaspermobile;
 
 import com.google.inject.Singleton;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import roboguice.config.AbstractAndroidModule;
+import com.google.inject.AbstractModule;
 
 /**
  * @author Ivan Gadzhega
  * @version $Id$
  * @since 1.0
  */
-public class JasperMobileModule extends AbstractAndroidModule {
+public class JasperMobileModule extends AbstractModule {
 
     @Override
     protected void configure() {

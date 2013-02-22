@@ -374,15 +374,14 @@ public class HomeActivity extends RoboActivity {
 
     private void clearReportOutputCacheFolders() {
         // Clear report output cache folders and, sure, do it asynchronously
-        RoboAsyncTask clearCacheAsyncTask = new RoboAsyncTask<Void>() {
+        RoboAsyncTask clearCacheAsyncTask = new RoboAsyncTask<Void>(this) {
             @Override
             public Void call() {
                 String outputDirName = JasperMobileApplication.REPORT_OUTPUT_DIR_NAME;
-                Context context = contextProvider.get();
                 // for internal cache
-                FileUtils.deleteFilesInDirectory(new File(context.getCacheDir(), outputDirName));
+                FileUtils.deleteFilesInDirectory(new File(getContext().getCacheDir(), outputDirName));
                 // for external cache if available
-                FileUtils.deleteFilesInDirectory(new File(CacheUtils.getExternalCacheDir(context), outputDirName));
+                FileUtils.deleteFilesInDirectory(new File(CacheUtils.getExternalCacheDir(getContext()), outputDirName));
                 return null;
             }
 

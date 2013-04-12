@@ -45,6 +45,10 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.CacheUtils;
@@ -145,21 +149,21 @@ public class HomeActivity extends RoboActivity {
             switch (view.getId()) {
                 case R.id.home_item_repository:
                     Intent loginIntent = new Intent();
-                    loginIntent.setClass(this, RepositoryBrowserActivity.class);
-                    loginIntent.putExtra(RepositoryBrowserActivity.EXTRA_BC_TITLE_LARGE, jsRestClient.getServerProfile().getAlias());
-                    loginIntent.putExtra(RepositoryBrowserActivity.EXTRA_RESOURCE_URI, "/");
+                    loginIntent.setClass(this, BrowserActivity.class);
+                    loginIntent.putExtra(BrowserActivity.EXTRA_BC_TITLE_LARGE, jsRestClient.getServerProfile().getAlias());
+                    loginIntent.putExtra(BrowserActivity.EXTRA_RESOURCE_URI, "/");
                     startActivity(loginIntent);
                     break;
                 case R.id.home_item_library:
                     Intent searchIntent = new Intent();
-                    searchIntent.setClass(this, RepositorySearchActivity.class);
+                    searchIntent.setClass(this, SearchActivity.class);
                     Bundle appData = new Bundle();
                     appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
                     appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
                     ArrayList<String> types = new ArrayList<String>();
                     types.add(ResourceDescriptor.WsType.reportUnit.toString());
                     types.add(ResourceDescriptor.WsType.dashboard.toString());
-                    appData.putStringArrayList(RepositorySearchActivity.EXTRA_RESOURCE_TYPES, types);
+                    appData.putStringArrayList(SearchActivity.EXTRA_RESOURCE_TYPES, types);
                     searchIntent.putExtra(SearchManager.APP_DATA, appData);
                     startActivity(searchIntent);
                     break;
@@ -168,8 +172,8 @@ public class HomeActivity extends RoboActivity {
                     break;
                 case R.id.home_item_favorites:
                     Intent favoritesIntent = new Intent();
-                    favoritesIntent.setClass(this, RepositoryFavoritesActivity.class);
-                    favoritesIntent.putExtra(RepositoryFavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
+                    favoritesIntent.setClass(this, FavoritesActivity.class);
+                    favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
                     startActivity(favoritesIntent);
                     break;
                 case R.id.home_item_servers:

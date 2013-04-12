@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -35,6 +35,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.activities.*;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
@@ -146,8 +147,8 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
                 break;
             case R.id.action_favorites_button:
                 Intent favoritesIntent = new Intent();
-                favoritesIntent.setClass(this, RepositoryFavoritesActivity.class);
-                favoritesIntent.putExtra(RepositoryFavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
+                favoritesIntent.setClass(this, FavoritesActivity.class);
+                favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
                 startActivity(favoritesIntent);
                 break;
             case R.id.action_search_button:
@@ -315,7 +316,7 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
 
     private void openFolderByDescriptor(ResourceDescriptor resourceDescriptor) {
         Intent intent = new Intent();
-        intent.setClass(this, RepositoryBrowserActivity.class);
+        intent.setClass(this, BrowserActivity.class);
         intent.putExtra(EXTRA_BC_TITLE_SMALL, getIntent().getExtras().getString(EXTRA_BC_TITLE_LARGE));
         intent.putExtra(EXTRA_BC_TITLE_LARGE, resourceDescriptor.getLabel());
         intent.putExtra(EXTRA_RESOURCE_URI , resourceDescriptor.getUriString());

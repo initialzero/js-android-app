@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -47,7 +47,7 @@ import java.util.List;
  * @since 1.0
  */
 
-public class RepositoryFavoritesActivity extends BaseRepositoryActivity{
+public class FavoritesActivity extends BaseRepositoryActivity{
 
     // Context menu IDs
     protected static final int ID_CM_REMOVE_FROM_FAVORITES = 26;
@@ -107,7 +107,7 @@ public class RepositoryFavoritesActivity extends BaseRepositoryActivity{
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
         // hide "add to favorites" option
-        menu.findItem(BaseRepositoryActivity.ID_CM_ADD_TO_FAVORITES).setVisible(false);
+        menu.findItem(ID_CM_ADD_TO_FAVORITES).setVisible(false);
         // add "remove from favorites" option
         menu.add(Menu.NONE, ID_CM_REMOVE_FROM_FAVORITES, Menu.NONE, R.string.r_cm_remove_from_favorites);
     }

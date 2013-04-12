@@ -64,10 +64,10 @@
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- enable the search dialog to send searches to RepositorySearchActivity -->
+            <!-- enable the search dialog to send searches to SearchActivity -->
             <meta-data
                 android:name="android.app.default_searchable"
-                android:value=".activities.RepositorySearchActivity"
+                android:value=".activities.repository.SearchActivity"
             />
         </activity>
 
@@ -83,19 +83,19 @@
         </activity>
 
         <!-- Activity that performs repository browsing -->
-        <activity android:name=".activities.RepositoryBrowserActivity" >
-            <!-- enable the search dialog to send searches to RepositorySearchActivity -->
+        <activity android:name=".activities.repository.BrowserActivity" >
+            <!-- enable the search dialog to send searches to SearchActivity -->
             <meta-data
                 android:name="android.app.default_searchable"
-                android:value=".activities.RepositorySearchActivity"
+                android:value=".activities.repository.SearchActivity"
             />
         </activity>
 
         <!-- Activity that performs viewing of the favorite items -->
-        <activity android:name=".activities.RepositoryFavoritesActivity" />
+        <activity android:name=".activities.repository.FavoritesActivity" />
 
         <!-- Activity that performs searches based on a query string and presents the search results-->
-        <activity android:name=".activities.RepositorySearchActivity"
+        <activity android:name=".activities.repository.SearchActivity"
             android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />

@@ -22,26 +22,21 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHandler;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
+import com.jaspersoft.android.sdk.client.async.task.GetResourcesListAsyncTask;
 import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
-import com.jaspersoft.android.sdk.client.async.task.SearchResourcesAsyncTask;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorComparator;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,27 +44,22 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
-public class RepositorySearchActivity extends BaseRepositoryActivity implements JsOnTaskCallbackListener {
+public class BrowserActivity extends BaseRepositoryActivity implements JsOnTaskCallbackListener {
 
-    // Extras
-    public static final String EXTRA_RESOURCE_TYPES = "RepositorySearchActivity.EXTRA_RESOURCE_TYPES";
-    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         handleIntent(getIntent());
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        setIntent(intent);
-        handleIntent(intent);
-    }
-
-    @Override
     public boolean onSearchRequested() {
-        // Provide additional data in the intent that sends to the searchable activity
-        Bundle appData = getIntent().getBundleExtra(SearchManager.APP_DATA);
+        // Provide additional data in the intent that the system sends to the searchable activity
+        Intent intent = getIntent();
+        Bundle appData = new Bundle();
+        appData.putString(EXTRA_BC_TITLE_SMALL, intent.getStringExtra(EXTRA_BC_TITLE_LARGE));
+        appData.putString(EXTRA_RESOURCE_URI, intent.getStringExtra(EXTRA_RESOURCE_URI));
         // Passing search context data
         startSearch(null, false, appData, false);
         return true;
@@ -89,14 +79,12 @@ public class RepositorySearchActivity extends BaseRepositoryActivity implements 
     }
 
     private void handleIntent(Intent intent) {
-        // Get search query from extras
-        String query = intent.getStringExtra(SearchManager.QUERY);
-        // Get additional data from intent
-        Bundle appData = intent.getBundleExtra(SearchManager.APP_DATA);
-        String titleSmall = appData.getString(EXTRA_BC_TITLE_SMALL);
-        String titleLarge = getString(R.string.s_title);
-        String uri = appData.getString(EXTRA_RESOURCE_URI);
-        ArrayList<String> types = appData.getStringArrayList(EXTRA_RESOURCE_TYPES);
+        //get extra pieces of data from intent
+        Bundle extras = getIntent().getExtras();
+        String titleSmall = extras.getString(EXTRA_BC_TITLE_SMALL);
+        String titleLarge = extras.getString(EXTRA_BC_TITLE_LARGE);
+        String uri = extras.getString(EXTRA_RESOURCE_URI);
+
         //update bread crumbs
         if (titleSmall != null && titleSmall.length() > 0) {
             breadCrumbsTitleSmall.setText(titleSmall);
@@ -104,56 +92,46 @@ public class RepositorySearchActivity extends BaseRepositoryActivity implements 
         }
         breadCrumbsTitleLarge.setText(titleLarge);
 
-        // Create and run search resources task
-        jsAsyncTaskManager.executeTask(new SearchResourcesAsyncTask(SEARCH_RESOURCES_TASK, getString(R.string.s_pd_searching_msg),
-                jsRestClient, uri, query, types, true, 0));
+        // Create and run browse resources task
+        jsAsyncTaskManager.executeTask(new GetResourcesListAsyncTask(GET_RESOURCE_TASK, getString(R.string.loading_msg),
+                jsRestClient, uri));
     }
 
+    //On success task complete handling
+    @Override
     public void onTaskComplete(JsAsyncTask task) {
+        super.onTaskComplete(task);
+
         switch (task.getId()) {
-            case SEARCH_RESOURCES_TASK:
+            case GET_RESOURCE_TASK:
                 if (task.isCancelled()) {
                     // Report about resource canceling
-                    Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT)
-                            .show();
+                    Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
                     try {
-                        List<ResourceDescriptor> resourceDescriptors = ((SearchResourcesAsyncTask)task).get();
+                        List<ResourceDescriptor> resourceDescriptors = ((GetResourcesListAsyncTask)task).get();
                         if (resourceDescriptors.isEmpty()) {
-                            // Show text that there are no results from search
-                            nothingToDisplayText.setText(R.string.r_search_nothing_to_display);
+                            // Show text that there are no resources in the folder
+                            nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);
                             nothingToDisplayText.setVisibility(View.VISIBLE);
                         } else {
                             nothingToDisplayText.setVisibility(View.GONE);
                             ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
-                            // sort the search results
-                            arrayAdapter.sort(new ResourceDescriptorComparator());
+                            arrayAdapter.sort(new ResourceDescriptorComparator()); // sort: non-case-sensitive, folders first
                             setListAdapter(arrayAdapter);
                         }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-            }
+                }
+            break;
         }
     }
 
-    @Override
+    //On exception task complete handling
     public void onTaskException(JsAsyncTask task) {
-        Exception exception = task.getTaskException();
-        SearchResourcesAsyncTask searchTask = (SearchResourcesAsyncTask) task;
-        // workaround for JRS CE (it doesn't know about dashboards)
-        if (exception != null
-            && exception instanceof HttpStatusCodeException
-            && ((HttpStatusCodeException) exception).getStatusCode() == HttpStatus.BAD_REQUEST
-            && searchTask.getTypes().remove(ResourceDescriptor.WsType.dashboard.toString())) {
-                SearchResourcesAsyncTask newTask = new SearchResourcesAsyncTask(SEARCH_RESOURCES_TASK,
-                        getString(R.string.s_pd_searching_msg), jsRestClient, searchTask.getResourceUri(),
-                        searchTask.getQuery(), searchTask.getTypes(), true, 0);
-                jsAsyncTaskManager.executeTask(newTask);
-        } else {
-            AsyncTaskExceptionHandler.handle(task, this, true);
-        }
+        super.onTaskException(task);
     }
-
 }

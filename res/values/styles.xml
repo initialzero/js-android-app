@@ -67,61 +67,6 @@
             <item name="android:lines">7</item>
         </style>
 
-    <!-- Action Bar Layout -->
-    <style name="actionBar" />
-
-        <style name="actionBar.layout">
-            <item name="android:layout_height">46dp</item>
-            <item name="android:layout_width">fill_parent</item>
-            <item name="android:background">@color/js_grey</item>
-        </style>
-
-        <!-- Container with bread crumbs -->
-        <style name="actionBar.bcContainer" />
-
-            <style name="actionBar.bcContainer.layout">
-                <item name="android:layout_height">45dp</item>
-                <item name="android:layout_width">wrap_content</item>
-                <item name="android:layout_weight">1</item>
-                <item name="android:background">@drawable/gradient_light_grey</item>
-                <item name="android:layout_marginBottom">1px</item>
-            </style>
-
-            <style name="actionBar.bcContainer.appIcon">
-                <item name="android:layout_height">39dp</item>
-                <item name="android:layout_width">39dp</item>
-                <item name="android:background">@drawable/ic_launcher_jaspermobile</item>
-                <item name="android:layout_marginBottom">3dp</item>
-                <item name="android:layout_marginLeft">3dp</item>
-                <item name="android:layout_marginTop">3dp</item>
-            </style>
-
-            <style name="actionBar.bcContainer.breadCrumbs">
-                <item name="android:layout_height">45dp</item>
-                <item name="android:layout_width">wrap_content</item>
-            </style>
-
-        <!-- Action Buttons -->
-        <style name="actionBar.actionButton">
-            <item name="android:layout_height">45dp</item>
-            <item name="android:layout_width">40dp</item>
-            <item name="android:layout_marginLeft">1px</item>
-            <item name="android:layout_marginBottom">1px</item>
-            <item name="android:background">@drawable/gradient_light_grey</item>
-        </style>
-
-            <style name="actionBar.actionButton.favorites">
-                <item name="android:src">@drawable/ic_action_favorites</item>
-            </style>
-
-            <style name="actionBar.actionButton.search">
-                <item name="android:src">@drawable/ic_action_search</item>
-            </style>
-
-            <style name="actionBar.actionButton.add">
-                <item name="android:src">@drawable/ic_action_add</item>
-            </style>
-
     <!-- Server Profiles Manager Layout -->
     <style name="serverProfileManager" />
 

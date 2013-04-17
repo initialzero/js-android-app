@@ -27,9 +27,9 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import com.actionbarsherlock.view.MenuItem;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHandler;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
@@ -49,7 +49,7 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
-public class SearchActivity extends BaseRepositoryActivity implements JsOnTaskCallbackListener {
+public class SearchActivity extends BaseBrowserSearchActivity implements JsOnTaskCallbackListener {
 
     // Extras
     public static final String EXTRA_RESOURCE_TYPES = "SearchActivity.EXTRA_RESOURCE_TYPES";
@@ -79,7 +79,7 @@ public class SearchActivity extends BaseRepositoryActivity implements JsOnTaskCa
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case ID_OM_REFRESH:
+            case ID_AB_REFRESH:
                 handleIntent(getIntent());
                 return true;
             default:
@@ -97,12 +97,11 @@ public class SearchActivity extends BaseRepositoryActivity implements JsOnTaskCa
         String titleLarge = getString(R.string.s_title);
         String uri = appData.getString(EXTRA_RESOURCE_URI);
         ArrayList<String> types = appData.getStringArrayList(EXTRA_RESOURCE_TYPES);
-        //update bread crumbs
+        //update titles
         if (titleSmall != null && titleSmall.length() > 0) {
-            breadCrumbsTitleSmall.setText(titleSmall);
-            breadCrumbsTitleSmall.setVisibility(View.VISIBLE);
+            getSupportActionBar().setSubtitle(titleSmall);
         }
-        breadCrumbsTitleLarge.setText(titleLarge);
+        getSupportActionBar().setTitle(titleLarge);
 
         // Create and run search resources task
         jsAsyncTaskManager.executeTask(new SearchResourcesAsyncTask(SEARCH_RESOURCES_TASK, getString(R.string.s_pd_searching_msg),

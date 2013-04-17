@@ -27,9 +27,6 @@
     android:orientation="vertical"
     style="@style/repository.layout" >
 
-    <!-- Header with breadcrumbs and action buttons -->
-    <include layout="@layout/action_bar"/>
-
     <!-- Text for empty folder or search-->
     <TextView
         android:id="@+id/nothingToDisplayText"

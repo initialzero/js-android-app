@@ -26,9 +26,9 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import com.actionbarsherlock.view.MenuItem;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
 import com.jaspersoft.android.sdk.client.async.task.GetResourcesListAsyncTask;
@@ -44,7 +44,7 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
-public class BrowserActivity extends BaseRepositoryActivity implements JsOnTaskCallbackListener {
+public class BrowserActivity extends BaseBrowserSearchActivity implements JsOnTaskCallbackListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,7 +69,7 @@ public class BrowserActivity extends BaseRepositoryActivity implements JsOnTaskC
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case ID_OM_REFRESH:
+            case ID_AB_REFRESH:
                 handleIntent(getIntent());
                 return true;
             default:
@@ -81,16 +81,15 @@ public class BrowserActivity extends BaseRepositoryActivity implements JsOnTaskC
     private void handleIntent(Intent intent) {
         //get extra pieces of data from intent
         Bundle extras = getIntent().getExtras();
-        String titleSmall = extras.getString(EXTRA_BC_TITLE_SMALL);
-        String titleLarge = extras.getString(EXTRA_BC_TITLE_LARGE);
+        String subtitle = extras.getString(EXTRA_BC_TITLE_SMALL);
+        String title = extras.getString(EXTRA_BC_TITLE_LARGE);
         String uri = extras.getString(EXTRA_RESOURCE_URI);
 
-        //update bread crumbs
-        if (titleSmall != null && titleSmall.length() > 0) {
-            breadCrumbsTitleSmall.setText(titleSmall);
-            breadCrumbsTitleSmall.setVisibility(View.VISIBLE);
+        //update titles
+        if (subtitle != null && subtitle.length() > 0) {
+            getSupportActionBar().setSubtitle(subtitle);
         }
-        breadCrumbsTitleLarge.setText(titleLarge);
+        getSupportActionBar().setTitle(title);
 
         // Create and run browse resources task
         jsAsyncTaskManager.executeTask(new GetResourcesListAsyncTask(GET_RESOURCE_TASK, getString(R.string.loading_msg),

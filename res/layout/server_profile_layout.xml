@@ -27,9 +27,6 @@
     style="@style/serverProfile.layout"
     android:orientation="vertical" >
 
-    <!-- Header with breadcrumbs -->
-    <include layout="@layout/action_bar"/>
-
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         style="@style/serverProfile.scrollView"
         android:fillViewport="true" >

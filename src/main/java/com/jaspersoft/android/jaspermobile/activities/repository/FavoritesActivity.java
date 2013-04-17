@@ -60,18 +60,14 @@ public class FavoritesActivity extends BaseRepositoryActivity{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // hide unusable action buttons
-        favoriteButton.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-
         serverProfileId = jsRestClient.getServerProfile().getId();
         userName = jsRestClient.getServerProfile().getUsername();
         organization = jsRestClient.getServerProfile().getOrganization();
 
-        //update bread crumbs
+        //update title
         Bundle extras = getIntent().getExtras();
-        String titleLarge = extras.getString(EXTRA_BC_TITLE_LARGE);
-        breadCrumbsTitleLarge.setText(titleLarge);
+        String title = extras.getString(EXTRA_BC_TITLE_LARGE);
+        getSupportActionBar().setTitle(title);
 
         Cursor cursor = dbProvider.fetchFavoriteItemsByParams(serverProfileId, userName, organization);
         startManagingCursor(cursor);

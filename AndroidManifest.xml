@@ -54,11 +54,12 @@
         android:icon="@drawable/ic_launcher_jaspermobile"
         android:label="@string/app_label"
         android:name=".JasperMobileApplication"
-        android:theme="@android:style/Theme.NoTitleBar"
+        android:theme="@style/Theme.Sherlock.Light"
         android:hardwareAccelerated="true" >
 
         <!-- Main activity -->
-        <activity android:name=".activities.HomeActivity">
+        <activity android:name=".activities.HomeActivity"
+            android:theme="@style/Theme.Sherlock.Light.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
@@ -116,10 +117,12 @@
         <activity android:name=".activities.ReportOptionsActivity" />
 
         <!-- Activity that performs report viewing in HTML format -->
-        <activity android:name=".activities.ReportHtmlViewerActivity" />
+        <activity android:name=".activities.ReportHtmlViewerActivity"
+            android:theme="@style/Theme.Sherlock.Light.NoActionBar" />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
-        <activity android:name=".activities.DashboardHtmlViewerActivity" />
+        <activity android:name=".activities.DashboardHtmlViewerActivity"
+            android:theme="@style/Theme.Sherlock.Light.NoActionBar" />
 
     </application>
 

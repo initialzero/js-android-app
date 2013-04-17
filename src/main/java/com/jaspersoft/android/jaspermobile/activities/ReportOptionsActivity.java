@@ -41,6 +41,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
+import com.actionbarsherlock.view.Menu;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
@@ -65,7 +67,6 @@ import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatVa
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.jaspersoft.android.sdk.ui.widget.MultiSelectSpinner;
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
@@ -81,7 +82,7 @@ import java.util.concurrent.ExecutionException;
  * @version $Id$
  * @since 1.0
  */
-public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallbackListener {
+public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnTaskCallbackListener {
 
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
@@ -115,8 +116,6 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
     private ResourceDescriptor resourceDescriptor;
     private List inputControls;
 
-    @InjectView(R.id.breadcrumbs_title_small)   private TextView breadCrumbsTitleSmall;
-    @InjectView(R.id.breadcrumbs_title_large)   private TextView breadCrumbsTitleLarge;
     @InjectView(R.id.report_format_spinner)     private Spinner formatSpinner;
 
     @Inject private JsRestClient jsRestClient;
@@ -160,9 +159,9 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         // Handle tasks that can be retained before
         jsAsyncTaskManager.handleRetainedTasks((List<JsAsyncTask>) getLastNonConfigurationInstance());
 
-        // get report label from extras and update bread crumbs
+        // get report label from extras and update title
         String reportLabel = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
-        breadCrumbsTitleLarge.setText(reportLabel);
+        getSupportActionBar().setTitle(reportLabel);
 
         // get report uri from extras
         reportUri = getIntent().getExtras().getString(EXTRA_REPORT_URI);
@@ -392,13 +391,6 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
         }
     }
 
-    public void actionButtonOnClickListener(View view) {
-        switch (view.getId()) {
-            case R.id.app_icon_button:
-                HomeActivity.goHome(this);
-        }
-    }
-
     public void onTaskComplete(JsAsyncTask task) {
         switch (task.getId()) {
             case GET_SERVER_INFO_TASK:
@@ -424,6 +416,27 @@ public class ReportOptionsActivity extends RoboActivity implements JsOnTaskCallb
 
     public void onTaskException(JsAsyncTask task) {
         AsyncTaskExceptionHandler.handle(task, this, true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // use the App Icon for Navigation
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

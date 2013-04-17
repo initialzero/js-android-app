@@ -27,9 +27,6 @@
     android:orientation="vertical"
     style="@style/reportOptions.layout" >
 
-    <!-- Header with breadcrumbs -->
-    <include layout="@layout/action_bar"/>
-
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         style="@style/reportOptions.scrollView" >
 

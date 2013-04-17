@@ -31,13 +31,13 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
+import com.actionbarsherlock.view.Menu;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
-import roboguice.activity.RoboActivity;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import roboguice.inject.InjectView;
 
 /**
@@ -45,7 +45,7 @@ import roboguice.inject.InjectView;
  * @version $Id$
  * @since 1.0
  */
-public class ServerProfileActivity extends RoboActivity {
+public class ServerProfileActivity extends RoboSherlockActivity {
 
     // Special intent actions
     public static final String ADD_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.ADD_SERVER_PROFILE";
@@ -57,9 +57,6 @@ public class ServerProfileActivity extends RoboActivity {
 
     @Inject
     private JsRestClient jsRestClient;
-
-    @InjectView(R.id.breadcrumbs_title_small)   private TextView breadCrumbsTitleSmall;
-    @InjectView(R.id.breadcrumbs_title_large)   private TextView breadCrumbsTitleLarge;
     
     @InjectView(R.id.aliasEdit)             private EditText aliasEdit;
     @InjectView(R.id.serverUrlEdit)         private EditText serverUrlEdit;
@@ -92,11 +89,10 @@ public class ServerProfileActivity extends RoboActivity {
             int orgId = cursor.getColumnIndex(ServerProfiles.KEY_ORGANIZATION);
             int usrId = cursor.getColumnIndex(ServerProfiles.KEY_USERNAME);
             int pwdId = cursor.getColumnIndex(ServerProfiles.KEY_PASSWORD);
-            
-            //update bread crumbs
-            breadCrumbsTitleSmall.setText(cursor.getString(aliasId));
-            breadCrumbsTitleSmall.setVisibility(View.VISIBLE);
-            breadCrumbsTitleLarge.setText(getString(R.string.sp_bc_edit_profile));
+
+            // update action bar
+            getSupportActionBar().setTitle(R.string.sp_bc_edit_profile);
+            getSupportActionBar().setSubtitle(cursor.getString(aliasId));
             
             // Set the server profile values to edits
             aliasEdit.setText(cursor.getString(aliasId));
@@ -115,8 +111,8 @@ public class ServerProfileActivity extends RoboActivity {
                 passwordEdit.setText(cursor.getString(pwdId));
             }
         } else {
-            // just update bread crumbs
-            breadCrumbsTitleLarge.setText(getString(R.string.sp_bc_add_profile));
+            // just update title
+            getSupportActionBar().setTitle(R.string.sp_bc_add_profile);
         }
     }
 
@@ -170,10 +166,28 @@ public class ServerProfileActivity extends RoboActivity {
 
     }
 
-    public void actionButtonOnClickListener(View view) {
-        switch (view.getId()) {
-            case R.id.app_icon_button:
-                HomeActivity.goHome(this);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // use the App Icon for Navigation
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // go to the server profiles manager
+                Intent intent = new Intent();
+                intent.setClass(this, ServerProfilesManagerActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onOptionsItemSelected(item);
         }
     }
 

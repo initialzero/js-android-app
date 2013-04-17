@@ -27,9 +27,6 @@
     style="@style/resourceInfo.layout"
     android:orientation="vertical" >
 
-    <!-- Header with breadcrumbs and action buttons -->
-    <include layout="@layout/action_bar"/>
-
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
         style="@style/resourceInfo.table.layout"
         android:shrinkColumns="1" >

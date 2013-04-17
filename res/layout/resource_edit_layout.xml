@@ -27,9 +27,6 @@
     android:orientation="vertical"
     style="@style/resourceEdit.layout" >
 
-    <!-- Header with breadcrumbs -->
-    <include layout="@layout/action_bar"/>
-
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         style="@style/resourceEdit.editsContainer.layout" >

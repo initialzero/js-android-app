@@ -31,16 +31,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
+import com.actionbarsherlock.view.Menu;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
 import com.google.inject.Inject;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
-import roboguice.activity.RoboListActivity;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import roboguice.inject.InjectView;
 
 /**
@@ -48,10 +48,10 @@ import roboguice.inject.InjectView;
  * @version $Id$
  * @since 1.0
  */
-public class ServerProfilesManagerActivity extends RoboListActivity {
+public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
 
     // Options Menu IDs
-    public static final int ID_OM_ADD_SERVER_PROFILE = 10;
+    public static final int ID_AB_ADD_SERVER_PROFILE = 10;
     // Context menu IDs
     public static final int ID_CM_SWITCH = 20;
     public static final int ID_CM_EDIT = 21;
@@ -61,9 +61,6 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
 
     private long selectedItemId;
 
-    @InjectView(R.id.breadcrumbs_title_large)   private TextView breadCrumbsTitleLarge;
-    @InjectView(R.id.app_icon_button)           private ImageButton appIconButton;
-    @InjectView(R.id.action_add_button)         private ImageButton addButton;
     @InjectView(android.R.id.list)              private ListView listView;
 
     @Inject private JsRestClient jsRestClient;
@@ -73,11 +70,8 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.server_profiles_manager_layout);
 
-        // Enable action buttons
-        addButton.setVisibility(View.VISIBLE);
-
-        //update bread crumbs
-        breadCrumbsTitleLarge.setText(getString(R.string.spm_list_title));
+        //update title
+        getSupportActionBar().setTitle(R.string.spm_list_title);
         // Register a context menu to be shown for the given view
         registerForContextMenu(listView);
 
@@ -102,32 +96,38 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
         returnSelectedServerProfileId(id);
     }
 
-    /* Options Menu */
+    /* Action Bar */
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Add the menu options
-//        menu.add(Menu.NONE, ID_OM_ADD_SERVER_PROFILE, Menu.NONE, R.string.spm_om_add_profile)
-//                .setIcon(R.drawable.ic_menu_add);
-//        return super.onCreateOptionsMenu(menu);
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // use the App Icon for Navigation
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Add actions to the action bar
+        menu.add(Menu.NONE, ID_AB_ADD_SERVER_PROFILE, Menu.NONE, R.string.spm_ab_add_profile)
+                .setIcon(R.drawable.ic_action_add_account).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle item selection
-//        switch (item.getItemId()) {
-//            case ID_OM_ADD_SERVER_PROFILE:
-//                // Launch activity to add a new server profile
-//                Intent intent = new Intent();
-//                intent.setClass(this, ServerProfileActivity.class);
-//                intent.setAction(ServerProfileActivity.ADD_SERVER_PROFILE_ACTION);
-//                startActivityForResult(intent, ID_OM_ADD_SERVER_PROFILE);
-//                return true;
-//            default:
-//                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                HomeActivity.goHome(this);
+                return true;
+            case ID_AB_ADD_SERVER_PROFILE:
+                // Launch activity to add a new server profile
+                Intent intent = new Intent();
+                intent.setClass(this, ServerProfileActivity.class);
+                intent.setAction(ServerProfileActivity.ADD_SERVER_PROFILE_ACTION);
+                startActivityForResult(intent, ID_AB_ADD_SERVER_PROFILE);
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     /* Context Menu */
 
@@ -188,7 +188,7 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
                 case ID_CM_EDIT:
                     Toast.makeText(getApplicationContext(), R.string.spm_profile_updated_toast, Toast.LENGTH_SHORT).show();
                     break;
-                case ID_OM_ADD_SERVER_PROFILE:
+                case ID_AB_ADD_SERVER_PROFILE:
                     Toast.makeText(getApplicationContext(), R.string.spm_profile_created_toast, Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -224,20 +224,6 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
                 dialog = null;
         }
         return dialog;
-    }
-
-    public void actionButtonOnClickListener(View view) {
-        switch (view.getId()) {
-            case R.id.app_icon_button:
-                HomeActivity.goHome(this);
-                break;
-            case R.id.action_add_button:
-                Intent intent = new Intent();
-                intent.setClass(this, ServerProfileActivity.class);
-                intent.setAction(ServerProfileActivity.ADD_SERVER_PROFILE_ACTION);
-                startActivityForResult(intent, ID_OM_ADD_SERVER_PROFILE);
-                break;
-        }
     }
 
     @Override

@@ -27,9 +27,6 @@
     style="@style/serverProfileManager.layout"
     android:orientation="vertical" >
 
-    <!-- Header with breadcrumbs -->
-    <include layout="@layout/action_bar"/>
-
     <!-- Server profiles list -->
     <ListView
         android:id="@android:id/list"

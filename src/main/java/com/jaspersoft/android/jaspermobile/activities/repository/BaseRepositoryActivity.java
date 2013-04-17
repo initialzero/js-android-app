@@ -30,12 +30,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
+import com.actionbarsherlock.view.Menu;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.*;
+import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHandler;
+import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
@@ -43,10 +47,6 @@ import com.jaspersoft.android.sdk.client.async.task.DeleteResourceAsyncTask;
 import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHandler;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import roboguice.activity.RoboListActivity;
 import roboguice.inject.InjectView;
 
 import java.util.List;
@@ -56,15 +56,12 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
-public abstract class BaseRepositoryActivity extends RoboListActivity implements JsOnTaskCallbackListener{
+public abstract class BaseRepositoryActivity extends RoboSherlockListActivity implements JsOnTaskCallbackListener{
 
     // Extras
     public static final String EXTRA_BC_TITLE_SMALL = "BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL";
     public static final String EXTRA_BC_TITLE_LARGE = "BaseRepositoryActivity.EXTRA_BC_TITLE_LARGE";
     public static final String EXTRA_RESOURCE_URI = "BaseRepositoryActivity.EXTRA_RESOURCE_URI";
-    // Options Menu IDs
-//    protected static final int ID_OM_LOGOUT = 10;
-    protected static final int ID_OM_REFRESH = 11;
     // Context menu IDs
     protected static final int ID_CM_OPEN = 20;
     protected static final int ID_CM_RUN = 21;
@@ -78,11 +75,7 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
     public static final int GET_RESOURCE_TASK = 2;
     public static final int SEARCH_RESOURCES_TASK = 3;
 
-    @InjectView(R.id.breadcrumbs_title_small)   protected TextView breadCrumbsTitleSmall;
-    @InjectView(R.id.breadcrumbs_title_large)   protected TextView breadCrumbsTitleLarge;
     @InjectView(R.id.nothingToDisplayText)      protected TextView nothingToDisplayText;
-    @InjectView(R.id.action_favorites_button)   protected ImageButton favoriteButton;
-    @InjectView(R.id.action_search_button)      protected ImageButton searchButton;
     @InjectView(android.R.id.list)              protected ListView listView;
 
     @Inject protected JsRestClient jsRestClient;
@@ -109,10 +102,6 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
         setContentView(R.layout.repository_layout);
         // Register a context menu to be shown for the given view
         registerForContextMenu(listView);
-
-        // Enable action buttons
-        favoriteButton.setVisibility(View.VISIBLE);
-        searchButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -140,29 +129,25 @@ public abstract class BaseRepositoryActivity extends RoboListActivity implements
         }
     }
 
-    public void actionButtonOnClickListener(View view) {
-        switch (view.getId()) {
-            case R.id.app_icon_button:
-                HomeActivity.goHome(this);
-                break;
-            case R.id.action_favorites_button:
-                Intent favoritesIntent = new Intent();
-                favoritesIntent.setClass(this, FavoritesActivity.class);
-                favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
-                startActivity(favoritesIntent);
-                break;
-            case R.id.action_search_button:
-                onSearchRequested();
-                break;
-        }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // use the App Icon for Navigation
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Add the menu options
-        menu.add(Menu.NONE, ID_OM_REFRESH, Menu.NONE, R.string.r_om_refresh)
-                .setIcon(R.drawable.ic_menu_refresh);
-        return super.onCreateOptionsMenu(menu);
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                HomeActivity.goHome(this);
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

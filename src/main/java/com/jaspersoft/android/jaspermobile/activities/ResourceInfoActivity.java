@@ -25,12 +25,15 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.actionbarsherlock.view.Menu;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
@@ -39,9 +42,6 @@ import com.jaspersoft.android.sdk.client.async.task.GetResourceAsyncTask;
 import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.ResourceProperty;
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHandler;
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ import java.util.concurrent.ExecutionException;
  * @version $Id$
  * @since 1.0
  */
-public class ResourceInfoActivity extends RoboActivity implements JsOnTaskCallbackListener {
+public class ResourceInfoActivity extends RoboSherlockActivity implements JsOnTaskCallbackListener {
 
     private JsAsyncTaskManager jsAsyncTaskManager;
 
@@ -64,8 +64,6 @@ public class ResourceInfoActivity extends RoboActivity implements JsOnTaskCallba
     // Async Task IDs
     private static final int GET_RESOURCE_TASK = 1;
 
-    @InjectView(R.id.breadcrumbs_title_small)       private TextView breadCrumbsTitleSmall;
-    @InjectView(R.id.breadcrumbs_title_large)       private TextView breadCrumbsTitleLarge;
     @InjectView(R.id.resource_name_info)            private TextView resourceName;
     @InjectView(R.id.resourceLabel)                 private TextView resourceLabel;
     @InjectView(R.id.resourceDescription)           private TextView resourceDescription;
@@ -117,10 +115,10 @@ public class ResourceInfoActivity extends RoboActivity implements JsOnTaskCallba
                         throw new RuntimeException(ex);
                     }
 
-                    //update bread crumbs
-                    breadCrumbsTitleSmall.setText(resourceDescriptor.getLabel());
-                    breadCrumbsTitleSmall.setVisibility(View.VISIBLE);
-                    breadCrumbsTitleLarge.setText(getString(R.string.ri_title));
+                    //update titles
+                    getSupportActionBar().setTitle(R.string.ri_title);
+                    getSupportActionBar().setSubtitle(resourceDescriptor.getLabel());
+
 
                     resourceName.setText(resourceDescriptor.getName());
                     resourceLabel.setText(resourceDescriptor.getLabel());
@@ -154,11 +152,24 @@ public class ResourceInfoActivity extends RoboActivity implements JsOnTaskCallba
         AsyncTaskExceptionHandler.handle(task, this, true);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // use the App Icon for Navigation
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-    public void actionButtonOnClickListener(View view) {
-        switch (view.getId()) {
-            case R.id.app_icon_button:
-                HomeActivity.goHome(this);
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onOptionsItemSelected(item);
         }
     }
 

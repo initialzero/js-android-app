@@ -60,8 +60,8 @@
     <string name="spm_cm_switch">Подключиться</string>
     <string name="spm_cm_edit">Изменить</string>
     <string name="spm_cm_delete">Удалить</string>
-    <!-- Options Menu -->
-    <string name="spm_om_add_profile">Добавить Профиль Сервера</string>
+    <!-- Action Bar -->
+    <string name="spm_ab_add_profile">Добавить Профиль Сервера</string>
     <!-- Delete Dialog -->
     <string name="spm_ad_delete_profile_msg">Вы уверены, что хотите удалить этот профиль сервера?</string>
     <string name="spm_delete_btn">Удалить</string>
@@ -86,8 +86,10 @@
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">В этой папке нет ресурсов.</string>
     <string name="r_search_nothing_to_display">Ничего не найдено.</string>
-    <!--Options Menu -->
-    <string name="r_om_refresh">Обновить</string>
+    <!--Action Bar -->
+    <string name="r_ab_favorites">Избранное</string>
+    <string name="r_ab_search">Поиск</string>
+    <string name="r_ab_refresh">Обновить</string>
     <!-- Context Menu -->
     <string name="r_cm_open">Открыть</string>
     <string name="r_cm_run">Выполнить</string>

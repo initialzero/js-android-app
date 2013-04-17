@@ -28,9 +28,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
+import com.actionbarsherlock.view.Menu;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
@@ -39,10 +41,8 @@ import com.jaspersoft.android.sdk.client.async.task.GetResourceAsyncTask;
 import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
 import com.jaspersoft.android.sdk.client.async.task.ModifyResourceAsyncTask;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
-import com.jaspersoft.android.jaspermobile.R;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 
 import java.util.List;
@@ -53,7 +53,7 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
-public class ResourceEditActivity extends RoboActivity implements JsOnTaskCallbackListener {
+public class ResourceEditActivity extends RoboSherlockActivity implements JsOnTaskCallbackListener {
 
     public static final String RESOURCE_LABEL = "ResourceEditActivity.LABEL";
     public static final String RESOURCE_DESCRIPTION = "ResourceEditActivity.DESCRIPTION";
@@ -70,8 +70,6 @@ public class ResourceEditActivity extends RoboActivity implements JsOnTaskCallba
 
     @Inject protected JsRestClient jsRestClient;
 
-    @InjectView(R.id.breadcrumbs_title_small)   private TextView breadCrumbsTitleSmall;
-    @InjectView(R.id.breadcrumbs_title_large)   private TextView breadCrumbsTitleLarge;
     @InjectView(R.id.resourceLabel)         private EditText resourceLabel;
     @InjectView(R.id.resourceDescription)   private EditText resourceDescription;
 
@@ -82,8 +80,8 @@ public class ResourceEditActivity extends RoboActivity implements JsOnTaskCallba
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.resource_edit_layout);
-        //update bread crumbs
-        breadCrumbsTitleLarge.setText(getString(R.string.re_title));
+
+        getSupportActionBar().setTitle(R.string.re_title);
 
         Bundle extras = getIntent().getExtras();
 
@@ -146,9 +144,8 @@ public class ResourceEditActivity extends RoboActivity implements JsOnTaskCallba
                  } else {
                      try {
                          this.resourceDescriptor = ((GetResourceAsyncTask)task).get();
-                         //update bread crumbs
-                         breadCrumbsTitleSmall.setText(resourceDescriptor.getLabel());
-                         breadCrumbsTitleSmall.setVisibility(View.VISIBLE);
+                         //update subtitle
+                         getSupportActionBar().setSubtitle(resourceDescriptor.getLabel());
                          //Inites edit resource UI with resource descriptor information.
                          resourceLabel.setText(resourceDescriptor.getLabel());
                          resourceDescription.setText(resourceDescriptor.getDescription());
@@ -178,10 +175,24 @@ public class ResourceEditActivity extends RoboActivity implements JsOnTaskCallba
         }
     }
 
-    public void actionButtonOnClickListener(View view) {
-        switch (view.getId()) {
-            case R.id.app_icon_button:
-                HomeActivity.goHome(this);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // use the App Icon for Navigation
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onOptionsItemSelected(item);
         }
     }
 

@@ -64,8 +64,8 @@
     <string name="spm_cm_switch">Se connecter</string>
     <string name="spm_cm_edit">Modifier</string>
     <string name="spm_cm_delete">Supprimer</string>
-    <!-- Options Menu -->
-    <string name="spm_om_add_profile">Ajouter un profil de serveur</string>
+    <!-- Action Bar -->
+    <string name="spm_ab_add_profile">Ajouter un profil de serveur</string>
     <!-- Delete Dialog -->
     <string name="spm_ad_delete_profile_msg">Êtes-vous sûr de vouloir supprimer ce profil de serveur ?</string>
     <string name="spm_delete_btn">Supprimer</string>
@@ -95,8 +95,10 @@
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">Ce dossier ne contient aucune ressource.</string>
     <string name="r_search_nothing_to_display">Aucun résultat de recherche.</string>
-    <!--Options Menu -->
-    <string name="r_om_refresh">Actualiser</string>
+    <!-- Action Bar -->
+    <string name="r_ab_favorites">Favoris</string>
+    <string name="r_ab_search">Rechercher</string>
+    <string name="r_ab_refresh">Actualiser</string>
     <!-- Context Menu -->
     <string name="r_cm_open">Ouvrir</string>
     <string name="r_cm_run">Exécuter</string>

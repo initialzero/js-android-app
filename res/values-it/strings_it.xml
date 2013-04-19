@@ -64,8 +64,8 @@
     <string name="spm_cm_switch">Connetti</string>
     <string name="spm_cm_edit">Modifica</string>
     <string name="spm_cm_delete">Elimina</string>
-    <!-- Options Menu -->
-    <string name="spm_om_add_profile">Aggiungi profilo server</string>
+    <!-- Action Bar -->
+    <string name="spm_ab_add_profile">Aggiungi profilo server</string>
     <!-- Delete Dialog -->
     <string name="spm_ad_delete_profile_msg">Eliminare il profilo server?</string>
     <string name="spm_delete_btn">Elimina</string>
@@ -95,8 +95,10 @@
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">Non sono presenti risorse nella cartella.</string>
     <string name="r_search_nothing_to_display">La ricerca non ha riportato alcun risultato.</string>
-    <!--Options Menu -->
-    <string name="r_om_refresh">Aggiorna</string>
+    <!-- Action Bar -->
+    <string name="r_ab_favorites">Preferiti</string>
+    <string name="r_ab_search">Cerca</string>
+    <string name="r_ab_refresh">Aggiorna</string>
     <!-- Context Menu -->
     <string name="r_cm_open">Apri</string>
     <string name="r_cm_run">Esegui</string>

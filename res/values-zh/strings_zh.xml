@@ -64,8 +64,8 @@
     <string name="spm_cm_switch">连接</string>
     <string name="spm_cm_edit">编辑</string>
     <string name="spm_cm_delete">删除</string>
-    <!-- Options Menu -->
-    <string name="spm_om_add_profile">添加服务器配置文件</string>
+    <!-- Action Bar -->
+    <string name="spm_ab_add_profile">添加服务器配置文件</string>
     <!-- Delete Dialog -->
     <string name="spm_ad_delete_profile_msg">您想要删除此服务器配置文件吗？</string>
     <string name="spm_delete_btn">删除</string>
@@ -95,8 +95,10 @@
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">此文件夹中没有资源。</string>
     <string name="r_search_nothing_to_display">没有搜索到任何结果。</string>
-    <!--Options Menu -->
-    <string name="r_om_refresh">刷新</string>
+    <!-- Action Bar -->
+    <string name="r_ab_favorites">收藏夹</string>
+    <string name="r_ab_search">搜索</string>
+    <string name="r_ab_refresh">刷新</string>
     <!-- Context Menu -->
     <string name="r_cm_open">打开</string>
     <string name="r_cm_run">运行</string>

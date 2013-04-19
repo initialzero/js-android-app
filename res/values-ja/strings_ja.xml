@@ -64,8 +64,8 @@
     <string name="spm_cm_switch">接続</string>
     <string name="spm_cm_edit">編集</string>
     <string name="spm_cm_delete">削除</string>
-    <!-- Options Menu -->
-    <string name="spm_om_add_profile">サーバープロファイルを追加</string>
+    <!-- Action Bar -->
+    <string name="spm_ab_add_profile">サーバープロファイルを追加</string>
     <!-- Delete Dialog -->
     <string name="spm_ad_delete_profile_msg">このサーバープロファイルを削除しますか？</string>
     <string name="spm_delete_btn">削除</string>
@@ -95,8 +95,10 @@
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">このフォルダにリソースはありません。</string>
     <string name="r_search_nothing_to_display">検索結果はありません。</string>
-    <!--Options Menu -->
-    <string name="r_om_refresh">更新</string>
+    <!-- Action Bar -->
+    <string name="r_ab_favorites">お気に入り</string>
+    <string name="r_ab_search">検索</string>
+    <string name="r_ab_refresh">更新</string>
     <!-- Context Menu -->
     <string name="r_cm_open">開く</string>
     <string name="r_cm_run">実行</string>

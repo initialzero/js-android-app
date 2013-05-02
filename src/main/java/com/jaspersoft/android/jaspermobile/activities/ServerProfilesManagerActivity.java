@@ -50,12 +50,13 @@ import roboguice.inject.InjectView;
  */
 public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
 
-    // Options Menu IDs
-    public static final int ID_AB_ADD_SERVER_PROFILE = 10;
+    // Action Bar IDs
+    private static final int ID_AB_ADD_SERVER_PROFILE = 10;
+    private static final int ID_AB_SETTINGS = 11;
     // Context menu IDs
-    public static final int ID_CM_SWITCH = 20;
-    public static final int ID_CM_EDIT = 21;
-    public static final int ID_CM_DELETE = 22;
+    private static final int ID_CM_SWITCH = 20;
+    private static final int ID_CM_EDIT = 21;
+    private static final int ID_CM_DELETE = 22;
 
     private DatabaseProvider dbProvider;
 
@@ -70,7 +71,7 @@ public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.server_profiles_manager_layout);
 
-        //update title
+        // update title
         getSupportActionBar().setTitle(R.string.spm_list_title);
         // Register a context menu to be shown for the given view
         registerForContextMenu(listView);
@@ -106,6 +107,8 @@ public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
         // Add actions to the action bar
         menu.add(Menu.NONE, ID_AB_ADD_SERVER_PROFILE, Menu.NONE, R.string.spm_ab_add_profile)
                 .setIcon(R.drawable.ic_action_add_account).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
+                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -122,6 +125,12 @@ public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
                 intent.setClass(this, ServerProfileActivity.class);
                 intent.setAction(ServerProfileActivity.ADD_SERVER_PROFILE_ACTION);
                 startActivityForResult(intent, ID_AB_ADD_SERVER_PROFILE);
+                return true;
+            case ID_AB_SETTINGS:
+                // Launch the settings activity
+                Intent settingsIntent = new Intent();
+                settingsIntent.setClass(this, SettingsActivity.class);
+                startActivity(settingsIntent);
                 return true;
             default:
                 // If you don't handle the menu item, you should pass the menu item to the superclass implementation

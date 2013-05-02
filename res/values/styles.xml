@@ -123,13 +123,6 @@
 
     <style name="home.header" />
 
-    <style name="home.header.layout">
-        <item name="android:layout_height">96dp</item>
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:background">@drawable/ic_ha_header_tiled_bg</item>
-        <item name="android:layout_gravity">left</item>
-    </style>
-
         <style name="home.header.logo">
             <item name="android:layout_width">wrap_content</item>
             <item name="android:layout_height">96dp</item>
@@ -137,12 +130,17 @@
             <item name="android:src">@drawable/ic_ha_header_logo</item>
         </style>
 
+    <style name="home.header.shadow">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/ic_ha_header_shadow</item>
+    </style>
+
     <style name="home.scrollView">
         <item name="android:layout_weight">1</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:fillViewport">true</item>
-        <item name="android:overScrollMode">never</item>
     </style>
 
     <style name="home.list" />
@@ -459,6 +457,21 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerInParent">true</item>
+    </style>
+
+    <!-- Actionbar Sherlock -->
+    <style name="Theme.JasperMobile" parent="Theme.Sherlock">
+        <item name="actionBarSize">96dp</item>
+        <item name="android:actionBarSize">96dp</item>
+        <item name="actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+    </style>
+
+    <style name="Widget.JasperMobile.ActionBar" parent="Widget.Sherlock.ActionBar">
+        <item name="background">@drawable/ic_ha_header_background</item>
+        <item name="android:background">@drawable/ic_ha_header_background</item>
+        <item name="displayOptions">showCustom</item>
+        <item name="android:displayOptions">showCustom</item>
     </style>
 
 </resources>

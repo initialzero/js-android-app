@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.CheckBox;
@@ -52,6 +53,9 @@ public class ServerProfileActivity extends RoboSherlockActivity {
     public static final String EDIT_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.EDIT_SERVER_PROFILE";
     // Extras
     public static final String EXTRA_SERVER_PROFILE_ID = "ServerProfileActivity.EXTRA_SERVER_PROFILE_ID";
+
+    // Action Bar IDs
+    private static final int ID_AB_SETTINGS = 10;
 
     private DatabaseProvider dbProvider;
 
@@ -171,6 +175,9 @@ public class ServerProfileActivity extends RoboSherlockActivity {
         // use the App Icon for Navigation
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Add actions to the action bar
+        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
+                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -178,6 +185,12 @@ public class ServerProfileActivity extends RoboSherlockActivity {
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case ID_AB_SETTINGS:
+                // Launch the settings activity
+                Intent settingsIntent = new Intent();
+                settingsIntent.setClass(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             case android.R.id.home:
                 // go to the server profiles manager
                 Intent intent = new Intent();

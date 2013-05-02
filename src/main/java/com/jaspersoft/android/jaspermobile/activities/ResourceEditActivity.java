@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -58,7 +59,10 @@ public class ResourceEditActivity extends RoboSherlockActivity implements JsOnTa
     public static final String RESOURCE_LABEL = "ResourceEditActivity.LABEL";
     public static final String RESOURCE_DESCRIPTION = "ResourceEditActivity.DESCRIPTION";
 
-    // TODO: review this stuff
+    // Action Bar IDs
+    private static final int ID_AB_SETTINGS = 10;
+
+    // TODO: review these ids
     public static final int RESULT_ERROR = -2;
     public static final int RESULT_ERROR_ACCESS_DENIED = -3;
 
@@ -180,6 +184,9 @@ public class ResourceEditActivity extends RoboSherlockActivity implements JsOnTa
         // use the App Icon for Navigation
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Add actions to the action bar
+        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
+                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -187,6 +194,12 @@ public class ResourceEditActivity extends RoboSherlockActivity implements JsOnTa
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case ID_AB_SETTINGS:
+                // Launch the settings activity
+                Intent settingsIntent = new Intent();
+                settingsIntent.setClass(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             case android.R.id.home:
                 finish();
                 return true;

@@ -25,8 +25,10 @@
 
 <resources>
 
+    <!-- General -->
     <string name="app_label">JasperMobile</string>
-
+    <!-- Action Bar -->
+    <string name="ab_settings">Settings</string>
 
     <!-- Home Activity -->
     <string name="h_title">JasperMobile</string>
@@ -38,12 +40,10 @@
     <string name="h_search_descr">Search for items in your repository</string>
     <string name="h_favorites_label">Favorites</string>
     <string name="h_favorites_descr">Browse and view favorite items</string>
-    <string name="h_servers_label">Servers</string>
-    <string name="h_servers_descr">View and change server profiles</string>
     <string name="h_server_profile_label">"Server Profile: "</string>
     <string name="h_server_switched_toast">Server was switched to \"%s\"</string>
-    <!-- Options Menu -->
-    <string name="h_om_switch_server">Change Server</string>
+    <!-- Action Bar -->
+    <string name="h_ab_servers">Servers</string>
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">No connection</string>
     <string name="h_ad_msg_no_connection">Please check your mobile network settings and try again.</string>
@@ -159,6 +159,12 @@
 
     <!-- Favorites activity -->
     <string name="f_title">Favorites</string>
+
+    <!-- Settings activity -->
+    <string name="st_title">Settings</string>
+    <string name="st_connect_timeout">Connection timeout</string>
+    <string name="st_read_timeout">Socket read timeout</string>
+    <string name="st_timeout_summary">%s sec</string>
 
 
     <!-- Error messages -->

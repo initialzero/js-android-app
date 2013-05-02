@@ -24,7 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -63,6 +65,8 @@ public class ResourceInfoActivity extends RoboSherlockActivity implements JsOnTa
 
     // Async Task IDs
     private static final int GET_RESOURCE_TASK = 1;
+    // Action Bar IDs
+    private static final int ID_AB_SETTINGS = 10;
 
     @InjectView(R.id.resource_name_info)            private TextView resourceName;
     @InjectView(R.id.resourceLabel)                 private TextView resourceLabel;
@@ -157,6 +161,9 @@ public class ResourceInfoActivity extends RoboSherlockActivity implements JsOnTa
         // use the App Icon for Navigation
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Add actions to the action bar
+        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
+                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -164,6 +171,12 @@ public class ResourceInfoActivity extends RoboSherlockActivity implements JsOnTa
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case ID_AB_SETTINGS:
+                // Launch the settings activity
+                Intent settingsIntent = new Intent();
+                settingsIntent.setClass(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             case android.R.id.home:
                 finish();
                 return true;

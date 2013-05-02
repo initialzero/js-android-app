@@ -39,6 +39,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import com.actionbarsherlock.view.Menu;
@@ -96,16 +97,18 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
     private static final String REPORT_FILE_NAME = "report";
     private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
+    // Action Bar IDs
+    private static final int ID_AB_SETTINGS = 10;
     // Dialog IDs
-    private static final int DATE_DIALOG_ID = 0;
-    private static final int TIME_DIALOG_ID = 1;
+    private static final int DATE_DIALOG_ID = 20;
+    private static final int TIME_DIALOG_ID = 21;
     // Async Task IDs
-    private static final int GET_RESOURCE_DESCRIPTOR_TASK = 1;
-    private static final int GET_REPORT_DESCRIPTOR_TASK = 2;
-    private static final int SAVE_ATTACHMENTS_FOR_HTML_TASK = 3;
-    private static final int SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK = 4;
-    private static final int GET_SERVER_INFO_TASK = 5;
-    private static final int GET_INPUT_CONTROLS_TASK = 6;
+    private static final int GET_RESOURCE_DESCRIPTOR_TASK = 31;
+    private static final int GET_REPORT_DESCRIPTOR_TASK = 32;
+    private static final int SAVE_ATTACHMENTS_FOR_HTML_TASK = 33;
+    private static final int SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK = 34;
+    private static final int GET_SERVER_INFO_TASK = 35;
+    private static final int GET_INPUT_CONTROLS_TASK = 36;
 
     private TextView activeDateDisplay;
     private Calendar activeDate;
@@ -423,6 +426,9 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
         // use the App Icon for Navigation
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Add actions to the action bar
+        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
+                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -430,6 +436,12 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case ID_AB_SETTINGS:
+                // Launch the settings activity
+                Intent settingsIntent = new Intent();
+                settingsIntent.setClass(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             case android.R.id.home:
                 finish();
                 return true;

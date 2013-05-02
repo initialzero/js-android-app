@@ -34,12 +34,10 @@
     <string name="h_search_descr">Поиск ресурсов в вашем репозитории.</string>
     <string name="h_favorites_label">Избранное</string>
     <string name="h_favorites_descr">Обзор и просмотр избранных элементов.</string>
-    <string name="h_servers_label">Серверы</string>
-    <string name="h_servers_descr">Просмотр и изменение профилей серверов.</string>
     <string name="h_server_profile_label">"Профиль Сервера: "</string>
     <string name="h_server_switched_toast">Сервер был изменен на \"%s\".</string>
-    <!-- Options Menu -->
-    <string name="h_om_switch_server">Изменить Сервер</string>
+    <!-- Action Bar -->
+    <string name="h_ab_servers">Серверы</string>
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">Нет соединения</string>
     <string name="h_ad_msg_no_connection">Проверьте настройки вашей мобильной сети и попробуйте еще раз.</string>

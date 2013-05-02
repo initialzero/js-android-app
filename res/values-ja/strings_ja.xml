@@ -25,11 +25,7 @@
 
 <resources>
 
-    <string name="app_label">JasperMobile</string>
-
-
     <!-- Home Activity -->
-    <string name="h_title">JasperMobile</string>
     <string name="h_repository_label">リポジトリ</string>
     <string name="h_repository_descr">リポジトリ項目を参照、表示</string>
     <string name="h_library_label">ライブラリ</string>
@@ -38,12 +34,10 @@
     <string name="h_search_descr">リポジトリ内の項目を検索</string>
     <string name="h_favorites_label">お気に入り</string>
     <string name="h_favorites_descr">お気に入りの項目を参照、表示</string>
-    <string name="h_servers_label">サーバー</string>
-    <string name="h_servers_descr">サーバープロファイルを表示、変更</string>
     <string name="h_server_profile_label">"サーバープロファイル："</string>
     <string name="h_server_switched_toast">サーバーが「%s」に切り替えられました</string>
-    <!-- Options Menu -->
-    <string name="h_om_switch_server">サーバーの変更</string>
+    <!-- Action Bar -->
+    <string name="h_ab_servers">サーバー</string>
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">接続がありません</string>
     <string name="h_ad_msg_no_connection">モバイルネットワーク設定を確認の上、もう一度お試しください。</string>
@@ -112,7 +106,7 @@
     <string name="r_delete_btn">削除</string>
     <string name="r_cancel_btn">キャンセル</string>
     <!-- Progress Dialog -->
-    <string name="r_pd_deleting_msg">削除中...</string>
+    <string name="r_pd_deleting_msg">削除中…</string>
     <!-- Notifications -->
     <string name="r_resource_deleted_toast">リソースが正常に削除されました。</string>
 
@@ -121,7 +115,7 @@
     <string name="s_title">検索結果</string>
     <string name="s_hint">リソースの検索</string>
     <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">検索中...</string>
+    <string name="s_pd_searching_msg">検索中…</string>
 
 
     <!-- Resource Edit Activity -->
@@ -130,7 +124,7 @@
     <string name="re_description">説明：</string>
     <string name="re_modify_btn">保存</string>
     <!-- Progress Dialog -->
-    <string name="re_pd_saving_msg">保存中...</string>
+    <string name="re_pd_saving_msg">保存中…</string>
     <!-- Notifications -->
     <string name="re_resource_saved_toast">リソースが正常に保存されました。</string>
 
@@ -150,9 +144,9 @@
     <!-- Notifications -->
     <string name="ro_no_app_available_toast">「%s」ビューアがインストールされていません。</string>
     <!-- Progress Dialog -->
-    <string name="ro_pd_loading_report_info_msg">レポートをロード中...</string>
-    <string name="ro_pd_running_report_msg">レポートを実行中...</string>
-    <string name="ro_pd_downloading_report_msg">レポートをダウンロード中...</string>
+    <string name="ro_pd_loading_report_info_msg">レポートをロード中…</string>
+    <string name="ro_pd_running_report_msg">レポートを実行中…</string>
+    <string name="ro_pd_downloading_report_msg">レポートをダウンロード中…</string>
     <!-- Error messages -->
     <string name="ro_error_field_is_mandatory">このフィールドは必須項目です.</string>
 
@@ -174,7 +168,7 @@
     <string name="error_http_504">504 - ゲートウェイタイムアウト。</string>
 
     <!-- Others -->
-    <string name="loading_msg">ロード中...</string>
+    <string name="loading_msg">ロード中…</string>
     <string name="error_msg">エラー</string>
     <string name="cancelled_msg">キャンセルされました</string>
 

@@ -59,7 +59,7 @@
 
         <!-- Main activity -->
         <activity android:name=".activities.HomeActivity"
-            android:theme="@style/Theme.Sherlock.Light.NoActionBar" >
+            android:theme="@style/Theme.JasperMobile" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
@@ -123,6 +123,9 @@
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity android:name=".activities.DashboardHtmlViewerActivity"
             android:theme="@style/Theme.Sherlock.Light.NoActionBar" />
+
+        <!-- Activity that allows to specify the application settings -->
+        <activity android:name=".activities.SettingsActivity" />
 
     </application>
 

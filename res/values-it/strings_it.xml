@@ -25,11 +25,7 @@
 
 <resources>
 
-    <string name="app_label">JasperMobile</string>
-
-
     <!-- Home Activity -->
-    <string name="h_title">JasperMobile</string>
     <string name="h_repository_label">Archivio</string>
     <string name="h_repository_descr">Sfoglia e visualizza gli elementi dell\'archivio</string>
     <string name="h_library_label">Libreria</string>
@@ -38,12 +34,10 @@
     <string name="h_search_descr">Cerca gli elementi presenti nell\'archivio</string>
     <string name="h_favorites_label">Preferiti</string>
     <string name="h_favorites_descr">Sfoglia e visualizza gli elementi preferiti</string>
-    <string name="h_servers_label">Server</string>
-    <string name="h_servers_descr">Visualizza e modifica i profili server</string>
     <string name="h_server_profile_label">"Profilo server:"</string>
     <string name="h_server_switched_toast">I server è diventato \"%s\"</string>
-    <!-- Options Menu -->
-    <string name="h_om_switch_server">Modifica server</string>
+    <!-- Action Bar -->
+    <string name="h_ab_servers">Server</string>
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">Nessuna connessione</string>
     <string name="h_ad_msg_no_connection">Verificare le impostazioni della rete mobile e riprovare.</string>
@@ -112,7 +106,7 @@
     <string name="r_delete_btn">Elimina</string>
     <string name="r_cancel_btn">Annulla</string>
     <!-- Progress Dialog -->
-    <string name="r_pd_deleting_msg">Eliminazione in corso...</string>
+    <string name="r_pd_deleting_msg">Eliminazione in corso…</string>
     <!-- Notifications -->
     <string name="r_resource_deleted_toast">Risorsa eliminata correttamente.</string>
 
@@ -121,7 +115,7 @@
     <string name="s_title">Risultati ricerca</string>
     <string name="s_hint">Ricerca risorse</string>
     <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">Ricerca in corso...</string>
+    <string name="s_pd_searching_msg">Ricerca in corso…</string>
 
 
     <!-- Resource Edit Activity -->
@@ -130,7 +124,7 @@
     <string name="re_description">Descrizione:</string>
     <string name="re_modify_btn">Salva</string>
     <!-- Progress Dialog -->
-    <string name="re_pd_saving_msg">Salvataggio in corso...</string>
+    <string name="re_pd_saving_msg">Salvataggio in corso…</string>
     <!-- Notifications -->
     <string name="re_resource_saved_toast">Risorsa salvata correttamente.</string>
 
@@ -150,9 +144,9 @@
     <!-- Notifications -->
     <string name="ro_no_app_available_toast">Nessun visualizzatore \"%s\" installato.</string>
     <!-- Progress Dialog -->
-    <string name="ro_pd_loading_report_info_msg">Caricamento report in corso...</string>
-    <string name="ro_pd_running_report_msg">Esecuzione report in corso...</string>
-    <string name="ro_pd_downloading_report_msg">Download report in corso...</string>
+    <string name="ro_pd_loading_report_info_msg">Caricamento report in corso…</string>
+    <string name="ro_pd_running_report_msg">Esecuzione report in corso…</string>
+    <string name="ro_pd_downloading_report_msg">Download report in corso…</string>
     <!-- Error messages -->
     <string name="ro_error_field_is_mandatory">Questo campo è obbligatorio.</string>
 
@@ -174,7 +168,7 @@
     <string name="error_http_504">504 - Timeout del gateway.</string>
 
     <!-- Others -->
-    <string name="loading_msg">Caricamento in corso...</string>
+    <string name="loading_msg">Caricamento in corso…</string>
     <string name="error_msg">Errore</string>
     <string name="cancelled_msg">Annullato</string>
 

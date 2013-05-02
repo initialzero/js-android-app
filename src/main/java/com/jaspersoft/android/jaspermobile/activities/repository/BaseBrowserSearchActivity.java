@@ -37,9 +37,9 @@ import com.jaspersoft.android.jaspermobile.R;
 public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity {
 
     // Action Bar IDs
-    protected static final int ID_AB_FAVORITES = 10;
-    protected static final int ID_AB_REFRESH = 11;
-    protected static final int ID_AB_SEARCH = 12;
+    protected static final int ID_AB_FAVORITES = 31;
+    protected static final int ID_AB_REFRESH = 32;
+    protected static final int ID_AB_SEARCH = 33;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

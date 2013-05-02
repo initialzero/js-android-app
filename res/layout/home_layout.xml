@@ -23,24 +23,34 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/home.layout"
-    android:orientation="vertical" >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/home.layout" >
 
-    <!-- Header -->
+    <!-- Footer -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/home.header.layout"
-        android:orientation="horizontal" >
+        android:id="@+id/ha_footer"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        style="@style/home.footer.layout" >
 
-        <ImageView
-            style="@style/home.header.logo"
-            android:contentDescription="@string/app_label"
+        <TextView
+            style="@style/home.footer.text"
+            android:text="@string/h_server_profile_label"
+            android:textColor="@color/js_light_grey"
+        />
+
+        <TextView
+            android:id="@+id/profile_name_text"
+            style="@style/home.footer.text"
+            android:textColor="@color/js_lighter_blue"
         />
 
     </LinearLayout>
 
     <!-- Items list -->
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/ha_footer"
         style="@style/home.scrollView" >
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -199,64 +209,14 @@
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             style="@style/home.list.spacer" />
 
-        <!-- Servers item -->
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            style="@style/home.list.item.layout"
-            android:id="@+id/home_item_servers"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="dashButtonOnClickListener" >
-
-            <ImageView
-                style="@style/home.list.item.icon.servers"
-                android:contentDescription="@string/h_servers_label"
-            />
-
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                style="@style/home.list.item.txtContainer.layout"
-                android:orientation="vertical"
-                android:duplicateParentState="true" >
-
-                <TextView
-                    style="@style/home.list.item.txtContainer.text.label"
-                    android:text="@string/h_servers_label"
-                    android:duplicateParentState="true"
-                />
-
-                <TextView
-                    style="@style/home.list.item.txtContainer.text.description"
-                    android:text="@string/h_servers_descr"
-                    android:duplicateParentState="true"
-                />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            style="@style/home.list.spacer" />
-
     </LinearLayout>
 
     </ScrollView>
 
-    <!-- Footer -->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
-        style="@style/home.footer.layout" >
+    <!-- Shadow of header -->
+    <LinearLayout
+        android:layout_alignParentTop="true"
+        style="@style/home.header.shadow"
+    />
 
-        <TextView
-            style="@style/home.footer.text"
-            android:text="@string/h_server_profile_label"
-            android:textColor="@color/js_light_grey"
-        />
-
-        <TextView
-            android:id="@+id/profile_name_text"
-            style="@style/home.footer.text"
-            android:textColor="@color/js_lighter_blue"
-        />
-
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

@@ -63,17 +63,18 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
     public static final String EXTRA_BC_TITLE_LARGE = "BaseRepositoryActivity.EXTRA_BC_TITLE_LARGE";
     public static final String EXTRA_RESOURCE_URI = "BaseRepositoryActivity.EXTRA_RESOURCE_URI";
     // Context menu IDs
-    protected static final int ID_CM_OPEN = 20;
-    protected static final int ID_CM_RUN = 21;
-    protected static final int ID_CM_EDIT = 22;
-    protected static final int ID_CM_DELETE = 23;
-    protected static final int ID_CM_VIEW_DETAILS = 24;
-    protected static final int ID_CM_ADD_TO_FAVORITES = 25;
-
+    protected static final int ID_CM_OPEN = 10;
+    protected static final int ID_CM_RUN = 11;
+    protected static final int ID_CM_EDIT = 12;
+    protected static final int ID_CM_DELETE = 13;
+    protected static final int ID_CM_VIEW_DETAILS = 14;
+    protected static final int ID_CM_ADD_TO_FAVORITES = 15;
     //Async task identifiers
-    public static final int DELETE_RESOURCE_TASK = 1;
-    public static final int GET_RESOURCE_TASK = 2;
-    public static final int SEARCH_RESOURCES_TASK = 3;
+    protected static final int DELETE_RESOURCE_TASK = 21;
+    protected static final int GET_RESOURCE_TASK = 22;
+    protected static final int SEARCH_RESOURCES_TASK = 23;
+    // Action Bar IDs
+    private static final int ID_AB_SETTINGS = 30;
 
     @InjectView(R.id.nothingToDisplayText)      protected TextView nothingToDisplayText;
     @InjectView(android.R.id.list)              protected ListView listView;
@@ -134,6 +135,9 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
         // use the App Icon for Navigation
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Add actions to the action bar
+        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
+                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -141,6 +145,12 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case ID_AB_SETTINGS:
+                // Launch the settings activity
+                Intent settingsIntent = new Intent();
+                settingsIntent.setClass(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             case android.R.id.home:
                 HomeActivity.goHome(this);
                 return true;

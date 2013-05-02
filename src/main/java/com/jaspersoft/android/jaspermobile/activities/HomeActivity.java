@@ -37,11 +37,14 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.actionbarsherlock.view.Menu;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
@@ -56,7 +59,6 @@ import com.jaspersoft.android.jaspermobile.util.FileUtils;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.RoboAsyncTask;
 
@@ -70,15 +72,18 @@ import java.util.concurrent.Executors;
  * @version $Id$
  * @since 1.0
  */
-public class HomeActivity extends RoboActivity {
+public class HomeActivity extends RoboSherlockActivity {
 
     // Special intent actions
     public static final String EDIT_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.EDIT_SERVER_PROFILE";
+    // Action Bar IDs
+    private static final int ID_AB_SERVERS = 10;
+    private static final int ID_AB_SETTINGS = 11;
     // Request Codes
-    public static final int RC_UPDATE_SERVER_PROFILE = 10;
-    public static final int RC_SWITCH_SERVER_PROFILE = 11;
+    public static final int RC_UPDATE_SERVER_PROFILE = 20;
+    public static final int RC_SWITCH_SERVER_PROFILE = 21;
     // Dialog IDs
-    protected static final int ID_D_ASK_PASSWORD = 20;
+    protected static final int ID_D_ASK_PASSWORD = 30;
     // Preferences
     protected static final String PREFS_NAME = "RepositoryBrowser.SharedPreferences";
     protected static final String PREFS_CURRENT_SERVER_PROFILE_ID = "CURRENT_SERVER_PROFILE_ID";
@@ -107,6 +112,14 @@ public class HomeActivity extends RoboActivity {
         startManagingCursor(cursor);
 
         setContentView(R.layout.home_layout);
+
+        getSupportActionBar().setCustomView(R.layout.home_header_logo);
+
+        // set timeouts
+        int connectTimeout = SettingsActivity.getConnectTimeoutValue(this);
+        int readTimeout = SettingsActivity.getReadTimeoutValue(this);
+        jsRestClient.setConnectTimeout(connectTimeout * 1000);
+        jsRestClient.setReadTimeout(readTimeout * 1000);
 
         // check if the server profile exists in db
         if (cursor.getCount() != 0) {
@@ -138,6 +151,37 @@ public class HomeActivity extends RoboActivity {
             editIntent.setAction(ServerProfileActivity.EDIT_SERVER_PROFILE_ACTION);
             editIntent.putExtra(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID, jsRestClient.getServerProfile().getId());
             startActivityForResult(editIntent, RC_UPDATE_SERVER_PROFILE);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Add actions to the action bar
+        menu.add(Menu.NONE, ID_AB_SERVERS, Menu.NONE, R.string.h_ab_servers)
+                .setIcon(R.drawable.ic_action_servers).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
+                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case ID_AB_SERVERS:
+                // Launch activity to switch the server profile
+                Intent intent = new Intent();
+                intent.setClass(this, ServerProfilesManagerActivity.class);
+                startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
+                return true;
+            case ID_AB_SETTINGS:
+                // Launch the settings activity
+                Intent settingsIntent = new Intent();
+                settingsIntent.setClass(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -175,12 +219,6 @@ public class HomeActivity extends RoboActivity {
                     favoritesIntent.setClass(this, FavoritesActivity.class);
                     favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
                     startActivity(favoritesIntent);
-                    break;
-                case R.id.home_item_servers:
-                    // Launch activity to switch the server profile
-                    Intent intent = new Intent();
-                    intent.setClass(this, ServerProfilesManagerActivity.class);
-                    startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
                     break;
             }
         } else {

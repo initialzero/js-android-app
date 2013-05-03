@@ -1,4 +1,4 @@
-JasperMobile for Android version 1.4 Readme
+JasperMobile for Android version 1.5 Readme
 
 JasperMobile for Android is a native application which allows you to browse your JasperReports Server repository and view reports in several formats.
 

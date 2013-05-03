@@ -26,8 +26,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile"
     android:installLocation="auto"
-    android:versionCode="70104"
-    android:versionName="1.4">
+    android:versionCode="70105"
+    android:versionName="1.5">
     <!--
         Pattern for versionCode:
             android:versionCode="xxyyzz"

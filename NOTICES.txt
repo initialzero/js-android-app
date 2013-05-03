@@ -1,0 +1,13 @@
+THIRD PARTY COMPONENTS
+-------------------------------
+This software includes third party software subject to the associated copyrights, as follows:
+
+- RoboGuice 2.0 (Apache 2.0) - https://github.com/roboguice/roboguice
+- ActionBarSherlock  4.2.0 (Apache 2.0) - http://actionbarsherlock.com/
+- Roboguice-sherlock 1.5 (Apache 2.0) - https://github.com/rtyley/roboguice-sherlock
+
+The text of licenses for the above software is included with the
+JasperMobile for Android package, in the /licenses folder.
+
+
+

@@ -45,7 +45,7 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
     public boolean onCreateOptionsMenu(Menu menu) {
         // Add actions to the action bar
         menu.add(Menu.NONE, ID_AB_FAVORITES, Menu.NONE, R.string.r_ab_favorites)
-                .setIcon(R.drawable.ic_action_favorites).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                .setIcon(R.drawable.ic_action_favorites).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         menu.add(Menu.NONE, ID_AB_SEARCH, Menu.NONE, R.string.r_ab_search)
                 .setIcon(R.drawable.ic_action_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add(Menu.NONE, ID_AB_REFRESH, Menu.NONE, R.string.r_ab_refresh)

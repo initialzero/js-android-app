@@ -460,7 +460,7 @@
     </style>
 
     <!-- Actionbar Sherlock -->
-    <style name="Theme.JasperMobile" parent="Theme.Sherlock">
+    <style name="Theme.JasperMobile" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="actionBarSize">96dp</item>
         <item name="android:actionBarSize">96dp</item>
         <item name="actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>

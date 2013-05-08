@@ -1,6 +1,8 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.os.SystemClock;
 import android.view.View;
 import android.webkit.*;
@@ -69,6 +71,13 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
     }
 
     protected void setCookiesFromRestClient() {
+        // workaround for http://bugzilla.jaspersoft.com/show_bug.cgi?id=32293
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD){
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+        jsRestClient.getResource("/");
+
         HttpComponentsClientHttpRequestFactory requestFactory = (HttpComponentsClientHttpRequestFactory) jsRestClient.getRestTemplate().getRequestFactory();
         DefaultHttpClient httpClient = (DefaultHttpClient) requestFactory.getHttpClient();
 

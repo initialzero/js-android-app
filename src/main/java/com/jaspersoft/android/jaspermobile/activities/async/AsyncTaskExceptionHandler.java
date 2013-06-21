@@ -100,22 +100,24 @@ public class AsyncTaskExceptionHandler {
     }
 
     private static void showErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        // prepare the alert box
-        AlertDialog.Builder alertBox = new AlertDialog.Builder(activity);
-        alertBox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
+        if (activity.hasWindowFocus()) {
+            // prepare the alert box
+            AlertDialog.Builder alertBox = new AlertDialog.Builder(activity);
+            alertBox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
 
-        // set the message to display
-        alertBox.setMessage(message);
+            // set the message to display
+            alertBox.setMessage(message);
 
-        // add a neutral button to the alert box and assign a click listener
-        alertBox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    // click listener on the alert box
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        if (finishActivity) activity.finish();
-                    }
-                });
+            // add a neutral button to the alert box and assign a click listener
+            alertBox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                // click listener on the alert box
+                public void onClick(DialogInterface arg0, int arg1) {
+                    if (finishActivity) activity.finish();
+                }
+            });
 
-        alertBox.show();
+            alertBox.show();
+        }
     }
 
     private static void showAuthErrorDialog(int messageId, Activity activity, boolean finishActivity) {

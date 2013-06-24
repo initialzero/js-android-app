@@ -91,11 +91,14 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
         CookieSyncManager.createInstance(this);
         CookieManager cookieManager = CookieManager.getInstance();
         if (sessionCookie != null) {
-            cookieManager.removeSessionCookie();
-            SystemClock.sleep(500); // yep, it's a hack...
-            String cookieString = sessionCookie.getName() + "=" + sessionCookie.getValue() + "; domain=" + sessionCookie.getDomain();
-            cookieManager.setCookie(sessionCookie.getDomain(), cookieString);
-            CookieSyncManager.getInstance().sync();
+            String cookieString = sessionCookie.getName() + "=" + sessionCookie.getValue();
+            String cookieDomain = sessionCookie.getDomain();
+            if (!cookieString.equals(cookieManager.getCookie(cookieDomain))) {
+                cookieManager.removeSessionCookie();
+                SystemClock.sleep(500); // yep, it's a hack...
+                cookieManager.setCookie(cookieDomain, cookieString);
+                CookieSyncManager.getInstance().sync();
+            }
         }
     }
 

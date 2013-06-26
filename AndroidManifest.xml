@@ -26,15 +26,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile"
     android:installLocation="auto"
-    android:versionCode="70105"
+    android:versionCode="7010500"
     android:versionName="1.5">
     <!--
         Pattern for versionCode:
-            android:versionCode="xxyyzz"
+            android:versionCode="vvxxyyzz"
         where:
-            xx - min android sdk version
-            yy - major version number
-            zz - minor version number
+            vv - min android sdk version
+            xx - major version number
+            yy - minor version number
+            zz - revision number
      -->
 
     <!-- the minimum API Level required for the application to run, as well as the target version -->

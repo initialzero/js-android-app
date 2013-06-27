@@ -183,9 +183,9 @@
 
     <repositories>
         <repository>
-            <id>Jaspersoft Maven Repository</id>
-            <url>http://anonsvn:anonsvn@code.jaspersoft.com/svn/repos/maven2</url>
-            <snapshots><enabled>true</enabled></snapshots>
+            <id>Jaspersoft Artifactory</id>
+            <url>http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk</url>
+            <snapshots><enabled>false</enabled></snapshots>
             <releases><enabled>true</enabled></releases>
         </repository>
     </repositories>

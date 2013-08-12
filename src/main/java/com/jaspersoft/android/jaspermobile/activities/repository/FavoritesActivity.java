@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -43,7 +43,6 @@ import java.util.List;
 /**
  * @author Oleg Gavavka
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.0
  */
 
@@ -88,11 +87,8 @@ public class FavoritesActivity extends BaseRepositoryActivity{
 
         // show the favorite resources
         if (resourceDescriptors.isEmpty()) {
-            // Show text that there are no favorite resources
             nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);
-            nothingToDisplayText.setVisibility(View.VISIBLE);
         } else {
-            nothingToDisplayText.setVisibility(View.GONE);
             ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
             arrayAdapter.sort(new ResourceDescriptorComparator()); // sort: non-case-sensitive, folders firs
             setListAdapter(arrayAdapter);
@@ -105,7 +101,7 @@ public class FavoritesActivity extends BaseRepositoryActivity{
         // hide "add to favorites" option
         menu.findItem(ID_CM_ADD_TO_FAVORITES).setVisible(false);
         // add "remove from favorites" option
-        menu.add(Menu.NONE, ID_CM_REMOVE_FROM_FAVORITES, Menu.NONE, R.string.r_cm_remove_from_favorites);
+        menu.add(Menu.NONE, ID_CM_REMOVE_FROM_FAVORITES, Menu.CATEGORY_SECONDARY, R.string.r_cm_remove_from_favorites);
     }
 
     @Override

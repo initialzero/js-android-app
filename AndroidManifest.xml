@@ -40,7 +40,7 @@
 
     <!-- the minimum API Level required for the application to run, as well as the target version -->
     <uses-sdk
-        android:minSdkVersion="7"
+        android:minSdkVersion="8"
         android:targetSdkVersion="14"
     />
 
@@ -127,6 +127,10 @@
 
         <!-- Activity that allows to specify the application settings -->
         <activity android:name=".activities.SettingsActivity" />
+
+        <!-- Service used to manage the cache and provide web service result to an activity -->
+        <service android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"
+            android:exported="false" />
 
     </application>
 

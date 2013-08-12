@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,31 +26,20 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Toast;
-import com.actionbarsherlock.view.MenuItem;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
-import com.jaspersoft.android.sdk.client.async.task.GetResourcesListAsyncTask;
-import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorComparator;
-
-import java.util.List;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourcesRequest;
+import com.octo.android.robospice.persistence.DurationInMillis;
 
 /**
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.0
  */
-public class BrowserActivity extends BaseBrowserSearchActivity implements JsOnTaskCallbackListener {
+public class BrowserActivity extends BaseBrowserSearchActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        handleIntent(getIntent());
+        handleIntent(getIntent(), false);
     }
 
     @Override
@@ -65,20 +54,7 @@ public class BrowserActivity extends BaseBrowserSearchActivity implements JsOnTa
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case ID_AB_REFRESH:
-                handleIntent(getIntent());
-                return true;
-            default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void handleIntent(Intent intent) {
+    protected void handleIntent(Intent intent, boolean forceUpdate) {
         //get extra pieces of data from intent
         Bundle extras = getIntent().getExtras();
         String subtitle = extras.getString(EXTRA_BC_TITLE_SMALL);
@@ -91,46 +67,12 @@ public class BrowserActivity extends BaseBrowserSearchActivity implements JsOnTa
         }
         getSupportActionBar().setTitle(title);
 
-        // Create and run browse resources task
-        jsAsyncTaskManager.executeTask(new GetResourcesListAsyncTask(GET_RESOURCE_TASK, getString(R.string.loading_msg),
-                jsRestClient, uri));
+        nothingToDisplayText.setText(R.string.loading_msg);
+        setListAdapter(null);
+
+        GetResourcesRequest request = new GetResourcesRequest(jsRestClient, uri);
+        long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : DurationInMillis.ONE_HOUR;
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourcesListener());
     }
 
-    //On success task complete handling
-    @Override
-    public void onTaskComplete(JsAsyncTask task) {
-        super.onTaskComplete(task);
-
-        switch (task.getId()) {
-            case GET_RESOURCE_TASK:
-                if (task.isCancelled()) {
-                    // Report about resource canceling
-                    Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    try {
-                        List<ResourceDescriptor> resourceDescriptors = ((GetResourcesListAsyncTask)task).get();
-                        if (resourceDescriptors.isEmpty()) {
-                            // Show text that there are no resources in the folder
-                            nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);
-                            nothingToDisplayText.setVisibility(View.VISIBLE);
-                        } else {
-                            nothingToDisplayText.setVisibility(View.GONE);
-                            ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
-                            arrayAdapter.sort(new ResourceDescriptorComparator()); // sort: non-case-sensitive, folders first
-                            setListAdapter(arrayAdapter);
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            break;
-        }
-    }
-
-    //On exception task complete handling
-    public void onTaskException(JsAsyncTask task) {
-        super.onTaskException(task);
-    }
 }

@@ -55,12 +55,12 @@
         android:icon="@drawable/ic_launcher_jaspermobile"
         android:label="@string/app_label"
         android:name=".JasperMobileApplication"
-        android:theme="@style/Theme.Sherlock.Light"
+        android:theme="@style/Theme.JasperMobile"
         android:hardwareAccelerated="true" >
 
         <!-- Main activity -->
         <activity android:name=".activities.HomeActivity"
-            android:theme="@style/Theme.JasperMobile" >
+            android:theme="@style/Theme.JasperMobile.Home" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />

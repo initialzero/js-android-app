@@ -306,18 +306,13 @@
     <!-- Resource Info Layout -->
     <style name="resourceInfo" />
 
-    <style name="resourceInfo.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
-        <item name="android:background">@android:color/white</item>
-    </style>
-
     <style name="resourceInfo.table" />
 
     <style name="resourceInfo.table.layout">
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">fill_parent</item>
         <item name="android:padding">10dp</item>
+        <item name="android:background">@android:color/white</item>
     </style>
 
         <style name="resourceInfo.table.name">
@@ -345,47 +340,6 @@
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginBottom">5dp</item>
     </style>
-
-    <style name="resourceInfo.propertiesTitle">
-        <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:padding">10dp</item>
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:gravity">center</item>
-        <item name="android:background">@color/js_lighter_grey</item>
-        <item name="android:textColor">@color/js_dark_grey</item>
-    </style>
-
-    <!-- Resource Property Item -->
-    <style name="resourceInfo.property" />
-
-    <style name="resourceInfo.property.layout">
-        <item name="android:background">@drawable/bs_white_blue</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingRight">10dp</item>
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-        <style name="resourceInfo.property.name">
-            <item name="android:textSize">18sp</item>
-            <item name="android:paddingRight">4dp</item>
-            <item name="android:layout_width">wrap_content</item>
-            <item name="android:layout_height">wrap_content</item>
-            <item name="android:textStyle">bold</item>
-            <item name="android:textColor">@color/cs_blue_white</item>
-            <item name="android:singleLine">true</item>
-        </style>
-
-        <style name="resourceInfo.property.value">
-            <item name="android:textSize">14sp</item>
-            <item name="android:paddingRight">4dp</item>
-            <item name="android:layout_width">wrap_content</item>
-            <item name="android:layout_height">wrap_content</item>
-            <item name="android:singleLine">true</item>
-            <item name="android:textColor">@color/cs_orange_white</item>
-        </style>
 
     <!-- Report Options Layout -->
     <style name="reportOptions" />
@@ -460,14 +414,16 @@
     </style>
 
     <!-- Actionbar Sherlock -->
-    <style name="Theme.JasperMobile" parent="Theme.Sherlock.Light.DarkActionBar">
+    <style name="Theme.JasperMobile" parent="Theme.Sherlock.Light" />
+
+    <style name="Theme.JasperMobile.Home" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="actionBarSize">96dp</item>
         <item name="android:actionBarSize">96dp</item>
-        <item name="actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
-        <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+        <item name="actionBarStyle">@style/Widget.JasperMobile.Home.ActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.JasperMobile.Home.ActionBar</item>
     </style>
 
-    <style name="Widget.JasperMobile.ActionBar" parent="Widget.Sherlock.ActionBar">
+    <style name="Widget.JasperMobile.Home.ActionBar" parent="Widget.Sherlock.ActionBar">
         <item name="background">@drawable/ic_ha_header_background</item>
         <item name="android:background">@drawable/ic_ha_header_background</item>
         <item name="displayOptions">showCustom</item>

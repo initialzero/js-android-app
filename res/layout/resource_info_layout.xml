@@ -23,80 +23,58 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/resourceInfo.layout"
-    android:orientation="vertical" >
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/resourceInfo.table.layout"
+    android:shrinkColumns="1" >
 
-    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/resourceInfo.table.layout"
-        android:shrinkColumns="1" >
+    <!-- Name -->
+    <TableRow>
+        <TextView
+            android:text="@string/ri_name"
+            style="@style/resourceInfo.table.name"
+        />
+        <TextView android:id="@+id/resource_name_info"
+            style="@style/resourceInfo.table.info"
+        />
+    </TableRow>
 
-        <!-- Name -->
-        <TableRow>
-            <TextView
-                android:text="@string/ri_name"
-                style="@style/resourceInfo.table.name"
-            />
-            <TextView android:id="@+id/resource_name_info"
-                style="@style/resourceInfo.table.info"
-            />
-        </TableRow>
+    <View style="@style/resourceInfo.spacer.short"/>
 
-        <View style="@style/resourceInfo.spacer.short"/>
+    <!-- Label -->
+    <TableRow>
+        <TextView
+            android:text="@string/ri_label"
+            style="@style/resourceInfo.table.name"
+        />
+        <TextView android:id="@+id/resourceLabel"
+            style="@style/resourceInfo.table.info"
+        />
+    </TableRow>
 
-        <!-- Label -->
-        <TableRow>
-            <TextView
-                android:text="@string/ri_label"
-                style="@style/resourceInfo.table.name"
-            />
-            <TextView android:id="@+id/resourceLabel"
-                style="@style/resourceInfo.table.info"
-            />
-        </TableRow>
+    <View style="@style/resourceInfo.spacer.short" />
 
-        <View style="@style/resourceInfo.spacer.short" />
+    <!-- Description -->
+    <TableRow>
+        <TextView
+            android:text="@string/ri_description"
+            style="@style/resourceInfo.table.name"
+        />
+        <TextView android:id="@+id/resourceDescription"
+            style="@style/resourceInfo.table.info"
+        />
+    </TableRow>
 
-        <!-- Description -->
-        <TableRow>
-            <TextView
-                android:text="@string/ri_description"
-                style="@style/resourceInfo.table.name"
-            />
-            <TextView android:id="@+id/resourceDescription"
-                style="@style/resourceInfo.table.info"
-            />
-        </TableRow>
+    <View style="@style/resourceInfo.spacer.short" />
 
-        <View style="@style/resourceInfo.spacer.short" />
+    <!-- Type -->
+    <TableRow>
+        <TextView
+            android:text="@string/ri_type"
+            style="@style/resourceInfo.table.name"
+        />
+        <TextView android:id="@+id/resourceType"
+            style="@style/resourceInfo.table.info"
+        />
+    </TableRow>
 
-        <!-- Type -->
-        <TableRow>
-            <TextView
-                android:text="@string/ri_type"
-                style="@style/resourceInfo.table.name"
-            />
-            <TextView android:id="@+id/resourceType"
-                style="@style/resourceInfo.table.info"
-            />
-        </TableRow>
-
-    </TableLayout>
-
-    <!-- Resource properties -->
-    <View style="@style/resourceInfo.spacer" />
-
-    <TextView
-        android:text="@string/ri_properties"
-        style="@style/resourceInfo.propertiesTitle"
-    />
-
-    <View style="@style/resourceInfo.spacer" />
-
-    <!-- Resource properties list -->
-    <ListView
-        android:id="@android:id/list"
-        style="@style/list.view"
-    />
-
-</LinearLayout>
+</TableLayout>

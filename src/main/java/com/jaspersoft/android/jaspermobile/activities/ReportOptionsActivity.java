@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -59,6 +59,7 @@ import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.async.task.*;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.client.oxm.ReportDescriptor;
@@ -114,7 +115,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
     private static final int GET_REPORT_DESCRIPTOR_TASK = 32;
     private static final int SAVE_ATTACHMENTS_FOR_HTML_TASK = 33;
     private static final int SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK = 34;
-    private static final int GET_SERVER_INFO_TASK = 35;
     private static final int GET_INPUT_CONTROLS_TASK = 36;
 
     protected Menu optionsMenu;
@@ -181,9 +181,9 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
         // get report uri from extras
         reportUri = getIntent().getExtras().getString(EXTRA_REPORT_URI);
 
-        GetServerInfoAsyncTask getServerInfoAsyncTask =
-                new GetServerInfoAsyncTask(GET_SERVER_INFO_TASK, getString(R.string.loading_msg), jsRestClient);
-        jsAsyncTaskManager.executeTask(getServerInfoAsyncTask);
+        setRefreshActionButtonState(true);
+        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+        serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, new GetServerInfoListener());
     }
 
     private void updateDependentControls(InputControl inputControl) {
@@ -408,9 +408,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
 
     public void onTaskComplete(JsAsyncTask task) {
         switch (task.getId()) {
-            case GET_SERVER_INFO_TASK:
-                onGetServerInfoTaskComplete(task);
-                break;
             case GET_INPUT_CONTROLS_TASK:
                 onGetInputControlsTaskComplete(task);
                 break;
@@ -520,34 +517,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
                 refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
             } else {
                 refreshItem.setActionView(null);
-            }
-        }
-    }
-
-    private void onGetServerInfoTaskComplete(JsAsyncTask task) {
-        if (task.isCancelled()) {
-            Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-            finish();
-        } else {
-            ServerInfo serverInfo;
-            try {
-                serverInfo = ((GetServerInfoAsyncTask) task).get();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            } catch (ExecutionException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            if (serverInfo.getVersionCode() < ServerInfo.VERSION_CODES.EMERALD) {
-                // REST v1
-                setRefreshActionButtonState(true);
-                GetResourceRequest request = new GetResourceRequest(jsRestClient, reportUri);
-                serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, new GetResourceListener());
-            } else {
-                // REST v2
-                GetInputControlsAsyncTask getInputControlsAsyncTask =
-                        new GetInputControlsAsyncTask(GET_INPUT_CONTROLS_TASK, getString(R.string.loading_msg), 500, jsRestClient, reportUri);
-                jsAsyncTaskManager.executeTask(getInputControlsAsyncTask);
             }
         }
     }
@@ -1223,6 +1192,28 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
+
+    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            RequestExceptionHandler.handle(e, ReportOptionsActivity.this, true);
+        }
+
+        @Override
+        public void onRequestSuccess(ServerInfo serverInfo) {
+            if (serverInfo.getVersionCode() < ServerInfo.VERSION_CODES.EMERALD) {
+                // REST v1
+                GetResourceRequest request = new GetResourceRequest(jsRestClient, reportUri);
+                serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, new GetResourceListener());
+            } else {
+                // REST v2
+                GetInputControlsAsyncTask getInputControlsAsyncTask =
+                        new GetInputControlsAsyncTask(GET_INPUT_CONTROLS_TASK, getString(R.string.loading_msg), 500, jsRestClient, reportUri);
+                jsAsyncTaskManager.executeTask(getInputControlsAsyncTask);
+            }
+        }
+    }
 
     private class GetResourceListener implements RequestListener<ResourceDescriptor> {
 

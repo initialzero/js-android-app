@@ -26,157 +26,63 @@ package com.jaspersoft.android.jaspermobile.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
-import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
-import com.jaspersoft.android.sdk.client.async.task.GetResourceAsyncTask;
-import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
-import com.jaspersoft.android.sdk.client.async.task.ModifyResourceAsyncTask;
+import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.async.request.ModifyResourceRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
+import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
 
-import java.util.List;
-
 /**
- * @author Volodya Sabadosh (vsabadosh@jaspersoft.com)
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.0
  */
-public class ResourceEditActivity extends RoboSherlockActivity implements JsOnTaskCallbackListener {
+public class ResourceEditActivity extends RoboSherlockActivity {
 
-    public static final String RESOURCE_LABEL = "ResourceEditActivity.LABEL";
-    public static final String RESOURCE_DESCRIPTION = "ResourceEditActivity.DESCRIPTION";
+    public static final String EXTRA_RESOURCE_LABEL = "ResourceEditActivity.EXTRA_RESOURCE_LABEL";
+    public static final String EXTRA_RESOURCE_DESCRIPTION = "ResourceEditActivity.EXTRA_RESOURCE_DESCRIPTION";
 
     // Action Bar IDs
-    private static final int ID_AB_SETTINGS = 10;
-
-    // TODO: review these ids
-    public static final int RESULT_ERROR = -2;
-    public static final int RESULT_ERROR_ACCESS_DENIED = -3;
-
-    // Async Task IDs
-    private static final int GET_RESOURCE_TASK = 1;
-    private static final int MODIFY_RESOURCE_TASK = 2;
-
-    private JsAsyncTaskManager jsAsyncTaskManager;
+    private static final int ID_AB_PROGRESS = 10;
+    private static final int ID_AB_SETTINGS = 11;
 
     @Inject protected JsRestClient jsRestClient;
 
+    private SpiceManager serviceManager;
+    private MenuItem indeterminateProgressItem;
+    private ResourceDescriptor resourceDescriptor;
+
     @InjectView(R.id.resourceLabel)         private EditText resourceLabel;
     @InjectView(R.id.resourceDescription)   private EditText resourceDescription;
-
-    private ResourceDescriptor resourceDescriptor;
-    private String resourceUri;
+    @InjectView(R.id.modifyResourceButton)  private Button modifyResourceButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.resource_edit_layout);
-
+        //update title
         getSupportActionBar().setTitle(R.string.re_title);
-
-        Bundle extras = getIntent().getExtras();
-
-        resourceUri = extras.getString(BaseRepositoryActivity.EXTRA_RESOURCE_URI);
-
-        // Create manager and set this activity as context and listener
-        jsAsyncTaskManager = new JsAsyncTaskManager(this, this);
-
-        // Handle task that can be retained before
-        jsAsyncTaskManager.handleRetainedTasks((List<JsAsyncTask>) getLastNonConfigurationInstance());
-
-        // Create and run getting resource task and proper progress dialog
-        GetResourceAsyncTask getResourceAsyncTask = new GetResourceAsyncTask(GET_RESOURCE_TASK,
-                getString(R.string.loading_msg), jsRestClient, resourceUri);
-        jsAsyncTaskManager.executeTask(getResourceAsyncTask);
-    }
-
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        // Delegate tasks retain to manager
-        return jsAsyncTaskManager.retainTasks();
-    }
-
-    public void modifyResourceClickHandler(View v) {
-        //Updates current resource descriptor with edit resource UI values
-        resourceDescriptor.setLabel(resourceLabel.getText().toString());
-        resourceDescriptor.setDescription(resourceDescription.getText().toString());
-
-        // Create and run modify resource task and proper progress dialog
-        jsAsyncTaskManager.executeTask(new ModifyResourceAsyncTask(MODIFY_RESOURCE_TASK,
-                getString(R.string.re_pd_saving_msg), jsRestClient, resourceDescriptor));
-
-    }
-
-    //On success async task complete handling
-    public void onTaskComplete(JsAsyncTask task) {
-        switch (task.getId()) {
-            case MODIFY_RESOURCE_TASK:
-                if (task.isCancelled()) {
-                    // Report about resource canceling
-                    Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT)
-                            .show();
-                    finish();
-                } else {
-                    Intent intent = new Intent();
-                    intent.putExtra(ResourceEditActivity.RESOURCE_LABEL, resourceLabel.getText().toString());
-                    intent.putExtra(ResourceEditActivity.RESOURCE_DESCRIPTION, resourceDescription.getText().toString());
-                    setResult(RESULT_OK, intent);
-                    Toast.makeText(this, R.string.re_resource_saved_toast, Toast.LENGTH_SHORT)
-                            .show();
-                    finish();
-                }
-                break;
-            case GET_RESOURCE_TASK:
-                 if (task.isCancelled()) {
-                     // Report about resource canceling
-                     Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT)
-                             .show();
-                     finish();
-                 } else {
-                     try {
-                         this.resourceDescriptor = ((GetResourceAsyncTask)task).get();
-                         //update subtitle
-                         getSupportActionBar().setSubtitle(resourceDescriptor.getLabel());
-                         //Inites edit resource UI with resource descriptor information.
-                         resourceLabel.setText(resourceDescriptor.getLabel());
-                         resourceDescription.setText(resourceDescriptor.getDescription());
-                     } catch (Exception e) {
-                         e.printStackTrace();
-                     }
-                 }
-        }
-    }
-
-    //On exception task complete handling
-    public void onTaskException(JsAsyncTask task) {
-        switch (task.getId()) {
-            case MODIFY_RESOURCE_TASK:
-                Exception resultError = task.getTaskException();
-
-                Intent intent = new Intent();
-                if (resultError instanceof HttpClientErrorException &&
-                        ((HttpClientErrorException)resultError).getStatusCode() == HttpStatus.FORBIDDEN)
-                    setResult(RESULT_ERROR_ACCESS_DENIED, intent);
-                else {
-                    setResult(RESULT_ERROR, intent);
-                }
-                finish();
-            case GET_RESOURCE_TASK:
-                //TODO
-        }
+        // bind to service
+        serviceManager = new SpiceManager(JsXmlSpiceService.class);
+        // get resource info
+        setRefreshActionButtonState(true);
+        String resourceUri = getIntent().getExtras().getString(BaseRepositoryActivity.EXTRA_RESOURCE_URI);
+        GetResourceRequest request = new GetResourceRequest(jsRestClient, resourceUri);
+        serviceManager.execute(request, new GetResourceListener());
     }
 
     @Override
@@ -184,7 +90,11 @@ public class ResourceEditActivity extends RoboSherlockActivity implements JsOnTa
         // use the App Icon for Navigation
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // Add actions to the action bar
+        // indeterminate progress
+        indeterminateProgressItem = menu.add(Menu.NONE, ID_AB_PROGRESS, Menu.NONE, R.string.r_ab_refresh);
+        indeterminateProgressItem.setShowAsAction(com.actionbarsherlock.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
+        indeterminateProgressItem.setActionView(R.layout.actionbar_indeterminate_progress);
+        // settings
         menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
                 .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
@@ -204,9 +114,85 @@ public class ResourceEditActivity extends RoboSherlockActivity implements JsOnTa
                 finish();
                 return true;
             default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void modifyResourceClickHandler(View view) {
+        // update current resource descriptor
+        resourceDescriptor.setLabel(resourceLabel.getText().toString());
+        resourceDescriptor.setDescription(resourceDescription.getText().toString());
+        // execute request
+        setRefreshActionButtonState(true);
+        ModifyResourceRequest request = new ModifyResourceRequest(jsRestClient, resourceDescriptor);
+        serviceManager.execute(request, new ModifyResourceListener());
+    }
+
+    @Override
+    protected void onStart() {
+        serviceManager.start(this);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        serviceManager.shouldStop();
+        super.onStop();
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void setRefreshActionButtonState(boolean refreshing) {
+        if (indeterminateProgressItem != null) {
+            indeterminateProgressItem.setVisible(refreshing);
+        }
+        modifyResourceButton.setEnabled(!refreshing);
+    }
+
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
+
+    private class GetResourceListener implements RequestListener<ResourceDescriptor> {
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, ResourceEditActivity.this, true);
+        }
+
+        @Override
+        public void onRequestSuccess(ResourceDescriptor descriptor) {
+            resourceDescriptor = descriptor;
+            //update subtitle
+            getSupportActionBar().setSubtitle(resourceDescriptor.getLabel());
+            // update label and description
+            resourceLabel.setText(resourceDescriptor.getLabel());
+            resourceDescription.setText(resourceDescriptor.getDescription());
+
+            setRefreshActionButtonState(false);
+        }
+
+    }
+
+    private class ModifyResourceListener implements RequestListener<Void> {
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, ResourceEditActivity.this, true);
+        }
+
+        @Override
+        public void onRequestSuccess(Void result) {
+            Intent intent = new Intent();
+            intent.putExtra(ResourceEditActivity.EXTRA_RESOURCE_LABEL, resourceLabel.getText().toString());
+            intent.putExtra(ResourceEditActivity.EXTRA_RESOURCE_DESCRIPTION, resourceDescription.getText().toString());
+            setResult(RESULT_OK, intent);
+            Toast.makeText(ResourceEditActivity.this, R.string.re_resource_saved_toast, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
     }
 
 }

@@ -51,7 +51,7 @@ import roboguice.inject.InjectView;
 public class ResourceInfoActivity extends RoboSherlockActivity {
 
     // Action Bar IDs
-    protected static final int ID_AB_PROGRESS = 10;
+    private static final int ID_AB_PROGRESS = 10;
     private static final int ID_AB_SETTINGS = 11;
 
     @Inject
@@ -74,6 +74,7 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
         // bind to service
         serviceManager = new SpiceManager(JsXmlSpiceService.class);
         // get resource info
+        setRefreshActionButtonState(true);
         String resourceUri = getIntent().getExtras().getString(BaseRepositoryActivity.EXTRA_RESOURCE_URI);
         GetResourceRequest request = new GetResourceRequest(jsRestClient, resourceUri);
         serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, new GetResourceListener());
@@ -91,7 +92,6 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
         // settings
         menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
                 .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -126,6 +126,16 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
     }
 
     //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void setRefreshActionButtonState(boolean refreshing) {
+        if (indeterminateProgressItem != null) {
+            indeterminateProgressItem.setVisible(refreshing);
+        }
+    }
+
+    //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
 
@@ -146,7 +156,7 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
             resourceDescription.setText(resourceDescriptor.getDescription());
             resourceType.setText(resourceDescriptor.getWsType().toString());
 
-            indeterminateProgressItem.setVisible(false);
+            setRefreshActionButtonState(false);
         }
 
     }

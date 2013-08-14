@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -206,29 +204,18 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 dbProvider.insertFavoriteItem(label, name, uri, description, wsType, serverProfileId, userName, organization);
                 return true;
             default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
                 return super.onContextItemSelected(item);
         }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data == null) {
-            return;
-        }
-        Bundle extras = data.getExtras();
-
-        switch (requestCode) {
-            case ID_CM_EDIT: {
-                if (resultCode == RESULT_OK) {
-                    //Refresh current repository resource.
-                    resourceDescriptor.setLabel(extras.getString(ResourceEditActivity.RESOURCE_LABEL));
-                    resourceDescriptor.setDescription(extras.getString(ResourceEditActivity.RESOURCE_DESCRIPTION));
-                    ((ResourceDescriptorArrayAdapter)getListAdapter()).notifyDataSetChanged();
-                } else if (resultCode == ResourceEditActivity.RESULT_ERROR_ACCESS_DENIED) {
-                    showErrorDialog(R.string.error_http_403);
-                }
-            }
+        if (requestCode == ID_CM_EDIT && resultCode == RESULT_OK && data != null) {
+            // refresh current repository resource
+            Bundle extras = data.getExtras();
+            resourceDescriptor.setLabel(extras.getString(ResourceEditActivity.EXTRA_RESOURCE_LABEL));
+            resourceDescriptor.setDescription(extras.getString(ResourceEditActivity.EXTRA_RESOURCE_DESCRIPTION));
+            ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
         }
     }
 
@@ -254,26 +241,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-
-    private void showErrorDialog(int messageId) {
-        // prepare the alert box
-        AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-        alertbox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
-
-        // set the message to display
-        alertbox.setMessage(messageId);
-
-        // add a neutral button to the alert box and assign a click listener
-        alertbox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-            // click listener on the alert box
-            public void onClick(DialogInterface arg0, int arg1) {
-                // do nothing
-            }
-        });
-
-        alertbox.show();
-    }
 
     private void openFolderByDescriptor(ResourceDescriptor resourceDescriptor) {
         Intent intent = new Intent();

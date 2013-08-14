@@ -41,7 +41,7 @@
     <!-- the minimum API Level required for the application to run, as well as the target version -->
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="14"
+        android:targetSdkVersion="16"
     />
 
     <!-- Allows applications to access information about networks -->

@@ -198,7 +198,8 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
     private class DeleteResourceListener implements RequestListener<Void> {
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, BaseBrowserSearchActivity.this, true);
+            RequestExceptionHandler.handle(exception, BaseBrowserSearchActivity.this, false);
+            setRefreshActionButtonState(false);
         }
 
         @Override

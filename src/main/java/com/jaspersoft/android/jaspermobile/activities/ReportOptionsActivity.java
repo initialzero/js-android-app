@@ -58,6 +58,7 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetReportRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.async.task.*;
@@ -112,7 +113,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
     private static final int DATE_DIALOG_ID = 20;
     private static final int TIME_DIALOG_ID = 21;
     // Async Task IDs
-    private static final int GET_REPORT_DESCRIPTOR_TASK = 32;
     private static final int SAVE_ATTACHMENTS_FOR_HTML_TASK = 33;
     private static final int SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK = 34;
     private static final int GET_INPUT_CONTROLS_TASK = 36;
@@ -400,9 +400,10 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
             }
 
             resourceDescriptor.setParameters(parameters);
-            GetReportAsyncTask getReportAsyncTask =  new GetReportAsyncTask(GET_REPORT_DESCRIPTOR_TASK,
-                    getString(R.string.ro_pd_running_report_msg), 0, jsRestClient, resourceDescriptor, outputFormat);
-            jsAsyncTaskManager.executeTask(getReportAsyncTask);
+
+            setRefreshActionButtonState(true);
+            GetReportRequest request = new GetReportRequest(jsRestClient, resourceDescriptor, outputFormat);
+            serviceManager.execute(request, new GetReportListener());
         }
     }
 
@@ -410,9 +411,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
         switch (task.getId()) {
             case GET_INPUT_CONTROLS_TASK:
                 onGetInputControlsTaskComplete(task);
-                break;
-            case GET_REPORT_DESCRIPTOR_TASK:
-                onGetReportTaskComplete(task);
                 break;
             case SAVE_ATTACHMENTS_FOR_HTML_TASK:
                 onSaveAttachmentsTaskComplete(task);
@@ -798,51 +796,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
                         baseLayout.addView(view);
                         break;
                 }
-            }
-        }
-    }
-
-    private void onGetReportTaskComplete(JsAsyncTask task) {
-        if (task.isCancelled()) {
-            Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-        } else {
-            ReportDescriptor reportDescriptor;
-            try {
-                reportDescriptor = ((GetReportAsyncTask)task).get();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            } catch (ExecutionException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            String outputFormat = formatSpinner.getSelectedItem().toString();
-            String uuid = reportDescriptor.getUuid();
-
-            File outputDir = getReportOutputCacheDir();
-
-            // view report using internal viewer for HTML or external viewers for all other formats
-            if (outputFormat.equalsIgnoreCase(RUN_OUTPUT_FORMAT_HTML)) {
-                // get report attachments and save them to cache folder
-                SaveReportAttachmentsAsyncTask saveAttachmentsTask = new SaveReportAttachmentsAsyncTask(SAVE_ATTACHMENTS_FOR_HTML_TASK,
-                        getString(R.string.ro_pd_downloading_report_msg), 0, jsRestClient, uuid, reportDescriptor.getAttachments(), outputDir);
-                jsAsyncTaskManager.executeTask(saveAttachmentsTask);
-            } else {
-                // workaround: manually define content type and file extension depending on selected format
-                String contentType, extension;
-                if (outputFormat.equalsIgnoreCase(RUN_OUTPUT_FORMAT_PDF)) {
-                    contentType = "application/pdf";
-                    extension = ".pdf";
-                } else {
-                    contentType = "application/xls";
-                    extension = ".xls";
-                }
-
-                // get the report output file and save it to cache folder
-                File outputFile = new File(outputDir, resourceDescriptor.getName() + extension);
-                SaveReportAttachmentAsyncTask saveAttachmentTask = new SaveReportAttachmentAsyncTask(SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK,
-                        getString(R.string.ro_pd_downloading_report_msg), 0, jsRestClient, uuid, REPORT_FILE_NAME, outputFile);
-                saveAttachmentTask.setContentType(contentType);
-                jsAsyncTaskManager.executeTask(saveAttachmentTask);
             }
         }
     }
@@ -1520,4 +1473,45 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
         }
     }
 
+    private class GetReportListener implements RequestListener<ReportDescriptor> {
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, true);
+        }
+
+        @Override
+        public void onRequestSuccess(ReportDescriptor reportDescriptor) {
+            String outputFormat = formatSpinner.getSelectedItem().toString();
+            String uuid = reportDescriptor.getUuid();
+
+            File outputDir = getReportOutputCacheDir();
+
+            // view report using internal viewer for HTML or external viewers for all other formats
+            if (outputFormat.equalsIgnoreCase(RUN_OUTPUT_FORMAT_HTML)) {
+                // get report attachments and save them to cache folder
+                SaveReportAttachmentsAsyncTask saveAttachmentsTask = new SaveReportAttachmentsAsyncTask(SAVE_ATTACHMENTS_FOR_HTML_TASK,
+                        getString(R.string.ro_pd_downloading_report_msg), 0, jsRestClient, uuid, reportDescriptor.getAttachments(), outputDir);
+                jsAsyncTaskManager.executeTask(saveAttachmentsTask);
+            } else {
+                // workaround: manually define content type and file extension depending on selected format
+                String contentType, extension;
+                if (outputFormat.equalsIgnoreCase(RUN_OUTPUT_FORMAT_PDF)) {
+                    contentType = "application/pdf";
+                    extension = ".pdf";
+                } else {
+                    contentType = "application/xls";
+                    extension = ".xls";
+                }
+
+                // get the report output file and save it to cache folder
+                File outputFile = new File(outputDir, resourceDescriptor.getName() + extension);
+                SaveReportAttachmentAsyncTask saveAttachmentTask = new SaveReportAttachmentAsyncTask(SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK,
+                        getString(R.string.ro_pd_downloading_report_msg), 0, jsRestClient, uuid, REPORT_FILE_NAME, outputFile);
+                saveAttachmentTask.setContentType(contentType);
+                jsAsyncTaskManager.executeTask(saveAttachmentTask);
+            }
+            setRefreshActionButtonState(false);
+        }
+    }
 }

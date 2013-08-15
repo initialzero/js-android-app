@@ -41,6 +41,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.*;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -58,10 +59,13 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
 import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.async.request.SaveReportAttachmentRequest;
+import com.jaspersoft.android.sdk.client.async.request.SaveReportAttachmentsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetReportRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.async.task.*;
+import com.jaspersoft.android.sdk.client.async.task.GetInputControlsAsyncTask;
+import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.client.oxm.ReportDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
@@ -113,8 +117,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
     private static final int DATE_DIALOG_ID = 20;
     private static final int TIME_DIALOG_ID = 21;
     // Async Task IDs
-    private static final int SAVE_ATTACHMENTS_FOR_HTML_TASK = 33;
-    private static final int SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK = 34;
     private static final int GET_INPUT_CONTROLS_TASK = 36;
 
     protected Menu optionsMenu;
@@ -130,6 +132,8 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
 
     @InjectView(R.id.report_format_spinner)
     private Spinner formatSpinner;
+    @InjectView(R.id.runReportButton)
+    private Button runReportButton;
 
     @Inject private JsRestClient jsRestClient;
 
@@ -412,12 +416,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
             case GET_INPUT_CONTROLS_TASK:
                 onGetInputControlsTaskComplete(task);
                 break;
-            case SAVE_ATTACHMENTS_FOR_HTML_TASK:
-                onSaveAttachmentsTaskComplete(task);
-                break;
-            case SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK:
-                onSaveAttachmentTaskComplete(task);
-                break;
         }
     }
 
@@ -508,13 +506,15 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
     }
 
     private void setRefreshActionButtonState(boolean refreshing) {
-        if (optionsMenu == null) return;
-        final MenuItem refreshItem = optionsMenu.findItem(ID_AB_REFRESH);
-        if (refreshItem != null) {
-            if (refreshing) {
-                refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
-            } else {
-                refreshItem.setActionView(null);
+        runReportButton.setEnabled(!refreshing);
+        if (optionsMenu != null) {
+            MenuItem refreshItem = optionsMenu.findItem(ID_AB_REFRESH);
+            if (refreshItem != null) {
+                if (refreshing) {
+                    refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+                } else {
+                    refreshItem.setActionView(null);
+                }
             }
         }
     }
@@ -795,44 +795,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
                         // show the control
                         baseLayout.addView(view);
                         break;
-                }
-            }
-        }
-    }
-
-    private void onSaveAttachmentsTaskComplete(JsAsyncTask task) {
-        if (task.isCancelled()) {
-            Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-        } else {
-            // run the html report viewer
-            Intent htmlViewer = new Intent();
-            htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
-            File outputDir = ((SaveReportAttachmentsAsyncTask) task).getOutputDir();
-            htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL,
-                    Uri.fromFile(outputDir) + File.separator + REPORT_FILE_NAME);
-            startActivity(htmlViewer);
-        }
-    }
-
-    private void onSaveAttachmentTaskComplete(JsAsyncTask task) {
-        if (task.isCancelled()) {
-            Toast.makeText(this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-        } else {
-            SaveReportAttachmentAsyncTask saveAttachmentTask = (SaveReportAttachmentAsyncTask) task;
-            File outputFile = saveAttachmentTask.getOutputFile();
-            String contentType = saveAttachmentTask.getContentType();
-            if (outputFile.exists()) {
-                // run external viewer according to selected output format
-                Uri path = Uri.fromFile(outputFile);
-                Intent externalViewer = new Intent(Intent.ACTION_VIEW);
-                externalViewer.setDataAndType(path, contentType);
-                externalViewer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                try {
-                    startActivity(externalViewer);
-                }
-                catch (ActivityNotFoundException e) {
-                    // show notification if no app available to open selected format
-                    Toast.makeText(this, getString(R.string.ro_no_app_available_toast, formatSpinner.getSelectedItem().toString()), Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -1474,7 +1436,6 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
     }
 
     private class GetReportListener implements RequestListener<ReportDescriptor> {
-
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, true);
@@ -1490,28 +1451,64 @@ public class ReportOptionsActivity extends RoboSherlockActivity implements JsOnT
             // view report using internal viewer for HTML or external viewers for all other formats
             if (outputFormat.equalsIgnoreCase(RUN_OUTPUT_FORMAT_HTML)) {
                 // get report attachments and save them to cache folder
-                SaveReportAttachmentsAsyncTask saveAttachmentsTask = new SaveReportAttachmentsAsyncTask(SAVE_ATTACHMENTS_FOR_HTML_TASK,
-                        getString(R.string.ro_pd_downloading_report_msg), 0, jsRestClient, uuid, reportDescriptor.getAttachments(), outputDir);
-                jsAsyncTaskManager.executeTask(saveAttachmentsTask);
+                SaveReportAttachmentsRequest request = new SaveReportAttachmentsRequest(jsRestClient, uuid, reportDescriptor.getAttachments(), outputDir);
+                serviceManager.execute(request, new SaveReportAttachmentsListener());
             } else {
-                // workaround: manually define content type and file extension depending on selected format
-                String contentType, extension;
-                if (outputFormat.equalsIgnoreCase(RUN_OUTPUT_FORMAT_PDF)) {
-                    contentType = "application/pdf";
-                    extension = ".pdf";
-                } else {
-                    contentType = "application/xls";
-                    extension = ".xls";
-                }
-
+                // workaround: manually define file extension depending on selected format
+                String extension = (outputFormat.equalsIgnoreCase(RUN_OUTPUT_FORMAT_PDF)) ? ".pdf" : ".xls";
                 // get the report output file and save it to cache folder
                 File outputFile = new File(outputDir, resourceDescriptor.getName() + extension);
-                SaveReportAttachmentAsyncTask saveAttachmentTask = new SaveReportAttachmentAsyncTask(SAVE_ATTACHMENT_FOR_OTHER_FORMATS_TASK,
-                        getString(R.string.ro_pd_downloading_report_msg), 0, jsRestClient, uuid, REPORT_FILE_NAME, outputFile);
-                saveAttachmentTask.setContentType(contentType);
-                jsAsyncTaskManager.executeTask(saveAttachmentTask);
+                SaveReportAttachmentRequest request = new SaveReportAttachmentRequest(jsRestClient, uuid, REPORT_FILE_NAME, outputFile);
+                serviceManager.execute(request, new SaveReportAttachmentListener());
             }
-            setRefreshActionButtonState(false);
         }
     }
+
+    private class SaveReportAttachmentsListener implements RequestListener<File> {
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, true);
+        }
+
+        @Override
+        public void onRequestSuccess(File outputDir) {
+            setRefreshActionButtonState(false);
+            // run the html report viewer
+            Intent htmlViewer = new Intent();
+            htmlViewer.setClass(ReportOptionsActivity.this, ReportHtmlViewerActivity.class);
+            htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL,
+                    Uri.fromFile(outputDir) + File.separator + REPORT_FILE_NAME);
+            startActivity(htmlViewer);
+        }
+    }
+
+    private class SaveReportAttachmentListener implements RequestListener<File> {
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, true);
+        }
+
+        @Override
+        public void onRequestSuccess(File outputFile) {
+            if (outputFile.exists()) {
+                setRefreshActionButtonState(false);
+                // run external viewer according to selected output format
+                Uri path = Uri.fromFile(outputFile);
+                String extension = MimeTypeMap.getFileExtensionFromUrl(outputFile.getPath());
+                String contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                Intent externalViewer = new Intent(Intent.ACTION_VIEW);
+                externalViewer.setDataAndType(path, contentType);
+                externalViewer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                try {
+                    startActivity(externalViewer);
+                }
+                catch (ActivityNotFoundException e) {
+                    // show notification if no app available to open selected format
+                    Toast.makeText(ReportOptionsActivity.this, getString(R.string.ro_no_app_available_toast,
+                            formatSpinner.getSelectedItem().toString()), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
 }

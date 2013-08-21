@@ -37,12 +37,21 @@ import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListAct
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.*;
+import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.activities.report.BaseReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.CompatReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
 import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.DurationInMillis;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
 
 /**
@@ -268,11 +277,9 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     }
 
     private void runReport(String reportLabel, String reportUri) {
-        Intent intent = new Intent();
-        intent.setClass(this, ReportOptionsActivity.class);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
-        startActivity(intent);
+        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+        GetServerInfoListener listener = new GetServerInfoListener(reportLabel, reportUri);
+        serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, listener);
     }
 
     private void runDashboard(String dashboardUri) {
@@ -285,6 +292,38 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
         htmlViewer.setClass(this, DashboardHtmlViewerActivity.class);
         htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL, dashboardUrl);
         startActivity(htmlViewer);
+    }
+
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
+
+    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+
+        private String reportLabel;
+        private String reportUri;
+
+        public GetServerInfoListener(String reportLabel, String reportUri) {
+            this.reportLabel = reportLabel;
+            this.reportUri = reportUri;
+        }
+
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            RequestExceptionHandler.handle(e, BaseRepositoryActivity.this, false);
+        }
+
+        @Override
+        public void onRequestSuccess(ServerInfo serverInfo) {
+            Class clazz = (serverInfo.getVersionCode() < ServerInfo.VERSION_CODES.EMERALD)
+                    ? CompatReportOptionsActivity.class : ReportOptionsActivity.class;
+            // start new activity
+            Intent intent = new Intent();
+            intent.setClass(BaseRepositoryActivity.this, clazz);
+            intent.putExtra(BaseReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
+            intent.putExtra(BaseReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
+            startActivity(intent);
+        }
     }
 
 }

@@ -115,7 +115,8 @@
         <activity android:name=".activities.ResourceInfoActivity" />
 
         <!-- Activity that allows to specify the report options before running it -->
-        <activity android:name=".activities.ReportOptionsActivity" />
+        <activity android:name=".activities.report.CompatReportOptionsActivity" />
+        <activity android:name=".activities.report.ReportOptionsActivity" />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity android:name=".activities.ReportHtmlViewerActivity"

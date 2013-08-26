@@ -50,7 +50,6 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.ui.widget.MultiSelectSpinner;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.util.Ln;
@@ -76,7 +75,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
 
         setRefreshActionButtonState(true);
         GetInputControlsRequest request = new GetInputControlsRequest(jsRestClient, reportUri);
-        serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, new GetInputControlsListener());
+        serviceManager.execute(request, new GetInputControlsListener());
     }
 
     public void runReportButtonClickHandler(View view) {

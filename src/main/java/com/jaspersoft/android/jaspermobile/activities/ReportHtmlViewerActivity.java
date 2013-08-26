@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -31,7 +31,6 @@ import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 /**
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.4
  */
 public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
@@ -50,13 +49,6 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
                 }
             }
         });
-    }
-
-    @Override
-    protected void setCookiesFromRestClient() {
-        if (jsRestClient.getServerInfo().getVersionCode() >= ServerInfo.VERSION_CODES.EMERALD) {
-            super.setCookiesFromRestClient();
-        }
     }
 
 }

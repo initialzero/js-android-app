@@ -1,32 +1,53 @@
+/*
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * the following license terms apply:
+ *
+ * This program is part of Jaspersoft Mobile for Android.
+ *
+ * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
+ */
+
 package com.jaspersoft.android.jaspermobile.activities;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.os.SystemClock;
+import android.util.Base64;
 import android.view.View;
-import android.webkit.*;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 
+import java.util.HashMap;
+
 /**
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.4
  */
 public abstract class BaseHtmlViewerActivity extends RoboActivity {
 
     // Extras
     public static final String EXTRA_RESOURCE_URL = "BaseHtmlViewerActivity.EXTRA_RESOURCE_URL";
-
-    public static final String HTTP_SESSION_ID_NAME = "JSESSIONID";
 
     @InjectView(R.id.htmlViewer_webView)                protected WebView webView;
     @InjectView(R.id.htmlViewer_webView_progressBar)    protected ProgressBar progressBar;
@@ -41,13 +62,18 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
 
         prepareWebView();
         setWebViewClient();
-        setCookiesFromRestClient();
 
         //get resource url from the intent extras
         String url = getIntent().getExtras().getString(EXTRA_RESOURCE_URL);
 
-        // load the report file from the cache folder
-        webView.loadUrl(url);
+        // basic auth
+        HashMap<String, String> map = new HashMap<String, String>();
+        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        String authorisation = serverProfile.getUsernameWithOrgId() + ":" + serverProfile.getPassword();
+        String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
+        map.put("Authorization", encodedAuthorisation);
+        // load url
+        webView.loadUrl(url, map);
     }
 
     protected void prepareWebView() {
@@ -68,38 +94,6 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
                 progressBar.setVisibility(View.GONE);
             }
         });
-    }
-
-    protected void setCookiesFromRestClient() {
-        // workaround for http://bugzilla.jaspersoft.com/show_bug.cgi?id=32293
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD){
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-        jsRestClient.getResource("/");
-
-        HttpComponentsClientHttpRequestFactory requestFactory = (HttpComponentsClientHttpRequestFactory) jsRestClient.getRestTemplate().getRequestFactory();
-        DefaultHttpClient httpClient = (DefaultHttpClient) requestFactory.getHttpClient();
-
-        Cookie sessionCookie = null;
-        for(Cookie cookie : httpClient.getCookieStore().getCookies()) {
-            if(cookie.getName().equalsIgnoreCase(HTTP_SESSION_ID_NAME)) {
-                sessionCookie = cookie;
-            }
-        }
-
-        CookieSyncManager.createInstance(this);
-        CookieManager cookieManager = CookieManager.getInstance();
-        if (sessionCookie != null) {
-            String cookieString = sessionCookie.getName() + "=" + sessionCookie.getValue();
-            String cookieDomain = sessionCookie.getDomain();
-            if (!cookieString.equals(cookieManager.getCookie(cookieDomain))) {
-                cookieManager.removeSessionCookie();
-                SystemClock.sleep(500); // yep, it's a hack...
-                cookieManager.setCookie(cookieDomain, cookieString);
-                CookieSyncManager.getInstance().sync();
-            }
-        }
     }
 
 }

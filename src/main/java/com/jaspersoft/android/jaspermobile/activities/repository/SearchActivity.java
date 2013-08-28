@@ -28,6 +28,7 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.SearchResourcesRequest;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
@@ -83,7 +84,7 @@ public class SearchActivity extends BaseBrowserSearchActivity {
 
         // search for resources
         SearchResourcesRequest request = new SearchResourcesRequest(jsRestClient, uri, query, types, true, 0);
-        long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : DurationInMillis.ONE_HOUR;
+        long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
         serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new SearchResourcesListener());
     }
 

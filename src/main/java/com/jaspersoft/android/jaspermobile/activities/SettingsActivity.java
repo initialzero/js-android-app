@@ -34,23 +34,28 @@ import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPrefere
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.octo.android.robospice.persistence.DurationInMillis;
 
 import static android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
 /**
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.5
  */
 public class SettingsActivity extends RoboSherlockPreferenceActivity implements OnSharedPreferenceChangeListener {
 
+    public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
+    public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
     public static final String KEY_PREF_READ_TIMEOUT = "pref_read_timeout";
 
+    public static final boolean DEFAULT_REPO_CACHE_ENABLED = true;
+    public static final String DEFAULT_REPO_CACHE_EXPIRATION = "48";
     public static final String DEFAULT_CONNECT_TIMEOUT = "15";
     public static final String DEFAULT_READ_TIMEOUT = "120";
 
     private SharedPreferences sharedPreferences;
+    private EditTextPreference repoCacheExpirationPref;
     private EditTextPreference connectTimeoutPref;
     private EditTextPreference readTimeoutPref;
 
@@ -69,9 +74,13 @@ public class SettingsActivity extends RoboSherlockPreferenceActivity implements 
         actionBar.setDisplayHomeAsUpEnabled(true);
         // init shared preferences
         sharedPreferences = getPreferenceScreen().getSharedPreferences();
+        // repository cache
+        repoCacheExpirationPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_REPO_CACHE_EXPIRATION);
+        // timeouts
         connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
         readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
         // init summaries for all preferences
+        updatePreferenceSummary(KEY_PREF_REPO_CACHE_EXPIRATION);
         updatePreferenceSummary(KEY_PREF_CONNECT_TIMEOUT);
         updatePreferenceSummary(KEY_PREF_READ_TIMEOUT);
     }
@@ -108,6 +117,17 @@ public class SettingsActivity extends RoboSherlockPreferenceActivity implements 
         updateDependentObjects(key);
     }
 
+    public static long getRepoCacheExpirationValue(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean repoCacheEnabled = preferences.getBoolean(KEY_PREF_REPO_CACHE_ENABLED, DEFAULT_REPO_CACHE_ENABLED);
+        if (repoCacheEnabled) {
+            String value = preferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
+            return Integer.parseInt(value) * DurationInMillis.ONE_HOUR;
+        } else {
+            return -1;
+        }
+    }
+
     public static int getConnectTimeoutValue(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String value = preferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
@@ -125,13 +145,17 @@ public class SettingsActivity extends RoboSherlockPreferenceActivity implements 
     //---------------------------------------------------------------------
 
     private void updatePreferenceSummary(String key) {
-        if (key.equals(KEY_PREF_CONNECT_TIMEOUT)) {
+        if (key.equals(KEY_PREF_REPO_CACHE_EXPIRATION)) {
+            String value = sharedPreferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
+            String summary = getString(R.string.st_summary_h, value);
+            repoCacheExpirationPref.setSummary(summary);
+        } else if (key.equals(KEY_PREF_CONNECT_TIMEOUT)) {
             String value = sharedPreferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-            String summary = getString(R.string.st_timeout_summary, value);
+            String summary = getString(R.string.st_summary_sec, value);
             connectTimeoutPref.setSummary(summary);
         } else if (key.equals(KEY_PREF_READ_TIMEOUT)) {
             String value = sharedPreferences.getString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
-            String summary = getString(R.string.st_timeout_summary, value);
+            String summary = getString(R.string.st_summary_sec, value);
             readTimeoutPref.setSummary(summary);
         }
     }

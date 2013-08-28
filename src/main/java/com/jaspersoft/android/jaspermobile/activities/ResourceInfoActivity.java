@@ -39,7 +39,6 @@ import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
@@ -77,7 +76,8 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
         setRefreshActionButtonState(true);
         String resourceUri = getIntent().getExtras().getString(BaseRepositoryActivity.EXTRA_RESOURCE_URI);
         GetResourceRequest request = new GetResourceRequest(jsRestClient, resourceUri);
-        serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, new GetResourceListener());
+        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceListener());
     }
 
     @Override

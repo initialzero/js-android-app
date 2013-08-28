@@ -25,16 +25,39 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory
+        android:title="@string/st_category_repo_cache"
+    />
+
+    <CheckBoxPreference
+        android:key="pref_repo_cache_enabled"
+        android:title="@string/st_title_cache_enable"
+        android:summary="@string/st_summary_cache_enable"
+        android:defaultValue="true"
+    />
+
+    <EditTextPreference
+        android:key="pref_repo_cache_expiration"
+        android:dependency="pref_repo_cache_enabled"
+        android:title="@string/st_title_cache_expiration"
+        android:inputType="number"
+        android:defaultValue="48"
+    />
+
+    <PreferenceCategory
+        android:title="@string/st_category_connection"
+    />
+
     <EditTextPreference
         android:key="pref_connect_timeout"
-        android:title="@string/st_connect_timeout"
+        android:title="@string/st_title_connect_timeout"
         android:inputType="number"
         android:defaultValue="15"
     />
 
     <EditTextPreference
         android:key="pref_read_timeout"
-        android:title="@string/st_read_timeout"
+        android:title="@string/st_title_read_timeout"
         android:inputType="number"
         android:defaultValue="120"
     />

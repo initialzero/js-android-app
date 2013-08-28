@@ -49,7 +49,6 @@ import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
@@ -279,7 +278,8 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     private void runReport(String reportLabel, String reportUri) {
         GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
         GetServerInfoListener listener = new GetServerInfoListener(reportLabel, reportUri);
-        serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, listener);
+        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
     }
 
     private void runDashboard(String dashboardUri) {

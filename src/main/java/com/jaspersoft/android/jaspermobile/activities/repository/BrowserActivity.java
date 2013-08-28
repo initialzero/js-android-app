@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 import android.content.Intent;
 import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourcesRequest;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
@@ -71,7 +72,7 @@ public class BrowserActivity extends BaseBrowserSearchActivity {
         setListAdapter(null);
 
         GetResourcesRequest request = new GetResourcesRequest(jsRestClient, uri);
-        long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : DurationInMillis.ONE_HOUR;
+        long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
         serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourcesListener());
     }
 

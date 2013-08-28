@@ -39,6 +39,7 @@ import android.widget.*;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -52,7 +53,6 @@ import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.ResourceParameter;
 import com.jaspersoft.android.sdk.client.oxm.ResourceProperty;
 import com.jaspersoft.android.sdk.ui.widget.MultiSelectSpinner;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -79,7 +79,8 @@ public class CompatReportOptionsActivity extends BaseReportOptionsActivity {
 
         setRefreshActionButtonState(true);
         GetResourceRequest request = new GetResourceRequest(jsRestClient, reportUri);
-        serviceManager.execute(request, request.createCacheKey(), DurationInMillis.ONE_HOUR, new GetResourceListener());
+        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceListener());
     }
 
     public void runReportButtonClickHandler(View view) {

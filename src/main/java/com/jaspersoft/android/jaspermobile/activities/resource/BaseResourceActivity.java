@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,61 +22,49 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.resource;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.ModifyResourceRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import roboguice.inject.InjectView;
 
 /**
  * @author Ivan Gadzhega
- * @since 1.0
+ * @since 1.5.2
  */
-public class ResourceEditActivity extends RoboSherlockActivity {
-
-    public static final String EXTRA_RESOURCE_LABEL = "ResourceEditActivity.EXTRA_RESOURCE_LABEL";
-    public static final String EXTRA_RESOURCE_DESCRIPTION = "ResourceEditActivity.EXTRA_RESOURCE_DESCRIPTION";
+public abstract class BaseResourceActivity extends RoboSherlockActivity {
 
     // Action Bar IDs
     private static final int ID_AB_REFRESH = 10;
     private static final int ID_AB_SETTINGS = 11;
 
-    @Inject protected JsRestClient jsRestClient;
+    @Inject
+    protected JsRestClient jsRestClient;
+    protected SpiceManager serviceManager;
 
-    private SpiceManager serviceManager;
     private MenuItem refreshItem;
-    private ResourceDescriptor resourceDescriptor;
-
-    @InjectView(R.id.resourceLabel)         private EditText resourceLabel;
-    @InjectView(R.id.resourceDescription)   private EditText resourceDescription;
-    @InjectView(R.id.modifyResourceButton)  private Button modifyResourceButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.resource_edit_layout);
+        setContentView(getContentViewResId());
         //update title
-        getSupportActionBar().setTitle(R.string.re_title);
+        getSupportActionBar().setTitle(getTitleResId());
         // bind to service
         serviceManager = new SpiceManager(JsXmlSpiceService.class);
         // get resource info
@@ -119,16 +107,6 @@ public class ResourceEditActivity extends RoboSherlockActivity {
         }
     }
 
-    public void modifyResourceClickHandler(View view) {
-        // update current resource descriptor
-        resourceDescriptor.setLabel(resourceLabel.getText().toString());
-        resourceDescriptor.setDescription(resourceDescription.getText().toString());
-        // execute request
-        setRefreshActionButtonState(true);
-        ModifyResourceRequest request = new ModifyResourceRequest(jsRestClient, resourceDescriptor);
-        serviceManager.execute(request, new ModifyResourceListener());
-    }
-
     @Override
     protected void onStart() {
         serviceManager.start(this);
@@ -145,7 +123,11 @@ public class ResourceEditActivity extends RoboSherlockActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void executeResourceRequest(boolean useCache) {
+    protected abstract int getContentViewResId();
+
+    protected abstract int getTitleResId();
+
+    protected void executeResourceRequest(boolean useCache) {
         setRefreshActionButtonState(true);
         String resourceUri = getIntent().getExtras().getString(BaseRepositoryActivity.EXTRA_RESOURCE_URI);
         GetResourceRequest request = new GetResourceRequest(jsRestClient, resourceUri);
@@ -153,8 +135,9 @@ public class ResourceEditActivity extends RoboSherlockActivity {
         serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceListener());
     }
 
+    protected abstract void onGetResourceRequestSuccess(ResourceDescriptor descriptor);
+
     protected void setRefreshActionButtonState(boolean refreshing) {
-        modifyResourceButton.setEnabled(!refreshing);
         if (refreshItem != null) {
             if (refreshing) {
                 refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
@@ -168,42 +151,18 @@ public class ResourceEditActivity extends RoboSherlockActivity {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetResourceListener implements RequestListener<ResourceDescriptor> {
+    protected class GetResourceListener implements RequestListener<ResourceDescriptor> {
 
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, ResourceEditActivity.this, true);
+            RequestExceptionHandler.handle(exception, BaseResourceActivity.this, true);
         }
 
         @Override
-        public void onRequestSuccess(ResourceDescriptor descriptor) {
-            resourceDescriptor = descriptor;
-            //update subtitle
+        public void onRequestSuccess(ResourceDescriptor resourceDescriptor) {
             getSupportActionBar().setSubtitle(resourceDescriptor.getLabel());
-            // update label and description
-            resourceLabel.setText(resourceDescriptor.getLabel());
-            resourceDescription.setText(resourceDescriptor.getDescription());
-
+            onGetResourceRequestSuccess(resourceDescriptor);
             setRefreshActionButtonState(false);
-        }
-
-    }
-
-    private class ModifyResourceListener implements RequestListener<Void> {
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, ResourceEditActivity.this, true);
-        }
-
-        @Override
-        public void onRequestSuccess(Void result) {
-            Intent intent = new Intent();
-            intent.putExtra(ResourceEditActivity.EXTRA_RESOURCE_LABEL, resourceLabel.getText().toString());
-            intent.putExtra(ResourceEditActivity.EXTRA_RESOURCE_DESCRIPTION, resourceDescription.getText().toString());
-            setResult(RESULT_OK, intent);
-            Toast.makeText(ResourceEditActivity.this, R.string.re_resource_saved_toast, Toast.LENGTH_SHORT).show();
-            finish();
         }
 
     }

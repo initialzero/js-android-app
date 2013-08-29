@@ -41,6 +41,8 @@ import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHand
 import com.jaspersoft.android.jaspermobile.activities.report.BaseReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.CompatReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.resource.ResourceEditActivity;
+import com.jaspersoft.android.jaspermobile.activities.resource.ResourceInfoActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;

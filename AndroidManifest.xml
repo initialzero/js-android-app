@@ -109,10 +109,10 @@
         </activity>
 
         <!-- Activity that performs resource modifying -->
-        <activity android:name=".activities.ResourceEditActivity" />
+        <activity android:name=".activities.resource.ResourceEditActivity" />
 
         <!-- Activity that performs viewing of the resource info -->
-        <activity android:name=".activities.ResourceInfoActivity" />
+        <activity android:name=".activities.resource.ResourceInfoActivity" />
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity android:name=".activities.report.CompatReportOptionsActivity" />

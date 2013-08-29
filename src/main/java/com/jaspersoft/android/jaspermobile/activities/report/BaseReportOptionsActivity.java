@@ -181,6 +181,7 @@ public abstract class BaseReportOptionsActivity extends RoboSherlockActivity {
         if (optionsMenu != null) {
             MenuItem refreshItem = optionsMenu.findItem(ID_AB_REFRESH);
             if (refreshItem != null) {
+                refreshItem.setVisible(refreshing);
                 if (refreshing) {
                     refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
                 } else {

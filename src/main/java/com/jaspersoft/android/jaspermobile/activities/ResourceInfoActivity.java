@@ -39,6 +39,7 @@ import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
@@ -50,14 +51,14 @@ import roboguice.inject.InjectView;
 public class ResourceInfoActivity extends RoboSherlockActivity {
 
     // Action Bar IDs
-    private static final int ID_AB_PROGRESS = 10;
+    private static final int ID_AB_REFRESH = 10;
     private static final int ID_AB_SETTINGS = 11;
 
     @Inject
     protected JsRestClient jsRestClient;
 
     private SpiceManager serviceManager;
-    private MenuItem indeterminateProgressItem;
+    private MenuItem refreshItem;
 
     @InjectView(R.id.resource_name_info)    private TextView resourceName;
     @InjectView(R.id.resourceLabel)         private TextView resourceLabel;
@@ -73,11 +74,7 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
         // bind to service
         serviceManager = new SpiceManager(JsXmlSpiceService.class);
         // get resource info
-        setRefreshActionButtonState(true);
-        String resourceUri = getIntent().getExtras().getString(BaseRepositoryActivity.EXTRA_RESOURCE_URI);
-        GetResourceRequest request = new GetResourceRequest(jsRestClient, resourceUri);
-        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
-        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceListener());
+        executeResourceRequest(true);
     }
 
     @Override
@@ -85,10 +82,10 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
         // use the App Icon for Navigation
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // indeterminate progress
-        indeterminateProgressItem = menu.add(Menu.NONE, ID_AB_PROGRESS, Menu.NONE, R.string.r_ab_refresh);
-        indeterminateProgressItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        indeterminateProgressItem.setActionView(R.layout.actionbar_indeterminate_progress);
+        // Add actions to the action bar
+        refreshItem = menu.add(Menu.NONE, ID_AB_REFRESH, Menu.NONE, R.string.r_ab_refresh);
+        refreshItem.setIcon(R.drawable.ic_action_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
         // settings
         menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
                 .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
@@ -99,6 +96,9 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case ID_AB_REFRESH:
+                executeResourceRequest(false);
+                return true;
             case ID_AB_SETTINGS:
                 // Launch the settings activity
                 Intent settingsIntent = new Intent();
@@ -129,9 +129,21 @@ public class ResourceInfoActivity extends RoboSherlockActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void setRefreshActionButtonState(boolean refreshing) {
-        if (indeterminateProgressItem != null) {
-            indeterminateProgressItem.setVisible(refreshing);
+    private void executeResourceRequest(boolean useCache) {
+        setRefreshActionButtonState(true);
+        String resourceUri = getIntent().getExtras().getString(BaseRepositoryActivity.EXTRA_RESOURCE_URI);
+        GetResourceRequest request = new GetResourceRequest(jsRestClient, resourceUri);
+        long cacheExpiryDuration = (useCache) ? SettingsActivity.getRepoCacheExpirationValue(this) : DurationInMillis.ALWAYS_EXPIRED;
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceListener());
+    }
+
+    protected void setRefreshActionButtonState(boolean refreshing) {
+        if (refreshItem != null) {
+            if (refreshing) {
+                refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+            } else {
+                refreshItem.setActionView(null);
+            }
         }
     }
 

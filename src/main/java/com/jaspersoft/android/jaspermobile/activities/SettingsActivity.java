@@ -113,6 +113,7 @@ public class SettingsActivity extends RoboSherlockPreferenceActivity implements 
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        validatePreferenceValue(key);
         updatePreferenceSummary(key);
         updateDependentObjects(key);
     }
@@ -143,6 +144,24 @@ public class SettingsActivity extends RoboSherlockPreferenceActivity implements 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void validatePreferenceValue(String key) {
+        if (key.equals(KEY_PREF_REPO_CACHE_EXPIRATION)) {
+            validatePreferenceValue(key, DEFAULT_REPO_CACHE_EXPIRATION);
+        } else if (key.equals(KEY_PREF_CONNECT_TIMEOUT)) {
+            validatePreferenceValue(key, DEFAULT_CONNECT_TIMEOUT);
+        } else if (key.equals(KEY_PREF_READ_TIMEOUT)) {
+            validatePreferenceValue(key, DEFAULT_READ_TIMEOUT);
+        }
+    }
+
+    private void validatePreferenceValue(String key, String defValue) {
+        if (sharedPreferences.getString(key, defValue).length() == 0){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(key, defValue);
+            editor.commit();
+        }
+    }
 
     private void updatePreferenceSummary(String key) {
         if (key.equals(KEY_PREF_REPO_CACHE_EXPIRATION)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -46,8 +46,8 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
@@ -58,7 +58,13 @@ import com.jaspersoft.android.jaspermobile.util.CacheUtils;
 import com.jaspersoft.android.jaspermobile.util.FileUtils;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
 import roboguice.util.RoboAsyncTask;
 
@@ -67,9 +73,10 @@ import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static com.jaspersoft.android.jaspermobile.JasperMobileApplication.REPORT_OUTPUT_DIR_NAME;
+
 /**
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.0
  */
 public class HomeActivity extends RoboSherlockActivity {
@@ -92,8 +99,8 @@ public class HomeActivity extends RoboSherlockActivity {
 
     @Inject
     private JsRestClient jsRestClient;
-
     private DatabaseProvider dbProvider;
+    private SpiceManager serviceManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,10 +113,12 @@ public class HomeActivity extends RoboSherlockActivity {
 
         // Get the database provider
         dbProvider = new DatabaseProvider(this);
-
         // Get a cursor with current server profile
         Cursor cursor = dbProvider.fetchServerProfile(rowId);
         startManagingCursor(cursor);
+
+        // bind to service
+        serviceManager = new SpiceManager(JsXmlSpiceService.class);
 
         setContentView(R.layout.home_layout);
 
@@ -199,17 +208,10 @@ public class HomeActivity extends RoboSherlockActivity {
                     startActivity(loginIntent);
                     break;
                 case R.id.home_item_library:
-                    Intent searchIntent = new Intent();
-                    searchIntent.setClass(this, SearchActivity.class);
-                    Bundle appData = new Bundle();
-                    appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
-                    appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
-                    ArrayList<String> types = new ArrayList<String>();
-                    types.add(ResourceDescriptor.WsType.reportUnit.toString());
-                    types.add(ResourceDescriptor.WsType.dashboard.toString());
-                    appData.putStringArrayList(SearchActivity.EXTRA_RESOURCE_TYPES, types);
-                    searchIntent.putExtra(SearchManager.APP_DATA, appData);
-                    startActivity(searchIntent);
+                    GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+                    GetServerInfoListener listener = new GetServerInfoListener();
+                    long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
+                    serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
                     break;
                 case R.id.home_item_search:
                     onSearchRequested();
@@ -386,6 +388,18 @@ public class HomeActivity extends RoboSherlockActivity {
     }
 
     @Override
+    protected void onStart() {
+        serviceManager.start(this);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        serviceManager.shouldStop();
+        super.onStop();
+    }
+
+    @Override
     public void onDestroy() {
         // close any open database object
         if (dbProvider != null) dbProvider.close();
@@ -419,11 +433,10 @@ public class HomeActivity extends RoboSherlockActivity {
         RoboAsyncTask clearCacheAsyncTask = new RoboAsyncTask<Void>(this) {
             @Override
             public Void call() {
-                String outputDirName = JasperMobileApplication.REPORT_OUTPUT_DIR_NAME;
                 // for internal cache
-                FileUtils.deleteFilesInDirectory(new File(getContext().getCacheDir(), outputDirName));
+                FileUtils.deleteFilesInDirectory(new File(getContext().getCacheDir(), REPORT_OUTPUT_DIR_NAME));
                 // for external cache if available
-                FileUtils.deleteFilesInDirectory(new File(CacheUtils.getExternalCacheDir(getContext()), outputDirName));
+                FileUtils.deleteFilesInDirectory(new File(CacheUtils.getExternalCacheDir(getContext()), REPORT_OUTPUT_DIR_NAME));
                 return null;
             }
 
@@ -431,4 +444,34 @@ public class HomeActivity extends RoboSherlockActivity {
         final Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(clearCacheAsyncTask.future());
     }
+
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
+
+    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            RequestExceptionHandler.handle(e, HomeActivity.this, false);
+        }
+
+        @Override
+        public void onRequestSuccess(ServerInfo serverInfo) {
+            Intent searchIntent = new Intent();
+            searchIntent.setClass(HomeActivity.this, SearchActivity.class);
+            Bundle appData = new Bundle();
+            appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
+            appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
+            ArrayList<String> types = new ArrayList<String>();
+            types.add(ResourceDescriptor.WsType.reportUnit.toString());
+            if (ServerInfo.EDITIONS.PRO.equals(serverInfo.getEdition())) {
+                types.add(ResourceDescriptor.WsType.dashboard.toString());
+            }
+            appData.putStringArrayList(SearchActivity.EXTRA_RESOURCE_TYPES, types);
+            searchIntent.putExtra(SearchManager.APP_DATA, appData);
+            startActivity(searchIntent);
+        }
+    }
+
 }

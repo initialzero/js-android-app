@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.os.Bundle;
 import android.util.Base64;

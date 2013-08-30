@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.os.Bundle;
 import android.widget.RelativeLayout;
@@ -30,8 +30,9 @@ import com.jaspersoft.android.jaspermobile.R;
 import roboguice.inject.InjectView;
 
 /**
+ * Activity that performs dashboard viewing in HTML format.
+ *
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.4
  */
 public class DashboardHtmlViewerActivity extends BaseHtmlViewerActivity {

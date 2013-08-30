@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.view.View;
 import android.webkit.WebView;
@@ -30,6 +30,8 @@ import android.webkit.WebViewClient;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 /**
+ * Activity that performs report viewing in HTML format.
+ *
  * @author Ivan Gadzhega
  * @since 1.4
  */

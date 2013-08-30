@@ -43,6 +43,8 @@ import com.jaspersoft.android.jaspermobile.activities.report.CompatReportOptions
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.resource.ResourceEditActivity;
 import com.jaspersoft.android.jaspermobile.activities.resource.ResourceInfoActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;

@@ -62,6 +62,9 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DATE_DIALOG_ID;
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.TIME_DIALOG_ID;
+
 /**
  * @author Ivan Gadzhega
  * @since 1.5.2
@@ -483,7 +486,7 @@ public class CompatReportOptionsActivity extends BaseReportOptionsActivity {
                                 // add a click listener
                                 datePicker.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
-                                        showDateDialog(DATE_DIALOG_ID, inputControl, null, editText, startDate);
+                                        showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
                                     }
                                 });
 
@@ -496,7 +499,7 @@ public class CompatReportOptionsActivity extends BaseReportOptionsActivity {
                                     // add a click listener
                                     timePicker.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
-                                            showDateDialog(TIME_DIALOG_ID, inputControl, null, editText, startDate);
+                                            showDateDialog(inputControl, TIME_DIALOG_ID, editText, startDate);
                                         }
                                     });
                                 }

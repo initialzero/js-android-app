@@ -25,16 +25,17 @@
 package com.jaspersoft.android.jaspermobile.activities.report;
 
 import android.annotation.TargetApi;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.view.View;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
@@ -47,20 +48,13 @@ import com.jaspersoft.android.jaspermobile.util.CacheUtils;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
-import com.jaspersoft.android.sdk.client.oxm.ResourceParameter;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 import com.octo.android.robospice.SpiceManager;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 /**
  * @author Ivan Gadzhega
@@ -75,11 +69,7 @@ public abstract class BaseReportOptionsActivity extends RoboSherlockActivity {
     public static final String RUN_OUTPUT_FORMAT_HTML = "HTML";
     public static final String RUN_OUTPUT_FORMAT_PDF = "PDF";
     public static final String RUN_OUTPUT_FORMAT_XLS = "XLS";
-    // date format
-    protected static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
-    // Dialog IDs
-    protected static final int DATE_DIALOG_ID = 10;
-    protected static final int TIME_DIALOG_ID = 11;
+
     // Action Bar IDs
     private static final int ID_AB_REFRESH = 20;
     private static final int ID_AB_SETTINGS = 21;
@@ -96,10 +86,7 @@ public abstract class BaseReportOptionsActivity extends RoboSherlockActivity {
     protected SpiceManager serviceManager;
     protected String reportUri;
 
-    private TextView activeDateDisplay;
-    private Calendar activeDate;
-    private InputControlWrapper activeInputControlWrapper;
-    private InputControl activeInputControl;
+    private DatePickerDialogHelper dialogHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,6 +112,9 @@ public abstract class BaseReportOptionsActivity extends RoboSherlockActivity {
         } else {
             outputFormats = new String[] { RUN_OUTPUT_FORMAT_HTML } ;
         }
+
+        // init helper for date/time picker dialogs
+        dialogHelper = new DatePickerDialogHelper(this);
 
         // show spinner with available output formats
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, outputFormats);
@@ -193,46 +183,25 @@ public abstract class BaseReportOptionsActivity extends RoboSherlockActivity {
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        switch (id) {
-            case DATE_DIALOG_ID:
-                return new DatePickerDialog(this, dateSetListener, activeDate.get(Calendar.YEAR), activeDate.get(Calendar.MONTH), activeDate.get(Calendar.DAY_OF_MONTH));
-            case TIME_DIALOG_ID:
-                return new TimePickerDialog(this, timeSetListener, activeDate.get(Calendar.HOUR_OF_DAY), activeDate.get(Calendar.MINUTE), true);
-        }
-        return null;
+        return dialogHelper.onCreateDialog(id);
     }
 
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
         super.onPrepareDialog(id, dialog);
-        switch (id) {
-            case DATE_DIALOG_ID:
-                ((DatePickerDialog) dialog).updateDate(activeDate.get(Calendar.YEAR), activeDate.get(Calendar.MONTH), activeDate.get(Calendar.DAY_OF_MONTH));
-                break;
-            case TIME_DIALOG_ID:
-                ((TimePickerDialog) dialog).updateTime(activeDate.get(Calendar.HOUR_OF_DAY), activeDate.get(Calendar.MINUTE));
-                break;
-        }
+        dialogHelper.onPrepareDialog(id, dialog);
     }
 
-    protected void showDateDialog(int id, InputControlWrapper inputControlWrapper, InputControl InputControl,
-                                  TextView dateDisplay, Calendar date) {
-        activeInputControlWrapper = inputControlWrapper;
-        activeInputControl = InputControl;
-        activeDateDisplay = dateDisplay;
-        activeDate = date;
-        showDialog(id);
+    protected void showDateDialog(InputControlWrapper inputControlWrapper, int id, TextView dateDisplay, Calendar date) {
+        dialogHelper.showDateDialog(inputControlWrapper, id, dateDisplay, date);
+    }
+
+    protected void showDateDialog(InputControl inputControl, int id, TextView dateDisplay, Calendar date) {
+        dialogHelper.showDateDialog(inputControl, id, dateDisplay, date);
     }
 
     protected void updateDateDisplay(TextView dateDisplay, Calendar date, boolean showTime) {
-        String displayText;
-        if(showTime) {
-            displayText = DateFormat.getDateTimeInstance().format(date.getTime());
-        } else {
-            displayText = DateFormat.getDateInstance().format(date.getTime());
-        }
-        dateDisplay.setText(displayText);
-
+        dialogHelper.updateDateDisplay(dateDisplay, date, showTime);
     }
 
     @Override
@@ -280,54 +249,6 @@ public abstract class BaseReportOptionsActivity extends RoboSherlockActivity {
         }
 
         return outputDir;
-    }
-
-    private DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            activeDate.set(Calendar.YEAR, year);
-            activeDate.set(Calendar.MONTH, monthOfYear);
-            activeDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            updateDisplayAndValueOnDateSet();
-        }
-    };
-
-    private TimePickerDialog.OnTimeSetListener timeSetListener = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            activeDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            activeDate.set(Calendar.MINUTE, minute);
-            updateDisplayAndValueOnDateSet();
-
-        }
-    };
-
-    private void updateDisplayAndValueOnDateSet() {
-        if (activeInputControlWrapper != null) {
-            boolean isDateTime = (activeInputControlWrapper.getDataType() == ResourceDescriptor.DT_TYPE_DATE_TIME);
-            updateDateDisplay(activeDateDisplay, activeDate, isDateTime);
-            // update control
-            List<ResourceParameter> parameters = new ArrayList<ResourceParameter>();
-            parameters.add(new ResourceParameter(activeInputControlWrapper.getName(), String.valueOf(activeDate.getTimeInMillis()), false));
-            activeInputControlWrapper.setListOfSelectedValues(parameters);
-        } else if (activeInputControl != null) {
-            String format = DEFAULT_DATE_FORMAT;
-            for (DateTimeFormatValidationRule validationRule : activeInputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
-                format = validationRule.getFormat();
-            }
-            DateFormat formatter = new SimpleDateFormat(format);
-            String date = formatter.format(activeDate.getTime()) ;
-            activeDateDisplay.setText(date);
-            activeInputControl.getState().setValue(date);
-        }
-        unregisterDateDisplay();
-    }
-
-    private void unregisterDateDisplay() {
-        activeDateDisplay = null;
-        activeDate = null;
-        activeInputControlWrapper = null;
-        activeInputControl = null;
     }
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)

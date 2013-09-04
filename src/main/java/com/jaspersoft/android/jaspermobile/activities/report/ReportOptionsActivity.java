@@ -60,6 +60,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DATE_DIALOG_ID;
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DEFAULT_DATE_FORMAT;
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.TIME_DIALOG_ID;
+
 /**
  * @author Ivan Gadzhega
  * @since 1.5.2
@@ -419,7 +423,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                         // add a click listener
                         datePicker.setOnClickListener(new View.OnClickListener() {
                             public void onClick(View v) {
-                                showDateDialog(DATE_DIALOG_ID, null, inputControl, editText, startDate);
+                                showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
                             }
                         });
 
@@ -432,7 +436,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                             // add a click listener
                             timePicker.setOnClickListener(new View.OnClickListener() {
                                 public void onClick(View v) {
-                                    showDateDialog(TIME_DIALOG_ID, null, inputControl, editText, startDate);
+                                    showDateDialog(inputControl, TIME_DIALOG_ID, editText, startDate);
                                 }
                             });
                         }

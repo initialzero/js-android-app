@@ -88,7 +88,6 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    // REST v2
     private void restoreLastValues(InputControl inputControl, Map<String, List<String>> savedOptions) {
         if (savedOptions.containsKey(inputControl.getId())) {
             List<String> values = savedOptions.get(inputControl.getId());
@@ -276,6 +275,33 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
             catch (ActivityNotFoundException e) {
                 // show notification if no app available to open selected format
                 Toast.makeText(this, getString(R.string.ro_no_app_available_toast, formatSpinner.getSelectedItem().toString()), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void hideAllValidationMessages() {
+        for (InputControl control : inputControls) {
+            TextView textView = (TextView) control.getErrorView();
+            if (textView != null) {
+                textView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void showValidationMessages(List<InputControlState> invalidStateList) {
+        for (InputControl control : inputControls) {
+            TextView textView = (TextView) control.getErrorView();
+            if (textView != null) {
+                Iterator<InputControlState> iterator = invalidStateList.iterator();
+                while(iterator.hasNext()) {
+                    InputControlState state = iterator.next();
+                    if (control.getId().equals(state.getId())) {
+                        textView.setText(state.getError());
+                        textView.setVisibility(View.VISIBLE);
+                        iterator.remove();
+                        break;
+                    }
+                }
             }
         }
     }
@@ -573,24 +599,12 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
 
         @Override
         public void onRequestSuccess(InputControlStateList stateList) {
+            hideAllValidationMessages();
             List<InputControlState> invalidStateList = stateList.getInputControlStateList();
             if (invalidStateList.isEmpty()) {
                 runReport();
             } else {
-                // handle errors
-                for (InputControlState state : invalidStateList) {
-                    for (InputControl control : inputControls) {
-                        TextView textView = (TextView) control.getErrorView();
-                        if (textView != null) {
-                            if (control.getId().equals(state.getId())) {
-                                textView.setText(state.getError());
-                                textView.setVisibility(View.VISIBLE);
-                            } else {
-                                textView.setVisibility(View.GONE);
-                            }
-                        }
-                    }
-                }
+                showValidationMessages(invalidStateList);
             }
             setRefreshActionButtonState(false);
         }

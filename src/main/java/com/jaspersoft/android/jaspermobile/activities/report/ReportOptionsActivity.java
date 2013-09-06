@@ -36,17 +36,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsRequest;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.control.*;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.ui.widget.MultiSelectSpinner;
@@ -60,9 +58,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DATE_DIALOG_ID;
-import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DEFAULT_DATE_FORMAT;
-import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.TIME_DIALOG_ID;
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.*;
 
 /**
  * @author Ivan Gadzhega
@@ -83,82 +79,9 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
     }
 
     public void runReportButtonClickHandler(View view) {
-        String outputFormat = formatSpinner.getSelectedItem().toString();
-        JsServerProfile profile = jsRestClient.getServerProfile();
-        // generate report output according to selected format
-        List<ReportParameter> parameters = new ArrayList<ReportParameter>();
-        if (!inputControls.isEmpty()) {
-            // validation
-            List<InputControlState> stateList = jsRestClient.validateInputControlsValues(reportUri, inputControls);
-            if(!stateList.isEmpty()) {
-                for (InputControlState state : stateList) {
-                    for (InputControl control : inputControls) {
-                        TextView textView = (TextView) control.getErrorView();
-                        if (textView != null) {
-                            if(control.getId().equals(state.getId())) {
-                                textView.setText(state.getError());
-                                textView.setVisibility(View.VISIBLE);
-                            } else {
-                                textView.setVisibility(View.GONE);
-                            }
-                        }
-                    }
-
-                }
-                return;
-            }
-
-            for (InputControl inputControl : inputControls) {
-                parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
-            }
-
-            //delete previous values from db
-            dbProvider.deleteReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
-            // Save new values to db
-            for (ReportParameter parameter : parameters) {
-                for (String value : parameter.getValues()) {
-                    dbProvider.insertReportOption(parameter.getName(), value, false,
-                            profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
-                }
-            }
-        }
-
-        String reportUrl = jsRestClient.generateReportUrl(reportUri, parameters, outputFormat);
-
-        if (RUN_OUTPUT_FORMAT_HTML.equalsIgnoreCase(outputFormat)) {
-            // run the html report viewer
-            Intent htmlViewer = new Intent();
-            htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
-            htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL, reportUrl);
-            startActivity(htmlViewer);
-        } else {
-            String contentType, extension;
-            if (RUN_OUTPUT_FORMAT_PDF.equalsIgnoreCase(outputFormat)) {
-                contentType = "application/pdf";
-                extension = ".pdf";
-            } else {
-                contentType = "application/xls";
-                extension = ".xls";
-            }
-            File outputDir = getReportOutputCacheDir();
-            File outputFile = new File(outputDir, reportUri + extension);
-            // get the report output file and save it to cache folder
-            jsRestClient.saveReportOutputToFile(reportUrl, outputFile);
-            if (outputFile.exists()) {
-                // run external viewer according to selected output format
-                Uri path = Uri.fromFile(outputFile);
-                Intent externalViewer = new Intent(Intent.ACTION_VIEW);
-                externalViewer.setDataAndType(path, contentType);
-                externalViewer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                try {
-                    startActivity(externalViewer);
-                }
-                catch (ActivityNotFoundException e) {
-                    // show notification if no app available to open selected format
-                    Toast.makeText(this, getString(R.string.ro_no_app_available_toast, formatSpinner.getSelectedItem().toString()), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
+        setRefreshActionButtonState(true);
+        ValidateInputControlsRequest request = new ValidateInputControlsRequest(jsRestClient, reportUri, inputControls);
+        serviceManager.execute(request, new ValidateInputControlsListener());
     }
 
     //---------------------------------------------------------------------
@@ -279,6 +202,81 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                 }
             }
             skipRecursiveUpdate = false;
+        }
+    }
+
+    private void runReport() {
+        List<ReportParameter> parameters = initParametersUsingSelectedValues();
+        saveParametersToDatabase(parameters);
+        runReportViewer(parameters);
+    }
+
+    private List<ReportParameter> initParametersUsingSelectedValues() {
+        List<ReportParameter> parameters = new ArrayList<ReportParameter>();
+        for (InputControl inputControl : inputControls) {
+            parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
+        }
+        return parameters;
+    }
+
+    private void saveParametersToDatabase(List<ReportParameter> parameters) {
+        if (parameters.isEmpty()) return;
+        //delete previous values from db
+        JsServerProfile profile = jsRestClient.getServerProfile();
+        dbProvider.deleteReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
+        // Save new values to db
+        for (ReportParameter parameter : parameters) {
+            for (String value : parameter.getValues()) {
+                dbProvider.insertReportOption(parameter.getName(), value, false,
+                        profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
+            }
+        }
+    }
+
+    private void runReportViewer(List<ReportParameter> parameters) {
+        String outputFormat = formatSpinner.getSelectedItem().toString();
+        String reportUrl = jsRestClient.generateReportUrl(reportUri, parameters, outputFormat);
+        if (RUN_OUTPUT_FORMAT_HTML.equalsIgnoreCase(outputFormat)) {
+            runHtmlReportViewer(reportUrl);
+        } else {
+            runExternalReportViewer(reportUrl, outputFormat);
+        }
+    }
+
+    private void runHtmlReportViewer(String reportUrl) {
+        Intent htmlViewer = new Intent();
+        htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL, reportUrl);
+        startActivity(htmlViewer);
+    }
+
+    private void runExternalReportViewer(String reportUrl, String outputFormat) {
+        // generate report output according to selected format
+        String contentType, extension;
+        if (RUN_OUTPUT_FORMAT_PDF.equalsIgnoreCase(outputFormat)) {
+            contentType = "application/pdf";
+            extension = ".pdf";
+        } else {
+            contentType = "application/xls";
+            extension = ".xls";
+        }
+        File outputDir = getReportOutputCacheDir();
+        File outputFile = new File(outputDir, reportUri + extension);
+        // get the report output file and save it to cache folder
+        jsRestClient.saveReportOutputToFile(reportUrl, outputFile);
+        if (outputFile.exists()) {
+            // run external viewer according to selected output format
+            Uri path = Uri.fromFile(outputFile);
+            Intent externalViewer = new Intent(Intent.ACTION_VIEW);
+            externalViewer.setDataAndType(path, contentType);
+            externalViewer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            try {
+                startActivity(externalViewer);
+            }
+            catch (ActivityNotFoundException e) {
+                // show notification if no app available to open selected format
+                Toast.makeText(this, getString(R.string.ro_no_app_available_toast, formatSpinner.getSelectedItem().toString()), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -563,6 +561,40 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
             }
             setRefreshActionButtonState(false);
         }
+    }
+
+    private class ValidateInputControlsListener implements RequestListener<InputControlStateList> {
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, false);
+            setRefreshActionButtonState(false);
+        }
+
+        @Override
+        public void onRequestSuccess(InputControlStateList stateList) {
+            List<InputControlState> invalidStateList = stateList.getInputControlStateList();
+            if (invalidStateList.isEmpty()) {
+                runReport();
+            } else {
+                // handle errors
+                for (InputControlState state : invalidStateList) {
+                    for (InputControl control : inputControls) {
+                        TextView textView = (TextView) control.getErrorView();
+                        if (textView != null) {
+                            if (control.getId().equals(state.getId())) {
+                                textView.setText(state.getError());
+                                textView.setVisibility(View.VISIBLE);
+                            } else {
+                                textView.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                }
+            }
+            setRefreshActionButtonState(false);
+        }
+
     }
 
 }

@@ -212,6 +212,7 @@ public abstract class BaseReportOptionsActivity extends RoboSherlockActivity {
 
     @Override
     protected void onStop() {
+        setRefreshActionButtonState(false);
         serviceManager.shouldStop();
         super.onStop();
     }

@@ -107,6 +107,15 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
         serviceManager.execute(request, new ValidateInputControlsValuesListener());
     }
 
+    protected void setRefreshActionButtonState(boolean refreshing) {
+        super.setRefreshActionButtonState(refreshing);
+        if (inputControls != null) {
+            for (InputControl inputControl : inputControls) {
+                inputControl.getInputView().setEnabled(!refreshing);
+            }
+        }
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------

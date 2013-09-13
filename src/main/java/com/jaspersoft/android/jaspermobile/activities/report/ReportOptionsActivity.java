@@ -42,7 +42,8 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlView
 import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.client.oxm.control.*;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
@@ -73,134 +74,48 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Get a cursor with saved options for current report
+        JsServerProfile profile = jsRestClient.getServerProfile();
+        Cursor cursor = dbProvider.fetchReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
+        startManagingCursor(cursor);
+
+        Map<String, ReportParameter> savedOptions = new HashMap<String, ReportParameter>();
+        if (cursor.getCount() != 0) {
+            // Iterate DB Records
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                String name = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_NAME));
+                String value = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_VALUE));
+                if (savedOptions.containsKey(name)) {
+                    savedOptions.get(name).getValues().add(value);
+                } else {
+                    savedOptions.put(name, new ReportParameter(name, value));
+                }
+                cursor.moveToNext();
+            }
+        }
+
         setRefreshActionButtonState(true);
-        GetInputControlsRequest request = new GetInputControlsRequest(jsRestClient, reportUri);
+        GetInputControlsRequest request = new GetInputControlsRequest(jsRestClient, reportUri,
+                new ArrayList<String>(), new ArrayList<ReportParameter>(savedOptions.values()));
         serviceManager.execute(request, new GetInputControlsListener());
     }
 
     public void runReportButtonClickHandler(View view) {
         setRefreshActionButtonState(true);
-        ValidateInputControlsRequest request = new ValidateInputControlsRequest(jsRestClient, reportUri, inputControls);
-        serviceManager.execute(request, new ValidateInputControlsListener());
+        ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
+        serviceManager.execute(request, new ValidateInputControlsValuesListener());
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void restoreLastValues(InputControl inputControl, Map<String, List<String>> savedOptions) {
-        if (savedOptions.containsKey(inputControl.getId())) {
-            List<String> values = savedOptions.get(inputControl.getId());
-            if (!values.isEmpty()) {
-                switch (inputControl.getType()) {
-                    case bool:
-                    case singleValueText:
-                    case singleValueNumber:
-                    case singleValueDate:
-                    case singleValueDatetime:
-                        inputControl.getState().setValue(values.get(0));
-                        break;
-                    case singleSelect:
-                    case singleSelectRadio:
-                    case multiSelect:
-                    case multiSelectCheckbox:
-                        // unselect all
-                        for (InputControlOption option : inputControl.getState().getOptions()) {
-                            option.setSelected(false);
-                        }
-                        // select saved
-                        for (String value : values) {
-                            for (InputControlOption option : inputControl.getState().getOptions()) {
-                                if (option.getValue().equals(value)) {
-                                    option.setSelected(true);
-                                    break;
-                                }
-                            }
-
-                        }
-                        break;
-                }
-
-                updateDependentControls(inputControl, false);
-            }
-        }
-    }
-
     private void updateDependentControls(InputControl inputControl) {
-        updateDependentControls(inputControl, true);
-    }
-
-    private void updateDependentControls(InputControl inputControl, boolean updateViews) {
-        if(!inputControl.getSlaveDependencies().isEmpty()) {
-            List<ReportParameter> selectedValues = new ArrayList<ReportParameter>();
-            // get values from master dependencies
-            for (String masterId : inputControl.getMasterDependencies()) {
-                for (InputControl control : inputControls) {
-                    if(control.getId().equals(masterId)) {
-                        selectedValues.add(new ReportParameter(control.getId(), control.getSelectedValues()));
-                    }
-                }
-            }
-            // get selected values from control that was changed
-            selectedValues.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
-            // get updated values for slaves
-            List<InputControlState> stateList =
-                    jsRestClient.getUpdatedInputControlsValues(reportUri, inputControl.getSlaveDependencies(), selectedValues);
-            // don't update recursively
-            skipRecursiveUpdate = true;
-            for (InputControlState state : stateList) {
-                for(InputControl slaveControl : inputControls) {
-                    if (slaveControl.getId().equals(state.getId())) {
-                        slaveControl.setState(state);
-                        if(updateViews) {
-                            switch (slaveControl.getType()) {
-                                case bool:
-                                    CheckBox checkBox = (CheckBox) slaveControl.getInputView();
-                                    checkBox.setChecked(Boolean.parseBoolean(state.getValue()));
-                                    break;
-                                case singleValueText:
-                                case singleValueNumber:
-                                case singleValueDate:
-                                case singleValueDatetime:
-                                    EditText editText = (EditText) slaveControl.getInputView();
-                                    editText.setText(state.getValue());
-                                    break;
-                                case singleSelect:
-                                case singleSelectRadio:
-                                    Spinner spinner = (Spinner) slaveControl.getInputView();
-                                    ArrayAdapter<InputControlOption> lovAdapter =
-                                            new ArrayAdapter<InputControlOption>(this, android.R.layout.simple_spinner_item, state.getOptions());
-                                    lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                    spinner.setAdapter(lovAdapter);
-                                    // set initial value for spinner
-                                    for (InputControlOption option : state.getOptions()) {
-                                        if (option.isSelected()) {
-                                            int position = lovAdapter.getPosition(option);
-                                            spinner.setSelection(position);
-                                        }
-                                    }
-                                    break;
-                                case multiSelect:
-                                case multiSelectCheckbox:
-                                    MultiSelectSpinner<InputControlOption> multiSpinner =
-                                            (MultiSelectSpinner<InputControlOption>) slaveControl.getInputView();
-                                    multiSpinner.setItemsList(state.getOptions(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
-                                    // set selected values
-                                    List<Integer> positions = new ArrayList<Integer>();
-                                    for (InputControlOption option : state.getOptions()) {
-                                        if (option.isSelected()) {
-                                            positions.add(multiSpinner.getItemPosition(option));
-                                        }
-                                    }
-                                    multiSpinner.setSelection(positions);
-                                    break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            skipRecursiveUpdate = false;
+        if(!skipRecursiveUpdate && !inputControl.getSlaveDependencies().isEmpty()) {
+            setRefreshActionButtonState(true);
+            GetInputControlsValuesRequest request = new GetInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
+            serviceManager.execute(request, new GetInputControlsValuesListener());
         }
     }
 
@@ -319,37 +234,12 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
-            inputControls = controlsList.getInputControls();
-            // Get a cursor with saved options for current report
-            JsServerProfile profile = jsRestClient.getServerProfile();
-            Cursor cursor = dbProvider.fetchReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
-            startManagingCursor(cursor);
-
-            Map<String, List<String>> savedOptions = new HashMap<String, List<String>>();
-            if (cursor.getCount() != 0) {
-                // Iterate DB Records
-                cursor.moveToFirst();
-                while (!cursor.isAfterLast()) {
-                    String name = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_NAME));
-                    String value = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_VALUE));
-                    if (savedOptions.containsKey(name)) {
-                        savedOptions.get(name).add(value);
-                    } else {
-                        List<String> values = new ArrayList<String>();
-                        values.add(value);
-                        savedOptions.put(name, values);
-                    }
-                    cursor.moveToNext();
-                }
-            }
-
             LinearLayout baseLayout =  (LinearLayout) findViewById(R.id.input_controls_layout);
             LayoutInflater inflater = getLayoutInflater();
-
+            inputControls = controlsList.getInputControls();
             // init UI components for ICs
             for (final InputControl inputControl : inputControls) {
                 String mandatoryPrefix = (inputControl.isMandatory()) ? "* " : "" ;
-                restoreLastValues(inputControl, savedOptions);
                 switch (inputControl.getType()) {
                     case bool: {
                         // inflate view
@@ -367,9 +257,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                                 // update selected value
                                 inputControl.getState().setValue(String.valueOf(isChecked));
                                 // update dependent controls if exist
-                                if (!skipRecursiveUpdate) {
-                                    updateDependentControls(inputControl);
-                                }
+                                updateDependentControls(inputControl);
                             }
                         });
                         // assign views to the control
@@ -399,9 +287,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                                 // update selected value
                                 inputControl.getState().setValue(s.toString());
                                 // update dependent controls if exist
-                                if (!skipRecursiveUpdate) {
-                                    updateDependentControls(inputControl);
-                                }
+                                updateDependentControls(inputControl);
                             }
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -470,9 +356,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                             @Override
                             public void afterTextChanged(Editable s) {
                                 // update dependent controls if exist
-                                if (!skipRecursiveUpdate) {
-                                    updateDependentControls(inputControl);
-                                }
+                                updateDependentControls(inputControl);
                             }
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -510,7 +394,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                         for (InputControlOption option : inputControl.getState().getOptions()) {
                             if (option.isSelected()) {
                                 int position = lovAdapter.getPosition(option);
-                                spinner.setSelection(position);
+                                spinner.setSelection(position, false);
                             }
                         }
 
@@ -523,9 +407,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                                     option.setSelected(option.equals(parent.getSelectedItem()));
                                 }
                                 // update dependent controls if exist
-                                if (!skipRecursiveUpdate) {
-                                    updateDependentControls(inputControl);
-                                }
+                                updateDependentControls(inputControl);
                             }
                             @Override
                             public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
@@ -570,9 +452,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                                             option.setSelected(isSelected);
                                         }
                                         // update dependent controls if exist
-                                        if (!skipRecursiveUpdate) {
-                                            updateDependentControls(inputControl);
-                                        }
+                                        updateDependentControls(inputControl);
                                     }
                                 });
 
@@ -589,7 +469,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
         }
     }
 
-    private class ValidateInputControlsListener implements RequestListener<InputControlStateList> {
+    private class GetInputControlsValuesListener implements RequestListener<InputControlStatesList> {
 
         @Override
         public void onRequestFailure(SpiceException exception) {
@@ -598,9 +478,76 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
         }
 
         @Override
-        public void onRequestSuccess(InputControlStateList stateList) {
+        public void onRequestSuccess(InputControlStatesList stateList) {
+            skipRecursiveUpdate = true; // don't update recursively
+            for (InputControlState state : stateList.getInputControlStates()) {
+                for(InputControl slaveControl : inputControls) {
+                    if (slaveControl.getId().equals(state.getId())) {
+                        slaveControl.setState(state);
+                        switch (slaveControl.getType()) {
+                            case bool:
+                                CheckBox checkBox = (CheckBox) slaveControl.getInputView();
+                                checkBox.setChecked(Boolean.parseBoolean(state.getValue()));
+                                break;
+                            case singleValueText:
+                            case singleValueNumber:
+                            case singleValueDate:
+                            case singleValueDatetime:
+                                EditText editText = (EditText) slaveControl.getInputView();
+                                editText.setText(state.getValue());
+                                break;
+                            case singleSelect:
+                            case singleSelectRadio:
+                                Spinner spinner = (Spinner) slaveControl.getInputView();
+                                ArrayAdapter<InputControlOption> lovAdapter =
+                                        new ArrayAdapter<InputControlOption>(ReportOptionsActivity.this, android.R.layout.simple_spinner_item, state.getOptions());
+                                lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                spinner.setAdapter(lovAdapter);
+                                // set initial value for spinner
+                                for (InputControlOption option : state.getOptions()) {
+                                    if (option.isSelected()) {
+                                        int position = lovAdapter.getPosition(option);
+                                        spinner.setSelection(position, false);
+                                    }
+                                }
+                                break;
+                            case multiSelect:
+                            case multiSelectCheckbox:
+                                MultiSelectSpinner<InputControlOption> multiSpinner =
+                                        (MultiSelectSpinner<InputControlOption>) slaveControl.getInputView();
+                                multiSpinner.setItemsList(state.getOptions(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
+                                // set selected values
+                                List<Integer> positions = new ArrayList<Integer>();
+                                for (InputControlOption option : state.getOptions()) {
+                                    if (option.isSelected()) {
+                                        positions.add(multiSpinner.getItemPosition(option));
+                                    }
+                                }
+                                multiSpinner.setSelection(positions);
+                                break;
+                        }
+                        break;
+                    }
+                }
+            }
+            skipRecursiveUpdate = false;
+            setRefreshActionButtonState(false);
+        }
+
+    }
+
+    private class ValidateInputControlsValuesListener implements RequestListener<InputControlStatesList> {
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, false);
+            setRefreshActionButtonState(false);
+        }
+
+        @Override
+        public void onRequestSuccess(InputControlStatesList stateList) {
             hideAllValidationMessages();
-            List<InputControlState> invalidStateList = stateList.getInputControlStateList();
+            List<InputControlState> invalidStateList = stateList.getInputControlStates();
             if (invalidStateList.isEmpty()) {
                 runReport();
             } else {

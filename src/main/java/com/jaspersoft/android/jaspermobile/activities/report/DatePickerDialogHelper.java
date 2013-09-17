@@ -159,7 +159,6 @@ class DatePickerDialogHelper {
             DateFormat formatter = new SimpleDateFormat(format);
             String date = formatter.format(activeDate.getTime()) ;
             activeDateDisplay.setText(date);
-            activeInputControl.getState().setValue(date);
         }
         unregisterDateDisplay();
     }

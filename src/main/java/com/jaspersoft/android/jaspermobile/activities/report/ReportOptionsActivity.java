@@ -68,7 +68,6 @@ import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDi
 public class ReportOptionsActivity extends BaseReportOptionsActivity {
 
     private List<InputControl> inputControls;
-    private boolean skipRecursiveUpdate;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -121,7 +120,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
     //---------------------------------------------------------------------
 
     private void updateDependentControls(InputControl inputControl) {
-        if(!skipRecursiveUpdate && !inputControl.getSlaveDependencies().isEmpty()) {
+        if(!inputControl.getSlaveDependencies().isEmpty()) {
             setRefreshActionButtonState(true);
             GetInputControlsValuesRequest request = new GetInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
             serviceManager.execute(request, new GetInputControlsValuesListener());
@@ -263,10 +262,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                // update selected value
-                                inputControl.getState().setValue(String.valueOf(isChecked));
-                                // update dependent controls if exist
-                                updateDependentControls(inputControl);
+                                onStringValueChanged(inputControl, String.valueOf(isChecked));
                             }
                         });
                         // assign views to the control
@@ -292,11 +288,8 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                         // add listener
                         editText.addTextChangedListener(new TextWatcher() {
                             @Override
-                            public void afterTextChanged(Editable s) {
-                                // update selected value
-                                inputControl.getState().setValue(s.toString());
-                                // update dependent controls if exist
-                                updateDependentControls(inputControl);
+                            public void afterTextChanged(Editable editable) {
+                                onStringValueChanged(inputControl, editable.toString());
                             }
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -363,9 +356,8 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                         // add listener for text field
                         editText.addTextChangedListener(new TextWatcher() {
                             @Override
-                            public void afterTextChanged(Editable s) {
-                                // update dependent controls if exist
-                                updateDependentControls(inputControl);
+                            public void afterTextChanged(Editable editable) {
+                                onStringValueChanged(inputControl, editable.toString());
                             }
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -411,12 +403,16 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                             @Override
                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                // update selected value
                                 for (InputControlOption option : inputControl.getState().getOptions()) {
-                                    option.setSelected(option.equals(parent.getSelectedItem()));
+                                    if (option.equals(parent.getSelectedItem())) {
+                                        if (!option.isSelected()) {
+                                            option.setSelected(true);
+                                            updateDependentControls(inputControl);
+                                        }
+                                    } else {
+                                        option.setSelected(false);
+                                    }
                                 }
-                                // update dependent controls if exist
-                                updateDependentControls(inputControl);
                             }
                             @Override
                             public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
@@ -451,19 +447,21 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                         multiSpinner.setSelection(positions);
 
                         // listener
-                        multiSpinner.setOnItemsSelectedListener(
-                                new MultiSelectSpinner.OnItemsSelectedListener() {
-                                    @Override
-                                    public void onItemsSelected(List selectedItems) {
-                                        // update selected values
-                                        for (InputControlOption option : inputControl.getState().getOptions()) {
-                                            boolean isSelected = selectedItems.contains(option);
-                                            option.setSelected(isSelected);
-                                        }
-                                        // update dependent controls if exist
-                                        updateDependentControls(inputControl);
-                                    }
-                                });
+                        multiSpinner.setOnItemsSelectedListener(new MultiSelectSpinner.OnItemsSelectedListener() {
+                            @Override
+                            public void onItemsSelected(List selectedItems) {
+                                boolean valuesChanged = false;
+                                // update selected values
+                                for (InputControlOption option : inputControl.getState().getOptions()) {
+                                    boolean selectedBefore = option.isSelected();
+                                    boolean selectedNow = selectedItems.contains(option);
+                                    if (selectedBefore != selectedNow) valuesChanged = true;
+                                    option.setSelected(selectedNow);
+                                }
+                                // update dependent controls if exist
+                                if (valuesChanged) updateDependentControls(inputControl);
+                            }
+                        });
 
                         TextView errorView = (TextView) view.findViewById(R.id.ic_error_text);
                         // assign views to the control
@@ -475,6 +473,14 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                 }
             }
             setRefreshActionButtonState(false);
+        }
+
+        private void onStringValueChanged(InputControl inputControl, String newValue) {
+            String oldValue = inputControl.getState().getValue();
+            if (oldValue != null && !oldValue.equals(newValue)) {
+                inputControl.getState().setValue(newValue);
+                updateDependentControls(inputControl);
+            }
         }
     }
 
@@ -488,7 +494,6 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
 
         @Override
         public void onRequestSuccess(InputControlStatesList stateList) {
-            skipRecursiveUpdate = true; // don't update recursively
             for (InputControlState state : stateList.getInputControlStates()) {
                 for(InputControl slaveControl : inputControls) {
                     if (slaveControl.getId().equals(state.getId())) {
@@ -539,7 +544,6 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                     }
                 }
             }
-            skipRecursiveUpdate = false;
             setRefreshActionButtonState(false);
         }
 

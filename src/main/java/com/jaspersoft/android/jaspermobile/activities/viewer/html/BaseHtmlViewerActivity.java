@@ -24,12 +24,16 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -49,34 +53,88 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
     // Extras
     public static final String EXTRA_RESOURCE_URL = "BaseHtmlViewerActivity.EXTRA_RESOURCE_URL";
 
-    @InjectView(R.id.htmlViewer_webView)                protected WebView webView;
-    @InjectView(R.id.htmlViewer_webView_progressBar)    protected ProgressBar progressBar;
-
     @Inject
     protected JsRestClient jsRestClient;
+    @InjectView(R.id.webViewPlaceholder)
+    protected FrameLayout webViewPlaceholder;
+    @InjectView(R.id.htmlViewer_webView_progressBar)
+    protected ProgressBar progressBar;
+    protected WebView webView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.html_viewer_layout);
-
-        prepareWebView();
-        setWebViewClient();
-
-        //get resource url from the intent extras
-        String url = getIntent().getExtras().getString(EXTRA_RESOURCE_URL);
-
-        // basic auth
-        HashMap<String, String> map = new HashMap<String, String>();
-        JsServerProfile serverProfile = jsRestClient.getServerProfile();
-        String authorisation = serverProfile.getUsernameWithOrgId() + ":" + serverProfile.getPassword();
-        String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
-        map.put("Authorization", encodedAuthorisation);
-        // load url
-        webView.loadUrl(url, map);
+        initWebView();
     }
 
-    protected void prepareWebView() {
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        if (webView != null) webViewPlaceholder.removeView(webView);
+        super.onConfigurationChanged(newConfig);
+        setContentView(R.layout.html_viewer_layout);
+        initWebView();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        webView.saveState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        webView.restoreState(savedInstanceState);
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void initWebView() {
+        // create new if necessary
+        if (webView == null) createWebView();
+        // attach to placeholder
+        webViewPlaceholder.addView(webView);
+    }
+
+    private void createWebView() {
+        webView = new WebView(this, null, R.style.htmlViewer_webView);
+        prepareWebView();
+        setWebViewClient();
+        loadUrl();
+    }
+
+    protected void setWebViewClient() {
+        webView.setWebChromeClient(new WebChromeClient() {
+            public void onProgressChanged(WebView view, int progress) {
+                // fade in
+                if (progressBar.getProgress() == 0) {
+                    AlphaAnimation fadeInAnimation = new AlphaAnimation(0.0f, 1.0f);
+                    fadeInAnimation.setDuration(500);
+                    progressBar.startAnimation(fadeInAnimation);
+                }
+                // update value
+                int maxProgress = progressBar.getMax();
+                progressBar.setProgress((maxProgress/100) * progress);
+                // fade out
+                if (progress == maxProgress) {
+                    AlphaAnimation fadeOutAnimation = new AlphaAnimation(1.0f, 0.0f);
+                    fadeOutAnimation.setDuration(1000);
+                    progressBar.startAnimation(fadeOutAnimation);
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    private void prepareWebView() {
+        // disable hardware acceleration
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+        // configure additional settings
         webView.getSettings().setPluginsEnabled(true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
@@ -85,15 +143,17 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
         webView.getSettings().setBuiltInZoomControls(true);
     }
 
-    protected void setWebViewClient() {
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                // hide progress bar after page load
-                progressBar.setVisibility(View.GONE);
-            }
-        });
+    private void loadUrl() {
+        //get resource url from the intent extras
+        String url = getIntent().getExtras().getString(EXTRA_RESOURCE_URL);
+        // basic auth
+        HashMap<String, String> map = new HashMap<String, String>();
+        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        String authorisation = serverProfile.getUsernameWithOrgId() + ":" + serverProfile.getPassword();
+        String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
+        map.put("Authorization", encodedAuthorisation);
+        // load url
+        webView.loadUrl(url, map);
     }
 
 }

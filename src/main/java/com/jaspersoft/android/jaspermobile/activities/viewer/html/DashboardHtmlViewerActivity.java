@@ -37,12 +37,12 @@ import roboguice.inject.InjectView;
  */
 public class DashboardHtmlViewerActivity extends BaseHtmlViewerActivity {
 
-    @InjectView(R.id.htmlViewer_layout) protected RelativeLayout layout;
+    @InjectView(R.id.htmlViewer_layout)
+    protected RelativeLayout layout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Get the screen's density scale
         final float scale = getResources().getDisplayMetrics().density;
         // Convert the dps to pixels, based on density scale

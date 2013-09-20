@@ -120,11 +120,15 @@
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity android:name=".activities.viewer.html.ReportHtmlViewerActivity"
-            android:theme="@style/Theme.Sherlock.Light.NoActionBar" />
+            android:theme="@style/Theme.Sherlock.Light.NoActionBar"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
+        />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity android:name=".activities.viewer.html.DashboardHtmlViewerActivity"
-            android:theme="@style/Theme.Sherlock.Light.NoActionBar" />
+            android:theme="@style/Theme.Sherlock.Light.NoActionBar"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
+        />
 
         <!-- Activity that allows to specify the application settings -->
         <activity android:name=".activities.SettingsActivity" />

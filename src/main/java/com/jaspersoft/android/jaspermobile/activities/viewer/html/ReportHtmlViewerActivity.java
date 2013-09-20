@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
-import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
@@ -39,12 +38,11 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
 
     @Override
     protected void setWebViewClient() {
+        super.setWebViewClient();
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // hide progress bar after page load
-                progressBar.setVisibility(View.GONE);
                 // workaround for http://bugzilla.jaspersoft.com/show_bug.cgi?id=29257
                 if (jsRestClient.getServerInfo().getVersionCode() < ServerInfo.VERSION_CODES.EMERALD) {
                     webView.clearCache(true);

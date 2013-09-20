@@ -400,14 +400,16 @@
         <item name="android:layout_height">fill_parent</item>
     </style>
 
-    <style name="htmlViewer.progressBar" parent="@android:style/Widget.ProgressBar.Inverse">
-        <item name="android:layout_width">wrap_content</item>
+    <style name="htmlViewer.progressBar" parent="Widget.JasperMobile.ProgressBar.Horizontal">
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_marginTop">-6dp</item>
     </style>
 
     <!-- Actionbar Sherlock -->
     <style name="Theme.JasperMobile" parent="Theme.Sherlock.Light" />
+    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="Widget.Sherlock.ProgressBar.Horizontal" />
 
     <style name="Theme.JasperMobile.Home" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="actionBarSize">96dp</item>

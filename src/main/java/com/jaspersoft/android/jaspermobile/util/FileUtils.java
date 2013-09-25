@@ -51,7 +51,10 @@ public final class FileUtils {
                     if (childFile.isDirectory()) {
                         deleteFilesInDirectory(childFile);
                     }
-                    if (!childFile.delete()){
+                    // http://stackoverflow.com/questions/13948890/android-mkdirs-creates-a-zero-byte-file-instead-of-a-folder
+                    File tmpFile = new File(childFile.getAbsolutePath() + System.currentTimeMillis());
+                    boolean deleted = childFile.renameTo(tmpFile) && tmpFile.delete();
+                    if (!deleted) {
                         Ln.e("Unable to delete %s", childFile);
                         return false;
                     }

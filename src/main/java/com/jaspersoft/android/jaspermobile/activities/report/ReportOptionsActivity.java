@@ -360,13 +360,9 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                                 onStringValueChanged(inputControl, editable.toString());
                             }
                             @Override
-                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                                /* Do nothing */
-                            }
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
                             @Override
-                            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                /* Do nothing */
-                            }
+                            public void onTextChanged(CharSequence s, int start, int before, int count) { }
                         });
 
                         TextView errorView = (TextView) view.findViewById(R.id.ic_error_text);
@@ -477,7 +473,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
 
         private void onStringValueChanged(InputControl inputControl, String newValue) {
             String oldValue = inputControl.getState().getValue();
-            if (oldValue != null && !oldValue.equals(newValue)) {
+            if (newValue != null && !newValue.equals(oldValue)) {
                 inputControl.getState().setValue(newValue);
                 updateDependentControls(inputControl);
             }

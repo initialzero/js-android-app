@@ -110,7 +110,9 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
         super.setRefreshActionButtonState(refreshing);
         if (inputControls != null) {
             for (InputControl inputControl : inputControls) {
-                inputControl.getInputView().setEnabled(!refreshing);
+                if (!inputControl.isReadOnly()) {
+                    inputControl.getInputView().setEnabled(!refreshing);
+                }
             }
         }
     }
@@ -281,12 +283,16 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                 inputControl.getState().setValue("false");
             checkBox.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));
             //listener
-            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    onStringValueChanged(inputControl, String.valueOf(isChecked));
-                }
-            });
+            if (inputControl.isReadOnly()) {
+                checkBox.setEnabled(false);
+            } else {
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        onStringValueChanged(inputControl, String.valueOf(isChecked));
+                    }
+                });
+            }
             // assign views to the control
             inputControl.setInputView(checkBox);
             // show the control
@@ -306,16 +312,20 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
             // set default value
             editText.setText(inputControl.getState().getValue());
             // add listener
-            editText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    onStringValueChanged(inputControl, editable.toString());
-                }
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            });
+            if (inputControl.isReadOnly()) {
+                editText.setEnabled(false);
+            } else {
+                editText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        onStringValueChanged(inputControl, editable.toString());
+                    }
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                });
+            }
 
             assignViews(inputControl, layoutView, editText);
             baseLayout.addView(layoutView);
@@ -345,40 +355,45 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                 }
             }
 
-            // init the date picker
+            // get pickers
             ImageButton datePicker = (ImageButton) layoutView.findViewById(R.id.ic_date_picker_button);
-            // add a click listener
-            datePicker.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
-                }
-            });
-
-            boolean isDateTime = (inputControl.getType() == InputControl.Type.singleValueDatetime);
-
-            if (isDateTime) {
-                // init the time picker
-                ImageButton timePicker = (ImageButton) layoutView.findViewById(R.id.ic_time_picker_button);
-                timePicker.setVisibility(View.VISIBLE);
+            ImageButton timePicker = (ImageButton) layoutView.findViewById(R.id.ic_time_picker_button);
+            // add listeners
+            if (inputControl.isReadOnly()) {
+                datePicker.setEnabled(false);
+                timePicker.setEnabled(false);
+                editText.setEnabled(false);
+            } else {
                 // add a click listener
-                timePicker.setOnClickListener(new View.OnClickListener() {
+                datePicker.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        showDateDialog(inputControl, TIME_DIALOG_ID, editText, startDate);
+                        showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
                     }
                 });
-            }
 
-            // add listener for text field
-            editText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    onStringValueChanged(inputControl, editable.toString());
+                boolean isDateTime = (inputControl.getType() == InputControl.Type.singleValueDatetime);
+                if (isDateTime) {
+                    timePicker.setVisibility(View.VISIBLE);
+                    // add a click listener
+                    timePicker.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            showDateDialog(inputControl, TIME_DIALOG_ID, editText, startDate);
+                        }
+                    });
                 }
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) { }
-            });
+
+                // add listener for text field
+                editText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        onStringValueChanged(inputControl, editable.toString());
+                    }
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) { }
+                });
+            }
 
             assignViews(inputControl, layoutView, editText);
             baseLayout.addView(layoutView);
@@ -404,24 +419,28 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                 }
             }
 
-            // listener
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    for (InputControlOption option : inputControl.getState().getOptions()) {
-                        if (option.equals(parent.getSelectedItem())) {
-                            if (!option.isSelected()) {
-                                option.setSelected(true);
-                                updateDependentControls(inputControl);
+            // add listener
+            if (inputControl.isReadOnly()) {
+                spinner.setEnabled(false);
+            } else {
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        for (InputControlOption option : inputControl.getState().getOptions()) {
+                            if (option.equals(parent.getSelectedItem())) {
+                                if (!option.isSelected()) {
+                                    option.setSelected(true);
+                                    updateDependentControls(inputControl);
+                                }
+                            } else {
+                                option.setSelected(false);
                             }
-                        } else {
-                            option.setSelected(false);
                         }
                     }
-                }
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
-            });
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
+                });
+            }
 
             assignViews(inputControl, layoutView, spinner);
             baseLayout.addView(layoutView);
@@ -446,22 +465,26 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
             }
             multiSpinner.setSelection(positions);
 
-            // listener
-            multiSpinner.setOnItemsSelectedListener(new MultiSelectSpinner.OnItemsSelectedListener() {
-                @Override
-                public void onItemsSelected(List selectedItems) {
-                    boolean valuesChanged = false;
-                    // update selected values
-                    for (InputControlOption option : inputControl.getState().getOptions()) {
-                        boolean selectedBefore = option.isSelected();
-                        boolean selectedNow = selectedItems.contains(option);
-                        if (selectedBefore != selectedNow) valuesChanged = true;
-                        option.setSelected(selectedNow);
+            // add listener
+            if (inputControl.isReadOnly()) {
+                multiSpinner.setEnabled(false);
+            } else {
+                multiSpinner.setOnItemsSelectedListener(new MultiSelectSpinner.OnItemsSelectedListener() {
+                    @Override
+                    public void onItemsSelected(List selectedItems) {
+                        boolean valuesChanged = false;
+                        // update selected values
+                        for (InputControlOption option : inputControl.getState().getOptions()) {
+                            boolean selectedBefore = option.isSelected();
+                            boolean selectedNow = selectedItems.contains(option);
+                            if (selectedBefore != selectedNow) valuesChanged = true;
+                            option.setSelected(selectedNow);
+                        }
+                        // update dependent controls if exist
+                        if (valuesChanged) updateDependentControls(inputControl);
                     }
-                    // update dependent controls if exist
-                    if (valuesChanged) updateDependentControls(inputControl);
-                }
-            });
+                });
+            }
 
             assignViews(inputControl, layoutView, multiSpinner);
             baseLayout.addView(layoutView);

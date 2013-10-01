@@ -110,7 +110,7 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
         super.setRefreshActionButtonState(refreshing);
         if (inputControls != null) {
             for (InputControl inputControl : inputControls) {
-                if (!inputControl.isReadOnly()) {
+                if (inputControl.isVisible() && !inputControl.isReadOnly()) {
                     inputControl.getInputView().setEnabled(!refreshing);
                 }
             }
@@ -249,26 +249,28 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
             inputControls = controlsList.getInputControls();
             // init UI components for ICs
             for (final InputControl inputControl : inputControls) {
-                switch (inputControl.getType()) {
-                    case bool:
-                        initBooleanControl(inputControl, baseLayout, inflater);
-                        break;
-                    case singleValueText:
-                    case singleValueNumber:
-                        initSingleValueControl(inputControl, baseLayout, inflater);
-                        break;
-                    case singleValueDate:
-                    case singleValueDatetime:
-                        initDateControl(inputControl, baseLayout, inflater);
-                        break;
-                    case singleSelect:
-                    case singleSelectRadio:
-                        initSingleSelectControl(inputControl, baseLayout, inflater);
-                        break;
-                    case multiSelect:
-                    case multiSelectCheckbox:
-                        initMultiSelectControl(inputControl, baseLayout, inflater);
-                        break;
+                if (inputControl.isVisible()) {
+                    switch (inputControl.getType()) {
+                        case bool:
+                            initBooleanControl(inputControl, baseLayout, inflater);
+                            break;
+                        case singleValueText:
+                        case singleValueNumber:
+                            initSingleValueControl(inputControl, baseLayout, inflater);
+                            break;
+                        case singleValueDate:
+                        case singleValueDatetime:
+                            initDateControl(inputControl, baseLayout, inflater);
+                            break;
+                        case singleSelect:
+                        case singleSelectRadio:
+                            initSingleSelectControl(inputControl, baseLayout, inflater);
+                            break;
+                        case multiSelect:
+                        case multiSelectCheckbox:
+                            initMultiSelectControl(inputControl, baseLayout, inflater);
+                            break;
+                    }
                 }
             }
             setRefreshActionButtonState(false);
@@ -525,47 +527,49 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                 for(InputControl slaveControl : inputControls) {
                     if (slaveControl.getId().equals(state.getId())) {
                         slaveControl.setState(state);
-                        switch (slaveControl.getType()) {
-                            case bool:
-                                CheckBox checkBox = (CheckBox) slaveControl.getInputView();
-                                checkBox.setChecked(Boolean.parseBoolean(state.getValue()));
-                                break;
-                            case singleValueText:
-                            case singleValueNumber:
-                            case singleValueDate:
-                            case singleValueDatetime:
-                                EditText editText = (EditText) slaveControl.getInputView();
-                                editText.setText(state.getValue());
-                                break;
-                            case singleSelect:
-                            case singleSelectRadio:
-                                Spinner spinner = (Spinner) slaveControl.getInputView();
-                                ArrayAdapter<InputControlOption> lovAdapter =
-                                        new ArrayAdapter<InputControlOption>(ReportOptionsActivity.this, android.R.layout.simple_spinner_item, state.getOptions());
-                                lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                spinner.setAdapter(lovAdapter);
-                                // set initial value for spinner
-                                for (InputControlOption option : state.getOptions()) {
-                                    if (option.isSelected()) {
-                                        int position = lovAdapter.getPosition(option);
-                                        spinner.setSelection(position, false);
+                        if (slaveControl.isVisible()) {
+                            switch (slaveControl.getType()) {
+                                case bool:
+                                    CheckBox checkBox = (CheckBox) slaveControl.getInputView();
+                                    checkBox.setChecked(Boolean.parseBoolean(state.getValue()));
+                                    break;
+                                case singleValueText:
+                                case singleValueNumber:
+                                case singleValueDate:
+                                case singleValueDatetime:
+                                    EditText editText = (EditText) slaveControl.getInputView();
+                                    editText.setText(state.getValue());
+                                    break;
+                                case singleSelect:
+                                case singleSelectRadio:
+                                    Spinner spinner = (Spinner) slaveControl.getInputView();
+                                    ArrayAdapter<InputControlOption> lovAdapter =
+                                            new ArrayAdapter<InputControlOption>(ReportOptionsActivity.this, android.R.layout.simple_spinner_item, state.getOptions());
+                                    lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                    spinner.setAdapter(lovAdapter);
+                                    // set initial value for spinner
+                                    for (InputControlOption option : state.getOptions()) {
+                                        if (option.isSelected()) {
+                                            int position = lovAdapter.getPosition(option);
+                                            spinner.setSelection(position, false);
+                                        }
                                     }
-                                }
-                                break;
-                            case multiSelect:
-                            case multiSelectCheckbox:
-                                MultiSelectSpinner<InputControlOption> multiSpinner =
-                                        (MultiSelectSpinner<InputControlOption>) slaveControl.getInputView();
-                                multiSpinner.setItemsList(state.getOptions(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
-                                // set selected values
-                                List<Integer> positions = new ArrayList<Integer>();
-                                for (InputControlOption option : state.getOptions()) {
-                                    if (option.isSelected()) {
-                                        positions.add(multiSpinner.getItemPosition(option));
+                                    break;
+                                case multiSelect:
+                                case multiSelectCheckbox:
+                                    MultiSelectSpinner<InputControlOption> multiSpinner =
+                                            (MultiSelectSpinner<InputControlOption>) slaveControl.getInputView();
+                                    multiSpinner.setItemsList(state.getOptions(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
+                                    // set selected values
+                                    List<Integer> positions = new ArrayList<Integer>();
+                                    for (InputControlOption option : state.getOptions()) {
+                                        if (option.isSelected()) {
+                                            positions.add(multiSpinner.getItemPosition(option));
+                                        }
                                     }
-                                }
-                                multiSpinner.setSelection(positions);
-                                break;
+                                    multiSpinner.setSelection(positions);
+                                    break;
+                            }
                         }
                         break;
                     }

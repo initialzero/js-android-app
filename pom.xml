@@ -35,25 +35,25 @@
 	<groupId>com.jaspersoft.android</groupId>
     <artifactId>js-android-jaspermobile</artifactId>
     <name>js-android-jaspermobile</name>
-	<version>1.5</version>
+	<version>1.6</version>
     <packaging>apk</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
-            <version>4.0.1.2</version>
+            <version>4.1.1.4</version>
             <scope>provided</scope>
         </dependency>
 		<dependency>
             <groupId>com.jaspersoft.android.sdk</groupId>
             <artifactId>js-android-sdk-client</artifactId>
-            <version>1.5</version>
+            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>com.jaspersoft.android.sdk</groupId>
             <artifactId>js-android-sdk-ui</artifactId>
-            <version>1.5</version>
+            <version>1.6</version>
             <type>apklib</type>
         </dependency>
 
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>com.actionbarsherlock</groupId>
             <artifactId>actionbarsherlock</artifactId>
-            <version>4.2.0</version>
+            <version>4.4.0</version>
             <type>apklib</type>
         </dependency>
         <dependency>
@@ -83,7 +83,7 @@
              <plugin>
                  <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                  <artifactId>android-maven-plugin</artifactId>
-                 <version>3.3.0</version>
+                 <version>3.6.0</version>
                  <extensions>true</extensions>
                  <configuration>
                      <sdk>

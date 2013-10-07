@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,39 +24,44 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.*;
-import com.jaspersoft.android.jaspermobile.activities.async.AsyncTaskExceptionHandler;
+import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.activities.report.BaseReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.CompatReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.resource.ResourceEditActivity;
+import com.jaspersoft.android.jaspermobile.activities.resource.ResourceInfoActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.JsAsyncTaskManager;
-import com.jaspersoft.android.sdk.client.async.JsOnTaskCallbackListener;
-import com.jaspersoft.android.sdk.client.async.task.DeleteResourceAsyncTask;
-import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
+import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
+import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
-
-import java.util.List;
 
 /**
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.0
  */
-public abstract class BaseRepositoryActivity extends RoboSherlockListActivity implements JsOnTaskCallbackListener{
+public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
 
     // Extras
     public static final String EXTRA_BC_TITLE_SMALL = "BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL";
@@ -69,46 +74,32 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
     protected static final int ID_CM_DELETE = 13;
     protected static final int ID_CM_VIEW_DETAILS = 14;
     protected static final int ID_CM_ADD_TO_FAVORITES = 15;
-    //Async task identifiers
-    protected static final int DELETE_RESOURCE_TASK = 21;
-    protected static final int GET_RESOURCE_TASK = 22;
-    protected static final int SEARCH_RESOURCES_TASK = 23;
+
     // Action Bar IDs
     private static final int ID_AB_SETTINGS = 30;
 
     @InjectView(R.id.nothingToDisplayText)      protected TextView nothingToDisplayText;
     @InjectView(android.R.id.list)              protected ListView listView;
 
-    @Inject protected JsRestClient jsRestClient;
-
-    protected JsAsyncTaskManager jsAsyncTaskManager;
-
+    @Inject
+    protected JsRestClient jsRestClient;
     protected DatabaseProvider dbProvider;
+    protected SpiceManager serviceManager;
 
-    private ResourceDescriptor resourceDescriptor;
+    protected ResourceDescriptor resourceDescriptor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.repository_layout);
+        // set empty view
+        listView.setEmptyView(nothingToDisplayText);
         // Get the database provider
         dbProvider = new DatabaseProvider(this);
-
-        // Create manager and set this activity as context and listener
-        jsAsyncTaskManager = new JsAsyncTaskManager(this, this);
-
-        // Handle tasks that can be retained before
-        jsAsyncTaskManager.handleRetainedTasks((List<JsAsyncTask>) getLastNonConfigurationInstance());
-
-        setContentView(R.layout.repository_layout);
         // Register a context menu to be shown for the given view
         registerForContextMenu(listView);
-    }
-
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        // Delegate tasks retain to manager
-        return jsAsyncTaskManager.retainTasks();
+        // bind to service
+        serviceManager = new SpiceManager(JsXmlSpiceService.class);
     }
 
     @Override
@@ -173,18 +164,17 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
         // Add all the menu options
         switch (resourceDescriptor.getWsType()) {
             case folder:
-                menu.add(Menu.NONE, ID_CM_OPEN, Menu.NONE, R.string.r_cm_open);
+                menu.add(Menu.NONE, ID_CM_OPEN, Menu.FIRST, R.string.r_cm_open);
                 break;
             case reportUnit:
             case dashboard:
-                menu.add(Menu.NONE, ID_CM_RUN, Menu.NONE, R.string.r_cm_run);
+                menu.add(Menu.NONE, ID_CM_RUN, Menu.FIRST, R.string.r_cm_run);
                 break;
         }
 
-        menu.add(Menu.NONE, ID_CM_EDIT, Menu.NONE, R.string.r_cm_edit);
-        menu.add(Menu.NONE, ID_CM_DELETE, Menu.NONE, R.string.r_cm_delete);
-        menu.add(Menu.NONE, ID_CM_VIEW_DETAILS, Menu.NONE, R.string.r_cm_view_details);
-        menu.add(Menu.NONE, ID_CM_ADD_TO_FAVORITES, Menu.NONE, R.string.r_cm_add_to_favorites);
+        menu.add(Menu.NONE, ID_CM_EDIT, Menu.FIRST, R.string.r_cm_edit);
+        menu.add(Menu.NONE, ID_CM_VIEW_DETAILS, Menu.CATEGORY_SECONDARY, R.string.r_cm_view_details);
+        menu.add(Menu.NONE, ID_CM_ADD_TO_FAVORITES, Menu.CATEGORY_SECONDARY, R.string.r_cm_add_to_favorites);
     }
 
     @Override
@@ -211,9 +201,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
             case ID_CM_EDIT:
                 editResource(resourceDescriptor.getUriString());
                 return true;
-            case ID_CM_DELETE:
-                showDialog(ID_CM_DELETE);
-                return true;
             case ID_CM_VIEW_DETAILS:
                 viewResource(resourceDescriptor.getUriString());
                 return true;
@@ -229,85 +216,43 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
                 dbProvider.insertFavoriteItem(label, name, uri, description, wsType, serverProfileId, userName, organization);
                 return true;
             default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
                 return super.onContextItemSelected(item);
         }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data == null) {
-            return;
-        }
-        Bundle extras = data.getExtras();
-
-        switch (requestCode) {
-            case ID_CM_EDIT: {
-                if (resultCode == RESULT_OK) {
-                    //Refresh current repository resource.
-                    resourceDescriptor.setLabel(extras.getString(ResourceEditActivity.RESOURCE_LABEL));
-                    resourceDescriptor.setDescription(extras.getString(ResourceEditActivity.RESOURCE_DESCRIPTION));
-                    ((ResourceDescriptorArrayAdapter)getListAdapter()).notifyDataSetChanged();
-                } else if (resultCode == ResourceEditActivity.RESULT_ERROR_ACCESS_DENIED) {
-                    showErrorDialog(R.string.error_http_403);
-                }
-            }
+        if (requestCode == ID_CM_EDIT && resultCode == RESULT_OK && data != null) {
+            // refresh current repository resource
+            Bundle extras = data.getExtras();
+            resourceDescriptor.setLabel(extras.getString(ResourceEditActivity.EXTRA_RESOURCE_LABEL));
+            resourceDescriptor.setDescription(extras.getString(ResourceEditActivity.EXTRA_RESOURCE_DESCRIPTION));
+            ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
         }
     }
 
     @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog;
-        switch (id) {
-            case ID_CM_DELETE:
-                // Define the delete dialog
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(R.string.r_ad_delete_resource_msg)
-                        // the delete button handler
-                        .setPositiveButton(R.string.r_delete_btn, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // Create and run modify resource task and proper progress dialog
-                                jsAsyncTaskManager.executeTask(new DeleteResourceAsyncTask(DELETE_RESOURCE_TASK, getString(R.string.r_pd_deleting_msg),
-                                        jsRestClient, resourceDescriptor.getUriString()));
-                            }
-                        })
-                        // the cancel button handler
-                        .setNegativeButton(R.string.r_cancel_btn, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-                dialog = builder.create();
-                break;
-            default:
-                dialog = null;
-        }
-        return dialog;
+    protected void onStart() {
+        serviceManager.start(this);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        serviceManager.shouldStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        // close any open database object
+        if (dbProvider != null) dbProvider.close();
+        super.onDestroy();
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-
-    private void showErrorDialog(int messageId) {
-        // prepare the alert box
-        AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-        alertbox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
-
-        // set the message to display
-        alertbox.setMessage(messageId);
-
-        // add a neutral button to the alert box and assign a click listener
-        alertbox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-            // click listener on the alert box
-            public void onClick(DialogInterface arg0, int arg1) {
-                // do nothing
-            }
-        });
-
-        alertbox.show();
-    }
 
     private void openFolderByDescriptor(ResourceDescriptor resourceDescriptor) {
         Intent intent = new Intent();
@@ -335,11 +280,10 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
     }
 
     private void runReport(String reportLabel, String reportUri) {
-        Intent intent = new Intent();
-        intent.setClass(this, ReportOptionsActivity.class);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
-        startActivity(intent);
+        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+        GetServerInfoListener listener = new GetServerInfoListener(reportLabel, reportUri);
+        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
     }
 
     private void runDashboard(String dashboardUri) {
@@ -354,28 +298,36 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity im
         startActivity(htmlViewer);
     }
 
-    //On success task complete handling
-    public void onTaskComplete(JsAsyncTask task) {
-        switch (task.getId()) {
-            case DELETE_RESOURCE_TASK:
-                //Refresh repository resources
-                ((ResourceDescriptorArrayAdapter) getListAdapter()).remove(resourceDescriptor);
-                ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
-                // the feedback about an operation in a small popup
-                Toast.makeText(getApplicationContext(), R.string.r_resource_deleted_toast, Toast.LENGTH_SHORT).show();
-                break;
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
+
+    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+
+        private String reportLabel;
+        private String reportUri;
+
+        public GetServerInfoListener(String reportLabel, String reportUri) {
+            this.reportLabel = reportLabel;
+            this.reportUri = reportUri;
+        }
+
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            RequestExceptionHandler.handle(e, BaseRepositoryActivity.this, false);
+        }
+
+        @Override
+        public void onRequestSuccess(ServerInfo serverInfo) {
+            Class clazz = (serverInfo.getVersionCode() < ServerInfo.VERSION_CODES.EMERALD)
+                    ? CompatReportOptionsActivity.class : ReportOptionsActivity.class;
+            // start new activity
+            Intent intent = new Intent();
+            intent.setClass(BaseRepositoryActivity.this, clazz);
+            intent.putExtra(BaseReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
+            intent.putExtra(BaseReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
+            startActivity(intent);
         }
     }
 
-    //On exception task complete handling
-    public void onTaskException(JsAsyncTask task) {
-        AsyncTaskExceptionHandler.handle(task, this, true);
-    }
-
-    @Override
-    public void onDestroy() {
-        // close any open database object
-        if (dbProvider != null) dbProvider.close();
-        super.onDestroy();
-    }
 }

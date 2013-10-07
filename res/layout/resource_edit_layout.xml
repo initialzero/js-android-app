@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -27,37 +27,31 @@
     android:orientation="vertical"
     style="@style/resourceEdit.layout" >
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        style="@style/resourceEdit.editsContainer.layout" >
+    <TextView
+        style="@style/label.blue"
+        android:text="@string/re_label"
+    />
 
-        <TextView
-            style="@style/label.blue"
-            android:text="@string/re_label"
-        />
+    <EditText
+        android:id="@+id/resourceLabel"
+        style="@style/editText.singleLine"
+    />
 
-        <EditText
-            android:id="@+id/resourceLabel"
-            style="@style/editText.singleLine"
-        />
+    <TextView
+        style="@style/label.blue"
+        android:text="@string/re_description"
+    />
 
-        <TextView
-            style="@style/label.blue"
-            android:text="@string/re_description"
-        />
+    <EditText
+        android:id="@+id/resourceDescription"
+        style="@style/editText.multiLine"
+    />
 
-        <EditText
-            android:id="@+id/resourceDescription"
-            style="@style/editText.multiLine"
-        />
-
-        <Button
-            android:id="@+id/modifyResourceButton"
-            style="@style/resourceEdit.button"
-            android:text="@string/re_modify_btn"
-            android:onClick="modifyResourceClickHandler"
-        />
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/modifyResourceButton"
+        style="@style/resourceEdit.button"
+        android:text="@string/re_modify_btn"
+        android:onClick="modifyResourceClickHandler"
+    />
 
 </LinearLayout>

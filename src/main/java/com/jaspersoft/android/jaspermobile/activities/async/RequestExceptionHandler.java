@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -30,70 +30,57 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
-import com.jaspersoft.android.sdk.client.async.task.JsAsyncTask;
+import com.octo.android.robospice.exception.NetworkException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestClientException;
 import roboguice.util.Ln;
 
 /**
- * @author Volodya Sabadosh (vsabadosh@jaspersoft.com)
  * @author Ivan Gadzhega
- * @version $Id$
+ * @since 1.6
  */
-public class AsyncTaskExceptionHandler {
+public class RequestExceptionHandler {
 
-    /**
-     *
-     * @param task  task in which exception occurred.
-     * @param activity activity in which task threw the exception.
-     */
-    public static void handle(JsAsyncTask task, Activity activity, boolean finishActivity) {
-        Exception exception = task.getTaskException();
-        if (exception != null) {
-            // show error dialog
-            if (exception instanceof RestClientException) {
-                if (exception instanceof HttpStatusCodeException) {
-                    HttpStatus statusCode = ((HttpStatusCodeException) exception).getStatusCode();
-                    switch (statusCode) {
-                        case BAD_REQUEST:
-                            showErrorDialog(R.string.error_http_400, activity, finishActivity);
-                            break;
-                        case UNAUTHORIZED:
-                            showAuthErrorDialog(R.string.error_http_401, activity, finishActivity);
-                            break;
-                        case FORBIDDEN:
-                            showErrorDialog(R.string.error_http_403, activity, finishActivity);
-                            break;
-                        case NOT_FOUND:
-                            showErrorDialog(R.string.error_http_404, activity, finishActivity);
-                            break;
-                        case INTERNAL_SERVER_ERROR:
-                            showErrorDialog(R.string.error_http_500, activity, finishActivity);
-                            break;
-                        case BAD_GATEWAY:
-                            showErrorDialog(R.string.error_http_502, activity, finishActivity);
-                            break;
-                        case SERVICE_UNAVAILABLE:
-                            showErrorDialog(R.string.error_http_503, activity, finishActivity);
-                            break;
-                        case GATEWAY_TIMEOUT:
-                            showErrorDialog(R.string.error_http_504, activity, finishActivity);
-                            break;
-                        default:
-                            showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);
-                            break;
-                    }
-                } else {
-                    showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);
+    public static void handle(Exception exception, Activity activity, boolean finishActivity) {
+        if (exception instanceof NetworkException) {
+            Throwable cause = exception.getCause();
+            if (cause instanceof HttpStatusCodeException) {
+                HttpStatus statusCode = ((HttpStatusCodeException) cause).getStatusCode();
+                switch (statusCode) {
+                    case BAD_REQUEST:
+                        showErrorDialog(R.string.error_http_400, activity, finishActivity);
+                        return;
+                    case UNAUTHORIZED:
+                        showAuthErrorDialog(R.string.error_http_401, activity, finishActivity);
+                        return;
+                    case FORBIDDEN:
+                        showErrorDialog(R.string.error_http_403, activity, finishActivity);
+                        return;
+                    case NOT_FOUND:
+                        showErrorDialog(R.string.error_http_404, activity, finishActivity);
+                        return;
+                    case INTERNAL_SERVER_ERROR:
+                        showErrorDialog(R.string.error_http_500, activity, finishActivity);
+                        return;
+                    case BAD_GATEWAY:
+                        showErrorDialog(R.string.error_http_502, activity, finishActivity);
+                        return;
+                    case SERVICE_UNAVAILABLE:
+                        showErrorDialog(R.string.error_http_503, activity, finishActivity);
+                        return;
+                    case GATEWAY_TIMEOUT:
+                        showErrorDialog(R.string.error_http_504, activity, finishActivity);
+                        return;
                 }
-                // log the exception details
-                Ln.e(exception);
-            }  else {
-                throw new RuntimeException(exception);
             }
         }
+        showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);
+        Ln.e(exception);
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private static void showErrorDialog(int messageId, Activity activity, boolean finishActivity) {
         showErrorDialog(activity.getString(messageId), activity, finishActivity);

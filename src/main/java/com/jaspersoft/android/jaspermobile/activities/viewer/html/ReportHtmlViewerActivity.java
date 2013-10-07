@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,32 +22,33 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
-import android.os.Bundle;
-import android.widget.RelativeLayout;
-import com.jaspersoft.android.jaspermobile.R;
-import roboguice.inject.InjectView;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 /**
+ * Activity that performs report viewing in HTML format.
+ *
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.4
  */
-public class DashboardHtmlViewerActivity extends BaseHtmlViewerActivity {
-
-    @InjectView(R.id.htmlViewer_layout) protected RelativeLayout layout;
+public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Get the screen's density scale
-        final float scale = getResources().getDisplayMetrics().density;
-        // Convert the dps to pixels, based on density scale
-        int padding_2dp = (int) (2 * scale + 0.5f);
-        // set padding in dp for layout
-        layout.setPadding(padding_2dp, padding_2dp, padding_2dp, padding_2dp);
+    protected void setWebViewClient() {
+        super.setWebViewClient();
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // workaround for http://bugzilla.jaspersoft.com/show_bug.cgi?id=29257
+                if (jsRestClient.getServerInfo().getVersionCode() < ServerInfo.VERSION_CODES.EMERALD) {
+                    webView.clearCache(true);
+                }
+            }
+        });
     }
 
 }

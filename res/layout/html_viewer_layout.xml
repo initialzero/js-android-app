@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -27,8 +27,8 @@
     android:id="@+id/htmlViewer_layout"
     style="@style/htmlViewer.layout">
 
-    <WebView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/htmlViewer_webView"
+    <FrameLayout
+        android:id="@+id/webViewPlaceholder"
         style="@style/htmlViewer.webView"
     />
 

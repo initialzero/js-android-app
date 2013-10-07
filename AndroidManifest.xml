@@ -26,8 +26,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile"
     android:installLocation="auto"
-    android:versionCode="7010500"
-    android:versionName="1.5">
+    android:versionCode="8010600"
+    android:versionName="1.6">
     <!--
         Pattern for versionCode:
             android:versionCode="vvxxyyzz"
@@ -40,8 +40,8 @@
 
     <!-- the minimum API Level required for the application to run, as well as the target version -->
     <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="14"
+        android:minSdkVersion="8"
+        android:targetSdkVersion="16"
     />
 
     <!-- Allows applications to access information about networks -->
@@ -55,12 +55,12 @@
         android:icon="@drawable/ic_launcher_jaspermobile"
         android:label="@string/app_label"
         android:name=".JasperMobileApplication"
-        android:theme="@style/Theme.Sherlock.Light"
+        android:theme="@style/Theme.JasperMobile"
         android:hardwareAccelerated="true" >
 
         <!-- Main activity -->
         <activity android:name=".activities.HomeActivity"
-            android:theme="@style/Theme.JasperMobile" >
+            android:theme="@style/Theme.JasperMobile.Home" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
@@ -109,24 +109,33 @@
         </activity>
 
         <!-- Activity that performs resource modifying -->
-        <activity android:name=".activities.ResourceEditActivity" />
+        <activity android:name=".activities.resource.ResourceEditActivity" />
 
         <!-- Activity that performs viewing of the resource info -->
-        <activity android:name=".activities.ResourceInfoActivity" />
+        <activity android:name=".activities.resource.ResourceInfoActivity" />
 
         <!-- Activity that allows to specify the report options before running it -->
-        <activity android:name=".activities.ReportOptionsActivity" />
+        <activity android:name=".activities.report.CompatReportOptionsActivity" />
+        <activity android:name=".activities.report.ReportOptionsActivity" />
 
         <!-- Activity that performs report viewing in HTML format -->
-        <activity android:name=".activities.ReportHtmlViewerActivity"
-            android:theme="@style/Theme.Sherlock.Light.NoActionBar" />
+        <activity android:name=".activities.viewer.html.ReportHtmlViewerActivity"
+            android:theme="@style/Theme.Sherlock.Light.NoActionBar"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
+        />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
-        <activity android:name=".activities.DashboardHtmlViewerActivity"
-            android:theme="@style/Theme.Sherlock.Light.NoActionBar" />
+        <activity android:name=".activities.viewer.html.DashboardHtmlViewerActivity"
+            android:theme="@style/Theme.Sherlock.Light.NoActionBar"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
+        />
 
         <!-- Activity that allows to specify the application settings -->
         <activity android:name=".activities.SettingsActivity" />
+
+        <!-- Service used to manage the cache and provide web service result to an activity -->
+        <service android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"
+            android:exported="false" />
 
     </application>
 

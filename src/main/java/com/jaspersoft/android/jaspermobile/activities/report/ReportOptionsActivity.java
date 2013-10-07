@@ -63,7 +63,7 @@ import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDi
 
 /**
  * @author Ivan Gadzhega
- * @since 1.5.2
+ * @since 1.6
  */
 public class ReportOptionsActivity extends BaseReportOptionsActivity {
 

@@ -45,7 +45,7 @@ import java.util.List;
 
 /**
  * @author Ivan Gadzhega
- * @since 1.5.2
+ * @since 1.6
  */
 class DatePickerDialogHelper {
 

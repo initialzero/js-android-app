@@ -24,18 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.view.ContextMenu;
-import android.view.View;
-import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
-import com.jaspersoft.android.sdk.client.async.request.DeleteResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.ResourcesList;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
@@ -97,53 +90,6 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
         }
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu,View view, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-        menu.add(Menu.NONE, ID_CM_DELETE, Menu.FIRST, R.string.r_cm_delete);
-    }
-
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        boolean result = super.onContextItemSelected(item);
-        if (!result && item.getItemId() == ID_CM_DELETE) {
-            showDialog(ID_CM_DELETE);
-            result = true;
-        }
-        return result;
-    }
-
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog;
-        switch (id) {
-            case ID_CM_DELETE:
-                // Define the delete dialog
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(R.string.r_ad_delete_resource_msg)
-                        // the delete button handler
-                        .setPositiveButton(R.string.r_delete_btn, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                DeleteResourceRequest request = new DeleteResourceRequest(jsRestClient, resourceDescriptor.getUriString());
-                                serviceManager.execute(request, new DeleteResourceListener());
-                                setRefreshActionButtonState(true);
-
-                            }
-                        })
-                        // the cancel button handler
-                        .setNegativeButton(R.string.r_cancel_btn, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-                dialog = builder.create();
-                break;
-            default:
-                dialog = null;
-        }
-        return dialog;
-    }
-
     protected void setRefreshActionButtonState(boolean refreshing) {
         if (optionsMenu == null) return;
 
@@ -192,24 +138,6 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
         @Override
         protected int getNothingToDisplayString() {
             return R.string.r_search_nothing_to_display;
-        }
-    }
-
-    private class DeleteResourceListener implements RequestListener<Void> {
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, BaseBrowserSearchActivity.this, false);
-            setRefreshActionButtonState(false);
-        }
-
-        @Override
-        public void onRequestSuccess(Void result) {
-            //Refresh repository resources
-            ((ResourceDescriptorArrayAdapter) getListAdapter()).remove(resourceDescriptor);
-            ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
-            // the feedback about an operation in a small popup
-            Toast.makeText(getApplicationContext(), R.string.r_resource_deleted_toast, Toast.LENGTH_SHORT).show();
-            setRefreshActionButtonState(false);
         }
     }
 

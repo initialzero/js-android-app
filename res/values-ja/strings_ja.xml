@@ -96,19 +96,9 @@
     <!-- Context Menu -->
     <string name="r_cm_open">開く</string>
     <string name="r_cm_run">実行</string>
-    <string name="r_cm_edit">編集</string>
-    <string name="r_cm_delete">削除</string>
     <string name="r_cm_view_details">詳細を表示</string>
     <string name="r_cm_add_to_favorites">お気に入りに追加</string>
     <string name="r_cm_remove_from_favorites">お気に入りから削除</string>
-    <!-- Delete Dialog -->
-    <string name="r_ad_delete_resource_msg">このリソースを削除しますか？</string>
-    <string name="r_delete_btn">削除</string>
-    <string name="r_cancel_btn">キャンセル</string>
-    <!-- Progress Dialog -->
-    <string name="r_pd_deleting_msg">削除中…</string>
-    <!-- Notifications -->
-    <string name="r_resource_deleted_toast">リソースが正常に削除されました。</string>
 
 
     <!-- Search Activity -->
@@ -116,17 +106,6 @@
     <string name="s_hint">リソースの検索</string>
     <!-- Progress Dialog -->
     <string name="s_pd_searching_msg">検索中…</string>
-
-
-    <!-- Resource Edit Activity -->
-    <string name="re_title">リソースの編集</string>
-    <string name="re_label">ラベル：</string>
-    <string name="re_description">説明：</string>
-    <string name="re_modify_btn">保存</string>
-    <!-- Progress Dialog -->
-    <string name="re_pd_saving_msg">保存中…</string>
-    <!-- Notifications -->
-    <string name="re_resource_saved_toast">リソースが正常に保存されました。</string>
 
 
     <!-- Resource Info Activity -->

@@ -108,9 +108,6 @@
             />
         </activity>
 
-        <!-- Activity that performs resource modifying -->
-        <activity android:name=".activities.resource.ResourceEditActivity" />
-
         <!-- Activity that performs viewing of the resource info -->
         <activity android:name=".activities.resource.ResourceInfoActivity" />
 

@@ -36,12 +36,12 @@ import com.actionbarsherlock.view.Menu;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.*;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.BaseReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.CompatReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.resource.ResourceEditActivity;
 import com.jaspersoft.android.jaspermobile.activities.resource.ResourceInfoActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
@@ -51,7 +51,6 @@ import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -70,10 +69,8 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     // Context menu IDs
     protected static final int ID_CM_OPEN = 10;
     protected static final int ID_CM_RUN = 11;
-    protected static final int ID_CM_EDIT = 12;
-    protected static final int ID_CM_DELETE = 13;
-    protected static final int ID_CM_VIEW_DETAILS = 14;
-    protected static final int ID_CM_ADD_TO_FAVORITES = 15;
+    protected static final int ID_CM_VIEW_DETAILS = 12;
+    protected static final int ID_CM_ADD_TO_FAVORITES = 13;
 
     // Action Bar IDs
     private static final int ID_AB_SETTINGS = 30;
@@ -146,7 +143,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 HomeActivity.goHome(this);
                 return true;
             default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
                 return super.onOptionsItemSelected(item);
         }
     }
@@ -172,7 +168,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 break;
         }
 
-        menu.add(Menu.NONE, ID_CM_EDIT, Menu.FIRST, R.string.r_cm_edit);
         menu.add(Menu.NONE, ID_CM_VIEW_DETAILS, Menu.CATEGORY_SECONDARY, R.string.r_cm_view_details);
         menu.add(Menu.NONE, ID_CM_ADD_TO_FAVORITES, Menu.CATEGORY_SECONDARY, R.string.r_cm_add_to_favorites);
     }
@@ -198,9 +193,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                         break;
                 }
                 return true;
-            case ID_CM_EDIT:
-                editResource(resourceDescriptor.getUriString());
-                return true;
             case ID_CM_VIEW_DETAILS:
                 viewResource(resourceDescriptor.getUriString());
                 return true;
@@ -217,17 +209,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 return true;
             default:
                 return super.onContextItemSelected(item);
-        }
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ID_CM_EDIT && resultCode == RESULT_OK && data != null) {
-            // refresh current repository resource
-            Bundle extras = data.getExtras();
-            resourceDescriptor.setLabel(extras.getString(ResourceEditActivity.EXTRA_RESOURCE_LABEL));
-            resourceDescriptor.setDescription(extras.getString(ResourceEditActivity.EXTRA_RESOURCE_DESCRIPTION));
-            ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
         }
     }
 
@@ -261,14 +242,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
         intent.putExtra(EXTRA_BC_TITLE_LARGE, resourceDescriptor.getLabel());
         intent.putExtra(EXTRA_RESOURCE_URI , resourceDescriptor.getUriString());
         startActivity(intent);
-    }
-
-    private void editResource(String resourceUri) {
-        Intent intent = new Intent();
-        intent.setClass(this, ResourceEditActivity.class);
-        intent.putExtra(EXTRA_BC_TITLE_SMALL, getIntent().getExtras().getString(EXTRA_BC_TITLE_LARGE));
-        intent.putExtra(EXTRA_RESOURCE_URI , resourceUri);
-        startActivityForResult(intent, ID_CM_EDIT);
     }
 
     private void viewResource(String resourceUri) {

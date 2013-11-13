@@ -197,12 +197,18 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
         public void onRequestSuccess(ResourcesList resourcesList) {
             List<ResourceLookup> resourceLookups = new ArrayList<ResourceLookup>();
             for (ResourceDescriptor descriptor : resourcesList.getResourceDescriptors()) {
-                ResourceLookup lookup = new ResourceLookup();
-                lookup.setResourceType(descriptor.getWsType().toString());
-                lookup.setLabel(descriptor.getLabel());
-                lookup.setDescription(descriptor.getDescription());
-                lookup.setUri(descriptor.getUriString());
-                resourceLookups.add(lookup);
+                switch (descriptor.getWsType()) {
+                    case folder:
+                    case dashboard:
+                    case reportUnit:
+                        ResourceLookup lookup = new ResourceLookup();
+                        lookup.setResourceType(descriptor.getWsType().toString());
+                        lookup.setLabel(descriptor.getLabel());
+                        lookup.setDescription(descriptor.getDescription());
+                        lookup.setUri(descriptor.getUriString());
+                        resourceLookups.add(lookup);
+                        break;
+                }
             }
 
             if (resourceLookups.isEmpty()) {

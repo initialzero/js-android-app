@@ -60,7 +60,6 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -74,6 +73,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static com.jaspersoft.android.jaspermobile.JasperMobileApplication.REPORT_OUTPUT_DIR_NAME;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
  * @author Ivan Gadzhega
@@ -464,9 +464,9 @@ public class HomeActivity extends RoboSherlockActivity {
             appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
             appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
             ArrayList<String> types = new ArrayList<String>();
-            types.add(ResourceDescriptor.WsType.reportUnit.toString());
+            types.add(ResourceType.reportUnit.toString());
             if (ServerInfo.EDITIONS.PRO.equals(serverInfo.getEdition())) {
-                types.add(ResourceDescriptor.WsType.dashboard.toString());
+                types.add(ResourceType.dashboard.toString());
             }
             appData.putStringArrayList(SearchActivity.EXTRA_RESOURCE_TYPES, types);
             searchIntent.putExtra(SearchManager.APP_DATA, appData);

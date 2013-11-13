@@ -29,10 +29,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.SearchResourcesRequest;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
 import java.util.ArrayList;
+
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
  * @author Ivan Gadzhega
@@ -40,20 +43,11 @@ import java.util.ArrayList;
  */
 public class SearchActivity extends BaseBrowserSearchActivity {
 
-    // Extras
     public static final String EXTRA_RESOURCE_TYPES = "SearchActivity.EXTRA_RESOURCE_TYPES";
-    
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        handleIntent(getIntent(), false);
-    }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        setIntent(intent);
-        handleIntent(intent, false);
-    }
+    private String uri;
+    private String query;
+    private ArrayList<String> types;
 
     @Override
     public boolean onSearchRequested() {
@@ -64,28 +58,42 @@ public class SearchActivity extends BaseBrowserSearchActivity {
         return true;
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent, false);
+    }
+
     protected void handleIntent(Intent intent, boolean forceUpdate) {
-        // Get search query from extras
-        String query = intent.getStringExtra(SearchManager.QUERY);
-        // Get additional data from intent
         Bundle appData = intent.getBundleExtra(SearchManager.APP_DATA);
-        String titleSmall = appData.getString(EXTRA_BC_TITLE_SMALL);
-        String titleLarge = getString(R.string.s_title);
-        String uri = appData.getString(EXTRA_RESOURCE_URI);
-        ArrayList<String> types = appData.getStringArrayList(EXTRA_RESOURCE_TYPES);
-        //update titles
-        if (titleSmall != null && titleSmall.length() > 0) {
-            getSupportActionBar().setSubtitle(titleSmall);
-        }
-        getSupportActionBar().setTitle(titleLarge);
 
-        nothingToDisplayText.setText(R.string.loading_msg);
-        setListAdapter(null);
+        String title = getString(R.string.s_title);
+        String subtitle = appData.getString(EXTRA_BC_TITLE_SMALL);
+        updateTitles(title, subtitle);
 
-        // search for resources
+        uri = appData.getString(EXTRA_RESOURCE_URI);
+        query = intent.getStringExtra(SearchManager.QUERY);
+        types = appData.getStringArrayList(EXTRA_RESOURCE_TYPES);
+
+        super.handleIntent(intent, forceUpdate);
+    }
+
+    protected void getResources(boolean ignoreCache) {
         SearchResourcesRequest request = new SearchResourcesRequest(jsRestClient, uri, query, types, true, 0);
         long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
         serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new SearchResourcesListener());
+    }
+
+    protected void getResourceLookups(boolean ignoreCache) {
+        if (types == null || types.isEmpty()) {
+            types = new ArrayList<String>();
+            types.add(ResourceType.reportUnit.toString());
+            types.add(ResourceType.dashboard.toString());
+        }
+
+        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, uri, query, types, true, offset, LIMIT);
+        long cacheExpiryDuration = ignoreCache ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new SearchResourceLookupsListener());
     }
 
 }

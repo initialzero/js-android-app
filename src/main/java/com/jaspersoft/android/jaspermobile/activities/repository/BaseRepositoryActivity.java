@@ -49,7 +49,7 @@ import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -83,7 +83,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     protected DatabaseProvider dbProvider;
     protected SpiceManager serviceManager;
 
-    protected ResourceDescriptor resourceDescriptor;
+    protected ResourceLookup resourceLookup;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,19 +101,19 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
 
     @Override
     protected void onListItemClick(ListView listView, View view, int position, long id) {
-        ResourceDescriptor resourceDescriptor = (ResourceDescriptor) getListView().getItemAtPosition(position);
-        switch (resourceDescriptor.getWsType()) {
+        ResourceLookup resource = (ResourceLookup) getListView().getItemAtPosition(position);
+        switch (resource.getResourceType()) {
             case folder:
-                openFolderByDescriptor(resourceDescriptor);
+                openFolder(resource);
                 break;
             case reportUnit:
-                runReport(resourceDescriptor.getLabel(), resourceDescriptor.getUriString());
+                runReport(resource.getLabel(), resource.getUri());
                 break;
             case dashboard:
-                runDashboard(resourceDescriptor.getUriString());
+                runDashboard(resource.getUri());
                 break;
             default:
-                viewResource(resourceDescriptor.getUriString());
+                viewResource(resource.getUri());
                 break;
         }
     }
@@ -153,12 +153,12 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
 
         // Determine on which item in the ListView the user long-clicked and get corresponding resource descriptor
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        ResourceDescriptor resourceDescriptor = (ResourceDescriptor) getListView().getItemAtPosition(info.position);
+        ResourceLookup resource = (ResourceLookup) getListView().getItemAtPosition(info.position);
 
         // Retrieve the label for that particular item and use as title for the menu
-        menu.setHeaderTitle(resourceDescriptor.getLabel());
+        menu.setHeaderTitle(resource.getLabel());
         // Add all the menu options
-        switch (resourceDescriptor.getWsType()) {
+        switch (resource.getResourceType()) {
             case folder:
                 menu.add(Menu.NONE, ID_CM_OPEN, Menu.FIRST, R.string.r_cm_open);
                 break;
@@ -176,36 +176,35 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     public boolean onContextItemSelected(MenuItem item) {
         // Determine on which item in the ListView the user long-clicked and get corresponding resource descriptor
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        resourceDescriptor = (ResourceDescriptor) getListView().getItemAtPosition(info.position);
+        resourceLookup = (ResourceLookup) getListView().getItemAtPosition(info.position);
 
         // Handle item selection
         switch (item.getItemId()) {
             case ID_CM_OPEN:
-                openFolderByDescriptor(resourceDescriptor);
+                openFolder(resourceLookup);
                 return true;
             case ID_CM_RUN:
-                switch (resourceDescriptor.getWsType()) {
+                switch (resourceLookup.getResourceType()) {
                     case reportUnit:
-                        runReport(resourceDescriptor.getLabel(), resourceDescriptor.getUriString());
+                        runReport(resourceLookup.getLabel(), resourceLookup.getUri());
                         break;
                     case dashboard:
-                        runDashboard(resourceDescriptor.getUriString());
+                        runDashboard(resourceLookup.getUri());
                         break;
                 }
                 return true;
             case ID_CM_VIEW_DETAILS:
-                viewResource(resourceDescriptor.getUriString());
+                viewResource(resourceLookup.getUri());
                 return true;
             case ID_CM_ADD_TO_FAVORITES:
-                String label = resourceDescriptor.getLabel();
-                String name = resourceDescriptor.getName();
-                String uri = resourceDescriptor.getUriString();
-                String description = resourceDescriptor.getDescription();
-                String wsType = resourceDescriptor.getWsType().toString();
+                String label = resourceLookup.getLabel();
+                String uri = resourceLookup.getUri();
+                String description = resourceLookup.getDescription();
+                String wsType = resourceLookup.getResourceType().toString();
                 String userName = jsRestClient.getServerProfile().getUsername();
                 String organization = jsRestClient.getServerProfile().getOrganization();
                 long serverProfileId = jsRestClient.getServerProfile().getId();
-                dbProvider.insertFavoriteItem(label, name, uri, description, wsType, serverProfileId, userName, organization);
+                dbProvider.insertFavoriteItem(label, "", uri, description, wsType, serverProfileId, userName, organization);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -235,12 +234,12 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void openFolderByDescriptor(ResourceDescriptor resourceDescriptor) {
+    private void openFolder(ResourceLookup resource) {
         Intent intent = new Intent();
         intent.setClass(this, BrowserActivity.class);
         intent.putExtra(EXTRA_BC_TITLE_SMALL, getIntent().getExtras().getString(EXTRA_BC_TITLE_LARGE));
-        intent.putExtra(EXTRA_BC_TITLE_LARGE, resourceDescriptor.getLabel());
-        intent.putExtra(EXTRA_RESOURCE_URI , resourceDescriptor.getUriString());
+        intent.putExtra(EXTRA_BC_TITLE_LARGE, resource.getLabel());
+        intent.putExtra(EXTRA_RESOURCE_URI , resource.getUri());
         startActivity(intent);
     }
 

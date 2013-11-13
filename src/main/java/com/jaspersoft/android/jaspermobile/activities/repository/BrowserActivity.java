@@ -26,10 +26,14 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.content.Intent;
 import android.os.Bundle;
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourcesRequest;
 import com.octo.android.robospice.persistence.DurationInMillis;
+
+import java.util.ArrayList;
+
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
  * @author Ivan Gadzhega
@@ -37,10 +41,15 @@ import com.octo.android.robospice.persistence.DurationInMillis;
  */
 public class BrowserActivity extends BaseBrowserSearchActivity {
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        handleIntent(getIntent(), false);
+    private static final ArrayList<String> types;
+
+    private String uri;
+
+    static {
+        types = new ArrayList<String>();
+        types.add(ResourceType.folder.toString());
+        types.add(ResourceType.reportUnit.toString());
+        types.add(ResourceType.dashboard.toString());
     }
 
     @Override
@@ -56,24 +65,27 @@ public class BrowserActivity extends BaseBrowserSearchActivity {
     }
 
     protected void handleIntent(Intent intent, boolean forceUpdate) {
-        //get extra pieces of data from intent
         Bundle extras = getIntent().getExtras();
+
         String subtitle = extras.getString(EXTRA_BC_TITLE_SMALL);
         String title = extras.getString(EXTRA_BC_TITLE_LARGE);
-        String uri = extras.getString(EXTRA_RESOURCE_URI);
+        updateTitles(title, subtitle);
 
-        //update titles
-        if (subtitle != null && subtitle.length() > 0) {
-            getSupportActionBar().setSubtitle(subtitle);
-        }
-        getSupportActionBar().setTitle(title);
+        this.uri = extras.getString(EXTRA_RESOURCE_URI);
 
-        nothingToDisplayText.setText(R.string.loading_msg);
-        setListAdapter(null);
+        super.handleIntent(intent, forceUpdate);
+    }
 
+    protected void getResources(boolean ignoreCache) {
         GetResourcesRequest request = new GetResourcesRequest(jsRestClient, uri);
-        long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
+        long cacheExpiryDuration = ignoreCache ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
         serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourcesListener());
+    }
+
+    protected void getResourceLookups(boolean ignoreCache) {
+        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, uri, types, offset, LIMIT);
+        long cacheExpiryDuration = ignoreCache ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
 }

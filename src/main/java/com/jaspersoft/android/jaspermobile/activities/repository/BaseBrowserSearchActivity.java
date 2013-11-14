@@ -58,7 +58,7 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
     protected static final int ID_AB_REFRESH = 32;
     protected static final int ID_AB_SEARCH = 33;
 
-    protected static final int LIMIT = 20;
+    protected static final int LIMIT = 40;
 
     protected int offset, total;
     protected boolean forceUpdate;

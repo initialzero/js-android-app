@@ -264,7 +264,9 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
             } else {
                 ResourceLookupArrayAdapter arrayAdapter = (ResourceLookupArrayAdapter) getListAdapter();
                 if (arrayAdapter == null) {
+                    if (getListView().getFooterViewsCount() == 0) {
                         getListView().addFooterView(progressView);
+                    }
                     arrayAdapter = new ResourceLookupArrayAdapter(BaseBrowserSearchActivity.this, new ArrayList<ResourceLookup>());
                     setListAdapter(arrayAdapter);
                 }

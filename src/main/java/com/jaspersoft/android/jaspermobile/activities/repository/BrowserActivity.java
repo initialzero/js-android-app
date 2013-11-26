@@ -53,15 +53,15 @@ public class BrowserActivity extends BaseBrowserSearchActivity {
     }
 
     @Override
-    public boolean onSearchRequested() {
-        // Provide additional data in the intent that the system sends to the searchable activity
-        Intent intent = getIntent();
-        Bundle appData = new Bundle();
-        appData.putString(EXTRA_BC_TITLE_SMALL, intent.getStringExtra(EXTRA_BC_TITLE_LARGE));
-        appData.putString(EXTRA_RESOURCE_URI, intent.getStringExtra(EXTRA_RESOURCE_URI));
-        // Passing search context data
-        startSearch(null, false, appData, false);
-        return true;
+    public void startActivity(Intent intent) {
+        // check if search intent
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            Intent prevIntent = getIntent();
+            intent.putExtra(EXTRA_BC_TITLE_SMALL, prevIntent.getStringExtra(EXTRA_BC_TITLE_LARGE));
+            intent.putExtra(EXTRA_RESOURCE_URI, prevIntent.getStringExtra(EXTRA_RESOURCE_URI));
+        }
+
+        super.startActivity(intent);
     }
 
     protected void handleIntent(Intent intent, boolean forceUpdate) {

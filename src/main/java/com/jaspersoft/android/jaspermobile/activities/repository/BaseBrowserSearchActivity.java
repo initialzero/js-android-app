@@ -24,12 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
@@ -63,6 +66,7 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
     protected int offset, total;
     protected boolean forceUpdate;
     protected Menu optionsMenu;
+    private MenuItem searchItem;
 
     private boolean refreshing;
     private View progressView;
@@ -77,16 +81,37 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
-        // Add actions to the action bar
+
+        // Refresh
         MenuItem item = menu.add(Menu.NONE, ID_AB_REFRESH, Menu.NONE, R.string.r_ab_refresh);
         item.setIcon(R.drawable.ic_action_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         item.setActionView(R.layout.actionbar_indeterminate_progress);
 
-        menu.add(Menu.NONE, ID_AB_SEARCH, Menu.NONE, R.string.r_ab_search)
-                .setIcon(R.drawable.ic_action_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        // Search
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchItem.collapseActionView();
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
+        searchItem = menu.add(Menu.NONE, ID_AB_SEARCH, Menu.NONE, R.string.r_ab_search);
+        searchItem.setIcon(R.drawable.ic_action_search);
+        searchItem.setActionView(searchView);
+        searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
+        // Favorites
         menu.add(Menu.NONE, ID_AB_FAVORITES, Menu.NONE, R.string.r_ab_favorites)
                 .setIcon(R.drawable.ic_action_favorites).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -95,7 +120,6 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_REFRESH:
-                setRefreshActionButtonState(true);
                 handleIntent(getIntent(), true);
                 return true;
             case ID_AB_FAVORITES:
@@ -104,13 +128,16 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
                 favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
                 startActivity(favoritesIntent);
                 return true;
-            case ID_AB_SEARCH:
-                onSearchRequested();
-                return true;
             default:
                 // If you don't handle the menu item, you should pass the menu item to the superclass implementation
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        searchItem.collapseActionView();
+        super.onStop();
     }
 
     protected void handleIntent(Intent intent, boolean forceUpdate) {
@@ -118,6 +145,8 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
 
         nothingToDisplayText.setText(R.string.loading_msg);
         setListAdapter(null);
+
+        setRefreshActionButtonState(true);
 
         GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
         long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);

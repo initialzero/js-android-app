@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.app.SearchManager;
 import android.content.Intent;
-import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
@@ -50,12 +49,15 @@ public class SearchActivity extends BaseBrowserSearchActivity {
     private ArrayList<String> types;
 
     @Override
-    public boolean onSearchRequested() {
-        // Provide additional data in the intent that sends to the searchable activity
-        Bundle appData = getIntent().getBundleExtra(SearchManager.APP_DATA);
-        // Passing search context data
-        startSearch(null, false, appData, false);
-        return true;
+    public void startActivity(Intent intent) {
+        // check if search intent
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            Intent prevIntent = getIntent();
+            intent.putExtra(EXTRA_BC_TITLE_SMALL, prevIntent.getStringExtra(EXTRA_BC_TITLE_SMALL));
+            intent.putExtra(EXTRA_RESOURCE_URI, prevIntent.getStringExtra(EXTRA_RESOURCE_URI));
+        }
+
+        super.startActivity(intent);
     }
 
     @Override
@@ -65,15 +67,13 @@ public class SearchActivity extends BaseBrowserSearchActivity {
     }
 
     protected void handleIntent(Intent intent, boolean forceUpdate) {
-        Bundle appData = intent.getBundleExtra(SearchManager.APP_DATA);
-
         String title = getString(R.string.s_title);
-        String subtitle = appData.getString(EXTRA_BC_TITLE_SMALL);
+        String subtitle = intent.getStringExtra(EXTRA_BC_TITLE_SMALL);
         updateTitles(title, subtitle);
 
-        uri = appData.getString(EXTRA_RESOURCE_URI);
+        uri = intent.getStringExtra(EXTRA_RESOURCE_URI);
         query = intent.getStringExtra(SearchManager.QUERY);
-        types = appData.getStringArrayList(EXTRA_RESOURCE_TYPES);
+        types = intent.getStringArrayListExtra(EXTRA_RESOURCE_TYPES);
 
         super.handleIntent(intent, forceUpdate);
     }

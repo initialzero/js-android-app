@@ -99,8 +99,6 @@
     <!-- Search Activity -->
     <string name="s_title">Результаты Поиска</string>
     <string name="s_hint">Поиск ресурсов</string>
-    <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">Поиск…</string>
 
 
     <!-- Resource Info Activity -->

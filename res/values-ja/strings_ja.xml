@@ -104,8 +104,6 @@
     <!-- Search Activity -->
     <string name="s_title">検索結果</string>
     <string name="s_hint">リソースの検索</string>
-    <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">検索中…</string>
 
 
     <!-- Resource Info Activity -->

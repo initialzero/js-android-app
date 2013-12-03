@@ -104,8 +104,6 @@
     <!-- Search Activity -->
     <string name="s_title">搜索结果</string>
     <string name="s_hint">搜索资源</string>
-    <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">正在搜索…</string>
 
 
     <!-- Resource Info Activity -->

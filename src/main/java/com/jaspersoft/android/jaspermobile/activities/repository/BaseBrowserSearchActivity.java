@@ -103,13 +103,13 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
             }
         });
 
-        searchItem = menu.add(Menu.NONE, ID_AB_SEARCH, Menu.NONE, R.string.r_ab_search);
+        searchItem = menu.add(Menu.NONE, ID_AB_SEARCH, 2, R.string.r_ab_search);
         searchItem.setIcon(R.drawable.ic_action_search);
         searchItem.setActionView(searchView);
         searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
         // Favorites
-        menu.add(Menu.NONE, ID_AB_FAVORITES, Menu.NONE, R.string.r_ab_favorites)
+        menu.add(Menu.NONE, ID_AB_FAVORITES, 3, R.string.r_ab_favorites)
                 .setIcon(R.drawable.ic_action_favorites).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);

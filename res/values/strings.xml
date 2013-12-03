@@ -110,8 +110,13 @@
     <!-- Search Activity -->
     <string name="s_title">Search Results</string>
     <string name="s_hint">Search resources</string>
-    <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">Searching…</string>
+    <!-- Action Bar -->
+    <string name="s_ab_filter_by">Filter by</string>
+    <!-- Filter Dialog -->
+    <string name="s_fd_filter_by">Filter by</string>
+    <string name="s_fd_option_all">All</string>
+    <string name="s_fd_option_reports">Reports</string>
+    <string name="s_fd_option_dashboards">Dashboards</string>
 
 
     <!-- Resource Info Activity -->

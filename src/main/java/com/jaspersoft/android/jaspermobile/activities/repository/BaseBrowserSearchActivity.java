@@ -303,11 +303,14 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
                 for (ResourceLookup lookup : resourceLookups) {
                     arrayAdapter.add(lookup);
                 }
-
-                total = Math.max(resourceLookupsList.getTotalCount(), total);
             }
 
             setRefreshActionButtonState(false);
+
+            if (offset == 0) {
+                total = resourceLookupsList.getTotalCount();
+            }
+
             if (offset + LIMIT > total) {
                 getListView().removeFooterView(progressView);
             }

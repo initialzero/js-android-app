@@ -477,16 +477,17 @@ public class HomeActivity extends RoboSherlockActivity {
         public void onRequestSuccess(ServerInfo serverInfo) {
             Intent searchIntent = new Intent();
             searchIntent.setClass(HomeActivity.this, SearchActivity.class);
-            Bundle appData = new Bundle();
-            appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
-            appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
+
+            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
+            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
+
             ArrayList<String> types = new ArrayList<String>();
             types.add(ResourceType.reportUnit.toString());
             if (ServerInfo.EDITIONS.PRO.equals(serverInfo.getEdition())) {
                 types.add(ResourceType.dashboard.toString());
             }
-            appData.putStringArrayList(SearchActivity.EXTRA_RESOURCE_TYPES, types);
-            searchIntent.putExtra(SearchManager.APP_DATA, appData);
+            searchIntent.putExtra(SearchActivity.EXTRA_RESOURCE_TYPES, types);
+
             startActivity(searchIntent);
         }
     }

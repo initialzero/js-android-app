@@ -33,12 +33,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorComparator;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceLookupArrayAdapter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
  * @author Oleg Gavavka
@@ -70,27 +72,40 @@ public class FavoritesActivity extends BaseRepositoryActivity{
 
         Cursor cursor = dbProvider.fetchFavoriteItemsByParams(serverProfileId, userName, organization);
         startManagingCursor(cursor);
-        List<ResourceDescriptor> resourceDescriptors = new ArrayList<ResourceDescriptor>();
+        List<ResourceLookup> resourceLookups = new ArrayList<ResourceLookup>();
 
         // Iterate DB Records
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            ResourceDescriptor resource = new ResourceDescriptor();
-            resource.setName(cursor.getString(cursor.getColumnIndex(Favorites.KEY_NAME)));
+            ResourceLookup resource = new ResourceLookup();
             resource.setLabel(cursor.getString(cursor.getColumnIndex(Favorites.KEY_TITLE)));
-            resource.setUriString(cursor.getString(cursor.getColumnIndex(Favorites.KEY_URI)));
+            resource.setUri(cursor.getString(cursor.getColumnIndex(Favorites.KEY_URI)));
             resource.setDescription(cursor.getString(cursor.getColumnIndex(Favorites.KEY_DESCRIPTION)));
-            resource.setWsType(ResourceDescriptor.WsType.valueOf(cursor.getString(cursor.getColumnIndex(Favorites.KEY_WSTYPE))));
-            resourceDescriptors.add(resource);
+            resource.setResourceType(ResourceType.valueOf(cursor.getString(cursor.getColumnIndex(Favorites.KEY_WSTYPE))));
+            resourceLookups.add(resource);
             cursor.moveToNext();
         }
 
         // show the favorite resources
-        if (resourceDescriptors.isEmpty()) {
+        if (resourceLookups.isEmpty()) {
             nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);
         } else {
-            ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(this, resourceDescriptors);
-            arrayAdapter.sort(new ResourceDescriptorComparator()); // sort: non-case-sensitive, folders firs
+            ResourceLookupArrayAdapter arrayAdapter = new ResourceLookupArrayAdapter(this, resourceLookups);
+            arrayAdapter.sort(new Comparator<ResourceLookup>() {
+                @Override
+                public int compare(ResourceLookup object1, ResourceLookup object2) {
+                    if (object1.getResourceType() == ResourceLookup.ResourceType.folder) {
+                        if (object2.getResourceType() != ResourceLookup.ResourceType.folder) {
+                            return -1;
+                        }
+                    } else {
+                        if (object2.getResourceType() == ResourceLookup.ResourceType.folder) {
+                            return 1;
+                        }
+                    }
+                    return object1.getLabel().compareToIgnoreCase(object2.getLabel());
+                }
+            }); // sort: non-case-sensitive, folders firs
             setListAdapter(arrayAdapter);
         }
     }
@@ -107,13 +122,13 @@ public class FavoritesActivity extends BaseRepositoryActivity{
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        ResourceDescriptor resourceDescriptor = (ResourceDescriptor) getListView().getItemAtPosition(info.position);
+        ResourceLookup resource = (ResourceLookup) getListView().getItemAtPosition(info.position);
         switch (item.getItemId()) {
             case ID_CM_REMOVE_FROM_FAVORITES:
                 //Remove favorite item by uri, serverProfileId, username, organization
-                dbProvider.deleteFavoriteItems(resourceDescriptor.getUriString(), serverProfileId, userName, organization);
-                ((ResourceDescriptorArrayAdapter) getListAdapter()).remove(resourceDescriptor);
-                ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
+                dbProvider.deleteFavoriteItems(resource.getUri(), serverProfileId, userName, organization);
+                ((ResourceLookupArrayAdapter) getListAdapter()).remove(resource);
+                ((ResourceLookupArrayAdapter) getListAdapter()).notifyDataSetChanged();
                 return true;
             default:
                 // If you don't handle the menu item, you should pass the menu item to the superclass implementation

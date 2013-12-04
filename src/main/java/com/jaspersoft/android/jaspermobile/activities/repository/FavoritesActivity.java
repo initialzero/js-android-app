@@ -35,9 +35,9 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceLookupArrayAdapter;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceLookupComparator;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
@@ -91,21 +91,7 @@ public class FavoritesActivity extends BaseRepositoryActivity{
             nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);
         } else {
             ResourceLookupArrayAdapter arrayAdapter = new ResourceLookupArrayAdapter(this, resourceLookups);
-            arrayAdapter.sort(new Comparator<ResourceLookup>() {
-                @Override
-                public int compare(ResourceLookup object1, ResourceLookup object2) {
-                    if (object1.getResourceType() == ResourceLookup.ResourceType.folder) {
-                        if (object2.getResourceType() != ResourceLookup.ResourceType.folder) {
-                            return -1;
-                        }
-                    } else {
-                        if (object2.getResourceType() == ResourceLookup.ResourceType.folder) {
-                            return 1;
-                        }
-                    }
-                    return object1.getLabel().compareToIgnoreCase(object2.getLabel());
-                }
-            }); // sort: non-case-sensitive, folders firs
+            arrayAdapter.sort(new ResourceLookupComparator()); // sort: non-case-sensitive, folders first
             setListAdapter(arrayAdapter);
         }
     }

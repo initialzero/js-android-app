@@ -43,11 +43,11 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.jaspersoft.android.sdk.ui.adapters.ResourceLookupArrayAdapter;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceLookupComparator;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -245,21 +245,7 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
             } else {
                 ResourceLookupArrayAdapter arrayAdapter =
                         new ResourceLookupArrayAdapter(BaseBrowserSearchActivity.this, resourceLookups);
-                arrayAdapter.sort(new Comparator<ResourceLookup>() {
-                    @Override
-                    public int compare(ResourceLookup object1, ResourceLookup object2) {
-                        if (object1.getResourceType() == ResourceLookup.ResourceType.folder) {
-                            if (object2.getResourceType() != ResourceLookup.ResourceType.folder) {
-                                return -1;
-                            }
-                        } else {
-                            if (object2.getResourceType() == ResourceLookup.ResourceType.folder) {
-                                return 1;
-                            }
-                        }
-                        return object1.getLabel().compareToIgnoreCase(object2.getLabel());
-                    }
-                });
+                arrayAdapter.sort(new ResourceLookupComparator());
                 setListAdapter(arrayAdapter);
             }
 

@@ -206,7 +206,9 @@ public class SearchActivity extends BaseBrowserSearchActivity {
     }
 
     protected void getResourceLookups(boolean ignoreCache) {
-        filterItem.setVisible(true);
+        if (filterItem != null) {
+            filterItem.setVisible(true);
+        }
 
         if (types == null || types.isEmpty()) {
             types = new ArrayList<String>();

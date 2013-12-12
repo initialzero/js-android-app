@@ -37,13 +37,14 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -60,7 +61,6 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -74,6 +74,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static com.jaspersoft.android.jaspermobile.JasperMobileApplication.REPORT_OUTPUT_DIR_NAME;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
  * @author Ivan Gadzhega
@@ -95,12 +96,14 @@ public class HomeActivity extends RoboSherlockActivity {
     protected static final String PREFS_NAME = "RepositoryBrowser.SharedPreferences";
     protected static final String PREFS_CURRENT_SERVER_PROFILE_ID = "CURRENT_SERVER_PROFILE_ID";
 
-    @InjectView(R.id.profile_name_text)   private TextView profileNameText;
+    @InjectView(R.id.profile_name_text)
+    private TextView profileNameText;
 
     @Inject
     private JsRestClient jsRestClient;
     private DatabaseProvider dbProvider;
     private SpiceManager serviceManager;
+    private MenuItem searchItem;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -165,16 +168,29 @@ public class HomeActivity extends RoboSherlockActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Add actions to the action bar
+        // Search
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchItem = menu.add(R.string.r_ab_search);
+        searchItem.setActionView(searchView).setVisible(false);
+        searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
+        // Servers
         menu.add(Menu.NONE, ID_AB_SERVERS, Menu.NONE, R.string.h_ab_servers)
-                .setIcon(R.drawable.ic_action_servers).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+                .setIcon(R.drawable.ic_action_servers)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
+        // Settings
         menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
-                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+                .setIcon(R.drawable.ic_action_settings)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_SERVERS:
@@ -214,7 +230,7 @@ public class HomeActivity extends RoboSherlockActivity {
                     serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
                     break;
                 case R.id.home_item_search:
-                    onSearchRequested();
+                    searchItem.expandActionView();
                     break;
                 case R.id.home_item_favorites:
                     Intent favoritesIntent = new Intent();
@@ -237,6 +253,26 @@ public class HomeActivity extends RoboSherlockActivity {
 
             alertbox.show();
         }
+    }
+
+    @Override
+    public void startActivity(Intent intent) {
+        // check if search intent
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            intent.putExtra(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, jsRestClient.getServerProfile().getAlias());
+            intent.putExtra(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
+        }
+
+        super.startActivity(intent);
+    }
+
+    public static void goHome(Context context) {
+        // All of the other activities on top of it will be destroyed and this intent will be delivered
+        // to the resumed instance of the activity (now on top), through onNewIntent()
+        Intent intent = new Intent();
+        intent.setClass(context, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(intent);
     }
 
     @Override
@@ -292,26 +328,6 @@ public class HomeActivity extends RoboSherlockActivity {
                     break;
             }
         }
-    }
-
-    @Override
-    public boolean onSearchRequested() {
-        // Provide additional data in the intent that the system sends to the searchable activity
-        Bundle appData = new Bundle();
-        appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, jsRestClient.getServerProfile().getAlias());
-        appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
-        // Passing search context data
-        startSearch(null, false, appData, false);
-        return true;
-    }
-
-    public static void goHome(Context context) {
-        // All of the other activities on top of it will be destroyed and this intent will be delivered
-        // to the resumed instance of the activity (now on top), through onNewIntent()
-        Intent intent = new Intent();
-        intent.setClass(context, HomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        context.startActivity(intent);
     }
 
     @Override
@@ -396,6 +412,7 @@ public class HomeActivity extends RoboSherlockActivity {
     @Override
     protected void onStop() {
         serviceManager.shouldStop();
+        searchItem.collapseActionView();
         super.onStop();
     }
 
@@ -460,16 +477,17 @@ public class HomeActivity extends RoboSherlockActivity {
         public void onRequestSuccess(ServerInfo serverInfo) {
             Intent searchIntent = new Intent();
             searchIntent.setClass(HomeActivity.this, SearchActivity.class);
-            Bundle appData = new Bundle();
-            appData.putString(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
-            appData.putString(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
+
+            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
+            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
+
             ArrayList<String> types = new ArrayList<String>();
-            types.add(ResourceDescriptor.WsType.reportUnit.toString());
+            types.add(ResourceType.reportUnit.toString());
             if (ServerInfo.EDITIONS.PRO.equals(serverInfo.getEdition())) {
-                types.add(ResourceDescriptor.WsType.dashboard.toString());
+                types.add(ResourceType.dashboard.toString());
             }
-            appData.putStringArrayList(SearchActivity.EXTRA_RESOURCE_TYPES, types);
-            searchIntent.putExtra(SearchManager.APP_DATA, appData);
+            searchIntent.putExtra(SearchActivity.EXTRA_RESOURCE_TYPES, types);
+
             startActivity(searchIntent);
         }
     }

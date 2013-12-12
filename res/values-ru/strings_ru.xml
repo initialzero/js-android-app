@@ -91,37 +91,14 @@
     <!-- Context Menu -->
     <string name="r_cm_open">Открыть</string>
     <string name="r_cm_run">Выполнить</string>
-    <string name="r_cm_edit">Изменить</string>
-    <string name="r_cm_delete">Удалить</string>
     <string name="r_cm_view_details">Информация</string>
     <string name="r_cm_add_to_favorites">Добавить в избранное</string>
     <string name="r_cm_remove_from_favorites">Удалить из избранного</string>
-    <!-- Delete Dialog -->
-    <string name="r_ad_delete_resource_msg">Вы уверены, что хотите удалить этот ресурс?</string>
-    <string name="r_delete_btn">Удалить</string>
-    <string name="r_cancel_btn">Отменить</string>
-    <!-- Progress Dialog -->
-    <string name="r_pd_deleting_msg">Удаление…</string>
-    <!-- Notifications -->
-    <string name="r_resource_deleted_toast">Ресурс успешно удален.</string>
 
 
     <!-- Search Activity -->
     <string name="s_title">Результаты Поиска</string>
     <string name="s_hint">Поиск ресурсов</string>
-    <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">Поиск…</string>
-
-
-    <!-- Resource Edit Activity -->
-    <string name="re_title">Изменить Ресурс</string>
-    <string name="re_label">Название:</string>
-    <string name="re_description">Описание:</string>
-    <string name="re_modify_btn">Сохранить</string>
-    <!-- Progress Dialog -->
-    <string name="re_pd_saving_msg">Сохранение…</string>
-    <!-- Notifications -->
-    <string name="re_resource_saved_toast">Ресурс успешно сохранен.</string>
 
 
     <!-- Resource Info Activity -->

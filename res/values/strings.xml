@@ -102,37 +102,21 @@
     <!-- Context Menu -->
     <string name="r_cm_open">Open</string>
     <string name="r_cm_run">Run</string>
-    <string name="r_cm_edit">Edit</string>
-    <string name="r_cm_delete">Delete</string>
     <string name="r_cm_view_details">View Details</string>
     <string name="r_cm_add_to_favorites">Add to favorites</string>
     <string name="r_cm_remove_from_favorites">Remove from favorites</string>
-    <!-- Delete Dialog -->
-    <string name="r_ad_delete_resource_msg">Are you sure you want to delete this resource?</string>
-    <string name="r_delete_btn">Delete</string>
-    <string name="r_cancel_btn">Cancel</string>
-    <!-- Progress Dialog -->
-    <string name="r_pd_deleting_msg">Deleting…</string>
-    <!-- Notifications -->
-    <string name="r_resource_deleted_toast">Resource successfully deleted.</string>
 
 
     <!-- Search Activity -->
     <string name="s_title">Search Results</string>
     <string name="s_hint">Search resources</string>
-    <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">Searching…</string>
-
-
-    <!-- Resource Edit Activity -->
-    <string name="re_title">Edit Resource</string>
-    <string name="re_label">Label:</string>
-    <string name="re_description">Description:</string>
-    <string name="re_modify_btn">Save</string>
-    <!-- Progress Dialog -->
-    <string name="re_pd_saving_msg">Saving…</string>
-    <!-- Notifications -->
-    <string name="re_resource_saved_toast">Resource successfully saved.</string>
+    <!-- Action Bar -->
+    <string name="s_ab_filter_by">Filter by</string>
+    <!-- Filter Dialog -->
+    <string name="s_fd_filter_by">Filter by</string>
+    <string name="s_fd_option_all">All</string>
+    <string name="s_fd_option_reports">Reports</string>
+    <string name="s_fd_option_dashboards">Dashboards</string>
 
 
     <!-- Resource Info Activity -->

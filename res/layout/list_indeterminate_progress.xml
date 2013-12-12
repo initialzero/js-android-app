@@ -24,34 +24,14 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    style="@style/resourceEdit.layout" >
+    android:id="@+id/list_indeterminate_progress"
+    style="@style/list.item.layout">
 
-    <TextView
-        style="@style/label.blue"
-        android:text="@string/re_label"
-    />
-
-    <EditText
-        android:id="@+id/resourceLabel"
-        style="@style/editText.singleLine"
-    />
-
-    <TextView
-        style="@style/label.blue"
-        android:text="@string/re_description"
-    />
-
-    <EditText
-        android:id="@+id/resourceDescription"
-        style="@style/editText.multiLine"
-    />
-
-    <Button
-        android:id="@+id/modifyResourceButton"
-        style="@style/resourceEdit.button"
-        android:text="@string/re_modify_btn"
-        android:onClick="modifyResourceClickHandler"
+    <ProgressBar
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="10dp"
+        style="?indeterminateProgressStyle"
     />
 
 </LinearLayout>

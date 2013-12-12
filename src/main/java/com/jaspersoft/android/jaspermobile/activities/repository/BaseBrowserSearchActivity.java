@@ -24,53 +24,94 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
-import android.view.ContextMenu;
+import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.AbsListView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
-import com.jaspersoft.android.sdk.client.async.request.DeleteResourceRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.ResourcesList;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorComparator;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceLookupArrayAdapter;
+import com.jaspersoft.android.sdk.ui.adapters.ResourceLookupComparator;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Ivan Gadzhega
  * @since 1.5
  */
-public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity {
+public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity implements AbsListView.OnScrollListener {
 
     // Action Bar IDs
     protected static final int ID_AB_FAVORITES = 31;
     protected static final int ID_AB_REFRESH = 32;
     protected static final int ID_AB_SEARCH = 33;
 
+    protected static final int LIMIT = 40;
+
+    protected int offset, total;
+    protected boolean forceUpdate;
     protected Menu optionsMenu;
+    private MenuItem searchItem;
+
+    private boolean refreshing;
+    private View progressView;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        progressView = getLayoutInflater().inflate(R.layout.list_indeterminate_progress, null);
+        handleIntent(getIntent(), false);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
-        // Add actions to the action bar
+
+        // Refresh
         MenuItem item = menu.add(Menu.NONE, ID_AB_REFRESH, Menu.NONE, R.string.r_ab_refresh);
         item.setIcon(R.drawable.ic_action_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         item.setActionView(R.layout.actionbar_indeterminate_progress);
 
-        menu.add(Menu.NONE, ID_AB_SEARCH, Menu.NONE, R.string.r_ab_search)
-                .setIcon(R.drawable.ic_action_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        // Search
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchItem.collapseActionView();
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
-        menu.add(Menu.NONE, ID_AB_FAVORITES, Menu.NONE, R.string.r_ab_favorites)
+        searchItem = menu.add(Menu.NONE, ID_AB_SEARCH, 2, R.string.r_ab_search);
+        searchItem.setIcon(R.drawable.ic_action_search);
+        searchItem.setActionView(searchView);
+        searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
+        // Favorites
+        menu.add(Menu.NONE, ID_AB_FAVORITES, 3, R.string.r_ab_favorites)
                 .setIcon(R.drawable.ic_action_favorites).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -79,7 +120,6 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_REFRESH:
-                setRefreshActionButtonState(true);
                 handleIntent(getIntent(), true);
                 return true;
             case ID_AB_FAVORITES:
@@ -88,9 +128,6 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
                 favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
                 startActivity(favoritesIntent);
                 return true;
-            case ID_AB_SEARCH:
-                onSearchRequested();
-                return true;
             default:
                 // If you don't handle the menu item, you should pass the menu item to the superclass implementation
                 return super.onOptionsItemSelected(item);
@@ -98,54 +135,34 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu,View view, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-        menu.add(Menu.NONE, ID_CM_DELETE, Menu.FIRST, R.string.r_cm_delete);
+    protected void onStop() {
+        searchItem.collapseActionView();
+        super.onStop();
     }
 
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        boolean result = super.onContextItemSelected(item);
-        if (!result && item.getItemId() == ID_CM_DELETE) {
-            showDialog(ID_CM_DELETE);
-            result = true;
-        }
-        return result;
+    protected void handleIntent(Intent intent, boolean forceUpdate) {
+        this.forceUpdate = forceUpdate;
+
+        nothingToDisplayText.setText(R.string.loading_msg);
+        setListAdapter(null);
+
+        setRefreshActionButtonState(true);
+
+        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
+        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetServerInfoListener());
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog;
-        switch (id) {
-            case ID_CM_DELETE:
-                // Define the delete dialog
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(R.string.r_ad_delete_resource_msg)
-                        // the delete button handler
-                        .setPositiveButton(R.string.r_delete_btn, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                DeleteResourceRequest request = new DeleteResourceRequest(jsRestClient, resourceDescriptor.getUriString());
-                                serviceManager.execute(request, new DeleteResourceListener());
-                                setRefreshActionButtonState(true);
-
-                            }
-                        })
-                        // the cancel button handler
-                        .setNegativeButton(R.string.r_cancel_btn, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-                dialog = builder.create();
-                break;
-            default:
-                dialog = null;
+    protected void updateTitles(String title, String subtitle) {
+        if (subtitle != null && subtitle.length() > 0) {
+            getSupportActionBar().setSubtitle(subtitle);
         }
-        return dialog;
+        getSupportActionBar().setTitle(title);
     }
 
     protected void setRefreshActionButtonState(boolean refreshing) {
         if (optionsMenu == null) return;
+        this.refreshing = refreshing;
 
         final MenuItem refreshItem = optionsMenu.findItem(ID_AB_REFRESH);
         if (refreshItem != null) {
@@ -157,14 +174,49 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
         }
     }
 
-    protected abstract void handleIntent(Intent intent, boolean forceUpdate);
+    protected abstract void getResources(boolean ignoreCache);
+
+    protected abstract void getResourceLookups(boolean ignoreCache);
+
+    //---------------------------------------------------------------------
+    // OnScrollListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) { }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        if (!refreshing && offset + LIMIT < total && firstVisibleItem + visibleItemCount >= totalItemCount) {
+            offset += LIMIT;
+            setRefreshActionButtonState(true);
+            getResourceLookups(forceUpdate);
+        }
+    }
 
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
 
-    protected class GetResourcesListener implements RequestListener<ResourcesList> {
+    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            RequestExceptionHandler.handle(e, BaseBrowserSearchActivity.this, false);
+        }
 
+        @Override
+        public void onRequestSuccess(ServerInfo serverInfo) {
+            if (serverInfo.getVersionCode() < ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                getResources(forceUpdate); // REST v1
+            } else {
+                offset = 0;
+                getResourceLookups(forceUpdate); // REST v2
+                getListView().setOnScrollListener(BaseBrowserSearchActivity.this);
+            }
+        }
+    }
+
+    protected class GetResourcesListener implements RequestListener<ResourcesList> {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, BaseBrowserSearchActivity.this, true);
@@ -172,14 +224,31 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
 
         @Override
         public void onRequestSuccess(ResourcesList resourcesList) {
-            List<ResourceDescriptor> resourceDescriptors = resourcesList.getResourceDescriptors();
-            if (resourceDescriptors.isEmpty()) {
+            List<ResourceLookup> resourceLookups = new ArrayList<ResourceLookup>();
+            for (ResourceDescriptor descriptor : resourcesList.getResourceDescriptors()) {
+                switch (descriptor.getWsType()) {
+                    case folder:
+                    case dashboard:
+                    case reportUnit:
+                        ResourceLookup lookup = new ResourceLookup();
+                        lookup.setResourceType(descriptor.getWsType().toString());
+                        lookup.setLabel(descriptor.getLabel());
+                        lookup.setDescription(descriptor.getDescription());
+                        lookup.setUri(descriptor.getUriString());
+                        resourceLookups.add(lookup);
+                        break;
+                }
+            }
+
+            if (resourceLookups.isEmpty()) {
                 nothingToDisplayText.setText(getNothingToDisplayString());
             } else {
-                ResourceDescriptorArrayAdapter arrayAdapter = new ResourceDescriptorArrayAdapter(BaseBrowserSearchActivity.this, resourceDescriptors);
-                arrayAdapter.sort(new ResourceDescriptorComparator());
+                ResourceLookupArrayAdapter arrayAdapter =
+                        new ResourceLookupArrayAdapter(BaseBrowserSearchActivity.this, resourceLookups);
+                arrayAdapter.sort(new ResourceLookupComparator());
                 setListAdapter(arrayAdapter);
             }
+
             setRefreshActionButtonState(false);
         }
 
@@ -195,21 +264,53 @@ public abstract class BaseBrowserSearchActivity extends  BaseRepositoryActivity 
         }
     }
 
-    private class DeleteResourceListener implements RequestListener<Void> {
+    protected class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, BaseBrowserSearchActivity.this, false);
-            setRefreshActionButtonState(false);
+            RequestExceptionHandler.handle(exception, BaseBrowserSearchActivity.this, true);
         }
 
         @Override
-        public void onRequestSuccess(Void result) {
-            //Refresh repository resources
-            ((ResourceDescriptorArrayAdapter) getListAdapter()).remove(resourceDescriptor);
-            ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
-            // the feedback about an operation in a small popup
-            Toast.makeText(getApplicationContext(), R.string.r_resource_deleted_toast, Toast.LENGTH_SHORT).show();
+        public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
+            List<ResourceLookup> resourceLookups = resourceLookupsList.getResourceLookups();
+
+            if (resourceLookups.isEmpty()) {
+                nothingToDisplayText.setText(getNothingToDisplayString());
+            } else {
+                ResourceLookupArrayAdapter arrayAdapter = (ResourceLookupArrayAdapter) getListAdapter();
+                if (arrayAdapter == null) {
+                    if (getListView().getFooterViewsCount() == 0) {
+                        getListView().addFooterView(progressView);
+                    }
+                    arrayAdapter = new ResourceLookupArrayAdapter(BaseBrowserSearchActivity.this, new ArrayList<ResourceLookup>());
+                    setListAdapter(arrayAdapter);
+                }
+
+                for (ResourceLookup lookup : resourceLookups) {
+                    arrayAdapter.add(lookup);
+                }
+            }
+
             setRefreshActionButtonState(false);
+
+            if (offset == 0) {
+                total = resourceLookupsList.getTotalCount();
+            }
+
+            if (offset + LIMIT > total) {
+                getListView().removeFooterView(progressView);
+            }
+        }
+
+        protected int getNothingToDisplayString() {
+            return R.string.r_browser_nothing_to_display;
+        }
+    }
+
+    protected class SearchResourceLookupsListener extends GetResourceLookupsListener {
+        @Override
+        protected int getNothingToDisplayString() {
+            return R.string.r_search_nothing_to_display;
         }
     }
 

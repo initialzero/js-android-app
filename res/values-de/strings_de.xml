@@ -96,37 +96,14 @@
     <!-- Context Menu -->
     <string name="r_cm_open">Öffnen</string>
     <string name="r_cm_run">Ausführen</string>
-    <string name="r_cm_edit">Bearbeiten</string>
-    <string name="r_cm_delete">Löschen</string>
     <string name="r_cm_view_details">Details anzeigen</string>
     <string name="r_cm_add_to_favorites">Zu Favoriten hinzufügen</string>
     <string name="r_cm_remove_from_favorites">Aus Favoriten löschen</string>
-    <!-- Delete Dialog -->
-    <string name="r_ad_delete_resource_msg">Möchten Sie diese Ressource wirklich löschen?</string>
-    <string name="r_delete_btn">Löschen</string>
-    <string name="r_cancel_btn">Abbrechen</string>
-    <!-- Progress Dialog -->
-    <string name="r_pd_deleting_msg">Löschen…</string>
-    <!-- Notifications -->
-    <string name="r_resource_deleted_toast">Die Ressource wurde erfolgreich gelöscht.</string>
 
 
     <!-- Search Activity -->
     <string name="s_title">Suchergebnisse</string>
     <string name="s_hint">Ressourcen durchsuchen</string>
-    <!-- Progress Dialog -->
-    <string name="s_pd_searching_msg">Suchen…</string>
-
-
-    <!-- Resource Edit Activity -->
-    <string name="re_title">Ressource bearbeiten</string>
-    <string name="re_label">Bezeichnung:</string>
-    <string name="re_description">Beschreibung:</string>
-    <string name="re_modify_btn">Speichern</string>
-    <!-- Progress Dialog -->
-    <string name="re_pd_saving_msg">Speichern…</string>
-    <!-- Notifications -->
-    <string name="re_resource_saved_toast">Die Ressource wurde erfolgreich gespeichert.</string>
 
 
     <!-- Resource Info Activity -->

@@ -36,12 +36,12 @@ import com.actionbarsherlock.view.Menu;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.*;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.BaseReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.CompatReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.resource.ResourceEditActivity;
 import com.jaspersoft.android.jaspermobile.activities.resource.ResourceInfoActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
@@ -49,9 +49,8 @@ import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.jaspersoft.android.sdk.ui.adapters.ResourceDescriptorArrayAdapter;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -70,10 +69,8 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     // Context menu IDs
     protected static final int ID_CM_OPEN = 10;
     protected static final int ID_CM_RUN = 11;
-    protected static final int ID_CM_EDIT = 12;
-    protected static final int ID_CM_DELETE = 13;
-    protected static final int ID_CM_VIEW_DETAILS = 14;
-    protected static final int ID_CM_ADD_TO_FAVORITES = 15;
+    protected static final int ID_CM_VIEW_DETAILS = 12;
+    protected static final int ID_CM_ADD_TO_FAVORITES = 13;
 
     // Action Bar IDs
     private static final int ID_AB_SETTINGS = 30;
@@ -86,7 +83,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     protected DatabaseProvider dbProvider;
     protected SpiceManager serviceManager;
 
-    protected ResourceDescriptor resourceDescriptor;
+    protected ResourceLookup resourceLookup;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,19 +101,19 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
 
     @Override
     protected void onListItemClick(ListView listView, View view, int position, long id) {
-        ResourceDescriptor resourceDescriptor = (ResourceDescriptor) getListView().getItemAtPosition(position);
-        switch (resourceDescriptor.getWsType()) {
+        ResourceLookup resource = (ResourceLookup) getListView().getItemAtPosition(position);
+        switch (resource.getResourceType()) {
             case folder:
-                openFolderByDescriptor(resourceDescriptor);
+                openFolder(resource);
                 break;
             case reportUnit:
-                runReport(resourceDescriptor.getLabel(), resourceDescriptor.getUriString());
+                runReport(resource.getLabel(), resource.getUri());
                 break;
             case dashboard:
-                runDashboard(resourceDescriptor.getUriString());
+                runDashboard(resource.getUri());
                 break;
             default:
-                viewResource(resourceDescriptor.getUriString());
+                viewResource(resource.getUri());
                 break;
         }
     }
@@ -146,7 +143,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 HomeActivity.goHome(this);
                 return true;
             default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
                 return super.onOptionsItemSelected(item);
         }
     }
@@ -157,12 +153,12 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
 
         // Determine on which item in the ListView the user long-clicked and get corresponding resource descriptor
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        ResourceDescriptor resourceDescriptor = (ResourceDescriptor) getListView().getItemAtPosition(info.position);
+        ResourceLookup resource = (ResourceLookup) getListView().getItemAtPosition(info.position);
 
         // Retrieve the label for that particular item and use as title for the menu
-        menu.setHeaderTitle(resourceDescriptor.getLabel());
+        menu.setHeaderTitle(resource.getLabel());
         // Add all the menu options
-        switch (resourceDescriptor.getWsType()) {
+        switch (resource.getResourceType()) {
             case folder:
                 menu.add(Menu.NONE, ID_CM_OPEN, Menu.FIRST, R.string.r_cm_open);
                 break;
@@ -172,7 +168,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 break;
         }
 
-        menu.add(Menu.NONE, ID_CM_EDIT, Menu.FIRST, R.string.r_cm_edit);
         menu.add(Menu.NONE, ID_CM_VIEW_DETAILS, Menu.CATEGORY_SECONDARY, R.string.r_cm_view_details);
         menu.add(Menu.NONE, ID_CM_ADD_TO_FAVORITES, Menu.CATEGORY_SECONDARY, R.string.r_cm_add_to_favorites);
     }
@@ -181,53 +176,38 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     public boolean onContextItemSelected(MenuItem item) {
         // Determine on which item in the ListView the user long-clicked and get corresponding resource descriptor
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        resourceDescriptor = (ResourceDescriptor) getListView().getItemAtPosition(info.position);
+        resourceLookup = (ResourceLookup) getListView().getItemAtPosition(info.position);
 
         // Handle item selection
         switch (item.getItemId()) {
             case ID_CM_OPEN:
-                openFolderByDescriptor(resourceDescriptor);
+                openFolder(resourceLookup);
                 return true;
             case ID_CM_RUN:
-                switch (resourceDescriptor.getWsType()) {
+                switch (resourceLookup.getResourceType()) {
                     case reportUnit:
-                        runReport(resourceDescriptor.getLabel(), resourceDescriptor.getUriString());
+                        runReport(resourceLookup.getLabel(), resourceLookup.getUri());
                         break;
                     case dashboard:
-                        runDashboard(resourceDescriptor.getUriString());
+                        runDashboard(resourceLookup.getUri());
                         break;
                 }
                 return true;
-            case ID_CM_EDIT:
-                editResource(resourceDescriptor.getUriString());
-                return true;
             case ID_CM_VIEW_DETAILS:
-                viewResource(resourceDescriptor.getUriString());
+                viewResource(resourceLookup.getUri());
                 return true;
             case ID_CM_ADD_TO_FAVORITES:
-                String label = resourceDescriptor.getLabel();
-                String name = resourceDescriptor.getName();
-                String uri = resourceDescriptor.getUriString();
-                String description = resourceDescriptor.getDescription();
-                String wsType = resourceDescriptor.getWsType().toString();
+                String label = resourceLookup.getLabel();
+                String uri = resourceLookup.getUri();
+                String description = resourceLookup.getDescription();
+                String wsType = resourceLookup.getResourceType().toString();
                 String userName = jsRestClient.getServerProfile().getUsername();
                 String organization = jsRestClient.getServerProfile().getOrganization();
                 long serverProfileId = jsRestClient.getServerProfile().getId();
-                dbProvider.insertFavoriteItem(label, name, uri, description, wsType, serverProfileId, userName, organization);
+                dbProvider.insertFavoriteItem(label, "", uri, description, wsType, serverProfileId, userName, organization);
                 return true;
             default:
                 return super.onContextItemSelected(item);
-        }
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ID_CM_EDIT && resultCode == RESULT_OK && data != null) {
-            // refresh current repository resource
-            Bundle extras = data.getExtras();
-            resourceDescriptor.setLabel(extras.getString(ResourceEditActivity.EXTRA_RESOURCE_LABEL));
-            resourceDescriptor.setDescription(extras.getString(ResourceEditActivity.EXTRA_RESOURCE_DESCRIPTION));
-            ((ResourceDescriptorArrayAdapter) getListAdapter()).notifyDataSetChanged();
         }
     }
 
@@ -254,21 +234,13 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void openFolderByDescriptor(ResourceDescriptor resourceDescriptor) {
+    private void openFolder(ResourceLookup resource) {
         Intent intent = new Intent();
         intent.setClass(this, BrowserActivity.class);
         intent.putExtra(EXTRA_BC_TITLE_SMALL, getIntent().getExtras().getString(EXTRA_BC_TITLE_LARGE));
-        intent.putExtra(EXTRA_BC_TITLE_LARGE, resourceDescriptor.getLabel());
-        intent.putExtra(EXTRA_RESOURCE_URI , resourceDescriptor.getUriString());
+        intent.putExtra(EXTRA_BC_TITLE_LARGE, resource.getLabel());
+        intent.putExtra(EXTRA_RESOURCE_URI , resource.getUri());
         startActivity(intent);
-    }
-
-    private void editResource(String resourceUri) {
-        Intent intent = new Intent();
-        intent.setClass(this, ResourceEditActivity.class);
-        intent.putExtra(EXTRA_BC_TITLE_SMALL, getIntent().getExtras().getString(EXTRA_BC_TITLE_LARGE));
-        intent.putExtra(EXTRA_RESOURCE_URI , resourceUri);
-        startActivityForResult(intent, ID_CM_EDIT);
     }
 
     private void viewResource(String resourceUri) {

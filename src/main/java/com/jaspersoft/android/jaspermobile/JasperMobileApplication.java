@@ -25,15 +25,28 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import com.jaspersoft.android.jaspermobile.webkit.WebkitCookieManagerProxy;
+
+import java.net.CookieHandler;
+import java.net.CookiePolicy;
 
 /**
  * @author Ivan Gadzhega
- * @version $Id$
  * @since 1.0
  */
 public class JasperMobileApplication extends Application {
 
     // Report output cache directory name
     public static final String REPORT_OUTPUT_DIR_NAME = "report.output";
+
+    @Override
+    public void onCreate() {
+        // Sync cookies between HttpURLConnection and WebView
+        CookieSyncManager.createInstance(this);
+        CookieManager.getInstance().setAcceptCookie(true);
+        CookieHandler.setDefault(new WebkitCookieManagerProxy(CookiePolicy.ACCEPT_ALL));
+    }
 
 }

@@ -40,7 +40,7 @@
 
     <!-- the minimum API Level required for the application to run, as well as the target version -->
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="9"
         android:targetSdkVersion="16"
     />
 

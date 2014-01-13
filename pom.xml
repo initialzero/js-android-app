@@ -87,7 +87,7 @@
                  <extensions>true</extensions>
                  <configuration>
                      <sdk>
-                         <platform>14</platform>
+                         <platform>16</platform>
                      </sdk>
                      <!-- Configuration for the dex command execution -->
                      <dex>

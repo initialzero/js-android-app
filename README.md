@@ -20,8 +20,8 @@ We use Apache Maven and the Android Maven Plugin to build JasperMobile applicati
 
 - Install Apache Maven from http://maven.apache.org/
 
-- Install the Android SDK and Android 4.0 (API 14) SDK Platform
-  (the minimum API Level required for the application to run is API 7, but API 14 is required for build the application)
+- Install the Android SDK and Android 4.1 (API 16) SDK Platform
+  (the minimum API Level required for the application to run is API 9, but API 16 is required for build the application)
 
 - Install the Jaspersoft Android SDK for Android from http://community.jaspersoft.com/project/mobile-sdk-android
   Please see "Getting Started.html" included with the SDK for details.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -55,8 +55,6 @@ import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivi
 import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
-import com.jaspersoft.android.jaspermobile.util.CacheUtils;
-import com.jaspersoft.android.jaspermobile.util.FileUtils;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
@@ -66,14 +64,9 @@ import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
-import roboguice.util.RoboAsyncTask;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
-import static com.jaspersoft.android.jaspermobile.JasperMobileApplication.REPORT_OUTPUT_DIR_NAME;
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
@@ -148,9 +141,6 @@ public class HomeActivity extends RoboSherlockActivity {
             intent.setClass(this, ServerProfilesManagerActivity.class);
             startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
         }
-
-        // Clear report output cache folders and, sure, do it asynchronously
-        clearReportOutputCacheFolders();
     }
 
     protected void onNewIntent(Intent intent) {
@@ -443,23 +433,6 @@ public class HomeActivity extends RoboSherlockActivity {
                 cursor.getString(urlId), cursor.getString(orgId), cursor.getString(usrId), cursor.getString(pwdId));
 
         jsRestClient.setServerProfile(serverProfile);
-    }
-
-    private void clearReportOutputCacheFolders() {
-        // Clear report output cache folders and, sure, do it asynchronously
-        RoboAsyncTask clearCacheAsyncTask = new RoboAsyncTask<Void>(this) {
-            @Override
-            public Void call() {
-                // for internal cache
-                FileUtils.deleteFilesInDirectory(new File(getContext().getCacheDir(), REPORT_OUTPUT_DIR_NAME));
-                // for external cache if available
-                FileUtils.deleteFilesInDirectory(new File(CacheUtils.getExternalCacheDir(getContext()), REPORT_OUTPUT_DIR_NAME));
-                return null;
-            }
-
-        };
-        final Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(clearCacheAsyncTask.future());
     }
 
     //---------------------------------------------------------------------

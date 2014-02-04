@@ -24,10 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report;
 
-import android.content.ActivityNotFoundException;
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -35,11 +34,18 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
@@ -49,8 +55,10 @@ import com.jaspersoft.android.sdk.client.oxm.control.*;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.ui.widget.MultiSelectSpinner;
+import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
 import java.io.File;
@@ -65,13 +73,49 @@ import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDi
  * @author Ivan Gadzhega
  * @since 1.6
  */
-public class ReportOptionsActivity extends BaseReportOptionsActivity {
+public class ReportOptionsActivity extends RoboSherlockActivity {
 
+    // Extras
+    public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
+    public static final String EXTRA_REPORT_URI = "ReportOptionsActivity.EXTRA_REPORT_URI";
+
+    // Action Bar IDs
+    private static final int ID_AB_INDETERMINATE_PROGRESS = 20;
+    private static final int ID_AB_SETTINGS = 21;
+
+    @Inject
+    protected JsRestClient jsRestClient;
+    @InjectView(R.id.runReportButton)
+    protected Button runReportButton;
+
+    protected Menu optionsMenu;
+    protected DatabaseProvider dbProvider;
+    protected SpiceManager serviceManager;
+    protected String reportUri;
+
+    private DatePickerDialogHelper dialogHelper;
     private List<InputControl> inputControls;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.report_options_layout);
+
+        // Get the database provider
+        dbProvider = new DatabaseProvider(this);
+        // bind to service
+        serviceManager = new SpiceManager(JsXmlSpiceService.class);
+
+        // init helper for date/time picker dialogs
+        dialogHelper = new DatePickerDialogHelper(this);
+
+        // get report label from extras and update title
+        String reportLabel = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
+        getSupportActionBar().setTitle(reportLabel);
+
+        // get report uri from extras
+        reportUri = getIntent().getExtras().getString(EXTRA_REPORT_URI);
 
         // Get a cursor with saved options for current report
         JsServerProfile profile = jsRestClient.getServerProfile();
@@ -106,8 +150,57 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
         serviceManager.execute(request, new ValidateInputControlsValuesListener());
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        optionsMenu = menu;
+        // use the App Icon for Navigation
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // indeterminate progress
+        MenuItem item = menu.add(Menu.NONE, ID_AB_INDETERMINATE_PROGRESS, Menu.NONE, R.string.loading_msg);
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        // settings
+        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
+                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
+        setRefreshActionButtonState(false);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case ID_AB_SETTINGS:
+                // Launch the settings activity
+                Intent settingsIntent = new Intent();
+                settingsIntent.setClass(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     protected void setRefreshActionButtonState(boolean refreshing) {
-        super.setRefreshActionButtonState(refreshing);
+        runReportButton.setEnabled(!refreshing);
+        if (optionsMenu != null) {
+            MenuItem refreshItem = optionsMenu.findItem(ID_AB_INDETERMINATE_PROGRESS);
+            if (refreshItem != null) {
+                refreshItem.setVisible(refreshing);
+                if (refreshing) {
+                    refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+                } else {
+                    refreshItem.setActionView(null);
+                }
+            }
+        }
+
         if (inputControls != null) {
             for (InputControl inputControl : inputControls) {
                 if (inputControl.isVisible() && !inputControl.isReadOnly()) {
@@ -115,6 +208,41 @@ public class ReportOptionsActivity extends BaseReportOptionsActivity {
                 }
             }
         }
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        return dialogHelper.onCreateDialog(id);
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        super.onPrepareDialog(id, dialog);
+        dialogHelper.onPrepareDialog(id, dialog);
+    }
+
+    protected void showDateDialog(InputControl inputControl, int id, TextView dateDisplay, Calendar date) {
+        dialogHelper.showDateDialog(inputControl, id, dateDisplay, date);
+    }
+
+    @Override
+    protected void onStart() {
+        serviceManager.start(this);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        setRefreshActionButtonState(false);
+        serviceManager.shouldStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        // close any open database object
+        if (dbProvider != null) dbProvider.close();
+        super.onDestroy();
     }
 
     //---------------------------------------------------------------------

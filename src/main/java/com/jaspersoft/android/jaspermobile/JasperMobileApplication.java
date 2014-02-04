@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -37,9 +37,6 @@ import java.net.CookiePolicy;
  * @since 1.0
  */
 public class JasperMobileApplication extends Application {
-
-    // Report output cache directory name
-    public static final String REPORT_OUTPUT_DIR_NAME = "report.output";
 
     @Override
     public void onCreate() {

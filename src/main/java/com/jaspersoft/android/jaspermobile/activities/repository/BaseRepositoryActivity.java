@@ -38,9 +38,6 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.activities.report.BaseReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.report.CompatReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.resource.ResourceInfoActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
@@ -48,12 +45,8 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlV
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
 
 /**
@@ -119,6 +112,29 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     }
 
     @Override
+    protected void onStart() {
+        serviceManager.start(this);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        serviceManager.shouldStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        // close any open database object
+        if (dbProvider != null) dbProvider.close();
+        super.onDestroy();
+    }
+
+    //---------------------------------------------------------------------
+    // Options Menu
+    //---------------------------------------------------------------------
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // use the App Icon for Navigation
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -146,6 +162,10 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    //---------------------------------------------------------------------
+    // Context menu
+    //---------------------------------------------------------------------
 
     @Override
     public void onCreateContextMenu(ContextMenu menu,View view, ContextMenu.ContextMenuInfo menuInfo) {
@@ -211,25 +231,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
         }
     }
 
-    @Override
-    protected void onStart() {
-        serviceManager.start(this);
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        serviceManager.shouldStop();
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        // close any open database object
-        if (dbProvider != null) dbProvider.close();
-        super.onDestroy();
-    }
-
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -252,10 +253,11 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     }
 
     private void runReport(String reportLabel, String reportUri) {
-        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-        GetServerInfoListener listener = new GetServerInfoListener(reportLabel, reportUri);
-        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
-        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
+        Intent intent = new Intent();
+        intent.setClass(BaseRepositoryActivity.this, ReportOptionsActivity.class);
+        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
+        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
+        startActivity(intent);
     }
 
     private void runDashboard(String dashboardUri) {
@@ -270,36 +272,5 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
         startActivity(htmlViewer);
     }
 
-    //---------------------------------------------------------------------
-    // Nested Classes
-    //---------------------------------------------------------------------
-
-    private class GetServerInfoListener implements RequestListener<ServerInfo> {
-
-        private String reportLabel;
-        private String reportUri;
-
-        public GetServerInfoListener(String reportLabel, String reportUri) {
-            this.reportLabel = reportLabel;
-            this.reportUri = reportUri;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException e) {
-            RequestExceptionHandler.handle(e, BaseRepositoryActivity.this, false);
-        }
-
-        @Override
-        public void onRequestSuccess(ServerInfo serverInfo) {
-            Class clazz = (serverInfo.getVersionCode() < ServerInfo.VERSION_CODES.EMERALD)
-                    ? CompatReportOptionsActivity.class : ReportOptionsActivity.class;
-            // start new activity
-            Intent intent = new Intent();
-            intent.setClass(BaseRepositoryActivity.this, clazz);
-            intent.putExtra(BaseReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
-            intent.putExtra(BaseReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
-            startActivity(intent);
-        }
-    }
 
 }

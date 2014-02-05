@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -65,9 +65,9 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
 
     protected int offset, total;
     protected boolean forceUpdate;
-    protected Menu optionsMenu;
-    private MenuItem searchItem;
 
+    private Menu optionsMenu;
+    private MenuItem searchItem;
     private boolean refreshing;
     private View progressView;
 

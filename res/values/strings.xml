@@ -109,6 +109,8 @@
     <string name="r_cm_remove_from_favorites">Remove from favorites</string>
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Running report…</string>
+    <!-- Error messages -->
+    <string name="r_error_server_not_supported">Server version is older than 5.0, which is not supported.</string>
 
 
     <!-- Search Activity -->

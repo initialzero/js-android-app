@@ -49,10 +49,8 @@ import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivit
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
-import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
-import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
-import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.*;
+import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -228,6 +226,11 @@ public class HomeActivity extends RoboSherlockActivity {
                     favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
                     startActivity(favoritesIntent);
                     break;
+                case R.id.home_item_saved_reports:
+                    Intent savedReportsIntent = new Intent();
+                    savedReportsIntent.setClass(this, SavedReportsActivity.class);
+                    startActivity(savedReportsIntent);
+                    break;
             }
         } else {
             // prepare the alert box
@@ -334,7 +337,7 @@ public class HomeActivity extends RoboSherlockActivity {
                 builder.setView(layout);
                 // define actions
                 builder.setCancelable(false)
-                       .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 JsServerProfile currentProfile = jsRestClient.getServerProfile();
 
@@ -344,12 +347,12 @@ public class HomeActivity extends RoboSherlockActivity {
 
                                 jsRestClient.setServerProfile(currentProfile);
                             }
-                       })
-                       .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                          }
-                       });
+                            }
+                        });
                 dialog = builder.create();
                 break;
             default:

@@ -40,6 +40,8 @@
     <string name="h_search_descr">Search for items in your repository</string>
     <string name="h_favorites_label">Favorites</string>
     <string name="h_favorites_descr">Browse and view favorite items</string>
+    <string name="h_saved_reports_label">Saved Reports</string>
+    <string name="h_saved_reports_descr">List of all saved reports</string>
     <string name="h_server_profile_label">"Server Profile: "</string>
     <string name="h_server_switched_toast">Server was switched to \"%s\"</string>
     <!-- Action Bar -->
@@ -152,6 +154,29 @@
 
     <!-- Favorites activity -->
     <string name="f_title">Favorites</string>
+
+
+    <!-- Saved Reports Activity -->
+    <string name="sdr_ab_title">Saved Reports</string>
+    <!-- Context Menu -->
+    <string name="sdr_cm_open">Open</string>
+    <string name="sdr_cm_rename">Rename</string>
+    <string name="sdr_cm_delete">Delete</string>
+    <!-- Rename Report Dialog -->
+    <string name="sdr_rrd_title">Rename report</string>
+    <string name="sdr_rrd_msg">Enter new name:</string>
+    <string name="sdr_rrd_hint">Report name</string>
+    <string name="sdr_rrd_error_name_is_empty">Can\'t be empty</string>
+    <string name="sdr_rrd_error_characters_not_allowed">Can\'t contain any of the following characters * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sdr_rrd_error_report_exists">File already exists</string>
+    <!-- Delete Report Dialog -->
+    <string name="sdr_drd_title">Delete report</string>
+    <string name="sdr_drd_msg">Do you really want to delete \"%s\"?</string>
+    <!-- Toasts -->
+    <string name="sdr_t_no_app_available">No \"%s\" viewer installed.</string>
+    <string name="sdr_t_report_renaming_error">Cannot rename report</string>
+    <string name="sdr_t_report_deletion_error">Cannot delete report</string>
+
 
     <!-- Settings activity -->
     <string name="st_title">Settings</string>

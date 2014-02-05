@@ -96,6 +96,9 @@
         <!-- Activity that performs viewing of the favorite items -->
         <activity android:name=".activities.repository.FavoritesActivity" />
 
+        <!-- Activity that performs viewing of the saved reports -->
+        <activity android:name=".activities.storage.SavedReportsActivity" />
+
         <!-- Activity that performs searches based on a query string and presents the search results-->
         <activity android:name=".activities.repository.SearchActivity"
             android:launchMode="singleTop" >
@@ -116,6 +119,11 @@
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity android:name=".activities.viewer.html.ReportHtmlViewerActivity"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
+        />
+
+        <!-- Activity that performs report viewing in HTML format -->
+        <activity android:name=".activities.viewer.html.SavedReportHtmlViewerActivity"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
         />
 

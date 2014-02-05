@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,7 +26,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/pwdDialogLayoutRoot"
     android:orientation="vertical"
-    style="@style/home.dialog.layout" >
+    style="@style/dialog.layout" >
 
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
         style="@style/home.dialog.table.layout" >

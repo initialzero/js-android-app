@@ -185,6 +185,10 @@
                     <item name="android:src">@drawable/ic_ha_servers</item>
                 </style>
 
+                <style name="home.list.item.icon.savedReports">
+                    <item name="android:src">@drawable/ic_ha_saved_reports</item>
+                </style>
+
             <style name="home.list.item.txtContainer" />
 
             <style name="home.list.item.txtContainer.layout">
@@ -232,12 +236,6 @@
         </style>
 
     <style name="home.dialog" />
-
-        <style name="home.dialog.layout">
-            <item name="android:layout_width">fill_parent</item>
-            <item name="android:layout_height">fill_parent</item>
-            <item name="android:padding">10dp</item>
-        </style>
 
         <style name="home.dialog.table" />
 
@@ -452,5 +450,37 @@
         <item name="displayOptions">showCustom</item>
         <item name="android:displayOptions">showCustom</item>
     </style>
+
+    <!-- Dialogs -->
+    <style name="dialog" />
+
+        <style name="dialog.layout">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">fill_parent</item>
+            <item name="android:padding">10dp</item>
+        </style>
+
+        <style name="dialog.editText">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">fill_parent</item>
+        </style>
+
+        <style name="dialog.textView">
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:layout_width">wrap_content</item>
+            <item name="android:layout_marginTop">2dp</item>
+            <item name="android:layout_marginLeft">5dp</item>
+            <item name="android:layout_marginRight">5dp</item>
+            <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        </style>
+
+            <style name="dialog.textView.label">
+                <item name="android:textStyle">bold</item>>
+            </style>
+
+            <style name="dialog.textView.error">
+                <item name="android:visibility">gone</item>
+                <item name="android:textColor">@color/red</item>
+            </style>
 
 </resources>

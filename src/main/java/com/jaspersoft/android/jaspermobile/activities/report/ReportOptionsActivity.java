@@ -47,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
@@ -61,7 +62,6 @@ import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -258,13 +258,14 @@ public class ReportOptionsActivity extends RoboSherlockActivity {
     }
 
     private void runReport() {
-        List<ReportParameter> parameters = initParametersUsingSelectedValues();
+        String reportTitle = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
+        ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
         saveParametersToDatabase(parameters);
-        runReportViewer(parameters);
+        runReportViewer(reportUri, reportTitle, parameters);
     }
 
-    private List<ReportParameter> initParametersUsingSelectedValues() {
-        List<ReportParameter> parameters = new ArrayList<ReportParameter>();
+    private ArrayList<ReportParameter> initParametersUsingSelectedValues() {
+        ArrayList<ReportParameter> parameters = new ArrayList<ReportParameter>();
         for (InputControl inputControl : inputControls) {
             parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
         }
@@ -285,51 +286,13 @@ public class ReportOptionsActivity extends RoboSherlockActivity {
         }
     }
 
-    private void runReportViewer(List<ReportParameter> parameters) {
-        String outputFormat = formatSpinner.getSelectedItem().toString();
-        String reportUrl = jsRestClient.generateReportUrl(reportUri, parameters, outputFormat);
-        if (RUN_OUTPUT_FORMAT_HTML.equalsIgnoreCase(outputFormat)) {
-            runHtmlReportViewer(reportUrl);
-        } else {
-            runExternalReportViewer(reportUrl, outputFormat);
-        }
-    }
-
-    private void runHtmlReportViewer(String reportUrl) {
+    private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
         Intent htmlViewer = new Intent();
         htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
-        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL, reportUrl);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, reportUri);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, reportLabel);
+        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS, parameters);
         startActivity(htmlViewer);
-    }
-
-    private void runExternalReportViewer(String reportUrl, String outputFormat) {
-        // generate report output according to selected format
-        String contentType, extension;
-        if (RUN_OUTPUT_FORMAT_PDF.equalsIgnoreCase(outputFormat)) {
-            contentType = "application/pdf";
-            extension = ".pdf";
-        } else {
-            contentType = "application/xls";
-            extension = ".xls";
-        }
-        File outputDir = getReportOutputCacheDir();
-        File outputFile = new File(outputDir, reportUri + extension);
-        // get the report output file and save it to cache folder
-        jsRestClient.saveReportOutputToFile(reportUrl, outputFile);
-        if (outputFile.exists()) {
-            // run external viewer according to selected output format
-            Uri path = Uri.fromFile(outputFile);
-            Intent externalViewer = new Intent(Intent.ACTION_VIEW);
-            externalViewer.setDataAndType(path, contentType);
-            externalViewer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            try {
-                startActivity(externalViewer);
-            }
-            catch (ActivityNotFoundException e) {
-                // show notification if no app available to open selected format
-                Toast.makeText(this, getString(R.string.ro_no_app_available_toast, formatSpinner.getSelectedItem().toString()), Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     private void hideAllValidationMessages() {

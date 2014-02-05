@@ -41,19 +41,6 @@
                 style="@style/reportOptions.container.inputControls.layout"
             />
 
-            <!-- Report output formats -->
-            <TextView
-                android:id="@+id/ic_text_label"
-                style="@style/reportOptions.container.reportOutputFormat.label"
-                android:text="@string/ro_output_format_label"
-            />
-
-            <Spinner
-                android:id="@+id/report_format_spinner"
-                style="@style/reportOptions.container.reportOutputFormat.spinner"
-                android:prompt="@string/ro_output_format_label"
-            />
-
             <!-- Run report button -->
             <Button
                 android:id="@+id/runReportButton"

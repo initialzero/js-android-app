@@ -68,8 +68,10 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     // Action Bar IDs
     private static final int ID_AB_SETTINGS = 30;
 
-    @InjectView(R.id.nothingToDisplayText)      protected TextView nothingToDisplayText;
-    @InjectView(android.R.id.list)              protected ListView listView;
+    @InjectView(R.id.nothingToDisplayText)
+    protected TextView nothingToDisplayText;
+    @InjectView(android.R.id.list)
+    protected ListView listView;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -103,7 +105,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 runReport(resource.getLabel(), resource.getUri());
                 break;
             case dashboard:
-                runDashboard(resource.getUri());
+                runDashboard(resource.getUri(), resource.getLabel());
                 break;
             default:
                 viewResource(resource.getUri());
@@ -209,7 +211,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                         runReport(resourceLookup.getLabel(), resourceLookup.getUri());
                         break;
                     case dashboard:
-                        runDashboard(resourceLookup.getUri());
+                        runDashboard(resourceLookup.getUri(), resourceLookup.getLabel());
                         break;
                 }
                 return true;
@@ -260,17 +262,13 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
         startActivity(intent);
     }
 
-    private void runDashboard(String dashboardUri) {
-        // generate url
-        String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
-                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
-                + dashboardUri;
+    private void runDashboard(String dashboardUri, String dashboardLabel) {
         // run the html dashboard viewer
         Intent htmlViewer = new Intent();
         htmlViewer.setClass(this, DashboardHtmlViewerActivity.class);
-        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL, dashboardUrl);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, dashboardUri);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, dashboardLabel);
         startActivity(htmlViewer);
     }
-
 
 }

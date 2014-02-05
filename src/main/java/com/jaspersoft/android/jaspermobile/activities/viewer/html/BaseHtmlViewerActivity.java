@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -35,11 +35,14 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import com.actionbarsherlock.view.Menu;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import roboguice.activity.RoboActivity;
+import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.octo.android.robospice.SpiceManager;
 import roboguice.inject.InjectView;
 
 import java.util.HashMap;
@@ -48,10 +51,11 @@ import java.util.HashMap;
  * @author Ivan Gadzhega
  * @since 1.4
  */
-public abstract class BaseHtmlViewerActivity extends RoboActivity {
+public abstract class BaseHtmlViewerActivity extends RoboSherlockActivity {
 
     // Extras
-    public static final String EXTRA_RESOURCE_URL = "BaseHtmlViewerActivity.EXTRA_RESOURCE_URL";
+    public static final String EXTRA_RESOURCE_URI = "BaseHtmlViewerActivity.EXTRA_RESOURCE_URI";
+    public static final String EXTRA_RESOURCE_LABEL = "BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL";
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -61,10 +65,22 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
     protected ProgressBar progressBar;
     protected WebView webView;
 
+    protected String resourceUri;
+    protected String resourceLabel;
+
+    protected SpiceManager serviceManager;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.html_viewer_layout);
+
+        serviceManager = new SpiceManager(JsXmlSpiceService.class);
+
+        initDataFromExtras();
+
+        getSupportActionBar().setTitle(resourceLabel);
+
         initWebView();
     }
 
@@ -88,6 +104,59 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
         webView.restoreState(savedInstanceState);
     }
 
+    protected void initDataFromExtras() {
+        Bundle extras = getIntent().getExtras();
+        resourceUri = extras.getString(EXTRA_RESOURCE_URI);
+        resourceLabel = extras.getString(EXTRA_RESOURCE_LABEL);
+    }
+
+    protected void loadUrl(String url) {
+        // basic auth
+        HashMap<String, String> map = new HashMap<String, String>();
+        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        String authorisation = serverProfile.getUsernameWithOrgId() + ":" + serverProfile.getPassword();
+        String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
+        map.put("Authorization", encodedAuthorisation);
+        // load url
+        webView.loadUrl(url, map);
+    }
+
+    protected abstract void loadDataToWebView();
+
+    @Override
+    protected void onStart() {
+        serviceManager.start(this);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        serviceManager.shouldStop();
+        super.onStop();
+    }
+
+    //---------------------------------------------------------------------
+    // Options Menu
+    //---------------------------------------------------------------------
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -103,10 +172,10 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
         webView = new WebView(this, null, R.style.htmlViewer_webView);
         prepareWebView();
         setWebViewClient();
-        loadUrl();
+        loadDataToWebView();
     }
 
-    protected void setWebViewClient() {
+    private void setWebViewClient() {
         webView.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
                 // fade in
@@ -117,7 +186,7 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
                 }
                 // update value
                 int maxProgress = progressBar.getMax();
-                progressBar.setProgress((maxProgress/100) * progress);
+                progressBar.setProgress((maxProgress / 100) * progress);
                 // fade out
                 if (progress == maxProgress) {
                     AlphaAnimation fadeOutAnimation = new AlphaAnimation(1.0f, 0.0f);
@@ -141,19 +210,6 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setBuiltInZoomControls(true);
-    }
-
-    private void loadUrl() {
-        //get resource url from the intent extras
-        String url = getIntent().getExtras().getString(EXTRA_RESOURCE_URL);
-        // basic auth
-        HashMap<String, String> map = new HashMap<String, String>();
-        JsServerProfile serverProfile = jsRestClient.getServerProfile();
-        String authorisation = serverProfile.getUsernameWithOrgId() + ":" + serverProfile.getPassword();
-        String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
-        map.put("Authorization", encodedAuthorisation);
-        // load url
-        webView.loadUrl(url, map);
     }
 
 }

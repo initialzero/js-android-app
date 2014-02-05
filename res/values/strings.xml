@@ -129,16 +129,7 @@
 
 
     <!-- Report Options Activity -->
-    <string name="ro_output_format_label">Report Output Format:</string>
     <string name="ro_run_report_btn">Run Report</string>
-    <!-- Notifications -->
-    <string name="ro_no_app_available_toast">No \"%s\" viewer installed.</string>
-    <!-- Progress Dialog -->
-    <string name="ro_pd_loading_report_info_msg">Loading report…</string>
-    <string name="ro_pd_running_report_msg">Running report…</string>
-    <string name="ro_pd_downloading_report_msg">Downloading report…</string>
-    <!-- Error messages -->
-    <string name="ro_error_field_is_mandatory">This field is required.</string>
 
 
     <!-- Favorites activity -->

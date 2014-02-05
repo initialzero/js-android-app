@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -363,22 +363,6 @@
             <item name="android:layout_width">fill_parent</item>
             <item name="android:layout_height">wrap_content</item>
         </style>
-
-        <style name="reportOptions.container.reportOutputFormat" />
-
-            <style name="reportOptions.container.reportOutputFormat.label">
-                <item name="android:layout_margin">5dp</item>
-                <item name="android:textStyle">bold</item>
-                <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-                <item name="android:layout_width">wrap_content</item>
-                <item name="android:layout_height">wrap_content</item>
-                <item name="android:textColor">@color/js_blue</item>
-            </style>
-
-            <style name="reportOptions.container.reportOutputFormat.spinner">
-                <item name="android:layout_width">fill_parent</item>
-                <item name="android:layout_height">wrap_content</item>
-            </style>
 
     <style name="reportOptions.button">
         <item name="android:layout_marginTop">25dp</item>

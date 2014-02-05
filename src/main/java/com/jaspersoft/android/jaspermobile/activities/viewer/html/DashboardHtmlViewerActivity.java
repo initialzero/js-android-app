@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -49,6 +49,15 @@ public class DashboardHtmlViewerActivity extends BaseHtmlViewerActivity {
         int padding_2dp = (int) (2 * scale + 0.5f);
         // set padding in dp for layout
         layout.setPadding(padding_2dp, padding_2dp, padding_2dp, padding_2dp);
+    }
+
+    @Override
+    protected void loadDataToWebView() {
+        String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
+                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
+                + resourceUri;
+
+        loadUrl(dashboardUrl);
     }
 
 }

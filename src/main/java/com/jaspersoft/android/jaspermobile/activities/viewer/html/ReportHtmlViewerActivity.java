@@ -24,7 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.content.Intent;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
@@ -45,6 +50,11 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
     // Extras
     public static final String EXTRA_REPORT_PARAMETERS = "ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS";
 
+    // Action Bar IDs
+    private static final int ID_AB_SAVE_AS = 34;
+
+    private Menu optionsMenu;
+
     private ArrayList<ReportParameter> reportParameters;
 
     @Override
@@ -61,6 +71,51 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
     }
 
     //---------------------------------------------------------------------
+    // Options Menu
+    //---------------------------------------------------------------------
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        optionsMenu = menu;
+
+        MenuItem saveAsItem = menu.add(Menu.NONE, ID_AB_SAVE_AS, Menu.NONE, R.string.rv_ab_save_report);
+        saveAsItem.setIcon(R.drawable.ic_action_save);
+        saveAsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        saveAsItem.setActionView(R.layout.actionbar_indeterminate_progress);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        switch (item.getItemId()) {
+            case ID_AB_SAVE_AS:
+                Intent saveReport = new Intent();
+                saveReport.setClass(this, SaveReportActivity.class);
+                saveReport.putExtra(EXTRA_RESOURCE_URI, resourceUri);
+                saveReport.putExtra(EXTRA_RESOURCE_LABEL, resourceLabel);
+                saveReport.putExtra(EXTRA_REPORT_PARAMETERS, reportParameters);
+                startActivity(saveReport);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    protected void setRefreshActionButtonState(boolean refreshing) {
+        if (optionsMenu == null) return;
+
+        final MenuItem refreshItem = optionsMenu.findItem(ID_AB_SAVE_AS);
+        if (refreshItem != null) {
+            if (refreshing) {
+                refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+            } else {
+                refreshItem.setActionView(null);
+            }
+        }
+    }
+
+    //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
 
@@ -69,6 +124,7 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, ReportHtmlViewerActivity.this, false);
+            setRefreshActionButtonState(false);
         }
 
         @Override
@@ -77,6 +133,8 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
             String exportOutput = response.getExports().get(0).getId();
             URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
             loadUrl(reportUri.toString());
+
+            setRefreshActionButtonState(false);
         }
     }
 

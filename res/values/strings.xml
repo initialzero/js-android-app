@@ -134,6 +134,22 @@
     <string name="ro_run_report_btn">Run Report</string>
 
 
+    <!-- Report Viewer Activity -->
+    <string name="rv_ab_save_report">Save Report</string>
+
+
+    <!-- Save Report Activity -->
+    <string name="sr_ab_title">Save Report</string>
+    <string name="sr_report_name">Report Name</string>
+    <string name="sr_output_format">Output Format</string>
+    <string name="sr_save_report_btn">Save</string>
+    <!-- Toasts -->
+    <string name="sr_t_report_saved">Report saved successfully</string>
+    <!-- Error messages -->
+    <string name="sr_error_field_is_empty">Can\'t be empty</string>
+    <string name="sr_error_characters_not_allowed">Can\'t contain any of the following characters * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+
+
     <!-- Favorites activity -->
     <string name="f_title">Favorites</string>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -123,6 +123,9 @@
         <activity android:name=".activities.viewer.html.DashboardHtmlViewerActivity"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
         />
+
+        <!-- Activity that performs report saving to the local storage -->
+        <activity android:name=".activities.report.SaveReportActivity" />
 
         <!-- Activity that allows to specify the application settings -->
         <activity android:name=".activities.SettingsActivity" />

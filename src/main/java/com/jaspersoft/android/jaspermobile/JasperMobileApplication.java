@@ -38,6 +38,8 @@ import java.net.CookiePolicy;
  */
 public class JasperMobileApplication extends Application {
 
+    public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+
     @Override
     public void onCreate() {
         // Sync cookies between HttpURLConnection and WebView

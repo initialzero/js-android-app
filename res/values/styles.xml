@@ -391,6 +391,50 @@
         <item name="android:layout_marginTop">-6dp</item>
     </style>
 
+    <!-- Save Report Layout -->
+    <style name="saveReport" />
+
+    <style name="saveReport.scrollView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:fillViewport">true</item>
+    </style>
+
+    <style name="saveReport.layout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="saveReport.reportName" />
+
+        <style name="saveReport.reportName.label" parent="inputControl.label" />
+        <style name="saveReport.reportName.input" parent="inputControl.singleValue.editText" />
+        <style name="saveReport.reportName.error" parent="inputControl.errorText" />
+
+    <style name="saveReport.outputFormat" />
+
+        <style name="saveReport.outputFormat.label">
+            <item name="android:layout_margin">5dp</item>
+            <item name="android:textStyle">bold</item>
+            <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+            <item name="android:layout_width">wrap_content</item>
+            <item name="android:layout_height">wrap_content</item>
+            <item name="android:textColor">@color/js_blue</item>
+        </style>
+
+        <style name="saveReport.outputFormat.spinner">
+            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_height">wrap_content</item>
+        </style>
+
+    <style name="saveReport.button">
+        <item name="android:layout_marginTop">25dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
     <!-- Actionbar Sherlock -->
     <style name="Theme.JasperMobile" parent="Theme.Sherlock.Light" />
     <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="Widget.Sherlock.ProgressBar.Horizontal" />

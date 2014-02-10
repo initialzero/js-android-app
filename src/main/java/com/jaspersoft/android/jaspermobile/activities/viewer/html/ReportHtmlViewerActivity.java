@@ -25,14 +25,17 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.content.Intent;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -59,9 +62,8 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
 
     @Override
     protected void loadDataToWebView() {
-        // run new report execution
-        RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient, resourceUri, "HTML", reportParameters);
-        serviceManager.execute(request, new RunReportExecutionListener());
+        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+        serviceManager.execute(request, new GetServerInfoListener());
     }
 
     @Override
@@ -119,12 +121,36 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener implements RequestListener<ReportExecutionResponse> {
+    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            RequestExceptionHandler.handle(e, ReportHtmlViewerActivity.this, true);
+        }
 
         @Override
+        public void onRequestSuccess(ServerInfo serverInfo) {
+            String outputFormat = "HTML";
+            int currentVersion = serverInfo.getVersionCode();
+            // run new report execution
+            if (currentVersion >= ServerInfo.VERSION_CODES.EMERALD_MR1) {
+                // POST
+                RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient,
+                        resourceUri, outputFormat, reportParameters);
+                serviceManager.execute(request, new RunReportExecutionListener());
+            } else {
+                // GET
+                String reportUrl =
+                        jsRestClient.generateReportUrl(resourceUri, reportParameters, outputFormat);
+                loadUrl(reportUrl);
+                setRefreshActionButtonState(false);
+            }
+        }
+    }
+
+    private class RunReportExecutionListener implements RequestListener<ReportExecutionResponse> {
+        @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, ReportHtmlViewerActivity.this, false);
-            setRefreshActionButtonState(false);
+            RequestExceptionHandler.handle(exception, ReportHtmlViewerActivity.this, true);
         }
 
         @Override

@@ -152,6 +152,7 @@
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">Can\'t be empty</string>
     <string name="sr_error_characters_not_allowed">Can\'t contain any of the following characters * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sr_error_report_exists">A report with this name already exists</string>
 
 
     <!-- Favorites activity -->
@@ -170,7 +171,7 @@
     <string name="sdr_rrd_hint">Report name</string>
     <string name="sdr_rrd_error_name_is_empty">Can\'t be empty</string>
     <string name="sdr_rrd_error_characters_not_allowed">Can\'t contain any of the following characters * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sdr_rrd_error_report_exists">File already exists</string>
+    <string name="sdr_rrd_error_report_exists">A report with this name already exists</string>
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">Delete report</string>
     <string name="sdr_drd_msg">Do you really want to delete \"%s\"?</string>

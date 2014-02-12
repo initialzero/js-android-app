@@ -27,7 +27,12 @@ package com.jaspersoft.android.jaspermobile.activities.report;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
@@ -50,11 +55,12 @@ import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import roboguice.inject.InjectView;
+import roboguice.util.Ln;
 
 /**
  * @author Ivan Gadzhega
@@ -107,16 +113,25 @@ public class SaveReportActivity extends RoboSherlockActivity {
     public void saveReportButtonClickHandler(View view) {
         if (isReportNameValid()) {
             OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
-            String reportUri = getIntent().getExtras().getString(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI);
-            ArrayList<ReportParameter> parameters =
-                    getIntent().getExtras().getParcelableArrayList(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS);
+            String reportName = reportNameInput.getText() + "." + outputFormat;
+            File reportFile = new File(getReportDir(reportName), reportName);
 
-            // run new report execution
-            RunReportExecutionRequest request =
-                    new RunReportExecutionRequest(jsRestClient, reportUri, outputFormat.toString(), parameters, false, "./");
-            serviceManager.execute(request, new RunReportExecutionListener(outputFormat));
+            if (reportFile.exists()) {
+                // show validation message
+                reportNameInput.setError(getString(R.string.sr_error_report_exists));
+            } else {
+                // save report
+                String reportUri = getIntent().getExtras().getString(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI);
+                ArrayList<ReportParameter> parameters =
+                        getIntent().getExtras().getParcelableArrayList(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS);
 
-            setRefreshActionButtonState(true);
+                // run new report execution
+                RunReportExecutionRequest request =
+                        new RunReportExecutionRequest(jsRestClient, reportUri, outputFormat.toString(), parameters, false, "./");
+                serviceManager.execute(request, new RunReportExecutionListener(reportFile, outputFormat));
+
+                setRefreshActionButtonState(true);
+            }
         }
     }
 
@@ -228,9 +243,11 @@ public class SaveReportActivity extends RoboSherlockActivity {
 
     private class RunReportExecutionListener implements RequestListener<ReportExecutionResponse> {
 
+        private File reportFile;
         private OutputFormat outputFormat;
 
-        private RunReportExecutionListener(OutputFormat outputFormat) {
+        private RunReportExecutionListener(File reportFile, OutputFormat outputFormat) {
+            this.reportFile = reportFile;
             this.outputFormat = outputFormat;
         }
 
@@ -246,11 +263,6 @@ public class SaveReportActivity extends RoboSherlockActivity {
             String exportOutput = execution.getId();
             String executionId = response.getRequestId();
 
-            String extension = "." + outputFormat;
-            String reportName = reportNameInput.getText() + extension;
-
-            File reportFile = new File(getReportDir(reportName), reportName);
-
             // save report file
             SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient, executionId, exportOutput, reportFile);
             serviceManager.execute(outputRequest, new SaveFileListener());
@@ -259,7 +271,7 @@ public class SaveReportActivity extends RoboSherlockActivity {
             if (OutputFormat.HTML == outputFormat) {
                 for (ReportOutputResource attachment : execution.getAttachments()) {
                     String attachmentName = attachment.getFileName();
-                    File attachmentFile = new File(getReportDir(reportName), attachmentName);
+                    File attachmentFile = new File(reportFile.getParentFile(), attachmentName);
 
                     SaveExportAttachmentRequest attachmentRequest = new SaveExportAttachmentRequest(jsRestClient,
                             executionId, exportOutput, attachmentName, attachmentFile);

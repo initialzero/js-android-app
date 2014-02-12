@@ -227,14 +227,16 @@ public class SavedReportsActivity extends RoboSherlockListActivity {
                 b.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String extension = FileUtils.getExtension(selectedFile.getName());
-                        String newFileName = reportNameEdit.getText().toString() + "." + extension;
+                        String newReportName = reportNameEdit.getText().toString().trim();
 
-                        if (newFileName.isEmpty()) {
+                        if (newReportName.isEmpty()) {
                             reportNameError.setText(R.string.sdr_rrd_error_name_is_empty);
                             reportNameError.setVisibility(View.VISIBLE);
                             return;
                         }
+
+                        String extension = FileUtils.getExtension(selectedFile.getName());
+                        String newFileName = newReportName + "." + extension;
 
                         if (FileUtils.nameContainsReservedChars(newFileName)) {
                             reportNameError.setText(R.string.sdr_rrd_error_characters_not_allowed);

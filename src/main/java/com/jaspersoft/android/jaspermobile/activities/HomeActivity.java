@@ -31,7 +31,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -42,17 +41,21 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.activities.repository.*;
+import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
@@ -61,9 +64,10 @@ import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import roboguice.inject.InjectView;
 
 import java.util.ArrayList;
+
+import roboguice.inject.InjectView;
 
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
@@ -83,9 +87,6 @@ public class HomeActivity extends RoboSherlockActivity {
     public static final int RC_SWITCH_SERVER_PROFILE = 21;
     // Dialog IDs
     protected static final int ID_D_ASK_PASSWORD = 30;
-    // Preferences
-    protected static final String PREFS_NAME = "RepositoryBrowser.SharedPreferences";
-    protected static final String PREFS_CURRENT_SERVER_PROFILE_ID = "CURRENT_SERVER_PROFILE_ID";
 
     @InjectView(R.id.profile_name_text)
     private TextView profileNameText;
@@ -100,37 +101,19 @@ public class HomeActivity extends RoboSherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Restore preferences
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        // restore server profile data
-        long rowId = prefs.getLong(PREFS_CURRENT_SERVER_PROFILE_ID, -1);
-
         // Get the database provider
         dbProvider = new DatabaseProvider(this);
-        // Get a cursor with current server profile
-        Cursor cursor = dbProvider.fetchServerProfile(rowId);
-        startManagingCursor(cursor);
-
         // bind to service
         serviceManager = new SpiceManager(JsXmlSpiceService.class);
 
         setContentView(R.layout.home_layout);
-
         getSupportActionBar().setCustomView(R.layout.home_header_logo);
 
-        // set timeouts
-        int connectTimeout = SettingsActivity.getConnectTimeoutValue(this);
-        int readTimeout = SettingsActivity.getReadTimeoutValue(this);
-        jsRestClient.setConnectTimeout(connectTimeout * 1000);
-        jsRestClient.setReadTimeout(readTimeout * 1000);
-
-        // check if the server profile exists in db
-        if (cursor.getCount() != 0) {
-            setCurrentServerProfile(rowId);
-            profileNameText.setText(jsRestClient.getServerProfile().getAlias());
-
+        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        if (serverProfile != null) {
+            profileNameText.setText(serverProfile.getAlias());
             //  savedInstanceState is null on first start, non-null on restart
-            if (savedInstanceState == null && jsRestClient.getServerProfile().getPassword().length() == 0) {
+            if (savedInstanceState == null && serverProfile.getPassword().length() == 0) {
                 showDialog(ID_D_ASK_PASSWORD);
             }
         } else {
@@ -281,7 +264,7 @@ public class HomeActivity extends RoboSherlockActivity {
                     rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
 
                     // update current profile
-                    setCurrentServerProfile(rowId);
+                    JasperMobileApplication.setCurrentServerProfile(jsRestClient, dbProvider, rowId);
 
                     // check if the password is not specified
                     if (jsRestClient.getServerProfile().getPassword().length() == 0) {
@@ -298,13 +281,13 @@ public class HomeActivity extends RoboSherlockActivity {
                     rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
 
                     // put new server profile id to shared prefs
-                    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                    SharedPreferences prefs = getSharedPreferences(JasperMobileApplication.PREFS_NAME, MODE_PRIVATE);
                     // we need an Editor object to make preference changes.
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putLong(PREFS_CURRENT_SERVER_PROFILE_ID, rowId);
+                    editor.putLong(JasperMobileApplication.PREFS_CURRENT_SERVER_PROFILE_ID, rowId);
                     editor.commit();
 
-                    setCurrentServerProfile(rowId);
+                    JasperMobileApplication.setCurrentServerProfile(jsRestClient, dbProvider, rowId);
 
                     // check if the password is not specified
                     if (jsRestClient.getServerProfile().getPassword().length() == 0) {
@@ -414,28 +397,6 @@ public class HomeActivity extends RoboSherlockActivity {
         // close any open database object
         if (dbProvider != null) dbProvider.close();
         super.onDestroy();
-    }
-
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
-
-    private void setCurrentServerProfile(long rowId) {
-        // Get a cursor with server profile
-        Cursor cursor = dbProvider.fetchServerProfile(rowId);
-        startManagingCursor(cursor);
-
-        // Retrieve the column indexes for that particular server profile
-        int aliasId = cursor.getColumnIndex(ServerProfiles.KEY_ALIAS);
-        int urlId = cursor.getColumnIndex(ServerProfiles.KEY_SERVER_URL);
-        int orgId = cursor.getColumnIndex(ServerProfiles.KEY_ORGANIZATION);
-        int usrId = cursor.getColumnIndex(ServerProfiles.KEY_USERNAME);
-        int pwdId = cursor.getColumnIndex(ServerProfiles.KEY_PASSWORD);
-
-        JsServerProfile serverProfile = new JsServerProfile(rowId, cursor.getString(aliasId),
-                cursor.getString(urlId), cursor.getString(orgId), cursor.getString(usrId), cursor.getString(pwdId));
-
-        jsRestClient.setServerProfile(serverProfile);
     }
 
     //---------------------------------------------------------------------

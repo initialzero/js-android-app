@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.activities.report;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -217,7 +216,7 @@ public class SaveReportActivity extends RoboSherlockActivity {
     }
 
     private File getReportDir(String reportName) {
-        File appFilesDir = (isExternalStorageWritable()) ? getExternalFilesDir(null) : getFilesDir();
+        File appFilesDir = getExternalFilesDir(null);
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
         File reportDir = new File(savedReportsDir, reportName);
 
@@ -226,15 +225,6 @@ public class SaveReportActivity extends RoboSherlockActivity {
         }
 
         return reportDir;
-    }
-
-    /**
-     * Helper Method to Test if external Storage is Available
-     * @return <code>true</code> if storage is writable, <code>false</code> otherwise
-     */
-    private boolean isExternalStorageWritable() {
-        String extStorageState = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(extStorageState);
     }
 
     //---------------------------------------------------------------------

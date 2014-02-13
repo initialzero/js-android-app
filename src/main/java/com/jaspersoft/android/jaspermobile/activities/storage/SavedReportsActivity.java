@@ -359,7 +359,7 @@ public class SavedReportsActivity extends RoboSherlockListActivity {
     }
 
     private File getSavedReportsDir() {
-        File appFilesDir = (FileUtils.isExternalStorageWritable()) ? getExternalFilesDir(null) : getFilesDir();
+        File appFilesDir = getExternalFilesDir(null);
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
 
         if (!savedReportsDir.exists() && !savedReportsDir.mkdirs()){

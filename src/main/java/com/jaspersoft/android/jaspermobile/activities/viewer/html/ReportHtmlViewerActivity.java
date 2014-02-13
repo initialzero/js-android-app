@@ -37,6 +37,7 @@ import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRe
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -93,7 +94,13 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         switch (item.getItemId()) {
             case ID_AB_SAVE_AS:
-                if (serverVersion >= ServerInfo.VERSION_CODES.EMERALD_MR1) {
+                if (!FileUtils.isExternalStorageWritable()) {
+                    // storage not available
+                    Toast.makeText(ReportHtmlViewerActivity.this, R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
+                } else if (serverVersion < ServerInfo.VERSION_CODES.EMERALD_MR1) {
+                    // feature not supported
+                    Toast.makeText(ReportHtmlViewerActivity.this, R.string.rv_t_report_saving_not_supported, Toast.LENGTH_SHORT).show();
+                } else {
                     // save report
                     Intent saveReport = new Intent();
                     saveReport.setClass(this, SaveReportActivity.class);
@@ -101,9 +108,6 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
                     saveReport.putExtra(EXTRA_RESOURCE_LABEL, resourceLabel);
                     saveReport.putExtra(EXTRA_REPORT_PARAMETERS, reportParameters);
                     startActivity(saveReport);
-                } else {
-                    // feature not supported
-                    Toast.makeText(ReportHtmlViewerActivity.this, R.string.rv_t_report_saving_not_supported, Toast.LENGTH_SHORT).show();
                 }
                 return true;
             default:

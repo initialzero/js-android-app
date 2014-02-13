@@ -141,6 +141,7 @@
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
     <!-- Toasts -->
+    <string name="rv_t_external_storage_not_available">The external memory card is not available. Please mount the card and try again.</string>
     <string name="rv_t_report_saving_not_supported">This functionality is only available for JasperReports Server 5.2 or higher</string>
 
     <!-- Save Report Activity -->

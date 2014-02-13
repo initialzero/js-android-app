@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.content.Intent;
+import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -57,8 +58,8 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
     private static final int ID_AB_SAVE_AS = 34;
 
     private Menu optionsMenu;
-
     private ArrayList<ReportParameter> reportParameters;
+    private int serverVersion;
 
     @Override
     protected void loadDataToWebView() {
@@ -92,12 +93,18 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         switch (item.getItemId()) {
             case ID_AB_SAVE_AS:
-                Intent saveReport = new Intent();
-                saveReport.setClass(this, SaveReportActivity.class);
-                saveReport.putExtra(EXTRA_RESOURCE_URI, resourceUri);
-                saveReport.putExtra(EXTRA_RESOURCE_LABEL, resourceLabel);
-                saveReport.putExtra(EXTRA_REPORT_PARAMETERS, reportParameters);
-                startActivity(saveReport);
+                if (serverVersion >= ServerInfo.VERSION_CODES.EMERALD_MR1) {
+                    // save report
+                    Intent saveReport = new Intent();
+                    saveReport.setClass(this, SaveReportActivity.class);
+                    saveReport.putExtra(EXTRA_RESOURCE_URI, resourceUri);
+                    saveReport.putExtra(EXTRA_RESOURCE_LABEL, resourceLabel);
+                    saveReport.putExtra(EXTRA_REPORT_PARAMETERS, reportParameters);
+                    startActivity(saveReport);
+                } else {
+                    // feature not supported
+                    Toast.makeText(ReportHtmlViewerActivity.this, R.string.rv_t_report_saving_not_supported, Toast.LENGTH_SHORT).show();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -130,9 +137,9 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
         @Override
         public void onRequestSuccess(ServerInfo serverInfo) {
             String outputFormat = "HTML";
-            int currentVersion = serverInfo.getVersionCode();
+            serverVersion = serverInfo.getVersionCode();
             // run new report execution
-            if (currentVersion >= ServerInfo.VERSION_CODES.EMERALD_MR1) {
+            if (serverVersion >= ServerInfo.VERSION_CODES.EMERALD_MR1) {
                 // POST
                 RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient,
                         resourceUri, outputFormat, reportParameters);

@@ -140,7 +140,8 @@
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
-
+    <!-- Toasts -->
+    <string name="rv_t_report_saving_not_supported">This functionality is only available for JasperReports Server 5.2 or higher</string>
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">Save Report</string>

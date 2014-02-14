@@ -335,6 +335,7 @@ public class SavedReportsActivity extends RoboSherlockListActivity {
             });
             setListAdapter(arrayAdapter);
         } else {
+            setListAdapter(null);
             nothingToDisplayText.setText(R.string.r_browser_nothing_to_display);
         }
     }

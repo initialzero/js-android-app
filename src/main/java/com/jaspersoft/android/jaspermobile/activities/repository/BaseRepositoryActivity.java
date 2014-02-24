@@ -315,7 +315,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
             if (exception instanceof RequestCancelledException) {
                 Toast.makeText(BaseRepositoryActivity.this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
             } else {
-                RequestExceptionHandler.handle(exception, BaseRepositoryActivity.this, true);
+                RequestExceptionHandler.handle(exception, BaseRepositoryActivity.this, false);
                 progressDialog.dismiss();
             }
         }

@@ -115,7 +115,9 @@
         <activity android:name=".activities.resource.ResourceInfoActivity" />
 
         <!-- Activity that allows to specify the report options before running it -->
-        <activity android:name=".activities.report.ReportOptionsActivity" />
+        <activity android:name=".activities.report.ReportOptionsActivity"
+            android:windowSoftInputMode="stateHidden"
+        />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity android:name=".activities.viewer.html.ReportHtmlViewerActivity"
@@ -133,7 +135,9 @@
         />
 
         <!-- Activity that performs report saving to the local storage -->
-        <activity android:name=".activities.report.SaveReportActivity" />
+        <activity android:name=".activities.report.SaveReportActivity"
+            android:windowSoftInputMode="stateHidden"
+        />
 
         <!-- Activity that allows to specify the application settings -->
         <activity android:name=".activities.SettingsActivity" />

@@ -26,12 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.report;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.Toast;
-
+import android.widget.*;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
@@ -54,12 +49,11 @@ import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+import roboguice.inject.InjectView;
+import roboguice.util.Ln;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 
 /**
  * @author Ivan Gadzhega
@@ -107,6 +101,14 @@ public class SaveReportActivity extends RoboSherlockActivity {
                 OutputFormat.values());
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         formatSpinner.setAdapter(arrayAdapter);
+        formatSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                reportNameInput.setError(null);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
     }
 
     public void saveReportButtonClickHandler(View view) {

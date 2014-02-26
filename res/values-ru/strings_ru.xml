@@ -25,15 +25,20 @@
 
 <resources>
 
+    <!-- Action Bar -->
+    <string name="ab_settings">Настройки</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">Репозиторий</string>
-    <string name="h_repository_descr">Обзор и просмотр элементов репозитория.</string>
+    <string name="h_repository_descr">Просмотр элементов репозитория.</string>
     <string name="h_library_label">Библиотека</string>
     <string name="h_library_descr">Список всех отчетов.</string>
     <string name="h_search_label">Поиск</string>
     <string name="h_search_descr">Поиск ресурсов в вашем репозитории.</string>
     <string name="h_favorites_label">Избранное</string>
-    <string name="h_favorites_descr">Обзор и просмотр избранных элементов.</string>
+    <string name="h_favorites_descr">Просмотр избранных элементов.</string>
+    <string name="h_saved_reports_label">Сохраненные отчеты</string>
+    <string name="h_saved_reports_descr">Список всех сохраненных отчетов</string>
     <string name="h_server_profile_label">"Профиль Сервера: "</string>
     <string name="h_server_switched_toast">Сервер был изменен на \"%s\".</string>
     <!-- Action Bar -->
@@ -84,7 +89,7 @@
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">В этой папке нет ресурсов.</string>
     <string name="r_search_nothing_to_display">Ничего не найдено.</string>
-    <!--Action Bar -->
+    <!-- Action Bar -->
     <string name="r_ab_favorites">Избранное</string>
     <string name="r_ab_search">Поиск</string>
     <string name="r_ab_refresh">Обновить</string>
@@ -94,11 +99,20 @@
     <string name="r_cm_view_details">Информация</string>
     <string name="r_cm_add_to_favorites">Добавить в избранное</string>
     <string name="r_cm_remove_from_favorites">Удалить из избранного</string>
+    <!-- Progress Dialog -->
+    <string name="r_pd_running_report_msg">Запуск отчета…</string>
+    <!-- Error messages -->
+    <string name="r_error_server_not_supported">Недопустимый URL или версия сервера старее чем 5.0 (не поддерживается).</string>
 
 
     <!-- Search Activity -->
     <string name="s_title">Результаты Поиска</string>
     <string name="s_hint">Поиск ресурсов</string>
+    <!-- Action Bar -->
+    <string name="s_ab_filter_by">Сортировка</string>
+    <!-- Filter Dialog -->
+    <string name="s_fd_filter_by">Сортировка</string>
+    <string name="s_fd_option_all">Все</string>
 
 
     <!-- Resource Info Activity -->
@@ -111,20 +125,64 @@
 
 
     <!-- Report Options Activity -->
-    <string name="ro_output_format_label">Формат вывода отчета:</string>
     <string name="ro_run_report_btn">Выполнить Отчет</string>
-    <!-- Notifications -->
-    <string name="ro_no_app_available_toast">Не установлен просмотрщик для \"%s\".</string>
-    <!-- Progress Dialog -->
-    <string name="ro_pd_loading_report_info_msg">Загрузка отчета…</string>
-    <string name="ro_pd_running_report_msg">Выполнение отчета…</string>
-    <string name="ro_pd_downloading_report_msg">Скачивание отчета…</string>
+
+
+    <!-- Report Viewer Activity -->
+    <string name="rv_ab_save_report">Сохранить Отчет</string>
+    <!-- Toasts -->
+    <string name="rv_t_external_storage_not_available">Внешняя карта памяти недоступна. Пожалуйста, вставьте карту и попробуйте еще раз.</string>
+    <string name="rv_t_report_saving_not_supported">Этот функционал доступен только для JasperReports Server 5.2 и выше.</string>
+
+    <!-- Save Report Activity -->
+    <string name="sr_ab_title">Сохранить Отчет</string>
+    <string name="sr_report_name">Имя Отчета</string>
+    <string name="sr_output_format">Формат вывода</string>
+    <string name="sr_save_report_btn">Сохранить</string>
+    <!-- Toasts -->
+    <string name="sr_t_report_saved">Отчет успешно сохранен.</string>
     <!-- Error messages -->
-    <string name="ro_error_field_is_mandatory">Это поле обязательно.</string>
+    <string name="sr_error_field_is_empty">Не может быть пустым</string>
+    <string name="sr_error_characters_not_allowed">Не может содержать символов * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sr_error_report_exists">Отчет с таким именем уже существует</string>
 
 
     <!-- Favorites activity -->
     <string name="f_title">Избранное</string>
+
+
+    <!-- Saved Reports Activity -->
+    <string name="sdr_ab_title">Сохраненные отчеты</string>
+    <!-- Context Menu -->
+    <string name="sdr_cm_open">Открыть</string>
+    <string name="sdr_cm_rename">Переименовать</string>
+    <string name="sdr_cm_delete">Удалить</string>
+    <!-- Rename Report Dialog -->
+    <string name="sdr_rrd_title">Переименовать отчет</string>
+    <string name="sdr_rrd_msg">Введите новое имя:</string>
+    <string name="sdr_rrd_error_name_is_empty">Не может быть пустым</string>
+    <string name="sdr_rrd_error_characters_not_allowed">Не может содержать символов * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sdr_rrd_error_report_exists">Отчет с таким именем уже существует</string>
+    <!-- Delete Report Dialog -->
+    <string name="sdr_drd_title">Удалить отчет</string>
+    <string name="sdr_drd_msg">Вы уверены, что хотите удалить \"%s\"?</string>
+    <!-- Toasts -->
+    <string name="sdr_t_no_app_available">Не установлен просмотрщик для \"%s\".</string>
+    <string name="sdr_t_report_renaming_error">Не удалось переименовать отчет</string>
+    <string name="sdr_t_report_deletion_error">Удалить отчет не удалось</string>
+
+
+    <!-- Settings activity -->
+    <string name="st_title">Настройки</string>
+    <string name="st_category_repo_cache">Кэш Репозиторя</string>
+    <string name="st_category_connection">Соединение</string>
+    <string name="st_title_cache_enable">Включить кэш</string>
+    <string name="st_title_cache_expiration">Время жизни кэша</string>
+    <string name="st_title_connect_timeout">Тайм-аут соединения</string>
+    <string name="st_title_read_timeout">Тайм-аут чтения данных</string>
+    <string name="st_summary_cache_enable">Кэшировать запросы в репозиторий на указанный период времени</string>
+    <string name="st_summary_sec">%s сек</string>
+    <string name="st_summary_h">%s ч</string>
 
 
     <!-- Error messages -->
@@ -143,6 +201,5 @@
     <string name="loading_msg">Загрузка…</string>
     <string name="error_msg">Ошибка</string>
     <string name="cancelled_msg">Отменено</string>
-
 
 </resources>

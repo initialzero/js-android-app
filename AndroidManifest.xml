@@ -27,7 +27,7 @@
     package="com.jaspersoft.android.jaspermobile"
     android:installLocation="auto"
     android:versionCode="8010800"
-    android:versionName="1.8-SNAPSHOT">
+    android:versionName="1.8">
     <!--
         Pattern for versionCode:
             android:versionCode="vvxxyyzz"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,9 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
@@ -65,9 +69,9 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
 
     protected int offset, total;
     protected boolean forceUpdate;
-    protected Menu optionsMenu;
-    private MenuItem searchItem;
 
+    private Menu optionsMenu;
+    private MenuItem searchItem;
     private boolean refreshing;
     private View progressView;
 
@@ -206,13 +210,43 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
 
         @Override
         public void onRequestSuccess(ServerInfo serverInfo) {
-            if (serverInfo.getVersionCode() < ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                getResources(forceUpdate); // REST v1
-            } else {
+            int currentVersion = serverInfo.getVersionCode();
+            if (currentVersion >= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                // REST v2
                 offset = 0;
-                getResourceLookups(forceUpdate); // REST v2
+                getResourceLookups(forceUpdate);
                 getListView().setOnScrollListener(BaseBrowserSearchActivity.this);
+            } else if (currentVersion >= ServerInfo.VERSION_CODES.EMERALD) {
+                // REST v1
+                getResources(forceUpdate);
+            } else {
+                // Unsupported
+                showErrorDialog();
             }
+
+        }
+
+        private void showErrorDialog() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(BaseBrowserSearchActivity.this);
+            builder.setTitle(R.string.error_msg);
+            builder.setMessage(R.string.r_error_server_not_supported);
+            builder.setNeutralButton(android.R.string.ok, null);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+                builder.setIconAttribute(android.R.attr.alertDialogIcon);
+            } else{
+                builder.setIcon(android.R.drawable.ic_dialog_alert);
+            }
+
+            Dialog dialog = builder.create();
+            dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    finish();
+                }
+            });
+
+            dialog.show();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,33 +22,20 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.util;
-
-import android.content.Context;
-import android.os.Environment;
-
-import java.io.File;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 /**
+ * Activity that performs report viewing in HTML format.
+ *
  * @author Ivan Gadzhega
- * @version $Id$
- * @since 1.0
+ * @since 1.4
  */
-public final class CacheUtils {
+public class SavedReportHtmlViewerActivity extends BaseHtmlViewerActivity {
 
-    // This class cannot be instantiated
-    private CacheUtils() {}
-
-    /**
-     * This is like Context.getExternalCacheDir(), just compatible with API Level 7 or lower
-     */
-    public static File getExternalCacheDir(Context context) {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            String path = "/Android/data/" + context.getPackageName() + "/cache/";
-            return new File(Environment.getExternalStorageDirectory() + path);
-        } else {
-            return null;
-        }
-
+    @Override
+    protected void loadDataToWebView() {
+        // run new report execution
+        loadUrl(resourceUri);
     }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -32,6 +34,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
 import com.google.inject.Inject;
@@ -39,22 +42,25 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.activities.report.BaseReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.report.CompatReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.resource.ResourceInfoActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import roboguice.inject.InjectView;
+
+import java.util.ArrayList;
 
 /**
  * @author Ivan Gadzhega
@@ -75,8 +81,10 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     // Action Bar IDs
     private static final int ID_AB_SETTINGS = 30;
 
-    @InjectView(R.id.nothingToDisplayText)      protected TextView nothingToDisplayText;
-    @InjectView(android.R.id.list)              protected ListView listView;
+    @InjectView(R.id.nothingToDisplayText)
+    protected TextView nothingToDisplayText;
+    @InjectView(android.R.id.list)
+    protected ListView listView;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -84,6 +92,8 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     protected SpiceManager serviceManager;
 
     protected ResourceLookup resourceLookup;
+
+    private ProgressDialog progressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,13 +120,36 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 runReport(resource.getLabel(), resource.getUri());
                 break;
             case dashboard:
-                runDashboard(resource.getUri());
+                runDashboard(resource.getUri(), resource.getLabel());
                 break;
             default:
                 viewResource(resource.getUri());
                 break;
         }
     }
+
+    @Override
+    protected void onStart() {
+        serviceManager.start(this);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        serviceManager.shouldStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        // close any open database object
+        if (dbProvider != null) dbProvider.close();
+        super.onDestroy();
+    }
+
+    //---------------------------------------------------------------------
+    // Options Menu
+    //---------------------------------------------------------------------
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -146,6 +179,10 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    //---------------------------------------------------------------------
+    // Context menu
+    //---------------------------------------------------------------------
 
     @Override
     public void onCreateContextMenu(ContextMenu menu,View view, ContextMenu.ContextMenuInfo menuInfo) {
@@ -189,7 +226,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
                         runReport(resourceLookup.getLabel(), resourceLookup.getUri());
                         break;
                     case dashboard:
-                        runDashboard(resourceLookup.getUri());
+                        runDashboard(resourceLookup.getUri(), resourceLookup.getLabel());
                         break;
                 }
                 return true;
@@ -209,25 +246,6 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
             default:
                 return super.onContextItemSelected(item);
         }
-    }
-
-    @Override
-    protected void onStart() {
-        serviceManager.start(this);
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        serviceManager.shouldStop();
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        // close any open database object
-        if (dbProvider != null) dbProvider.close();
-        super.onDestroy();
     }
 
     //---------------------------------------------------------------------
@@ -252,21 +270,29 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     }
 
     private void runReport(String reportLabel, String reportUri) {
-        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-        GetServerInfoListener listener = new GetServerInfoListener(reportLabel, reportUri);
-        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
-        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
+        final GetInputControlsRequest request = new GetInputControlsRequest(jsRestClient, reportUri);
+        serviceManager.execute(request, new GetInputControlsListener(reportLabel, reportUri));
+
+        // show progress dialog
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.r_pd_running_report_msg));
+        progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                if (!request.isCancelled()) {
+                    serviceManager.cancel(request);
+                }
+            }
+        });
+        progressDialog.show();
     }
 
-    private void runDashboard(String dashboardUri) {
-        // generate url
-        String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
-                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
-                + dashboardUri;
+    private void runDashboard(String dashboardUri, String dashboardLabel) {
         // run the html dashboard viewer
         Intent htmlViewer = new Intent();
         htmlViewer.setClass(this, DashboardHtmlViewerActivity.class);
-        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URL, dashboardUrl);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, dashboardUri);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, dashboardLabel);
         startActivity(htmlViewer);
     }
 
@@ -274,32 +300,50 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+    private class GetInputControlsListener implements RequestListener<InputControlsList> {
 
         private String reportLabel;
         private String reportUri;
 
-        public GetServerInfoListener(String reportLabel, String reportUri) {
+        private GetInputControlsListener(String reportLabel, String reportUri) {
             this.reportLabel = reportLabel;
             this.reportUri = reportUri;
         }
 
         @Override
-        public void onRequestFailure(SpiceException e) {
-            RequestExceptionHandler.handle(e, BaseRepositoryActivity.this, false);
+        public void onRequestFailure(SpiceException exception) {
+            if (exception instanceof RequestCancelledException) {
+                Toast.makeText(BaseRepositoryActivity.this, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
+            } else {
+                RequestExceptionHandler.handle(exception, BaseRepositoryActivity.this, false);
+                progressDialog.dismiss();
+            }
         }
 
         @Override
-        public void onRequestSuccess(ServerInfo serverInfo) {
-            Class clazz = (serverInfo.getVersionCode() < ServerInfo.VERSION_CODES.EMERALD)
-                    ? CompatReportOptionsActivity.class : ReportOptionsActivity.class;
-            // start new activity
-            Intent intent = new Intent();
-            intent.setClass(BaseRepositoryActivity.this, clazz);
-            intent.putExtra(BaseReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
-            intent.putExtra(BaseReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
-            startActivity(intent);
+        public void onRequestSuccess(InputControlsList controlsList) {
+            progressDialog.dismiss();
+
+            ArrayList<InputControl> inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+
+            if (inputControls.isEmpty()) {
+                // Run Report Viewer activity
+                Intent htmlViewer = new Intent();
+                htmlViewer.setClass(BaseRepositoryActivity.this, ReportHtmlViewerActivity.class);
+                htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, reportUri);
+                htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, reportLabel);
+                startActivity(htmlViewer);
+            } else {
+                // Run Report Options activity
+                Intent intent = new Intent();
+                intent.setClass(BaseRepositoryActivity.this, ReportOptionsActivity.class);
+                intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL , reportLabel);
+                intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI , reportUri);
+                intent.putParcelableArrayListExtra(ReportOptionsActivity.EXTRA_REPORT_CONTROLS, inputControls);
+                startActivity(intent);
+            }
         }
+
     }
 
 }

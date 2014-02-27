@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,32 +25,23 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    style="@style/reportOptions.layout" >
+    style="@style/dialog.layout" >
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/reportOptions.scrollView" >
+    <!-- Report Name Input -->
+    <TextView
+        android:text="@string/sdr_rrd_msg"
+        style="@style/dialog.textView.label"
+    />
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="vertical"
-            style="@style/reportOptions.container.layout" >
+    <EditText
+        android:id="@+id/report_name_input"
+        android:hint="@string/sdr_rrd_hint"
+        style="@style/dialog.editText"
+    />
 
-            <!-- Input Controls -->
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/input_controls_layout"
-                android:orientation="vertical"
-                style="@style/reportOptions.container.inputControls.layout"
-            />
-
-            <!-- Run report button -->
-            <Button
-                android:id="@+id/runReportButton"
-                style="@style/reportOptions.button"
-                android:text="@string/ro_run_report_btn"
-                android:onClick="runReportButtonClickHandler"
-            />
-
-        </LinearLayout>
-
-    </ScrollView>
+    <TextView
+        android:id="@+id/report_name_error"
+        style="@style/dialog.textView.error"
+    />
 
 </LinearLayout>

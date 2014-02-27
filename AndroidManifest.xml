@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,8 +26,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile"
     android:installLocation="auto"
-    android:versionCode="8010700"
-    android:versionName="1.7">
+    android:versionCode="8010800"
+    android:versionName="1.8">
     <!--
         Pattern for versionCode:
             android:versionCode="vvxxyyzz"
@@ -40,7 +40,7 @@
 
     <!-- the minimum API Level required for the application to run, as well as the target version -->
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="9"
         android:targetSdkVersion="16"
     />
 
@@ -96,6 +96,9 @@
         <!-- Activity that performs viewing of the favorite items -->
         <activity android:name=".activities.repository.FavoritesActivity" />
 
+        <!-- Activity that performs viewing of the saved reports -->
+        <activity android:name=".activities.storage.SavedReportsActivity" />
+
         <!-- Activity that performs searches based on a query string and presents the search results-->
         <activity android:name=".activities.repository.SearchActivity"
             android:launchMode="singleTop" >
@@ -112,19 +115,28 @@
         <activity android:name=".activities.resource.ResourceInfoActivity" />
 
         <!-- Activity that allows to specify the report options before running it -->
-        <activity android:name=".activities.report.CompatReportOptionsActivity" />
-        <activity android:name=".activities.report.ReportOptionsActivity" />
+        <activity android:name=".activities.report.ReportOptionsActivity"
+            android:windowSoftInputMode="stateHidden"
+        />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity android:name=".activities.viewer.html.ReportHtmlViewerActivity"
-            android:theme="@style/Theme.Sherlock.Light.NoActionBar"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
+        />
+
+        <!-- Activity that performs report viewing in HTML format -->
+        <activity android:name=".activities.viewer.html.SavedReportHtmlViewerActivity"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
         />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity android:name=".activities.viewer.html.DashboardHtmlViewerActivity"
-            android:theme="@style/Theme.Sherlock.Light.NoActionBar"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
+        />
+
+        <!-- Activity that performs report saving to the local storage -->
+        <activity android:name=".activities.report.SaveReportActivity"
+            android:windowSoftInputMode="stateHidden"
         />
 
         <!-- Activity that allows to specify the application settings -->

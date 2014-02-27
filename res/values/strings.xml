@@ -40,6 +40,8 @@
     <string name="h_search_descr">Search for items in your repository</string>
     <string name="h_favorites_label">Favorites</string>
     <string name="h_favorites_descr">Browse and view favorite items</string>
+    <string name="h_saved_reports_label">Saved Reports</string>
+    <string name="h_saved_reports_descr">List of all saved reports</string>
     <string name="h_server_profile_label">"Server Profile: "</string>
     <string name="h_server_switched_toast">Server was switched to \"%s\"</string>
     <!-- Action Bar -->
@@ -105,6 +107,10 @@
     <string name="r_cm_view_details">View Details</string>
     <string name="r_cm_add_to_favorites">Add to favorites</string>
     <string name="r_cm_remove_from_favorites">Remove from favorites</string>
+    <!-- Progress Dialog -->
+    <string name="r_pd_running_report_msg">Running report…</string>
+    <!-- Error messages -->
+    <string name="r_error_server_not_supported">Server version is either older than 5.0 (not supported) or URL is incorrect.</string>
 
 
     <!-- Search Activity -->
@@ -129,20 +135,53 @@
 
 
     <!-- Report Options Activity -->
-    <string name="ro_output_format_label">Report Output Format:</string>
     <string name="ro_run_report_btn">Run Report</string>
-    <!-- Notifications -->
-    <string name="ro_no_app_available_toast">No \"%s\" viewer installed.</string>
-    <!-- Progress Dialog -->
-    <string name="ro_pd_loading_report_info_msg">Loading report…</string>
-    <string name="ro_pd_running_report_msg">Running report…</string>
-    <string name="ro_pd_downloading_report_msg">Downloading report…</string>
+
+
+    <!-- Report Viewer Activity -->
+    <string name="rv_ab_save_report">Save Report</string>
+    <!-- Toasts -->
+    <string name="rv_t_external_storage_not_available">The external memory card is not available. Please mount the card and try again.</string>
+    <string name="rv_t_report_saving_not_supported">This functionality is only available for JasperReports Server 5.2 or higher</string>
+
+    <!-- Save Report Activity -->
+    <string name="sr_ab_title">Save Report</string>
+    <string name="sr_report_name">Report Name</string>
+    <string name="sr_output_format">Output Format</string>
+    <string name="sr_save_report_btn">Save</string>
+    <!-- Toasts -->
+    <string name="sr_t_report_saved">Report saved successfully</string>
     <!-- Error messages -->
-    <string name="ro_error_field_is_mandatory">This field is required.</string>
+    <string name="sr_error_field_is_empty">Can\'t be empty</string>
+    <string name="sr_error_characters_not_allowed">Can\'t contain any of the following characters * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sr_error_report_exists">A report with this name already exists</string>
 
 
     <!-- Favorites activity -->
     <string name="f_title">Favorites</string>
+
+
+    <!-- Saved Reports Activity -->
+    <string name="sdr_ab_title">Saved Reports</string>
+    <!-- Context Menu -->
+    <string name="sdr_cm_open">Open</string>
+    <string name="sdr_cm_rename">Rename</string>
+    <string name="sdr_cm_delete">Delete</string>
+    <!-- Rename Report Dialog -->
+    <string name="sdr_rrd_title">Rename report</string>
+    <string name="sdr_rrd_msg">Enter new name:</string>
+    <string name="sdr_rrd_hint">Report name</string>
+    <string name="sdr_rrd_error_name_is_empty">Can\'t be empty</string>
+    <string name="sdr_rrd_error_characters_not_allowed">Can\'t contain any of the following characters * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sdr_rrd_error_report_exists">A report with this name already exists</string>
+    <!-- Delete Report Dialog -->
+    <string name="sdr_drd_title">Delete report</string>
+    <string name="sdr_drd_msg">Do you really want to delete \"%s\"?</string>
+    <!-- Toasts -->
+    <string name="sdr_t_no_app_available">No \"%s\" viewer installed.</string>
+    <string name="sdr_t_report_renaming_error">Cannot rename report</string>
+    <string name="sdr_t_report_deletion_error">Cannot delete report</string>
+
 
     <!-- Settings activity -->
     <string name="st_title">Settings</string>

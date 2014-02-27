@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -56,7 +56,7 @@ public class FavoritesActivity extends BaseRepositoryActivity{
     private long serverProfileId;
     private String userName;
     private String organization;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +95,10 @@ public class FavoritesActivity extends BaseRepositoryActivity{
             setListAdapter(arrayAdapter);
         }
     }
+
+    //---------------------------------------------------------------------
+    // Context menu
+    //---------------------------------------------------------------------
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {

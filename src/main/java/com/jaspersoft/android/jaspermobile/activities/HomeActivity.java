@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -31,7 +31,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -42,21 +41,21 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
+import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
-import com.jaspersoft.android.jaspermobile.util.CacheUtils;
-import com.jaspersoft.android.jaspermobile.util.FileUtils;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
@@ -65,15 +64,11 @@ import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import roboguice.inject.InjectView;
-import roboguice.util.RoboAsyncTask;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
-import static com.jaspersoft.android.jaspermobile.JasperMobileApplication.REPORT_OUTPUT_DIR_NAME;
+import roboguice.inject.InjectView;
+
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
@@ -92,9 +87,6 @@ public class HomeActivity extends RoboSherlockActivity {
     public static final int RC_SWITCH_SERVER_PROFILE = 21;
     // Dialog IDs
     protected static final int ID_D_ASK_PASSWORD = 30;
-    // Preferences
-    protected static final String PREFS_NAME = "RepositoryBrowser.SharedPreferences";
-    protected static final String PREFS_CURRENT_SERVER_PROFILE_ID = "CURRENT_SERVER_PROFILE_ID";
 
     @InjectView(R.id.profile_name_text)
     private TextView profileNameText;
@@ -109,37 +101,19 @@ public class HomeActivity extends RoboSherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Restore preferences
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        // restore server profile data
-        long rowId = prefs.getLong(PREFS_CURRENT_SERVER_PROFILE_ID, -1);
-
         // Get the database provider
         dbProvider = new DatabaseProvider(this);
-        // Get a cursor with current server profile
-        Cursor cursor = dbProvider.fetchServerProfile(rowId);
-        startManagingCursor(cursor);
-
         // bind to service
         serviceManager = new SpiceManager(JsXmlSpiceService.class);
 
         setContentView(R.layout.home_layout);
-
         getSupportActionBar().setCustomView(R.layout.home_header_logo);
 
-        // set timeouts
-        int connectTimeout = SettingsActivity.getConnectTimeoutValue(this);
-        int readTimeout = SettingsActivity.getReadTimeoutValue(this);
-        jsRestClient.setConnectTimeout(connectTimeout * 1000);
-        jsRestClient.setReadTimeout(readTimeout * 1000);
-
-        // check if the server profile exists in db
-        if (cursor.getCount() != 0) {
-            setCurrentServerProfile(rowId);
-            profileNameText.setText(jsRestClient.getServerProfile().getAlias());
-
+        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        if (serverProfile != null) {
+            profileNameText.setText(serverProfile.getAlias());
             //  savedInstanceState is null on first start, non-null on restart
-            if (savedInstanceState == null && jsRestClient.getServerProfile().getPassword().length() == 0) {
+            if (savedInstanceState == null && serverProfile.getPassword().length() == 0) {
                 showDialog(ID_D_ASK_PASSWORD);
             }
         } else {
@@ -148,9 +122,6 @@ public class HomeActivity extends RoboSherlockActivity {
             intent.setClass(this, ServerProfilesManagerActivity.class);
             startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
         }
-
-        // Clear report output cache folders and, sure, do it asynchronously
-        clearReportOutputCacheFolders();
     }
 
     protected void onNewIntent(Intent intent) {
@@ -238,6 +209,11 @@ public class HomeActivity extends RoboSherlockActivity {
                     favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
                     startActivity(favoritesIntent);
                     break;
+                case R.id.home_item_saved_reports:
+                    Intent savedReportsIntent = new Intent();
+                    savedReportsIntent.setClass(this, SavedReportsActivity.class);
+                    startActivity(savedReportsIntent);
+                    break;
             }
         } else {
             // prepare the alert box
@@ -288,7 +264,7 @@ public class HomeActivity extends RoboSherlockActivity {
                     rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
 
                     // update current profile
-                    setCurrentServerProfile(rowId);
+                    JasperMobileApplication.setCurrentServerProfile(jsRestClient, dbProvider, rowId);
 
                     // check if the password is not specified
                     if (jsRestClient.getServerProfile().getPassword().length() == 0) {
@@ -305,13 +281,13 @@ public class HomeActivity extends RoboSherlockActivity {
                     rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
 
                     // put new server profile id to shared prefs
-                    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                    SharedPreferences prefs = getSharedPreferences(JasperMobileApplication.PREFS_NAME, MODE_PRIVATE);
                     // we need an Editor object to make preference changes.
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putLong(PREFS_CURRENT_SERVER_PROFILE_ID, rowId);
+                    editor.putLong(JasperMobileApplication.PREFS_CURRENT_SERVER_PROFILE_ID, rowId);
                     editor.commit();
 
-                    setCurrentServerProfile(rowId);
+                    JasperMobileApplication.setCurrentServerProfile(jsRestClient, dbProvider, rowId);
 
                     // check if the password is not specified
                     if (jsRestClient.getServerProfile().getPassword().length() == 0) {
@@ -344,7 +320,7 @@ public class HomeActivity extends RoboSherlockActivity {
                 builder.setView(layout);
                 // define actions
                 builder.setCancelable(false)
-                       .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 JsServerProfile currentProfile = jsRestClient.getServerProfile();
 
@@ -354,12 +330,12 @@ public class HomeActivity extends RoboSherlockActivity {
 
                                 jsRestClient.setServerProfile(currentProfile);
                             }
-                       })
-                       .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
-                          }
-                       });
+                            }
+                        });
                 dialog = builder.create();
                 break;
             default:
@@ -421,45 +397,6 @@ public class HomeActivity extends RoboSherlockActivity {
         // close any open database object
         if (dbProvider != null) dbProvider.close();
         super.onDestroy();
-    }
-
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
-
-    private void setCurrentServerProfile(long rowId) {
-        // Get a cursor with server profile
-        Cursor cursor = dbProvider.fetchServerProfile(rowId);
-        startManagingCursor(cursor);
-
-        // Retrieve the column indexes for that particular server profile
-        int aliasId = cursor.getColumnIndex(ServerProfiles.KEY_ALIAS);
-        int urlId = cursor.getColumnIndex(ServerProfiles.KEY_SERVER_URL);
-        int orgId = cursor.getColumnIndex(ServerProfiles.KEY_ORGANIZATION);
-        int usrId = cursor.getColumnIndex(ServerProfiles.KEY_USERNAME);
-        int pwdId = cursor.getColumnIndex(ServerProfiles.KEY_PASSWORD);
-
-        JsServerProfile serverProfile = new JsServerProfile(rowId, cursor.getString(aliasId),
-                cursor.getString(urlId), cursor.getString(orgId), cursor.getString(usrId), cursor.getString(pwdId));
-
-        jsRestClient.setServerProfile(serverProfile);
-    }
-
-    private void clearReportOutputCacheFolders() {
-        // Clear report output cache folders and, sure, do it asynchronously
-        RoboAsyncTask clearCacheAsyncTask = new RoboAsyncTask<Void>(this) {
-            @Override
-            public Void call() {
-                // for internal cache
-                FileUtils.deleteFilesInDirectory(new File(getContext().getCacheDir(), REPORT_OUTPUT_DIR_NAME));
-                // for external cache if available
-                FileUtils.deleteFilesInDirectory(new File(CacheUtils.getExternalCacheDir(getContext()), REPORT_OUTPUT_DIR_NAME));
-                return null;
-            }
-
-        };
-        final Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(clearCacheAsyncTask.future());
     }
 
     //---------------------------------------------------------------------

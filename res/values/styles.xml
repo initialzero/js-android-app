@@ -27,8 +27,8 @@
 
     <!-- Default ListView Style -->
     <style name="list.view">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/white</item>
         <item name="android:drawSelectorOnTop">false</item>
         <item name="android:cacheColorHint">@android:color/white</item>
@@ -52,12 +52,12 @@
 
     <!-- Default EditText Style-->
     <style name="editText">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
         <style name="editText.singleLine">
-            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
             <item name="android:layout_height">wrap_content</item>
             <item name="android:singleLine">true</item>
         </style>
@@ -71,8 +71,8 @@
     <style name="serverProfileManager" />
 
     <style name="serverProfileManager.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/white</item>
     </style>
 
@@ -80,27 +80,27 @@
     <style name="serverProfile" />
 
     <style name="serverProfile.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/white</item>
     </style>
 
     <style name="serverProfile.scrollView">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:fillViewport">true</item>
     </style>
 
     <style name="serverProfile.editsContainer" />
 
         <style name="serverProfile.editsContainer.layout">
-            <item name="android:layout_width">fill_parent</item>
-            <item name="android:layout_height">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
+            <item name="android:layout_height">match_parent</item>
             <item name="android:padding">10dp</item>
         </style>
 
     <style name="serverProfile.button">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">15dip</item>
     </style>
@@ -116,8 +116,8 @@
     <style name="home" />
 
     <style name="home.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/white</item>
     </style>
 
@@ -131,14 +131,14 @@
         </style>
 
     <style name="home.header.shadow">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/ic_ha_header_shadow</item>
     </style>
 
     <style name="home.scrollView">
         <item name="android:layout_weight">1</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:fillViewport">true</item>
     </style>
@@ -146,14 +146,14 @@
     <style name="home.list" />
 
     <style name="home.list.layout">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
         <style name="home.list.item" />
 
         <style name="home.list.item.layout">
-            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
             <item name="android:layout_height">wrap_content</item>
             <item name="android:background">@drawable/bs_white_blue</item>
             <item name="android:gravity">center</item>
@@ -192,7 +192,7 @@
             <style name="home.list.item.txtContainer" />
 
             <style name="home.list.item.txtContainer.layout">
-                <item name="android:layout_width">fill_parent</item>
+                <item name="android:layout_width">match_parent</item>
                 <item name="android:layout_height">wrap_content</item>
                 <item name="android:paddingRight">4dp</item>
             </style>
@@ -214,14 +214,14 @@
                     </style>
 
         <style name="home.list.spacer">
-            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
             <item name="android:layout_height">1px</item>
             <item name="android:background">@color/js_lighter_grey</item>
         </style>
     <style name="home.footer" />
 
         <style name="home.footer.layout">
-            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
             <item name="android:layout_height">wrap_content</item>
             <item name="android:background">@color/js_dark_grey</item>
             <item name="android:gravity">center</item>
@@ -240,7 +240,7 @@
         <style name="home.dialog.table" />
 
             <style name="home.dialog.table.layout">
-                <item name="android:layout_width">fill_parent</item>
+                <item name="android:layout_width">match_parent</item>
                 <item name="android:layout_height">wrap_content</item>
                 <item name="android:shrinkColumns">1</item>
                 <item name="android:paddingBottom">10dp</item>
@@ -253,7 +253,7 @@
             </style>
 
         <style name="home.dialog.passwordEdit">
-            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
             <item name="android:layout_height">wrap_content</item>
             <item name="android:inputType">textPassword</item>
         </style>
@@ -262,14 +262,14 @@
     <style name="repository" />
 
     <style name="repository.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/white</item>
     </style>
 
     <style name="repository.nothingToDisplayLabel">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">@color/js_light_grey</item>
         <item name="android:gravity">center</item>
@@ -279,8 +279,8 @@
     <style name="resourceEdit" />
 
     <style name="resourceEdit.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:paddingTop">10dip</item>
         <item name="android:paddingBottom">10dip</item>
         <item name="android:paddingLeft">20dip</item>
@@ -289,7 +289,7 @@
     </style>
 
     <style name="resourceEdit.button">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">15dip</item>
     </style>
@@ -300,8 +300,8 @@
     <style name="resourceInfo.table" />
 
     <style name="resourceInfo.table.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:padding">10dp</item>
         <item name="android:background">@android:color/white</item>
     </style>
@@ -323,7 +323,7 @@
 
     <style name="resourceInfo.spacer">
         <item name="android:layout_height">1px</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:background">@color/js_light_grey</item>
     </style>
 
@@ -336,35 +336,35 @@
     <style name="reportOptions" />
 
     <style name="reportOptions.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/white</item>
     </style>
 
     <style name="reportOptions.scrollView">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:fillViewport">true</item>
     </style>
 
     <style name="reportOptions.container" />
 
     <style name="reportOptions.container.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:padding">10dp</item>
     </style>
 
         <style name="reportOptions.container.inputControls" />
 
         <style name="reportOptions.container.inputControls.layout">
-            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
             <item name="android:layout_height">wrap_content</item>
         </style>
 
     <style name="reportOptions.button">
         <item name="android:layout_marginTop">25dp</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
@@ -372,14 +372,14 @@
     <style name="htmlViewer" />
 
     <style name="htmlViewer.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/white</item>
     </style>
 
     <style name="htmlViewer.webView">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
 
     <style name="htmlViewer.progressBar" parent="Widget.JasperMobile.ProgressBar.Horizontal">
@@ -393,15 +393,15 @@
     <style name="saveReport" />
 
     <style name="saveReport.scrollView">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/white</item>
         <item name="android:fillViewport">true</item>
     </style>
 
     <style name="saveReport.layout">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:padding">10dp</item>
     </style>
 
@@ -423,13 +423,13 @@
         </style>
 
         <style name="saveReport.outputFormat.spinner">
-            <item name="android:layout_width">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
             <item name="android:layout_height">wrap_content</item>
         </style>
 
     <style name="saveReport.button">
         <item name="android:layout_marginTop">25dp</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
@@ -455,14 +455,14 @@
     <style name="dialog" />
 
         <style name="dialog.layout">
-            <item name="android:layout_width">fill_parent</item>
-            <item name="android:layout_height">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
+            <item name="android:layout_height">match_parent</item>
             <item name="android:padding">10dp</item>
         </style>
 
         <style name="dialog.editText">
-            <item name="android:layout_width">fill_parent</item>
-            <item name="android:layout_height">fill_parent</item>
+            <item name="android:layout_width">match_parent</item>
+            <item name="android:layout_height">match_parent</item>
         </style>
 
         <style name="dialog.textView">

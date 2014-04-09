@@ -25,24 +25,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile"
-    android:installLocation="auto"
-    android:versionCode="8010801"
-    android:versionName="1.8.1-SNAPSHOT">
-    <!--
-        Pattern for versionCode:
-            android:versionCode="vvxxyyzz"
-        where:
-            vv - min android sdk version
-            xx - major version number
-            yy - minor version number
-            zz - revision number
-     -->
-
-    <!-- the minimum API Level required for the application to run, as well as the target version -->
-    <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="16"
-    />
+    android:installLocation="auto">
 
     <!-- Allows applications to access information about networks -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -149,4 +132,3 @@
     </application>
 
 </manifest>
-

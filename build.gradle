@@ -1,0 +1,85 @@
+buildscript {
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.9.0+'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'android'
+
+group = 'com.jaspersoft.android'
+version = '1.8.1-SNAPSHOT'
+description = 'js-android-jaspermobile'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '19.0.3'
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 19
+        versionCode 9010801
+        versionName version
+    }
+
+    if (project.hasProperty('JMA_STORE_FILE')) {
+        signingConfigs {
+            release {
+                storeFile file(JMA_STORE_FILE)
+                storePassword JMA_STORE_PASSWORD
+                keyAlias JMA_KEY_ALIAS
+                keyPassword JMA_KEY_PASSWORD
+            }
+        }
+
+        buildTypes {
+            release {
+                runProguard true
+                proguardFile "proguard.cfg"
+                proguardFile getDefaultProguardFile('proguard-android.txt')
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def file = variant.packageApplication.outputFile
+        def fileName = file.name.replace(".apk", "-" + defaultConfig.versionName + ".apk")
+        variant.packageApplication.outputFile = new File(file.parent, fileName)
+
+        if (variant.zipAlign) {
+            variant.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""));
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk'
+    }
+}
+
+dependencies {
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.8.1-SNAPSHOT'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.8.1-SNAPSHOT'
+    compile 'org.roboguice:roboguice:2.0'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile 'com.github.rtyley:roboguice-sherlock:1.5'
+    compile 'com.android.support:support-v4:19+'
+}

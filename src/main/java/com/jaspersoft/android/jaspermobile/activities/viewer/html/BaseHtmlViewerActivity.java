@@ -204,7 +204,6 @@ public abstract class BaseHtmlViewerActivity extends RoboSherlockActivity {
             webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         // configure additional settings
-        webView.getSettings().setPluginsEnabled(true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         webView.getSettings().setLoadWithOverviewMode(true);

@@ -1,0 +1,71 @@
+ext.renameApk = { targetVariant ->
+    // replace output apk name to <product>-<buildType>-<version>-<gitBranch>.apk
+    def versionSuffix = targetVariant.buildType.versionNameSuffix ? targetVariant.buildType.versionNameSuffix : ""
+    def apkName = versionSuffix + targetVariant.mergedFlavor.versionName
+
+    def file = targetVariant.packageApplication.outputFile
+    def fileName = file.name.replace(".apk", "-" + apkName + ".apk")
+
+    if (targetVariant.zipAlign) {
+        targetVariant.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""))
+    }
+}
+
+ext.removeUnaligned = { targetVariant ->
+    def file = targetVariant.packageApplication.outputFile
+
+    if (file.name.contains("unaligned")) {
+        delete file
+    }
+}
+
+ext.generateVersionName = {
+    def version = MAJOR_VERSION + "." + MINOR_VERSION
+    def sanitizedBranch = sanitizeLastSlash(getBranch())
+    def notMaster = !sanitizedBranch.equals('master')
+    def notDevelop = !sanitizedBranch.equals('develop')
+
+    if (notMaster) {
+//        if (notDevelop) {
+//            version = "${sanitizedBranch}-" + version
+//        }
+
+        version += '-SNAPSHOT'
+    }
+
+    return version
+}
+
+//---------------------------------------------------------------------
+// Private methods
+//---------------------------------------------------------------------
+
+def sanitizeLastSlash(str) {
+    def lastSlashIndex = str.lastIndexOf("/") + 1
+    return str.substring(lastSlashIndex)
+}
+
+def getBranch() {
+    def gitBranch = getBranchNameFromEnv()
+    if (!gitBranch) {
+        gitBranch = getBranchNameFromGit()
+    }
+    return gitBranch
+}
+
+def getBranchNameFromEnv() { return System.getenv("GIT_BRANCH") }
+
+def getBranchNameFromGit() {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'symbolic-ref', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+    catch (ignored) {
+        println ignored
+        return "FAILED_GET_BRANCH_NAME"
+    }
+}

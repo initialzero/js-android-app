@@ -20,7 +20,7 @@ ext.removeUnaligned = { targetVariant ->
 }
 
 ext.generateVersionName = {
-    def version = MAJOR_VERSION + "." + MINOR_VERSION
+    def version = MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION_VERSION
     def sanitizedBranch = sanitizeLastSlash(getBranch())
     def notMaster = !sanitizedBranch.equals('master')
     def notDevelop = !sanitizedBranch.equals('develop')

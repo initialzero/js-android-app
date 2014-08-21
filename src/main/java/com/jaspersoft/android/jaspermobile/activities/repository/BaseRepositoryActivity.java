@@ -24,19 +24,20 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
+import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
@@ -48,8 +49,8 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewer
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
+import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
@@ -58,15 +59,17 @@ import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import roboguice.inject.InjectView;
 
 import java.util.ArrayList;
+
+import roboguice.activity.RoboListActivity;
+import roboguice.inject.InjectView;
 
 /**
  * @author Ivan Gadzhega
  * @since 1.0
  */
-public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
+public abstract class BaseRepositoryActivity extends RoboListActivity {
 
     // Extras
     public static final String EXTRA_BC_TITLE_SMALL = "BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL";
@@ -88,8 +91,10 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
     protected DatabaseProvider dbProvider;
-    protected SpiceManager serviceManager;
+    @Inject
+    private JsXmlSpiceServiceWrapper jsXmlSpiceServiceWrapper;
 
     protected ResourceLookup resourceLookup;
 
@@ -101,12 +106,16 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
         setContentView(R.layout.repository_layout);
         // set empty view
         listView.setEmptyView(nothingToDisplayText);
-        // Get the database provider
-        dbProvider = new DatabaseProvider(this);
         // Register a context menu to be shown for the given view
         registerForContextMenu(listView);
-        // bind to service
-        serviceManager = new SpiceManager(JsXmlSpiceService.class);
+
+        // use the App Icon for Navigation
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
+        }
     }
 
     @Override
@@ -130,13 +139,13 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
 
     @Override
     protected void onStart() {
-        serviceManager.start(this);
+        jsXmlSpiceServiceWrapper.onStart(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        serviceManager.shouldStop();
+        jsXmlSpiceServiceWrapper.onStop();
         super.onStop();
     }
 
@@ -147,15 +156,16 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
         super.onDestroy();
     }
 
+    public SpiceManager getSpiceManager() {
+        return jsXmlSpiceServiceWrapper.getSpiceManager();
+    }
+
     //---------------------------------------------------------------------
     // Options Menu
     //---------------------------------------------------------------------
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // use the App Icon for Navigation
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Add actions to the action bar
         menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
                 .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
@@ -163,7 +173,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_SETTINGS:
@@ -271,7 +281,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
 
     private void runReport(String reportLabel, String reportUri) {
         final GetInputControlsRequest request = new GetInputControlsRequest(jsRestClient, reportUri);
-        serviceManager.execute(request, new GetInputControlsListener(reportLabel, reportUri));
+        getSpiceManager().execute(request, new GetInputControlsListener(reportLabel, reportUri));
 
         // show progress dialog
         progressDialog = new ProgressDialog(this);
@@ -280,7 +290,7 @@ public abstract class BaseRepositoryActivity extends RoboSherlockListActivity {
             @Override
             public void onCancel(DialogInterface dialog) {
                 if (!request.isCancelled()) {
-                    serviceManager.cancel(request);
+                    getSpiceManager().cancel(request);
                 }
             }
         });

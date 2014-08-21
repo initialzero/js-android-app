@@ -47,11 +47,20 @@
         <!--Saved Items-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
             android:id="@+id/home_item_saved_reports"
-            style="@style/home.card.box"
+            style="@style/home.card.box.left"
             android:onClick="dashButtonOnClickListener"
             auto:body_subtitle="@string/saved_items_card_desc"
             auto:body_title="@string/saved_items_card_label"
             auto:header_background="@drawable/ic_composed_saved_items_home" />
+
+        <!--Settings-->
+        <com.jaspersoft.android.jaspermobile.widget.LinearCardView
+            android:id="@+id/home_item_settings"
+            style="@style/home.card.box"
+            android:onClick="dashButtonOnClickListener"
+            auto:body_subtitle="@string/settings_card_desc"
+            auto:body_title="@string/settings_card_label"
+            auto:header_background="@drawable/ic_composed_config_home" />
 
     </TableRow>
 
@@ -69,24 +78,11 @@
         <!--Favorites-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
             android:id="@+id/home_item_favorites"
-            style="@style/home.card.box"
+            style="@style/home.card.box.left"
             android:onClick="dashButtonOnClickListener"
             auto:body_subtitle="@string/favorites_card_desc"
             auto:body_title="@string/favorites_card_label"
             auto:header_background="@drawable/ic_composed_favorites_home" />
-
-    </TableRow>
-
-    <TableRow style="@style/home.row">
-
-        <!--Settings-->
-        <com.jaspersoft.android.jaspermobile.widget.LinearCardView
-            android:id="@+id/home_item_settings"
-            style="@style/home.card.box.left"
-            android:onClick="dashButtonOnClickListener"
-            auto:body_subtitle="@string/settings_card_desc"
-            auto:body_title="@string/settings_card_label"
-            auto:header_background="@drawable/ic_composed_config_home" />
 
         <!--Servers-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
@@ -100,4 +96,3 @@
     </TableRow>
 
 </TableLayout>
-

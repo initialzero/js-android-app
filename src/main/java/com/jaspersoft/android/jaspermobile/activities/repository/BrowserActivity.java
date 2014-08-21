@@ -79,13 +79,13 @@ public class BrowserActivity extends BaseBrowserSearchActivity {
     protected void getResources(boolean ignoreCache) {
         GetResourcesRequest request = new GetResourcesRequest(jsRestClient, uri);
         long cacheExpiryDuration = ignoreCache ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
-        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourcesListener());
+        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourcesListener());
     }
 
     protected void getResourceLookups(boolean ignoreCache) {
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, uri, types, offset, LIMIT);
         long cacheExpiryDuration = ignoreCache ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
-        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
+        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
 }

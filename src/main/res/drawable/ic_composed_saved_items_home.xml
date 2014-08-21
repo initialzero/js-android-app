@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -23,8 +23,15 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/home_logo"
-    style="@style/home.header.logo"
-    android:contentDescription="@string/app_label"
-/>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/card_header_blue_gradient" />
+
+    <item
+        android:left="16dp"
+        android:top="16dp">
+        <bitmap
+            android:gravity="left|top"
+            android:src="@drawable/tmp_ic_saved_items_home" />
+    </item>
+</layer-list>

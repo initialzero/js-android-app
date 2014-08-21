@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
@@ -32,11 +33,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
+import android.widget.SearchView;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
@@ -92,25 +94,29 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
         item.setActionView(R.layout.actionbar_indeterminate_progress);
 
         // Search
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                searchItem.collapseActionView();
-                return false;
-            }
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            SearchView searchView = new SearchView(actionBar.getThemedContext());
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    searchItem.collapseActionView();
+                    return false;
+                }
 
-        searchItem = menu.add(Menu.NONE, ID_AB_SEARCH, 2, R.string.r_ab_search);
-        searchItem.setIcon(R.drawable.ic_action_search);
-        searchItem.setActionView(searchView);
-        searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    return false;
+                }
+            });
+
+            searchItem = menu.add(Menu.NONE, ID_AB_SEARCH, 2, R.string.r_ab_search);
+            searchItem.setIcon(R.drawable.ic_action_search);
+            searchItem.setActionView(searchView);
+            searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        }
 
         // Favorites
         menu.add(Menu.NONE, ID_AB_FAVORITES, 3, R.string.r_ab_favorites)
@@ -120,7 +126,7 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_REFRESH:
@@ -154,14 +160,17 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
 
         GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
         long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
-        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetServerInfoListener());
+        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetServerInfoListener());
     }
 
     protected void updateTitles(String title, String subtitle) {
-        if (subtitle != null && subtitle.length() > 0) {
-            getSupportActionBar().setSubtitle(subtitle);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            if (subtitle != null && subtitle.length() > 0) {
+                actionBar.setSubtitle(subtitle);
+            }
+            actionBar.setTitle(title);
         }
-        getSupportActionBar().setTitle(title);
     }
 
     protected void setRefreshActionButtonState(boolean refreshing) {
@@ -187,7 +196,8 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
     //---------------------------------------------------------------------
 
     @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) { }
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+    }
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -232,9 +242,9 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
             builder.setMessage(R.string.r_error_server_not_supported);
             builder.setNeutralButton(android.R.string.ok, null);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 builder.setIconAttribute(android.R.attr.alertDialogIcon);
-            } else{
+            } else {
                 builder.setIcon(android.R.drawable.ic_dialog_alert);
             }
 

@@ -24,29 +24,21 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
@@ -56,191 +48,60 @@ import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivi
 import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import java.util.ArrayList;
 
+import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
-
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
  * @author Ivan Gadzhega
+ * @author Tom Koptel
  * @since 1.0
  */
-public class HomeActivity extends RoboSherlockActivity {
+@ContentView(R.layout.home_layout)
+public class HomeActivity extends RoboSpiceFragmentActivity {
 
     // Special intent actions
     public static final String EDIT_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.EDIT_SERVER_PROFILE";
-    // Action Bar IDs
-    private static final int ID_AB_SERVERS = 10;
-    private static final int ID_AB_SETTINGS = 11;
     // Request Codes
     public static final int RC_UPDATE_SERVER_PROFILE = 20;
     public static final int RC_SWITCH_SERVER_PROFILE = 21;
-    // Dialog IDs
-    protected static final int ID_D_ASK_PASSWORD = 30;
-
-    @InjectView(R.id.profile_name_text)
-    private TextView profileNameText;
+    // Saved instance states
+    private static final String FLAG_ANIMATE_STARTUP = "FLAG_ANIMATE_STARTUP";
 
     @Inject
-    private JsRestClient jsRestClient;
-    private DatabaseProvider dbProvider;
-    private SpiceManager serviceManager;
-    private MenuItem searchItem;
+    private JsRestClient mJsRestClient;
+    @Inject
+    private ConnectivityUtil mConnectivityUtil;
+    @Inject
+    private DatabaseProvider mDbProvider;
+    @Inject
+    private DecelerateInterpolator interpolator;
+    @Inject @Named("animationSpeed")
+    private int mAnimationSpeed;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    @InjectView(R.id.table)
+    private ViewGroup table;
 
-        // Get the database provider
-        dbProvider = new DatabaseProvider(this);
-        // bind to service
-        serviceManager = new SpiceManager(JsXmlSpiceService.class);
+    private boolean mAnimateStartup;
+    private TextView mProfileNameText;
+    private Bundle mSavedInstanceState;
 
-        setContentView(R.layout.home_layout);
-        getSupportActionBar().setCustomView(R.layout.home_header_logo);
-
-        JsServerProfile serverProfile = jsRestClient.getServerProfile();
-        if (serverProfile != null) {
-            profileNameText.setText(serverProfile.getAlias());
-            //  savedInstanceState is null on first start, non-null on restart
-            if (savedInstanceState == null && serverProfile.getPassword().length() == 0) {
-                showDialog(ID_D_ASK_PASSWORD);
-            }
-        } else {
-            // Launch activity to select the server profile
-            Intent intent = new Intent();
-            intent.setClass(this, ServerProfilesManagerActivity.class);
-            startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
-        }
-    }
-
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        if (EDIT_SERVER_PROFILE_ACTION.equals(intent.getAction())) {
-            // Launch activity to edit current server profile
-            Intent editIntent = new Intent();
-            editIntent.setClass(this, ServerProfileActivity.class);
-            editIntent.setAction(ServerProfileActivity.EDIT_SERVER_PROFILE_ACTION);
-            editIntent.putExtra(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID, jsRestClient.getServerProfile().getId());
-            startActivityForResult(editIntent, RC_UPDATE_SERVER_PROFILE);
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Search
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchItem = menu.add(R.string.r_ab_search);
-        searchItem.setActionView(searchView).setVisible(false);
-        searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-
-        // Servers
-        menu.add(Menu.NONE, ID_AB_SERVERS, Menu.NONE, R.string.h_ab_servers)
-                .setIcon(R.drawable.ic_action_servers)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-
-        // Settings
-        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
-                .setIcon(R.drawable.ic_action_settings)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case ID_AB_SERVERS:
-                // Launch activity to switch the server profile
-                Intent intent = new Intent();
-                intent.setClass(this, ServerProfilesManagerActivity.class);
-                startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
-                return true;
-            case ID_AB_SETTINGS:
-                // Launch the settings activity
-                Intent settingsIntent = new Intent();
-                settingsIntent.setClass(this, SettingsActivity.class);
-                startActivity(settingsIntent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    public void dashButtonOnClickListener(View view) {
-        final ConnectivityManager conMgr =  (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        final NetworkInfo activeNetwork = conMgr.getActiveNetworkInfo();
-        if (activeNetwork != null && activeNetwork.getState() == NetworkInfo.State.CONNECTED) {
-            // online
-            switch (view.getId()) {
-                case R.id.home_item_repository:
-                    Intent loginIntent = new Intent();
-                    loginIntent.setClass(this, BrowserActivity.class);
-                    loginIntent.putExtra(BrowserActivity.EXTRA_BC_TITLE_LARGE, jsRestClient.getServerProfile().getAlias());
-                    loginIntent.putExtra(BrowserActivity.EXTRA_RESOURCE_URI, "/");
-                    startActivity(loginIntent);
-                    break;
-                case R.id.home_item_library:
-                    GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-                    GetServerInfoListener listener = new GetServerInfoListener();
-                    long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
-                    serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
-                    break;
-                case R.id.home_item_search:
-                    searchItem.expandActionView();
-                    break;
-                case R.id.home_item_favorites:
-                    Intent favoritesIntent = new Intent();
-                    favoritesIntent.setClass(this, FavoritesActivity.class);
-                    favoritesIntent.putExtra(FavoritesActivity.EXTRA_BC_TITLE_LARGE, getString(R.string.f_title));
-                    startActivity(favoritesIntent);
-                    break;
-                case R.id.home_item_saved_reports:
-                    Intent savedReportsIntent = new Intent();
-                    savedReportsIntent.setClass(this, SavedReportsActivity.class);
-                    startActivity(savedReportsIntent);
-                    break;
-            }
-        } else {
-            // prepare the alert box
-            AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-            alertbox.setTitle(getString(R.string.h_ad_title_no_connection)).setIcon(android.R.drawable.ic_dialog_alert);
-            // set the message to display
-            alertbox.setMessage(getString(R.string.h_ad_msg_no_connection));
-            // add a neutral button to the alert box and assign a click listener
-            alertbox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                // click listener on the alert box
-                public void onClick(DialogInterface arg0, int arg1) { }
-            });
-
-            alertbox.show();
-        }
-    }
-
-    @Override
-    public void startActivity(Intent intent) {
-        // check if search intent
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            intent.putExtra(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, jsRestClient.getServerProfile().getAlias());
-            intent.putExtra(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
-        }
-
-        super.startActivity(intent);
-    }
+    //---------------------------------------------------------------------
+    // Static methods
+    //---------------------------------------------------------------------
 
     public static void goHome(Context context) {
         // All of the other activities on top of it will be destroyed and this intent will be delivered
@@ -249,6 +110,104 @@ public class HomeActivity extends RoboSherlockActivity {
         intent.setClass(context, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
+    }
+
+    //---------------------------------------------------------------------
+    // Public methods
+    //---------------------------------------------------------------------
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem serverStatusItem = menu.add(Menu.NONE, 0, Menu.NONE, R.string.h_server_profile_label);
+        serverStatusItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        serverStatusItem.setActionView(R.layout.servers_status);
+
+        View actionView = serverStatusItem.getActionView();
+        mProfileNameText = (TextView) actionView.findViewById(R.id.profile_name);
+
+        reloadProfileNameView();
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void dashButtonOnClickListener(View view) {
+        if (mConnectivityUtil.isConnected()) {
+            // online
+            switch (view.getId()) {
+                case R.id.home_item_repository:
+                    Intent loginIntent = new Intent(this, BrowserActivity.class);
+                    loginIntent.putExtra(BrowserActivity.EXTRA_BC_TITLE_LARGE, mJsRestClient.getServerProfile().getAlias());
+                    loginIntent.putExtra(BrowserActivity.EXTRA_RESOURCE_URI, "/");
+                    startActivity(loginIntent);
+                    break;
+                case R.id.home_item_library:
+                    GetServerInfoRequest request = new GetServerInfoRequest(mJsRestClient);
+                    GetServerInfoListener listener = new GetServerInfoListener();
+                    long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
+                    getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
+                    break;
+                case R.id.home_item_favorites:
+                    Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
+                    startActivity(favoritesIntent);
+                    break;
+                case R.id.home_item_saved_reports:
+                    Intent savedReportsIntent = new Intent(this, SavedReportsActivity.class);
+                    startActivity(savedReportsIntent);
+                    break;
+                case R.id.home_item_settings:
+                    // Launch the settings activity
+                    Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                    startActivity(settingsIntent);
+                    break;
+                case R.id.home_item_servers:
+                    // Launch activity to switch the server profile
+                    Intent intent = new Intent(this, ServerProfilesManagerActivity.class);
+                    startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
+                    break;
+            }
+        } else {
+            // prepare the alert box
+            AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.h_ad_title_no_connection)
+                    .setMessage(R.string.h_ad_msg_no_connection)
+                    .show();
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Protected methods
+    //---------------------------------------------------------------------
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mSavedInstanceState = savedInstanceState;
+
+        if (mSavedInstanceState == null) {
+            mAnimateStartup = true;
+        } else {
+            mAnimateStartup = mSavedInstanceState.getBoolean(FLAG_ANIMATE_STARTUP, true);
+        }
+
+        if (mAnimateStartup) {
+            mAnimateStartup = false;
+            animateLayout();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (EDIT_SERVER_PROFILE_ACTION.equals(intent.getAction())) {
+            // Launch activity to edit current server profile
+            Intent editIntent = new Intent();
+            editIntent.setClass(this, ServerProfileActivity.class);
+            editIntent.setAction(ServerProfileActivity.EDIT_SERVER_PROFILE_ACTION);
+            editIntent.putExtra(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID, mJsRestClient.getServerProfile().getId());
+            startActivityForResult(editIntent, RC_UPDATE_SERVER_PROFILE);
+        }
     }
 
     @Override
@@ -264,11 +223,11 @@ public class HomeActivity extends RoboSherlockActivity {
                     rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
 
                     // update current profile
-                    JasperMobileApplication.setCurrentServerProfile(jsRestClient, dbProvider, rowId);
+                    JasperMobileApplication.setCurrentServerProfile(mJsRestClient, mDbProvider, rowId);
 
                     // check if the password is not specified
-                    if (jsRestClient.getServerProfile().getPassword().length() == 0) {
-                        showDialog(ID_D_ASK_PASSWORD);
+                    if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
+                        PasswordDialogFragment.show(getSupportFragmentManager());
                     }
 
                     // the feedback about an operation
@@ -285,122 +244,94 @@ public class HomeActivity extends RoboSherlockActivity {
                     // we need an Editor object to make preference changes.
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putLong(JasperMobileApplication.PREFS_CURRENT_SERVER_PROFILE_ID, rowId);
-                    editor.commit();
+                    editor.apply();
 
-                    JasperMobileApplication.setCurrentServerProfile(jsRestClient, dbProvider, rowId);
+                    JasperMobileApplication.setCurrentServerProfile(mJsRestClient, mDbProvider, rowId);
 
                     // check if the password is not specified
-                    if (jsRestClient.getServerProfile().getPassword().length() == 0) {
-                        showDialog(ID_D_ASK_PASSWORD);
+                    if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
+                        PasswordDialogFragment.show(getSupportFragmentManager());
                     }
 
-                    String profileName = jsRestClient.getServerProfile().getAlias();
+                    String profileName = mJsRestClient.getServerProfile().getAlias();
+                    mProfileNameText.setText(profileName);
 
                     // the feedback about an operation
                     String toastMsg = getString(R.string.h_server_switched_toast, profileName);
                     Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
-                    // update footer
-                    profileNameText.setText(profileName);
                     break;
             }
         }
     }
 
     @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog;
-        switch(id) {
-            case ID_D_ASK_PASSWORD:
-                // do the work to define the password Dialog
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.h_ad_title_enter_password);
-                // inflate custom layout
-                LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-                final View layout = inflater.inflate(R.layout.ask_pwd_dialog_layout, (ViewGroup) findViewById(R.id.pwdDialogLayoutRoot));
-                builder.setView(layout);
-                // define actions
-                builder.setCancelable(false)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                JsServerProfile currentProfile = jsRestClient.getServerProfile();
-
-                                EditText passwordEdit = (EditText) layout.findViewById(R.id.dialogPasswordEdit);
-                                String password = passwordEdit.getText().toString();
-                                currentProfile.setPassword(password);
-
-                                jsRestClient.setServerProfile(currentProfile);
-                            }
-                        })
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-                dialog = builder.create();
-                break;
-            default:
-                dialog = null;
-        }
-        return dialog;
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(FLAG_ANIMATE_STARTUP, mAnimateStartup);
     }
 
     @Override
-    protected void onPrepareDialog(int id, Dialog dialog) {
-        super.onPrepareDialog(id, dialog);
-        switch (id) {
-            case ID_D_ASK_PASSWORD:
-                String alias = jsRestClient.getServerProfile().getAlias();
-                String org = jsRestClient.getServerProfile().getOrganization();
-                String usr = jsRestClient.getServerProfile().getUsername();
-
-                // Update username
-                TextView profileNameText = (TextView) dialog.findViewById(R.id.dialogProfileNameText);
-                profileNameText.setText(alias);
-
-                // Update organization
-                View organizationTableRow = dialog.findViewById(R.id.dialogOrganizationTableRow);
-                TextView organizationEdit = (TextView) dialog.findViewById(R.id.dialogOrganizationText);
-
-                if (TextUtils.isEmpty(org)) {
-                    organizationTableRow.setVisibility(View.GONE);
-                } else {
-                    organizationEdit.setText(org);
-                    organizationTableRow.setVisibility(View.VISIBLE);
-                }
-
-                // Update username
-                TextView usernameEdit = (TextView) dialog.findViewById(R.id.dialogUsernameText);
-                usernameEdit.setText(usr);
-
-                // Clear password
-                EditText passwordEdit = (EditText) dialog.findViewById(R.id.dialogPasswordEdit);
-                passwordEdit.setText("");
-                break;
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        serviceManager.start(this);
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        serviceManager.shouldStop();
-        searchItem.collapseActionView();
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         // close any open database object
-        if (dbProvider != null) dbProvider.close();
+        if (mDbProvider != null) mDbProvider.close();
         super.onDestroy();
     }
 
     //---------------------------------------------------------------------
-    // Nested Classes
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void animateLayout() {
+        // No sense in animating if no speed set up
+        // '0' case possible while black box testing
+        if (mAnimationSpeed > 0) {
+            int childCount = table.getChildCount();
+            int defaultDelay = 200;
+            for (int i = 0; i < childCount; i++) {
+                View child = table.getChildAt(i);
+                animateRow(child, defaultDelay);
+                defaultDelay += 100;
+            }
+        }
+    }
+
+    private void animateRow(final View view, int delay) {
+        if (view == null) return;
+        view.setTranslationX(0.0F);
+        view.setAlpha(0);
+        view.setRotationX(45.0F);
+        view.setScaleX(0.7F);
+        view.setScaleY(0.55F);
+        view.animate()
+                .rotationX(0.0F).rotationY(0.0F)
+                .translationX(0).translationY(0)
+                .scaleX(1.0F).scaleY(1.0F)
+                .setInterpolator(interpolator).alpha(1)
+                .setDuration(mAnimationSpeed).setStartDelay(delay)
+                .start();
+    }
+
+    private void reloadProfileNameView() {
+        JsServerProfile serverProfile = mJsRestClient.getServerProfile();
+        if (serverProfile == null) {
+            // Launch activity to select the server profile
+            Intent intent = new Intent(this, ServerProfilesManagerActivity.class);
+            startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
+        } else {
+            mProfileNameText.setText(serverProfile.getAlias());
+
+            // savedInstanceState is null on first start, non-null on restart
+            boolean isPasswordMissingOnFirstLaunch =
+                    (mSavedInstanceState == null && TextUtils.isEmpty(serverProfile.getPassword()));
+
+            if (isPasswordMissingOnFirstLaunch) {
+                PasswordDialogFragment.show(getSupportFragmentManager());
+            }
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Nested classes
     //---------------------------------------------------------------------
 
     private class GetServerInfoListener implements RequestListener<ServerInfo> {
@@ -412,16 +343,15 @@ public class HomeActivity extends RoboSherlockActivity {
 
         @Override
         public void onRequestSuccess(ServerInfo serverInfo) {
-            Intent searchIntent = new Intent();
-            searchIntent.setClass(HomeActivity.this, SearchActivity.class);
+            Intent searchIntent = new Intent(HomeActivity.this, SearchActivity.class);
 
             searchIntent.putExtra(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
             searchIntent.putExtra(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
 
             ArrayList<String> types = new ArrayList<String>();
-            types.add(ResourceType.reportUnit.toString());
+            types.add(ResourceLookup.ResourceType.reportUnit.toString());
             if (ServerInfo.EDITIONS.PRO.equals(serverInfo.getEdition())) {
-                types.add(ResourceType.dashboard.toString());
+                types.add(ResourceLookup.ResourceType.dashboard.toString());
             }
             searchIntent.putExtra(SearchActivity.EXTRA_RESOURCE_TYPES, types);
 

@@ -213,5 +213,20 @@
     <string name="error_msg">Error</string>
     <string name="cancelled_msg">Cancelled</string>
 
+    <!--New Home Page Labels-->
+    <string name="action_settings">Settings</string>
+    <string name="library_card_label">Library</string>
+    <string name="library_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="saved_items_card_label">Saved Items</string>
+    <string name="saved_items_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="repository_card_label">Repository</string>
+    <string name="repository_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="favorites_card_label">Favorites</string>
+    <string name="favorites_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="servers_card_label">Servers</string>
+    <string name="settings_card_label">Settings</string>
+    <string name="settings_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="servers_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="home_label">Home</string>
 
 </resources>

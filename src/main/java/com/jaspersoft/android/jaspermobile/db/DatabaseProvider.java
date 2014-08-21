@@ -30,6 +30,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
@@ -40,7 +42,7 @@ import roboguice.util.Ln;
  * Provides access to the application database.
  *
  * @author Ivan Gadzhega
- * @version $Id$
+ * @author Tom Koptel
  * @since 1.0
  */
 public class DatabaseProvider {
@@ -89,6 +91,7 @@ public class DatabaseProvider {
 
     private DatabaseHelper dbHelper;
 
+    @Inject
     public DatabaseProvider(Context context) {
         dbHelper = new DatabaseHelper(context);
     }

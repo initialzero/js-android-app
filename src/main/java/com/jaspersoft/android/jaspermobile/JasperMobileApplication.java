@@ -63,20 +63,24 @@ public class JasperMobileApplication extends Application {
         // Get a cursor with server profile
         Cursor cursor = dbProvider.fetchServerProfile(profileId);
         // check if the server profile exists in db
-        if (cursor.getCount() != 0) {
-            // Retrieve the column indexes for that particular server profile
-            int aliasId = cursor.getColumnIndex(ServerProfiles.KEY_ALIAS);
-            int urlId = cursor.getColumnIndex(ServerProfiles.KEY_SERVER_URL);
-            int orgId = cursor.getColumnIndex(ServerProfiles.KEY_ORGANIZATION);
-            int usrId = cursor.getColumnIndex(ServerProfiles.KEY_USERNAME);
-            int pwdId = cursor.getColumnIndex(ServerProfiles.KEY_PASSWORD);
-            // create new profile from cursor
-            JsServerProfile serverProfile = new JsServerProfile(profileId, cursor.getString(aliasId),
-                    cursor.getString(urlId), cursor.getString(orgId), cursor.getString(usrId), cursor.getString(pwdId));
-            jsRestClient.setServerProfile(serverProfile);
+        if (cursor != null) {
+
+            if (cursor.getCount() != 0) {
+                // Retrieve the column indexes for that particular server profile
+                int aliasId = cursor.getColumnIndex(ServerProfiles.KEY_ALIAS);
+                int urlId = cursor.getColumnIndex(ServerProfiles.KEY_SERVER_URL);
+                int orgId = cursor.getColumnIndex(ServerProfiles.KEY_ORGANIZATION);
+                int usrId = cursor.getColumnIndex(ServerProfiles.KEY_USERNAME);
+                int pwdId = cursor.getColumnIndex(ServerProfiles.KEY_PASSWORD);
+                // create new profile from cursor
+                JsServerProfile serverProfile = new JsServerProfile(profileId, cursor.getString(aliasId),
+                        cursor.getString(urlId), cursor.getString(orgId), cursor.getString(usrId), cursor.getString(pwdId));
+                jsRestClient.setServerProfile(serverProfile);
+            }
+
+            // release resources
+            cursor.close();
         }
-        // release resources
-        cursor.close();
     }
 
     //---------------------------------------------------------------------

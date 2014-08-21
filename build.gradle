@@ -30,6 +30,7 @@ android {
         targetSdkVersion 19
         versionCode 15020000
         versionName generateVersionName()
+        testInstrumentationRunner INSTRUMENTATION_RUNNER
     }
 
     if (project.hasProperty('JMA_STORE_FILE')) {
@@ -78,4 +79,20 @@ dependencies {
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.github.rtyley:roboguice-sherlock:1.5'
     compile 'com.android.support:support-v4:20.0.0'
+
+    // This is required for @Nullable @NonNull annotations
+    compile 'com.android.support:support-annotations:+'
+    // For sugar instantiate of dialogs
+    compile 'eu.inmite.android.lib:android-styled-dialogs:1.2.0'
+
+    androidTestCompile('org.mockito:mockito-core:1.9.5') {
+        exclude group: "org.hamcrest"
+    }
+    androidTestCompile files('libs/espresso-1.1.jar')
+    androidTestCompile('com.google.dexmaker:dexmaker:1.0') {
+        exclude group: "org.mockito"
+    }
+    androidTestCompile('com.google.dexmaker:dexmaker-mockito:1.0') {
+        exclude group: "org.mockito"
+    }
 }

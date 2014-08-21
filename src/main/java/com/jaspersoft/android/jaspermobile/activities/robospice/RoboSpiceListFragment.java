@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,40 +22,38 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile;
-
-import android.content.Context;
+package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.name.Names;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.google.inject.AbstractModule;
+import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.octo.android.robospice.SpiceManager;
+
+import roboguice.fragment.RoboListFragment;
 
 /**
  * @author Ivan Gadzhega
- * @version $Id$
- * @since 1.0
+ * @author Tom Koptel
+ * @since 1.9
  */
-public class JasperMobileModule extends AbstractModule {
-
-    private final Context mContext;
+public class RoboSpiceListFragment extends RoboListFragment {
 
     @Inject
-    public JasperMobileModule(final Context context) {
-        super();
-        mContext = context;
+    private JsXmlSpiceServiceWrapper xmlSpiceServiceWrapper;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        xmlSpiceServiceWrapper.onStart(getActivity());
     }
 
     @Override
-    protected void configure() {
-        bind(JsRestClient.class).in(Singleton.class);
+    public void onStop() {
+        xmlSpiceServiceWrapper.onStop();
+        super.onStop();
+    }
 
-        int animationSpeed = mContext.getResources().getInteger(
-                android.R.integer.config_longAnimTime);
-        animationSpeed *= 1.5;
-        bindConstant().annotatedWith(Names.named("animationSpeed"))
-                .to(animationSpeed);
+    public SpiceManager getSpiceManager() {
+        return xmlSpiceServiceWrapper.getSpiceManager();
     }
 
 }

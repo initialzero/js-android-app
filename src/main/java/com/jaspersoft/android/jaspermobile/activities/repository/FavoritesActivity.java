@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -48,7 +49,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @since 1.0
  */
 
-public class FavoritesActivity extends BaseRepositoryActivity{
+public class FavoritesActivity extends BaseRepositoryActivity {
 
     // Context menu IDs
     protected static final int ID_CM_REMOVE_FROM_FAVORITES = 26;
@@ -67,23 +68,28 @@ public class FavoritesActivity extends BaseRepositoryActivity{
 
         //update title
         Bundle extras = getIntent().getExtras();
-        String title = extras.getString(EXTRA_BC_TITLE_LARGE);
-        getSupportActionBar().setTitle(title);
+        if (extras != null) {
+            String title = extras.getString(EXTRA_BC_TITLE_LARGE);
+            getActionBar().setTitle(title);
+        }
 
-        Cursor cursor = dbProvider.fetchFavoriteItemsByParams(serverProfileId, userName, organization);
-        startManagingCursor(cursor);
         List<ResourceLookup> resourceLookups = new ArrayList<ResourceLookup>();
 
-        // Iterate DB Records
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            ResourceLookup resource = new ResourceLookup();
-            resource.setLabel(cursor.getString(cursor.getColumnIndex(Favorites.KEY_TITLE)));
-            resource.setUri(cursor.getString(cursor.getColumnIndex(Favorites.KEY_URI)));
-            resource.setDescription(cursor.getString(cursor.getColumnIndex(Favorites.KEY_DESCRIPTION)));
-            resource.setResourceType(ResourceType.valueOf(cursor.getString(cursor.getColumnIndex(Favorites.KEY_WSTYPE))));
-            resourceLookups.add(resource);
-            cursor.moveToNext();
+        Cursor cursor = dbProvider.fetchFavoriteItemsByParams(serverProfileId, userName, organization);
+        if (cursor != null) {
+            startManagingCursor(cursor);
+
+            // Iterate DB Records
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                ResourceLookup resource = new ResourceLookup();
+                resource.setLabel(cursor.getString(cursor.getColumnIndex(Favorites.KEY_TITLE)));
+                resource.setUri(cursor.getString(cursor.getColumnIndex(Favorites.KEY_URI)));
+                resource.setDescription(cursor.getString(cursor.getColumnIndex(Favorites.KEY_DESCRIPTION)));
+                resource.setResourceType(ResourceType.valueOf(cursor.getString(cursor.getColumnIndex(Favorites.KEY_WSTYPE))));
+                resourceLookups.add(resource);
+                cursor.moveToNext();
+            }
         }
 
         // show the favorite resources

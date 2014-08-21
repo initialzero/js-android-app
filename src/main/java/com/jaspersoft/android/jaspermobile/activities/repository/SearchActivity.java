@@ -29,9 +29,10 @@ import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
@@ -92,7 +93,7 @@ public class SearchActivity extends BaseBrowserSearchActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case ID_AB_FILTER_BY:
                 showDialog(ID_D_FILTER_OPTIONS);
@@ -202,7 +203,7 @@ public class SearchActivity extends BaseBrowserSearchActivity {
     protected void getResources(boolean ignoreCache) {
         SearchResourcesRequest request = new SearchResourcesRequest(jsRestClient, uri, query, types, true, 0);
         long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
-        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new SearchResourcesListener());
+        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new SearchResourcesListener());
     }
 
     protected void getResourceLookups(boolean ignoreCache) {
@@ -218,7 +219,7 @@ public class SearchActivity extends BaseBrowserSearchActivity {
 
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, uri, query, types, true, offset, LIMIT);
         long cacheExpiryDuration = ignoreCache ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
-        serviceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new SearchResourceLookupsListener());
+        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new SearchResourceLookupsListener());
     }
 
 }

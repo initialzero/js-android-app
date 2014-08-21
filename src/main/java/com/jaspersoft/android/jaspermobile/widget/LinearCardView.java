@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -64,6 +65,7 @@ public class LinearCardView extends AutoLayerLinearLayout {
     public LinearCardView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
+        Resources resources = context.getResources();
         TypedArray typedAttributes = context.obtainStyledAttributes(attrs, R.styleable.LinearCardView, 0, 0);
         mHeaderDrawable = typedAttributes.getDrawable(R.styleable.LinearCardView_header_background);
         mHeaderTitle = typedAttributes.getString(R.styleable.LinearCardView_body_title);
@@ -77,7 +79,12 @@ public class LinearCardView extends AutoLayerLinearLayout {
 
         setSupportBackground(mViewHeader, mHeaderDrawable);
         mTitleTxt.setText(mHeaderTitle);
-        mSubTitleTxt.setText(mHeaderSubTitle);
+
+        if (resources.getBoolean(R.bool.tablet)) {
+            mSubTitleTxt.setText(mHeaderSubTitle);
+        } else {
+            mSubTitleTxt.setVisibility(GONE);
+        }
     }
 
     //---------------------------------------------------------------------

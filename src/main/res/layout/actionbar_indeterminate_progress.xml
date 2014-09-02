@@ -15,14 +15,16 @@
   limitations under the License.
 -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     android:layout_width="@dimen/abs__action_button_min_width"
     android:minWidth="@dimen/abs__action_button_min_width">
 
     <ProgressBar android:layout_width="32dp"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="32dp"
         android:layout_gravity="center"
-        style="?indeterminateProgressStyle" />
+        style="@android:style/Widget.Holo.ProgressBar" />
 
 </FrameLayout>

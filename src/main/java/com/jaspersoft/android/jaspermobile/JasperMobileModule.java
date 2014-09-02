@@ -26,11 +26,11 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.content.Context;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.google.inject.AbstractModule;
 
 /**
  * @author Ivan Gadzhega

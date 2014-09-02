@@ -24,10 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.app.ActionBar;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.webkit.WebChromeClient;
@@ -35,23 +38,24 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import com.actionbarsherlock.view.Menu;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.octo.android.robospice.SpiceManager;
-import roboguice.inject.InjectView;
 
 import java.util.HashMap;
+
+import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
 
 /**
  * @author Ivan Gadzhega
  * @since 1.4
  */
-public abstract class BaseHtmlViewerActivity extends RoboSherlockActivity {
+public abstract class BaseHtmlViewerActivity extends RoboActivity {
 
     // Extras
     public static final String EXTRA_RESOURCE_URI = "BaseHtmlViewerActivity.EXTRA_RESOURCE_URI";
@@ -79,7 +83,9 @@ public abstract class BaseHtmlViewerActivity extends RoboSherlockActivity {
 
         initDataFromExtras();
 
-        getSupportActionBar().setTitle(resourceLabel);
+        if (getActionBar() != null) {
+            getActionBar().setTitle(resourceLabel);
+        }
 
         initWebView();
     }
@@ -141,13 +147,16 @@ public abstract class BaseHtmlViewerActivity extends RoboSherlockActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();

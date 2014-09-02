@@ -24,17 +24,20 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceManager;
-import com.actionbarsherlock.app.ActionBar;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPreferenceActivity;
+import android.view.MenuItem;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.octo.android.robospice.persistence.DurationInMillis;
+
+import roboguice.activity.RoboPreferenceActivity;
 
 import static android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
@@ -42,7 +45,7 @@ import static android.content.SharedPreferences.OnSharedPreferenceChangeListener
  * @author Ivan Gadzhega
  * @since 1.5
  */
-public class SettingsActivity extends RoboSherlockPreferenceActivity implements OnSharedPreferenceChangeListener {
+public class SettingsActivity extends RoboPreferenceActivity implements OnSharedPreferenceChangeListener {
 
     public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
@@ -67,7 +70,7 @@ public class SettingsActivity extends RoboSherlockPreferenceActivity implements 
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         // update title
-        ActionBar actionBar = getSupportActionBar();
+        ActionBar actionBar = getActionBar();
         actionBar.setTitle(R.string.st_title);
         // use the App Icon for Navigation
         actionBar.setHomeButtonEnabled(true);
@@ -94,7 +97,7 @@ public class SettingsActivity extends RoboSherlockPreferenceActivity implements 
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 HomeActivity.goHome(this);

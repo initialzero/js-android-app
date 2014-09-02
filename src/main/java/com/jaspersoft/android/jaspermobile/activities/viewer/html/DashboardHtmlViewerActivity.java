@@ -26,7 +26,9 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.os.Bundle;
 import android.widget.RelativeLayout;
+
 import com.jaspersoft.android.jaspermobile.R;
+
 import roboguice.inject.InjectView;
 
 /**

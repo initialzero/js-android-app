@@ -25,8 +25,10 @@
 package com.jaspersoft.android.jaspermobile.activities.resource;
 
 import android.widget.TextView;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
+
 import roboguice.inject.InjectView;
 
 /**

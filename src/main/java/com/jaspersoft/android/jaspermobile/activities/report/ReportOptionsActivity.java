@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report;
 
+import android.app.ActionBar;
 import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -32,11 +33,20 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
@@ -61,21 +71,30 @@ import com.jaspersoft.android.sdk.ui.widget.MultiSelectSpinner;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.*;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
+import roboguice.util.Ln;
+
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DATE_DIALOG_ID;
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DEFAULT_DATE_FORMAT;
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.TIME_DIALOG_ID;
 
 /**
  * @author Ivan Gadzhega
  * @since 1.6
  */
-public class ReportOptionsActivity extends RoboSherlockActivity {
+public class ReportOptionsActivity extends RoboActivity {
 
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
@@ -115,7 +134,9 @@ public class ReportOptionsActivity extends RoboSherlockActivity {
 
         // get report label from extras and update title
         String reportLabel = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
-        getSupportActionBar().setTitle(reportLabel);
+        if (getActionBar() != null) {
+            getActionBar().setTitle(reportLabel);
+        }
 
         // get report uri from extras
         reportUri = getIntent().getExtras().getString(EXTRA_REPORT_URI);
@@ -154,9 +175,13 @@ public class ReportOptionsActivity extends RoboSherlockActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
-        // use the App Icon for Navigation
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            // use the App Icon for Navigation
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         // indeterminate progress
         MenuItem item = menu.add(Menu.NONE, ID_AB_INDETERMINATE_PROGRESS, Menu.NONE, R.string.loading_msg);
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);

@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -31,16 +32,21 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
-import com.actionbarsherlock.view.Menu;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+
+import roboguice.activity.RoboListActivity;
 import roboguice.inject.InjectView;
 
 /**
@@ -48,7 +54,7 @@ import roboguice.inject.InjectView;
  * @version $Id$
  * @since 1.0
  */
-public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
+public class ServerProfilesManagerActivity extends RoboListActivity {
 
     // Action Bar IDs
     private static final int ID_AB_ADD_SERVER_PROFILE = 10;
@@ -71,8 +77,10 @@ public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.server_profiles_manager_layout);
 
-        // update title
-        getSupportActionBar().setTitle(R.string.spm_list_title);
+        if (getActionBar() != null) {
+            // update title
+            getActionBar().setTitle(R.string.spm_list_title);
+        }
         // Register a context menu to be shown for the given view
         registerForContextMenu(listView);
 
@@ -101,9 +109,12 @@ public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // use the App Icon for Navigation
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            // use the App Icon for Navigation
+            getActionBar().setHomeButtonEnabled(true);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         // Add actions to the action bar
         menu.add(Menu.NONE, ID_AB_ADD_SERVER_PROFILE, Menu.NONE, R.string.spm_ab_add_profile)
                 .setIcon(R.drawable.ic_action_add_account).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -113,7 +124,7 @@ public class ServerProfilesManagerActivity extends RoboSherlockListActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case android.R.id.home:

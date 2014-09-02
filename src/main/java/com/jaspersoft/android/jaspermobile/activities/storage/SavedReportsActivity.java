@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.storage;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -34,12 +35,17 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.*;
-import com.actionbarsherlock.view.Menu;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
@@ -47,19 +53,21 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewer
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity;
 import com.jaspersoft.android.sdk.ui.adapters.FileArrayAdapter;
 import com.jaspersoft.android.sdk.util.FileUtils;
-import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Comparator;
+
+import roboguice.activity.RoboListActivity;
+import roboguice.inject.InjectView;
+import roboguice.util.Ln;
 
 /**
  * @author Ivan Gadzhega
  * @since 1.8
  */
 
-public class SavedReportsActivity extends RoboSherlockListActivity {
+public class SavedReportsActivity extends RoboListActivity {
 
     // Context menu IDs
     private static final int ID_CM_OPEN = 10;
@@ -86,8 +94,11 @@ public class SavedReportsActivity extends RoboSherlockListActivity {
         listView.setEmptyView(nothingToDisplayText);
         // Register a context menu to be shown for the given view
         registerForContextMenu(listView);
-        //update title
-        getSupportActionBar().setTitle(R.string.sdr_ab_title);
+
+        if (getActionBar() != null) {
+            //update title
+            getActionBar().setTitle(R.string.sdr_ab_title);
+        }
 
         updateReportsListView();
     }
@@ -104,13 +115,17 @@ public class SavedReportsActivity extends RoboSherlockListActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+
+            getActionBar().setHomeButtonEnabled(true);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 HomeActivity.goHome(this);

@@ -28,11 +28,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.octo.android.robospice.exception.NetworkException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+
 import roboguice.util.Ln;
 
 /**

@@ -24,21 +24,24 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import com.actionbarsherlock.view.Menu;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+
+import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 
 /**
@@ -46,7 +49,7 @@ import roboguice.inject.InjectView;
  * @version $Id$
  * @since 1.0
  */
-public class ServerProfileActivity extends RoboSherlockActivity {
+public class ServerProfileActivity extends RoboActivity {
 
     // Special intent actions
     public static final String ADD_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.ADD_SERVER_PROFILE";
@@ -79,6 +82,7 @@ public class ServerProfileActivity extends RoboSherlockActivity {
 
         // Get the database provider
         dbProvider = new DatabaseProvider(this);
+        ActionBar actionBar = getActionBar();
 
         if (EDIT_SERVER_PROFILE_ACTION.equals(intent.getAction())) {
             // Get a cursor with selected server profile
@@ -95,9 +99,11 @@ public class ServerProfileActivity extends RoboSherlockActivity {
             int pwdId = cursor.getColumnIndex(ServerProfiles.KEY_PASSWORD);
 
             // update action bar
-            getSupportActionBar().setTitle(R.string.sp_bc_edit_profile);
-            getSupportActionBar().setSubtitle(cursor.getString(aliasId));
-            
+            if (actionBar != null) {
+                actionBar.setTitle(R.string.sp_bc_edit_profile);
+                actionBar.setSubtitle(cursor.getString(aliasId));
+            }
+
             // Set the server profile values to edits
             aliasEdit.setText(cursor.getString(aliasId));
             serverUrlEdit.setText(cursor.getString(urlId));
@@ -116,7 +122,9 @@ public class ServerProfileActivity extends RoboSherlockActivity {
             }
         } else {
             // just update title
-            getSupportActionBar().setTitle(R.string.sp_bc_add_profile);
+            if (actionBar != null) {
+                actionBar.setTitle(R.string.sp_bc_add_profile);
+            }
         }
     }
 
@@ -172,9 +180,12 @@ public class ServerProfileActivity extends RoboSherlockActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // use the App Icon for Navigation
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            // use the App Icon for Navigation
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         // Add actions to the action bar
         menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
                 .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
@@ -182,7 +193,7 @@ public class ServerProfileActivity extends RoboSherlockActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_SETTINGS:

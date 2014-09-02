@@ -24,11 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.resource;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
@@ -43,11 +44,13 @@ import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import roboguice.activity.RoboActivity;
+
 /**
  * @author Ivan Gadzhega
  * @since 1.6
  */
-public abstract class BaseResourceActivity extends RoboSherlockActivity {
+public abstract class BaseResourceActivity extends RoboActivity {
 
     // Action Bar IDs
     private static final int ID_AB_REFRESH = 10;
@@ -63,8 +66,12 @@ public abstract class BaseResourceActivity extends RoboSherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getContentViewResId());
-        //update title
-        getSupportActionBar().setTitle(getTitleResId());
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            //update title
+            actionBar.setTitle(getTitleResId());
+        }
         // bind to service
         serviceManager = new SpiceManager(JsXmlSpiceService.class);
         // get resource info
@@ -73,9 +80,13 @@ public abstract class BaseResourceActivity extends RoboSherlockActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // use the App Icon for Navigation
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            // use the App Icon for Navigation
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         // Add actions to the action bar
         refreshItem = menu.add(Menu.NONE, ID_AB_REFRESH, Menu.NONE, R.string.r_ab_refresh);
         refreshItem.setIcon(R.drawable.ic_action_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -87,7 +98,7 @@ public abstract class BaseResourceActivity extends RoboSherlockActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_REFRESH:
@@ -160,7 +171,9 @@ public abstract class BaseResourceActivity extends RoboSherlockActivity {
 
         @Override
         public void onRequestSuccess(ResourceDescriptor resourceDescriptor) {
-            getSupportActionBar().setSubtitle(resourceDescriptor.getLabel());
+            if (getActionBar() != null) {
+                getActionBar().setSubtitle(resourceDescriptor.getLabel());
+            }
             onGetResourceRequestSuccess(resourceDescriptor);
             setRefreshActionButtonState(false);
         }

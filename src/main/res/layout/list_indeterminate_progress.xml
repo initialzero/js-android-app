@@ -31,7 +31,7 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_margin="10dp"
-        style="?indeterminateProgressStyle"
+        style="@android:style/Widget.Holo.ProgressBar"
     />
 
 </LinearLayout>

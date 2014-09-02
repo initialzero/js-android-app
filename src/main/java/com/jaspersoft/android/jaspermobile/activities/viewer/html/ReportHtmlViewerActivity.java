@@ -25,10 +25,10 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity;
@@ -91,7 +91,7 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case ID_AB_SAVE_AS:
                 if (!FileUtils.isExternalStorageWritable()) {

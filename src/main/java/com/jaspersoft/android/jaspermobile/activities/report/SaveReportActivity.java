@@ -24,12 +24,18 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report;
 
+import android.app.ActionBar;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
@@ -49,17 +55,19 @@ import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
+import roboguice.util.Ln;
 
 /**
  * @author Ivan Gadzhega
  * @since 1.8
  */
-public class SaveReportActivity extends RoboSherlockActivity {
+public class SaveReportActivity extends RoboActivity {
 
     // Action Bar IDs
     private static final int ID_AB_INDETERMINATE_PROGRESS = 10;
@@ -91,7 +99,10 @@ public class SaveReportActivity extends RoboSherlockActivity {
 
         serviceManager = new SpiceManager(JsXmlSpiceService.class);
 
-        getSupportActionBar().setTitle(R.string.sr_ab_title);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.sr_ab_title);
+        }
 
         String reportLabel = getIntent().getExtras().getString(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL);
         reportNameInput.setText(reportLabel);
@@ -156,8 +167,11 @@ public class SaveReportActivity extends RoboSherlockActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
 
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         MenuItem item = menu.add(Menu.NONE, ID_AB_INDETERMINATE_PROGRESS, Menu.NONE, R.string.loading_msg);
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -168,7 +182,7 @@ public class SaveReportActivity extends RoboSherlockActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();

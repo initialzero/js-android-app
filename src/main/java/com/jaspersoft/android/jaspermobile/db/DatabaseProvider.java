@@ -32,9 +32,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
 import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
-import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
+
 import roboguice.util.Ln;
 
 

@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourcesRequest;

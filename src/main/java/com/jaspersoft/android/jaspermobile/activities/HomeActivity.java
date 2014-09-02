@@ -46,11 +46,11 @@ import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryA
 import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;

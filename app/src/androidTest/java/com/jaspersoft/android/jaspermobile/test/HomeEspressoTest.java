@@ -32,7 +32,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
@@ -70,7 +70,7 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 2.0
  */
-public class HomeEspressoTest extends ActivityInstrumentationTestCase2<HomeActivity> {
+public class HomeEspressoTest extends ActivityInstrumentationTestCase2<HomeActivity_> {
 
     private static final String PASSWORD = "SOME_PASSWORD";
     private static final String ALIAS = "Mobile Demo";
@@ -95,7 +95,7 @@ public class HomeEspressoTest extends ActivityInstrumentationTestCase2<HomeActiv
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
 
     public HomeEspressoTest() {
-        super(HomeActivity.class);
+        super(HomeActivity_.class);
     }
 
     @Override

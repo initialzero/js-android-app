@@ -71,7 +71,7 @@ public class WebkitCookieManagerProxy extends CookieManager {
      * @param requestHeaders a list of request headers
      *
      * @return a map that record all such cookies, the map is unchangeable
-     * @throws IOException
+     * @throws java.io.IOException
      *             if some error of I/O operation occurs
      */
     @Override
@@ -97,7 +97,7 @@ public class WebkitCookieManagerProxy extends CookieManager {
      * @param uri the specified uri
      * @param responseHeaders a list of request headers
      *
-     * @throws IOException if some error of I/O operation occurs
+     * @throws java.io.IOException if some error of I/O operation occurs
      */
     @Override
     public void put(URI uri, Map<String, List<String>> responseHeaders) throws IOException {

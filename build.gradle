@@ -1,97 +1,25 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.2+'
-    }
-
     repositories {
+        jcenter()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.3'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
         mavenCentral()
-    }
-}
-
-repositories {
-    mavenCentral()
-    mavenLocal()
-    maven { url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk' }
-    maven { url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk-snapshots'}
-}
-
-apply plugin: 'com.android.application'
-apply from: 'build_utils.gradle'
-
-group = 'com.jaspersoft.android'
-description = 'js-android-jaspermobile'
-
-android {
-    compileSdkVersion 19
-    buildToolsVersion '19.1'
-
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 19
-        versionCode 15020000
-        versionName generateVersionName()
-        testInstrumentationRunner INSTRUMENTATION_RUNNER
-    }
-
-    if (project.hasProperty('JMA_STORE_FILE')) {
-        signingConfigs {
-            release {
-                storeFile file(JMA_STORE_FILE)
-                storePassword JMA_STORE_PASSWORD
-                keyAlias JMA_KEY_ALIAS
-                keyPassword JMA_KEY_PASSWORD
-            }
-        }
-
-        buildTypes {
-            release {
-                runProguard true
-                proguardFile "proguard.cfg"
-                proguardFile getDefaultProguardFile('proguard-android.txt')
-                signingConfig signingConfigs.release
-            }
-        }
-    }
-
-    packagingOptions {
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-    }
-
-    lintOptions {
-        checkReleaseBuilds false
-    }
-
-    applicationVariants.all { variant ->
-        renameApk(variant)
-        variant.assemble.doLast {
-            removeUnaligned(variant)
-        }
-    }
-}
-
-dependencies {
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:2.0-SNAPSHOT'
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:2.0-SNAPSHOT'
-
-    compile 'org.roboguice:roboguice:2.0'
-    compile 'com.android.support:support-v4:20.0.0'
-
-    // This is required for @Nullable @NonNull annotations
-    compile 'com.android.support:support-annotations:20.0.0'
-    // For sugar instantiate of dialogs
-    compile 'eu.inmite.android.lib:android-styled-dialogs:1.2.0'
-
-    androidTestCompile('org.mockito:mockito-core:1.9.5') {
-        exclude group: "org.hamcrest"
-    }
-    androidTestCompile files('libs/espresso-1.1.jar')
-    androidTestCompile('com.google.dexmaker:dexmaker:1.0') {
-        exclude group: "org.mockito"
-    }
-    androidTestCompile('com.google.dexmaker:dexmaker-mockito:1.0') {
-        exclude group: "org.mockito"
+        mavenLocal()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk' }
+        maven { url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk-snapshots'}
     }
 }

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -39,7 +38,6 @@
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
             android:id="@+id/home_item_library"
             style="@style/home.card.box.left"
-            android:onClick="dashButtonOnClickListener"
             auto:body_subtitle="@string/library_card_desc"
             auto:body_title="@string/library_card_label"
             auto:header_background="@drawable/ic_composed_library_home" />
@@ -47,11 +45,18 @@
         <!--Saved Items-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
             android:id="@+id/home_item_saved_reports"
-            style="@style/home.card.box"
-            android:onClick="dashButtonOnClickListener"
+            style="@style/home.card.box.left"
             auto:body_subtitle="@string/saved_items_card_desc"
             auto:body_title="@string/saved_items_card_label"
             auto:header_background="@drawable/ic_composed_saved_items_home" />
+
+        <!--Settings-->
+        <com.jaspersoft.android.jaspermobile.widget.LinearCardView
+            android:id="@+id/home_item_settings"
+            style="@style/home.card.box"
+            auto:body_subtitle="@string/settings_card_desc"
+            auto:body_title="@string/settings_card_label"
+            auto:header_background="@drawable/ic_composed_config_home" />
 
     </TableRow>
 
@@ -61,7 +66,6 @@
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
             android:id="@+id/home_item_repository"
             style="@style/home.card.box.left"
-            android:onClick="dashButtonOnClickListener"
             auto:body_subtitle="@string/repository_card_desc"
             auto:body_title="@string/repository_card_label"
             auto:header_background="@drawable/ic_composed_repository_home" />
@@ -69,30 +73,15 @@
         <!--Favorites-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
             android:id="@+id/home_item_favorites"
-            style="@style/home.card.box"
-            android:onClick="dashButtonOnClickListener"
+            style="@style/home.card.box.left"
             auto:body_subtitle="@string/favorites_card_desc"
             auto:body_title="@string/favorites_card_label"
             auto:header_background="@drawable/ic_composed_favorites_home" />
-
-    </TableRow>
-
-    <TableRow style="@style/home.row">
-
-        <!--Settings-->
-        <com.jaspersoft.android.jaspermobile.widget.LinearCardView
-            android:id="@+id/home_item_settings"
-            style="@style/home.card.box.left"
-            android:onClick="dashButtonOnClickListener"
-            auto:body_subtitle="@string/settings_card_desc"
-            auto:body_title="@string/settings_card_label"
-            auto:header_background="@drawable/ic_composed_config_home" />
 
         <!--Servers-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
             android:id="@+id/home_item_servers"
             style="@style/home.card.box"
-            android:onClick="dashButtonOnClickListener"
             auto:body_subtitle="@string/servers_card_desc"
             auto:body_title="@string/servers_card_label"
             auto:header_background="@drawable/ic_composed_config_home" />
@@ -100,4 +89,3 @@
     </TableRow>
 
 </TableLayout>
-

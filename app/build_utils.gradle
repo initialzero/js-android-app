@@ -20,7 +20,7 @@ ext.removeUnaligned = { targetVariant ->
 }
 
 ext.generateVersionName = {
-    def version = MAJOR_VERSION + "." + MINOR_VERSION + "." + getRevisionNumber()
+    def version = MAJOR_VERSION + "." + MINOR_VERSION
     def sanitizedBranch = sanitizeLastSlash(getBranch())
     def notMaster = !sanitizedBranch.equals('master')
     def notDevelop = !sanitizedBranch.equals('develop')
@@ -68,22 +68,4 @@ def getBranchNameFromGit() {
         println ignored
         return "FAILED_GET_BRANCH_NAME"
     }
-}
-
-def getRevisionNumber() {
-    def runTasks = gradle.startParameter.taskNames
-    if ('assembleRelease' in runTasks) {
-        def branchName = getBranchNameFromGit()
-        if (!branchName.equals("FAILED_GET_BRANCH_NAME")) {
-            Properties props = new Properties()
-            File propsFile = new File('./gradle.properties')
-            props.load(propsFile.newDataInputStream())
-            def newRevisionVersion = (REVISION_VERSION.toInteger() + 1).toString()
-            props.setProperty('REVISION_VERSION', newRevisionVersion)
-            props.store(propsFile.newWriter(), null)
-            props.load(propsFile.newDataInputStream())
-            return props.getProperty('REVISION_VERSION')
-        }
-    }
-    return REVISION_VERSION
 }

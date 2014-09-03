@@ -28,10 +28,10 @@
     <item android:drawable="@drawable/card_header_blue_gradient" />
 
     <item
-        android:left="16dp"
-        android:top="16dp">
+        android:left="@dimen/card_composed_image_padding"
+        android:top="@dimen/card_composed_image_padding">
         <bitmap
             android:gravity="left|top"
-            android:src="@drawable/tmp_ic_library_home" />
+            android:src="@drawable/ic_library_home" />
     </item>
 </layer-list>

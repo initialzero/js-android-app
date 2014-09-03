@@ -61,6 +61,7 @@ import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
@@ -105,7 +106,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @OptionsMenuItem
     protected MenuItem serverProfileMenuItem;
     @InstanceState
-    protected boolean mAnimateStartup;
+    protected boolean mAnimateStartup = true;
 
     private TextView mProfileNameText;
     private Bundle mSavedInstanceState;
@@ -117,10 +118,9 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     public static void goHome(Context context) {
         // All of the other activities on top of it will be destroyed and this intent will be delivered
         // to the resumed instance of the activity (now on top), through onNewIntent()
-        Intent intent = new Intent();
-        intent.setClass(context, HomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        context.startActivity(intent);
+        HomeActivity_.intent(context)
+                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .start();
     }
 
     //---------------------------------------------------------------------
@@ -133,6 +133,18 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         mProfileNameText = (TextView) actionView.findViewById(R.id.profile_name);
         reloadProfileNameView();
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    //---------------------------------------------------------------------
+    // Annotated methods
+    //---------------------------------------------------------------------
+
+    @AfterViews
+    final void init() {
+        if (mAnimateStartup) {
+            mAnimateStartup = false;
+            animateLayout();
+        }
     }
 
     @Click(R.id.home_item_repository)
@@ -261,17 +273,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSavedInstanceState = savedInstanceState;
-
-        if (mSavedInstanceState == null) {
-            mAnimateStartup = true;
-        } else {
-            mAnimateStartup = mSavedInstanceState.getBoolean(FLAG_ANIMATE_STARTUP, true);
-        }
-
-        if (mAnimateStartup) {
-            mAnimateStartup = false;
-            animateLayout();
-        }
     }
 
     @Override

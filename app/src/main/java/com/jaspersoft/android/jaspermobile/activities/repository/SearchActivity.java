@@ -184,6 +184,7 @@ public class SearchActivity extends BaseBrowserSearchActivity {
         handleIntent(intent, false);
     }
 
+    @Override
     protected void handleIntent(Intent intent, boolean forceUpdate) {
         String title = getString(R.string.s_title);
         String subtitle = intent.getStringExtra(EXTRA_BC_TITLE_SMALL);
@@ -200,12 +201,14 @@ public class SearchActivity extends BaseBrowserSearchActivity {
     // Resources
     //---------------------------------------------------------------------
 
+    @Override
     protected void getResources(boolean ignoreCache) {
         SearchResourcesRequest request = new SearchResourcesRequest(jsRestClient, uri, query, types, true, 0);
         long cacheExpiryDuration = (forceUpdate) ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new SearchResourcesListener());
     }
 
+    @Override
     protected void getResourceLookups(boolean ignoreCache) {
         if (filterItem != null) {
             filterItem.setVisible(true);

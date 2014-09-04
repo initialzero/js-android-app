@@ -22,10 +22,9 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test;
+package com.jaspersoft.android.jaspermobile.test.acceptance;
 
 import android.app.Application;
-import android.test.ActivityInstrumentationTestCase2;
 
 import com.google.android.apps.common.testing.ui.espresso.ViewInteraction;
 import com.google.inject.AbstractModule;
@@ -34,6 +33,7 @@ import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
+import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -70,7 +70,7 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 2.0
  */
-public class HomeEspressoTest extends ActivityInstrumentationTestCase2<HomeActivity_> {
+public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
 
     private static final String PASSWORD = "SOME_PASSWORD";
     private static final String ALIAS = "Mobile Demo";
@@ -94,7 +94,7 @@ public class HomeEspressoTest extends ActivityInstrumentationTestCase2<HomeActiv
 
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
 
-    public HomeEspressoTest() {
+    public HomePageTest() {
         super(HomeActivity_.class);
     }
 
@@ -111,6 +111,11 @@ public class HomeEspressoTest extends ActivityInstrumentationTestCase2<HomeActiv
                 Modules.override(RoboGuice.newDefaultRoboModule(application))
                         .with(new TestModule()));
 
+    }
+
+    @Override
+    public String getPageName() {
+        return "home_page";
     }
 
     @Override

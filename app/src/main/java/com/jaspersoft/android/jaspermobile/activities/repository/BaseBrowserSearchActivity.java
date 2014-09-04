@@ -187,6 +187,7 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
         }
     }
 
+    @Deprecated
     protected abstract void getResources(boolean ignoreCache);
 
     protected abstract void getResourceLookups(boolean ignoreCache);
@@ -301,6 +302,7 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
         }
     }
 
+    @Deprecated
     protected class SearchResourcesListener extends GetResourcesListener {
         @Override
         protected int getNothingToDisplayString() {

@@ -65,6 +65,7 @@ public class BrowserActivity extends BaseBrowserSearchActivity {
         super.startActivity(intent);
     }
 
+    @Override
     protected void handleIntent(Intent intent, boolean forceUpdate) {
         Bundle extras = getIntent().getExtras();
 
@@ -77,12 +78,14 @@ public class BrowserActivity extends BaseBrowserSearchActivity {
         super.handleIntent(intent, forceUpdate);
     }
 
+    @Override
     protected void getResources(boolean ignoreCache) {
         GetResourcesRequest request = new GetResourcesRequest(jsRestClient, uri);
         long cacheExpiryDuration = ignoreCache ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourcesListener());
     }
 
+    @Override
     protected void getResourceLookups(boolean ignoreCache) {
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, uri, types, offset, LIMIT);
         long cacheExpiryDuration = ignoreCache ? DurationInMillis.ALWAYS_EXPIRED : SettingsActivity.getRepoCacheExpirationValue(this);

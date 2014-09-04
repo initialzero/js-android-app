@@ -271,6 +271,7 @@ public abstract class BaseRepositoryActivity extends RoboListActivity {
         startActivity(intent);
     }
 
+    @Deprecated
     private void viewResource(String resourceUri) {
         Intent intent = new Intent();
         intent.setClass(this, ResourceInfoActivity.class);

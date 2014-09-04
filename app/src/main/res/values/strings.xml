@@ -229,4 +229,6 @@
     <string name="servers_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
     <string name="home_label">Home</string>
 
+    <string name="device">handset</string>
+
 </resources>

@@ -42,7 +42,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
@@ -55,11 +54,7 @@ import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -162,10 +157,14 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_library)
     final void showLibrary() {
         if (mConnectivityUtil.isConnected()) {
-            GetServerInfoRequest request = new GetServerInfoRequest(mJsRestClient);
-            GetServerInfoListener listener = new GetServerInfoListener();
-            long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(this);
-            getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, listener);
+            Intent searchIntent = new Intent(HomeActivity.this, SearchActivity.class);
+            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
+            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
+            ArrayList<String> types = new ArrayList<String>();
+            types.add(ResourceLookup.ResourceType.reportUnit.toString());
+            types.add(ResourceLookup.ResourceType.dashboard.toString());
+            searchIntent.putExtra(SearchActivity.EXTRA_RESOURCE_TYPES, types);
+            startActivity(searchIntent);
         } else {
             showNetworkAlert();
         }
@@ -354,35 +353,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
             if (isPasswordMissingOnFirstLaunch) {
                 PasswordDialogFragment.show(getSupportFragmentManager());
             }
-        }
-    }
-
-    //---------------------------------------------------------------------
-    // Nested classes
-    //---------------------------------------------------------------------
-
-    private class GetServerInfoListener implements RequestListener<ServerInfo> {
-
-        @Override
-        public void onRequestFailure(SpiceException e) {
-            RequestExceptionHandler.handle(e, HomeActivity.this, false);
-        }
-
-        @Override
-        public void onRequestSuccess(ServerInfo serverInfo) {
-            Intent searchIntent = new Intent(HomeActivity.this, SearchActivity.class);
-
-            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
-            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
-
-            ArrayList<String> types = new ArrayList<String>();
-            types.add(ResourceLookup.ResourceType.reportUnit.toString());
-            if (ServerInfo.EDITIONS.PRO.equals(serverInfo.getEdition())) {
-                types.add(ResourceLookup.ResourceType.dashboard.toString());
-            }
-            searchIntent.putExtra(SearchActivity.EXTRA_RESOURCE_TYPES, types);
-
-            startActivity(searchIntent);
         }
     }
 

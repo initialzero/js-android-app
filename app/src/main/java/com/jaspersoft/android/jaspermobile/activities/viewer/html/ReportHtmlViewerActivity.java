@@ -65,7 +65,7 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
     @Override
     protected void loadDataToWebView() {
         GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-        serviceManager.execute(request, new GetServerInfoListener());
+        getSpiceManager().execute(request, new GetServerInfoListener());
     }
 
     @Override
@@ -147,7 +147,7 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
                 // POST
                 RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient,
                         resourceUri, outputFormat, reportParameters);
-                serviceManager.execute(request, new RunReportExecutionListener());
+                getSpiceManager().execute(request, new RunReportExecutionListener());
             } else {
                 // GET
                 String reportUrl =

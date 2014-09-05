@@ -44,7 +44,6 @@ import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.resource.ResourceInfoActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
@@ -273,16 +272,10 @@ public abstract class BaseRepositoryActivity extends RoboListActivity {
 
     @Deprecated
     private void viewResource(String resourceUri) {
-        Intent intent = new Intent();
-        intent.setClass(this, ResourceInfoActivity.class);
-        intent.putExtra(EXTRA_BC_TITLE_SMALL, getIntent().getExtras().getString(EXTRA_BC_TITLE_LARGE));
-        intent.putExtra(EXTRA_RESOURCE_URI , resourceUri);
-        startActivityForResult(intent, ID_CM_VIEW_DETAILS);
     }
 
     private void runReport(String reportLabel, String reportUri) {
         final GetInputControlsRequest request = new GetInputControlsRequest(jsRestClient, reportUri);
-        getSpiceManager().execute(request, new GetInputControlsListener(reportLabel, reportUri));
 
         // show progress dialog
         progressDialog = new ProgressDialog(this);
@@ -296,6 +289,8 @@ public abstract class BaseRepositoryActivity extends RoboListActivity {
             }
         });
         progressDialog.show();
+
+        getSpiceManager().execute(request, new GetInputControlsListener(reportLabel, reportUri));
     }
 
     private void runDashboard(String dashboardUri, String dashboardLabel) {

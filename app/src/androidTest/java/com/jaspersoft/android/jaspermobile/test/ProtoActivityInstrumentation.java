@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ListView;
 
+import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
 import com.squareup.spoon.Spoon;
 
 public abstract class ProtoActivityInstrumentation<T extends Activity>
@@ -24,8 +25,10 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
     protected void setUp() throws Exception {
         super.setUp();
         nameUtils = new NameUtils(getPageName());
-        mActivity = getActivity();
+    }
 
+    public void startActivityUnderTest() {
+        mActivity = super.getActivity();
         // sometimes tests failed on emulator, following approach should avoid it
         // http://stackoverflow.com/questions/22737476/false-positives-junit-framework-assertionfailederror-edittext-is-not-found
         getInstrumentation().runOnMainSync(new Runnable() {
@@ -39,6 +42,7 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
             }
         });
     }
+
 
     protected void makeScreenShot(String name) throws InterruptedException {
         if (SLEEP_RATE > 0) {
@@ -72,6 +76,14 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
 
     protected int getActionBarId() {
         return mActivity.getResources().getIdentifier("action_bar", "id", "android");
+    }
+
+    protected int getActionBarTitleId() {
+        return mActivity.getResources().getIdentifier("action_bar_title", "id", "android");
+    }
+
+    protected int getActionBarSubTitleId() {
+        return mActivity.getResources().getIdentifier("action_bar_subtitle", "id", "android");
     }
 
     protected View findViewById(int id) {

@@ -22,37 +22,30 @@
 * <http://www.gnu.org/licenses/lgpl>.
 */
 
-package com.jaspersoft.android.jaspermobile.test;
+package com.jaspersoft.android.jaspermobile.widget;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
-
-import java.io.InputStream;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.webkit.WebChromeClient;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public final class TestResources {
-    private TestResources() {
+public class JSWebView extends android.webkit.WebView {
+    private WebChromeClient webChromeCient;
+
+    public JSWebView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
     }
 
-    private static class Holder {
-        private static final TestResources INSTANCE = new TestResources();
+    @Override
+    public void setWebChromeClient(WebChromeClient client) {
+        super.setWebChromeClient(client);
+        webChromeCient = client;
     }
 
-    public <T> T fromXML(Class<T> clazz, String fileName) {
-        InputStream stream = getClass().getClassLoader().getResourceAsStream(fileName + ".xml");
-
-        Serializer serializer = new Persister();
-        try {
-            return serializer.read(clazz, stream);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static TestResources get() {
-        return Holder.INSTANCE;
+    public WebChromeClient getWebChromeCient() {
+        return webChromeCient;
     }
 }

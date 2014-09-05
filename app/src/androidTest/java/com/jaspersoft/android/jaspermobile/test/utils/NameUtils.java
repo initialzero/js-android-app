@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.test;
+package com.jaspersoft.android.jaspermobile.test.utils;
 
 
 import android.app.Activity;

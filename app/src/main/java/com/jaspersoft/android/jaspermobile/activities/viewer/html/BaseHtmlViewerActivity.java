@@ -41,9 +41,10 @@ import android.widget.ProgressBar;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.octo.android.robospice.SpiceManager;
 
 import java.util.HashMap;
@@ -67,19 +68,18 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
     protected FrameLayout webViewPlaceholder;
     @InjectView(R.id.htmlViewer_webView_progressBar)
     protected ProgressBar progressBar;
-    protected WebView webView;
+    protected JSWebView webView;
 
     protected String resourceUri;
     protected String resourceLabel;
 
-    protected SpiceManager serviceManager;
+    @Inject
+    private JsXmlSpiceServiceWrapper jsXmlSpiceServiceWrapper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.html_viewer_layout);
-
-        serviceManager = new SpiceManager(JsXmlSpiceService.class);
 
         initDataFromExtras();
 
@@ -131,14 +131,18 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
 
     @Override
     protected void onStart() {
-        serviceManager.start(this);
+        jsXmlSpiceServiceWrapper.onStart(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        serviceManager.shouldStop();
+        jsXmlSpiceServiceWrapper.onStop();
         super.onStop();
+    }
+
+    protected SpiceManager getSpiceManager() {
+        return jsXmlSpiceServiceWrapper.getSpiceManager();
     }
 
     //---------------------------------------------------------------------
@@ -178,7 +182,7 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
     }
 
     private void createWebView() {
-        webView = new WebView(this, null, R.style.htmlViewer_webView);
+        webView = new JSWebView(this, null, R.style.htmlViewer_webView);
         prepareWebView();
         setWebViewClient();
         loadDataToWebView();

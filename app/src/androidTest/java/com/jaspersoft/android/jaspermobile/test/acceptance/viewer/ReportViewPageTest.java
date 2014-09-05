@@ -22,14 +22,20 @@
 * <http://www.gnu.org/licenses/lgpl>.
 */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance;
+package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
 import android.app.Application;
+import android.content.Intent;
+import android.test.ActivityInstrumentationTestCase2;
 
+import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
+import com.google.android.apps.common.testing.ui.espresso.Espresso;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
-import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
@@ -37,11 +43,9 @@ import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
+import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.SpiceService;
@@ -51,19 +55,30 @@ import com.octo.android.robospice.request.listener.RequestListener;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.net.URI;
+
 import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.doubleClick;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.childForPositionOf;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class LibraryPageTest extends ProtoActivityInstrumentation<SearchActivity> {
+public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportHtmlViewerActivity> {
+    private static final String REPORT_URI = "http://mobiledemo.jaspersoft.com/jasperserver-pro/" +
+            "rest_v2/reportExecutions/874327841_1409916456850_2/exports/HTML/outputResource";
+
+    private static final String USERNAME = "phoneuser|organization_1";
+    private static final String PASSWORD = "phoneuser";
+    private static final String RESOURCE_LABEL = "02. Sales Mix by Demographic Report";
 
     @Mock
     JsRestClient mockRestClient;
@@ -80,22 +95,15 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<SearchActivity
 
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
 
-    public LibraryPageTest() {
-        super(SearchActivity.class);
-    }
-
-    @Override
-    public String getPageName() {
-        return "search";
-    }
-
     @Override
     public void setUp() throws Exception {
-        super.setUp();
         MockitoAnnotations.initMocks(this);
 
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
+        when(mockRestClient.getExportOuptutResourceURI(anyString(), anyString())).thenReturn(URI.create(REPORT_URI));
+        when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
+        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
 
         Application application = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
@@ -103,11 +111,34 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<SearchActivity
                 RoboGuice.DEFAULT_STAGE,
                 Modules.override(RoboGuice.newDefaultRoboModule(application))
                         .with(new TestModule()));
+
+        super.setUp();
+
+        Intent htmlViewer = new Intent();
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, "/Reports/2_Sales_Mix_by_Demographic_Report");
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, RESOURCE_LABEL);
+        setActivityIntent(htmlViewer);
+
+        WebViewIdlingResource webViewIdlingResource = new WebViewIdlingResource();
+        Espresso.registerIdlingResources(webViewIdlingResource);
+        ReportWebViewInjector injector = new ReportWebViewInjector(webViewIdlingResource);
+        ActivityLifecycleMonitorRegistry.getInstance()
+                .addLifecycleCallback(injector);
+
+        getActivity();
     }
 
-    public void testInitialLoad() {
-        startActivityUnderTest();
-        onView(childForPositionOf(1, withId(android.R.id.list))).perform(click());
+    public ReportViewPageTest() {
+        super(ReportHtmlViewerActivity.class);
+    }
+
+
+    public void testInitialLoad() throws InterruptedException {
+
+
+        onView(withText(RESOURCE_LABEL));
+        onView(firstChildOf(withId(R.id.webViewPlaceholder))).perform(doubleClick());
+        onView(firstChildOf(withId(R.id.webViewPlaceholder))).perform(doubleClick());
     }
 
     public static class MockedSpiceManager extends SpiceManager {
@@ -116,18 +147,11 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<SearchActivity
         }
 
         public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-            if (request instanceof GetInputControlsRequest) {
-                requestListener.onRequestSuccess((T) new InputControlsList());
-            }
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
-                                final long cacheExpiryDuration, final RequestListener<T> requestListener) {
             if (request instanceof GetServerInfoRequest) {
                 requestListener.onRequestSuccess((T) TestResources.get().fromXML(ServerInfo.class, "server_info"));
             }
-            if (request instanceof GetResourceLookupsRequest) {
-                requestListener.onRequestSuccess((T) TestResources.get().fromXML(ResourceLookupsList.class, "library_reports"));
+            if (request instanceof RunReportExecutionRequest) {
+                requestListener.onRequestSuccess((T) TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution"));
             }
         }
     }
@@ -139,6 +163,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<SearchActivity
             bind(JsRestClient.class).toInstance(mockRestClient);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
             bind(DatabaseProvider.class).toInstance(mockDatabaseProvider);
+
         }
     }
 

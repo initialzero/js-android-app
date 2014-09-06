@@ -102,6 +102,14 @@ public class FavoritesActivity extends BaseRepositoryActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE, 0, Menu.NONE, R.string.r_ab_switch)
+                .setIcon(R.drawable.ic_collections_view_as_grid)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     //---------------------------------------------------------------------
     // Context menu
     //---------------------------------------------------------------------

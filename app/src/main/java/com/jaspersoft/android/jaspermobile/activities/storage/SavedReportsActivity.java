@@ -117,10 +117,14 @@ public class SavedReportsActivity extends RoboListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
-
             getActionBar().setHomeButtonEnabled(true);
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        menu.add(Menu.NONE, 0, Menu.NONE, R.string.r_ab_switch)
+                .setIcon(R.drawable.ic_collections_view_as_grid)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
         return super.onCreateOptionsMenu(menu);
     }
 

@@ -59,6 +59,7 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
     // Action Bar IDs
     private static final int ID_AB_ADD_SERVER_PROFILE = 10;
     private static final int ID_AB_SETTINGS = 11;
+    private static final int ID_AB_SWITCH = 12;
     // Context menu IDs
     private static final int ID_CM_SWITCH = 20;
     private static final int ID_CM_EDIT = 21;
@@ -68,9 +69,11 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
 
     private long selectedItemId;
 
-    @InjectView(android.R.id.list)              private ListView listView;
+    @InjectView(android.R.id.list)
+    private ListView listView;
 
-    @Inject private JsRestClient jsRestClient;
+    @Inject
+    private JsRestClient jsRestClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,8 +96,8 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
         startManagingCursor(cursor);
 
         // Show ServerProfiles list
-        String[] from = new String[] { ServerProfiles.KEY_ALIAS, ServerProfiles.KEY_SERVER_URL };
-        int[] to = new int[] {R.id.server_profiles_list_item_label, R.id.server_profiles_list_item_uri};
+        String[] from = new String[]{ServerProfiles.KEY_ALIAS, ServerProfiles.KEY_SERVER_URL};
+        int[] to = new int[]{R.id.server_profiles_list_item_label, R.id.server_profiles_list_item_uri};
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.server_profile_list_item, cursor, from, to);
         setListAdapter(adapter);
     }
@@ -116,8 +119,13 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
         // Add actions to the action bar
-        menu.add(Menu.NONE, ID_AB_ADD_SERVER_PROFILE, Menu.NONE, R.string.spm_ab_add_profile)
-                .setIcon(R.drawable.ic_action_add_account).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(Menu.NONE, ID_AB_ADD_SERVER_PROFILE, 1, R.string.spm_ab_add_profile)
+                .setIcon(R.drawable.ic_action_add_account)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(Menu.NONE, ID_AB_SWITCH, 2, R.string.r_ab_switch)
+                .setIcon(R.drawable.ic_collections_view_as_grid)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
         menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
                 .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
@@ -152,7 +160,7 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
     /* Context Menu */
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu,View view, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
 
         // Determine on which item in the ListView the user long-clicked
@@ -227,12 +235,12 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
                         .setPositiveButton(R.string.spm_delete_btn, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dbProvider.deleteServerProfile(selectedItemId);
-                                ((SimpleCursorAdapter)getListAdapter()).getCursor().requery();
+                                ((SimpleCursorAdapter) getListAdapter()).getCursor().requery();
                                 // the feedback about an operation in a small popup
                                 Toast.makeText(getApplicationContext(), R.string.spm_profile_deleted_toast, Toast.LENGTH_SHORT).show();
                             }
                         })
-                        // the cancel button handler
+                                // the cancel button handler
                         .setNegativeButton(R.string.spm_cancel_btn, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();

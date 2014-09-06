@@ -99,6 +99,7 @@
     <string name="r_search_nothing_to_display">No results from search.</string>
     <!-- Action Bar -->
     <string name="r_ab_favorites">Favorites</string>
+    <string name="r_ab_switch">Switch view</string>
     <string name="r_ab_search">Search</string>
     <string name="r_ab_refresh">Refresh</string>
     <!-- Context Menu -->

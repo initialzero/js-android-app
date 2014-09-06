@@ -52,7 +52,7 @@ public class SearchActivity extends BaseBrowserSearchActivity {
     public static final String EXTRA_RESOURCE_TYPES = "SearchActivity.EXTRA_RESOURCE_TYPES";
 
     // Action Bar IDs
-    private static final int ID_AB_FILTER_BY = 34;
+    private static final int ID_AB_FILTER_BY = 35;
     // Dialog IDs
     private static final int ID_D_FILTER_OPTIONS = 50;
     // Dialog options
@@ -84,7 +84,7 @@ public class SearchActivity extends BaseBrowserSearchActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        filterItem = menu.add(Menu.NONE, ID_AB_FILTER_BY, 1, R.string.s_ab_filter_by);
+        filterItem = menu.add(Menu.NONE, ID_AB_FILTER_BY, 4, R.string.s_ab_filter_by);
         filterItem.setIcon(R.drawable.ic_action_filter);
         filterItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         filterItem.setVisible(false);

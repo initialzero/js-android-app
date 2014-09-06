@@ -63,9 +63,10 @@ import java.util.List;
 public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity implements AbsListView.OnScrollListener {
 
     // Action Bar IDs
-    protected static final int ID_AB_FAVORITES = 31;
-    protected static final int ID_AB_REFRESH = 32;
-    protected static final int ID_AB_SEARCH = 33;
+    protected static final int ID_AB_SWITCH = 31;
+    protected static final int ID_AB_FAVORITES = 32;
+    protected static final int ID_AB_REFRESH = 33;
+    protected static final int ID_AB_SEARCH = 34;
 
     protected static final int LIMIT = 40;
 
@@ -88,9 +89,13 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
 
+        menu.add(Menu.NONE, ID_AB_SWITCH, 2, R.string.r_ab_switch)
+                .setIcon(R.drawable.ic_collections_view_as_grid)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
         // Refresh
-        MenuItem item = menu.add(Menu.NONE, ID_AB_REFRESH, Menu.NONE, R.string.r_ab_refresh);
-        item.setIcon(R.drawable.ic_action_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        MenuItem item = menu.add(Menu.NONE, ID_AB_REFRESH, 3, R.string.r_ab_refresh);
+        item.setIcon(R.drawable.ic_action_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setActionView(R.layout.actionbar_indeterminate_progress);
 
         // Search
@@ -112,15 +117,16 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
                 }
             });
 
-            searchItem = menu.add(Menu.NONE, ID_AB_SEARCH, 2, R.string.r_ab_search);
+            searchItem = menu.add(Menu.NONE, ID_AB_SEARCH, 1, R.string.r_ab_search);
             searchItem.setIcon(R.drawable.ic_action_search);
             searchItem.setActionView(searchView);
             searchItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         }
 
         // Favorites
-        menu.add(Menu.NONE, ID_AB_FAVORITES, 3, R.string.r_ab_favorites)
-                .setIcon(R.drawable.ic_action_favorites).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(Menu.NONE, ID_AB_FAVORITES, 5, R.string.r_ab_favorites)
+                .setIcon(R.drawable.ic_action_favorites)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);
     }

@@ -36,6 +36,7 @@ import android.view.animation.AlphaAnimation;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -219,9 +220,10 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
         // configure additional settings
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webView.setWebViewClient(new WebViewClient());
+        webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
-        webView.getSettings().setBuiltInZoomControls(true);
     }
 
 }

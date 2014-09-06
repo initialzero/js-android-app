@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 import android.app.Application;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.ui.espresso.Espresso;
@@ -37,7 +38,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -60,8 +60,9 @@ import java.net.URI;
 import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.doubleClick;
+import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
@@ -73,8 +74,7 @@ import static org.mockito.Mockito.when;
  * @since 1.9
  */
 public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportHtmlViewerActivity> {
-    private static final String REPORT_URI = "http://mobiledemo.jaspersoft.com/jasperserver-pro/" +
-            "rest_v2/reportExecutions/874327841_1409916456850_2/exports/HTML/outputResource";
+    private static final String REPORT_URI = "http://mobiledemo.jaspersoft.com/";
 
     private static final String USERNAME = "phoneuser|organization_1";
     private static final String PASSWORD = "phoneuser";
@@ -93,7 +93,12 @@ public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportH
     @Mock
     ServerInfo mockServerInfo;
 
+    private ReportWebViewInjector injector;
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+
+    public ReportViewPageTest() {
+        super(ReportHtmlViewerActivity.class);
+    }
 
     @Override
     public void setUp() throws Exception {
@@ -121,24 +126,26 @@ public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportH
 
         WebViewIdlingResource webViewIdlingResource = new WebViewIdlingResource();
         Espresso.registerIdlingResources(webViewIdlingResource);
-        ReportWebViewInjector injector = new ReportWebViewInjector(webViewIdlingResource);
+        injector = new ReportWebViewInjector(webViewIdlingResource);
         ActivityLifecycleMonitorRegistry.getInstance()
                 .addLifecycleCallback(injector);
 
         getActivity();
     }
 
-    public ReportViewPageTest() {
-        super(ReportHtmlViewerActivity.class);
+    @Override
+    protected void tearDown() throws Exception {
+        ActivityLifecycleMonitorRegistry.getInstance()
+                .removeLifecycleCallback(injector);
+        super.tearDown();
     }
 
-
     public void testInitialLoad() throws InterruptedException {
+        onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));;
 
-
-        onView(withText(RESOURCE_LABEL));
-        onView(firstChildOf(withId(R.id.webViewPlaceholder))).perform(doubleClick());
-        onView(firstChildOf(withId(R.id.webViewPlaceholder))).perform(doubleClick());
+        for (int i = 0; i < 10; i++) {
+            onView(firstChildOf(withId(R.id.webViewPlaceholder))).perform(doubleClick());
+        }
     }
 
     public static class MockedSpiceManager extends SpiceManager {

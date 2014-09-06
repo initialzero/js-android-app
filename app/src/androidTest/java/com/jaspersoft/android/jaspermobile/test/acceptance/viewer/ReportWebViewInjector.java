@@ -30,7 +30,6 @@ import android.view.ViewGroup;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleCallback;
 import com.google.android.apps.common.testing.testrunner.Stage;
-import com.google.android.apps.common.testing.ui.espresso.Espresso;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 
@@ -68,11 +67,5 @@ public class ReportWebViewInjector implements ActivityLifecycleCallback {
                 break;
             default: // NOP
         }
-    }
-
-    public static ReportWebViewInjector create() {
-        WebViewIdlingResource webViewIdlingResource = new WebViewIdlingResource();
-        Espresso.registerIdlingResources(webViewIdlingResource);
-        return new ReportWebViewInjector(webViewIdlingResource);
     }
 }

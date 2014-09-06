@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
-import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
@@ -40,23 +39,15 @@ public class WebViewIdlingResource extends WebChromeClient implements ActivityLi
     private JSWebView webView;
     private ResourceCallback callback;
     private WebChromeClient mInitialChromeClient;
-    private boolean transitedToIdle;
 
     @Override
     public void onProgressChanged(WebView view, int newProgress) {
-        Log.d("hoho", "onProgressChanged ---- " + newProgress);
+        if (newProgress == FINISHED && callback != null) {
+            callback.onTransitionToIdle();
+        }
         if (mInitialChromeClient != null) {
             mInitialChromeClient.onProgressChanged(view, newProgress);
         }
-        if (newProgress == FINISHED) {
-            finish();
-        }
-    }
-
-    private void finish() {
-        callback.onTransitionToIdle();
-        webView.setWebChromeClient(null);
-        Log.d("hoho", "finished ------------");
     }
 
     @Override
@@ -66,21 +57,13 @@ public class WebViewIdlingResource extends WebChromeClient implements ActivityLi
 
     @Override
     public boolean isIdleNow() {
-        boolean isIdle = false;
         // The webView hasn't been injected yet, so we're idling
-        if (webView == null) {
-            isIdle = true;
-        }
-        if (webView != null && webView.getProgress() == FINISHED) {
-            isIdle = true;
-        }
-        Log.d("hohoho", "==============> " + isIdle);
-        return isIdle;
+        if (webView == null) return true;
+        return webView.getProgress() == FINISHED && callback != null;
     }
 
     @Override
     public void registerIdleTransitionCallback(ResourceCallback resourceCallback) {
-        Log.d("hohoho", "received callback" + resourceCallback);
         this.callback = resourceCallback;
     }
 

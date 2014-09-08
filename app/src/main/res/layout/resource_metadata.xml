@@ -23,8 +23,10 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<resources>
-    <string-array name="roboguice_modules">
-        <item>com.jaspersoft.android.jaspermobile.JasperMobileModule</item>
-    </string-array>
-</resources>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/list.item.metadata"
+    android:textColor="@color/list_label_grey"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    />

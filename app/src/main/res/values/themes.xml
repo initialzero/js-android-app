@@ -25,9 +25,15 @@
 <resources>
     <!-- Actionbar -->
     <style name="Theme.JasperMobile" parent="@android:style/Theme.Holo">
-        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
         <item name="android:windowBackground">@drawable/ic_resources_background</item>
         <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+
+        <!--android-styled-dialogs reference style -->
+        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
+
+        <!--App reference styles-->
+        <item name="listLayoutStyle">@style/list.item.layout</item>
+        <item name="gridLayoutStyle">@style/grid.item.layout</item>
     </style>
 
     <style name="Widget.JasperMobile.ActionBar" parent="@android:style/Widget.Holo.ActionBar.Solid">

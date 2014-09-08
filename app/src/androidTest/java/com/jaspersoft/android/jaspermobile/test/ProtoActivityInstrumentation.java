@@ -27,6 +27,13 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
         nameUtils = new NameUtils(getPageName());
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        nameUtils = null;
+        mActivity = null;
+        super.tearDown();
+    }
+
     public void startActivityUnderTest() {
         mActivity = super.getActivity();
         // sometimes tests failed on emulator, following approach should avoid it

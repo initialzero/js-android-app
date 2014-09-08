@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
+    Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -23,8 +23,12 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<resources>
-    <string-array name="roboguice_modules">
-        <item>com.jaspersoft.android.jaspermobile.JasperMobileModule</item>
-    </string-array>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/js_blue_gradient" />
+    <item
+        android:drawable="@drawable/dashboard_white"
+        android:bottom="@dimen/sample_image_padding"
+        android:left="@dimen/sample_image_padding"
+        android:right="@dimen/sample_image_padding"
+        android:top="@dimen/sample_image_padding" />
+</layer-list>

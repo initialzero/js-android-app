@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 import android.app.Application;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.ui.espresso.Espresso;

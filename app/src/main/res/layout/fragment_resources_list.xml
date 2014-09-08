@@ -23,8 +23,27 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<resources>
-    <string-array name="roboguice_modules">
-        <item>com.jaspersoft.android.jaspermobile.JasperMobileModule</item>
-    </string-array>
-</resources>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.jaspersoft.sample.dark.theme.common.ResourceListFragment">
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:drawSelectorOnTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10dp" />
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" />
+
+</FrameLayout>

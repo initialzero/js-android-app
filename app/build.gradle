@@ -47,6 +47,9 @@ android {
     }
 
     packagingOptions {
+        exclude 'asm-license.txt'
+        exclude 'NOTICE'
+        exclude 'LICENSE'
         exclude 'LICENSE.txt'
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/license.txt'

@@ -400,4 +400,56 @@
         <item name="android:inputType">textPassword</item>
     </style>
 
+    <style name="list"/>
+
+    <style name="list.item"/>
+
+    <style name="list.item.layout">
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="list.item.title">
+        <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="list.item.subTitle">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="list.item.metadata">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="grid"/>
+
+    <style name="grid.item"/>
+
+    <style name="grid.layout">
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+    </style>
+
+    <style name="grid.item.layout">
+        <item name="android:layout_width">150dp</item>
+        <item name="android:layout_height">250dp</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="grid.item.context">
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="grid.item.title">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
+        <item name="android:maxLines">2</item>
+    </style>
+
+    <style name="grid.item.subTitle">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
+        <item name="android:maxLines">2</item>
+    </style>
+
 </resources>

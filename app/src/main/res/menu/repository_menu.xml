@@ -25,8 +25,39 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/serverProfileMenuItem"
-        android:title="@string/h_server_profile_label"
+        android:id="@+id/search"
+        android:actionViewClass="android.widget.SearchView"
+        android:icon="@drawable/ic_action_search"
+        android:orderInCategory="70"
+        android:showAsAction="always|collapseActionView"
+        android:title="@android:string/search_go" />
+
+    <item
+        android:id="@+id/switchLayout"
+        android:icon="@drawable/ic_collections_view_as_grid"
+        android:orderInCategory="100"
         android:showAsAction="always"
-        android:actionLayout="@layout/servers_status"/>
+        android:title="@string/r_ab_switch" />
+
+    <item
+        android:id="@+id/refresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="95"
+        android:showAsAction="always|ifRoom"
+        android:title="@string/r_ab_refresh" />
+    <item
+        android:id="@+id/favorites"
+        android:icon="@drawable/ic_action_favorites"
+        android:orderInCategory="80"
+        android:showAsAction="never"
+        android:title="@string/r_ab_favorites" />
+
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_action_settings"
+        android:orderInCategory="90"
+        android:showAsAction="never"
+        android:title="@string/ab_settings" />
+
+
 </menu>

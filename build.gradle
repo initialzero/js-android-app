@@ -21,7 +21,7 @@ subprojects {
     ext.androidCompileSdkVersion = 20;
     ext.androidTargetSdkVersion = 19;
 
-    ext.androidAnnotationsVersion = '3.1-SNAPSHOT';
+    ext.androidAnnotationsVersion = '3.1';
 
     repositories {
         jcenter()

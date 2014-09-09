@@ -33,7 +33,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -42,6 +41,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -51,7 +51,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
         implements AbsListView.OnScrollListener, AdapterView.OnItemClickListener {
-    private static final int LIMIT = 40;
+    private static final int LIMIT = 1;
     private static final int THRESHOLD = 5;
 
     private final ResourceViewHelper viewHelper = new ResourceViewHelper();
@@ -75,6 +75,8 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
         mSearchCriteria = new ResourceLookupSearchCriteria();
         mSearchCriteria.setTypes(types);
+        mSearchCriteria.setFolderUri("/");
+        mSearchCriteria.setRecursive(true);
     }
 
     @Override
@@ -111,7 +113,6 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
         }
 
         viewHelper.populateView(itemView, getItem(position));
-
         return (View) itemView;
     }
 
@@ -127,7 +128,6 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ResourceLookup resourceLookup = getItem(position);
     }
 
     @Override
@@ -161,7 +161,7 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
     private void loadResources() {
         mLoading = true;
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(mJsRestClient, mSearchCriteria);
-        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(getContext());
+        long cacheExpiryDuration = DurationInMillis.ALWAYS_EXPIRED;
         mSpiceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
@@ -182,6 +182,7 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
 
             keepOnAppending = true;
             addAll(resourceLookupsList.getResourceLookups());
+            notifyDataSetChanged();
         }
     }
 

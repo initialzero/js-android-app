@@ -39,7 +39,7 @@ import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
-@EViewGroup(R.layout.resource_grid_item)
+@EViewGroup(R.layout.res_grid_item)
 public class GridItemView extends FrameLayout implements IResourceView {
 
     @ViewById(android.R.id.icon)

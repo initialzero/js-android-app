@@ -32,7 +32,7 @@
         <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
 
         <!--App reference styles-->
-        <item name="listLayoutStyle">@style/list.item.layout</item>
+        <item name="listLayoutStyle">@style/list2.item.layout</item>
         <item name="gridLayoutStyle">@style/grid.item.layout</item>
     </style>
 

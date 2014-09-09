@@ -35,7 +35,7 @@
 
     <CheckedTextView
         android:id="@android:id/text1"
-        style="@style/list.item.title"
+        style="@style/list2.item.title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -47,7 +47,7 @@
 
     <CheckedTextView
         android:id="@android:id/text2"
-        style="@style/list.item.subTitle"
+        style="@style/list2.item.subTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@android:id/text1"
@@ -69,7 +69,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="16dp"
         android:inflatedId="@+id/timestamp"
-        android:layout="@layout/resource_metadata" />
+        android:layout="@layout/res_metadata" />
 
     <ViewStub
         android:id="@+id/miscStub"
@@ -80,6 +80,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="16dp"
         android:inflatedId="@+id/misc"
-        android:layout="@layout/resource_metadata" />
+        android:layout="@layout/res_metadata" />
 
 </merge>

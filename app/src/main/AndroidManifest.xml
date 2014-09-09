@@ -67,15 +67,15 @@
         </activity>
 
         <!-- Activity that performs repository browsing -->
-        <activity android:name=".activities.repository.BrowserActivity" >
-            <!-- enable the search dialog to send searches to SearchActivity -->
-            <meta-data
-                android:name="android.app.default_searchable"
-                android:value=".activities.repository.SearchActivity"
-            />
-        </activity>
+        <!--<activity android:name=".activities.repository.BrowserActivity" >-->
+            <!--&lt;!&ndash; enable the search dialog to send searches to SearchActivity &ndash;&gt;-->
+            <!--<meta-data-->
+                <!--android:name="android.app.default_searchable"-->
+                <!--android:value=".activities.repository.SearchActivity"-->
+            <!--/>-->
+        <!--</activity>-->
 
-        <!-- Activity that performs library view -->
+         <!--Activity that performs library view -->
         <activity
             android:name=".activities.repository.LibraryActivity_"
             android:label="@string/h_library_label"
@@ -98,9 +98,6 @@
                 android:resource="@xml/searchable"
             />
         </activity>
-
-        <!-- Activity that performs viewing of the resource info -->
-        <activity android:name=".activities.resource.ResourceInfoActivity" />
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity android:name=".activities.report.ReportOptionsActivity"

@@ -57,7 +57,8 @@ public class LibraryActivity extends RoboFragmentActivity {
 
         if (savedInstanceState == null) {
             resourcesController =
-                    ResourcesControllerFragment_.builder().build();
+                    ResourcesControllerFragment_.builder()
+                            .resourceTypes(TYPES).build();
             getSupportFragmentManager().beginTransaction()
                     .add(resourcesController, ResourcesControllerFragment.TAG)
                     .commit();

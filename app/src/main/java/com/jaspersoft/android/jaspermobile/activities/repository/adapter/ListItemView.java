@@ -40,7 +40,7 @@ import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
-@EViewGroup(R.layout.resource_list_item)
+@EViewGroup(R.layout.res_list_item)
 public class ListItemView extends RelativeLayout implements IResourceView {
 
     @ViewById(android.R.id.icon)

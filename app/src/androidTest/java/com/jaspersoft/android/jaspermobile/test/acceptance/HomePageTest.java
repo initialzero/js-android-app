@@ -130,7 +130,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
 
-        getActivity();
+        startActivityUnderTest();
         // Click on any dashboard item
         onView(withId(R.id.home_item_servers)).perform(click());
 
@@ -145,7 +145,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         when(mockServerProfile.getPassword()).thenReturn("");
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
 
-        getActivity();
+        startActivityUnderTest();
 
         // Check whether our dialog is shown with Appropriate info
         onViewDialog(R.id.dialogUsernameText).check(matches(withText(USERNAME)));
@@ -162,7 +162,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     public void testMissingServerProfile() {
         when(mockRestClient.getServerProfile()).thenReturn(null);
 
-        getActivity();
+        startActivityUnderTest();
 
         // As soon as we have mocked DbProvider we can not test real Server Profile
         when(mockServerProfile.getAlias()).thenReturn(ALIAS);
@@ -182,7 +182,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         // Cut off SpiceManager
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
 
-        getActivity();
+        startActivityUnderTest();
 
         // Check ActionBar server name
         onView(withId(R.id.profile_name)).check(matches(withText(ALIAS)));
@@ -204,7 +204,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
 
-        getActivity();
+        startActivityUnderTest();
         // Given we have no ALIAS set up
         onView(withId(R.id.profile_name)).check(matches(withText("")));
 

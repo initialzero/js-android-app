@@ -24,24 +24,45 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance;
 
+import android.widget.GridView;
+import android.widget.ListView;
+
+import com.google.inject.AbstractModule;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
+import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.SpiceService;
+import com.octo.android.robospice.request.SpiceRequest;
+import com.octo.android.robospice.request.listener.RequestListener;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivity_> {
+    @Mock
+    JsRestClient mockRestClient;
+    @Mock
+    SpiceManager mockSpiceService;
+    @Mock
+    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
     private RepositoryPref_ repositoryPref;
 
@@ -52,6 +73,7 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        MockitoAnnotations.initMocks(this);
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
     }
 
@@ -64,28 +86,28 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     public void testInitialLoadOfGrid() {
         forcePreview(ViewType.GRID);
         startActivityUnderTest();
-        onView(withText("Grid")).check(matches(isDisplayed()));
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
     public void testSwitcher() throws InterruptedException {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
-        onView(withText("List")).check(matches(isDisplayed()));
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
         rotate();
-        onView(withText("List")).check(matches(isDisplayed()));
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
 
         onView(withId(R.id.switchLayout)).perform(click());
 
-        onView(withText("Grid")).check(matches(isDisplayed()));
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
         rotate();
-        onView(withText("Grid")).check(matches(isDisplayed()));
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
     public void testInitialLoadOfList() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
-        onView(withText("List")).check(matches(isDisplayed()));
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
     private void forcePreview(ViewType viewType) {
@@ -96,5 +118,24 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     public String getPageName() {
         return "library";
     }
+    public static class MockedSpiceManager extends SpiceManager {
+        public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
+            super(spiceServiceClass);
+        }
 
+        public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
+                                final long cacheExpiryDuration, final RequestListener<T> requestListener) {
+            if (request instanceof GetResourceLookupsRequest) {
+                requestListener.onRequestSuccess((T) TestResources.get().fromXML(ResourceLookupsList.class, "library_reports"));
+            }
+        }
+    }
+
+    public class TestModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(JsRestClient.class).toInstance(mockRestClient);
+            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+        }
+    }
 }

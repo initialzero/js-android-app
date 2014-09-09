@@ -43,8 +43,8 @@ import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
-import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
@@ -145,10 +145,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_repository)
     final void showRepository() {
         if (mConnectivityUtil.isConnected()) {
-            Intent loginIntent = new Intent(this, BrowserActivity.class);
-            loginIntent.putExtra(BrowserActivity.EXTRA_BC_TITLE_LARGE, mJsRestClient.getServerProfile().getAlias());
-            loginIntent.putExtra(BrowserActivity.EXTRA_RESOURCE_URI, "/");
-            startActivity(loginIntent);
+            LibraryActivity_.intent(this).start();
         } else {
             showNetworkAlert();
         }

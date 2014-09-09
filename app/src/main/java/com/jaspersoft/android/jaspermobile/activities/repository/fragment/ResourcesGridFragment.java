@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
-import android.view.View;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
@@ -32,6 +31,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
@@ -41,14 +41,12 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 
-import roboguice.fragment.RoboFragment;
-
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment(R.layout.fragment_resources_grid)
-public class ResourcesGridFragment extends RoboFragment {
+public class ResourcesGridFragment extends RoboSpiceFragment {
     public static final String TAG = ResourcesGridFragment.class.getSimpleName();
 
     @ViewById(android.R.id.list)
@@ -73,9 +71,8 @@ public class ResourcesGridFragment extends RoboFragment {
                 .setTypes(resourceTypes)
                 .create();
         mAdapter.setAdapterView(listView);
+        mAdapter.setSpiceManager(getSpiceManager());
         mAdapter.loadFirstPage();
-
-        emptyText.setText("Grid");
-        emptyText.setVisibility(View.VISIBLE);
+        listView.setAdapter(mAdapter);
     }
 }

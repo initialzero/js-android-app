@@ -78,12 +78,6 @@
     <!-- Server Profile Layout -->
     <style name="serverProfile" />
 
-    <style name="serverProfile.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@android:color/white</item>
-    </style>
-
     <style name="serverProfile.scrollView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
@@ -400,25 +394,25 @@
         <item name="android:inputType">textPassword</item>
     </style>
 
-    <style name="list"/>
+    <style name="list2"/>
 
-    <style name="list.item"/>
+    <style name="list2.item"/>
 
-    <style name="list.item.layout">
+    <style name="list2.item.layout">
         <item name="android:background">@android:color/white</item>
     </style>
 
-    <style name="list.item.title">
+    <style name="list2.item.title">
         <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="list.item.subTitle">
+    <style name="list2.item.subTitle">
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="list.item.metadata">
+    <style name="list2.item.metadata">
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:singleLine">true</item>
     </style>
@@ -443,6 +437,7 @@
     </style>
 
     <style name="grid.item.title">
+        <item name="android:layout_margin">4dp</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:maxLines">2</item>
     </style>

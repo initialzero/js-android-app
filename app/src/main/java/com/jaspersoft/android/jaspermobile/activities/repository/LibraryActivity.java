@@ -28,10 +28,13 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+
+import java.util.ArrayList;
 
 import roboguice.activity.RoboFragmentActivity;
 
@@ -43,6 +46,10 @@ import roboguice.activity.RoboFragmentActivity;
 @OptionsMenu(R.menu.libraries_menu)
 public class LibraryActivity extends RoboFragmentActivity {
     private ResourcesControllerFragment resourcesController;
+    private static final ArrayList<String> TYPES = new ArrayList<String>(){{
+        add(ResourceLookup.ResourceType.reportUnit.toString());
+        add(ResourceLookup.ResourceType.dashboard.toString());
+    }};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

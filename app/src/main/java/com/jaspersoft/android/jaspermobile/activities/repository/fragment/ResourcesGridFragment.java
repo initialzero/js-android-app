@@ -28,13 +28,18 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceGridAdapter;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.ViewById;
+
+import java.util.ArrayList;
 
 import roboguice.fragment.RoboFragment;
 
@@ -52,11 +57,24 @@ public class ResourcesGridFragment extends RoboFragment {
     @ViewById(android.R.id.empty)
     TextView emptyText;
 
-    @Bean
-    ResourceGridAdapter mAdapter;
+    @Inject
+    JsRestClient jsRestClient;
+
+    @FragmentArg
+    ArrayList<String> resourceTypes;
+
+    private ResourceAdapter mAdapter;
 
     @AfterViews
     final void init() {
+        mAdapter = ResourceAdapter.builder(getActivity())
+                .setViewType(ViewType.GRID)
+                .setJsRestClient(jsRestClient)
+                .setTypes(resourceTypes)
+                .create();
+        mAdapter.setAdapterView(listView);
+        mAdapter.loadFirstPage();
+
         emptyText.setText("Grid");
         emptyText.setVisibility(View.VISIBLE);
     }

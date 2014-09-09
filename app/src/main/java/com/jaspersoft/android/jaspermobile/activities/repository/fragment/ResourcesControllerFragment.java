@@ -36,10 +36,13 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewTyp
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.sharedpreferences.Pref;
+
+import java.util.ArrayList;
 
 import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.GRID;
 import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.LIST;
@@ -59,6 +62,9 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
 
     @OptionsMenuItem(R.id.switchLayout)
     public MenuItem switchLayoutMenuItem;
+
+    @FragmentArg
+    ArrayList<String> resourceTypes;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,10 +114,12 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
         Fragment contentFragment;
         switch (getViewType()) {
             case LIST:
-                contentFragment = ResourcesListFragment_.builder().build();
+                contentFragment = ResourcesListFragment_.builder()
+                        .resourceTypes(resourceTypes).build();
                 break;
             case GRID:
-                contentFragment = ResourcesGridFragment_.builder().build();
+                contentFragment = ResourcesGridFragment_.builder()
+                        .resourceTypes(resourceTypes).build();
                 break;
             default:
                 throw new UnsupportedOperationException("Unexpected ViewType passed");

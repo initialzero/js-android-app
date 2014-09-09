@@ -40,7 +40,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @author Tom Koptel
  * @since 1.9
  */
-@EBean
 public class ResourceViewHelper {
     private static final String INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private final SimpleDateFormat dateFormat = new SimpleDateFormat(INITIAL_DATE_FORMAT);

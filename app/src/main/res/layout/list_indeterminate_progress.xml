@@ -25,7 +25,10 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/list_indeterminate_progress"
-    style="@style/list.item.layout">
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:background="@drawable/bs_white_blue"
+    android:gravity="center">
 
     <ProgressBar
         android:layout_width="32dp"

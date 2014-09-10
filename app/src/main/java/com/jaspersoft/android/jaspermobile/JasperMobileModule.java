@@ -56,6 +56,8 @@ public class JasperMobileModule extends AbstractModule {
         animationSpeed *= 1.5;
         bindConstant().annotatedWith(Names.named("animationSpeed"))
                 .to(animationSpeed);
+        bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
+        bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
     }
 
 }

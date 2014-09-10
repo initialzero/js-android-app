@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.support;
 
-import android.util.Log;
-
 /**
  * @author Ivan Gadzhega
  * @since 1.9
@@ -34,14 +32,7 @@ public enum ViewType {
     GRID,
     LIST;
 
-    private static final String TAG = ViewType.class.getName();
-
-    public static ViewType getValue(String string) {
-        try {
-            return valueOf(string);
-        } catch (IllegalArgumentException ex) {
-            Log.w(TAG, string + " is not a constant in ViewType enum");
-            return GRID;
-        }
+    public static ViewType valueOf(RepositoryPref_ pref) {
+        return valueOf(pref.viewType().get());
     }
 }

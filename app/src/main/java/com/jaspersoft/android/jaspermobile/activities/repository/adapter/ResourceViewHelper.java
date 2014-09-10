@@ -27,8 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.EBean;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

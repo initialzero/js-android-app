@@ -22,12 +22,13 @@
 * <http://www.gnu.org/licenses/lgpl>.
 */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance;
+package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
 import android.widget.GridView;
 import android.widget.ListView;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
@@ -36,6 +37,8 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
@@ -51,12 +54,20 @@ import static com.google.android.apps.common.testing.ui.espresso.action.ViewActi
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.swipeUp;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.withAdapterViewId;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivity_> {
+    private static final int LIMIT = 40;
+
+    @Mock
+    JsServerProfile mockServerProfile;
     @Mock
     JsRestClient mockRestClient;
     @Mock
@@ -64,7 +75,9 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     @Mock
     JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
+    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
     private RepositoryPref_ repositoryPref;
+    private ResourceLookupsList firstLookUp, secondLookUp;
 
     public LibraryPage2Test() {
         super(LibraryActivity_.class);
@@ -74,7 +87,20 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
+
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
+        firstLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
+        secondLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_40_40");
+
+        firstLookUp.setTotalCount(
+                firstLookUp.getResourceLookups().size() + secondLookUp.getResourceLookups().size()
+        );
+
+        registerTestModule(new TestModule());
+        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
+        when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
+        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
+        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
     }
 
     @Override
@@ -110,6 +136,15 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
+    public void testScrollTo() throws InterruptedException {
+        startActivityUnderTest();
+        for (int i = 0; i < 3; i++) {
+            onView(withId(android.R.id.list)).perform(swipeUp());
+        }
+        onView(withAdapterViewId(android.R.id.list)).check(hasTotalCount(firstLookUp.getTotalCount()));
+    }
+
+
     private void forcePreview(ViewType viewType) {
         repositoryPref.viewType().put(viewType.toString());
     }
@@ -118,7 +153,8 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     public String getPageName() {
         return "library";
     }
-    public static class MockedSpiceManager extends SpiceManager {
+
+    public class MockedSpiceManager extends SpiceManager {
         public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
             super(spiceServiceClass);
         }
@@ -126,16 +162,24 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
                                 final long cacheExpiryDuration, final RequestListener<T> requestListener) {
             if (request instanceof GetResourceLookupsRequest) {
-                requestListener.onRequestSuccess((T) TestResources.get().fromXML(ResourceLookupsList.class, "library_reports"));
+                int offset = ((GetResourceLookupsRequest) request).getSearchCriteria().getOffset();
+                if (offset == LIMIT) {
+                    requestListener.onRequestSuccess((T) secondLookUp);
+                } else {
+                    requestListener.onRequestSuccess((T) firstLookUp);
+                }
             }
         }
     }
 
     public class TestModule extends AbstractModule {
+
         @Override
         protected void configure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bindConstant().annotatedWith(Names.named("LIMIT")).to(LIMIT);
+            bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
         }
     }
 }

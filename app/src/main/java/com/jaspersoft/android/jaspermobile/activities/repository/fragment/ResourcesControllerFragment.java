@@ -66,9 +66,6 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
     @FragmentArg
     ArrayList<String> resourceTypes;
 
-    private ResourcesListFragment listFragment;
-    private ResourcesGridFragment gridFragment;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,30 +113,13 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
     }
 
     private Fragment getContentFragment() {
-        Fragment contentFragment;
-        switch (getViewType()) {
-            case LIST:
-                if (listFragment == null) {
-                    listFragment = ResourcesListFragment_.builder()
-                            .resourceTypes(resourceTypes).build();
-                    }
-                    contentFragment = listFragment;
-                    break;
-                case GRID:
-                if (gridFragment == null) {
-                    gridFragment = ResourcesGridFragment_.builder()
-                            .resourceTypes(resourceTypes).build();
-                }
-                contentFragment = gridFragment;
-                break;
-            default:
-                throw new UnsupportedOperationException("Unexpected ViewType passed");
-        }
-        return contentFragment;
+        return ResourcesFragment_.builder()
+                .viewType(getViewType())
+                .resourceTypes(resourceTypes).build();
     }
 
     private ViewType getViewType() {
-        return ViewType.valueOf(repositoryPref.viewType().get());
+        return ViewType.valueOf(repositoryPref);
     }
 
 }

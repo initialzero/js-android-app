@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.test;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.test.ActivityInstrumentationTestCase2;
@@ -8,11 +9,17 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ListView;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
 import com.squareup.spoon.Spoon;
 
+import roboguice.RoboGuice;
+
 public abstract class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
+    protected static final String USERNAME = "phoneuser|organization_1";
+    protected static final String PASSWORD = "phoneuser";
     private static final long SLEEP_RATE = 0;
     protected T mActivity;
     private NameUtils nameUtils;
@@ -105,5 +112,14 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
         firstItem.setId(com.jaspersoft.android.jaspermobile.test.R.id.firs_list_item);
         View secondItem = list.getChildAt(1);
         secondItem.setId(com.jaspersoft.android.jaspermobile.test.R.id.second_list_item);
+    }
+
+    protected void registerTestModule(AbstractModule module) {
+        Application application = (Application) this.getInstrumentation()
+                .getTargetContext().getApplicationContext();
+        RoboGuice.setBaseApplicationInjector(application,
+                RoboGuice.DEFAULT_STAGE,
+                Modules.override(RoboGuice.newDefaultRoboModule(application))
+                        .with(module));
     }
 }

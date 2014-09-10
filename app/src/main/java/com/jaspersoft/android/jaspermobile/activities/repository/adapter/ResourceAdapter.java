@@ -25,14 +25,13 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
-import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -41,7 +40,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -51,7 +49,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
         implements AbsListView.OnScrollListener, AdapterView.OnItemClickListener {
-    private static final int LIMIT = 1;
+    private static final int LIMIT = 40;
     private static final int THRESHOLD = 5;
 
     private final ResourceViewHelper viewHelper = new ResourceViewHelper();
@@ -61,12 +59,16 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
     private final JsRestClient mJsRestClient;
 
     private AbsListView adapterView;
-    private View pendingView;
     private SpiceManager mSpiceManager;
 
     private int mTotal;
     private boolean mLoading;
     private boolean keepOnAppending;
+
+    public static Builder builder(Context context) {
+        checkNotNull(context);
+        return new Builder(context);
+    }
 
     private ResourceAdapter(Context context, JsRestClient restClient, ViewType viewType, ArrayList<String> types) {
         super(context, 0);
@@ -81,19 +83,7 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (keepOnAppending && position == super.getCount()) {
-            return getPendingView(parent);
-        } else {
-            return getViewImpl(position, (IResourceView) convertView);
-        }
-    }
-
-    private View getPendingView(ViewGroup parent) {
-        if (pendingView == null) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            pendingView = inflater.inflate(R.layout.list_indeterminate_progress, parent, false);
-        }
-        return pendingView;
+        return getViewImpl(position, (IResourceView) convertView);
     }
 
     private View getViewImpl(int position, IResourceView convertView) {
@@ -161,7 +151,7 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
     private void loadResources() {
         mLoading = true;
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(mJsRestClient, mSearchCriteria);
-        long cacheExpiryDuration = DurationInMillis.ALWAYS_EXPIRED;
+        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(getContext());
         mSpiceManager.execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
@@ -184,11 +174,6 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup>
             addAll(resourceLookupsList.getResourceLookups());
             notifyDataSetChanged();
         }
-    }
-
-    public static Builder builder(Context context) {
-        checkNotNull(context);
-        return new Builder(context);
     }
 
     public static class Builder {

@@ -66,6 +66,9 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
     @FragmentArg
     ArrayList<String> resourceTypes;
 
+    private ResourcesListFragment listFragment;
+    private ResourcesGridFragment gridFragment;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +81,7 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
 
         if (getFragmentManager().findFragmentByTag(CONTENT_TAG) == null) {
             getFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .add(android.R.id.content, getContentFragment(), CONTENT_TAG)
                     .commit();
         }
@@ -90,6 +94,7 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
         toggleSwitcher();
 
         getFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .replace(android.R.id.content, getContentFragment(), CONTENT_TAG)
                 .commit();
 
@@ -114,12 +119,18 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
         Fragment contentFragment;
         switch (getViewType()) {
             case LIST:
-                contentFragment = ResourcesListFragment_.builder()
-                        .resourceTypes(resourceTypes).build();
-                break;
-            case GRID:
-                contentFragment = ResourcesGridFragment_.builder()
-                        .resourceTypes(resourceTypes).build();
+                if (listFragment == null) {
+                    listFragment = ResourcesListFragment_.builder()
+                            .resourceTypes(resourceTypes).build();
+                    }
+                    contentFragment = listFragment;
+                    break;
+                case GRID:
+                if (gridFragment == null) {
+                    gridFragment = ResourcesGridFragment_.builder()
+                            .resourceTypes(resourceTypes).build();
+                }
+                contentFragment = gridFragment;
                 break;
             default:
                 throw new UnsupportedOperationException("Unexpected ViewType passed");

@@ -42,10 +42,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.BaseRepositoryActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
@@ -55,7 +54,6 @@ import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -65,8 +63,6 @@ import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
-
-import java.util.ArrayList;
 
 /**
  * @author Ivan Gadzhega
@@ -146,7 +142,10 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_repository)
     final void showRepository() {
         if (mConnectivityUtil.isConnected()) {
-            LibraryActivity_.intent(this).start();
+            Intent loginIntent = new Intent(this, BrowserActivity.class);
+            loginIntent.putExtra(BrowserActivity.EXTRA_BC_TITLE_LARGE, mJsRestClient.getServerProfile().getAlias());
+            loginIntent.putExtra(BrowserActivity.EXTRA_RESOURCE_URI, "/");
+            startActivity(loginIntent);
         } else {
             showNetworkAlert();
         }
@@ -155,14 +154,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_library)
     final void showLibrary() {
         if (mConnectivityUtil.isConnected()) {
-            Intent searchIntent = new Intent(HomeActivity.this, SearchActivity.class);
-            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_BC_TITLE_SMALL, getString(R.string.h_library_label));
-            searchIntent.putExtra(BaseRepositoryActivity.EXTRA_RESOURCE_URI, "/");
-            ArrayList<String> types = new ArrayList<String>();
-            types.add(ResourceLookup.ResourceType.reportUnit.toString());
-            types.add(ResourceLookup.ResourceType.dashboard.toString());
-            searchIntent.putExtra(SearchActivity.EXTRA_RESOURCE_TYPES, types);
-            startActivity(searchIntent);
+            LibraryActivity_.intent(this).start();
         } else {
             showNetworkAlert();
         }

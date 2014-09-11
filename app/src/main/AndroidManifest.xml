@@ -48,11 +48,6 @@
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- enable the search dialog to send searches to SearchActivity -->
-            <meta-data
-                android:name="android.app.default_searchable"
-                android:value=".activities.repository.SearchActivity"
-            />
         </activity>
 
         <!-- Activity that provides the server profiles management -->
@@ -67,13 +62,13 @@
         </activity>
 
         <!-- Activity that performs repository browsing -->
-        <!--<activity android:name=".activities.repository.BrowserActivity" >-->
-            <!--&lt;!&ndash; enable the search dialog to send searches to SearchActivity &ndash;&gt;-->
-            <!--<meta-data-->
-                <!--android:name="android.app.default_searchable"-->
-                <!--android:value=".activities.repository.SearchActivity"-->
-            <!--/>-->
-        <!--</activity>-->
+        <activity android:name=".activities.repository.BrowserActivity" >
+            <!-- enable the search dialog to send searches to SearchActivity -->
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".activities.repository.SearchActivity"
+            />
+        </activity>
 
          <!--Activity that performs library view -->
         <activity
@@ -91,16 +86,16 @@
         <activity android:name=".activities.storage.SavedReportsActivity" />
 
         <!-- Activity that performs searches based on a query string and presents the search results-->
-        <activity android:name=".activities.repository.SearchActivity"
-            android:launchMode="singleTop" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable"
-            />
-        </activity>
+        <!--<activity android:name=".activities.repository.SearchActivity"-->
+            <!--android:launchMode="singleTop" >-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.SEARCH" />-->
+            <!--</intent-filter>-->
+            <!--<meta-data-->
+                <!--android:name="android.app.searchable"-->
+                <!--android:resource="@xml/searchable"-->
+            <!--/>-->
+        <!--</activity>-->
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity android:name=".activities.report.ReportOptionsActivity"

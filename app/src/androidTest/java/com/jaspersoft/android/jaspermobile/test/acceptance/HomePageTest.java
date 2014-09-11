@@ -26,13 +26,12 @@ package com.jaspersoft.android.jaspermobile.test.acceptance;
 
 import android.app.Application;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -226,15 +225,13 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         }
     }
 
-    public class TestModule extends AbstractModule {
+    public class TestModule extends CommonTestModule {
         @Override
-        protected void configure() {
-            bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
+        protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
             bind(DatabaseProvider.class).toInstance(mockDatabaseProvider);
             bind(ConnectivityUtil.class).toInstance(mockConectivityUtil);
-
         }
     }
 }

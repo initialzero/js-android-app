@@ -2,9 +2,8 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.ui.espresso.Espresso;
-import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.Failing;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
@@ -121,14 +120,11 @@ public class LibraryPagePaginationTest extends ProtoActivityInstrumentation<Libr
         }
     }
 
-    public class TestModule extends AbstractModule {
-
+    public class TestModule extends CommonTestModule {
         @Override
-        protected void configure() {
+        protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
-            bindConstant().annotatedWith(Names.named("LIMIT")).to(LIMIT);
-            bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
         }
     }
 }

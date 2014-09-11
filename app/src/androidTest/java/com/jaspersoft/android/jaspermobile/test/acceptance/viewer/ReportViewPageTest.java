@@ -30,13 +30,12 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.ui.espresso.Espresso;
-import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
+import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -162,14 +161,12 @@ public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportH
         }
     }
 
-    public class TestModule extends AbstractModule {
+    public class TestModule extends CommonTestModule {
         @Override
-        protected void configure() {
-            bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
+        protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
             bind(DatabaseProvider.class).toInstance(mockDatabaseProvider);
-
         }
     }
 

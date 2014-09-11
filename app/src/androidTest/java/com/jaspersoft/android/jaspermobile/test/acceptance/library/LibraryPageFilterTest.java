@@ -25,12 +25,11 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
-import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
+import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
@@ -69,8 +68,6 @@ import static org.mockito.Mockito.when;
  * @since 2.0
  */
 public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryActivity_> {
-    private static final int LIMIT = 40;
-
     @Mock
     JsServerProfile mockServerProfile;
     @Mock
@@ -204,15 +201,12 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         }
     }
 
-    public class TestModule extends AbstractModule {
-
+    public class TestModule extends CommonTestModule {
         @Override
-        protected void configure() {
+        protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
             bind(DatabaseProvider.class).toInstance(mockDbProvider);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
-            bindConstant().annotatedWith(Names.named("LIMIT")).to(LIMIT);
-            bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
         }
     }
 }

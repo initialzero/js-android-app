@@ -37,7 +37,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.api.ViewServer;
 
 import java.util.List;
 
@@ -63,7 +62,6 @@ public class LibraryActivity extends RoboFragmentActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
 
         if (savedInstanceState == null) {
             resourcesController =

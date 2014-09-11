@@ -24,10 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
+import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
@@ -36,7 +38,6 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.SpiceService;
@@ -46,13 +47,13 @@ import com.octo.android.robospice.request.listener.RequestListener;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
@@ -69,17 +70,6 @@ import static org.mockito.Mockito.when;
  */
 public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryActivity_> {
     private static final int LIMIT = 40;
-
-    private static final ArrayList<String> ONLY_DASHBOARD = new ArrayList<String>() {{
-        add(ResourceLookup.ResourceType.dashboard.toString());
-    }};
-    private static final ArrayList<String> ONLY_REPORT = new ArrayList<String>() {{
-        add(ResourceLookup.ResourceType.reportUnit.toString());
-    }};
-    private static final ArrayList<String> ALL = new ArrayList<String>() {{
-        add(ResourceLookup.ResourceType.reportUnit.toString());
-        add(ResourceLookup.ResourceType.dashboard.toString());
-    }};
 
     @Mock
     JsServerProfile mockServerProfile;
@@ -126,14 +116,12 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     public void testDashboardAndAllFilterOption() throws InterruptedException {
         startActivityUnderTest();
 
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-        onOverflowView(getActivity(), withText(R.string.s_ab_filter_by)).perform(click());
+        clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyDashboardLookUp.getResourceLookups().size()));
 
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-        onOverflowView(getActivity(), withText(R.string.s_ab_filter_by)).perform(click());
+        clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(allLookUp.getResourceLookups().size()));
@@ -142,17 +130,14 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     public void testReportFilterOption() {
         startActivityUnderTest();
 
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-        onOverflowView(getActivity(), withText(R.string.s_ab_filter_by)).perform(click());
+        clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyReportLookUp.getResourceLookups().size()));
     }
 
     private void clickOnDialogText(int resId) {
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-        onOverflowView(getActivity(), withText(R.string.s_ab_filter_by))
-                .perform(click());
+        clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_filter_by))
                 .check(matches(isDisplayed()));
         onOverflowView(getActivity(), withText(resId))
@@ -161,6 +146,34 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         withNotDecorView(
                 is(not(getActivity().getWindow().getDecorView()))
         ).matches(matches(not(isDisplayed())));
+    }
+
+    public void testFilteringIsPersistent() {
+        startActivityUnderTest();
+        rotateToPortrait();
+
+        clickFilterMenuItem();
+        onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
+        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
+
+        rotate();
+        clickFilterMenuItem();
+        onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).check(matches(isChecked()));
+        onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
+        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
+
+        rotate();
+        clickFilterMenuItem();
+        onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).check(matches(isChecked()));
+    }
+
+    private void clickFilterMenuItem() {
+        try {
+            onView(withId(R.id.filter)).perform(click());
+        } catch (NoMatchingViewException ex) {
+            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+            onOverflowView(getActivity(), withText(R.string.s_ab_filter_by)).perform(click());
+        }
     }
 
     @Override
@@ -178,13 +191,13 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
             if (request instanceof GetResourceLookupsRequest) {
                 GetResourceLookupsRequest lookupsRequest = (GetResourceLookupsRequest) request;
                 List<String> types = lookupsRequest.getSearchCriteria().getTypes();
-                if (types.equals(ALL) ) {
+                if (types.equals(FilterOptions.ALL_TYPES) ) {
                     requestListener.onRequestSuccess((T) allLookUp);
                 }
-                if (types.equals(ONLY_DASHBOARD)) {
+                if (types.equals(FilterOptions.ONLY_DASHBOARD)) {
                     requestListener.onRequestSuccess((T) onlyDashboardLookUp);
                 }
-                if (types.equals(ONLY_REPORT)) {
+                if (types.equals(FilterOptions.ONLY_REPORT)) {
                     requestListener.onRequestSuccess((T) onlyReportLookUp);
                 }
             }

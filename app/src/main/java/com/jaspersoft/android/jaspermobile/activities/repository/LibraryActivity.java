@@ -31,13 +31,14 @@ import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.api.ViewServer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.activity.RoboFragmentActivity;
@@ -50,10 +51,9 @@ import roboguice.activity.RoboFragmentActivity;
 @OptionsMenu(R.menu.libraries_menu)
 public class LibraryActivity extends RoboFragmentActivity {
     private ResourcesControllerFragment resourcesController;
-    private static final ArrayList<String> TYPES = new ArrayList<String>() {{
-        add(ResourceLookup.ResourceType.reportUnit.toString());
-        add(ResourceLookup.ResourceType.dashboard.toString());
-    }};
+
+    @Bean
+    FilterOptions filterOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,10 +64,12 @@ public class LibraryActivity extends RoboFragmentActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+
         if (savedInstanceState == null) {
             resourcesController =
                     ResourcesControllerFragment_.builder()
-                            .resourceTypes(TYPES).build();
+                            .resourceTypes(filterOptions.getFilters())
+                            .build();
             getSupportFragmentManager().beginTransaction()
                     .add(resourcesController, ResourcesControllerFragment.TAG)
                     .commit();

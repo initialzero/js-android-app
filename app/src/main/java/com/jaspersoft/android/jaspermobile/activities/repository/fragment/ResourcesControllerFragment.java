@@ -31,6 +31,7 @@ import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
@@ -41,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -68,8 +70,10 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
     @OptionsMenuItem(R.id.switchLayout)
     public MenuItem switchLayoutMenuItem;
 
+    @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
+
     private ResourcesFragment contentFragment;
 
     @Override
@@ -82,11 +86,16 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (getFragmentManager().findFragmentByTag(CONTENT_TAG) == null) {
+        ResourcesFragment inMemoryFragment = (ResourcesFragment)
+                getFragmentManager().findFragmentByTag(CONTENT_TAG);
+
+        if (inMemoryFragment == null) {
             getFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .add(android.R.id.content, getContentFragment(), CONTENT_TAG)
                     .commit();
+        } else {
+            contentFragment = inMemoryFragment;
         }
     }
 
@@ -145,6 +154,7 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
 
     @Override
     public void loadResourcesByTypes(List<String> types) {
+        resourceTypes = Lists.newArrayList(types);
         if (contentFragment != null) {
             contentFragment.loadResourcesByTypes(types);
         }

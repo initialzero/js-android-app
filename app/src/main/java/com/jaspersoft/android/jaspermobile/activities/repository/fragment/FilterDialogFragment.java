@@ -33,32 +33,39 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ALL_TYPES;
+import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ONLY_DASHBOARD;
+import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ONLY_REPORT;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
+@EFragment
 public class FilterDialogFragment extends DialogFragment {
     public static final String TAG = FilterDialogFragment.class.getSimpleName();
-    private static final int FILTER_BY_REPORTS = 1;
-    private static final int FILTER_BY_DASHBOARDS = 2;
-    private static final ArrayList<String> ALL_TYPES = new ArrayList<String>(){{
-        add(ResourceLookup.ResourceType.reportUnit.toString());
-        add(ResourceLookup.ResourceType.dashboard.toString());
-    }};
+    private static final int BY_REPORTS_POSITION = 1;
+    private static final int BY_DASHBOARDS_POSITION = 2;
 
-    public ArrayList<String> mTypes = ALL_TYPES;
+    @Bean
+    FilterOptions filterOptions;
+
+    private ArrayList<String> mTypes;
     private FilterDialogListener filterSelectedListener;
 
     public static void show(FragmentManager fm, FilterDialogListener filterSelectedListener) {
         FilterDialogFragment dialogFragment =
                 (FilterDialogFragment) fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
-            dialogFragment = new FilterDialogFragment();
+            dialogFragment = FilterDialogFragment_.builder().build();
             dialogFragment.setFilterSelectedListener(filterSelectedListener);
             dialogFragment.show(fm ,TAG);
         }
@@ -92,22 +99,30 @@ public class FilterDialogFragment extends DialogFragment {
                 getString(R.string.s_fd_option_dashboards)
         };
 
-        builder.setSingleChoiceItems(options, 0, new DialogInterface.OnClickListener() {
+        int position = 0;
+        mTypes = filterOptions.getFilters();
+        if (mTypes.equals(ONLY_REPORT)) {
+            position = BY_REPORTS_POSITION;
+        }
+        if (mTypes.equals(ONLY_DASHBOARD)) {
+            position = BY_DASHBOARDS_POSITION;
+        }
+
+        builder.setSingleChoiceItems(options, position, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
-                    case FILTER_BY_REPORTS:
-                        mTypes = new ArrayList<String>();
-                        mTypes.add(ResourceLookup.ResourceType.reportUnit.toString());
+                    case BY_REPORTS_POSITION:
+                        mTypes = ONLY_REPORT;
                         break;
-                    case FILTER_BY_DASHBOARDS:
-                        mTypes = new ArrayList<String>();
-                        mTypes.add(ResourceLookup.ResourceType.dashboard.toString());
+                    case BY_DASHBOARDS_POSITION:
+                        mTypes = ONLY_DASHBOARD;
                         break;
                     default:
                         mTypes = ALL_TYPES;
                         break;
                 }
+                filterOptions.putFilters(mTypes);
             }
         });
 

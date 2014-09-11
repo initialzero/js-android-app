@@ -33,7 +33,7 @@
         android:layout_marginRight="12dp"
         android:scaleType="fitXY" />
 
-    <CheckedTextView
+    <TextView
         android:id="@android:id/text1"
         style="@style/list2.item.title"
         android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
         android:textColor="@color/list_label_light_grey"
         tools:text="Large Text" />
 
-    <CheckedTextView
+    <TextView
         android:id="@android:id/text2"
         style="@style/list2.item.subTitle"
         android:layout_width="wrap_content"

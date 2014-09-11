@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.activities.repository.support;
 import org.androidannotations.annotations.sharedpreferences.DefaultString;
 import org.androidannotations.annotations.sharedpreferences.SharedPref;
 
+import java.util.Set;
+
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -35,4 +37,5 @@ import org.androidannotations.annotations.sharedpreferences.SharedPref;
 public interface RepositoryPref {
     @DefaultString("LIST")
     String viewType();
+    Set<String> filterTypes();
 }

@@ -65,6 +65,7 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Inject
     ResourceLookupSearchCriteria mSearchCriteria;
 
+    @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
     @FragmentArg

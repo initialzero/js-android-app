@@ -66,13 +66,6 @@ public class FavoritesActivity extends BaseRepositoryActivity {
         userName = jsRestClient.getServerProfile().getUsername();
         organization = jsRestClient.getServerProfile().getOrganization();
 
-        //update title
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            String title = extras.getString(EXTRA_BC_TITLE_LARGE);
-            getActionBar().setTitle(title);
-        }
-
         List<ResourceLookup> resourceLookups = new ArrayList<ResourceLookup>();
 
         Cursor cursor = dbProvider.fetchFavoriteItemsByParams(serverProfileId, userName, organization);

@@ -45,19 +45,19 @@
         android:orderInCategory="95"
         android:showAsAction="ifRoom"
         android:title="@string/r_ab_refresh" />
+
     <item
-        android:id="@+id/favorites"
+        android:id="@+id/showFavorites"
         android:icon="@drawable/ic_action_favorites"
         android:orderInCategory="80"
         android:showAsAction="never"
         android:title="@string/r_ab_favorites" />
 
     <item
-        android:id="@+id/settings"
+        android:id="@+id/showSettings"
         android:icon="@drawable/ic_action_settings"
         android:orderInCategory="90"
         android:showAsAction="never"
         android:title="@string/ab_settings" />
-
 
 </menu>

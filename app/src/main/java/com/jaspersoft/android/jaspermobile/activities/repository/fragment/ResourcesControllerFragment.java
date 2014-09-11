@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -99,6 +101,13 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
                 .commit();
 
         getActivity().invalidateOptionsMenu();
+    }
+
+    @OptionsItem
+    final void showFavorites() {
+        Intent favoritesIntent = new Intent(getActivity(), FavoritesActivity.class);
+        favoritesIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(favoritesIntent);
     }
 
     @Override

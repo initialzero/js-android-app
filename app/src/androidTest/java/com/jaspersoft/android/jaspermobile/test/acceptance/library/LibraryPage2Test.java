@@ -58,6 +58,7 @@ import java.util.ArrayList;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -65,6 +66,7 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Mockito.when;
@@ -123,7 +125,6 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
-
     }
 
     @Override
@@ -178,6 +179,13 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
         rotate();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
+    }
+
+    public void testFavoritesOptionMenu() {
+        startActivityUnderTest();
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+        onOverflowView(getActivity(), withText(R.string.r_ab_favorites)).perform(click());
+        onView(withText(R.string.f_title)).check(matches(isDisplayed()));
     }
 
     private void clickOnReportItem() {

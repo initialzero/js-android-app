@@ -41,9 +41,10 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
-import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
@@ -176,10 +177,7 @@ public abstract class BaseRepositoryActivity extends RoboListActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_SETTINGS:
-                // Launch the settings activity
-                Intent settingsIntent = new Intent();
-                settingsIntent.setClass(this, SettingsActivity.class);
-                startActivity(settingsIntent);
+                SettingsActivity_.intent(this).start();
                 return true;
             case android.R.id.home:
                 HomeActivity.goHome(this);

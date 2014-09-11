@@ -42,6 +42,8 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -146,10 +148,7 @@ public class ServerProfilesManagerActivity extends RoboListActivity {
                 startActivityForResult(intent, ID_AB_ADD_SERVER_PROFILE);
                 return true;
             case ID_AB_SETTINGS:
-                // Launch the settings activity
-                Intent settingsIntent = new Intent();
-                settingsIntent.setClass(this, SettingsActivity.class);
-                startActivity(settingsIntent);
+                SettingsActivity_.intent(this).start();
                 return true;
             default:
                 // If you don't handle the menu item, you should pass the menu item to the superclass implementation

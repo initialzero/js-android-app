@@ -128,7 +128,10 @@
         />
 
         <!-- Activity that allows to specify the application settings -->
-        <activity android:name=".activities.SettingsActivity" />
+        <activity
+            android:name=".activities.settings.SettingsActivity_"
+            android:label="@string/st_title"
+            />
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"

@@ -31,7 +31,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.google.inject.Injector;
-import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.webkit.WebkitCookieManagerProxy;

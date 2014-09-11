@@ -34,7 +34,7 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.SearchResourcesRequest;
 import com.octo.android.robospice.persistence.DurationInMillis;

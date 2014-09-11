@@ -37,6 +37,7 @@ import android.widget.EditText;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -197,10 +198,7 @@ public class ServerProfileActivity extends RoboActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case ID_AB_SETTINGS:
-                // Launch the settings activity
-                Intent settingsIntent = new Intent();
-                settingsIntent.setClass(this, SettingsActivity.class);
-                startActivity(settingsIntent);
+                SettingsActivity_.intent(this).start();
                 return true;
             case android.R.id.home:
                 // go to the server profiles manager

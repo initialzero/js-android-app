@@ -188,6 +188,13 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         onView(withText(R.string.f_title)).check(matches(isDisplayed()));
     }
 
+    public void testSettingsOptionMenu() {
+        startActivityUnderTest();
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+        onOverflowView(getActivity(), withText(R.string.ab_settings)).perform(click());
+        onView(withText(R.string.st_title)).check(matches(isDisplayed()));
+    }
+
     private void clickOnReportItem() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();

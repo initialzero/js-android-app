@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Jaspersoft Corporation. All rights reserved.
+ * Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,59 +22,55 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.settings;
 
-import android.app.ActionBar;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
-import android.preference.PreferenceManager;
-import android.view.MenuItem;
+import android.preference.PreferenceFragment;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.octo.android.robospice.persistence.DurationInMillis;
 
-import roboguice.activity.RoboPreferenceActivity;
+import roboguice.RoboGuice;
 
-import static android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_CONNECT_TIMEOUT;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_READ_TIMEOUT;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_REPO_CACHE_EXPIRATION;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_CONNECT_TIMEOUT;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_READ_TIMEOUT;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_REPO_CACHE_EXPIRATION;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.getReadTimeoutValue;
 
 /**
- * @author Ivan Gadzhega
- * @since 1.5
+ * @author Tom Koptel
+ * @since 1.9
  */
-public class SettingsActivity extends RoboPreferenceActivity implements OnSharedPreferenceChangeListener {
-
-    public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
-    public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
-    public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
-    public static final String KEY_PREF_READ_TIMEOUT = "pref_read_timeout";
-
-    public static final boolean DEFAULT_REPO_CACHE_ENABLED = true;
-    public static final String DEFAULT_REPO_CACHE_EXPIRATION = "48";
-    public static final String DEFAULT_CONNECT_TIMEOUT = "15";
-    public static final String DEFAULT_READ_TIMEOUT = "120";
-
+public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private SharedPreferences sharedPreferences;
     private EditTextPreference repoCacheExpirationPref;
     private EditTextPreference connectTimeoutPref;
     private EditTextPreference readTimeoutPref;
 
     @Inject
-    private JsRestClient jsRestClient;
+    private JsRestClient mJsRestClient;
+
+    //---------------------------------------------------------------------
+    // Public methods
+    //---------------------------------------------------------------------
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        RoboGuice.getInjector(getActivity()).injectMembersWithoutViews(this);
         addPreferencesFromResource(R.xml.preferences);
-        // update title
-        ActionBar actionBar = getActionBar();
-        actionBar.setTitle(R.string.st_title);
-        // use the App Icon for Navigation
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         // init shared preferences
         sharedPreferences = getPreferenceScreen().getSharedPreferences();
         // repository cache
@@ -82,6 +78,7 @@ public class SettingsActivity extends RoboPreferenceActivity implements OnShared
         // timeouts
         connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
         readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
+
         // init summaries for all preferences
         updatePreferenceSummary(KEY_PREF_REPO_CACHE_EXPIRATION);
         updatePreferenceSummary(KEY_PREF_CONNECT_TIMEOUT);
@@ -89,59 +86,28 @@ public class SettingsActivity extends RoboPreferenceActivity implements OnShared
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         // Set up a listener whenever a key changes
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                HomeActivity.goHome(this);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         // Unregister the listener whenever a key changes
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
+
+    //---------------------------------------------------------------------
+    // OnSharedPreferenceChangeListener implementation
+    //---------------------------------------------------------------------
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         validatePreferenceValue(key);
         updatePreferenceSummary(key);
         updateDependentObjects(key);
-    }
-
-    public static long getRepoCacheExpirationValue(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean repoCacheEnabled = preferences.getBoolean(KEY_PREF_REPO_CACHE_ENABLED, DEFAULT_REPO_CACHE_ENABLED);
-        if (repoCacheEnabled) {
-            String value = preferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
-            return Integer.parseInt(value) * DurationInMillis.ONE_HOUR;
-        } else {
-            return -1;
-        }
-    }
-
-    public static int getConnectTimeoutValue(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String value = preferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-        return Integer.parseInt(value);
-    }
-
-    public static int getReadTimeoutValue(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String value = preferences.getString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
-        return Integer.parseInt(value);
     }
 
     //---------------------------------------------------------------------
@@ -159,10 +125,10 @@ public class SettingsActivity extends RoboPreferenceActivity implements OnShared
     }
 
     private void validatePreferenceValue(String key, String defValue) {
-        if (sharedPreferences.getString(key, defValue).length() == 0){
+        if (sharedPreferences.getString(key, defValue).length() == 0) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(key, defValue);
-            editor.commit();
+            editor.apply();
         }
     }
 
@@ -184,12 +150,11 @@ public class SettingsActivity extends RoboPreferenceActivity implements OnShared
 
     private void updateDependentObjects(String key) {
         if (key.equals(KEY_PREF_CONNECT_TIMEOUT)) {
-            int readTimeoutValue = getReadTimeoutValue(this);
-            jsRestClient.setConnectTimeout(readTimeoutValue * 1000);
+            int readTimeoutValue = getReadTimeoutValue(getActivity());
+            mJsRestClient.setConnectTimeout(readTimeoutValue * 1000);
         } else if (key.equals(KEY_PREF_READ_TIMEOUT)) {
-            int readTimeoutValue = getReadTimeoutValue(this);
-            jsRestClient.setReadTimeout(readTimeoutValue * 1000);
+            int readTimeoutValue = getReadTimeoutValue(getActivity());
+            mJsRestClient.setReadTimeout(readTimeoutValue * 1000);
         }
     }
-
 }

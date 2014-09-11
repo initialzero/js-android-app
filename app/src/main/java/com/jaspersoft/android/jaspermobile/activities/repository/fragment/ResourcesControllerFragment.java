@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.IResour
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -108,6 +109,13 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
         Intent favoritesIntent = new Intent(getActivity(), FavoritesActivity.class);
         favoritesIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(favoritesIntent);
+    }
+
+    @OptionsItem
+    final void showSettings() {
+        SettingsActivity_.intent(getActivity())
+                .flags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                .start();
     }
 
     @Override

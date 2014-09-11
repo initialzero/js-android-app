@@ -47,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivi
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.SearchActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
@@ -191,10 +192,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_settings)
     final void showSettings() {
         if (mConnectivityUtil.isConnected()) {
-
-            // Launch the settings activity
-            Intent settingsIntent = new Intent(this, SettingsActivity.class);
-            startActivity(settingsIntent);
+            SettingsActivity_.intent(this).start();
         } else {
             showNetworkAlert();
         }

@@ -195,6 +195,12 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         onView(withText(R.string.st_title)).check(matches(isDisplayed()));
     }
 
+    public void testHomeAsUp() {
+        startActivityUnderTest();
+        onView(withId(android.R.id.home)).perform(click());
+        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
+    }
+
     private void clickOnReportItem() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
@@ -245,6 +251,7 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
             bind(JsRestClient.class).toInstance(mockRestClient);
             bind(DatabaseProvider.class).toInstance(mockDbProvider);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
             bindConstant().annotatedWith(Names.named("LIMIT")).to(LIMIT);
             bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
         }

@@ -23,9 +23,11 @@
  */
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
@@ -57,6 +59,11 @@ public class LibraryActivity extends RoboFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         if (savedInstanceState == null) {
             resourcesController =
                     ResourcesControllerFragment_.builder()
@@ -68,6 +75,11 @@ public class LibraryActivity extends RoboFragmentActivity {
             resourcesController = (ResourcesControllerFragment) getSupportFragmentManager()
                     .findFragmentByTag(ResourcesControllerFragment.TAG);
         }
+    }
+
+    @OptionsItem(android.R.id.home)
+    final void showHome() {
+        HomeActivity.goHome(this);
     }
 
     @OptionsItem(R.id.filter)

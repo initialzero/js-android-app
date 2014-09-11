@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -35,6 +36,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import roboguice.activity.RoboFragmentActivity;
 
@@ -46,7 +48,7 @@ import roboguice.activity.RoboFragmentActivity;
 @OptionsMenu(R.menu.libraries_menu)
 public class LibraryActivity extends RoboFragmentActivity {
     private ResourcesControllerFragment resourcesController;
-    private static final ArrayList<String> TYPES = new ArrayList<String>(){{
+    private static final ArrayList<String> TYPES = new ArrayList<String>() {{
         add(ResourceLookup.ResourceType.reportUnit.toString());
         add(ResourceLookup.ResourceType.dashboard.toString());
     }};
@@ -70,5 +72,14 @@ public class LibraryActivity extends RoboFragmentActivity {
 
     @OptionsItem(R.id.filter)
     final void startFiltering() {
+        FilterDialogFragment.show(getSupportFragmentManager(),
+                new FilterDialogFragment.FilterDialogListener() {
+                    @Override
+                    public void onDialogPositiveClick(List<String> types) {
+                        if (resourcesController != null) {
+                            resourcesController.loadResourcesByTypes(types);
+                        }
+                    }
+                });
     }
 }

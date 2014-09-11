@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
+import com.google.android.apps.common.testing.ui.espresso.Root;
 import com.google.android.apps.common.testing.ui.espresso.ViewAction;
 import com.google.android.apps.common.testing.ui.espresso.ViewAssertion;
 import com.google.android.apps.common.testing.ui.espresso.ViewInteraction;
@@ -47,6 +48,7 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView
 import static com.google.android.apps.common.testing.ui.espresso.matcher.RootMatchers.withDecorView;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -129,5 +131,26 @@ public final class JasperMatcher {
                 ));
     }
 
+    public static ViewInteraction onOverflowView(Activity activity, final Matcher<View> viewMatcher) {
+        return onView(viewMatcher).inRoot(withDecorView(
+                is(not(activity.getWindow().getDecorView()))
+        ));
+    }
 
+    public static Matcher<Root> withNotDecorView(final Matcher<View> decorViewMatcher) {
+        checkNotNull(decorViewMatcher);
+        return new TypeSafeMatcher<Root>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with decor view ");
+                decorViewMatcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matchesSafely(Root root) {
+                return decorViewMatcher.matches(root.getDecorView());
+            }
+        };
+    }
 }

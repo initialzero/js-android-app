@@ -37,6 +37,7 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
@@ -44,6 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
@@ -65,6 +67,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import hugo.weaving.DebugLog;
 import roboguice.inject.InjectView;
@@ -75,7 +78,7 @@ import roboguice.inject.InjectView;
  */
 @EFragment
 public class ResourcesFragment extends RoboSpiceFragment
-        implements AbsListView.OnScrollListener, AdapterView.OnItemClickListener {
+        implements AbsListView.OnScrollListener, AdapterView.OnItemClickListener, IResourcesLoader {
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -222,6 +225,14 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     public boolean isLoading() {
         return mLoading;
+    }
+
+    @Override
+    public void loadResourcesByTypes(List<String> types) {
+        resourceTypes = Lists.newArrayList(types);
+        mSearchCriteria.setTypes(resourceTypes);
+        mAdapter.clear();
+        loadFirstPage();
     }
 
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {

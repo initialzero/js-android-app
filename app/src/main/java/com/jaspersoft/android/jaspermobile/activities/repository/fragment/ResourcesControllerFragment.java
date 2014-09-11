@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
@@ -43,6 +44,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.GRID;
 import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.LIST;
@@ -53,7 +55,7 @@ import static com.jaspersoft.android.jaspermobile.activities.repository.support.
  */
 @EFragment
 @OptionsMenu(R.menu.repository_menu)
-public class ResourcesControllerFragment extends RoboSpiceFragment {
+public class ResourcesControllerFragment extends RoboSpiceFragment implements IResourcesLoader {
     public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
     public static final String CONTENT_TAG = "CONTENT_TAG";
 
@@ -65,6 +67,7 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
 
     @FragmentArg
     ArrayList<String> resourceTypes;
+    private ResourcesFragment contentFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,13 +116,20 @@ public class ResourcesControllerFragment extends RoboSpiceFragment {
     }
 
     private Fragment getContentFragment() {
-        return ResourcesFragment_.builder()
+        contentFragment = ResourcesFragment_.builder()
                 .viewType(getViewType())
                 .resourceTypes(resourceTypes).build();
+        return contentFragment;
     }
 
     private ViewType getViewType() {
         return ViewType.valueOf(repositoryPref);
     }
 
+    @Override
+    public void loadResourcesByTypes(List<String> types) {
+        if (contentFragment != null) {
+            contentFragment.loadResourcesByTypes(types);
+        }
+    }
 }

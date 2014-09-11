@@ -26,8 +26,7 @@ package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
+import android.widget.AbsListView;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.google.android.apps.common.testing.ui.espresso.ViewAction;
@@ -42,7 +41,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static com.google.android.apps.common.testing.testrunner.util.Checks.checkNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -99,33 +97,13 @@ public final class JasperMatcher {
                 GeneralLocation.TOP_CENTER, Press.FINGER);
     }
 
-    public static Matcher<View> withAdapterViewId(int id) {
-        return withAdapterViewId(is(id));
-    }
-
-    public static Matcher<View> withAdapterViewId(final Matcher<Integer> integerMatcher) {
-        checkNotNull(integerMatcher);
-        return new TypeSafeMatcher<View>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("with id: ");
-                integerMatcher.describeTo(description);
-            }
-
-            @Override
-            public boolean matchesSafely(View view) {
-                return integerMatcher.matches(view.getId()) && (view instanceof AdapterView);
-            }
-        };
-    }
-
     public static ViewAssertion hasTotalCount(final int totalCount) {
         return new ViewAssertion() {
             @Override
             public void check(Optional<View> view, Optional<NoMatchingViewException> noView) {
                 @SuppressWarnings("rawtypes")
-                Adapter adapter = ((AdapterView) view.get()).getAdapter();
-                assertThat(adapter.getCount(),  is(totalCount)) ;
+                AbsListView adapter = ((AbsListView) view.get());
+                assertThat(adapter.getAdapter().getCount(),  is(totalCount)) ;
             }
         };
     }

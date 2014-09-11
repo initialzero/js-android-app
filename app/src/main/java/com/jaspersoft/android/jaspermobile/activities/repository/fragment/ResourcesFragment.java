@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -90,6 +91,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     private int mTotal;
     private boolean mLoading;
     private ResourceAdapter mAdapter;
+    private final DataObservable mObservable = new DataObservable();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -116,6 +118,7 @@ public class ResourcesFragment extends RoboSpiceFragment
             mAdapter = ResourceAdapter.builder(getActivity())
                     .setViewType(viewType)
                     .create();
+            mAdapter.registerDataSetObserver(mObservable);
             listView.setAdapter(mAdapter);
         }
 
@@ -163,6 +166,10 @@ public class ResourcesFragment extends RoboSpiceFragment
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
+    public boolean isLoading() {
+        return mLoading;
+    }
+
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
         @Override
         public void onRequestFailure(SpiceException exception) {
@@ -171,16 +178,19 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
-            mLoading = false;
             boolean isFirstPage = mSearchCriteria.getOffset() == 0;
 
             if (isFirstPage) {
                 mTotal = resourceLookupsList.getTotalCount();
             }
-//
-
             mAdapter.addAll(resourceLookupsList.getResourceLookups());
-            int i = 9;
+        }
+    }
+
+    private class DataObservable extends DataSetObserver {
+        public void onChanged() {
+            super.onChanged();
+            mLoading = false;
         }
     }
 }

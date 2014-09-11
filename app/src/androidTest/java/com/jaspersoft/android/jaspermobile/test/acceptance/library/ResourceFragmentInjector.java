@@ -2,20 +2,22 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
 import android.app.Activity;
 import android.content.ComponentName;
-import android.widget.AbsListView;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleCallback;
 import com.google.android.apps.common.testing.testrunner.Stage;
+import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesFragment;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class ListViewInjector implements ActivityLifecycleCallback {
-    private final AdapterIdlingResource adapterIdlingResource;
+public class ResourceFragmentInjector implements ActivityLifecycleCallback {
+    private final ResourcesFragmentIdlingResource adapterIdlingResource;
 
-    public ListViewInjector(AdapterIdlingResource adapterIdlingResource) {
+    public ResourceFragmentInjector(ResourcesFragmentIdlingResource adapterIdlingResource) {
         this.adapterIdlingResource = adapterIdlingResource;
     }
 
@@ -28,12 +30,12 @@ public class ListViewInjector implements ActivityLifecycleCallback {
         if (!currentComponentName.equals(targetComponentName)) return;
 
         switch (stage) {
-            case CREATED:
-                // We need to wait for the activity to be created before getting a reference
-                // to the webview
-                AbsListView absListView = (AbsListView) activity.findViewById(android.R.id.list);
-
-                adapterIdlingResource.inject(absListView);
+            case STARTED:
+                LibraryActivity libraryActivity = (LibraryActivity) activity;
+                ResourcesFragment resourcesFragment =
+                        (ResourcesFragment) libraryActivity.getSupportFragmentManager()
+                                .findFragmentByTag(ResourcesControllerFragment.CONTENT_TAG);
+                adapterIdlingResource.inject(resourcesFragment);
                 break;
             case STOPPED:
                 // Clean up reference

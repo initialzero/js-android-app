@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
+import com.google.android.apps.common.testing.ui.espresso.Espresso;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.R;
@@ -56,7 +58,6 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.swipeUp;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.withAdapterViewId;
 import static org.mockito.Mockito.when;
 
 /**
@@ -78,6 +79,7 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
     private RepositoryPref_ repositoryPref;
     private ResourceLookupsList firstLookUp, secondLookUp;
+    private ResourceFragmentInjector injector;
 
     public LibraryPage2Test() {
         super(LibraryActivity_.class);
@@ -101,10 +103,19 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+
+        ResourcesFragmentIdlingResource resourceFragmentInjector =
+                new ResourcesFragmentIdlingResource();
+        Espresso.registerIdlingResources(resourceFragmentInjector);
+        injector = new ResourceFragmentInjector(resourceFragmentInjector);
+        ActivityLifecycleMonitorRegistry.getInstance()
+                .addLifecycleCallback(injector);
     }
 
     @Override
     protected void tearDown() throws Exception {
+        ActivityLifecycleMonitorRegistry.getInstance()
+                .removeLifecycleCallback(injector);
         repositoryPref = null;
         super.tearDown();
     }
@@ -141,7 +152,7 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         for (int i = 0; i < 3; i++) {
             onView(withId(android.R.id.list)).perform(swipeUp());
         }
-        onView(withAdapterViewId(android.R.id.list)).check(hasTotalCount(firstLookUp.getTotalCount()));
+        onView(withId(android.R.id.list)).check(hasTotalCount(firstLookUp.getTotalCount()));
     }
 
 

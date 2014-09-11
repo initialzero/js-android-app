@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.test.acceptance;
 
 import android.app.Application;
 
-import com.google.android.apps.common.testing.ui.espresso.ViewInteraction;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
@@ -56,12 +55,10 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressB
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.RootMatchers.withDecorView;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onViewDialogId;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -134,8 +131,8 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         // Click on any dashboard item
         onView(withId(R.id.home_item_servers)).perform(click());
 
-        onViewDialog(R.id.sdl__title).check(matches(withText(R.string.h_ad_title_no_connection)));
-        onViewDialog(R.id.sdl__message).check(matches(withText(R.string.h_ad_msg_no_connection)));
+        onViewDialogId(getActivity(), R.id.sdl__title).check(matches(withText(R.string.h_ad_title_no_connection)));
+        onViewDialogId(getActivity(), R.id.sdl__message).check(matches(withText(R.string.h_ad_msg_no_connection)));
     }
 
     public void testMissingPasswordCaseForServerProfile() {
@@ -148,13 +145,13 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         startActivityUnderTest();
 
         // Check whether our dialog is shown with Appropriate info
-        onViewDialog(R.id.dialogUsernameText).check(matches(withText(USERNAME)));
-        onViewDialog(R.id.dialogOrganizationText).check(matches(withText(ORGANIZATION)));
-        onViewDialog(R.id.dialogOrganizationTableRow).check(matches(isDisplayed()));
+        onViewDialogId(getActivity(), R.id.dialogUsernameText).check(matches(withText(USERNAME)));
+        onViewDialogId(getActivity(), R.id.dialogOrganizationText).check(matches(withText(ORGANIZATION)));
+        onViewDialogId(getActivity(), R.id.dialogOrganizationTableRow).check(matches(isDisplayed()));
 
         // Lets type some password and check if it set
-        onViewDialog(R.id.dialogPasswordEdit).perform(typeText(PASSWORD));
-        onViewDialog(android.R.id.button1).perform(click());
+        onViewDialogId(getActivity(), R.id.dialogPasswordEdit).perform(typeText(PASSWORD));
+        onViewDialogId(getActivity(), android.R.id.button1).perform(click());
 
         verify(mockServerProfile, times(1)).setPassword(PASSWORD);
     }
@@ -214,13 +211,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
 
         // Then we should check for appropriate method call
         verify(mockRestClient, times(3)).getServerProfile();
-    }
-
-    private ViewInteraction onViewDialog(int id) {
-        return onView(withId(id))
-                .inRoot(withDecorView(
-                        is(not(getActivity().getWindow().getDecorView()))
-                ));
     }
 
     public class MockedSpiceManager extends SpiceManager {

@@ -43,16 +43,7 @@ public class ResourceViewHelper {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat(INITIAL_DATE_FORMAT);
 
     public void populateView(IResourceView resourceView, ResourceLookup item) {
-        switch (item.getResourceType()) {
-            case dashboard:
-                resourceView.setImageIcon(R.drawable.sample_dashboard_blue);
-                break;
-            case reportUnit:
-                resourceView.setImageIcon(R.drawable.sample_dashboard_blue);
-                break;
-            default:
-                resourceView.setImageIcon(R.drawable.js_blue_gradient);
-        }
+        setIcon(resourceView, item);
 
         resourceView.setTitle(item.getLabel());
 
@@ -60,6 +51,19 @@ public class ResourceViewHelper {
 
         if (item.getResourceType() == ResourceLookup.ResourceType.folder) {
             resourceView.setTimeTamp(formatDateString(item.getCreationDate()));
+        }
+    }
+
+    private void setIcon(IResourceView resourceView, ResourceLookup item) {
+        switch (item.getResourceType()) {
+            case dashboard:
+                resourceView.setImageIcon(R.drawable.sample_dashboard_blue);
+                break;
+            case reportUnit:
+                resourceView.setImageIcon(R.drawable.sample_report_grey);
+                break;
+            default:
+                resourceView.setImageIcon(R.drawable.js_blue_gradient);
         }
     }
 

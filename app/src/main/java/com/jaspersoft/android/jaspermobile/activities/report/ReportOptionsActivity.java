@@ -51,6 +51,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
@@ -94,7 +95,7 @@ import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDi
  * @author Ivan Gadzhega
  * @since 1.6
  */
-public class ReportOptionsActivity extends RoboActivity {
+public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
@@ -107,12 +108,12 @@ public class ReportOptionsActivity extends RoboActivity {
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected DatabaseProvider dbProvider;
     @InjectView(R.id.runReportButton)
     protected Button runReportButton;
 
     protected Menu optionsMenu;
-    protected DatabaseProvider dbProvider;
-    protected SpiceManager serviceManager;
     protected String reportUri;
 
     private DatePickerDialogHelper dialogHelper;
@@ -123,11 +124,6 @@ public class ReportOptionsActivity extends RoboActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.report_options_layout);
-
-        // Get the database provider
-        dbProvider = new DatabaseProvider(this);
-        // bind to service
-        serviceManager = new SpiceManager(JsXmlSpiceService.class);
 
         // init helper for date/time picker dialogs
         dialogHelper = new DatePickerDialogHelper(this);
@@ -144,21 +140,23 @@ public class ReportOptionsActivity extends RoboActivity {
         // Get a cursor with saved options for current report
         JsServerProfile profile = jsRestClient.getServerProfile();
         Cursor cursor = dbProvider.fetchReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
-        startManagingCursor(cursor);
+        if (cursor != null) {
+            startManagingCursor(cursor);
 
-        Map<String, ReportParameter> savedOptions = new HashMap<String, ReportParameter>();
-        if (cursor.getCount() != 0) {
-            // Iterate DB Records
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                String name = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_NAME));
-                String value = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_VALUE));
-                if (savedOptions.containsKey(name)) {
-                    savedOptions.get(name).getValues().add(value);
-                } else {
-                    savedOptions.put(name, new ReportParameter(name, value));
+            Map<String, ReportParameter> savedOptions = new HashMap<String, ReportParameter>();
+            if (cursor.getCount() != 0) {
+                // Iterate DB Records
+                cursor.moveToFirst();
+                while (!cursor.isAfterLast()) {
+                    String name = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_NAME));
+                    String value = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_VALUE));
+                    if (savedOptions.containsKey(name)) {
+                        savedOptions.get(name).getValues().add(value);
+                    } else {
+                        savedOptions.put(name, new ReportParameter(name, value));
+                    }
+                    cursor.moveToNext();
                 }
-                cursor.moveToNext();
             }
         }
 
@@ -169,7 +167,7 @@ public class ReportOptionsActivity extends RoboActivity {
     public void runReportButtonClickHandler(View view) {
         setRefreshActionButtonState(true);
         ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
-        serviceManager.execute(request, new ValidateInputControlsValuesListener());
+        getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
     }
 
     @Override
@@ -252,15 +250,8 @@ public class ReportOptionsActivity extends RoboActivity {
     }
 
     @Override
-    protected void onStart() {
-        serviceManager.start(this);
-        super.onStart();
-    }
-
-    @Override
     protected void onStop() {
         setRefreshActionButtonState(false);
-        serviceManager.shouldStop();
         super.onStop();
     }
 
@@ -276,10 +267,10 @@ public class ReportOptionsActivity extends RoboActivity {
     //---------------------------------------------------------------------
 
     private void updateDependentControls(InputControl inputControl) {
-        if(!inputControl.getSlaveDependencies().isEmpty()) {
+        if (!inputControl.getSlaveDependencies().isEmpty()) {
             setRefreshActionButtonState(true);
             GetInputControlsValuesRequest request = new GetInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
-            serviceManager.execute(request, new GetInputControlsValuesListener());
+            getSpiceManager().execute(request, new GetInputControlsValuesListener());
         }
     }
 
@@ -335,7 +326,7 @@ public class ReportOptionsActivity extends RoboActivity {
             TextView textView = (TextView) control.getErrorView();
             if (textView != null) {
                 Iterator<InputControlState> iterator = invalidStateList.iterator();
-                while(iterator.hasNext()) {
+                while (iterator.hasNext()) {
                     InputControlState state = iterator.next();
                     if (control.getId().equals(state.getId())) {
                         textView.setText(state.getError());
@@ -351,7 +342,7 @@ public class ReportOptionsActivity extends RoboActivity {
     private void initInputControls() {
         inputControls = getIntent().getExtras().getParcelableArrayList(EXTRA_REPORT_CONTROLS);
 
-        LinearLayout baseLayout =  (LinearLayout) findViewById(R.id.input_controls_layout);
+        LinearLayout baseLayout = (LinearLayout) findViewById(R.id.input_controls_layout);
         LayoutInflater inflater = getLayoutInflater();
 
         // init UI components for ICs
@@ -428,10 +419,14 @@ public class ReportOptionsActivity extends RoboActivity {
                 public void afterTextChanged(Editable editable) {
                     onStringValueChanged(inputControl, editable.toString());
                 }
+
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
             });
         }
 
@@ -446,7 +441,7 @@ public class ReportOptionsActivity extends RoboActivity {
         final EditText editText = (EditText) layoutView.findViewById(R.id.ic_date_text);
 
         String format = DEFAULT_DATE_FORMAT;
-        for (DateTimeFormatValidationRule validationRule: inputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
+        for (DateTimeFormatValidationRule validationRule : inputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
             format = validationRule.getFormat();
         }
         DateFormat formatter = new SimpleDateFormat(format);
@@ -496,10 +491,14 @@ public class ReportOptionsActivity extends RoboActivity {
                 public void afterTextChanged(Editable editable) {
                     onStringValueChanged(inputControl, editable.toString());
                 }
+
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) { }
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
             });
         }
 
@@ -545,6 +544,7 @@ public class ReportOptionsActivity extends RoboActivity {
                         }
                     }
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
             });
@@ -599,7 +599,7 @@ public class ReportOptionsActivity extends RoboActivity {
     }
 
     private void updateLabelView(InputControl inputControl, View view) {
-        String mandatoryPrefix = (inputControl.isMandatory()) ? "* " : "" ;
+        String mandatoryPrefix = (inputControl.isMandatory()) ? "* " : "";
         TextView textView = (TextView) view.findViewById(R.id.ic_text_label);
         textView.setText(mandatoryPrefix + inputControl.getLabel() + ":");
     }
@@ -633,7 +633,7 @@ public class ReportOptionsActivity extends RoboActivity {
         @Override
         public void onRequestSuccess(InputControlStatesList stateList) {
             for (InputControlState state : stateList.getInputControlStates()) {
-                for(InputControl slaveControl : inputControls) {
+                for (InputControl slaveControl : inputControls) {
                     if (slaveControl.getId().equals(state.getId())) {
                         slaveControl.setState(state);
                         if (slaveControl.isVisible()) {

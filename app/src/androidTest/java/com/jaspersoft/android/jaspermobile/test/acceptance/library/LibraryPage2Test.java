@@ -27,21 +27,24 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import android.widget.GridView;
 import android.widget.ListView;
 
-import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
-import com.google.android.apps.common.testing.ui.espresso.Espresso;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
+import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.SpiceService;
@@ -51,13 +54,19 @@ import com.octo.android.robospice.request.listener.RequestListener;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
+
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.swipeUp;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Mockito.when;
 
 /**
@@ -70,6 +79,8 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     @Mock
     JsServerProfile mockServerProfile;
     @Mock
+    DatabaseProvider mockDbProvider;
+    @Mock
     JsRestClient mockRestClient;
     @Mock
     SpiceManager mockSpiceService;
@@ -78,8 +89,12 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
 
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
     private RepositoryPref_ repositoryPref;
-    private ResourceLookupsList firstLookUp, secondLookUp;
-    private ResourceFragmentInjector injector;
+    private ResourceLookupsList smallLookUp;
+    private ResourceLookup reportResource;
+    private ResourceLookup dashboardResource;
+    private InputControlsList emptyInputControlsList;
+    private InputControlsList fullInputControlsList;
+    private boolean withIC;
 
     public LibraryPage2Test() {
         super(LibraryActivity_.class);
@@ -91,12 +106,15 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         MockitoAnnotations.initMocks(this);
 
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
-        firstLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
-        secondLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_40_40");
+        smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
 
-        firstLookUp.setTotalCount(
-                firstLookUp.getResourceLookups().size() + secondLookUp.getResourceLookups().size()
-        );
+        reportResource = smallLookUp.getResourceLookups().get(0);
+        dashboardResource = smallLookUp.getResourceLookups().get(1);
+
+        emptyInputControlsList = new InputControlsList();
+        emptyInputControlsList.setInputControls(new ArrayList<InputControl>());
+
+        fullInputControlsList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
 
         registerTestModule(new TestModule());
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
@@ -104,18 +122,10 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
 
-        ResourcesFragmentIdlingResource resourceFragmentInjector =
-                new ResourcesFragmentIdlingResource();
-        Espresso.registerIdlingResources(resourceFragmentInjector);
-        injector = new ResourceFragmentInjector(resourceFragmentInjector);
-        ActivityLifecycleMonitorRegistry.getInstance()
-                .addLifecycleCallback(injector);
     }
 
     @Override
     protected void tearDown() throws Exception {
-        ActivityLifecycleMonitorRegistry.getInstance()
-                .removeLifecycleCallback(injector);
         repositoryPref = null;
         super.tearDown();
     }
@@ -124,6 +134,22 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         forcePreview(ViewType.GRID);
         startActivityUnderTest();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
+    }
+
+    public void testInitialLoadOfList() {
+        forcePreview(ViewType.LIST);
+        startActivityUnderTest();
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
+    }
+
+    public void testReportWithICItemClicked() throws InterruptedException {
+        withIC = true;
+        clickOnReportItem();
+    }
+
+    public void testReportWithoutICItemClicked() throws InterruptedException {
+        withIC = false;
+        clickOnReportItem();
     }
 
     public void testSwitcher() throws InterruptedException {
@@ -141,20 +167,18 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
-    public void testInitialLoadOfList() {
-        forcePreview(ViewType.LIST);
+    private void clickOnReportItem() {
         startActivityUnderTest();
-        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
-    }
+        onData(is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+// TODO: needs further ivestigation of reasons it failing
+//        onViewDialogText(getActivity(), R.string.r_pd_running_report_msg)
+//                .check(matches(isDisplayed()));
 
-    public void testScrollTo() throws InterruptedException {
-        startActivityUnderTest();
-        for (int i = 0; i < 3; i++) {
-            onView(withId(android.R.id.list)).perform(swipeUp());
-        }
-        onView(withId(android.R.id.list)).check(hasTotalCount(firstLookUp.getTotalCount()));
+        onView(withText(reportResource.getLabel())).check(matches(isDisplayed()));
+        pressBack();
     }
-
 
     private void forcePreview(ViewType viewType) {
         repositoryPref.viewType().put(viewType.toString());
@@ -170,16 +194,18 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
             super(spiceServiceClass);
         }
 
+        public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
+            if (request instanceof GetInputControlsRequest) {
+                requestListener.onRequestSuccess((T) (withIC ? fullInputControlsList : emptyInputControlsList));
+            }
+        }
+
         public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
                                 final long cacheExpiryDuration, final RequestListener<T> requestListener) {
             if (request instanceof GetResourceLookupsRequest) {
-                int offset = ((GetResourceLookupsRequest) request).getSearchCriteria().getOffset();
-                if (offset == LIMIT) {
-                    requestListener.onRequestSuccess((T) secondLookUp);
-                } else {
-                    requestListener.onRequestSuccess((T) firstLookUp);
-                }
+                requestListener.onRequestSuccess((T) smallLookUp);
             }
+
         }
     }
 
@@ -188,6 +214,7 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         @Override
         protected void configure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
+            bind(DatabaseProvider.class).toInstance(mockDbProvider);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
             bindConstant().annotatedWith(Names.named("LIMIT")).to(LIMIT);
             bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);

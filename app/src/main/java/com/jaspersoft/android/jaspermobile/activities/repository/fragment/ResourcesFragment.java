@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,19 +35,28 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -103,7 +114,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(
-                (viewType == ViewType.LIST)  ? R.layout.fragment_resources_list : R.layout.fragment_resources_grid,
+                (viewType == ViewType.LIST) ? R.layout.fragment_resources_list : R.layout.fragment_resources_grid,
                 container, false);
     }
 
@@ -127,6 +138,40 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        ResourceLookup resource = (ResourceLookup) listView.getItemAtPosition(position);
+        switch (resource.getResourceType()) {
+            case folder:
+                break;
+            case reportUnit:
+                runReport(resource);
+                break;
+            case dashboard:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void runReport(final ResourceLookup resource) {
+        final GetInputControlsRequest request =
+                new GetInputControlsRequest(jsRestClient, resource.getUri());
+
+        ProgressDialogFragment.show(getFragmentManager(),
+                new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        if (!request.isCancelled()) {
+                            getSpiceManager().cancel(request);
+                        }
+                    }
+                },
+                new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        getSpiceManager().execute(request,
+                                new GetInputControlsListener(resource));
+                    }
+                });
     }
 
     @Override
@@ -193,4 +238,48 @@ public class ResourcesFragment extends RoboSpiceFragment
             mLoading = false;
         }
     }
+
+    private class GetInputControlsListener implements RequestListener<InputControlsList> {
+        private final ResourceLookup mResource;
+
+        public GetInputControlsListener(ResourceLookup resource) {
+            mResource = resource;
+        }
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            if (exception instanceof RequestCancelledException) {
+                Toast.makeText(getActivity(), R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
+            } else {
+                RequestExceptionHandler.handle(exception, getActivity(), false);
+                ProgressDialogFragment.dismiss(getFragmentManager());
+            }
+        }
+
+        @Override
+        public void onRequestSuccess(InputControlsList controlsList) {
+            ProgressDialogFragment.dismiss(getFragmentManager());
+
+            ArrayList<InputControl> inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+
+            String reportUri = mResource.getUri();
+            String reportLabel = mResource.getLabel();
+            if (inputControls.isEmpty()) {
+                // Run Report Viewer activity
+                Intent htmlViewer = new Intent();
+                htmlViewer.setClass(getActivity(), ReportHtmlViewerActivity.class);
+                htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, reportUri);
+                htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, reportLabel);
+                startActivity(htmlViewer);
+            } else {
+                // Run Report Options activity
+                Intent intent = new Intent(getActivity(), ReportOptionsActivity.class);
+                intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, reportUri);
+                intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, reportLabel);
+                intent.putParcelableArrayListExtra(ReportOptionsActivity.EXTRA_REPORT_CONTROLS, inputControls);
+                startActivity(intent);
+            }
+        }
+    }
+
 }

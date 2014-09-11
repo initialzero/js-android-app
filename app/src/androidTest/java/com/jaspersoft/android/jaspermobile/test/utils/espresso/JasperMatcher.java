@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
+import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -31,6 +32,7 @@ import android.widget.AbsListView;
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.google.android.apps.common.testing.ui.espresso.ViewAction;
 import com.google.android.apps.common.testing.ui.espresso.ViewAssertion;
+import com.google.android.apps.common.testing.ui.espresso.ViewInteraction;
 import com.google.android.apps.common.testing.ui.espresso.action.GeneralLocation;
 import com.google.android.apps.common.testing.ui.espresso.action.GeneralSwipeAction;
 import com.google.android.apps.common.testing.ui.espresso.action.Press;
@@ -41,7 +43,12 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.RootMatchers.withDecorView;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 /**
@@ -107,5 +114,20 @@ public final class JasperMatcher {
             }
         };
     }
+
+    public static ViewInteraction onViewDialogId(Activity activity, int id) {
+        return onView(withId(id))
+                .inRoot(withDecorView(
+                        is(not(activity.getWindow().getDecorView()))
+                ));
+    }
+
+    public static ViewInteraction onViewDialogText(Activity activity, int resId) {
+        return onView(withText(resId))
+                .inRoot(withDecorView(
+                        is(not(activity.getWindow().getDecorView()))
+                ));
+    }
+
 
 }

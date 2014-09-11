@@ -47,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.adapter.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
@@ -146,6 +147,7 @@ public class ResourcesFragment extends RoboSpiceFragment
                 runReport(resource);
                 break;
             case dashboard:
+                runDashboard(resource);
                 break;
             default:
                 break;
@@ -172,6 +174,13 @@ public class ResourcesFragment extends RoboSpiceFragment
                                 new GetInputControlsListener(resource));
                     }
                 });
+    }
+
+    private void runDashboard(ResourceLookup resource) {
+        Intent htmlViewer = new Intent(getActivity(), DashboardHtmlViewerActivity.class);
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, resource.getUri());
+        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, resource.getLabel());
+        startActivity(htmlViewer);
     }
 
     @Override

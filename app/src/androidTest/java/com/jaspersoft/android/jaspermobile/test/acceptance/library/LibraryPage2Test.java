@@ -75,6 +75,8 @@ import static org.mockito.Mockito.when;
  */
 public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivity_> {
     private static final int LIMIT = 40;
+    private static final int REPORT_ITEM_POSITION = 0;
+    private static final int DASHBOARD_ITEM_POSITION = 1;
 
     @Mock
     JsServerProfile mockServerProfile;
@@ -108,8 +110,8 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
 
-        reportResource = smallLookUp.getResourceLookups().get(0);
-        dashboardResource = smallLookUp.getResourceLookups().get(1);
+        reportResource = smallLookUp.getResourceLookups().get(REPORT_ITEM_POSITION);
+        dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
 
         emptyInputControlsList = new InputControlsList();
         emptyInputControlsList.setInputControls(new ArrayList<InputControl>());
@@ -130,6 +132,17 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         super.tearDown();
     }
 
+    public void testDashboardItemClick() {
+        forcePreview(ViewType.LIST);
+        startActivityUnderTest();
+
+        onData(is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(DASHBOARD_ITEM_POSITION).perform(click());
+        onView(withText(dashboardResource.getLabel())).check(matches(isDisplayed()));
+        pressBack();
+    }
+
     public void testInitialLoadOfGrid() {
         forcePreview(ViewType.GRID);
         startActivityUnderTest();
@@ -142,17 +155,17 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
-    public void testReportWithICItemClicked() throws InterruptedException {
+    public void testReportWithICItemClicked() {
         withIC = true;
         clickOnReportItem();
     }
 
-    public void testReportWithoutICItemClicked() throws InterruptedException {
+    public void testReportWithoutICItemClicked() {
         withIC = false;
         clickOnReportItem();
     }
 
-    public void testSwitcher() throws InterruptedException {
+    public void testSwitcher() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
@@ -168,10 +181,11 @@ public class LibraryPage2Test extends ProtoActivityInstrumentation<LibraryActivi
     }
 
     private void clickOnReportItem() {
+        forcePreview(ViewType.LIST);
         startActivityUnderTest();
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
+                .atPosition(REPORT_ITEM_POSITION).perform(click());
 // TODO: needs further ivestigation of reasons it failing
 //        onViewDialogText(getActivity(), R.string.r_pd_running_report_msg)
 //                .check(matches(isDisplayed()));

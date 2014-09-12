@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -36,11 +35,15 @@
         <TextView
             android:id="@+id/card_title_txt"
             style="@style/home.card.title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             tools:text="Library" />
 
         <TextView
             android:id="@+id/card_subtitle_txt"
             style="@style/home.card.subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             tools:text="Some description" />
     </LinearLayout>
 

@@ -241,7 +241,6 @@
     <style name="saveReport.scrollView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@android:color/white</item>
         <item name="android:fillViewport">true</item>
     </style>
 
@@ -358,17 +357,13 @@
     </style>
 
     <style name="home.card.title">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/card_title_txt</item>
-        <item name="android:textSize">22sp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLargeInverse</item>
     </style>
 
     <style name="home.card.subtitle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/card_subtitle_txt</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
     </style>
 
     <style name="home.dialog" />

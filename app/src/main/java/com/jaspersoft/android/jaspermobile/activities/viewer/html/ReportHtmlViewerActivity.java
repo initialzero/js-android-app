@@ -84,7 +84,7 @@ public class ReportHtmlViewerActivity extends BaseHtmlViewerActivity {
 
         MenuItem saveAsItem = menu.add(Menu.NONE, ID_AB_SAVE_AS, Menu.NONE, R.string.rv_ab_save_report);
         saveAsItem.setIcon(R.drawable.ic_action_save);
-        saveAsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        saveAsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS) ;
         saveAsItem.setActionView(R.layout.actionbar_indeterminate_progress);
 
         return super.onCreateOptionsMenu(menu);

@@ -62,4 +62,14 @@
         android:defaultValue="120"
     />
 
+    <PreferenceCategory
+        android:title="@string/st_category_general"
+        />
+
+    <SwitchPreference
+        android:key="pref_animation_enabled"
+        android:title="@string/st_title_animations"
+        android:defaultValue="true"
+        />
+
 </PreferenceScreen>

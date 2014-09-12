@@ -76,6 +76,12 @@
             android:label="@string/h_library_label"
             />
 
+         <!--Activity that performs repository view -->
+        <activity
+            android:name=".activities.repository.RepositoryActivity_"
+            android:label="@string/h_repository_label"
+            />
+
         <!-- Activity that performs viewing of the favorite items -->
         <activity
             android:name=".activities.repository.FavoritesActivity"

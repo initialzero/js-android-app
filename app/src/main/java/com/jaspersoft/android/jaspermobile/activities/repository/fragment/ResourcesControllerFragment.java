@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -38,6 +39,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.IResour
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 
 import org.androidannotations.annotations.EFragment;
@@ -73,6 +75,15 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
+    @InstanceState
+    @FragmentArg
+    boolean recursiveLookup;
+    @InstanceState
+    @FragmentArg
+    String resourceLabel;
+    @InstanceState
+    @FragmentArg
+    String resourceUri;
 
     private ResourcesFragment contentFragment;
 
@@ -87,12 +98,13 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
         super.onActivityCreated(savedInstanceState);
 
         ResourcesFragment inMemoryFragment = (ResourcesFragment)
-                getFragmentManager().findFragmentByTag(CONTENT_TAG);
+                getFragmentManager().findFragmentByTag(getContentTag());
 
         if (inMemoryFragment == null) {
+            boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
             getFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-                    .add(android.R.id.content, getContentFragment(), CONTENT_TAG)
+                    .replace(android.R.id.content, getContentFragment(), getContentTag())
                     .commit();
         } else {
             contentFragment = inMemoryFragment;
@@ -143,6 +155,9 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
 
     private Fragment getContentFragment() {
         contentFragment = ResourcesFragment_.builder()
+                .recursiveLookup(recursiveLookup)
+                .resourceUri(resourceUri)
+                .resourceLabel(resourceLabel)
                 .viewType(getViewType())
                 .resourceTypes(resourceTypes).build();
         return contentFragment;
@@ -158,5 +173,9 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
         if (contentFragment != null) {
             contentFragment.loadResourcesByTypes(types);
         }
+    }
+
+    public String getContentTag() {
+        return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
     }
 }

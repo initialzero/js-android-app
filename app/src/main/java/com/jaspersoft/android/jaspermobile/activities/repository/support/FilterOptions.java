@@ -41,7 +41,12 @@ import java.util.Set;
  */
 @EBean
 public class FilterOptions {
-    public static final ArrayList<String> ALL_TYPES = new ArrayList<String>(){{
+    public static final ArrayList<String> ALL_REPOSITORY_TYPES = new ArrayList<String>(){{
+        add(ResourceLookup.ResourceType.folder.toString());
+        add(ResourceLookup.ResourceType.reportUnit.toString());
+        add(ResourceLookup.ResourceType.dashboard.toString());
+    }};
+    public static final ArrayList<String> ALL_LIBRARY_TYPES = new ArrayList<String>(){{
         add(ResourceLookup.ResourceType.reportUnit.toString());
         add(ResourceLookup.ResourceType.dashboard.toString());
     }};
@@ -58,7 +63,7 @@ public class FilterOptions {
     public ArrayList<String> getFilters() {
         Set<String> initialTypes = repositoryPref.filterTypes().get();
         if (initialTypes == null || initialTypes.isEmpty()) {
-            putFilters(ALL_TYPES);
+            putFilters(ALL_LIBRARY_TYPES);
         }
         return Lists.newArrayList(repositoryPref.filterTypes().get());
     }

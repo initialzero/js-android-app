@@ -41,7 +41,7 @@ import org.androidannotations.annotations.EFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ALL_TYPES;
+import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ALL_LIBRARY_TYPES;
 import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ONLY_DASHBOARD;
 import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ONLY_REPORT;
 
@@ -119,7 +119,7 @@ public class FilterDialogFragment extends DialogFragment {
                         mTypes = ONLY_DASHBOARD;
                         break;
                     default:
-                        mTypes = ALL_TYPES;
+                        mTypes = ALL_LIBRARY_TYPES;
                         break;
                 }
                 filterOptions.putFilters(mTypes);

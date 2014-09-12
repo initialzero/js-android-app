@@ -24,11 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
+import android.app.ActionBar;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,6 +83,7 @@ import roboguice.inject.InjectView;
 public class ResourcesFragment extends RoboSpiceFragment
         implements AbsListView.OnScrollListener, AdapterView.OnItemClickListener, IResourcesLoader {
 
+    public static final String ROOT_URI = "/";
     @InjectView(android.R.id.list)
     AbsListView listView;
 
@@ -95,6 +98,16 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
+    @InstanceState
+    @FragmentArg
+    boolean recursiveLookup;
+    @InstanceState
+    @FragmentArg
+    String resourceLabel;
+    @InstanceState
+    @FragmentArg
+    String resourceUri;
+
     @FragmentArg
     ViewType viewType;
 
@@ -113,8 +126,15 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSearchCriteria.setRecursive(recursiveLookup);
         mSearchCriteria.setTypes(resourceTypes);
-        mSearchCriteria.setFolderUri("/");
+        mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
+
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(TextUtils.isEmpty(resourceLabel) ?
+                    getActivity().getTitle() : resourceLabel);
+        }
     }
 
     @Override
@@ -147,6 +167,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         ResourceLookup resource = (ResourceLookup) listView.getItemAtPosition(position);
         switch (resource.getResourceType()) {
             case folder:
+                openFolder(resource);
                 break;
             case reportUnit:
                 runReport(resource);
@@ -157,6 +178,19 @@ public class ResourcesFragment extends RoboSpiceFragment
             default:
                 break;
         }
+    }
+
+    private void openFolder(ResourceLookup resource) {
+        ResourcesControllerFragment newControllerFragment =
+                ResourcesControllerFragment_.builder()
+                        .resourceTypes(resourceTypes)
+                        .resourceLabel(resource.getLabel())
+                        .resourceUri(resource.getUri())
+                        .build();
+        getFragmentManager().beginTransaction()
+                .addToBackStack(null)
+                .replace(R.id.controller, newControllerFragment, ResourcesControllerFragment.TAG + resource.getUri())
+                .commit();
     }
 
     private void runReport(final ResourceLookup resource) {

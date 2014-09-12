@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -41,6 +42,7 @@ import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsAc
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_REPO_CACHE_EXPIRATION;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_ANIMATION_ENABLED;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.getReadTimeoutValue;
 
 /**
@@ -49,6 +51,7 @@ import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsAc
  */
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private SharedPreferences sharedPreferences;
+    private SwitchPreference animEnabledPref;
     private EditTextPreference repoCacheExpirationPref;
     private EditTextPreference connectTimeoutPref;
     private EditTextPreference readTimeoutPref;
@@ -78,11 +81,13 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         // timeouts
         connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
         readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
+        animEnabledPref = (SwitchPreference) getPreferenceScreen().findPreference(KEY_PREF_ANIMATION_ENABLED);
 
         // init summaries for all preferences
         updatePreferenceSummary(KEY_PREF_REPO_CACHE_EXPIRATION);
         updatePreferenceSummary(KEY_PREF_CONNECT_TIMEOUT);
         updatePreferenceSummary(KEY_PREF_READ_TIMEOUT);
+        updatePreferenceSummary(KEY_PREF_ANIMATION_ENABLED);
     }
 
     @Override
@@ -145,6 +150,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             String value = sharedPreferences.getString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
             String summary = getString(R.string.st_summary_sec, value);
             readTimeoutPref.setSummary(summary);
+        } else if (key.equals(KEY_PREF_ANIMATION_ENABLED)) {
+            boolean animationsEnabled =  sharedPreferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
+            animEnabledPref.setChecked(animationsEnabled);
         }
     }
 

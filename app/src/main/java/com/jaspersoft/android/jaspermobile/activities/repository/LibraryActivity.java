@@ -67,6 +67,7 @@ public class LibraryActivity extends RoboFragmentActivity {
             resourcesController =
                     ResourcesControllerFragment_.builder()
                             .resourceTypes(filterOptions.getFilters())
+                            .recursiveLookup(true)
                             .build();
             getSupportFragmentManager().beginTransaction()
                     .add(resourcesController, ResourcesControllerFragment.TAG)

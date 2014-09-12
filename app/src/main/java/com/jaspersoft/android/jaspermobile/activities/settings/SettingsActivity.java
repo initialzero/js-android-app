@@ -49,6 +49,7 @@ public class SettingsActivity extends RoboPreferenceActivity {
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
     public static final String KEY_PREF_READ_TIMEOUT = "pref_read_timeout";
+    public static final String KEY_PREF_ANIMATION_ENABLED = "pref_animation_enabled";
 
     public static final boolean DEFAULT_REPO_CACHE_ENABLED = true;
     public static final String DEFAULT_REPO_CACHE_EXPIRATION = "48";
@@ -109,6 +110,11 @@ public class SettingsActivity extends RoboPreferenceActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String value = preferences.getString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
         return Integer.parseInt(value);
+    }
+
+    public static boolean isAnimationEnabled(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
     }
 
 }

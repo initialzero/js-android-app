@@ -56,6 +56,9 @@ public class ResourceViewHelper {
 
     private void setIcon(IResourceView resourceView, ResourceLookup item) {
         switch (item.getResourceType()) {
+            case folder:
+                resourceView.setImageIcon(R.drawable.sample_repo_violet);
+                break;
             case dashboard:
                 resourceView.setImageIcon(R.drawable.sample_dashboard_blue);
                 break;

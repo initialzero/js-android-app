@@ -44,7 +44,7 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.BrowserActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
@@ -154,7 +154,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_library)
     final void showLibrary() {
         if (mConnectivityUtil.isConnected()) {
-            LibraryActivity_.intent(this).start();
+            RepositoryActivity_.intent(this).start();
         } else {
             showNetworkAlert();
         }

@@ -188,7 +188,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
             if (request instanceof GetResourceLookupsRequest) {
                 GetResourceLookupsRequest lookupsRequest = (GetResourceLookupsRequest) request;
                 List<String> types = lookupsRequest.getSearchCriteria().getTypes();
-                if (types.equals(FilterOptions.ALL_TYPES) ) {
+                if (types.equals(FilterOptions.ALL_LIBRARY_TYPES) ) {
                     requestListener.onRequestSuccess((T) allLookUp);
                 }
                 if (types.equals(FilterOptions.ONLY_DASHBOARD)) {

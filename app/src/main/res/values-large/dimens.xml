@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <dimen name="card_body_padding">14dp</dimen>
+    <dimen name="card_body_padding">12dp</dimen>
     <dimen name="home_card_title">22sp</dimen>
     <dimen name="home_card_subtitle">12sp</dimen>
 </resources>

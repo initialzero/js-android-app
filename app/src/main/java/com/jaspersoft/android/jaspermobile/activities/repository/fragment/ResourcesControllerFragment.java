@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -101,14 +102,21 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
                 getFragmentManager().findFragmentByTag(getContentTag());
 
         if (inMemoryFragment == null) {
-            boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
-            getFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-                    .replace(android.R.id.content, getContentFragment(), getContentTag())
-                    .commit();
+            commitContentFragment();
         } else {
             contentFragment = inMemoryFragment;
         }
+    }
+
+    private void commitContentFragment() {
+        boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        if (animationEnabled) {
+            transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
+        }
+        transaction
+                .replace(android.R.id.content, getContentFragment(), getContentTag())
+                .commit();
     }
 
     @OptionsItem
@@ -116,12 +124,7 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
         repositoryPref.viewType()
                 .put(getViewType() == LIST ? GRID.toString() : LIST.toString());
         toggleSwitcher();
-
-        getFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-                .replace(android.R.id.content, getContentFragment(), CONTENT_TAG)
-                .commit();
-
+        commitContentFragment();
         getActivity().invalidateOptionsMenu();
     }
 

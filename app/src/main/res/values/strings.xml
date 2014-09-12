@@ -163,7 +163,7 @@
 
 
     <!-- Saved Reports Activity -->
-    <string name="sdr_ab_title">Saved Reports</string>
+    <string name="sdr_ab_title">Saved Items</string>
     <!-- Context Menu -->
     <string name="sdr_cm_open">Open</string>
     <string name="sdr_cm_rename">Rename</string>

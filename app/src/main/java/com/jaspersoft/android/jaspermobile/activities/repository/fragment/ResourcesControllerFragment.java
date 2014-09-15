@@ -32,10 +32,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 
 import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.SearchableActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourceSearchable;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -63,7 +66,10 @@ import static com.jaspersoft.android.jaspermobile.activities.repository.support.
  */
 @EFragment
 @OptionsMenu(R.menu.repository_menu)
-public class ResourcesControllerFragment extends RoboSpiceFragment implements IResourcesLoader {
+public class ResourcesControllerFragment extends RoboSpiceFragment
+        implements IResourcesLoader, IResourceSearchable,
+        SearchView.OnQueryTextListener,
+        SearchView.OnCloseListener {
     public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
     public static final String CONTENT_TAG = "CONTENT_TAG";
 
@@ -72,6 +78,15 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
 
     @OptionsMenuItem(R.id.switchLayout)
     public MenuItem switchLayoutMenuItem;
+
+    @OptionsMenuItem(R.id.search)
+    public MenuItem searchMenuItem;
+    @OptionsMenuItem(R.id.refresh)
+    public MenuItem refreshMenuItem;
+    @OptionsMenuItem(R.id.showFavorites)
+    public MenuItem showFavoritesItem;
+    @OptionsMenuItem(R.id.showSettings)
+    public MenuItem showSettingsItem;
 
     @InstanceState
     @FragmentArg
@@ -85,6 +100,12 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
     @InstanceState
     @FragmentArg
     String resourceUri;
+    @InstanceState
+    @FragmentArg
+    String query;
+
+    @FragmentArg
+    boolean hideMenu;
 
     private ResourcesFragment contentFragment;
 
@@ -106,6 +127,29 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
         } else {
             contentFragment = inMemoryFragment;
         }
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        searchMenuItem.collapseActionView();
+        Intent searchIntent = SearchableActivity_
+                .intent(getActivity())
+                .query(query)
+                .resourceTypes(resourceTypes)
+                .get();
+        searchIntent.setAction(Intent.ACTION_SEARCH);
+        startActivity(searchIntent);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+    @Override
+    public boolean onClose() {
+        return false;
     }
 
     private void commitContentFragment() {
@@ -145,6 +189,27 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+
+        if (hideMenu) {
+            if (searchMenuItem != null) {
+                searchMenuItem.setVisible(false);
+            }
+            if (refreshMenuItem != null) {
+                refreshMenuItem.setVisible(false);
+            }
+            if (showFavoritesItem != null) {
+                showFavoritesItem.setVisible(false);
+            }
+            if (showSettingsItem != null) {
+                showSettingsItem.setVisible(false);
+            }
+        } else {
+            SearchView searchView = (SearchView) searchMenuItem.getActionView();
+            searchView.setOnQueryTextListener(this);
+            searchView.setOnCloseListener(this);
+        }
+
+
         toggleSwitcher();
     }
 
@@ -158,6 +223,7 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
 
     private Fragment getContentFragment() {
         contentFragment = ResourcesFragment_.builder()
+                .query(query)
                 .recursiveLookup(recursiveLookup)
                 .resourceUri(resourceUri)
                 .resourceLabel(resourceLabel)
@@ -180,5 +246,11 @@ public class ResourcesControllerFragment extends RoboSpiceFragment implements IR
 
     public String getContentTag() {
         return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
+    }
+
+    @Override
+    public void doSearch(String query) {
+        contentFragment.setQuery(query);
+        contentFragment.loadFirstPage();
     }
 }

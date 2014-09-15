@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -32,20 +31,21 @@
     <!-- Allows application to open network sockets -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Allows an application to write to external storage -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".JasperMobileApplication"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher_jaspermobile"
         android:label="@string/app_label"
-        android:name=".JasperMobileApplication"
-        android:theme="@style/Theme.JasperMobile"
-        android:hardwareAccelerated="true" >
+        android:theme="@style/Theme.JasperMobile">
 
         <!-- Main activity -->
-        <activity android:name=".activities.HomeActivity_" >
+        <activity android:name=".activities.HomeActivity_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -62,80 +62,87 @@
         </activity>
 
         <!-- Activity that performs repository browsing -->
-        <activity android:name=".activities.repository.BrowserActivity" >
+        <activity android:name=".activities.repository.BrowserActivity">
             <!-- enable the search dialog to send searches to SearchActivity -->
             <meta-data
                 android:name="android.app.default_searchable"
-                android:value=".activities.repository.SearchActivity"
-            />
+                android:value=".activities.repository.SearchActivity" />
         </activity>
 
-         <!--Activity that performs library view -->
+        <!--Activity that performs library view -->
         <activity
             android:name=".activities.repository.LibraryActivity_"
-            android:label="@string/h_library_label"
-            />
+            android:label="@string/h_library_label" />
 
-         <!--Activity that performs repository view -->
+        <!--Activity that performs repository view -->
         <activity
             android:name=".activities.repository.RepositoryActivity_"
-            android:label="@string/h_repository_label"
-            />
+            android:label="@string/h_repository_label" />
 
         <!-- Activity that performs viewing of the favorite items -->
         <activity
             android:name=".activities.repository.FavoritesActivity"
-            android:label="@string/f_title"
-            />
+            android:label="@string/f_title" />
 
         <!-- Activity that performs viewing of the saved reports -->
         <activity android:name=".activities.storage.SavedReportsActivity" />
 
         <!-- Activity that performs searches based on a query string and presents the search results-->
         <!--<activity android:name=".activities.repository.SearchActivity"-->
-            <!--android:launchMode="singleTop" >-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.SEARCH" />-->
-            <!--</intent-filter>-->
-            <!--<meta-data-->
-                <!--android:name="android.app.searchable"-->
-                <!--android:resource="@xml/searchable"-->
-            <!--/>-->
+        <!--android:launchMode="singleTop" >-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.SEARCH" />-->
+        <!--</intent-filter>-->
+        <!--<meta-data-->
+        <!--android:name="android.app.searchable"-->
+        <!--android:resource="@xml/searchable"-->
+        <!--/>-->
         <!--</activity>-->
 
         <!-- Activity that allows to specify the report options before running it -->
-        <activity android:name=".activities.report.ReportOptionsActivity"
-            android:windowSoftInputMode="stateHidden"
-        />
+        <activity
+            android:name=".activities.report.ReportOptionsActivity"
+            android:windowSoftInputMode="stateHidden" />
 
         <!-- Activity that performs report viewing in HTML format -->
-        <activity android:name=".activities.viewer.html.ReportHtmlViewerActivity"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
-        />
+        <activity
+            android:name=".activities.viewer.html.ReportHtmlViewerActivity"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs report viewing in HTML format -->
-        <activity android:name=".activities.viewer.html.SavedReportHtmlViewerActivity"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
-        />
+        <activity
+            android:name=".activities.viewer.html.SavedReportHtmlViewerActivity"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
-        <activity android:name=".activities.viewer.html.DashboardHtmlViewerActivity"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation"
-        />
+        <activity
+            android:name=".activities.viewer.html.DashboardHtmlViewerActivity"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs report saving to the local storage -->
-        <activity android:name=".activities.report.SaveReportActivity"
-            android:windowSoftInputMode="stateHidden"
-        />
+        <activity
+            android:name=".activities.report.SaveReportActivity"
+            android:windowSoftInputMode="stateHidden" />
 
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
-            android:label="@string/st_title"
-            />
+            android:label="@string/st_title" />
+
+        <activity
+            android:name=".SearchableActivity_"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
-        <service android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"
+        <service
+            android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"
             android:exported="false" />
 
     </application>

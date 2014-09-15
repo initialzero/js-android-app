@@ -43,13 +43,13 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
@@ -107,6 +107,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     @FragmentArg
     String resourceUri;
+    @InstanceState
+    @FragmentArg
+    String query;
 
     @FragmentArg
     ViewType viewType;
@@ -129,6 +132,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         mSearchCriteria.setRecursive(recursiveLookup);
         mSearchCriteria.setTypes(resourceTypes);
         mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
+        if (!TextUtils.isEmpty(query)) {
+            mSearchCriteria.setQuery(query);
+        }
 
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
@@ -269,6 +275,10 @@ public class ResourcesFragment extends RoboSpiceFragment
         mSearchCriteria.setTypes(resourceTypes);
         mAdapter.clear();
         loadFirstPage();
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
     }
 
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {

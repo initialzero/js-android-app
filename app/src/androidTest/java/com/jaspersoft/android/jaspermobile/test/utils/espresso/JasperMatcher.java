@@ -25,6 +25,8 @@
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
 import android.app.Activity;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -101,6 +103,11 @@ public final class JasperMatcher {
                 GeneralLocation.BOTTOM_CENTER, Press.FINGER);
     }
 
+    public static ViewAction swipeDownSlow() {
+        return new GeneralSwipeAction(Swipe.SLOW, GeneralLocation.TOP_CENTER,
+                GeneralLocation.BOTTOM_CENTER, Press.FINGER);
+    }
+
     public static ViewAction swipeUp() {
         return new GeneralSwipeAction(Swipe.FAST, GeneralLocation.BOTTOM_CENTER,
                 GeneralLocation.TOP_CENTER, Press.FINGER);
@@ -112,7 +119,7 @@ public final class JasperMatcher {
             public void check(Optional<View> view, Optional<NoMatchingViewException> noView) {
                 @SuppressWarnings("rawtypes")
                 AbsListView adapter = ((AbsListView) view.get());
-                assertThat(adapter.getAdapter().getCount(),  is(totalCount)) ;
+                assertThat(adapter.getAdapter().getCount(), is(totalCount));
             }
         };
     }
@@ -153,4 +160,38 @@ public final class JasperMatcher {
             }
         };
     }
+
+    public static Matcher<View> withRefreshableState(final Matcher<View> idMatcher) {
+        checkNotNull(idMatcher);
+        return new TypeSafeMatcher<View>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with decor view ");
+                idMatcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                Log.d("hoho", "==================================================");
+                Log.d("hoho", "idMatcher.matches(view) " + idMatcher.matches(view));
+                Log.d("hoho", "idMatcher.matches(view) " + view);
+                Log.d("hoho", "==================================================");
+                return idMatcher.matches(view) && (view instanceof SwipeRefreshLayout);
+            }
+        };
+    }
+
+    public static ViewAssertion isRefreshing() {
+        return new ViewAssertion() {
+            @Override
+            public void check(Optional<View> view, Optional<NoMatchingViewException> noView) {
+                @SuppressWarnings("rawtypes")
+                SwipeRefreshLayout refreshLayout = ((SwipeRefreshLayout) view.get());
+                assertThat(refreshLayout.isRefreshing(), is(true));
+            }
+        };
+    }
+
+
 }

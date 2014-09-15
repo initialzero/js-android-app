@@ -40,13 +40,6 @@
         android:title="@string/r_ab_switch" />
 
     <item
-        android:id="@+id/refresh"
-        android:icon="@drawable/ic_action_refresh"
-        android:orderInCategory="95"
-        android:showAsAction="ifRoom"
-        android:title="@string/r_ab_refresh" />
-
-    <item
         android:id="@+id/showFavorites"
         android:icon="@drawable/ic_action_favorites"
         android:orderInCategory="80"

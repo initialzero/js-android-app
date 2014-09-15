@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +44,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
@@ -62,6 +62,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.exception.RequestCancelledException;
+import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -75,17 +76,24 @@ import java.util.List;
 import hugo.weaving.DebugLog;
 import roboguice.inject.InjectView;
 
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.getRepoCacheExpirationValue;
+
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment
 public class ResourcesFragment extends RoboSpiceFragment
-        implements AbsListView.OnScrollListener, AdapterView.OnItemClickListener, IResourcesLoader {
+        implements AbsListView.OnScrollListener,
+        AdapterView.OnItemClickListener,
+        SwipeRefreshLayout.OnRefreshListener,
+        IResourcesLoader {
 
     public static final String ROOT_URI = "/";
     @InjectView(android.R.id.list)
     AbsListView listView;
+    @InjectView(R.id.refreshLayout)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     @InjectView(android.R.id.empty)
     TextView emptyText;
@@ -118,8 +126,12 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Named("THRESHOLD")
     int mTreshold;
 
+    @InstanceState
+    boolean mLoading;
+    @InstanceState
+    boolean mFromCache = true;
+
     private int mTotal;
-    private boolean mLoading;
     private ResourceAdapter mAdapter;
     private final DataObservable mObservable = new DataObservable();
 
@@ -147,6 +159,13 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(
+                android.R.color.holo_blue_light,
+                android.R.color.holo_blue_dark,
+                android.R.color.holo_blue_light,
+                android.R.color.holo_blue_bright);
 
         listView.setOnItemClickListener(this);
         listView.setOnScrollListener(this);
@@ -237,6 +256,17 @@ public class ResourcesFragment extends RoboSpiceFragment
         if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
             loadNextPage();
         }
+
+        boolean enable = false;
+        if(listView != null && listView.getChildCount() > 0){
+            // check if the first item of the list is visible
+            boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;
+            // check if the top of the first item is visible
+            boolean topOfFirstItemVisible = listView.getChildAt(0).getTop() == 0;
+            // enabling or disabling the refresh layout
+            enable = firstItemVisible && topOfFirstItemVisible;
+        }
+        swipeRefreshLayout.setEnabled(enable);
     }
 
     @DebugLog
@@ -253,9 +283,12 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     private void loadResources() {
+        emptyText.setVisibility(View.VISIBLE);
+        emptyText.setText("Loading resource...");
         mLoading = true;
+        swipeRefreshLayout.setRefreshing(true);
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
-        long cacheExpiryDuration = SettingsActivity.getRepoCacheExpirationValue(getActivity());
+        long cacheExpiryDuration = mFromCache ? getRepoCacheExpirationValue(getActivity()) : DurationInMillis.ALWAYS_EXPIRED;
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
@@ -271,10 +304,18 @@ public class ResourcesFragment extends RoboSpiceFragment
         loadFirstPage();
     }
 
+    @Override
+    public void onRefresh() {
+        mFromCache = false;
+        loadFirstPage();
+    }
+
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), true);
+            mLoading = false;
+            emptyText.setVisibility(View.GONE);
         }
 
         @Override
@@ -292,6 +333,8 @@ public class ResourcesFragment extends RoboSpiceFragment
         public void onChanged() {
             super.onChanged();
             mLoading = false;
+            swipeRefreshLayout.setRefreshing(false);
+            emptyText.setVisibility(View.GONE);
         }
     }
 

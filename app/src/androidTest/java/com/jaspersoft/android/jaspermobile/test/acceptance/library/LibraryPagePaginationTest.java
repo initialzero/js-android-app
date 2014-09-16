@@ -102,7 +102,7 @@ public class LibraryPagePaginationTest extends ProtoActivityInstrumentation<Libr
         return "library";
     }
 
-    public class MockedSpiceManager extends SpiceManager {
+    private class MockedSpiceManager extends SpiceManager {
         public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
             super(spiceServiceClass);
         }
@@ -120,7 +120,7 @@ public class LibraryPagePaginationTest extends ProtoActivityInstrumentation<Libr
         }
     }
 
-    public class TestModule extends CommonTestModule {
+    private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);

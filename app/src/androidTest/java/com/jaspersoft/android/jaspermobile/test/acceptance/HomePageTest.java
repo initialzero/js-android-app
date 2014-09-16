@@ -32,17 +32,14 @@ import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.SpiceService;
-import com.octo.android.robospice.request.SpiceRequest;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -106,7 +103,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
                 RoboGuice.DEFAULT_STAGE,
                 Modules.override(RoboGuice.newDefaultRoboModule(application))
                         .with(new TestModule()));
-
+        mMockedSpiceManager.setResponseForCacheRequest(mockServerInfo);
     }
 
     @Override
@@ -212,20 +209,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         verify(mockRestClient, times(3)).getServerProfile();
     }
 
-    public class MockedSpiceManager extends SpiceManager {
-        public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
-            super(spiceServiceClass);
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
-                                final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-            if (request instanceof GetServerInfoRequest) {
-                requestListener.onRequestSuccess((T) mockServerInfo);
-            }
-        }
-    }
-
-    public class TestModule extends CommonTestModule {
+    private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);

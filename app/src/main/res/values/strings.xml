@@ -233,5 +233,6 @@
     <string name="home_label">Home</string>
 
     <string name="device">handset</string>
+    <string name="search_result_format">Search result for \'%s\'</string>
 
 </resources>

@@ -146,7 +146,7 @@ public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportH
         }
     }
 
-    public static class MockedSpiceManager extends SpiceManager {
+    private static class MockedSpiceManager extends SpiceManager {
         public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
             super(spiceServiceClass);
         }
@@ -161,7 +161,7 @@ public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportH
         }
     }
 
-    public class TestModule extends CommonTestModule {
+    private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);

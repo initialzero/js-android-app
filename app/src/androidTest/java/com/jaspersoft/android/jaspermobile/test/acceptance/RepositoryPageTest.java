@@ -27,39 +27,40 @@ package com.jaspersoft.android.jaspermobile.test.acceptance;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.SpiceService;
-import com.octo.android.robospice.request.SpiceRequest;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.pressImeActionButton;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static org.hamcrest.Matchers.is;
@@ -72,6 +73,9 @@ import static org.mockito.Mockito.when;
  * @since 1.9
  */
 public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryActivity_> {
+
+    private static final String REPORTS_QUERY = "Reports";
+
     @Mock
     JsServerProfile mockServerProfile;
     @Mock
@@ -111,6 +115,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+        mMockedSpiceManager.setResponseForCacheRequest(rootRepositories);
     }
 
     @Override
@@ -156,6 +161,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
+        mMockedSpiceManager.setResponseForCacheRequest(levelRepositories);
         String firstRootRepoLabel = rootRepositories.getResourceLookups().get(0).getLabel();
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -169,6 +175,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
+        mMockedSpiceManager.setResponseForCacheRequest(levelRepositories);
         String rootLevelRepoLabel = rootRepositories.getResourceLookups().get(0).getLabel();
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
         onData(is(instanceOf(ResourceLookup.class)))
@@ -184,30 +191,24 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(rootLevelRepoLabel)))));
     }
 
-    private void forcePreview(ViewType viewType) {
-        repositoryPref.viewType().put(viewType.toString());
+    public void testSearchInRepository() {
+        startActivityUnderTest();
+
+        try {
+            onView(withId(R.id.search)).perform(click());
+        } catch (NoMatchingViewException ex) {
+            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+            onOverflowView(getActivity(), withText(android.R.string.search_go)).perform(click());
+        }
+        onView(withId(getSearcFieldId())).perform(typeText(REPORTS_QUERY));
+        onView(withId(getSearcFieldId())).perform(pressImeActionButton());
+
+        onView(withText(getActivity().getString(R.string.search_result_format, REPORTS_QUERY)))
+                .check(matches(isDisplayed()));
     }
 
-    public class MockedSpiceManager extends SpiceManager {
-        public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
-            super(spiceServiceClass);
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
-                                final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-            if (request instanceof GetResourceLookupsRequest) {
-                GetResourceLookupsRequest resourceLookupsRequest = (GetResourceLookupsRequest) request;
-                String folderUri = resourceLookupsRequest.getSearchCriteria().getFolderUri();
-                if (folderUri.equals(ResourcesFragment.ROOT_URI)) {
-                    requestListener.onRequestSuccess((T) rootRepositories);
-                } else {
-                    requestListener.onRequestSuccess((T) levelRepositories);
-                }
-            }
-        }
+    private void forcePreview(ViewType viewType) {
+        repositoryPref.viewType().put(viewType.toString());
     }
 
     public class TestModule extends CommonTestModule {

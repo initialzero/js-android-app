@@ -27,28 +27,25 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.SpiceService;
-import com.octo.android.robospice.request.SpiceRequest;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -60,6 +57,8 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.pressImeActionButton;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
@@ -77,6 +76,8 @@ import static org.mockito.Mockito.when;
 public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivity_> {
     private static final int REPORT_ITEM_POSITION = 0;
     private static final int DASHBOARD_ITEM_POSITION = 1;
+
+    private static final String GEO_QUERY = "Geo";
 
     @Mock
     JsServerProfile mockServerProfile;
@@ -123,6 +124,8 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+
+        mMockedSpiceManager.setResponseForCacheRequest(smallLookUp);
     }
 
     @Override
@@ -155,12 +158,12 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     }
 
     public void testReportWithICItemClicked() {
-        withIC = true;
+        mMockedSpiceManager.setResponseForNetworkRequest(fullInputControlsList);
         clickOnReportItem();
     }
 
     public void testReportWithoutICItemClicked() {
-        withIC = false;
+        mMockedSpiceManager.setResponseForNetworkRequest(emptyInputControlsList);
         clickOnReportItem();
     }
 
@@ -213,6 +216,22 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         pressBack();
     }
 
+    public void testSearchInRepository() {
+        startActivityUnderTest();
+
+        try {
+            onView(withId(R.id.search)).perform(click());
+        } catch (NoMatchingViewException ex) {
+            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+            onOverflowView(getActivity(), withText(android.R.string.search_go)).perform(click());
+        }
+        onView(withId(getSearcFieldId())).perform(typeText(GEO_QUERY));
+        onView(withId(getSearcFieldId())).perform(pressImeActionButton());
+
+        onView(withText(getActivity().getString(R.string.search_result_format, GEO_QUERY)))
+                .check(matches(isDisplayed()));
+    }
+
     private void forcePreview(ViewType viewType) {
         repositoryPref.viewType().put(viewType.toString());
     }
@@ -222,27 +241,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         return "library";
     }
 
-    public class MockedSpiceManager extends SpiceManager {
-        public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
-            super(spiceServiceClass);
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-            if (request instanceof GetInputControlsRequest) {
-                requestListener.onRequestSuccess((T) (withIC ? fullInputControlsList : emptyInputControlsList));
-            }
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
-                                final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-            if (request instanceof GetResourceLookupsRequest) {
-                requestListener.onRequestSuccess((T) smallLookUp);
-            }
-
-        }
-    }
-
-    public class TestModule extends CommonTestModule {
+    private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);

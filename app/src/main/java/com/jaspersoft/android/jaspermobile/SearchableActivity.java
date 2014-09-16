@@ -42,7 +42,7 @@ import java.util.ArrayList;
  * @author Tom Koptel
  * @since 1.9
  */
-@EActivity
+@EActivity(R.layout.repositories_layout)
 public class SearchableActivity extends RoboSpiceFragmentActivity {
 
     @Extra
@@ -61,18 +61,17 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        mSavedInstanceState = savedInstanceState;
 
         // Get the intent, verify the action and get the query
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
-            if (mSavedInstanceState == null) {
+            if (savedInstanceState == null) {
                 resourcesController =
                         ResourcesControllerFragment_.builder()
                                 .hideMenu(true)
                                 .recursiveLookup(true)
-                                .resourceLabel(String.format("Search result for '%s'", query))
+                                .resourceLabel(getString(R.string.search_result_format, query))
                                 .resourceTypes(resourceTypes)
                                 .query(query)
                                 .build();
@@ -84,7 +83,6 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
                         .findFragmentByTag(ResourcesControllerFragment.TAG);
                 resourcesController.doSearch(query);
             }
-
         }
     }
 

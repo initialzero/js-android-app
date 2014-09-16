@@ -27,26 +27,20 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.SpiceService;
-import com.octo.android.robospice.request.SpiceRequest;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.List;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
@@ -113,11 +107,14 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     public void testDashboardAndAllFilterOption() throws InterruptedException {
         startActivityUnderTest();
 
+
+        mMockedSpiceManager.setResponseForCacheRequest(onlyDashboardLookUp);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyDashboardLookUp.getResourceLookups().size()));
 
+        mMockedSpiceManager.setResponseForCacheRequest(allLookUp);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
@@ -127,6 +124,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     public void testReportFilterOption() {
         startActivityUnderTest();
 
+        mMockedSpiceManager.setResponseForCacheRequest(onlyReportLookUp);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
@@ -149,10 +147,12 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         startActivityUnderTest();
         rotateToPortrait();
 
+        mMockedSpiceManager.setResponseForCacheRequest(onlyReportLookUp);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
 
+        mMockedSpiceManager.setResponseForCacheRequest(onlyDashboardLookUp);
         rotate();
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).check(matches(isChecked()));
@@ -178,30 +178,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         return "library";
     }
 
-    public class MockedSpiceManager extends SpiceManager {
-        public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
-            super(spiceServiceClass);
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
-                                final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-            if (request instanceof GetResourceLookupsRequest) {
-                GetResourceLookupsRequest lookupsRequest = (GetResourceLookupsRequest) request;
-                List<String> types = lookupsRequest.getSearchCriteria().getTypes();
-                if (types.equals(FilterOptions.ALL_LIBRARY_TYPES) ) {
-                    requestListener.onRequestSuccess((T) allLookUp);
-                }
-                if (types.equals(FilterOptions.ONLY_DASHBOARD)) {
-                    requestListener.onRequestSuccess((T) onlyDashboardLookUp);
-                }
-                if (types.equals(FilterOptions.ONLY_REPORT)) {
-                    requestListener.onRequestSuccess((T) onlyReportLookUp);
-                }
-            }
-        }
-    }
-
-    public class TestModule extends CommonTestModule {
+    private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);

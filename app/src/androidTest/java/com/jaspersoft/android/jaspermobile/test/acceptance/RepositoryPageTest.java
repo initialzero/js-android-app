@@ -124,12 +124,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         super.tearDown();
     }
 
-    public void testHomeAsUp() {
-        startActivityUnderTest();
-        onView(withId(android.R.id.home)).perform(click());
-        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
-    }
-
     public void testSwitcher() throws InterruptedException {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();

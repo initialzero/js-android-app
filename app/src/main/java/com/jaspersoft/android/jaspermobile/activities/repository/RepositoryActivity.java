@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
@@ -83,7 +82,7 @@ public class RepositoryActivity extends RoboFragmentActivity {
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
-        HomeActivity.goHome(this);
+        super.onBackPressed();
     }
 
 }

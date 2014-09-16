@@ -40,8 +40,8 @@ import android.widget.AbsListView;
 import android.widget.SearchView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.ResourcesList;
@@ -95,7 +95,7 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
 
         // Refresh
         MenuItem item = menu.add(Menu.NONE, ID_AB_REFRESH, 3, R.string.r_ab_refresh);
-        item.setIcon(R.drawable.ic_action_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//        item.setIcon(R.drawable.ic_action_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         item.setActionView(R.layout.actionbar_indeterminate_progress);
 
         // Search

@@ -234,5 +234,6 @@
 
     <string name="device">handset</string>
     <string name="search_result_format">Search result for \'%s\'</string>
+    <string name="failed_load_data">Failed load data!</string>
 
 </resources>

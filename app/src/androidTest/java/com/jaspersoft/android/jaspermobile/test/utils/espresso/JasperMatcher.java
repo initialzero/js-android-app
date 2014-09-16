@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
 import android.app.Activity;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -112,7 +113,7 @@ public final class JasperMatcher {
             public void check(Optional<View> view, Optional<NoMatchingViewException> noView) {
                 @SuppressWarnings("rawtypes")
                 AbsListView adapter = ((AbsListView) view.get());
-                assertThat(adapter.getAdapter().getCount(),  is(totalCount)) ;
+                assertThat(adapter.getAdapter().getCount(), is(totalCount));
             }
         };
     }
@@ -153,4 +154,22 @@ public final class JasperMatcher {
             }
         };
     }
+
+    public static Matcher<View> refreshing() {
+        return new TypeSafeMatcher<View>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with decor view ");
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                if ((view instanceof SwipeRefreshLayout)) return false;
+                SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view;
+                return swipeRefreshLayout.isRefreshing();
+            }
+        };
+    }
+
 }

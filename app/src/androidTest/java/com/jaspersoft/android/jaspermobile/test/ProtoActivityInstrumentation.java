@@ -45,7 +45,7 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
         mActivity = super.getActivity();
         // sometimes tests failed on emulator, following approach should avoid it
         // http://stackoverflow.com/questions/22737476/false-positives-junit-framework-assertionfailederror-edittext-is-not-found
-        getInstrumentation().runOnMainSync(new Runnable() {
+            getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);

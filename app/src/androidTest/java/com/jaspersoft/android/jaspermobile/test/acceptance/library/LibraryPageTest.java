@@ -65,10 +65,7 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.isRefreshing;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.swipeDownSlow;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.withRefreshableState;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Mockito.when;
@@ -214,15 +211,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
         onView(withText(reportResource.getLabel())).check(matches(isDisplayed()));
         pressBack();
-    }
-
-    public void testPullToRefresh() throws InterruptedException {
-        startActivityUnderTest();
-        for (int i = 0; i < 100; i++) {
-            Thread.sleep(200);
-            swipeDownSlow();
-        }
-        onView(withRefreshableState(withId(R.id.refreshLayout))).check(isRefreshing());
     }
 
     private void forcePreview(ViewType viewType) {

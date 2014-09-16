@@ -233,5 +233,6 @@
     <string name="home_label">Home</string>
 
     <string name="device">handset</string>
+    <string name="failed_load_data">Failed load data!</string>
 
 </resources>

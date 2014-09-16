@@ -24,13 +24,6 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/search"
-        android:actionViewClass="android.widget.SearchView"
-        android:icon="@drawable/ic_action_search"
-        android:orderInCategory="70"
-        android:showAsAction="always|collapseActionView"
-        android:title="@android:string/search_go" />
 
     <item
         android:id="@+id/switchLayout"
@@ -38,26 +31,5 @@
         android:orderInCategory="100"
         android:showAsAction="always"
         android:title="@string/r_ab_switch" />
-
-    <item
-        android:id="@+id/refresh"
-        android:icon="@drawable/ic_action_refresh"
-        android:orderInCategory="95"
-        android:showAsAction="ifRoom"
-        android:title="@string/r_ab_refresh" />
-
-    <item
-        android:id="@+id/showFavorites"
-        android:icon="@drawable/ic_action_favorites"
-        android:orderInCategory="80"
-        android:showAsAction="never"
-        android:title="@string/r_ab_favorites" />
-
-    <item
-        android:id="@+id/showSettings"
-        android:icon="@drawable/ic_action_settings"
-        android:orderInCategory="90"
-        android:showAsAction="never"
-        android:title="@string/ab_settings" />
 
 </menu>

@@ -26,11 +26,16 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 
 import org.androidannotations.annotations.EActivity;
@@ -55,14 +60,24 @@ public class RepositoryActivity extends RoboFragmentActivity {
         }
 
         if (savedInstanceState == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             ResourcesControllerFragment resourcesController =
                     ResourcesControllerFragment_.builder()
                             .recursiveLookup(false)
                             .resourceTypes(FilterOptions.ALL_REPOSITORY_TYPES)
                             .build();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.controller, resourcesController, ResourcesControllerFragment.TAG)
-                    .commit();
+            transaction.add(R.id.controller, resourcesController, ResourcesControllerFragment.TAG);
+
+            SearchControllerFragment searchControllerFragment =
+                    SearchControllerFragment_.builder()
+                    .resourceTypes(FilterOptions.ALL_REPOSITORY_TYPES)
+                    .build();
+            transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
+
+            CommonControllerFragment commonControllerFragment =
+                    CommonControllerFragment_.builder().build();
+            transaction.add(commonControllerFragment, CommonControllerFragment.TAG);
+            transaction.commit();
         }
     }
 

@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -32,19 +31,15 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 
 import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.SearchableActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourceSearchable;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -65,11 +60,9 @@ import static com.jaspersoft.android.jaspermobile.activities.repository.support.
  * @since 1.9
  */
 @EFragment
-@OptionsMenu(R.menu.repository_menu)
+@OptionsMenu(R.menu.switch_menu)
 public class ResourcesControllerFragment extends RoboSpiceFragment
-        implements IResourcesLoader, IResourceSearchable,
-        SearchView.OnQueryTextListener,
-        SearchView.OnCloseListener {
+        implements IResourcesLoader, IResourceSearchable {
     public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
     public static final String CONTENT_TAG = "CONTENT_TAG";
 
@@ -81,8 +74,6 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
 
     @OptionsMenuItem(R.id.search)
     public MenuItem searchMenuItem;
-    @OptionsMenuItem(R.id.refresh)
-    public MenuItem refreshMenuItem;
     @OptionsMenuItem(R.id.showFavorites)
     public MenuItem showFavoritesItem;
     @OptionsMenuItem(R.id.showSettings)
@@ -129,29 +120,6 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
         }
     }
 
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        searchMenuItem.collapseActionView();
-        Intent searchIntent = SearchableActivity_
-                .intent(getActivity())
-                .query(query)
-                .resourceTypes(resourceTypes)
-                .get();
-        searchIntent.setAction(Intent.ACTION_SEARCH);
-        startActivity(searchIntent);
-        return true;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        return false;
-    }
-
-    @Override
-    public boolean onClose() {
-        return false;
-    }
-
     private void commitContentFragment() {
         boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
@@ -172,44 +140,9 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
         getActivity().invalidateOptionsMenu();
     }
 
-    @OptionsItem
-    final void showFavorites() {
-        Intent favoritesIntent = new Intent(getActivity(), FavoritesActivity.class);
-        favoritesIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(favoritesIntent);
-    }
-
-    @OptionsItem
-    final void showSettings() {
-        SettingsActivity_.intent(getActivity())
-                .flags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                .start();
-    }
-
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
-        if (hideMenu) {
-            if (searchMenuItem != null) {
-                searchMenuItem.setVisible(false);
-            }
-            if (refreshMenuItem != null) {
-                refreshMenuItem.setVisible(false);
-            }
-            if (showFavoritesItem != null) {
-                showFavoritesItem.setVisible(false);
-            }
-            if (showSettingsItem != null) {
-                showSettingsItem.setVisible(false);
-            }
-        } else {
-            SearchView searchView = (SearchView) searchMenuItem.getActionView();
-            searchView.setOnQueryTextListener(this);
-            searchView.setOnCloseListener(this);
-        }
-
-
         toggleSwitcher();
     }
 

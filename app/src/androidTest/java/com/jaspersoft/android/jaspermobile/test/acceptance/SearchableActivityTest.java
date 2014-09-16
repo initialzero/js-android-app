@@ -132,6 +132,17 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
     }
 
+    public void testSearchResultsPersistedOnRotation() {
+        mMockedSpiceManager.setResponseForCacheRequest(levelRepositories);
+        String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
+
+        startActivityUnderTest();
+
+        onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
+        rotate();
+        onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
+    }
+
     private void configureSearchIntent() {
         Intent launchIntent = new Intent();
         launchIntent.setAction(Intent.ACTION_SEARCH);

@@ -51,7 +51,6 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
     String query;
 
     private ResourcesControllerFragment resourcesController;
-    private Bundle mSavedInstanceState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +68,6 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
             if (savedInstanceState == null) {
                 resourcesController =
                         ResourcesControllerFragment_.builder()
-                                .hideMenu(true)
                                 .recursiveLookup(true)
                                 .resourceLabel(getString(R.string.search_result_format, query))
                                 .resourceTypes(resourceTypes)
@@ -81,9 +79,14 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
             } else {
                 resourcesController = (ResourcesControllerFragment) getSupportFragmentManager()
                         .findFragmentByTag(ResourcesControllerFragment.TAG);
-                resourcesController.doSearch(query);
             }
         }
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        resourcesController.doSearch(query);
     }
 
     @OptionsItem(android.R.id.home)

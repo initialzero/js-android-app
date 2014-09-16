@@ -25,12 +25,17 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 
 import org.androidannotations.annotations.Bean;
@@ -49,10 +54,12 @@ import roboguice.activity.RoboFragmentActivity;
 @EActivity
 @OptionsMenu(R.menu.libraries_menu)
 public class LibraryActivity extends RoboFragmentActivity {
-    private ResourcesControllerFragment resourcesController;
 
     @Bean
     FilterOptions filterOptions;
+
+    private ResourcesControllerFragment resourcesController;
+    private SearchControllerFragment searchControllerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,17 +71,30 @@ public class LibraryActivity extends RoboFragmentActivity {
         }
 
         if (savedInstanceState == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
             resourcesController =
                     ResourcesControllerFragment_.builder()
                             .resourceTypes(filterOptions.getFilters())
                             .recursiveLookup(true)
                             .build();
-            getSupportFragmentManager().beginTransaction()
-                    .add(resourcesController, ResourcesControllerFragment.TAG)
-                    .commit();
+            transaction.add(resourcesController, ResourcesControllerFragment.TAG);
+
+            searchControllerFragment =
+                    SearchControllerFragment_.builder()
+                            .resourceTypes(filterOptions.getFilters())
+                            .build();
+            transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
+
+            CommonControllerFragment commonControllerFragment =
+                    CommonControllerFragment_.builder().build();
+            transaction.add(commonControllerFragment, CommonControllerFragment.TAG);
+            transaction.commit();
         } else {
             resourcesController = (ResourcesControllerFragment) getSupportFragmentManager()
                     .findFragmentByTag(ResourcesControllerFragment.TAG);
+            searchControllerFragment = (SearchControllerFragment) getSupportFragmentManager()
+                    .findFragmentByTag(SearchControllerFragment.TAG);
         }
     }
 
@@ -91,6 +111,9 @@ public class LibraryActivity extends RoboFragmentActivity {
                     public void onDialogPositiveClick(List<String> types) {
                         if (resourcesController != null) {
                             resourcesController.loadResourcesByTypes(types);
+                        }
+                        if (searchControllerFragment != null) {
+                            searchControllerFragment.setResourceTypes(types);
                         }
                     }
                 });

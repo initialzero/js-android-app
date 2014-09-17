@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -26,85 +25,99 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         style="@style/serverProfile.scrollView"
-        android:fillViewport="true" >
+        android:fillViewport="true">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             style="@style/serverProfile.editsContainer.layout"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <!-- Profile name -->
             <TextView
-                style="@style/label.blue"
-                android:text="@string/sp_name_label"
-            />
+                style="@style/label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sp_name_label" />
+
             <EditText
                 android:id="@+id/aliasEdit"
-                android:hint="@string/sp_name_hint"
-                style="@style/editText.singleLine"
-            />
+                style="@style/editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sp_name_hint" />
 
             <!-- Server URL -->
             <TextView
-                style="@style/label.blue"
-                android:text="@string/sp_url_label"
-            />
+                style="@style/label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sp_url_label" />
+
             <EditText
                 android:id="@+id/serverUrlEdit"
-                android:hint="@string/sp_url_hint"
-                style="@style/editText.singleLine"
-            />
+                style="@style/editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sp_url_hint" />
 
             <!-- Organization -->
             <TextView
-                style="@style/label.blue"
-                android:text="@string/sp_org_label"
-            />
+                style="@style/label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sp_org_label" />
+
             <EditText
-                style="@style/editText.singleLine"
                 android:id="@+id/organizationEdit"
-                android:hint="@string/sp_organization_hint"
-            />
+                style="@style/editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sp_organization_hint" />
 
             <!-- Username -->
             <TextView
-                style="@style/label.blue"
-                android:text="@string/sp_username_label"
-            />
+                style="@style/label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sp_username_label" />
+
             <EditText
                 android:id="@+id/usernameEdit"
-                android:hint="@string/sp_username_hint"
-                style="@style/editText.singleLine"
-            />
+                style="@style/editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sp_username_hint" />
 
             <!-- Password -->
             <TextView
-                style="@style/label.blue"
-                android:text="@string/sp_password_label"
-            />
+                style="@style/label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sp_password_label" />
+
             <EditText
                 android:id="@+id/passwordEdit"
+                style="@style/editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:hint="@string/sp_password_hint"
-                style="@style/editText.singleLine"
-                android:password="true"
-            />
+                android:password="true" />
+
             <CheckBox
-                    android:id="@+id/askPasswordCheckBox"
-                    style="@style/serverProfile.checkBox"
-                    android:checked="false"
-                    android:onClick="onAskPasswordCheckboxClicked"
-                    android:text="@string/sp_ask_password_text"
-            />
+                android:id="@+id/askPasswordCheckBox"
+                style="@style/serverProfile.checkBox"
+                android:checked="false"
+                android:onClick="onAskPasswordCheckboxClicked"
+                android:text="@string/sp_ask_password_text" />
             <!-- Save Button -->
             <Button
                 android:id="@+id/saveProfileButton"
                 style="@style/serverProfile.button"
-                android:text="@string/sp_save_btn"
                 android:onClick="saveButtonClickHandler"
-            />
+                android:text="@string/sp_save_btn" />
 
         </LinearLayout>
 

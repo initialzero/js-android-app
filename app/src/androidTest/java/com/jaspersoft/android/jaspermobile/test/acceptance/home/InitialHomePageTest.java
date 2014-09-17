@@ -41,16 +41,14 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
 import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.RootMatchers.withDecorView;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 /**
@@ -84,8 +82,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
-        onView(withText(getActivity().getString(R.string.h_server_switched_toast, ProfileHelper.DEFAULT_ALIAS)))
-                .inRoot(withDecorView(is(not(getActivity().getWindow().getDecorView()))))
+        onOverflowView(getActivity(), withText(getActivity().getString(R.string.h_server_switched_toast, ProfileHelper.DEFAULT_ALIAS)))
                 .check(matches(isDisplayed()));
 
         JsServerProfile serverProfile = jsRestClient.getServerProfile();

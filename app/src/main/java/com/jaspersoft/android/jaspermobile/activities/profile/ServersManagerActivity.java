@@ -27,12 +27,14 @@ package com.jaspersoft.android.jaspermobile.activities.profile;
 import android.app.ActionBar;
 import android.os.Bundle;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ProfilesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ProfilesControllerFragment_;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
 
 import roboguice.activity.RoboFragmentActivity;
 
@@ -41,7 +43,8 @@ import roboguice.activity.RoboFragmentActivity;
  * @since 1.9
  */
 @EActivity
-public class ServerProfilesActivity extends RoboFragmentActivity {
+@OptionsMenu(R.menu.servers_menu)
+public class ServersManagerActivity extends RoboFragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +66,11 @@ public class ServerProfilesActivity extends RoboFragmentActivity {
     @OptionsItem(android.R.id.home)
     final void showHome() {
         HomeActivity.goHome(this);
+    }
+
+    @OptionsItem
+    final void addProfile() {
+        ServerProfileActivity_.intent(this).start();
     }
 
 }

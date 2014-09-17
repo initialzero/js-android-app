@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -25,46 +24,42 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/pwdDialogLayoutRoot"
-    android:orientation="vertical"
-    style="@style/dialog.layout" >
+    style="@style/dialog.layout"
+    android:orientation="vertical">
 
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/home.dialog.table.layout" >
+        style="@style/home.dialog.table.layout">
 
         <!-- Server Profile -->
         <TableRow>
+
             <TextView
-                android:text="@string/h_ad_label_server_profile"
                 style="@style/home.dialog.table.label"
-            />
-            <TextView
-                android:id="@+id/dialogProfileNameText"
-            />
+                android:text="@string/h_ad_label_server_profile" />
+
+            <TextView android:id="@+id/dialogProfileNameText" />
         </TableRow>
 
         <!-- Organization -->
         <TableRow
             android:id="@+id/dialogOrganizationTableRow"
-            android:visibility="gone" >
+            android:visibility="gone">
 
             <TextView
-                android:text="@string/h_ad_label_organization"
                 style="@style/home.dialog.table.label"
-            />
-            <TextView
-                android:id="@+id/dialogOrganizationText"
-            />
+                android:text="@string/h_ad_label_organization" />
+
+            <TextView android:id="@+id/dialogOrganizationText" />
         </TableRow>
 
         <!-- Username -->
         <TableRow>
+
             <TextView
-                android:text="@string/h_ad_label_username"
                 style="@style/home.dialog.table.label"
-            />
-            <TextView
-                android:id="@+id/dialogUsernameText"
-            />
+                android:text="@string/h_ad_label_username" />
+
+            <TextView android:id="@+id/dialogUsernameText" />
         </TableRow>
 
     </TableLayout>
@@ -72,12 +67,15 @@
     <!-- Password -->
     <TextView
         style="@style/label"
-        android:text="@string/sp_password_label"
-    />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sp_password_label" />
+
     <EditText
         android:id="@+id/dialogPasswordEdit"
-        android:hint="@string/sp_password_hint"
         style="@style/home.dialog.passwordEdit"
-    />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/sp_password_hint" />
 
 </LinearLayout>

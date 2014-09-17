@@ -59,8 +59,8 @@
     <!-- Server Profiles Manager Activity -->
     <string name="spm_list_title">Server Profiles</string>
     <!-- Toasts -->
-    <string name="spm_profile_created_toast">New server profile successfully created.</string>
-    <string name="spm_profile_updated_toast">Server profile successfully updated.</string>
+    <string name="spm_profile_created_toast">New server profile \'%s\' successfully created.</string>
+    <string name="spm_profile_updated_toast">Server profile \'%s\' successfully updated.</string>
     <string name="spm_profile_deleted_toast">Server profile successfully deleted.</string>
     <!-- Context Menu -->
     <string name="spm_cm_switch">Connect</string>
@@ -235,5 +235,8 @@
     <string name="device">handset</string>
     <string name="search_result_format">Search result for \'%s\'</string>
     <string name="failed_load_data">Failed load data!</string>
+    <string name="sp_label_general">General</string>
+    <string name="sp_label_auth">Authentication</string>
+    <string name="label_add_profile">Add profile</string>
 
 </resources>

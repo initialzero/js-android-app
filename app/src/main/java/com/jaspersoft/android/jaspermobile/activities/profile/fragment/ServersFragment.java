@@ -71,7 +71,7 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(
-                (viewType == ViewType.LIST) ? R.layout.fragment_resources_list : R.layout.fragment_resources_grid,
+                (viewType == ViewType.LIST) ? R.layout.common_list_layout : R.layout.common_grid_layout,
                 container, false);
     }
 

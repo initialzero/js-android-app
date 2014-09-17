@@ -40,7 +40,7 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfilesActivity_;
+import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
@@ -82,8 +82,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     // Request Codes
     public static final int RC_UPDATE_SERVER_PROFILE = 20;
     public static final int RC_SWITCH_SERVER_PROFILE = 21;
-    // Saved instance states
-    private static final String FLAG_ANIMATE_STARTUP = "FLAG_ANIMATE_STARTUP";
 
     @Inject
     private JsRestClient mJsRestClient;
@@ -198,7 +196,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_servers)
     final void showServerProfiles() {
         if (mConnectivityUtil.isConnected()) {
-            ServerProfilesActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
+            ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
         } else {
             showNetworkAlert();
         }
@@ -318,7 +316,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     private void reloadProfileNameView() {
         JsServerProfile serverProfile = mJsRestClient.getServerProfile();
         if (serverProfile == null) {
-            ServerProfilesActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
+            ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
         } else {
             mProfileNameText.setText(serverProfile.getAlias());
 

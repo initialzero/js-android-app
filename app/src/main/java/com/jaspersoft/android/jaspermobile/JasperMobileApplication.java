@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.webkit.CookieManager;
@@ -32,8 +33,9 @@ import android.webkit.CookieSyncManager;
 
 import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
+import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
+import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
 import com.jaspersoft.android.jaspermobile.webkit.WebkitCookieManagerProxy;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -57,29 +59,27 @@ public class JasperMobileApplication extends Application {
     public void onCreate() {
         syncCookies();
         initJsRestClient();
+        populateDBIfNeed();
     }
 
-    public static void setCurrentServerProfile(JsRestClient jsRestClient, DatabaseProvider dbProvider, long profileId) {
-        // Get a cursor with server profile
-        Cursor cursor = dbProvider.fetchServerProfile(profileId);
-        // check if the server profile exists in db
+    public static void setCurrentServerProfile(JsRestClient jsRestClient, ContentResolver contentResolver, long id) {
+        String where = ServerProfilesTable._ID + " = ?";
+        String[] selectionArgs = {String.valueOf(id)};
+        Cursor cursor = contentResolver.query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                ServerProfilesTable.ALL_COLUMNS, where, selectionArgs, null);
+
         if (cursor != null) {
-
-            if (cursor.getCount() != 0) {
-                // Retrieve the column indexes for that particular server profile
-                int aliasId = cursor.getColumnIndex(ServerProfiles.KEY_ALIAS);
-                int urlId = cursor.getColumnIndex(ServerProfiles.KEY_SERVER_URL);
-                int orgId = cursor.getColumnIndex(ServerProfiles.KEY_ORGANIZATION);
-                int usrId = cursor.getColumnIndex(ServerProfiles.KEY_USERNAME);
-                int pwdId = cursor.getColumnIndex(ServerProfiles.KEY_PASSWORD);
-                // create new profile from cursor
-                JsServerProfile serverProfile = new JsServerProfile(profileId, cursor.getString(aliasId),
-                        cursor.getString(urlId), cursor.getString(orgId), cursor.getString(usrId), cursor.getString(pwdId));
-                jsRestClient.setServerProfile(serverProfile);
+            try {
+                if (cursor.getCount() > 0) {
+                    ServerProfiles dbProfile = new ServerProfiles(cursor);
+                    JsServerProfile serverProfile = new JsServerProfile(id, dbProfile.getAlias(),
+                            dbProfile.getServerUrl(), dbProfile.getOrganization(),
+                            dbProfile.getOrganization(), dbProfile.getPassword());
+                    jsRestClient.setServerProfile(serverProfile);
+                }
+            } finally {
+                cursor.close();
             }
-
-            // release resources
-            cursor.close();
         }
     }
 
@@ -110,16 +110,34 @@ public class JasperMobileApplication extends Application {
         jsRestClient.setConnectTimeout(connectTimeout * 1000);
         jsRestClient.setReadTimeout(readTimeout * 1000);
 
-        // Get the database provider
-        DatabaseProvider dbProvider = new DatabaseProvider(this);
-
         // restore server profile id from preferences
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         long profileId = prefs.getLong(PREFS_CURRENT_SERVER_PROFILE_ID, -1);
 
-        setCurrentServerProfile(jsRestClient, dbProvider, profileId);
+        setCurrentServerProfile(jsRestClient, getContentResolver(), profileId);
+    }
 
-        dbProvider.close();
+
+    private void populateDBIfNeed() {
+        Cursor cursor = getContentResolver().query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                new String[]{ServerProfilesTable._ID}, null, null, null);
+        if (cursor != null) {
+            try {
+                if (cursor.getCount() == 0) {
+                    ServerProfiles testProfile = new ServerProfiles();
+
+                    testProfile.setAlias("Mobile Demo");
+                    testProfile.setServerUrl("http://mobiledemo.jaspersoft.com/jasperserver-pro");
+                    testProfile.setOrganization("organization_1");
+                    testProfile.setUsername("phoneuser");
+                    testProfile.setPassword("phoneuser");
+
+                    getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, testProfile.getContentValues());
+                }
+            } finally {
+                cursor.close();
+            }
+        }
     }
 
 }

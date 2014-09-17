@@ -49,7 +49,6 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
@@ -86,8 +85,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     private JsRestClient mJsRestClient;
     @Inject
     private ConnectivityUtil mConnectivityUtil;
-    @Inject
-    private DatabaseProvider mDbProvider;
     @Inject
     private DecelerateInterpolator interpolator;
     @Inject
@@ -207,7 +204,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
             long rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
 
             // update current profile
-            JasperMobileApplication.setCurrentServerProfile(mJsRestClient, mDbProvider, rowId);
+            JasperMobileApplication.setCurrentServerProfile(mJsRestClient, getContentResolver(), rowId);
 
             // check if the password is not specified
             if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
@@ -233,7 +230,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
             editor.putLong(JasperMobileApplication.PREFS_CURRENT_SERVER_PROFILE_ID, rowId);
             editor.apply();
 
-            JasperMobileApplication.setCurrentServerProfile(mJsRestClient, mDbProvider, rowId);
+            JasperMobileApplication.setCurrentServerProfile(mJsRestClient, getContentResolver(), rowId);
 
             // check if the password is not specified
             if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
@@ -271,13 +268,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
             editIntent.putExtra(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID, mJsRestClient.getServerProfile().getId());
             startActivityForResult(editIntent, RC_UPDATE_SERVER_PROFILE);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        // close any open database object
-        if (mDbProvider != null) mDbProvider.close();
-        super.onDestroy();
     }
 
     //---------------------------------------------------------------------

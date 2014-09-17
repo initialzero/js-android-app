@@ -47,6 +47,7 @@ import roboguice.util.Ln;
  * @author Tom Koptel
  * @since 1.0
  */
+@Deprecated
 public class DatabaseProvider {
 
     /**
@@ -54,7 +55,7 @@ public class DatabaseProvider {
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
-        private static final int DATABASE_VERSION = 2;
+        private static final int DATABASE_VERSION = 3;
 
         private static final String DATABASE_NAME = "jasper_mobile_db";
 

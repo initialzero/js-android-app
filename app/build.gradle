@@ -46,6 +46,12 @@ android {
         }
     }
 
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+
     packagingOptions {
         exclude 'asm-license.txt'
         exclude 'NOTICE'
@@ -66,6 +72,15 @@ android {
         variant.assemble.doLast {
             removeUnaligned(variant)
         }
+    }
+
+    jacoco {
+        toolVersion = "0.7.2.201409121644"
+    }
+
+    sourceSets.main {
+        // src/gen is the target for generated content like json model
+        java.srcDirs += 'build/generated/source/db'
     }
 }
 

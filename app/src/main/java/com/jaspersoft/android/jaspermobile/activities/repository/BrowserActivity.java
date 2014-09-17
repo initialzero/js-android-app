@@ -40,6 +40,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @author Ivan Gadzhega
  * @since 1.0
  */
+@Deprecated
 public class BrowserActivity extends BaseBrowserSearchActivity {
 
     private static final ArrayList<String> types;

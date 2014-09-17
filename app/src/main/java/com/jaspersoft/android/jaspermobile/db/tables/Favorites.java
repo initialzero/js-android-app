@@ -33,11 +33,12 @@ import android.provider.BaseColumns;
  * @version $Id$
  * @since 1.0
  */
+@Deprecated
 public final class Favorites implements BaseColumns {
     // This class cannot be instantiated
     private Favorites() {}
 
-    public static final String TABLE_NAME = "favorites";
+    public static final String TABLE_NAME = "old_favorites";
 
     public static final String KEY_NAME = "name";
     public static final String KEY_TITLE = "title";

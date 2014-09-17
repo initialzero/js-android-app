@@ -152,11 +152,6 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         setActivityIntent(launchIntent);
     }
 
-    @Override
-    public String getPageName() {
-        return "searchable";
-    }
-
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {

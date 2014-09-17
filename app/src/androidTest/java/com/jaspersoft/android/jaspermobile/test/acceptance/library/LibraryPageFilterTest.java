@@ -173,11 +173,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         }
     }
 
-    @Override
-    public String getPageName() {
-        return "library";
-    }
-
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {

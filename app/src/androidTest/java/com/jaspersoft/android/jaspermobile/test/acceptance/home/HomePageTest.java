@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance;
+package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
 import android.app.Application;
 
@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
@@ -107,11 +108,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     }
 
     @Override
-    public String getPageName() {
-        return "home_page";
-    }
-
-    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         RoboGuice.util.reset();
@@ -162,7 +158,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
 
-        onView(withText("Mobile Demo")).perform(click());
+        onView(withText(ProfileHelper.DEFAULT_ALIAS)).perform(click());
         onView(withId(R.id.profile_name)).check(matches(withText(ALIAS)));
     }
 
@@ -203,7 +199,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
 
         // When we navigate to Servers page
         onView(withId(R.id.home_item_servers)).perform(click());
-        onView(withText("Mobile Demo")).perform(click());
+        onView(withText(ProfileHelper.DEFAULT_ALIAS)).perform(click());
 
         // Then we should check for appropriate method call
         verify(mockRestClient, times(3)).getServerProfile();

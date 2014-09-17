@@ -34,7 +34,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".JasperMobileApplication"
+        android:name=".JasperMobileApplication_"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher_jaspermobile"
         android:label="@string/app_label"
@@ -60,6 +60,11 @@
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
             </intent-filter>
         </activity>
+
+        <!-- Activity that provides the server profiles management -->
+        <activity
+            android:name=".activities.profile.ServerProfilesActivity_"
+            android:label="@string/h_ab_servers" />
 
         <!-- Activity that performs repository browsing -->
         <activity android:name=".activities.repository.BrowserActivity">
@@ -142,6 +147,10 @@
             android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"
             android:exported="false" />
 
+        <provider
+            android:name=".db.provider.JasperMobileProvider"
+            android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
+            android:exported="false" />
     </application>
 
 </manifest>

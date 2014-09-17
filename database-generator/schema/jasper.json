@@ -2,8 +2,7 @@
 	"packageName" : "com.jaspersoft.android.jaspermobile.db",
 	"providerName" : "jasper_mobile",
 	"databaseVersion" : 3,
-	"tables" : [
-		{
+	"tables" : [{
 			"name" : "server_profiles",
 			"members" : [{
 					"type" : "string",
@@ -20,10 +19,15 @@
 				}, {
 					"type" : "string",
 					"name" : "password"
+				}, {
+					"type" : "long",
+					"name" : "created_at"
+				}, {
+					"type" : "long",
+					"name" : "updated_at"
 				}
 			]
-		},
-		{
+		}, {
 			"name" : "favorites",
 			"members" : [{
 					"type" : "string",
@@ -48,8 +52,7 @@
 					"name" : "organization"
 				}
 			]
-		},
-		{
+		}, {
 			"name" : "report_options",
 			"members" : [{
 					"type" : "string",
@@ -60,12 +63,10 @@
 				}, {
 					"type" : "string",
 					"name" : "username"
-				}
-				, {
+				}, {
 					"type" : "string",
 					"name" : "organization"
-				}
-				, {
+				}, {
 					"type" : "string",
 					"name" : "report_uri"
 				}

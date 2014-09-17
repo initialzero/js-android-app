@@ -116,11 +116,6 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_browser_nothing_to_display)));
     }
 
-    @Override
-    public String getPageName() {
-        return "library";
-    }
-
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {

@@ -32,7 +32,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.db.tables.Favorites;
 import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.jaspermobile.db.tables.ServerProfiles;
@@ -81,17 +80,6 @@ public class DatabaseProvider {
             values.put(ServerProfiles.KEY_PASSWORD, "phoneuser");
 
             db.insert(ServerProfiles.TABLE_NAME, null, values);
-            if (BuildConfig.DEBUG) {
-                values = new ContentValues();
-
-                values.put(ServerProfiles.KEY_ALIAS, "Superuser Mobile Demo");
-                values.put(ServerProfiles.KEY_SERVER_URL, "http://mobiledemo.jaspersoft.com/jasperserver-pro");
-                values.put(ServerProfiles.KEY_ORGANIZATION, "");
-                values.put(ServerProfiles.KEY_USERNAME, "superuser");
-                values.put(ServerProfiles.KEY_PASSWORD, "superuser");
-
-                db.insert(ServerProfiles.TABLE_NAME, null, values);
-            }
         }
 
         @Override

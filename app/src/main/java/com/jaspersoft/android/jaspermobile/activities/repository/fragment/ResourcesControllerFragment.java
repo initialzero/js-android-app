@@ -72,13 +72,6 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
     @OptionsMenuItem(R.id.switchLayout)
     public MenuItem switchLayoutMenuItem;
 
-    @OptionsMenuItem(R.id.search)
-    public MenuItem searchMenuItem;
-    @OptionsMenuItem(R.id.showFavorites)
-    public MenuItem showFavoritesItem;
-    @OptionsMenuItem(R.id.showSettings)
-    public MenuItem showSettingsItem;
-
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;

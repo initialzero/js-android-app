@@ -16,13 +16,14 @@ import com.squareup.spoon.Spoon;
 
 import roboguice.RoboGuice;
 
-public abstract class ProtoActivityInstrumentation<T extends Activity>
+public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
     protected static final String USERNAME = "phoneuser|organization_1";
     protected static final String PASSWORD = "phoneuser";
     private static final long SLEEP_RATE = 0;
     protected T mActivity;
     private NameUtils nameUtils;
+    private String pageName = "UNSPECIFIED";
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
         super(activityClass);
@@ -31,7 +32,7 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        nameUtils = new NameUtils(getPageName());
+        nameUtils = new NameUtils(pageName);
     }
 
     @Override
@@ -104,7 +105,9 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
         return mActivity.findViewById(id);
     }
 
-    public abstract String getPageName();
+    public void setPageName(String pageName) {
+        this.pageName = pageName;
+    }
 
     protected void makeTwoFirstListItemsAccessible() {
         ListView list = (ListView) mActivity.findViewById(android.R.id.list);

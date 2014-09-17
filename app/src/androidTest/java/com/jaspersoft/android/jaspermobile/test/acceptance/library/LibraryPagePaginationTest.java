@@ -97,11 +97,6 @@ public class LibraryPagePaginationTest extends ProtoActivityInstrumentation<Libr
 
     }
 
-    @Override
-    public String getPageName() {
-        return "library";
-    }
-
     private class MockedSpiceManager extends SpiceManager {
         public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
             super(spiceServiceClass);

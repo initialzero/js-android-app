@@ -31,6 +31,7 @@ import android.content.Intent;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.octo.android.robospice.exception.NetworkException;
 
 import org.springframework.http.HttpStatus;
@@ -123,11 +124,10 @@ public class RequestExceptionHandler {
         alertBox.setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = new Intent();
-                        intent.setClass(activity, HomeActivity.class);
-                        intent.setAction(HomeActivity.EDIT_SERVER_PROFILE_ACTION);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        activity.startActivity(intent);
+                        HomeActivity_.intent(activity)
+                                .action(HomeActivity.EDIT_SERVER_PROFILE_ACTION)
+                                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                .start();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
@@ -211,14 +212,11 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
             // update current profile
             profileHelper.setCurrentServerProfile(profileId);
-
+            JsServerProfile profile = mJsRestClient.getServerProfile();
             // check if the password is not specified
-            if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
+            if (profile.getPassword().length() == 0) {
                 PasswordDialogFragment.show(getSupportFragmentManager());
             }
-
-            // the feedback about an operation
-            Toast.makeText(this, R.string.spm_profile_updated_toast, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -262,11 +260,9 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
         if (EDIT_SERVER_PROFILE_ACTION.equals(intent.getAction())) {
             // Launch activity to edit current server profile
-            Intent editIntent = new Intent();
-            editIntent.setClass(this, ServerProfileActivity.class);
-            editIntent.setAction(ServerProfileActivity.EDIT_SERVER_PROFILE_ACTION);
-            editIntent.putExtra(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID, mJsRestClient.getServerProfile().getId());
-            startActivityForResult(editIntent, RC_UPDATE_SERVER_PROFILE);
+            ServerProfileActivity_.intent(this)
+                    .profileId(mJsRestClient.getServerProfile().getId())
+                    .startForResult(RC_UPDATE_SERVER_PROFILE);
         }
     }
 

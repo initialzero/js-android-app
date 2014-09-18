@@ -24,25 +24,32 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
+import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isEnabled;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isFocusable;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.DummyServerProfile.TEST_ALIAS;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.DummyServerProfile.TEST_ORGANIZATION;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.DummyServerProfile.TEST_PASS;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.DummyServerProfile.TEST_SERVER_URL;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.DummyServerProfile.TEST_USERNAME;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.DummyServerProfile.createTestProfile;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.DummyServerProfile.deleteTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_ALIAS;
+import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_ORGANIZATION;
+import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_PASS;
+import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_SERVER_URL;
+import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_USERNAME;
+import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.createTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.deleteTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.updateProfile;
+import static org.hamcrest.Matchers.not;
 
 /**
  * @author Tom Koptel
@@ -91,6 +98,8 @@ public class ServerProfilePageTest extends ProtoActivityInstrumentation<ServerPr
         setActivityIntent(launchIntent);
         startActivityUnderTest();
 
+        onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
+        onView(withId(getActionBarSubTitleId())).check(matches(withText(TEST_ALIAS)));
         onView(withId(R.id.aliasEdit)).check(matches(withText(TEST_ALIAS)));
         onView(withId(R.id.serverUrlEdit)).check(matches(withText(TEST_SERVER_URL)));
         onView(withId(R.id.organizationEdit)).check(matches(withText(TEST_ORGANIZATION)));
@@ -109,6 +118,21 @@ public class ServerProfilePageTest extends ProtoActivityInstrumentation<ServerPr
         for (int field : fields) {
             onView(withId(field)).check(matches(withText("_suffix")));
         }
+    }
+
+    public void testAskForPasswordCheckedForProfileWithoutPassword() {
+        Intent launchIntent = new Intent();
+        ContentResolver contentResolver = getInstrumentation().getContext().getContentResolver();
+        long profileId = createTestProfile(contentResolver);
+        launchIntent.putExtra(ServerProfileActivity_.PROFILE_ID_EXTRA, profileId);
+        updateProfile(contentResolver, profileId, ServerProfilesTable.PASSWORD, "");
+        setActivityIntent(launchIntent);
+        startActivityUnderTest();
+
+        onView(withId(R.id.passwordEdit)).check(matches(withText("")));
+        onView(withId(R.id.passwordEdit)).check(matches(not(isEnabled())));
+        onView(withId(R.id.passwordEdit)).check(matches(not(isFocusable())));
+        onView(withId(R.id.askPasswordCheckBox)).check(matches(isChecked()));
     }
 
 }

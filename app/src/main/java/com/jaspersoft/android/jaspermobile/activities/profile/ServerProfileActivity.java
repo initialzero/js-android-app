@@ -25,7 +25,10 @@
 package com.jaspersoft.android.jaspermobile.activities.profile;
 
 import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -33,14 +36,18 @@ import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
 
+import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
@@ -52,6 +59,7 @@ import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.Calendar;
+import java.util.List;
 
 import roboguice.activity.RoboFragmentActivity;
 
@@ -75,6 +83,9 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
     EditText usernameEdit;
     @ViewById
     EditText passwordEdit;
+    @ViewById
+    CheckBox askPasswordCheckBox;
+
     @OptionsMenuItem
     MenuItem saveAction;
 
@@ -135,7 +146,8 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
 
         // We should create new instance
         if (profileId == 0) {
-            getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+            Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+            profileId = Long.valueOf(uri.getLastPathSegment());
             Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
         } else {
             String selection = ServerProfilesTable._ID + " =?";
@@ -144,6 +156,10 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
                     mServerProfile.getContentValues(), selection, selectionArgs);
             Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
         }
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(ServersFragment.EXTRA_SERVER_PROFILE_ID, profileId);
+        setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
 
@@ -176,8 +192,21 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
         setSubmitActionState();
     }
 
+    @CheckedChange(R.id.askPasswordCheckBox)
+    void checkedChangedOnAskPassword(boolean checked) {
+        passwordEdit.setEnabled(!checked);
+        passwordEdit.setFocusable(!checked);
+        passwordEdit.setFocusableInTouchMode(!checked);
+        passwordEdit.setError(null);
+        passwordEdit.setText("");
+        setSubmitActionState();
+    }
+
     private void setSubmitActionState() {
-        String[] values = {alias, serverUrl, organization, username, password};
+        List<String> values = Lists.newArrayList(alias, serverUrl, organization, username);
+        if (!askPasswordCheckBox.isChecked()) {
+            values.add(password);
+        }
         boolean enabled = true;
         for (String value : values) {
             enabled &= !TextUtils.isEmpty(value) && !TextUtils.isEmpty(value.trim());
@@ -206,12 +235,25 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
 
     @SupposeUiThread
     protected void updateProfileFields(ServerProfiles serverProfile) {
+        if (getActionBar() != null) {
+            getActionBar().setTitle(getString(R.string.sp_bc_edit_profile));
+            getActionBar().setSubtitle(serverProfile.getAlias());
+        }
+
         mServerProfile = serverProfile;
         aliasEdit.setText(serverProfile.getAlias());
         serverUrlEdit.setText(serverProfile.getServerUrl());
         organizationEdit.setText(serverProfile.getOrganization());
         usernameEdit.setText(serverProfile.getUsername());
+
+        String password = serverProfile.getPassword();
+        boolean hasPassword = !TextUtils.isEmpty(password);
+        passwordEdit.setEnabled(hasPassword);
+        passwordEdit.setFocusable(hasPassword);
+        passwordEdit.setFocusableInTouchMode(hasPassword);
         passwordEdit.setText(serverProfile.getPassword());
+
+        askPasswordCheckBox.setChecked(!hasPassword);
     }
 
     @Override

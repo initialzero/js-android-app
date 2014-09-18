@@ -9,12 +9,18 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ListView;
 
+import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
+import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
 import com.squareup.spoon.Spoon;
 
+import java.util.Collection;
+
 import roboguice.RoboGuice;
+
+import static com.google.common.collect.Iterables.getOnlyElement;
 
 public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
@@ -124,5 +130,19 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 RoboGuice.DEFAULT_STAGE,
                 Modules.override(RoboGuice.newDefaultRoboModule(application))
                         .with(module));
+    }
+
+    protected Activity getCurrentActivity() throws Throwable {
+        getInstrumentation().waitForIdleSync();
+        final Activity[] activity = new Activity[1];
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Collection<Activity> activites =
+                        ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(Stage.RESUMED);
+                activity[0] = getOnlyElement(activites);
+            }});
+        return activity[0];
     }
 }

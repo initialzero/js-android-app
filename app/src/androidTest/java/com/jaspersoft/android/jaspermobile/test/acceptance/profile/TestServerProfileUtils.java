@@ -25,18 +25,20 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class DummyServerProfile {
+public class TestServerProfileUtils {
     public static final String TEST_ALIAS = "Test Demo";
     public static final String TEST_ORGANIZATION = "test_organization";
     public static final String TEST_SERVER_URL = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
@@ -55,6 +57,29 @@ public class DummyServerProfile {
         return Long.valueOf(uri.getLastPathSegment());
     }
 
+    public static void updateProfile(ContentResolver contentResolver, long id, String column, String value) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(column, value);
+        Uri uri = Uri.withAppendedPath(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(id));
+        contentResolver.update(uri, contentValues, null, null);
+    }
+
+    public static long createDefaultProfile(ContentResolver contentResolver) {
+        ServerProfiles serverProfile = new ServerProfiles();
+        serverProfile.setAlias(ProfileHelper.DEFAULT_ALIAS);
+        serverProfile.setServerUrl(ProfileHelper.DEFAULT_SERVER_URL);
+        serverProfile.setOrganization(ProfileHelper.DEFAULT_ORGANIZATION);
+        serverProfile.setUsername(ProfileHelper.DEFAULT_USERNAME);
+        serverProfile.setPassword(ProfileHelper.DEFAULT_PASS);
+
+        Uri uri = contentResolver.insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
+        return Long.valueOf(uri.getLastPathSegment());
+    }
+
+    public static void deleteAll(ContentResolver contentResolver) {
+        contentResolver.delete(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, null, null);
+    }
+
     public static void deleteTestProfile(ContentResolver contentResolver) {
         Cursor cursor = queryCreatedProfile(contentResolver);
         try {
@@ -70,7 +95,7 @@ public class DummyServerProfile {
 
     public static Cursor queryCreatedProfile(ContentResolver contentResolver) {
         String selection = ServerProfilesTable.ALIAS + "= ?";
-        String[] selectionArgs = {DummyServerProfile.TEST_ALIAS};
+        String[] selectionArgs = {TestServerProfileUtils.TEST_ALIAS};
         return contentResolver.query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
                 ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
     }

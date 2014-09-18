@@ -127,27 +127,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         onViewDialogId(getActivity(), R.id.sdl__message).check(matches(withText(R.string.h_ad_msg_no_connection)));
     }
 
-    public void testMissingPasswordCaseForServerProfile() {
-        when(mockServerProfile.getUsername()).thenReturn(USERNAME);
-        when(mockServerProfile.getOrganization()).thenReturn(ORGANIZATION);
-        // We are forcing empty password to show dialog
-        when(mockServerProfile.getPassword()).thenReturn("");
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-
-        startActivityUnderTest();
-
-        // Check whether our dialog is shown with Appropriate info
-        onViewDialogId(getActivity(), R.id.dialogUsernameText).check(matches(withText(USERNAME)));
-        onViewDialogId(getActivity(), R.id.dialogOrganizationText).check(matches(withText(ORGANIZATION)));
-        onViewDialogId(getActivity(), R.id.dialogOrganizationTableRow).check(matches(isDisplayed()));
-
-        // Lets type some password and check if it set
-        onViewDialogId(getActivity(), R.id.dialogPasswordEdit).perform(typeText(PASSWORD));
-        onViewDialogId(getActivity(), android.R.id.button1).perform(click());
-
-        verify(mockServerProfile, times(1)).setPassword(PASSWORD);
-    }
-
     public void testMissingServerProfile() {
         when(mockRestClient.getServerProfile()).thenReturn(null);
 

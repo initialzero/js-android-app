@@ -41,6 +41,7 @@ import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
@@ -57,7 +58,7 @@ import roboguice.inject.InjectView;
  */
 @EFragment
 public class ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener {
+        SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     public static final String EXTRA_SERVER_PROFILE_ID = "ServersFragment.EXTRA_SERVER_PROFILE_ID";
 
     @FragmentArg
@@ -88,6 +89,7 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
         mAdapter.setViewBinder(this);
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
 
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
     }
@@ -130,4 +132,15 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
         getActivity().finish();
     }
 
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(position);
+
+        long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+
+        ServerProfileActivity_.intent(getActivity()).profileId(profileId).start();
+
+        return true;
+    }
 }

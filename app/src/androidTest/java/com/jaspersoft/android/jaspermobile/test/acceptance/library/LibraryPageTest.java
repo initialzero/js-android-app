@@ -130,6 +130,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         repositoryPref = null;
         super.tearDown();
     }

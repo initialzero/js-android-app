@@ -132,6 +132,10 @@ public class ProtoActivityInstrumentation<T extends Activity>
                         .with(module));
     }
 
+    protected void unregisterTestModule() {
+        RoboGuice.util.reset();
+    }
+
     protected Activity getCurrentActivity() throws Throwable {
         getInstrumentation().waitForIdleSync();
         final Activity[] activity = new Activity[1];

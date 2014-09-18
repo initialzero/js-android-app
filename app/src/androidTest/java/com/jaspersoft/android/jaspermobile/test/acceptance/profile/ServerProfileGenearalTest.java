@@ -55,9 +55,9 @@ import static org.hamcrest.Matchers.not;
  * @author Tom Koptel
  * @since 1.9
  */
-public class ServerProfilePageTest extends ProtoActivityInstrumentation<ServerProfileActivity_> {
+public class ServerProfileGenearalTest extends ProtoActivityInstrumentation<ServerProfileActivity_> {
 
-    public ServerProfilePageTest() {
+    public ServerProfileGenearalTest() {
         super(ServerProfileActivity_.class);
     }
 

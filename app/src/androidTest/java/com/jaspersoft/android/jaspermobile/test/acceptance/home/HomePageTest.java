@@ -24,9 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
-import android.app.Application;
-
-import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
@@ -45,19 +42,13 @@ import com.octo.android.robospice.SpiceManager;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import roboguice.RoboGuice;
-
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onViewDialogId;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -97,20 +88,14 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         when(mockConectivityUtil.isConnected()).thenReturn(true);
-
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(new TestModule()));
+        registerTestModule(new TestModule());
         mMockedSpiceManager.setResponseForCacheRequest(mockServerInfo);
     }
 
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         super.tearDown();
-        RoboGuice.util.reset();
     }
 
     public void testMissingNetworkConnectionCase() {
@@ -166,22 +151,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         onView(withId(R.id.home_item_settings)).perform(click());
         pressBack();
         onView(withId(R.id.home_item_servers)).perform(click());
-    }
-
-    public void testProfileSwitchAction() {
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-
-        startActivityUnderTest();
-        // Given we have no ALIAS set up
-        onView(withId(R.id.profile_name)).check(matches(withText("")));
-
-        // When we navigate to Servers page
-        onView(withId(R.id.home_item_servers)).perform(click());
-        onView(withText(ProfileHelper.DEFAULT_ALIAS)).perform(click());
-
-        // Then we should check for appropriate method call
-        verify(mockRestClient, times(3)).getServerProfile();
     }
 
     private class TestModule extends CommonTestModule {

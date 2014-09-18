@@ -29,6 +29,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.EditText;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.google.android.apps.common.testing.ui.espresso.Root;
@@ -172,4 +173,29 @@ public final class JasperMatcher {
         };
     }
 
+    public static Matcher<? super View> hasErrorText(String expectedError) {
+        return new ErrorTextMatcher(expectedError);
+    }
+
+    private static class ErrorTextMatcher extends TypeSafeMatcher<View> {
+        private final String expectedError;
+
+        private ErrorTextMatcher(String expectedError) {
+            this.expectedError = checkNotNull(expectedError);
+        }
+
+        @Override
+        public boolean matchesSafely(View view) {
+            if (!(view instanceof EditText)) {
+                return false;
+            }
+            EditText editText = (EditText) view;
+            return expectedError.equals(editText.getError());
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("with error: " + expectedError);
+        }
+    }
 }

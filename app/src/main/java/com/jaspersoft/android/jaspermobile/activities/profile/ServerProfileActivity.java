@@ -34,13 +34,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.URLUtil;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
@@ -60,6 +61,7 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import roboguice.activity.RoboFragmentActivity;
 
@@ -118,13 +120,6 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
-        setSubmitActionState();
-        return result;
-    }
-
     @OptionsItem(android.R.id.home)
     final void showHome() {
         super.onBackPressed();
@@ -132,35 +127,37 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
 
     @OptionsItem
     final void saveAction() {
-        Calendar calendar = Calendar.getInstance();
-        if (mServerProfile == null) {
-            mServerProfile = new ServerProfiles();
-            mServerProfile.setCreatedAt(calendar.getTime().getTime());
-        }
-        mServerProfile.setAlias(alias);
-        mServerProfile.setServerUrl(serverUrl);
-        mServerProfile.setOrganization(organization);
-        mServerProfile.setUsername(username);
-        mServerProfile.setPassword(password);
-        mServerProfile.setUpdatedAt(calendar.getTime().getTime());
+        if (isFormValid()) {
+            Calendar calendar = Calendar.getInstance();
+            if (mServerProfile == null) {
+                mServerProfile = new ServerProfiles();
+                mServerProfile.setCreatedAt(calendar.getTime().getTime());
+            }
+            mServerProfile.setAlias(alias);
+            mServerProfile.setServerUrl(serverUrl);
+            mServerProfile.setOrganization(organization);
+            mServerProfile.setUsername(username);
+            mServerProfile.setPassword(password);
+            mServerProfile.setUpdatedAt(calendar.getTime().getTime());
 
-        // We should create new instance
-        if (profileId == 0) {
-            Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
-            profileId = Long.valueOf(uri.getLastPathSegment());
-            Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
-        } else {
-            String selection = ServerProfilesTable._ID + " =?";
-            String[] selectionArgs = {String.valueOf(profileId)};
-            getContentResolver().update(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
-                    mServerProfile.getContentValues(), selection, selectionArgs);
-            Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
-        }
+            // We should create new instance
+            if (profileId == 0) {
+                Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+                profileId = Long.valueOf(uri.getLastPathSegment());
+                Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+            } else {
+                String selection = ServerProfilesTable._ID + " =?";
+                String[] selectionArgs = {String.valueOf(profileId)};
+                getContentResolver().update(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                        mServerProfile.getContentValues(), selection, selectionArgs);
+                Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
+            }
 
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra(ServersFragment.EXTRA_SERVER_PROFILE_ID, profileId);
-        setResult(Activity.RESULT_OK, resultIntent);
-        finish();
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra(ServersFragment.EXTRA_SERVER_PROFILE_ID, profileId);
+            setResult(Activity.RESULT_OK, resultIntent);
+            finish();
+        }
     }
 
     @TextChange(R.id.aliasEdit)
@@ -202,19 +199,12 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
         setSubmitActionState();
     }
 
-    private void setSubmitActionState() {
-        List<String> values = Lists.newArrayList(alias, serverUrl, organization, username);
-        if (!askPasswordCheckBox.isChecked()) {
-            values.add(password);
-        }
-        boolean enabled = true;
-        for (String value : values) {
-            enabled &= !TextUtils.isEmpty(value) && !TextUtils.isEmpty(value.trim());
-        }
-        if (saveAction != null) {
-            saveAction.setEnabled(enabled);
-            saveAction.setIcon(enabled ? R.drawable.ic_action_submit : R.drawable.ic_action_submit_disabled);
-        }
+    //---------------------------------------------------------------------
+    // Implements LoaderManager.LoaderCallbacks<Cursor>
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
     }
 
     @Override
@@ -231,6 +221,68 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
             cursor.moveToFirst();
             updateProfileFields(new ServerProfiles(cursor));
         }
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private boolean isFormValid() {
+        Map<EditText, String> valueMap = Maps.newHashMap();
+        valueMap.put(aliasEdit, alias);
+        valueMap.put(serverUrlEdit, serverUrl);
+        valueMap.put(usernameEdit, username);
+
+        if (!askPasswordCheckBox.isChecked()) {
+            valueMap.put(passwordEdit, password);
+        }
+
+        boolean isFieldValid;
+        boolean formValid = true;
+        for (Map.Entry<EditText, String> entry : valueMap.entrySet()) {
+            isFieldValid = !TextUtils.isEmpty(entry.getValue()) && !TextUtils.isEmpty(entry.getValue().trim());
+            if (!isFieldValid) {
+                entry.getKey().setError(getString(R.string.sp_error_field_required));
+            }
+            formValid &= isFieldValid;
+        }
+
+        if (!TextUtils.isEmpty(serverUrl)) {
+            String url = trimUrl(serverUrl);
+            if (!URLUtil.isNetworkUrl(url)) {
+                serverUrlEdit.setError(getString(R.string.sp_error_url_not_valid));
+                formValid &= false;
+            }
+        }
+
+        return formValid;
+    }
+
+    private void setSubmitActionState() {
+        List<String> values = Lists.newArrayList(alias, serverUrl, username);
+        if (!askPasswordCheckBox.isChecked()) {
+            values.add(password);
+        }
+        boolean enabled = true;
+        for (String value : values) {
+            enabled &= !TextUtils.isEmpty(value) && !TextUtils.isEmpty(value.trim());
+        }
+
+        if (!TextUtils.isEmpty(serverUrl)) {
+            String url = trimUrl(serverUrl);
+            enabled &= URLUtil.isNetworkUrl(url);
+        }
+
+        if (saveAction != null) {
+            saveAction.setIcon(enabled ? R.drawable.ic_action_submit : R.drawable.ic_action_submit_disabled);
+        }
+    }
+
+    private String trimUrl(String url) {
+        if (!TextUtils.isEmpty(url) && url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 
     @SupposeUiThread
@@ -254,9 +306,5 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
         passwordEdit.setText(serverProfile.getPassword());
 
         askPasswordCheckBox.setChecked(!hasPassword);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
     }
 }

@@ -101,6 +101,12 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         configureSearchIntent();
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        unregisterTestModule();
+        super.tearDown();
+    }
+
     public void testReportClick() {
         startActivityUnderTest();
 

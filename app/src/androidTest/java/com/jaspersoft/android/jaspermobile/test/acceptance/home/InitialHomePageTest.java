@@ -30,7 +30,6 @@ import android.database.Cursor;
 
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -94,10 +93,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
 
         Application application = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(new TestModule()));
+        registerTestModule(new TestModule());
         Injector injector = RoboGuice.getBaseApplicationInjector(application);
         jsRestClient = injector.getInstance(JsRestClient.class);
 
@@ -107,10 +103,11 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         createDefaultProfile(contentResolver);
     }
 
+
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         super.tearDown();
-        RoboGuice.util.reset();
     }
 
     public void testUserSelectsDefaultProfile() {
@@ -152,12 +149,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
         onView(withId(getActionBarSubTitleId())).check(matches(withText(ProfileHelper.DEFAULT_ALIAS)));
 
-        // We are forcing thread to hold execution, because of another toast message in process of showing
-        Thread.sleep(500);
         onView(withId(R.id.saveAction)).perform(click());
-
-        String updateToastMessage = getActivity().getString(R.string.spm_profile_updated_toast, ProfileHelper.DEFAULT_ALIAS);
-        onOverflowView(getActivity(), withText(updateToastMessage)).check(matches(isDisplayed()));
     }
 
     public void testProfileIncorrectSetupWithNoPassword() throws Throwable {

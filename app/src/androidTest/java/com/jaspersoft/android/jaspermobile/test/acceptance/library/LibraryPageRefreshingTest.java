@@ -95,6 +95,12 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         registerIdlingResources(countingIdlingResource);
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        unregisterTestModule();
+        super.tearDown();
+    }
+
     public void testPullToRefresh() throws InterruptedException {
         startActivityUnderTest();
 

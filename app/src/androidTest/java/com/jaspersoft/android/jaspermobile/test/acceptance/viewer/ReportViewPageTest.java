@@ -24,17 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
-import android.app.Application;
 import android.content.Intent;
-import android.test.ActivityInstrumentationTestCase2;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.ui.espresso.Espresso;
-import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
+import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
@@ -55,8 +53,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.net.URI;
 
-import roboguice.RoboGuice;
-
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.doubleClick;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -71,7 +67,7 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 1.9
  */
-public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportHtmlViewerActivity> {
+public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity> {
     private static final String REPORT_URI = "http://mobiledemo.jaspersoft.com/";
 
     private static final String USERNAME = "phoneuser|organization_1";
@@ -100,6 +96,7 @@ public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportH
 
     @Override
     public void setUp() throws Exception {
+        super.setUp();
         MockitoAnnotations.initMocks(this);
 
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
@@ -108,14 +105,7 @@ public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportH
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
 
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(new TestModule()));
-
-        super.setUp();
+        registerTestModule(new TestModule());
 
         Intent htmlViewer = new Intent();
         htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, "/Reports/2_Sales_Mix_by_Demographic_Report");
@@ -133,6 +123,7 @@ public class ReportViewPageTest extends ActivityInstrumentationTestCase2<ReportH
 
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         ActivityLifecycleMonitorRegistry.getInstance()
                 .removeLifecycleCallback(injector);
         super.tearDown();

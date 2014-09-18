@@ -79,6 +79,7 @@ public class LibraryPagePaginationTest extends ProtoActivityInstrumentation<Libr
 
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         ActivityLifecycleMonitorRegistry.getInstance()
                 .removeLifecycleCallback(injector);
         super.tearDown();

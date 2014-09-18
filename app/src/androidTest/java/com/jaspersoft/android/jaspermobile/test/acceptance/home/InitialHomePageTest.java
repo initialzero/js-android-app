@@ -56,6 +56,7 @@ import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -116,8 +117,6 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
-        onOverflowView(getActivity(), withText(getActivity().getString(R.string.h_server_switched_toast, ProfileHelper.DEFAULT_ALIAS)))
-                .check(matches(isDisplayed()));
 
         JsServerProfile serverProfile = jsRestClient.getServerProfile();
         assertThat(serverProfile.getAlias(), is(ProfileHelper.DEFAULT_ALIAS));
@@ -135,6 +134,17 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
+    }
+
+    public void testUserIgnoresProfileCreation() {
+        startActivityUnderTest();
+
+        int[] ids = {R.id.home_item_library, R.id.home_item_repository, R.id.home_item_favorites};
+        for (int id : ids) {
+            pressBack();
+            onView(withId(id)).perform(click());
+            onView(withId(getActionBarTitleId())).check(matches(withText(R.string.h_ab_servers)));
+        }
     }
 
     public void testProfileIncorrectSetup() throws Throwable {

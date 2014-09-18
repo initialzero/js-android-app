@@ -148,59 +148,40 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_repository)
     final void showRepository() {
-        if (mConnectivityUtil.isConnected()) {
+        if (hasNetwork() && hasServerProfileSetup()) {
             RepositoryActivity_.intent(this).start();
-        } else {
-            showNetworkAlert();
         }
     }
 
     @Click(R.id.home_item_library)
     final void showLibrary() {
-        if (mConnectivityUtil.isConnected()) {
+        if (hasNetwork() && hasServerProfileSetup()) {
             LibraryActivity_.intent(this).start();
-        } else {
-            showNetworkAlert();
         }
     }
 
     @Click(R.id.home_item_favorites)
     final void showFavorites() {
-        if (mConnectivityUtil.isConnected()) {
+        if (hasNetwork() && hasServerProfileSetup()) {
             Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
             startActivity(favoritesIntent);
-        } else {
-            showNetworkAlert();
         }
     }
 
     @Click(R.id.home_item_saved_reports)
     final void showSavedItems() {
-        if (mConnectivityUtil.isConnected()) {
-
-            Intent savedReportsIntent = new Intent(this, SavedReportsActivity.class);
-            startActivity(savedReportsIntent);
-        } else {
-            showNetworkAlert();
-        }
+        Intent savedReportsIntent = new Intent(this, SavedReportsActivity.class);
+        startActivity(savedReportsIntent);
     }
 
     @Click(R.id.home_item_settings)
     final void showSettings() {
-        if (mConnectivityUtil.isConnected()) {
-            SettingsActivity_.intent(this).start();
-        } else {
-            showNetworkAlert();
-        }
+        SettingsActivity_.intent(this).start();
     }
 
     @Click(R.id.home_item_servers)
     final void showServerProfiles() {
-        if (mConnectivityUtil.isConnected()) {
-            ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
-        } else {
-            showNetworkAlert();
-        }
+        ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
     }
 
     @OnActivityResult(RC_UPDATE_SERVER_PROFILE)
@@ -270,14 +251,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void showNetworkAlert() {
-        AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.h_ad_title_no_connection)
-                .setMessage(R.string.h_ad_msg_no_connection)
-                .show();
-    }
-
     private void animateLayout() {
         boolean animationEnabled = SettingsActivity.isAnimationEnabled(this);
         // No sense in animating if no speed set up
@@ -307,6 +280,28 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
                 .setInterpolator(interpolator).alpha(1)
                 .setDuration(mAnimationSpeed).setStartDelay(delay)
                 .start();
+    }
+
+    private boolean hasServerProfileSetup() {
+        JsServerProfile serverProfile = mJsRestClient.getServerProfile();
+        boolean hasServerProfile = (serverProfile != null);
+        if (!hasServerProfile) {
+            ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
+            Toast.makeText(this, R.string.toast_select_profile, Toast.LENGTH_LONG).show();
+        }
+        return hasServerProfile;
+    }
+
+    private boolean hasNetwork() {
+        boolean hasNetwork = mConnectivityUtil.isConnected();
+        if (!hasNetwork) {
+            AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.h_ad_title_no_connection)
+                    .setMessage(R.string.h_ad_msg_no_connection)
+                    .show();
+        }
+        return hasNetwork;
     }
 
     private void reloadProfileNameView() {

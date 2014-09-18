@@ -238,5 +238,6 @@
     <string name="sp_label_general">General</string>
     <string name="sp_label_auth">Authentication</string>
     <string name="label_add_profile">Add profile</string>
+    <string name="toast_select_profile">Please, select your profile</string>
 
 </resources>

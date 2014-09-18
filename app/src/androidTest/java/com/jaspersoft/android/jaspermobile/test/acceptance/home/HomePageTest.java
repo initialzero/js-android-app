@@ -32,7 +32,6 @@ import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
@@ -48,7 +47,7 @@ import static com.google.android.apps.common.testing.ui.espresso.action.ViewActi
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onViewDialogId;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.mockito.Mockito.when;
 
 /**
@@ -105,25 +104,16 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
 
         startActivityUnderTest();
-        // Click on any dashboard item
-        onView(withId(R.id.home_item_servers)).perform(click());
+        int[] ids = {R.id.home_item_library, R.id.home_item_repository, R.id.home_item_favorites};
 
-        onViewDialogId(getActivity(), R.id.sdl__title).check(matches(withText(R.string.h_ad_title_no_connection)));
-        onViewDialogId(getActivity(), R.id.sdl__message).check(matches(withText(R.string.h_ad_msg_no_connection)));
-    }
+        for (int id : ids) {
+            // Click on dashboard item
+            onView(withId(id)).perform(click());
 
-    public void testMissingServerProfile() {
-        when(mockRestClient.getServerProfile()).thenReturn(null);
-
-        startActivityUnderTest();
-
-        // As soon as we have mocked DbProvider we can not test real Server Profile
-        when(mockServerProfile.getAlias()).thenReturn(ALIAS);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-
-        onView(withText(ProfileHelper.DEFAULT_ALIAS)).perform(click());
-        onView(withId(R.id.profile_name)).check(matches(withText(ALIAS)));
+            onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.h_ad_title_no_connection)));
+            onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.h_ad_msg_no_connection)));
+            pressBack();
+        }
     }
 
     public void testOverAllNavigationForDashboard() {

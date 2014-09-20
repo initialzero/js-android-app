@@ -30,7 +30,7 @@ import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonito
 import com.google.android.apps.common.testing.ui.espresso.Espresso;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
@@ -67,7 +67,7 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 1.9
  */
-public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity> {
+public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity_> {
     private static final String REPORT_URI = "http://mobiledemo.jaspersoft.com/";
 
     private static final String USERNAME = "phoneuser|organization_1";
@@ -91,7 +91,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
 
     public ReportViewPageTest() {
-        super(ReportHtmlViewerActivity.class);
+        super(ReportHtmlViewerActivity_.class);
     }
 
     @Override

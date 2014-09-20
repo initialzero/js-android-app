@@ -24,18 +24,49 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.os.Bundle;
+
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
+
+import roboguice.activity.RoboFragmentActivity;
+
 /**
  * Activity that performs report viewing in HTML format.
  *
  * @author Ivan Gadzhega
  * @since 1.4
  */
-public class SavedReportHtmlViewerActivity extends BaseHtmlViewerActivity {
+
+@EActivity
+public class SavedReportHtmlViewerActivity extends RoboFragmentActivity
+        implements WebViewFragment.OnWebViewCreated {
+
+    @Extra
+    String resourceUri;
+    @Extra
+    String resourceLabel;
+
 
     @Override
-    protected void loadDataToWebView() {
-        // run new report execution
-        loadUrl(resourceUri);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            WebViewFragment webViewFragment = WebViewFragment_.builder()
+                    .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
+            webViewFragment.setOnWebViewCreated(this);
+            getSupportFragmentManager().beginTransaction()
+                    .add(webViewFragment, WebViewFragment.TAG).commit();
+        }
+    }
+
+    @Override
+    public void onWevViewCreated(WebViewFragment webViewFragment) {
+        webViewFragment.loadUrl(resourceUri);
     }
 
 }

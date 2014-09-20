@@ -27,8 +27,16 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 import android.os.Bundle;
 import android.widget.RelativeLayout;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
+
+import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
 
 /**
@@ -37,7 +45,16 @@ import roboguice.inject.InjectView;
  * @author Ivan Gadzhega
  * @since 1.4
  */
-public class DashboardHtmlViewerActivity extends BaseHtmlViewerActivity {
+@EActivity
+public class DashboardHtmlViewerActivity extends RoboFragmentActivity
+        implements WebViewFragment.OnWebViewCreated {
+    @Inject
+    JsRestClient jsRestClient;
+
+    @Extra
+    String resourceUri;
+    @Extra
+    String resourceLabel;
 
     @InjectView(R.id.htmlViewer_layout)
     protected RelativeLayout layout;
@@ -45,6 +62,15 @@ public class DashboardHtmlViewerActivity extends BaseHtmlViewerActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            WebViewFragment webViewFragment = WebViewFragment_.builder()
+                    .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
+            webViewFragment.setOnWebViewCreated(this);
+            getSupportFragmentManager().beginTransaction()
+                    .add(webViewFragment, WebViewFragment.TAG).commit();
+        }
+
         // Get the screen's density scale
         final float scale = getResources().getDisplayMetrics().density;
         // Convert the dps to pixels, based on density scale
@@ -54,12 +80,10 @@ public class DashboardHtmlViewerActivity extends BaseHtmlViewerActivity {
     }
 
     @Override
-    protected void loadDataToWebView() {
+    public void onWevViewCreated(WebViewFragment webViewFragment) {
         String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
                 + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
                 + resourceUri;
-
-        loadUrl(dashboardUrl);
+        webViewFragment.loadUrl(dashboardUrl);
     }
-
 }

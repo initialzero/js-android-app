@@ -47,6 +47,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @author Ivan Gadzhega
  * @since 1.0
  */
+@Deprecated
 public class SearchActivity extends BaseBrowserSearchActivity {
 
     public static final String EXTRA_RESOURCE_TYPES = "SearchActivity.EXTRA_RESOURCE_TYPES";

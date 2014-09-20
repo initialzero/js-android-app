@@ -104,17 +104,17 @@
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.ReportHtmlViewerActivity"
+            android:name=".activities.viewer.html.ReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.SavedReportHtmlViewerActivity"
+            android:name=".activities.viewer.html.SavedReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.DashboardHtmlViewerActivity"
+            android:name=".activities.viewer.html.DashboardHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs report saving to the local storage -->

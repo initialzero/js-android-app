@@ -41,14 +41,14 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isFocusable;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_ALIAS;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_ORGANIZATION;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_PASS;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_SERVER_URL;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.TEST_USERNAME;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.createTestProfile;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.deleteTestProfile;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.updateProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_ALIAS;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_ORGANIZATION;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_PASS;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_SERVER_URL;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_USERNAME;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.updateProfile;
 import static org.hamcrest.Matchers.not;
 
 /**

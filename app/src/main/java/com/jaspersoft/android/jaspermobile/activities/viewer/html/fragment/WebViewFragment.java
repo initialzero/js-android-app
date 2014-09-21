@@ -150,7 +150,7 @@ public class WebViewFragment extends RoboFragment {
         prepareWebView();
         setWebViewClient();
         if (onWebViewCreated != null) {
-            onWebViewCreated.onWevViewCreated(this);
+            onWebViewCreated.onWebViewCreated(this);
         }
     }
 
@@ -192,7 +192,7 @@ public class WebViewFragment extends RoboFragment {
     }
 
     public interface OnWebViewCreated {
-        void onWevViewCreated(WebViewFragment webViewFragment);
+        void onWebViewCreated(WebViewFragment webViewFragment);
     }
 
 }

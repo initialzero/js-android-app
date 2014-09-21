@@ -63,8 +63,8 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.createDefaultProfile;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.deleteAll;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createDefaultProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteAll;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

@@ -57,6 +57,7 @@ import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.api.ViewServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +104,8 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                     .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(webViewFragment, WebViewFragment.TAG).commit();
+                    .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
+                    .commit();
         }
     }
 
@@ -136,7 +138,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onWevViewCreated(WebViewFragment webViewFragment) {
+    public void onWebViewCreated(WebViewFragment webViewFragment) {
         final GetInputControlsRequest request =
                 new GetInputControlsRequest(jsRestClient, resourceUri);
 
@@ -163,6 +165,24 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         if (webViewFragment != null) {
             webViewFragment.loadUrl(reportUrl);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ViewServer.get(this).addWindow(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ViewServer.get(this).removeWindow(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ViewServer.get(this).setFocusedWindow(this);
     }
 
     //---------------------------------------------------------------------

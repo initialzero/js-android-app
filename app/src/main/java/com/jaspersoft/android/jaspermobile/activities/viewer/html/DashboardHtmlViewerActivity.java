@@ -68,7 +68,8 @@ public class DashboardHtmlViewerActivity extends RoboFragmentActivity
                     .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(webViewFragment, WebViewFragment.TAG).commit();
+                    .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
+                    .commit();
         }
 
         // Get the screen's density scale
@@ -80,7 +81,7 @@ public class DashboardHtmlViewerActivity extends RoboFragmentActivity
     }
 
     @Override
-    public void onWevViewCreated(WebViewFragment webViewFragment) {
+    public void onWebViewCreated(WebViewFragment webViewFragment) {
         String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
                 + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
                 + resourceUri;

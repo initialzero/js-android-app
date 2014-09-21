@@ -30,7 +30,9 @@ import android.view.ViewGroup;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleCallback;
 import com.google.android.apps.common.testing.testrunner.Stage;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 
 /**
@@ -47,16 +49,19 @@ public class ReportWebViewInjector implements ActivityLifecycleCallback {
     @Override
     public void onActivityLifecycleChanged(Activity activity, Stage stage) {
         ComponentName targetComponentName =
-                new ComponentName(activity, ReportHtmlViewerActivity.class.getName());
+                new ComponentName(activity, ReportHtmlViewerActivity_.class.getName());
 
         ComponentName currentComponentName = activity.getComponentName();
         if (!currentComponentName.equals(targetComponentName)) return;
 
         switch (stage) {
-            case CREATED:
+            case RESUMED:
+                ReportHtmlViewerActivity_ htmlViewerActivity = (ReportHtmlViewerActivity_) activity;
+                WebViewFragment fragment = (WebViewFragment) htmlViewerActivity.getSupportFragmentManager()
+                        .findFragmentByTag(WebViewFragment.TAG);
+                ViewGroup holder = (ViewGroup) fragment.getView().findViewById(R.id.webViewPlaceholder);
                 // We need to wait for the activity to be created before getting a reference
                 // to the webview
-                ViewGroup holder = (ViewGroup) activity.findViewById(com.jaspersoft.android.jaspermobile.R.id.webViewPlaceholder);
                 JSWebView webView = (JSWebView) holder.getChildAt(0);
 
                 webViewIdlingResource.inject(webView);

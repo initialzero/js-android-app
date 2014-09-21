@@ -22,12 +22,13 @@
  *  <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
+package com.jaspersoft.android.jaspermobile.test.utils;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
@@ -81,7 +82,7 @@ public class TestServerProfileUtils {
     }
 
     public static void deleteTestProfile(ContentResolver contentResolver) {
-        Cursor cursor = queryCreatedProfile(contentResolver);
+        Cursor cursor = queryTestProfile(contentResolver);
         try {
             while (cursor.moveToNext()) {
                 String selection = ServerProfilesTable._ID + "= ?";
@@ -93,10 +94,25 @@ public class TestServerProfileUtils {
         }
     }
 
-    public static Cursor queryCreatedProfile(ContentResolver contentResolver) {
+    public static Cursor queryTestProfile(ContentResolver contentResolver) {
         String selection = ServerProfilesTable.ALIAS + "= ?";
         String[] selectionArgs = {TestServerProfileUtils.TEST_ALIAS};
         return contentResolver.query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
                 ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
+    }
+
+    @Nullable
+    public static ServerProfiles queryProfileByAlias(ContentResolver contentResolver, String alias) {
+        String selection = ServerProfilesTable.ALIAS + "= ?";
+        String[] selectionArgs = {alias};
+        Cursor cursor = contentResolver.query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
+        if (cursor == null) return null;
+        if (cursor.getCount() == 0) {
+            cursor.close();
+            return null;
+        }
+        cursor.moveToPosition(0);
+        return new ServerProfiles(cursor);
     }
 }

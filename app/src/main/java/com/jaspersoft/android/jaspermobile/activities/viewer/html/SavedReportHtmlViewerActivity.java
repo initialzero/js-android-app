@@ -60,12 +60,13 @@ public class SavedReportHtmlViewerActivity extends RoboFragmentActivity
                     .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(webViewFragment, WebViewFragment.TAG).commit();
+                    .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
+                    .commit();
         }
     }
 
     @Override
-    public void onWevViewCreated(WebViewFragment webViewFragment) {
+    public void onWebViewCreated(WebViewFragment webViewFragment) {
         webViewFragment.loadUrl(resourceUri);
     }
 

@@ -29,6 +29,7 @@ import android.database.Cursor;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
@@ -38,8 +39,8 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.deleteTestProfile;
-import static com.jaspersoft.android.jaspermobile.test.acceptance.profile.TestServerProfileUtils.queryCreatedProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.queryTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
 
@@ -79,7 +80,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         onView(withId(R.id.saveAction)).perform(click());
 
-        Cursor cursor = queryCreatedProfile(getActivity().getContentResolver());
+        Cursor cursor = queryTestProfile(getActivity().getContentResolver());
         try {
             assertThat(cursor.getCount(), is(1));
         } finally {

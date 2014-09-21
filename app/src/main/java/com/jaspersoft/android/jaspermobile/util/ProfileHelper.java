@@ -107,7 +107,7 @@ public class ProfileHelper {
             }
         }
     }
-
+// http://mobiledemo.jaspersoft.com/jasperserver-pro/rest_v2/reports/Reports/2_Sales_Mix_by_Demographic_Report.HTML
     public void seedProfilesIfNeed() {
         ContentResolver contentResolver = context.getContentResolver();
         Cursor cursor = contentResolver.query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,

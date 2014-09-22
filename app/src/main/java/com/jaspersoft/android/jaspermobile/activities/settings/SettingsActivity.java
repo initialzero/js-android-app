@@ -74,11 +74,10 @@ public class SettingsActivity extends RoboPreferenceActivity {
         if (savedInstanceState == null) {
             getFragmentManager()
                     .beginTransaction()
-                    .replace(android.R.id.content, new SettingsFragment())
+                    .replace(android.R.id.content, SettingsFragment_.builder().build())
                     .commit();
         }
     }
-
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
@@ -99,13 +98,6 @@ public class SettingsActivity extends RoboPreferenceActivity {
         } else {
             return -1;
         }
-    }
-
-    @Deprecated
-    public static int getReadTimeoutValue(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String value = preferences.getString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
-        return Integer.parseInt(value);
     }
 
     @Deprecated

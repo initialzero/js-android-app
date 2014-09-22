@@ -198,6 +198,7 @@
     <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
+    <string name="st_invalid_number_format">Invalid number format</string>
 
 
     <!-- Error messages -->

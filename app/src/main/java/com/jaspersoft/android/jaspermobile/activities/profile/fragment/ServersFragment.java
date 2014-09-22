@@ -40,11 +40,13 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -66,6 +68,9 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
 
     @InjectView(android.R.id.list)
     AbsListView listView;
+
+    @Inject
+    JsRestClient jsRestClient;
 
     private SimpleCursorAdapter mAdapter;
 
@@ -113,7 +118,14 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
         if (columnIndex == cursor.getColumnIndex(ServerProfilesTable._ID)) {
             ImageView imageView = (ImageView) view;
-            imageView.setImageResource(R.drawable.ic_composed_config_home);
+            if (jsRestClient.getServerProfile() == null) {
+                imageView.setImageResource(R.drawable.ic_composed_config_home);
+            } else {
+                long id = jsRestClient.getServerProfile().getId();
+                long entryId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+
+                imageView.setImageResource((id == entryId) ? R.drawable.ic_composed_active_server : R.drawable.ic_composed_config_home);
+            }
             return true;
         }
         return false;

@@ -22,12 +22,13 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile;
+package com.jaspersoft.android.jaspermobile.activities;
 
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
@@ -50,8 +51,6 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
     @Extra
     String query;
 
-    private ResourcesControllerFragment resourcesController;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,9 +65,10 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
             if (savedInstanceState == null) {
-                resourcesController =
+                ResourcesControllerFragment resourcesController =
                         ResourcesControllerFragment_.builder()
                                 .recursiveLookup(true)
+                                .emptyMessage(R.string.r_search_nothing_to_display)
                                 .resourceLabel(getString(R.string.search_result_format, query))
                                 .resourceTypes(resourceTypes)
                                 .query(query)
@@ -76,21 +76,13 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
                 getSupportFragmentManager().beginTransaction()
                         .add(resourcesController, ResourcesControllerFragment.TAG)
                         .commit();
-            } else {
-                resourcesController = (ResourcesControllerFragment) getSupportFragmentManager()
-                        .findFragmentByTag(ResourcesControllerFragment.TAG);
             }
         }
-    }
-
-    @Override
-    protected void onResumeFragments() {
-        super.onResumeFragments();
-        resourcesController.doSearch(query);
     }
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
         super.onBackPressed();
     }
+
 }

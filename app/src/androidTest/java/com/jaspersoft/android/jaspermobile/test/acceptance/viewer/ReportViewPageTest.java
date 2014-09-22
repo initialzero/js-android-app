@@ -79,7 +79,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     public void setUp() throws Exception {
         super.setUp();
 
-        mMockedSpiceManager = new SmartMockedSpiceManager(JsXmlSpiceService.class);
+        mMockedSpiceManager = SmartMockedSpiceManager.createHybridManager(JsXmlSpiceService.class);
         inputControlList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
 
         MockitoAnnotations.initMocks(this);

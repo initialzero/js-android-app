@@ -128,7 +128,7 @@
             android:label="@string/st_title" />
 
         <activity
-            android:name=".SearchableActivity_"
+            android:name=".activities.SearchableActivity_"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />

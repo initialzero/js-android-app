@@ -62,6 +62,7 @@ public class RepositoryActivity extends RoboFragmentActivity {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             ResourcesControllerFragment resourcesController =
                     ResourcesControllerFragment_.builder()
+                            .emptyMessage(R.string.r_browser_nothing_to_display)
                             .recursiveLookup(false)
                             .resourceTypes(FilterOptions.ALL_REPOSITORY_TYPES)
                             .build();

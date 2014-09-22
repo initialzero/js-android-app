@@ -75,6 +75,7 @@ public class LibraryActivity extends RoboFragmentActivity {
 
             resourcesController =
                     ResourcesControllerFragment_.builder()
+                            .emptyMessage(R.string.r_browser_nothing_to_display)
                             .resourceTypes(filterOptions.getFilters())
                             .recursiveLookup(true)
                             .build();

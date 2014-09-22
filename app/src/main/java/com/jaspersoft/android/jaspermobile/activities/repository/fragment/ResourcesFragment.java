@@ -111,6 +111,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     @FragmentArg
     String query;
+    @InstanceState
+    @FragmentArg
+    int emptyMessage;
 
     @FragmentArg
     ViewType viewType;
@@ -316,7 +319,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     public void showEmptyText(int resId) {
         emptyText.setVisibility((listView.getChildCount() > 0) ? View.GONE : View.VISIBLE);
-        emptyText.setText(resId);
+        if (resId != 0) emptyText.setText(resId);
     }
 
     public void setQuery(String query) {
@@ -334,7 +337,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
             boolean isFirstPage = mSearchCriteria.getOffset() == 0;
-            showEmptyText(R.string.r_browser_nothing_to_display);
+            showEmptyText(emptyMessage);
 
             if (isFirstPage) {
                 mTotal = resourceLookupsList.getTotalCount();

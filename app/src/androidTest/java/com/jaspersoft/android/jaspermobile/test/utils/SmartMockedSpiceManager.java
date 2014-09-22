@@ -47,18 +47,33 @@ import java.util.ArrayDeque;
  */
 public class SmartMockedSpiceManager extends SpiceManager {
 
-    private final ArrayDeque<Object> responseForCacheRequestMap = Queues.newArrayDeque();
-    private final ArrayDeque<Object> responseForNetworkRequestMap = Queues.newArrayDeque();
+    private final ArrayDeque<Object> responsesForCacheRequestQueue = Queues.newArrayDeque();
+    private final ArrayDeque<Object> responsesForNetworkRequestQueue = Queues.newArrayDeque();
     private final CustomSpiceServerListener customSpiceServerListener;
     private final LifeCycleListener lifeCycleListener;
+    private final boolean mOnlyMockBehavior;
     private boolean mBehaveInRealMode;
 
-    public SmartMockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
+    public static SmartMockedSpiceManager createMockedManager(Class<? extends SpiceService> spiceServiceClass) {
+        return new SmartMockedSpiceManager(spiceServiceClass, false);
+    }
+
+    public static SmartMockedSpiceManager createHybridManager(Class<? extends SpiceService> spiceServiceClass) {
+        return new SmartMockedSpiceManager(spiceServiceClass, true);
+    }
+
+    private SmartMockedSpiceManager(Class<? extends SpiceService> spiceServiceClass, boolean onlyMockBehavior) {
         super(spiceServiceClass);
-        lifeCycleListener = new LifeCycleListener();
-        customSpiceServerListener = new CustomSpiceServerListener();
-        ActivityLifecycleMonitorRegistry.getInstance()
-                .addLifecycleCallback(lifeCycleListener);
+        mOnlyMockBehavior = onlyMockBehavior;
+        if (onlyMockBehavior) {
+            lifeCycleListener = new LifeCycleListener();
+            customSpiceServerListener = new CustomSpiceServerListener();
+            ActivityLifecycleMonitorRegistry.getInstance()
+                    .addLifecycleCallback(lifeCycleListener);
+        } else {
+            customSpiceServerListener = null;
+            lifeCycleListener = null;
+        }
     }
 
     public void removeLifeCyclkeListener() {
@@ -67,11 +82,11 @@ public class SmartMockedSpiceManager extends SpiceManager {
     }
 
     public void addCachedResponse(Object cachedResponse) {
-        responseForCacheRequestMap.add(cachedResponse);
+        responsesForCacheRequestQueue.add(cachedResponse);
     }
 
     public void addNetworkResponse(Object responseForNetworkRequest) {
-        responseForNetworkRequestMap.add(responseForNetworkRequest);
+        responsesForNetworkRequestQueue.add(responseForNetworkRequest);
     }
 
     @Override
@@ -81,7 +96,7 @@ public class SmartMockedSpiceManager extends SpiceManager {
             addSpiceServiceListener(customSpiceServerListener);
             super.execute(request, requestCacheKey, cacheExpiryDuration, requestListener);
         } else {
-            requestListener.onRequestSuccess((T) responseForCacheRequestMap.pollFirst());
+            requestListener.onRequestSuccess((T) responsesForCacheRequestQueue.pollFirst());
         }
     }
 
@@ -91,11 +106,14 @@ public class SmartMockedSpiceManager extends SpiceManager {
             addSpiceServiceListener(customSpiceServerListener);
             super.execute(request, requestListener);
         } else {
-            requestListener.onRequestSuccess((T) responseForNetworkRequestMap.pollFirst());
+            requestListener.onRequestSuccess((T) responsesForNetworkRequestQueue.pollFirst());
         }
     }
 
     public void behaveInRealMode() {
+        if (mOnlyMockBehavior) {
+            throw new UnsupportedOperationException("You can`t switch to the 'REAL MODE'");
+        }
         if (mBehaveInRealMode) {
             throw new RuntimeException("You are already in 'REAL MODE'");
         }

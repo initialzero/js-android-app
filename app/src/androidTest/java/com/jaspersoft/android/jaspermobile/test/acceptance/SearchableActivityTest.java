@@ -27,16 +27,18 @@ package com.jaspersoft.android.jaspermobile.test.acceptance;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.SearchableActivity_;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
@@ -50,6 +52,7 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressB
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static org.hamcrest.Matchers.is;
@@ -62,6 +65,7 @@ import static org.mockito.Mockito.when;
  * @since 1.9
  */
 public class SearchableActivityTest extends ProtoActivityInstrumentation<SearchableActivity_> {
+    private static final String SEARCH_QUERY = "Reports";
 
     @Mock
     JsServerProfile mockServerProfile;
@@ -74,8 +78,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     @Mock
     JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
-    final String mQuery = "Reports";
+    private SmartMockedSpiceManager mMockedSpiceManager;
     private ResourceLookupsList reportsQueryResult;
     private ResourceLookupsList levelRepositories;
 
@@ -87,6 +90,8 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
+
+        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
         reportsQueryResult = TestResources.get().fromXML(ResourceLookupsList.class, "reports_query_result");
         levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
 
@@ -97,7 +102,6 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
 
-        mMockedSpiceManager.setResponseForCacheRequest(reportsQueryResult);
         configureSearchIntent();
     }
 
@@ -108,6 +112,8 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     }
 
     public void testReportClick() {
+        mMockedSpiceManager.addCachedResponse(reportsQueryResult);
+        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
         startActivityUnderTest();
 
         onData(is(instanceOf(ResourceLookup.class)))
@@ -117,6 +123,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     }
 
     public void testDashboardClick() {
+        mMockedSpiceManager.addCachedResponse(reportsQueryResult);
         startActivityUnderTest();
 
         onData(is(instanceOf(ResourceLookup.class)))
@@ -126,20 +133,22 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     }
 
     public void testFolderClick() {
+        mMockedSpiceManager.addCachedResponse(reportsQueryResult);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         startActivityUnderTest();
 
-        mMockedSpiceManager.setResponseForCacheRequest(levelRepositories);
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(1).perform(click());
 
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
-        mMockedSpiceManager.setResponseForCacheRequest(levelRepositories);
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
     }
 
     public void testSearchResultsPersistedOnRotation() {
-        mMockedSpiceManager.setResponseForCacheRequest(levelRepositories);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
 
         startActivityUnderTest();
@@ -149,11 +158,21 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
     }
 
+    public void testSearchResultsWithNoResults() {
+        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        startActivityUnderTest();
+
+        onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_search_nothing_to_display)));
+        rotate();
+        onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_search_nothing_to_display)));
+    }
+
     private void configureSearchIntent() {
         Intent launchIntent = new Intent();
         launchIntent.setAction(Intent.ACTION_SEARCH);
         Bundle extras = new Bundle();
-        extras.putString(SearchableActivity_.QUERY_EXTRA, mQuery);
+        extras.putString(SearchableActivity_.QUERY_EXTRA, SEARCH_QUERY);
         launchIntent.putExtras(extras);
         setActivityIntent(launchIntent);
     }

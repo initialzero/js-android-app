@@ -57,6 +57,7 @@ import roboguice.RoboGuice;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -65,6 +66,7 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createDefaultProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteAll;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -181,6 +183,12 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(ProfileHelper.DEFAULT_USERNAME)));
         onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(ProfileHelper.DEFAULT_ORGANIZATION)));
         onOverflowView(getActivity(), withId(R.id.dialogOrganizationTableRow)).check(matches(isDisplayed()));
+
+        // Lets type some invalid password and check validation
+        onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).perform(clearText());
+        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
+        onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit))
+                .check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
 
         // Lets type some password and check if it set
         onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).perform(typeText(PASSWORD));

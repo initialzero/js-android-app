@@ -42,7 +42,6 @@ import android.widget.ProgressBar;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -105,7 +104,7 @@ public class WebViewFragment extends RoboFragment {
 
     @OptionsItem(android.R.id.home)
     final void goHome() {
-        HomeActivity.goHome(getActivity());
+        getActivity().onBackPressed();
     }
 
     @Override

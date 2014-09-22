@@ -28,6 +28,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -42,9 +43,11 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.exception.RequestCancelledException;
@@ -53,12 +56,13 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
-import org.androidannotations.api.ViewServer;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +82,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     public static final String EXTRA_REPORT_PARAMETERS = "ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS";
     // Result Code
     private static final int REQUEST_REPORT_PARAMETERS = 100;
+    private static final String OUTPUT_FORMAT = "HTML";
 
     @Inject
     JsRestClient jsRestClient;
@@ -91,9 +96,15 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     MenuItem saveReport;
     @OptionsMenuItem
     MenuItem favoriteAction;
+    @OptionsMenuItem
+    MenuItem showFilters;
+
+    @InstanceState
+    ArrayList<InputControl> cachedInputControls;
 
     private WebViewFragment webViewFragment;
     private ArrayList<ReportParameter> reportParameters;
+    private boolean mSaveActionVisible, mFilterActionVisible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +118,19 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        saveReport.setVisible(mSaveActionVisible);
+        showFilters.setVisible(mFilterActionVisible);
+        return result;
+    }
+
+    @OptionsItem
+    final void showFilters() {
+        showReportOptions(cachedInputControls);
     }
 
     @OptionsItem
@@ -129,7 +153,26 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     final void loadReportParameters(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
-            loadReport(reportParameters);
+            final RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient,
+                    resourceUri, OUTPUT_FORMAT, reportParameters);
+
+            ProgressDialogFragment.show(getSupportFragmentManager(),
+                    new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            if (!request.isCancelled()) {
+                                getSpiceManager().cancel(request);
+                            }
+                        }
+                    },
+                    new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialog) {
+                            getSpiceManager().execute(request, new RunReportExecutionListener());
+                        }
+                    });
+        } else {
+            finish();
         }
     }
 
@@ -148,6 +191,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                     public void onCancel(DialogInterface dialog) {
                         if (!request.isCancelled()) {
                             getSpiceManager().cancel(request);
+                            finish();
                         }
                     }
                 },
@@ -160,29 +204,19 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                 });
     }
 
-    private void loadReport(List<ReportParameter> reportParameters) {
-        String reportUrl = jsRestClient.generateReportUrl(resourceUri, reportParameters, "HTML");
+    private void loadUrl(String reportUrl) {
         if (webViewFragment != null) {
             webViewFragment.loadUrl(reportUrl);
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        ViewServer.get(this).addWindow(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ViewServer.get(this).removeWindow(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ViewServer.get(this).setFocusedWindow(this);
+    private void showReportOptions(ArrayList<InputControl> inputControls) {
+        // Run Report Options activity
+        Intent intent = new Intent(this, ReportOptionsActivity.class);
+        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resourceUri);
+        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resourceLabel);
+        intent.putParcelableArrayListExtra(ReportOptionsActivity.EXTRA_REPORT_CONTROLS, inputControls);
+        startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
     }
 
     //---------------------------------------------------------------------
@@ -190,6 +224,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     //---------------------------------------------------------------------
 
     private class GetInputControlsListener implements RequestListener<InputControlsList> {
+
         @Override
         public void onRequestFailure(SpiceException exception) {
             if (exception instanceof RequestCancelledException) {
@@ -197,8 +232,8 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                         R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
             } else {
                 RequestExceptionHandler.handle(exception, ReportHtmlViewerActivity.this, false);
-                ProgressDialogFragment.dismiss(getSupportFragmentManager());
             }
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
         }
 
         @Override
@@ -206,18 +241,35 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
             ProgressDialogFragment.dismiss(getSupportFragmentManager());
 
             ArrayList<InputControl> inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+            mFilterActionVisible = !inputControls.isEmpty();
+            invalidateOptionsMenu();
 
-            if (inputControls.isEmpty()) {
-                List<ReportParameter> reportParameters = Lists.newArrayList();
-                loadReport(reportParameters);
+            if (mFilterActionVisible) {
+                cachedInputControls = inputControls;
+                showReportOptions(inputControls);
             } else {
-                // Run Report Options activity
-                Intent intent = new Intent(ReportHtmlViewerActivity.this, ReportOptionsActivity.class);
-                intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resourceUri);
-                intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resourceLabel);
-                intent.putParcelableArrayListExtra(ReportOptionsActivity.EXTRA_REPORT_CONTROLS, inputControls);
-                startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
+                List<ReportParameter> reportParameters = Lists.newArrayList();
+                String reportUrl = jsRestClient.generateReportUrl(resourceUri, reportParameters, OUTPUT_FORMAT);
+                loadUrl(reportUrl);
             }
+        }
+    }
+
+    private class RunReportExecutionListener implements RequestListener<ReportExecutionResponse> {
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, ReportHtmlViewerActivity.this, true);
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        }
+
+        @Override
+        public void onRequestSuccess(ReportExecutionResponse response) {
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+
+            String executionId = response.getRequestId();
+            String exportOutput = response.getExports().get(0).getId();
+            URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
+            loadUrl(reportUri.toString());
         }
     }
 

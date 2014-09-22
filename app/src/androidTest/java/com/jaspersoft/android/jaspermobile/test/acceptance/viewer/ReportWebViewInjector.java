@@ -41,6 +41,7 @@ import com.jaspersoft.android.jaspermobile.widget.JSWebView;
  */
 public class ReportWebViewInjector implements ActivityLifecycleCallback {
     private final WebViewIdlingResource webViewIdlingResource;
+    private boolean mInjected;
 
     public ReportWebViewInjector(WebViewIdlingResource webViewIdlingResource) {
         this.webViewIdlingResource = webViewIdlingResource;
@@ -56,15 +57,20 @@ public class ReportWebViewInjector implements ActivityLifecycleCallback {
 
         switch (stage) {
             case RESUMED:
-                ReportHtmlViewerActivity_ htmlViewerActivity = (ReportHtmlViewerActivity_) activity;
-                WebViewFragment fragment = (WebViewFragment) htmlViewerActivity.getSupportFragmentManager()
-                        .findFragmentByTag(WebViewFragment.TAG);
-                ViewGroup holder = (ViewGroup) fragment.getView().findViewById(R.id.webViewPlaceholder);
-                // We need to wait for the activity to be created before getting a reference
-                // to the webview
-                JSWebView webView = (JSWebView) holder.getChildAt(0);
+                // As soon as, we are trying to register inject of idle resource during on Resume.
+                // We need to do this only first time. And yes, I know it is dirty. Any suggestions welcomed :)
+                if (!mInjected) {
+                    ReportHtmlViewerActivity_ htmlViewerActivity = (ReportHtmlViewerActivity_) activity;
+                    WebViewFragment fragment = (WebViewFragment) htmlViewerActivity.getSupportFragmentManager()
+                            .findFragmentByTag(WebViewFragment.TAG);
+                    ViewGroup holder = (ViewGroup) fragment.getView().findViewById(R.id.webViewPlaceholder);
+                    // We need to wait for the activity to be created before getting a reference
+                    // to the webview
+                    JSWebView webView = (JSWebView) holder.getChildAt(0);
 
-                webViewIdlingResource.inject(webView);
+                    webViewIdlingResource.inject(webView);
+                    mInjected = true;
+                }
                 break;
             case STOPPED:
                 // Clean up reference

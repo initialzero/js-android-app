@@ -34,21 +34,21 @@ import com.google.android.apps.common.testing.ui.espresso.IdlingPolicies;
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.SpiceService;
-import com.octo.android.robospice.request.SpiceRequest;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -56,12 +56,12 @@ import org.mockito.MockitoAnnotations;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.doubleClick;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.when;
 
 /**
@@ -76,10 +76,15 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
     @Mock
     SpiceManager mockSpiceService;
+    @Mock
+    DatabaseProvider mockDbProvider;
 
     private ProfileHelper_ profileHelper;
     private ReportWebViewInjector injector;
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+    private ReportExecutionResponse reportExecution;
+    private InputControlsList inputControlList;
+
+     SmartMockedSpiceManager mMockedSpiceManager;
 
     public ReportViewPageTest() {
         super(ReportHtmlViewerActivity_.class);
@@ -88,6 +93,11 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     @Override
     public void setUp() throws Exception {
         super.setUp();
+
+        mMockedSpiceManager = new SmartMockedSpiceManager(JsXmlSpiceService.class);
+        inputControlList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
+        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution");
+
         MockitoAnnotations.initMocks(this);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager())
                 .thenReturn(mMockedSpiceManager);
@@ -124,20 +134,30 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
+        mMockedSpiceManager.removeLifeCyclkeListener();
         ActivityLifecycleMonitorRegistry.getInstance()
                 .removeLifecycleCallback(injector);
         super.tearDown();
     }
 
-    public void testInitialLoad() {
+    public void testReportWithNoInputControls() {
+        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
         createReportIntent();
         startActivityUnderTest();
 
         onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));
+        onView(not(withId(R.id.showFilters)));
+    }
 
-        for (int i = 0; i < 10; i++) {
-            onView(firstChildOf(withId(R.id.webViewPlaceholder))).perform(doubleClick());
-        }
+    public void testReportWithInputControls() {
+        mMockedSpiceManager.addNetworkResponse(inputControlList);
+        createReportIntent();
+        startActivityUnderTest();
+
+        mMockedSpiceManager.behaveInRealMode();
+        onView(withId(R.id.runReportButton)).perform(click());
+        onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));
+        onView(withId(R.id.showFilters)).check(matches(isDisplayed()));
     }
 
     private void createReportIntent() {
@@ -147,23 +167,12 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         setActivityIntent(htmlViewer);
     }
 
-    private static class MockedSpiceManager extends SpiceManager {
-        public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
-            super(spiceServiceClass);
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-            if (request instanceof GetInputControlsRequest) {
-                requestListener.onRequestSuccess((T) new InputControlsList());
-            }
-        }
-    }
-
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(DatabaseProvider.class).toInstance(mockDbProvider);
         }
     }
 

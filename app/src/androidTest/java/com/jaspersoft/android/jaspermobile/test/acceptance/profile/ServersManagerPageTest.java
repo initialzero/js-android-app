@@ -32,6 +32,7 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -39,8 +40,15 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_ALIAS;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_ORGANIZATION;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_PASS;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_SERVER_URL;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_USERNAME;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.queryTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
 
@@ -56,13 +64,13 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
     @Override
     protected void setUp() throws Exception {
-        deleteTestProfile(getInstrumentation().getContext().getContentResolver());
+        deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.setUp();
     }
 
     @Override
     protected void tearDown() throws Exception {
-        deleteTestProfile(getInstrumentation().getContext().getContentResolver());
+        deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.tearDown();
     }
 
@@ -90,6 +98,27 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onOverflowView(getActivity(), withText(getActivity()
                 .getString(R.string.spm_profile_created_toast, TestServerProfileUtils.TEST_ALIAS)))
                 .check(matches(isDisplayed()));
+    }
+
+    public void testServerAliasShouldBeUnique() {
+        createTestProfile(getActivity().getContentResolver());
+        startActivityUnderTest();
+
+        onView(withId(R.id.addProfile)).perform(click());
+        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
+
+        onView(withId(R.id.saveAction)).perform(click());
+        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
+
+        onView(withId(R.id.aliasEdit)).perform(clearText());
+        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS + "_suffix"));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onView(withText(TEST_ALIAS + "_suffix")).check(matches(isDisplayed()));
     }
 
 }

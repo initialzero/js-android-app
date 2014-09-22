@@ -38,7 +38,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUt
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_PASS;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_SERVER_URL;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_USERNAME;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 
 /**
@@ -58,7 +58,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
 
     @Override
     protected void tearDown() throws Exception {
-        deleteTestProfile(getInstrumentation().getContext().getContentResolver());
+        deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.tearDown();
     }
 

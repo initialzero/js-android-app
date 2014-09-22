@@ -81,17 +81,9 @@ public class TestServerProfileUtils {
         contentResolver.delete(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, null, null);
     }
 
-    public static void deleteTestProfile(ContentResolver contentResolver) {
-        Cursor cursor = queryTestProfile(contentResolver);
-        try {
-            while (cursor.moveToNext()) {
-                String selection = ServerProfilesTable._ID + "= ?";
-                String[] selectionArgs = {cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID)) + ""};
-                contentResolver.delete(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, selection, selectionArgs);
-            }
-        } finally {
-            cursor.close();
-        }
+    public static void deleteTestProfiles(ContentResolver contentResolver) {
+        contentResolver.delete(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, null, null);
+        createDefaultProfile(contentResolver);
     }
 
     public static Cursor queryTestProfile(ContentResolver contentResolver) {

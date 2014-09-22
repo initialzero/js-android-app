@@ -92,6 +92,8 @@
     <!-- Error messages -->
     <string name="sp_error_field_required">This field is required.</string>
     <string name="sp_error_url_not_valid">URL is not valid.</string>
+    <string name="sp_error_duplicate_alias">Duplicate alias.</string>
+    <string name="sp_error_unique_alias">Couldn`t create server with such alias \'%s\' exists.</string>
 
 
     <!-- Repository Activity -->

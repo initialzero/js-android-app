@@ -72,6 +72,9 @@ import roboguice.activity.RoboFragmentActivity;
 @EActivity(R.layout.server_create_form)
 @OptionsMenu(R.menu.profile_menu)
 public class ServerProfileActivity extends RoboFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int LOAD_PROFILE = 100;
+    private static final int QUERY_UNIQUENESS = 110;
+
     @Extra
     long profileId;
 
@@ -116,7 +119,7 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
         invalidateOptionsMenu();
 
         if (profileId != 0 && savedInstanceState == null) {
-            getSupportLoaderManager().initLoader(0, null, this);
+            getSupportLoaderManager().initLoader(LOAD_PROFILE, null, this);
         }
     }
 
@@ -142,21 +145,16 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
 
             // We should create new instance
             if (profileId == 0) {
-                Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
-                profileId = Long.valueOf(uri.getLastPathSegment());
-                Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+                getSupportLoaderManager().initLoader(QUERY_UNIQUENESS, null, this);
             } else {
                 String selection = ServerProfilesTable._ID + " =?";
                 String[] selectionArgs = {String.valueOf(profileId)};
                 getContentResolver().update(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
                         mServerProfile.getContentValues(), selection, selectionArgs);
                 Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
+                setOkResult();
+                finish();
             }
-
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra(ServersFragment.EXTRA_SERVER_PROFILE_ID, profileId);
-            setResult(Activity.RESULT_OK, resultIntent);
-            finish();
         }
     }
 
@@ -208,18 +206,38 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String selection = ServerProfilesTable._ID + " =?";
-        String[] selectionArgs = {String.valueOf(profileId)};
-        return new CursorLoader(this, JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
-                ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
+    public Loader<Cursor> onCreateLoader(int code, Bundle bundle) {
+        String selection;
+        String[] selectionArgs;
+
+        switch (code) {
+            case LOAD_PROFILE:
+                selection = ServerProfilesTable._ID + " =?";
+                selectionArgs = new String[] {String.valueOf(profileId)};
+                return new CursorLoader(this, JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                        ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
+            case QUERY_UNIQUENESS:
+                selection = ServerProfilesTable.ALIAS + " =?";
+                selectionArgs = new String[] {alias};
+                return new CursorLoader(this, JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                        new String[] {ServerProfilesTable._ID}, selection, selectionArgs, null);
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        if (cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            updateProfileFields(new ServerProfiles(cursor));
+        switch (cursorLoader.getId()) {
+            case LOAD_PROFILE:
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    updateProfileFields(new ServerProfiles(cursor));
+                }
+                break;
+            case QUERY_UNIQUENESS:
+                checkUniqueConstraintFulfilled(cursor);
+                break;
         }
     }
 
@@ -306,5 +324,26 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
         passwordEdit.setText(serverProfile.getPassword());
 
         askPasswordCheckBox.setChecked(!hasPassword);
+    }
+
+    // TODO: Dirty way to check unique value. Need provide pull request to RoboCop.
+    private void checkUniqueConstraintFulfilled(Cursor cursor) {
+        if (cursor.getCount() > 0) {
+            aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
+            Toast.makeText(this, getString(R.string.sp_error_unique_alias, alias),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+            profileId = Long.valueOf(uri.getLastPathSegment());
+            Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+            setOkResult();
+            finish();
+        }
+    }
+
+    private void setOkResult() {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(ServersFragment.EXTRA_SERVER_PROFILE_ID, profileId);
+        setResult(Activity.RESULT_OK, resultIntent);
     }
 }

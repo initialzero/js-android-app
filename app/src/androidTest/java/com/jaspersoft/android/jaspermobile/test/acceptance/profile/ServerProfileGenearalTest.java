@@ -47,7 +47,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUt
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_SERVER_URL;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_USERNAME;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createTestProfile;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.updateProfile;
 import static org.hamcrest.Matchers.not;
 
@@ -63,7 +63,7 @@ public class ServerProfileGenearalTest extends ProtoActivityInstrumentation<Serv
 
     @Override
     protected void tearDown() throws Exception {
-        deleteTestProfile(getInstrumentation().getContext().getContentResolver());
+        deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.tearDown();
     }
 

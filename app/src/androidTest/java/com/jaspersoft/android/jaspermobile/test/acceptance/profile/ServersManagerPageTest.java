@@ -49,7 +49,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUt
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.queryTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -94,10 +93,6 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         } finally {
             cursor.close();
         }
-
-        onOverflowView(getActivity(), withText(getActivity()
-                .getString(R.string.spm_profile_created_toast, TestServerProfileUtils.TEST_ALIAS)))
-                .check(matches(isDisplayed()));
     }
 
     public void testServerAliasShouldBeUnique() {

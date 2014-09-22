@@ -161,12 +161,14 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
     @TextChange(R.id.aliasEdit)
     void onAliasTextChanges(CharSequence text) {
         alias = text.toString();
+        aliasEdit.setError(null);
         setSubmitActionState();
     }
 
     @TextChange(R.id.serverUrlEdit)
     void onServerUrlTextChanges(CharSequence text) {
         serverUrl = text.toString();
+        serverUrlEdit.setError(null);
         setSubmitActionState();
     }
 
@@ -178,12 +180,14 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
     @TextChange(R.id.usernameEdit)
     void onUsernameUrlTextChanges(CharSequence text) {
         username = text.toString();
+        usernameEdit.setError(null);
         setSubmitActionState();
     }
 
     @TextChange(R.id.passwordEdit)
     void onPasswordUrlTextChanges(CharSequence text) {
         password = text.toString();
+        passwordEdit.setError(null);
         setSubmitActionState();
     }
 

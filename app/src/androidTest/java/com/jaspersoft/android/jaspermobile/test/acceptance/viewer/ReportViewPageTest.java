@@ -49,6 +49,7 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.when;
 
@@ -105,6 +106,9 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
         onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));
         onView(not(withId(R.id.showFilters)));
+
+        rotate();
+        onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
     }
 
     public void testReportWithInputControls() {
@@ -116,6 +120,9 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         onView(withId(R.id.runReportButton)).perform(click());
         onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));
         onView(withId(R.id.showFilters)).check(matches(isDisplayed()));
+
+        rotate();
+        onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
     }
 
     private void createReportIntent() {

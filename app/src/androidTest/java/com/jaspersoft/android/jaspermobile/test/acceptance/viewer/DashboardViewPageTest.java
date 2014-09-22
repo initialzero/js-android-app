@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 import android.content.Intent;
 
 import com.google.inject.Singleton;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
@@ -35,7 +36,9 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
 
 /**
  * @author Tom Koptel
@@ -68,6 +71,8 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         createReportIntent();
         startActivityUnderTest();
         onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));
+        rotate();
+        onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
     }
 
     private void createReportIntent() {

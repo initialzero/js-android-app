@@ -172,7 +172,10 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                         }
                     });
         } else {
-            finish();
+            // Check if user has experienced report loading. Otherwise remove him from this page.
+            if (!webViewFragment.isResourceLoaded()) {
+                finish();
+            }
         }
     }
 

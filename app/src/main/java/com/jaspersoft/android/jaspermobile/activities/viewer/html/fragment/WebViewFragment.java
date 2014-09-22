@@ -49,6 +49,7 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.ViewById;
 
@@ -76,6 +77,9 @@ public class WebViewFragment extends RoboFragment {
     @FragmentArg
     String resourceLabel;
 
+    @InstanceState
+    boolean mResourceLoaded;
+
     @Inject
     protected JsRestClient jsRestClient;
 
@@ -90,16 +94,20 @@ public class WebViewFragment extends RoboFragment {
 
     @AfterViews
     final void init() {
-        // create new if necessary
-        if (webView == null) createWebView();
-        // attach to placeholder
-        webViewPlaceholder.addView(webView);
+        initWebView();
 
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(resourceLabel);
         }
+    }
+
+    private void initWebView() {
+        // create new if necessary
+        if (webView == null) createWebView();
+        // attach to placeholder
+        webViewPlaceholder.addView(webView);
     }
 
     @OptionsItem(android.R.id.home)
@@ -111,6 +119,7 @@ public class WebViewFragment extends RoboFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         if (webView != null) webViewPlaceholder.removeView(webView);
         super.onConfigurationChanged(newConfig);
+        initWebView();
     }
 
     @Override
@@ -140,6 +149,10 @@ public class WebViewFragment extends RoboFragment {
         this.onWebViewCreated = onWebViewCreated;
     }
 
+    public boolean isResourceLoaded() {
+        return mResourceLoaded;
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -167,6 +180,7 @@ public class WebViewFragment extends RoboFragment {
                 progressBar.setProgress((maxProgress / 100) * progress);
                 // fade out
                 if (progress == maxProgress) {
+                    mResourceLoaded = true;
                     AlphaAnimation fadeOutAnimation = new AlphaAnimation(1.0f, 0.0f);
                     fadeOutAnimation.setDuration(1000);
                     progressBar.startAnimation(fadeOutAnimation);

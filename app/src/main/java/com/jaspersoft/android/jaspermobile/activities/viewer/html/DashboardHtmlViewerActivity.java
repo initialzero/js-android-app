@@ -71,17 +71,18 @@ public class DashboardHtmlViewerActivity extends RoboFragmentActivity
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
         }
+    }
 
+    @Override
+    public void onWebViewCreated(WebViewFragment webViewFragment) {
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.htmlViewer_layout);
         // Get the screen's density scale
         final float scale = getResources().getDisplayMetrics().density;
         // Convert the dps to pixels, based on density scale
         int padding_2dp = (int) (2 * scale + 0.5f);
         // set padding in dp for layout
         layout.setPadding(padding_2dp, padding_2dp, padding_2dp, padding_2dp);
-    }
 
-    @Override
-    public void onWebViewCreated(WebViewFragment webViewFragment) {
         String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
                 + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
                 + resourceUri;

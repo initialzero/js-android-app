@@ -26,31 +26,39 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.support.v4.app.FragmentActivity;
 import android.view.ViewGroup;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleCallback;
+import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.testrunner.Stage;
+import com.google.android.apps.common.testing.ui.espresso.Espresso;
+import com.google.android.apps.common.testing.ui.espresso.IdlingPolicies;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class ReportWebViewInjector implements ActivityLifecycleCallback {
-    private final WebViewIdlingResource webViewIdlingResource;
+public class WebViewInjector implements ActivityLifecycleCallback {
+    private static WebViewInjector injector;
+    private final WebViewIdlingResource mWebViewIdlingResource;
+    private final Class<? extends FragmentActivity> mClass;
     private boolean mInjected;
 
-    public ReportWebViewInjector(WebViewIdlingResource webViewIdlingResource) {
-        this.webViewIdlingResource = webViewIdlingResource;
+    public WebViewInjector(Class<? extends FragmentActivity> clazz, WebViewIdlingResource webViewIdlingResource) {
+        mWebViewIdlingResource = webViewIdlingResource;
+        mClass = clazz;
     }
 
     @Override
     public void onActivityLifecycleChanged(Activity activity, Stage stage) {
         ComponentName targetComponentName =
-                new ComponentName(activity, ReportHtmlViewerActivity_.class.getName());
+                new ComponentName(activity, mClass.getName());
 
         ComponentName currentComponentName = activity.getComponentName();
         if (!currentComponentName.equals(targetComponentName)) return;
@@ -60,7 +68,7 @@ public class ReportWebViewInjector implements ActivityLifecycleCallback {
                 // As soon as, we are trying to register inject of idle resource during on Resume.
                 // We need to do this only first time. And yes, I know it is dirty. Any suggestions welcomed :)
                 if (!mInjected) {
-                    ReportHtmlViewerActivity_ htmlViewerActivity = (ReportHtmlViewerActivity_) activity;
+                    FragmentActivity htmlViewerActivity = (FragmentActivity) activity;
                     WebViewFragment fragment = (WebViewFragment) htmlViewerActivity.getSupportFragmentManager()
                             .findFragmentByTag(WebViewFragment.TAG);
                     ViewGroup holder = (ViewGroup) fragment.getView().findViewById(R.id.webViewPlaceholder);
@@ -68,15 +76,29 @@ public class ReportWebViewInjector implements ActivityLifecycleCallback {
                     // to the webview
                     JSWebView webView = (JSWebView) holder.getChildAt(0);
 
-                    webViewIdlingResource.inject(webView);
+                    mWebViewIdlingResource.inject(webView);
                     mInjected = true;
                 }
                 break;
             case STOPPED:
                 // Clean up reference
-                if (activity.isFinishing()) webViewIdlingResource.clear();
+                if (activity.isFinishing()) mWebViewIdlingResource.clear();
                 break;
             default: // NOP
         }
+    }
+
+    public static void registerFor(Class<? extends FragmentActivity> clazz) {
+        IdlingPolicies.setIdlingResourceTimeout(150, TimeUnit.SECONDS);
+        WebViewIdlingResource webViewIdlingResource = new WebViewIdlingResource();
+        Espresso.registerIdlingResources(webViewIdlingResource);
+        injector = new WebViewInjector(clazz, webViewIdlingResource);
+        ActivityLifecycleMonitorRegistry.getInstance()
+                .addLifecycleCallback(injector);
+    }
+
+    public static void unregister() {
+        ActivityLifecycleMonitorRegistry.getInstance()
+                .removeLifecycleCallback(injector);
     }
 }

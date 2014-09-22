@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.test;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.test.ActivityInstrumentationTestCase2;
@@ -13,7 +14,11 @@ import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonito
 import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
+import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
+import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.squareup.spoon.Spoon;
 
 import java.util.Collection;
@@ -30,6 +35,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
     protected T mActivity;
     private NameUtils nameUtils;
     private String pageName = "UNSPECIFIED";
+    private ProfileHelper_ profileHelper;
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
         super(activityClass);
@@ -45,7 +51,24 @@ public class ProtoActivityInstrumentation<T extends Activity>
     protected void tearDown() throws Exception {
         nameUtils = null;
         mActivity = null;
+        profileHelper = null;
         super.tearDown();
+    }
+
+    protected void setDefaultCurrentProfile() {
+        Application application = (Application) this.getInstrumentation()
+                .getTargetContext().getApplicationContext();
+        profileHelper = ProfileHelper_.getInstance_(application);
+
+        ContentResolver cr = application.getContentResolver();
+        ServerProfiles profile = TestServerProfileUtils.queryProfileByAlias(
+                cr, ProfileHelper.DEFAULT_ALIAS);
+        if (profile == null) {
+            TestServerProfileUtils.createDefaultProfile(cr);
+            profile = TestServerProfileUtils.queryProfileByAlias(
+                    cr, ProfileHelper.DEFAULT_ALIAS);
+        }
+        profileHelper.setCurrentServerProfile(profile.getRowId());
     }
 
     public void startActivityUnderTest() {

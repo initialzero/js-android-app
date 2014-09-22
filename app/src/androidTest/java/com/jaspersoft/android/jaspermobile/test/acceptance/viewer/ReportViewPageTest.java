@@ -24,36 +24,24 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
-import android.app.Application;
-import android.content.ContentResolver;
 import android.content.Intent;
 
-import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
-import com.google.android.apps.common.testing.ui.espresso.Espresso;
-import com.google.android.apps.common.testing.ui.espresso.IdlingPolicies;
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.octo.android.robospice.SpiceManager;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.concurrent.TimeUnit;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
@@ -79,12 +67,8 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     @Mock
     DatabaseProvider mockDbProvider;
 
-    private ProfileHelper_ profileHelper;
-    private ReportWebViewInjector injector;
-    private ReportExecutionResponse reportExecution;
     private InputControlsList inputControlList;
-
-     SmartMockedSpiceManager mMockedSpiceManager;
+    private SmartMockedSpiceManager mMockedSpiceManager;
 
     public ReportViewPageTest() {
         super(ReportHtmlViewerActivity_.class);
@@ -96,47 +80,21 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
         mMockedSpiceManager = new SmartMockedSpiceManager(JsXmlSpiceService.class);
         inputControlList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
-        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution");
 
         MockitoAnnotations.initMocks(this);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager())
                 .thenReturn(mMockedSpiceManager);
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
-        registerIdleResources();
+        WebViewInjector.registerFor(ReportHtmlViewerActivity_.class);
     }
 
-    private void setDefaultCurrentProfile() {
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-
-        ContentResolver cr = application.getContentResolver();
-        ServerProfiles profile = TestServerProfileUtils.queryProfileByAlias(
-                cr, ProfileHelper.DEFAULT_ALIAS);
-        if (profile == null) {
-            TestServerProfileUtils.createDefaultProfile(cr);
-            profile = TestServerProfileUtils.queryProfileByAlias(
-                    cr, ProfileHelper.DEFAULT_ALIAS);
-        }
-        profileHelper = ProfileHelper_.getInstance_(application);
-        profileHelper.setCurrentServerProfile(profile.getRowId());
-    }
-
-    private void registerIdleResources() {
-        IdlingPolicies.setIdlingResourceTimeout(150, TimeUnit.SECONDS);
-        WebViewIdlingResource webViewIdlingResource = new WebViewIdlingResource();
-        Espresso.registerIdlingResources(webViewIdlingResource);
-        injector = new ReportWebViewInjector(webViewIdlingResource);
-        ActivityLifecycleMonitorRegistry.getInstance()
-                .addLifecycleCallback(injector);
-    }
 
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
         mMockedSpiceManager.removeLifeCyclkeListener();
-        ActivityLifecycleMonitorRegistry.getInstance()
-                .removeLifecycleCallback(injector);
+        WebViewInjector.unregister();
         super.tearDown();
     }
 

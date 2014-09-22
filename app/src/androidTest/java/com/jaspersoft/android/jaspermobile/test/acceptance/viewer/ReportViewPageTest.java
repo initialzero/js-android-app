@@ -37,7 +37,9 @@ import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControlStatesList;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.octo.android.robospice.SpiceManager;
 
 import org.mockito.Mock;
@@ -50,6 +52,7 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +73,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
     private InputControlsList inputControlList;
     private SmartMockedSpiceManager mMockedSpiceManager;
+    private ReportExecutionResponse emptyReportExecution;
 
     public ReportViewPageTest() {
         super(ReportHtmlViewerActivity_.class);
@@ -81,6 +85,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
         mMockedSpiceManager = SmartMockedSpiceManager.createHybridManager(JsXmlSpiceService.class);
         inputControlList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
+        emptyReportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "empty_report_execution");
 
         MockitoAnnotations.initMocks(this);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager())
@@ -123,6 +128,19 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
         rotate();
         onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
+    }
+
+    public void testEmptyReport() {
+        mMockedSpiceManager.behaveInMockedMode();
+        mMockedSpiceManager.addNetworkResponse(inputControlList);
+        mMockedSpiceManager.addNetworkResponse(new InputControlStatesList());
+        mMockedSpiceManager.addNetworkResponse(emptyReportExecution);
+        createReportIntent();
+        startActivityUnderTest();
+
+        onView(withId(R.id.runReportButton)).perform(click());
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.warning_msg)));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.rv_error_empty_report)));
     }
 
     private void createReportIntent() {

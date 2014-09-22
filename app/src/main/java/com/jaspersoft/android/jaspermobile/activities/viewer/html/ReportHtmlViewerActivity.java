@@ -42,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Progre
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
@@ -269,10 +270,17 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         public void onRequestSuccess(ReportExecutionResponse response) {
             ProgressDialogFragment.dismiss(getSupportFragmentManager());
 
-            String executionId = response.getRequestId();
-            String exportOutput = response.getExports().get(0).getId();
-            URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
-            loadUrl(reportUri.toString());
+            if (response.getTotalPages() == 0) {
+                AlertDialogFragment.createBuilder(ReportHtmlViewerActivity.this, getSupportFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(R.string.warning_msg)
+                        .setMessage(R.string.rv_error_empty_report).show();
+            } else {
+                String executionId = response.getRequestId();
+                String exportOutput = response.getExports().get(0).getId();
+                URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
+                loadUrl(reportUri.toString());
+            }
         }
     }
 

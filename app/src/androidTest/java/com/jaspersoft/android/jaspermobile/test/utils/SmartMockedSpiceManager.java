@@ -111,19 +111,10 @@ public class SmartMockedSpiceManager extends SpiceManager {
     }
 
     public void behaveInRealMode() {
-        if (mOnlyMockBehavior) {
-            throw new UnsupportedOperationException("You can`t switch to the 'REAL MODE'");
-        }
-        if (mBehaveInRealMode) {
-            throw new RuntimeException("You are already in 'REAL MODE'");
-        }
         setBehaveInRealMode(true);
     }
 
     public void behaveInMockedMode() {
-        if (!mBehaveInRealMode) {
-            throw new RuntimeException("You are already in 'MOCKED MODE'");
-        }
         setBehaveInRealMode(false);
     }
 

@@ -144,6 +144,7 @@
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
     <string name="rv_ab_show_filters">Show filters</string>
+    <string name="rv_error_empty_report">There is no report data</string>
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">The external memory card is not available. Please mount the card and try again.</string>
     <string name="rv_t_report_saving_not_supported">This functionality is only available for JasperReports Server 5.2 or higher</string>
@@ -218,6 +219,7 @@
     <!-- Others -->
     <string name="loading_msg">Loading…</string>
     <string name="error_msg">Error</string>
+    <string name="warning_msg">Warning</string>
     <string name="cancelled_msg">Cancelled</string>
 
     <!--New Home Page Labels-->

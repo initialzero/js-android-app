@@ -48,6 +48,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewTyp
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -57,6 +58,7 @@ import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -65,8 +67,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
-
-import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.getRepoCacheExpirationValue;
 
 /**
  * @author Tom Koptel
@@ -81,7 +81,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     public static final String ROOT_URI = "/";
     private static final int LOAD_FROM_CACHE = 1;
-    private static final int LOAD_FROM_NETWORL = 1;
+    private static final int LOAD_FROM_NETWORK = 2;
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -129,6 +129,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     boolean mLoading;
     @InstanceState
     int mLoaderState = LOAD_FROM_CACHE;
+
+    @Bean
+    DefaultPrefHelper prefHelper;
 
     private int mTotal;
     private ResourceAdapter mAdapter;
@@ -248,7 +251,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void onRefresh() {
-        mLoaderState = LOAD_FROM_NETWORL;
+        mLoaderState = LOAD_FROM_NETWORK;
         mAdapter.setNotifyOnChange(false);
         mAdapter.clear();
         loadFirstPage();
@@ -273,6 +276,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     private void loadNextPage() {
         if (!mLoading && hasNextPage()) {
             mSearchCriteria.setOffset(mSearchCriteria.getOffset() + mLimit);
+            mLoaderState = LOAD_FROM_CACHE;
             loadResources(mLoaderState);
         }
     }
@@ -288,7 +292,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
-                ? getRepoCacheExpirationValue(getActivity()) : DurationInMillis.ALWAYS_EXPIRED;
+                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 

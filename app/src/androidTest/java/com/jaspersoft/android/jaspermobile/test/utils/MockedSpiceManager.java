@@ -41,6 +41,7 @@ import com.octo.android.robospice.request.listener.RequestListener;
  * @author Tom Koptel
  * @since 1.9
  */
+@Deprecated
 public class MockedSpiceManager extends SpiceManager {
     private Object responseForCacheRequest;
     private Object responseForNetworkRequest;

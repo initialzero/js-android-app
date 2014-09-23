@@ -62,7 +62,7 @@ public class DefaultPrefHelper {
         return preferences.getBoolean(SettingsActivity.KEY_PREF_ANIMATION_ENABLED, true);
     }
 
-    public long getRepoCacheExpirationValue(Context context) {
+    public long getRepoCacheExpirationValue() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean repoCacheEnabled = preferences.getBoolean(
                 SettingsActivity.KEY_PREF_REPO_CACHE_ENABLED, SettingsActivity.DEFAULT_REPO_CACHE_ENABLED);

@@ -24,25 +24,24 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import android.os.Handler;
-
-import com.google.android.apps.common.testing.ui.espresso.contrib.CountingIdlingResource;
+import com.google.common.collect.Queues;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.IdleSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.registerIdlingResources;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
@@ -71,8 +70,10 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
     @Mock
     JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
-    private IdleSpiceManager mMockedSpiceManager;
-    private final Handler handler = new Handler();
+    private SmartMockedSpiceManager mMockedSpiceManager;
+    private ResourceLookupsList smallLookUp;
+    private ResourceLookupsList bigLookUp;
+    private ResourceLookupsList emptyLookUp;
 
     public LibraryPageRefreshingTest() {
         super(LibraryActivity_.class);
@@ -83,16 +84,17 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         super.setUp();
         MockitoAnnotations.initMocks(this);
 
-        CountingIdlingResource countingIdlingResource = new CountingIdlingResource("Idling loading");
-        mMockedSpiceManager = new IdleSpiceManager(countingIdlingResource, handler, JsXmlSpiceService.class);
+        smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
+        bigLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
+        emptyLookUp = new ResourceLookupsList();
+
+        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
 
         registerTestModule(new TestModule());
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
-
-        registerIdlingResources(countingIdlingResource);
     }
 
     @Override
@@ -102,19 +104,20 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
     }
 
     public void testPullToRefresh() throws InterruptedException {
+        mMockedSpiceManager.addCachedResponse(bigLookUp);
+        mMockedSpiceManager.addCachedResponse(smallLookUp);
         startActivityUnderTest();
 
         onView(allOf(withId(R.id.refreshLayout), is(not(refreshing()))));
 
-        mMockedSpiceManager.setState(IdleSpiceManager.BUSY_STATE | IdleSpiceManager.SMALL_LOOKUP);
-        String lastResourceLabel = mMockedSpiceManager.getResources().getLast().getLabel();
+        String lastResourceLabel = Queues.newArrayDeque(smallLookUp.getResourceLookups()).getLast().getLabel();
         onView(withId(android.R.id.list)).perform(swipeDown());
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(lastResourceLabel)))));
         onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
     }
 
     public void testEmptyTextShouldBeInVisibleWhileContentExist() throws InterruptedException {
-        mMockedSpiceManager.setState(IdleSpiceManager.IDLE_STATE | IdleSpiceManager.EMPTY_LOOKUP);
+        mMockedSpiceManager.addCachedResponse(emptyLookUp);
         startActivityUnderTest();
 
         onView(allOf(withId(R.id.refreshLayout), is(not(refreshing()))));

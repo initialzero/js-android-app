@@ -76,7 +76,7 @@ public class SmartMockedSpiceManager extends SpiceManager {
         }
     }
 
-    public void removeLifeCyclkeListener() {
+    public void removeLifeCycleListener() {
         ActivityLifecycleMonitorRegistry.getInstance()
                 .removeLifecycleCallback(lifeCycleListener);
     }
@@ -87,6 +87,14 @@ public class SmartMockedSpiceManager extends SpiceManager {
 
     public void addNetworkResponse(Object responseForNetworkRequest) {
         responsesForNetworkRequestQueue.add(responseForNetworkRequest);
+    }
+
+    public void clearNetworkResponses() {
+        responsesForNetworkRequestQueue.clear();
+    }
+
+    public void clearCachedResponses() {
+        responsesForCacheRequestQueue.clear();
     }
 
     @Override

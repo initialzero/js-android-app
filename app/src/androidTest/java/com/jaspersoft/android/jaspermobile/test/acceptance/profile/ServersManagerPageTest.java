@@ -29,7 +29,16 @@ import android.database.Cursor;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
+import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
@@ -53,6 +62,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -64,14 +74,29 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         super(ServersManagerActivity_.class);
     }
 
+    @Mock
+    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
+
+    private SmartMockedSpiceManager mMockedSpiceManager;
+    private ServerInfo serverInfo;
+
     @Override
     protected void setUp() throws Exception {
-        deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.setUp();
+        deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
+
+        MockitoAnnotations.initMocks(this);
+        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+        registerTestModule(new TestModule());
+        startActivityUnderTest();
     }
 
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.tearDown();
     }
@@ -96,6 +121,25 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         } finally {
             cursor.close();
         }
+    }
+
+    public void testServerLowerThanEmeraldNotAcceptable() {
+        mMockedSpiceManager.clearNetworkResponses();
+        serverInfo.setVersionCode(ServerInfo.VERSION_CODES.EMERALD_MR1);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+
+        onView(withId(R.id.addProfile)).perform(click());
+
+        onView(withId(R.id.aliasEdit)).perform(typeText(TestServerProfileUtils.TEST_ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(TestServerProfileUtils.TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText(TestServerProfileUtils.TEST_ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(typeText(TestServerProfileUtils.TEST_USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(TestServerProfileUtils.TEST_PASS));
+
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.error_msg)));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.r_error_server_not_supported)));
     }
 
     public void testServerAliasShouldBeUniqueDuringCreation() {
@@ -150,6 +194,13 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(1));
+    }
+
+    private class TestModule extends CommonTestModule {
+        @Override
+        protected void semanticConfigure() {
+            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+        }
     }
 
 }

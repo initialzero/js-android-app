@@ -92,7 +92,7 @@ public class RealReportViewerPageTest extends ProtoActivityInstrumentation<Repor
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
-        mMockedSpiceManager.removeLifeCyclkeListener();
+        mMockedSpiceManager.removeLifeCycleListener();
         WebViewInjector.unregister();
         super.tearDown();
     }

@@ -99,7 +99,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
-        mMockedSpiceManager.removeLifeCyclkeListener();
+        mMockedSpiceManager.removeLifeCycleListener();
         WebViewInjector.unregister();
         super.tearDown();
     }

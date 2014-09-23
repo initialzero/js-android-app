@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.profile;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -43,10 +44,19 @@ import android.widget.Toast;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.EActivity;
@@ -55,15 +65,13 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
-import org.androidannotations.annotations.SupposeUiThread;
 import org.androidannotations.annotations.TextChange;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-
-import roboguice.activity.RoboFragmentActivity;
 
 /**
  * @author Tom Koptel
@@ -71,7 +79,8 @@ import roboguice.activity.RoboFragmentActivity;
  */
 @EActivity(R.layout.server_create_form)
 @OptionsMenu(R.menu.profile_menu)
-public class ServerProfileActivity extends RoboFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ServerProfileActivity extends RoboSpiceFragmentActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int LOAD_PROFILE = 100;
     private static final int QUERY_UNIQUENESS = 110;
 
@@ -300,7 +309,7 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
         return url;
     }
 
-    @SupposeUiThread
+    @UiThread
     protected void updateProfileFields(ServerProfiles serverProfile) {
         if (getActionBar() != null) {
             getActionBar().setTitle(getString(R.string.sp_bc_edit_profile));
@@ -324,7 +333,7 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
     }
 
     // TODO: Dirty way to check unique value. Need provide pull request to RoboCop.
-    @SupposeUiThread
+    @UiThread
     protected void checkUniqueConstraintFulfilled(Cursor cursor) {
         boolean entryExists = cursor.getCount() > 0;
         getSupportLoaderManager().destroyLoader(QUERY_UNIQUENESS);
@@ -334,20 +343,18 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
             Toast.makeText(this, getString(R.string.sp_error_unique_alias, alias),
                     Toast.LENGTH_SHORT).show();
         } else {
-            if (profileId == 0) {
-                Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
-                profileId = Long.valueOf(uri.getLastPathSegment());
-                Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
-            } else {
-                String selection = ServerProfilesTable._ID + " =?";
-                String[] selectionArgs = {String.valueOf(profileId)};
-                getContentResolver().update(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
-                        mServerProfile.getContentValues(), selection, selectionArgs);
-                Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
-            }
+            JsRestClient jsRestClient = new JsRestClient();
+            JsServerProfile profile = new JsServerProfile();
+            profile.setAlias(alias);
+            profile.setServerUrl(serverUrl);
+            profile.setOrganization(organization);
+            profile.setUsername(username);
+            profile.setPassword(password);
+            jsRestClient.setServerProfile(profile);
 
-            setOkResult();
-            finish();
+            saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
+            GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+            getSpiceManager().execute(request, new GetServerInfoListener());
         }
     }
 
@@ -356,4 +363,47 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
         resultIntent.putExtra(ServersFragment.EXTRA_SERVER_PROFILE_ID, profileId);
         setResult(Activity.RESULT_OK, resultIntent);
     }
+
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
+
+    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            RequestExceptionHandler.handle(e, ServerProfileActivity.this, false);
+            saveAction.setActionView(null);
+        }
+
+        @Override
+        public void onRequestSuccess(ServerInfo serverInfo) {
+            saveAction.setActionView(null);
+
+            Context context = ServerProfileActivity.this;
+            int currentVersion = serverInfo.getVersionCode();
+            if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                AlertDialogFragment.createBuilder(context, getSupportFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(R.string.error_msg)
+                        .setMessage(R.string.r_error_server_not_supported)
+                        .show();
+            } else {
+                if (profileId == 0) {
+                    Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+                    profileId = Long.valueOf(uri.getLastPathSegment());
+                    Toast.makeText(context, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+                } else {
+                    String selection = ServerProfilesTable._ID + " =?";
+                    String[] selectionArgs = {String.valueOf(profileId)};
+                    getContentResolver().update(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                            mServerProfile.getContentValues(), selection, selectionArgs);
+                    Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
+                }
+
+                setOkResult();
+                finish();
+            }
+        }
+    }
+
 }

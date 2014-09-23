@@ -100,6 +100,7 @@
         <!-- Activity that allows to specify the report options before running it -->
         <activity
             android:name=".activities.report.ReportOptionsActivity"
+            android:configChanges="screenSize|orientation"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- Activity that performs report viewing in HTML format -->

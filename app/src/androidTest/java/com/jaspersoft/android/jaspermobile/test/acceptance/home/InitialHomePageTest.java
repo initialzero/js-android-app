@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
 import android.app.Application;
-import android.content.ContentResolver;
 import android.database.Cursor;
 
 import com.google.inject.Injector;
@@ -59,17 +58,22 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createDefaultProfile;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteAll;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_ALIAS;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createOnlyDefaultProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Mockito.when;
 
@@ -100,12 +104,8 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         Injector injector = RoboGuice.getBaseApplicationInjector(application);
         jsRestClient = injector.getInstance(JsRestClient.class);
 
-        ContentResolver contentResolver = getInstrumentation()
-                .getContext().getContentResolver();
-        deleteAll(contentResolver);
-        createDefaultProfile(contentResolver);
+        createOnlyDefaultProfile(application.getContentResolver());
     }
-
 
     @Override
     protected void tearDown() throws Exception {
@@ -126,6 +126,31 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         assertThat(serverProfile.getServerUrl(), is(ProfileHelper.DEFAULT_SERVER_URL));
         assertThat(serverProfile.getUsername(), is(ProfileHelper.DEFAULT_USERNAME));
         assertThat(serverProfile.getPassword(), is(ProfileHelper.DEFAULT_PASS));
+    }
+
+    public void testUserCantDeleteActiveProfile() {
+        startActivityUnderTest();
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+        onView(withId(R.id.home_item_servers)).perform(click());
+
+        onView(withText(ProfileHelper.DEFAULT_ALIAS)).perform(longClick());
+        onView(withText(R.string.spm_cm_delete)).perform(click());
+        onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
+
+        onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(ProfileHelper.DEFAULT_ALIAS)))));
+    }
+
+    public void testSwitchToProfileFromContextMenu() {
+        createTestProfile(getActivity().getContentResolver());
+        startActivityUnderTest();
+
+        onView(withText(TEST_ALIAS)).perform(longClick());
+        onView(withText(R.string.spm_cm_switch)).perform(click());
+
+        onView(withId(R.id.profile_name)).check(matches(withText(TEST_ALIAS)));
     }
 
     public void testUsersRotateScreen() {

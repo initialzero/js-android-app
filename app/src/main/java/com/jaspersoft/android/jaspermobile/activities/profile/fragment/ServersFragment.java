@@ -27,18 +27,23 @@ package com.jaspersoft.android.jaspermobile.activities.profile.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -46,12 +51,14 @@ import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActiv
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -61,8 +68,13 @@ import roboguice.inject.InjectView;
  */
 @EFragment
 public class ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+        SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, ISimpleDialogListener {
     public static final String EXTRA_SERVER_PROFILE_ID = "ServersFragment.EXTRA_SERVER_PROFILE_ID";
+
+    // Context menu IDs
+    private static final int ID_CM_SWITCH = 20;
+    private static final int ID_CM_EDIT = 21;
+    private static final int ID_CM_DELETE = 22;
 
     @FragmentArg
     ViewType viewType;
@@ -76,6 +88,7 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     private SimpleCursorAdapter mAdapter;
     private JsServerProfile mServerProfile;
     private long mServerProfileId;
+    private AdapterView.AdapterContextMenuInfo currentInfo;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -102,9 +115,63 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
         mAdapter.setViewBinder(this);
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(this);
-        listView.setOnItemLongClickListener(this);
+
+        registerForContextMenu(listView);
 
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
+
+        // Determine on which item in the ListView the user long-clicked
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(info.position);
+
+        // Retrieve the label for that particular item and use it as title for the menu
+        menu.setHeaderTitle(cursor.getString(cursor.getColumnIndex(ServerProfilesTable.ALIAS)));
+
+        // Add all the menu options
+        menu.add(Menu.NONE, ID_CM_SWITCH, Menu.NONE, R.string.spm_cm_switch);
+        menu.add(Menu.NONE, ID_CM_EDIT, Menu.NONE, R.string.spm_cm_edit);
+        menu.add(Menu.NONE, ID_CM_DELETE, Menu.NONE, R.string.spm_cm_delete);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        // Determine on which item in the ListView the user long-clicked and get it from Cursor
+        currentInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // Handle item selection
+        switch (item.getItemId()) {
+            case ID_CM_SWITCH:
+                // return result with specified server profile id to home activity
+                onItemClick(listView, null, currentInfo.position, currentInfo.id);
+                return true;
+            case ID_CM_EDIT:
+                // Launch activity to edit the server profile
+                Cursor cursor = mAdapter.getCursor();
+                cursor.moveToPosition(currentInfo.position);
+
+                long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+
+                ServerProfileActivity_.intent(getActivity()).profileId(profileId).start();
+                return true;
+            case ID_CM_DELETE:
+                AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTargetFragment(this, 0)
+                        .setTitle(R.string.warning_msg)
+                        .setMessage(R.string.spm_ad_delete_profile_msg)
+                        .setPositiveButtonText(R.string.spm_delete_btn)
+                        .setNegativeButtonText(R.string.spm_cancel_btn)
+                        .show();
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onContextItemSelected(item);
+        }
     }
 
     @Override
@@ -152,15 +219,26 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
         getActivity().finish();
     }
 
+
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        Cursor cursor = mAdapter.getCursor();
-        cursor.moveToPosition(position);
+    public void onPositiveButtonClicked(int i) {
+        if (currentInfo == null) return;
+        if (mServerProfileId == currentInfo.id) {
+            Toast.makeText(getActivity(), "Can`t delete active profile", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Uri uri = Uri.withAppendedPath(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(currentInfo.id));
+        int deleteCount = getActivity().getContentResolver().delete(uri, null, null);
+        if (deleteCount > 0) {
+            Toast.makeText(getActivity(), R.string.spm_profile_deleted_toast, Toast.LENGTH_SHORT).show();
+        }
+    }
 
-        long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+    @Override
+    public void onNegativeButtonClicked(int i) {
+    }
 
-        ServerProfileActivity_.intent(getActivity()).profileId(profileId).start();
-
-        return true;
+    @Override
+    public void onNeutralButtonClicked(int i) {
     }
 }

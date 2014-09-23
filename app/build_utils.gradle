@@ -24,13 +24,20 @@ ext.generateVersionName = {
     def sanitizedBranch = sanitizeLastSlash(getBranch())
     def notMaster = !sanitizedBranch.equals('master')
     def notDevelop = !sanitizedBranch.equals('develop')
+//    def needTimeStamp = true
+    def needTimeStamp = false
 
     if (notMaster) {
-        if (notDevelop) {
+        if (notDevelop && sanitizedBranch.length() > 0) {
             version = "${sanitizedBranch}-" + version
         }
 
         version += '-SNAPSHOT'
+        if (needTimeStamp) {
+            TimeZone.setDefault(TimeZone.getTimeZone('UTC'))
+            def now = new Date().format("yyyy_MM_dd-HH_mm_ss")
+            version += '-' + now
+        }
     }
 
     return version
@@ -66,6 +73,6 @@ def getBranchNameFromGit() {
     }
     catch (ignored) {
         println ignored
-        return "FAILED_GET_BRANCH_NAME"
+        return ""
     }
 }

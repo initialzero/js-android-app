@@ -50,6 +50,7 @@ import roboguice.fragment.RoboDialogFragment;
 public class PasswordDialogFragment extends RoboDialogFragment {
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
+    private static final String PASSWORD_EXTRA = "PASSWORD";
 
     @Inject
     private JsRestClient mJsRestClient;
@@ -59,6 +60,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     private TextView mProfileNameText;
     private TextView mUserNameText;
     private View mOrganizationTableRow;
+    private String mPasswordValue;
 
     //---------------------------------------------------------------------
     // Static methods
@@ -127,6 +129,20 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            mPasswordValue = savedInstanceState.getString(PASSWORD_EXTRA, "");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(PASSWORD_EXTRA, mPasswordEdit.getText().toString());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -148,8 +164,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
         // Update username
         mUserNameText.setText(usr);
 
-        // Clear password
-        mPasswordEdit.setText("");
+        mPasswordEdit.setText(mPasswordValue);
     }
 
 }

@@ -81,7 +81,11 @@ public class TestServerProfileUtils {
         contentResolver.delete(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, null, null);
     }
 
-    public static void deleteTestProfiles(ContentResolver contentResolver) {
+    public static void createOnlyDefaultProfile(ContentResolver contentResolver) {
+        deleteAll(contentResolver);
+        createDefaultProfile(contentResolver);
+    }
+        public static void deleteTestProfiles(ContentResolver contentResolver) {
         contentResolver.delete(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, null, null);
         createDefaultProfile(contentResolver);
     }

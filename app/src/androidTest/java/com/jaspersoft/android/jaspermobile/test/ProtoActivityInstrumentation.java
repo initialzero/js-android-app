@@ -8,7 +8,6 @@ import android.content.res.Configuration;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ListView;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.testrunner.Stage;
@@ -136,14 +135,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     public void setPageName(String pageName) {
         this.pageName = pageName;
-    }
-
-    protected void makeTwoFirstListItemsAccessible() {
-        ListView list = (ListView) mActivity.findViewById(android.R.id.list);
-        View firstItem = list.getChildAt(0);
-        firstItem.setId(com.jaspersoft.android.jaspermobile.test.R.id.firs_list_item);
-        View secondItem = list.getChildAt(1);
-        secondItem.setId(com.jaspersoft.android.jaspermobile.test.R.id.second_list_item);
     }
 
     protected void registerTestModule(AbstractModule module) {

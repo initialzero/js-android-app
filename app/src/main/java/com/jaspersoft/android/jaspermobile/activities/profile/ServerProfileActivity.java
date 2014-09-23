@@ -212,6 +212,10 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
             case QUERY_UNIQUENESS:
                 selection = ServerProfilesTable.ALIAS + " =?";
                 selectionArgs = new String[] {alias};
+                if (profileId != 0) {
+                    selection += " AND " + ServerProfilesTable._ID + " !=?";
+                    selectionArgs = new String[] {alias, String.valueOf(profileId)};
+                }
                 return new CursorLoader(this, JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
                         new String[] {ServerProfilesTable._ID}, selection, selectionArgs, null);
             default:

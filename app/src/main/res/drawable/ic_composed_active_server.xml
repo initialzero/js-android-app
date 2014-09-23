@@ -28,9 +28,11 @@
     <item android:drawable="@android:color/holo_blue_dark" />
 
     <item
-        >
+        android:left="@dimen/card_composed_image_padding"
+        android:top="@dimen/card_composed_image_padding">
+
         <bitmap
-            android:gravity="top|right|fill_vertical"
+            android:gravity="left|top"
             android:src="@drawable/ic_config_home" />
     </item>
 </layer-list>

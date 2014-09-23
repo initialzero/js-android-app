@@ -28,6 +28,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.octo.android.robospice.persistence.DurationInMillis;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
@@ -39,6 +40,7 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_READ_TIMEOUT;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_REPO_CACHE_EXPIRATION;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.Is.is;
 
@@ -79,6 +81,17 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
 
         assertThat(prefHelper.getConnectTimeoutValue(), is(Integer.valueOf(DEFAULT_CONNECT_TIMEOUT)));
+    }
+
+    public void testConnectionCacheExpirationShouldNotAcceptIncorrectInteger() {
+        startActivityUnderTest();
+        onView(withText(R.string.st_title_cache_expiration)).perform(click());
+        onOverflowView(getActivity(), withId(android.R.id.edit)).perform(typeText("214748364799"));
+        onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
+        onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
+
+        long defaultValue = Long.valueOf(DEFAULT_REPO_CACHE_EXPIRATION) * DurationInMillis.ONE_HOUR;
+        assertThat(prefHelper.getRepoCacheExpirationValue(), is(defaultValue));
     }
 
 }

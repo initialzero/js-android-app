@@ -72,6 +72,11 @@ android {
         // src/gen is the target for generated content like json model
         java.srcDirs += 'build/generated/source/db'
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
 
 apt {

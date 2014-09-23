@@ -47,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewTyp
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -73,6 +74,8 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     JsRestClient jsRestClient;
 
     private SimpleCursorAdapter mAdapter;
+    private JsServerProfile mServerProfile;
+    private long mServerProfileId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -84,6 +87,9 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mServerProfile = jsRestClient.getServerProfile();
+        mServerProfileId = mServerProfile.getId();
 
         String[] from = {ServerProfilesTable.ALIAS, ServerProfilesTable.SERVER_URL, ServerProfilesTable._ID};
         int[] to = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
@@ -118,13 +124,13 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
         if (columnIndex == cursor.getColumnIndex(ServerProfilesTable._ID)) {
             ImageView imageView = (ImageView) view;
-            if (jsRestClient.getServerProfile() == null) {
+            if (mServerProfile == null) {
                 imageView.setImageResource(R.drawable.ic_composed_config_home);
             } else {
-                long id = jsRestClient.getServerProfile().getId();
                 long entryId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
 
-                imageView.setImageResource((id == entryId) ? R.drawable.ic_composed_active_server : R.drawable.ic_composed_config_home);
+                imageView.setImageResource((mServerProfileId == entryId) ?
+                        R.drawable.ic_composed_active_server : R.drawable.ic_composed_config_home);
             }
             return true;
         }

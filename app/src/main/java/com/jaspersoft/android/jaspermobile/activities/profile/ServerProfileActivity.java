@@ -331,8 +331,12 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
     }
 
     // TODO: Dirty way to check unique value. Need provide pull request to RoboCop.
-    private void checkUniqueConstraintFulfilled(Cursor cursor) {
-        if (cursor.getCount() > 0) {
+    @SupposeUiThread
+    protected void checkUniqueConstraintFulfilled(Cursor cursor) {
+        boolean entryExists = cursor.getCount() > 0;
+        getSupportLoaderManager().destroyLoader(QUERY_UNIQUENESS);
+
+        if (entryExists) {
             aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
             Toast.makeText(this, getString(R.string.sp_error_unique_alias, alias),
                     Toast.LENGTH_SHORT).show();

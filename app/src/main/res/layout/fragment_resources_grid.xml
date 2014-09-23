@@ -29,30 +29,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <GridView
-            android:id="@android:id/list"
-            android:layout_margin="8dp"
-            android:gravity="center_horizontal"
-            android:stretchMode="columnWidth"
-            android:numColumns="auto_fit"
-            android:columnWidth="@dimen/grid_item_size"
-            android:verticalSpacing="16dp"
-            android:horizontalSpacing="8dp"
-            android:drawSelectorOnTop="true"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
-
-        <TextView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center" />
-
-    </FrameLayout>
-
+    <include layout="@layout/common_grid_layout"/>
 
 </android.support.v4.widget.SwipeRefreshLayout>

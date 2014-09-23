@@ -130,6 +130,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         repositoryPref = null;
         super.tearDown();
     }
@@ -234,11 +235,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
     private void forcePreview(ViewType viewType) {
         repositoryPref.viewType().put(viewType.toString());
-    }
-
-    @Override
-    public String getPageName() {
-        return "library";
     }
 
     private class TestModule extends CommonTestModule {

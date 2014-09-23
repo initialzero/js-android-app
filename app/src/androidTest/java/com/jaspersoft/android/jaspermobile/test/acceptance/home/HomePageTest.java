@@ -22,11 +22,8 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance;
+package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
-import android.app.Application;
-
-import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
@@ -44,19 +41,13 @@ import com.octo.android.robospice.SpiceManager;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import roboguice.RoboGuice;
-
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onViewDialogId;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.mockito.Mockito.when;
 
 /**
@@ -96,25 +87,14 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         when(mockConectivityUtil.isConnected()).thenReturn(true);
-
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(new TestModule()));
+        registerTestModule(new TestModule());
         mMockedSpiceManager.setResponseForCacheRequest(mockServerInfo);
     }
 
     @Override
-    public String getPageName() {
-        return "home_page";
-    }
-
-    @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         super.tearDown();
-        RoboGuice.util.reset();
     }
 
     public void testMissingNetworkConnectionCase() {
@@ -124,46 +104,16 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
 
         startActivityUnderTest();
-        // Click on any dashboard item
-        onView(withId(R.id.home_item_servers)).perform(click());
+        int[] ids = {R.id.home_item_library, R.id.home_item_repository, R.id.home_item_favorites};
 
-        onViewDialogId(getActivity(), R.id.sdl__title).check(matches(withText(R.string.h_ad_title_no_connection)));
-        onViewDialogId(getActivity(), R.id.sdl__message).check(matches(withText(R.string.h_ad_msg_no_connection)));
-    }
+        for (int id : ids) {
+            // Click on dashboard item
+            onView(withId(id)).perform(click());
 
-    public void testMissingPasswordCaseForServerProfile() {
-        when(mockServerProfile.getUsername()).thenReturn(USERNAME);
-        when(mockServerProfile.getOrganization()).thenReturn(ORGANIZATION);
-        // We are forcing empty password to show dialog
-        when(mockServerProfile.getPassword()).thenReturn("");
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-
-        startActivityUnderTest();
-
-        // Check whether our dialog is shown with Appropriate info
-        onViewDialogId(getActivity(), R.id.dialogUsernameText).check(matches(withText(USERNAME)));
-        onViewDialogId(getActivity(), R.id.dialogOrganizationText).check(matches(withText(ORGANIZATION)));
-        onViewDialogId(getActivity(), R.id.dialogOrganizationTableRow).check(matches(isDisplayed()));
-
-        // Lets type some password and check if it set
-        onViewDialogId(getActivity(), R.id.dialogPasswordEdit).perform(typeText(PASSWORD));
-        onViewDialogId(getActivity(), android.R.id.button1).perform(click());
-
-        verify(mockServerProfile, times(1)).setPassword(PASSWORD);
-    }
-
-    public void testMissingServerProfile() {
-        when(mockRestClient.getServerProfile()).thenReturn(null);
-
-        startActivityUnderTest();
-
-        // As soon as we have mocked DbProvider we can not test real Server Profile
-        when(mockServerProfile.getAlias()).thenReturn(ALIAS);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-
-        onView(withText("Mobile Demo")).perform(click());
-        onView(withId(R.id.profile_name)).check(matches(withText(ALIAS)));
+            onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.h_ad_title_no_connection)));
+            onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.h_ad_msg_no_connection)));
+            pressBack();
+        }
     }
 
     public void testOverAllNavigationForDashboard() {
@@ -191,22 +141,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         onView(withId(R.id.home_item_settings)).perform(click());
         pressBack();
         onView(withId(R.id.home_item_servers)).perform(click());
-    }
-
-    public void testProfileSwitchAction() {
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-
-        startActivityUnderTest();
-        // Given we have no ALIAS set up
-        onView(withId(R.id.profile_name)).check(matches(withText("")));
-
-        // When we navigate to Servers page
-        onView(withId(R.id.home_item_servers)).perform(click());
-        onView(withText("Mobile Demo")).perform(click());
-
-        // Then we should check for appropriate method call
-        verify(mockRestClient, times(3)).getServerProfile();
     }
 
     private class TestModule extends CommonTestModule {

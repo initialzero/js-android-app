@@ -50,6 +50,7 @@ import roboguice.inject.InjectView;
  * @version $Id$
  * @since 1.0
  */
+@Deprecated
 public class ServerProfileActivity extends RoboActivity {
 
     // Special intent actions

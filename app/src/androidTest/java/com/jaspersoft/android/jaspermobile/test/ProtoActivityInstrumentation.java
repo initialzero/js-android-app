@@ -2,27 +2,39 @@ package com.jaspersoft.android.jaspermobile.test;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ListView;
 
+import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
+import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
+import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
+import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.squareup.spoon.Spoon;
+
+import java.util.Collection;
 
 import roboguice.RoboGuice;
 
-public abstract class ProtoActivityInstrumentation<T extends Activity>
+import static com.google.common.collect.Iterables.getOnlyElement;
+
+public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
     protected static final String USERNAME = "phoneuser|organization_1";
     protected static final String PASSWORD = "phoneuser";
     private static final long SLEEP_RATE = 0;
     protected T mActivity;
     private NameUtils nameUtils;
+    private String pageName = "UNSPECIFIED";
+    private ProfileHelper_ profileHelper;
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
         super(activityClass);
@@ -31,14 +43,31 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        nameUtils = new NameUtils(getPageName());
+        nameUtils = new NameUtils(pageName);
     }
 
     @Override
     protected void tearDown() throws Exception {
         nameUtils = null;
         mActivity = null;
+        profileHelper = null;
         super.tearDown();
+    }
+
+    protected void setDefaultCurrentProfile() {
+        Application application = (Application) this.getInstrumentation()
+                .getTargetContext().getApplicationContext();
+        profileHelper = ProfileHelper_.getInstance_(application);
+
+        ContentResolver cr = application.getContentResolver();
+        ServerProfiles profile = TestServerProfileUtils.queryProfileByAlias(
+                cr, ProfileHelper.DEFAULT_ALIAS);
+        if (profile == null) {
+            TestServerProfileUtils.createDefaultProfile(cr);
+            profile = TestServerProfileUtils.queryProfileByAlias(
+                    cr, ProfileHelper.DEFAULT_ALIAS);
+        }
+        profileHelper.setCurrentServerProfile(profile.getRowId());
     }
 
     public void startActivityUnderTest() {
@@ -104,14 +133,8 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
         return mActivity.findViewById(id);
     }
 
-    public abstract String getPageName();
-
-    protected void makeTwoFirstListItemsAccessible() {
-        ListView list = (ListView) mActivity.findViewById(android.R.id.list);
-        View firstItem = list.getChildAt(0);
-        firstItem.setId(com.jaspersoft.android.jaspermobile.test.R.id.firs_list_item);
-        View secondItem = list.getChildAt(1);
-        secondItem.setId(com.jaspersoft.android.jaspermobile.test.R.id.second_list_item);
+    public void setPageName(String pageName) {
+        this.pageName = pageName;
     }
 
     protected void registerTestModule(AbstractModule module) {
@@ -121,5 +144,23 @@ public abstract class ProtoActivityInstrumentation<T extends Activity>
                 RoboGuice.DEFAULT_STAGE,
                 Modules.override(RoboGuice.newDefaultRoboModule(application))
                         .with(module));
+    }
+
+    protected void unregisterTestModule() {
+        RoboGuice.util.reset();
+    }
+
+    protected Activity getCurrentActivity() throws Throwable {
+        getInstrumentation().waitForIdleSync();
+        final Activity[] activity = new Activity[1];
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Collection<Activity> activites =
+                        ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(Stage.RESUMED);
+                activity[0] = getOnlyElement(activites);
+            }});
+        return activity[0];
     }
 }

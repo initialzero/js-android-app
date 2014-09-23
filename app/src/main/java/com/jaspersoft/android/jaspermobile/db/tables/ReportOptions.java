@@ -33,11 +33,12 @@ import android.provider.BaseColumns;
  * @version $Id$
  * @since 1.4
  */
+@Deprecated
 public final class ReportOptions implements BaseColumns {
     // This class cannot be instantiated
     private ReportOptions() {}
 
-    public static final String TABLE_NAME = "report_options";
+    public static final String TABLE_NAME = "old_report_options";
 
     public static final String KEY_NAME = "name";
     public static final String KEY_VALUE = "value";

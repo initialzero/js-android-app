@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.report;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -299,11 +300,9 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
         Intent htmlViewer = new Intent();
-        htmlViewer.setClass(this, ReportHtmlViewerActivity.class);
-        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, reportUri);
-        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, reportLabel);
         htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS, parameters);
-        startActivity(htmlViewer);
+        setResult(Activity.RESULT_OK, htmlViewer);
+        finish();
     }
 
     private void hideAllValidationMessages() {

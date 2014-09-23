@@ -33,11 +33,12 @@ import android.provider.BaseColumns;
  * @version $Id$
  * @since 1.0
  */
+@Deprecated
 public final class ServerProfiles implements BaseColumns {
     // This class cannot be instantiated
     private ServerProfiles() {}
 
-    public static final String TABLE_NAME = "server_profiles";
+    public static final String TABLE_NAME = "old_server_profiles";
 
     public static final String KEY_ALIAS = "alias";
     public static final String KEY_SERVER_URL = "server_url";

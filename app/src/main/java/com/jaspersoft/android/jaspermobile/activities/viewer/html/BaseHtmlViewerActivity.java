@@ -57,6 +57,7 @@ import roboguice.inject.InjectView;
  * @author Ivan Gadzhega
  * @since 1.4
  */
+@Deprecated
 public abstract class BaseHtmlViewerActivity extends RoboActivity {
 
     // Extras
@@ -79,6 +80,7 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.html_viewer_layout);
 

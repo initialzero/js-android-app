@@ -60,9 +60,14 @@ public class ProgressDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         ProgressDialog progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage(getString(R.string.r_pd_running_report_msg));
-        progressDialog.setOnCancelListener(onCancelListener);
         progressDialog.setOnShowListener(onShowListener);
         return progressDialog;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        onCancelListener.onCancel(dialog);
     }
 
     public static void show(FragmentManager fm,

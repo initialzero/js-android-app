@@ -91,24 +91,31 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         onlyReportLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
 
-        registerTestModule(new TestModule());
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+        registerTestModule(new TestModule());
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        unregisterTestModule();
+        super.tearDown();
     }
 
     public void testLibraryFilterDialog() {
+        mMockedSpiceManager.setResponseForCacheRequest(onlyDashboardLookUp);
         startActivityUnderTest();
+
         clickOnDialogText(android.R.string.cancel);
         clickOnDialogText(android.R.string.ok);
     }
 
     public void testDashboardAndAllFilterOption() throws InterruptedException {
+        mMockedSpiceManager.setResponseForCacheRequest(onlyDashboardLookUp);
         startActivityUnderTest();
 
-
-        mMockedSpiceManager.setResponseForCacheRequest(onlyDashboardLookUp);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
@@ -122,32 +129,20 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testReportFilterOption() {
+        mMockedSpiceManager.setResponseForCacheRequest(onlyReportLookUp);
         startActivityUnderTest();
 
-        mMockedSpiceManager.setResponseForCacheRequest(onlyReportLookUp);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyReportLookUp.getResourceLookups().size()));
     }
 
-    private void clickOnDialogText(int resId) {
-        clickFilterMenuItem();
-        onOverflowView(getActivity(), withText(R.string.s_fd_filter_by))
-                .check(matches(isDisplayed()));
-        onOverflowView(getActivity(), withText(resId))
-                .perform(click());
-
-        withNotDecorView(
-                is(not(getActivity().getWindow().getDecorView()))
-        ).matches(matches(not(isDisplayed())));
-    }
-
     public void testFilteringIsPersistent() {
+        mMockedSpiceManager.setResponseForCacheRequest(onlyReportLookUp);
         startActivityUnderTest();
         rotateToPortrait();
 
-        mMockedSpiceManager.setResponseForCacheRequest(onlyReportLookUp);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
@@ -164,25 +159,35 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).check(matches(isChecked()));
     }
 
+    private void clickOnDialogText(int resId) {
+        clickFilterMenuItem();
+        onOverflowView(getActivity(), withText(R.string.s_fd_filter_by))
+                .check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withText(resId))
+                .perform(click());
+
+        withNotDecorView(
+                is(not(getActivity().getWindow().getDecorView()))
+        ).matches(matches(not(isDisplayed())));
+    }
+
     private void clickFilterMenuItem() {
         try {
             onView(withId(R.id.filter)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            onOverflowView(getActivity(), withText(R.string.s_ab_filter_by)).perform(click());
+            try {
+                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_filter_by)).perform(click());
+            } catch (Throwable throwable) {
+                new RuntimeException(throwable);
+            }
         }
-    }
-
-    @Override
-    public String getPageName() {
-        return "library";
     }
 
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
-            bind(DatabaseProvider.class).toInstance(mockDbProvider);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
         }
     }

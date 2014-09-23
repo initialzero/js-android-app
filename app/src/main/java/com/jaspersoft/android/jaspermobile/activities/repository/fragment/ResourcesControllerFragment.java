@@ -72,13 +72,6 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
     @OptionsMenuItem(R.id.switchLayout)
     public MenuItem switchLayoutMenuItem;
 
-    @OptionsMenuItem(R.id.search)
-    public MenuItem searchMenuItem;
-    @OptionsMenuItem(R.id.showFavorites)
-    public MenuItem showFavoritesItem;
-    @OptionsMenuItem(R.id.showSettings)
-    public MenuItem showSettingsItem;
-
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
@@ -94,6 +87,9 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
     @InstanceState
     @FragmentArg
     String query;
+    @InstanceState
+    @FragmentArg
+    int emptyMessage;
 
     @FragmentArg
     boolean hideMenu;
@@ -157,6 +153,7 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
     private Fragment getContentFragment() {
         contentFragment = ResourcesFragment_.builder()
                 .query(query)
+                .emptyMessage(emptyMessage)
                 .recursiveLookup(recursiveLookup)
                 .resourceUri(resourceUri)
                 .resourceLabel(resourceLabel)

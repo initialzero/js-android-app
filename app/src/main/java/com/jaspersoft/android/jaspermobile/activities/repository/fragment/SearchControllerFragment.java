@@ -31,7 +31,7 @@ import android.widget.SearchView;
 
 import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.SearchableActivity_;
+import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;

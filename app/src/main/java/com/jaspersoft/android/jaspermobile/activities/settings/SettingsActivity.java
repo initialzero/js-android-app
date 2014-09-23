@@ -74,11 +74,10 @@ public class SettingsActivity extends RoboPreferenceActivity {
         if (savedInstanceState == null) {
             getFragmentManager()
                     .beginTransaction()
-                    .replace(android.R.id.content, new SettingsFragment())
+                    .replace(android.R.id.content, SettingsFragment_.builder().build())
                     .commit();
         }
     }
-
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
@@ -89,6 +88,7 @@ public class SettingsActivity extends RoboPreferenceActivity {
     // Static methods
     //---------------------------------------------------------------------
 
+    @Deprecated
     public static long getRepoCacheExpirationValue(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean repoCacheEnabled = preferences.getBoolean(KEY_PREF_REPO_CACHE_ENABLED, DEFAULT_REPO_CACHE_ENABLED);
@@ -100,18 +100,7 @@ public class SettingsActivity extends RoboPreferenceActivity {
         }
     }
 
-    public static int getConnectTimeoutValue(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String value = preferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-        return Integer.parseInt(value);
-    }
-
-    public static int getReadTimeoutValue(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String value = preferences.getString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
-        return Integer.parseInt(value);
-    }
-
+    @Deprecated
     public static boolean isAnimationEnabled(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);

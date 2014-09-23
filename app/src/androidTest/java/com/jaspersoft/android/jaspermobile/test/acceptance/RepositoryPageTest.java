@@ -97,11 +97,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     }
 
     @Override
-    public String getPageName() {
-        return "repository";
-    }
-
-    @Override
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
@@ -120,6 +115,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         repositoryPref = null;
         super.tearDown();
     }

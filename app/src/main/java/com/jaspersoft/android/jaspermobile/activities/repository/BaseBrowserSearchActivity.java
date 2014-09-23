@@ -60,6 +60,7 @@ import java.util.List;
  * @author Ivan Gadzhega
  * @since 1.5
  */
+@Deprecated
 public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity implements AbsListView.OnScrollListener {
 
     // Action Bar IDs

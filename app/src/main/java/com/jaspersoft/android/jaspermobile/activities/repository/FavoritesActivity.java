@@ -48,7 +48,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @author Ivan Gadzhega
  * @since 1.0
  */
-
+@Deprecated
 public class FavoritesActivity extends BaseRepositoryActivity {
 
     // Context menu IDs

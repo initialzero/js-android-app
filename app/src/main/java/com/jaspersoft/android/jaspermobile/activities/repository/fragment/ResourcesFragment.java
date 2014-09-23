@@ -25,8 +25,6 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.app.ActionBar;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -38,34 +36,29 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -74,8 +67,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
-
-import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.getRepoCacheExpirationValue;
 
 /**
  * @author Tom Koptel
@@ -90,7 +81,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     public static final String ROOT_URI = "/";
     private static final int LOAD_FROM_CACHE = 1;
-    private static final int LOAD_FROM_NETWORL = 1;
+    private static final int LOAD_FROM_NETWORK = 2;
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -120,6 +111,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     @FragmentArg
     String query;
+    @InstanceState
+    @FragmentArg
+    int emptyMessage;
 
     @FragmentArg
     ViewType viewType;
@@ -135,6 +129,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     boolean mLoading;
     @InstanceState
     int mLoaderState = LOAD_FROM_CACHE;
+
+    @Bean
+    DefaultPrefHelper prefHelper;
 
     private int mTotal;
     private ResourceAdapter mAdapter;
@@ -254,7 +251,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void onRefresh() {
-        mLoaderState = LOAD_FROM_NETWORL;
+        mLoaderState = LOAD_FROM_NETWORK;
         mAdapter.setNotifyOnChange(false);
         mAdapter.clear();
         loadFirstPage();
@@ -279,6 +276,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     private void loadNextPage() {
         if (!mLoading && hasNextPage()) {
             mSearchCriteria.setOffset(mSearchCriteria.getOffset() + mLimit);
+            mLoaderState = LOAD_FROM_CACHE;
             loadResources(mLoaderState);
         }
     }
@@ -294,13 +292,14 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
-                ? getRepoCacheExpirationValue(getActivity()) : DurationInMillis.ALWAYS_EXPIRED;
+                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
     private void openFolder(ResourceLookup resource) {
         ResourcesControllerFragment newControllerFragment =
                 ResourcesControllerFragment_.builder()
+                        .emptyMessage(R.string.r_browser_nothing_to_display)
                         .resourceTypes(resourceTypes)
                         .resourceLabel(resource.getLabel())
                         .resourceUri(resource.getUri())
@@ -312,37 +311,20 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     private void runReport(final ResourceLookup resource) {
-        final GetInputControlsRequest request =
-                new GetInputControlsRequest(jsRestClient, resource.getUri());
-
-        ProgressDialogFragment.show(getFragmentManager(),
-                new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        if (!request.isCancelled()) {
-                            getSpiceManager().cancel(request);
-                        }
-                    }
-                },
-                new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        getSpiceManager().execute(request,
-                                new GetInputControlsListener(resource));
-                    }
-                });
+        ReportHtmlViewerActivity_.intent(getActivity())
+                .resourceLabel(resource.getLabel())
+                .resourceUri(resource.getUri()).start();
     }
 
     private void runDashboard(ResourceLookup resource) {
-        Intent htmlViewer = new Intent(getActivity(), DashboardHtmlViewerActivity.class);
-        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, resource.getUri());
-        htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, resource.getLabel());
-        startActivity(htmlViewer);
+        DashboardHtmlViewerActivity_.intent(getActivity())
+                .resourceLabel(resource.getLabel())
+                .resourceUri(resource.getUri()).start();
     }
 
     public void showEmptyText(int resId) {
         emptyText.setVisibility((listView.getChildCount() > 0) ? View.GONE : View.VISIBLE);
-        emptyText.setText(resId);
+        if (resId != 0) emptyText.setText(resId);
     }
 
     public void setQuery(String query) {
@@ -360,7 +342,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
             boolean isFirstPage = mSearchCriteria.getOffset() == 0;
-            showEmptyText(R.string.r_browser_nothing_to_display);
+            showEmptyText(emptyMessage);
 
             if (isFirstPage) {
                 mTotal = resourceLookupsList.getTotalCount();
@@ -380,48 +362,4 @@ public class ResourcesFragment extends RoboSpiceFragment
             emptyText.setVisibility((mAdapter.getCount() > 0) ? View.GONE : View.VISIBLE);
         }
     }
-
-    private class GetInputControlsListener implements RequestListener<InputControlsList> {
-        private final ResourceLookup mResource;
-
-        public GetInputControlsListener(ResourceLookup resource) {
-            mResource = resource;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            if (exception instanceof RequestCancelledException) {
-                Toast.makeText(getActivity(), R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-            } else {
-                RequestExceptionHandler.handle(exception, getActivity(), false);
-                ProgressDialogFragment.dismiss(getFragmentManager());
-            }
-        }
-
-        @Override
-        public void onRequestSuccess(InputControlsList controlsList) {
-            ProgressDialogFragment.dismiss(getFragmentManager());
-
-            ArrayList<InputControl> inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
-
-            String reportUri = mResource.getUri();
-            String reportLabel = mResource.getLabel();
-            if (inputControls.isEmpty()) {
-                // Run Report Viewer activity
-                Intent htmlViewer = new Intent();
-                htmlViewer.setClass(getActivity(), ReportHtmlViewerActivity.class);
-                htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, reportUri);
-                htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, reportLabel);
-                startActivity(htmlViewer);
-            } else {
-                // Run Report Options activity
-                Intent intent = new Intent(getActivity(), ReportOptionsActivity.class);
-                intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, reportUri);
-                intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, reportLabel);
-                intent.putParcelableArrayListExtra(ReportOptionsActivity.EXTRA_REPORT_CONTROLS, inputControls);
-                startActivity(intent);
-            }
-        }
-    }
-
 }

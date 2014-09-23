@@ -34,7 +34,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".JasperMobileApplication"
+        android:name=".JasperMobileApplication_"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher_jaspermobile"
         android:label="@string/app_label"
@@ -50,16 +50,14 @@
             </intent-filter>
         </activity>
 
-        <!-- Activity that provides the server profiles management -->
-        <activity android:name=".activities.ServerProfilesManagerActivity" />
-
         <!-- Activity that provides functionality for creating and modifying server profiles -->
-        <activity android:name=".activities.ServerProfileActivity">
-            <intent-filter>
-                <action android:name="com.jaspersoft.android.samples.jaspermobile.action.ADD_SERVER_PROFILE" />
-                <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".activities.profile.ServerProfileActivity_"
+            android:label="@string/label_add_profile"/>
+
+        <!-- Activity that provides the server profiles management -->
+        <activity
+            android:name=".activities.profile.ServersManagerActivity_"
+            android:label="@string/h_ab_servers" />
 
         <!-- Activity that performs repository browsing -->
         <activity android:name=".activities.repository.BrowserActivity">
@@ -102,21 +100,22 @@
         <!-- Activity that allows to specify the report options before running it -->
         <activity
             android:name=".activities.report.ReportOptionsActivity"
+            android:configChanges="screenSize|orientation"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.ReportHtmlViewerActivity"
+            android:name=".activities.viewer.html.ReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.SavedReportHtmlViewerActivity"
+            android:name=".activities.viewer.html.SavedReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.DashboardHtmlViewerActivity"
+            android:name=".activities.viewer.html.DashboardHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs report saving to the local storage -->
@@ -130,7 +129,7 @@
             android:label="@string/st_title" />
 
         <activity
-            android:name=".SearchableActivity_"
+            android:name=".activities.SearchableActivity_"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -142,6 +141,10 @@
             android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"
             android:exported="false" />
 
+        <provider
+            android:name=".db.provider.JasperMobileProvider"
+            android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
+            android:exported="false" />
     </application>
 
 </manifest>

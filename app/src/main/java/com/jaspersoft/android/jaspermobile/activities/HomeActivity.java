@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -40,8 +39,10 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
+import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
@@ -49,14 +50,16 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
+import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
@@ -64,6 +67,7 @@ import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 /**
  * @author Ivan Gadzhega
@@ -79,15 +83,11 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     // Request Codes
     public static final int RC_UPDATE_SERVER_PROFILE = 20;
     public static final int RC_SWITCH_SERVER_PROFILE = 21;
-    // Saved instance states
-    private static final String FLAG_ANIMATE_STARTUP = "FLAG_ANIMATE_STARTUP";
 
     @Inject
     private JsRestClient mJsRestClient;
     @Inject
     private ConnectivityUtil mConnectivityUtil;
-    @Inject
-    private DatabaseProvider mDbProvider;
     @Inject
     private DecelerateInterpolator interpolator;
     @Inject
@@ -100,6 +100,11 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     protected MenuItem serverProfileMenuItem;
     @InstanceState
     protected boolean mAnimateStartup = true;
+
+    @Pref
+    GeneralPref_ generalPref;
+    @Bean
+    ProfileHelper profileHelper;
 
     private TextView mProfileNameText;
     private Bundle mSavedInstanceState;
@@ -121,11 +126,12 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     //---------------------------------------------------------------------
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
         View actionView = serverProfileMenuItem.getActionView();
         mProfileNameText = (TextView) actionView.findViewById(R.id.profile_name);
         reloadProfileNameView();
-        return super.onPrepareOptionsMenu(menu);
+        return result;
     }
 
     //---------------------------------------------------------------------
@@ -142,61 +148,40 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_repository)
     final void showRepository() {
-        if (mConnectivityUtil.isConnected()) {
+        if (hasNetwork() && hasServerProfileSetup()) {
             RepositoryActivity_.intent(this).start();
-        } else {
-            showNetworkAlert();
         }
     }
 
     @Click(R.id.home_item_library)
     final void showLibrary() {
-        if (mConnectivityUtil.isConnected()) {
+        if (hasNetwork() && hasServerProfileSetup()) {
             LibraryActivity_.intent(this).start();
-        } else {
-            showNetworkAlert();
         }
     }
 
     @Click(R.id.home_item_favorites)
     final void showFavorites() {
-        if (mConnectivityUtil.isConnected()) {
+        if (hasNetwork() && hasServerProfileSetup()) {
             Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
             startActivity(favoritesIntent);
-        } else {
-            showNetworkAlert();
         }
     }
 
     @Click(R.id.home_item_saved_reports)
     final void showSavedItems() {
-        if (mConnectivityUtil.isConnected()) {
-
-            Intent savedReportsIntent = new Intent(this, SavedReportsActivity.class);
-            startActivity(savedReportsIntent);
-        } else {
-            showNetworkAlert();
-        }
+        Intent savedReportsIntent = new Intent(this, SavedReportsActivity.class);
+        startActivity(savedReportsIntent);
     }
 
     @Click(R.id.home_item_settings)
     final void showSettings() {
-        if (mConnectivityUtil.isConnected()) {
-            SettingsActivity_.intent(this).start();
-        } else {
-            showNetworkAlert();
-        }
+        SettingsActivity_.intent(this).start();
     }
 
     @Click(R.id.home_item_servers)
     final void showServerProfiles() {
-        if (mConnectivityUtil.isConnected()) {
-            // Launch activity to switch the server profile
-            Intent intent = new Intent(this, ServerProfilesManagerActivity.class);
-            startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
-        } else {
-            showNetworkAlert();
-        }
+        ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
     }
 
     @OnActivityResult(RC_UPDATE_SERVER_PROFILE)
@@ -204,18 +189,15 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         if (resultCode == Activity.RESULT_OK) {
             // get updated server profile id from result data
             Bundle extras = data.getExtras();
-            long rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
+            long profileId = extras.getLong(ServersFragment.EXTRA_SERVER_PROFILE_ID);
 
             // update current profile
-            JasperMobileApplication.setCurrentServerProfile(mJsRestClient, mDbProvider, rowId);
-
+            profileHelper.setCurrentServerProfile(profileId);
+            JsServerProfile profile = mJsRestClient.getServerProfile();
             // check if the password is not specified
-            if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
+            if (profile.getPassword().length() == 0) {
                 PasswordDialogFragment.show(getSupportFragmentManager());
             }
-
-            // the feedback about an operation
-            Toast.makeText(this, R.string.spm_profile_updated_toast, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -224,26 +206,20 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         if (resultCode == Activity.RESULT_OK) {
             // get selected server profile id from result data
             Bundle extras = data.getExtras();
-            long rowId = extras.getLong(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID);
+            long profileId = extras.getLong(ServersFragment.EXTRA_SERVER_PROFILE_ID);
+            generalPref.currentProfileId().put(profileId);
 
-            // put new server profile id to shared prefs
-            SharedPreferences prefs = getSharedPreferences(JasperMobileApplication.PREFS_NAME, MODE_PRIVATE);
-            // we need an Editor object to make preference changes.
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putLong(JasperMobileApplication.PREFS_CURRENT_SERVER_PROFILE_ID, rowId);
-            editor.apply();
-
-            JasperMobileApplication.setCurrentServerProfile(mJsRestClient, mDbProvider, rowId);
+            profileHelper.setCurrentServerProfile(profileId);
 
             // check if the password is not specified
             if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
                 PasswordDialogFragment.show(getSupportFragmentManager());
             }
 
-            String profileName = mJsRestClient.getServerProfile().getAlias();
-            mProfileNameText.setText(profileName);
+            invalidateOptionsMenu();
 
             // the feedback about an operation
+            String profileName = mJsRestClient.getServerProfile().getAlias();
             String toastMsg = getString(R.string.h_server_switched_toast, profileName);
             Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
         }
@@ -265,32 +241,15 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
         if (EDIT_SERVER_PROFILE_ACTION.equals(intent.getAction())) {
             // Launch activity to edit current server profile
-            Intent editIntent = new Intent();
-            editIntent.setClass(this, ServerProfileActivity.class);
-            editIntent.setAction(ServerProfileActivity.EDIT_SERVER_PROFILE_ACTION);
-            editIntent.putExtra(ServerProfileActivity.EXTRA_SERVER_PROFILE_ID, mJsRestClient.getServerProfile().getId());
-            startActivityForResult(editIntent, RC_UPDATE_SERVER_PROFILE);
+            ServerProfileActivity_.intent(this)
+                    .profileId(mJsRestClient.getServerProfile().getId())
+                    .startForResult(RC_UPDATE_SERVER_PROFILE);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        // close any open database object
-        if (mDbProvider != null) mDbProvider.close();
-        super.onDestroy();
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-
-    private void showNetworkAlert() {
-        AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.h_ad_title_no_connection)
-                .setMessage(R.string.h_ad_msg_no_connection)
-                .show();
-    }
 
     private void animateLayout() {
         boolean animationEnabled = SettingsActivity.isAnimationEnabled(this);
@@ -323,12 +282,32 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
                 .start();
     }
 
+    private boolean hasServerProfileSetup() {
+        JsServerProfile serverProfile = mJsRestClient.getServerProfile();
+        boolean hasServerProfile = (serverProfile != null);
+        if (!hasServerProfile) {
+            ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
+            Toast.makeText(this, R.string.toast_select_profile, Toast.LENGTH_LONG).show();
+        }
+        return hasServerProfile;
+    }
+
+    private boolean hasNetwork() {
+        boolean hasNetwork = mConnectivityUtil.isConnected();
+        if (!hasNetwork) {
+            AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.h_ad_title_no_connection)
+                    .setMessage(R.string.h_ad_msg_no_connection)
+                    .show();
+        }
+        return hasNetwork;
+    }
+
     private void reloadProfileNameView() {
         JsServerProfile serverProfile = mJsRestClient.getServerProfile();
         if (serverProfile == null) {
-            // Launch activity to select the server profile
-            Intent intent = new Intent(this, ServerProfilesManagerActivity.class);
-            startActivityForResult(intent, RC_SWITCH_SERVER_PROFILE);
+            ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
         } else {
             mProfileNameText.setText(serverProfile.getAlias());
 

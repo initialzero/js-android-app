@@ -50,6 +50,7 @@ import roboguice.fragment.RoboDialogFragment;
 public class PasswordDialogFragment extends RoboDialogFragment {
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
+    private static final String PASSWORD_EXTRA = "PASSWORD";
 
     @Inject
     private JsRestClient mJsRestClient;
@@ -59,6 +60,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     private TextView mProfileNameText;
     private TextView mUserNameText;
     private View mOrganizationTableRow;
+    private String mPasswordValue;
 
     //---------------------------------------------------------------------
     // Static methods
@@ -93,22 +95,51 @@ public class PasswordDialogFragment extends RoboDialogFragment {
         builder.setView(view);
 
         builder.setCancelable(false)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        JsServerProfile currentProfile = mJsRestClient.getServerProfile();
-
-                        String password = mPasswordEdit.getText().toString();
-                        currentProfile.setPassword(password);
-
-                        mJsRestClient.setServerProfile(currentProfile);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
                 });
-        return builder.create();
+
+
+        final AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                String password = mPasswordEdit.getText().toString();
+                                if (TextUtils.isEmpty(password)) {
+                                    mPasswordEdit.setError(getString(R.string.sp_error_field_required));
+                                } else {
+                                    JsServerProfile currentProfile = mJsRestClient.getServerProfile();
+                                    currentProfile.setPassword(password);
+
+                                    mJsRestClient.setServerProfile(currentProfile);
+                                    dismiss();
+                                }
+                            }
+                        });
+            }
+        });
+        return dialog;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            mPasswordValue = savedInstanceState.getString(PASSWORD_EXTRA, "");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(PASSWORD_EXTRA, mPasswordEdit.getText().toString());
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -133,8 +164,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
         // Update username
         mUserNameText.setText(usr);
 
-        // Clear password
-        mPasswordEdit.setText("");
+        mPasswordEdit.setText(mPasswordValue);
     }
 
 }

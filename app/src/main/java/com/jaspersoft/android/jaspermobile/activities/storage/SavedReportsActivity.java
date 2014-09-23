@@ -51,6 +51,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.sdk.ui.adapters.FileArrayAdapter;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
@@ -321,11 +322,10 @@ public class SavedReportsActivity extends RoboListActivity {
 
         if ("HTML".equalsIgnoreCase(extension)) {
             // run the html report viewer
-            Intent htmlViewer = new Intent();
-            htmlViewer.setClass(SavedReportsActivity.this, SavedReportHtmlViewerActivity.class);
-            htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_URI, reportOutputPath.toString());
-            htmlViewer.putExtra(BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL, baseName);
-            startActivity(htmlViewer);
+            SavedReportHtmlViewerActivity_.intent(this)
+                    .resourceLabel(baseName)
+                    .resourceUri(reportOutputPath.toString())
+                    .start();
         } else {
             // run external viewer according to the file format
             String contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);

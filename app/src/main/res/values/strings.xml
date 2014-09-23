@@ -59,8 +59,8 @@
     <!-- Server Profiles Manager Activity -->
     <string name="spm_list_title">Server Profiles</string>
     <!-- Toasts -->
-    <string name="spm_profile_created_toast">New server profile successfully created.</string>
-    <string name="spm_profile_updated_toast">Server profile successfully updated.</string>
+    <string name="spm_profile_created_toast">New server profile \'%s\' successfully created.</string>
+    <string name="spm_profile_updated_toast">Server profile \'%s\' successfully updated.</string>
     <string name="spm_profile_deleted_toast">Server profile successfully deleted.</string>
     <!-- Context Menu -->
     <string name="spm_cm_switch">Connect</string>
@@ -92,6 +92,8 @@
     <!-- Error messages -->
     <string name="sp_error_field_required">This field is required.</string>
     <string name="sp_error_url_not_valid">URL is not valid.</string>
+    <string name="sp_error_duplicate_alias">Duplicate alias.</string>
+    <string name="sp_error_unique_alias">Couldn`t create server with such alias \'%s\' exists.</string>
 
 
     <!-- Repository Activity -->
@@ -111,7 +113,7 @@
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Running report…</string>
     <!-- Error messages -->
-    <string name="r_error_server_not_supported">Server version is either older than 5.0 (not supported) or URL is incorrect.</string>
+    <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
 
 
     <!-- Search Activity -->
@@ -141,6 +143,8 @@
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
+    <string name="rv_ab_show_filters">Show filters</string>
+    <string name="rv_error_empty_report">There is no report data</string>
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">The external memory card is not available. Please mount the card and try again.</string>
     <string name="rv_t_report_saving_not_supported">This functionality is only available for JasperReports Server 5.2 or higher</string>
@@ -197,6 +201,7 @@
     <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
+    <string name="st_invalid_number_format">Invalid number format</string>
 
 
     <!-- Error messages -->
@@ -214,26 +219,31 @@
     <!-- Others -->
     <string name="loading_msg">Loading…</string>
     <string name="error_msg">Error</string>
+    <string name="warning_msg">Warning</string>
     <string name="cancelled_msg">Cancelled</string>
 
     <!--New Home Page Labels-->
     <string name="action_settings">Settings</string>
     <string name="library_card_label">Library</string>
-    <string name="library_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="library_card_desc">Browse your JR Server Library.</string>
     <string name="saved_items_card_label">Saved Items</string>
-    <string name="saved_items_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="saved_items_card_desc">View Items Saved on this Device.</string>
     <string name="repository_card_label">Repository</string>
-    <string name="repository_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="repository_card_desc">Browse your JR Server Repository.</string>
     <string name="favorites_card_label">Favorites</string>
-    <string name="favorites_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="favorites_card_desc">View Favorites on this Device.</string>
     <string name="servers_card_label">Servers</string>
+    <string name="servers_card_desc">Select your JR Server profile.</string>
     <string name="settings_card_label">Settings</string>
-    <string name="settings_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
-    <string name="servers_card_desc">Sample dashboard built on supermart data showing performance and sales date from a variety of sources</string>
+    <string name="settings_card_desc">Configure your JasperSoft Mobile App.</string>
     <string name="home_label">Home</string>
 
     <string name="device">handset</string>
     <string name="search_result_format">Search result for \'%s\'</string>
     <string name="failed_load_data">Failed load data!</string>
+    <string name="sp_label_general">General</string>
+    <string name="sp_label_auth">Authentication</string>
+    <string name="label_add_profile">Add profile</string>
+    <string name="toast_select_profile">Please, select your profile</string>
 
 </resources>

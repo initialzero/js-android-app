@@ -79,6 +79,7 @@ public class LibraryPagePaginationTest extends ProtoActivityInstrumentation<Libr
 
     @Override
     protected void tearDown() throws Exception {
+        unregisterTestModule();
         ActivityLifecycleMonitorRegistry.getInstance()
                 .removeLifecycleCallback(injector);
         super.tearDown();
@@ -95,11 +96,6 @@ public class LibraryPagePaginationTest extends ProtoActivityInstrumentation<Libr
 
     public void testFirstItemClick() {
 
-    }
-
-    @Override
-    public String getPageName() {
-        return "library";
     }
 
     private class MockedSpiceManager extends SpiceManager {

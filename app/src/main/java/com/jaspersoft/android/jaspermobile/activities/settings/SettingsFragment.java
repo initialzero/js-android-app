@@ -29,10 +29,15 @@ import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EFragment;
 
 import roboguice.RoboGuice;
 
@@ -43,12 +48,12 @@ import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsAc
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_REPO_CACHE_EXPIRATION;
-import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.getReadTimeoutValue;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
+@EFragment
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private SharedPreferences sharedPreferences;
     private SwitchPreference animEnabledPref;
@@ -58,7 +63,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     @Inject
     private JsRestClient mJsRestClient;
-
+    @Bean
+    protected DefaultPrefHelper prefHelper;
     //---------------------------------------------------------------------
     // Public methods
     //---------------------------------------------------------------------
@@ -110,9 +116,13 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        validatePreferenceValue(key);
-        updatePreferenceSummary(key);
-        updateDependentObjects(key);
+        try {
+            validatePreferenceValue(key);
+            updateDependentObjects(key);
+            updatePreferenceSummary(key);
+        } catch (NumberFormatException ex) {
+            Toast.makeText(getActivity(), R.string.st_invalid_number_format, Toast.LENGTH_SHORT).show();
+        }
     }
 
     //---------------------------------------------------------------------
@@ -120,12 +130,24 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     //---------------------------------------------------------------------
 
     private void validatePreferenceValue(String key) {
-        if (key.equals(KEY_PREF_REPO_CACHE_EXPIRATION)) {
-            validatePreferenceValue(key, DEFAULT_REPO_CACHE_EXPIRATION);
-        } else if (key.equals(KEY_PREF_CONNECT_TIMEOUT)) {
-            validatePreferenceValue(key, DEFAULT_CONNECT_TIMEOUT);
-        } else if (key.equals(KEY_PREF_READ_TIMEOUT)) {
-            validatePreferenceValue(key, DEFAULT_READ_TIMEOUT);
+        switch (key) {
+            case KEY_PREF_REPO_CACHE_EXPIRATION:
+                validatePreferenceValue(key, DEFAULT_REPO_CACHE_EXPIRATION);
+                try {
+                    prefHelper.getRepoCacheExpirationValue();
+                } catch (NumberFormatException ex) {
+                    sharedPreferences.edit()
+                            .putString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION)
+                            .apply();
+                    throw ex;
+                }
+                break;
+            case KEY_PREF_CONNECT_TIMEOUT:
+                validatePreferenceValue(key, DEFAULT_CONNECT_TIMEOUT);
+                break;
+            case KEY_PREF_READ_TIMEOUT:
+                validatePreferenceValue(key, DEFAULT_READ_TIMEOUT);
+                break;
         }
     }
 
@@ -151,18 +173,36 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             String summary = getString(R.string.st_summary_sec, value);
             readTimeoutPref.setSummary(summary);
         } else if (key.equals(KEY_PREF_ANIMATION_ENABLED)) {
-            boolean animationsEnabled =  sharedPreferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
+            boolean animationsEnabled = sharedPreferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
             animEnabledPref.setChecked(animationsEnabled);
         }
     }
 
     private void updateDependentObjects(String key) {
-        if (key.equals(KEY_PREF_CONNECT_TIMEOUT)) {
-            int readTimeoutValue = getReadTimeoutValue(getActivity());
-            mJsRestClient.setConnectTimeout(readTimeoutValue * 1000);
-        } else if (key.equals(KEY_PREF_READ_TIMEOUT)) {
-            int readTimeoutValue = getReadTimeoutValue(getActivity());
-            mJsRestClient.setReadTimeout(readTimeoutValue * 1000);
+        switch (key) {
+            case KEY_PREF_CONNECT_TIMEOUT:
+                try {
+                    int readTimeoutValue = prefHelper.getConnectTimeoutValue();
+                    mJsRestClient.setConnectTimeout(readTimeoutValue * 1000);
+                } catch (NumberFormatException ex) {
+                    sharedPreferences.edit()
+                            .putString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT)
+                            .apply();
+                    throw ex;
+                }
+                break;
+            case KEY_PREF_READ_TIMEOUT:
+                try {
+                    int readTimeoutValue = prefHelper.getReadTimeoutValue();
+                    mJsRestClient.setReadTimeout(readTimeoutValue * 1000);
+                } catch (NumberFormatException ex) {
+                    sharedPreferences.edit()
+                            .putString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT)
+                            .apply();
+                    throw ex;
+                }
+                break;
         }
     }
+
 }

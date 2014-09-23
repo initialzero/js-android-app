@@ -68,6 +68,7 @@ import roboguice.inject.InjectView;
  * @author Ivan Gadzhega
  * @since 1.0
  */
+@Deprecated
 public abstract class BaseRepositoryActivity extends RoboListActivity {
 
     // Extras

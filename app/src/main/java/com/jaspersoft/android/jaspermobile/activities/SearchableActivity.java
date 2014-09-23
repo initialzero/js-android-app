@@ -74,7 +74,7 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
                                 .query(query)
                                 .build();
                 getSupportFragmentManager().beginTransaction()
-                        .add(resourcesController, ResourcesControllerFragment.TAG)
+                        .add(R.id.controller, resourcesController, ResourcesControllerFragment.TAG)
                         .commit();
             }
         }

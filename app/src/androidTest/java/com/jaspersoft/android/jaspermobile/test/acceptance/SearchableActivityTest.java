@@ -51,6 +51,7 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
@@ -135,7 +136,6 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     public void testFolderClick() {
         mMockedSpiceManager.addCachedResponse(reportsQueryResult);
         mMockedSpiceManager.addCachedResponse(levelRepositories);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
         startActivityUnderTest();
 
         onData(is(instanceOf(ResourceLookup.class)))
@@ -144,6 +144,10 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
 
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
+
+        // Bug related: To check whether we have only one switcher. Otherwise it will rise 'matches multiple views in the hierarchy.'
+        onView(withId(R.id.switchLayout)).check(matches(isDisplayed()));
+
     }
 
     public void testSearchResultsPersistedOnRotation() {

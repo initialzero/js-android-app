@@ -143,18 +143,7 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
             mServerProfile.setPassword(password);
             mServerProfile.setUpdatedAt(calendar.getTime().getTime());
 
-            // We should create new instance
-            if (profileId == 0) {
-                getSupportLoaderManager().initLoader(QUERY_UNIQUENESS, null, this);
-            } else {
-                String selection = ServerProfilesTable._ID + " =?";
-                String[] selectionArgs = {String.valueOf(profileId)};
-                getContentResolver().update(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
-                        mServerProfile.getContentValues(), selection, selectionArgs);
-                Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
-                setOkResult();
-                finish();
-            }
+            getSupportLoaderManager().initLoader(QUERY_UNIQUENESS, null, this);
         }
     }
 
@@ -341,9 +330,18 @@ public class ServerProfileActivity extends RoboFragmentActivity implements Loade
             Toast.makeText(this, getString(R.string.sp_error_unique_alias, alias),
                     Toast.LENGTH_SHORT).show();
         } else {
-            Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
-            profileId = Long.valueOf(uri.getLastPathSegment());
-            Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+            if (profileId == 0) {
+                Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+                profileId = Long.valueOf(uri.getLastPathSegment());
+                Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+            } else {
+                String selection = ServerProfilesTable._ID + " =?";
+                String[] selectionArgs = {String.valueOf(profileId)};
+                getContentResolver().update(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                        mServerProfile.getContentValues(), selection, selectionArgs);
+                Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
+            }
+
             setOkResult();
             finish();
         }

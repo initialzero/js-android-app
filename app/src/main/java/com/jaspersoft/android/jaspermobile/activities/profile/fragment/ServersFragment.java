@@ -89,7 +89,9 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
         super.onViewCreated(view, savedInstanceState);
 
         mServerProfile = jsRestClient.getServerProfile();
-        mServerProfileId = mServerProfile.getId();
+        if (mServerProfile != null) {
+            mServerProfileId = mServerProfile.getId();
+        }
 
         String[] from = {ServerProfilesTable.ALIAS, ServerProfilesTable.SERVER_URL, ServerProfilesTable._ID};
         int[] to = {android.R.id.text1, android.R.id.text2, android.R.id.icon};

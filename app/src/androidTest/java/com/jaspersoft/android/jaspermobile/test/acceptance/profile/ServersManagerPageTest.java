@@ -34,6 +34,7 @@ import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
@@ -95,7 +96,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         }
     }
 
-    public void testServerAliasShouldBeUnique() {
+    public void testServerAliasShouldBeUniqueDuringCreation() {
         createTestProfile(getActivity().getContentResolver());
         startActivityUnderTest();
 
@@ -114,6 +115,27 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withId(R.id.saveAction)).perform(click());
 
         onView(withText(TEST_ALIAS + "_suffix")).check(matches(isDisplayed()));
+    }
+
+    public void testServerAliasShouldBeUniqueDuringUpdate() {
+        createTestProfile(getActivity().getContentResolver());
+        startActivityUnderTest();
+
+        onView(withId(R.id.addProfile)).perform(click());
+        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS + "_suffix"));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onView(withText(TEST_ALIAS + "_suffix")).perform(longClick());
+
+        onView(withId(R.id.aliasEdit)).perform(clearText());
+        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+
+        onView(withId(R.id.saveAction)).perform(click());
+        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
     }
 
 }

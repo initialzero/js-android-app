@@ -54,20 +54,21 @@ public class ResourceViewHelper {
         }
     }
 
-    private void setIcon(IResourceView resourceView, ResourceLookup item) {
-        switch (item.getResourceType()) {
+    public static int getResourceIcon(ResourceLookup.ResourceType resourceType) {
+        switch (resourceType) {
             case folder:
-                resourceView.setImageIcon(R.drawable.sample_repo_violet);
-                break;
+                return R.drawable.sample_repo_violet;
             case dashboard:
-                resourceView.setImageIcon(R.drawable.sample_dashboard_blue);
-                break;
+                return R.drawable.sample_dashboard_blue;
             case reportUnit:
-                resourceView.setImageIcon(R.drawable.sample_report_grey);
-                break;
+                return R.drawable.sample_report_grey;
             default:
-                resourceView.setImageIcon(R.drawable.js_blue_gradient);
+                return R.drawable.js_blue_gradient;
         }
+    }
+
+    private void setIcon(IResourceView resourceView, ResourceLookup item) {
+        resourceView.setImageIcon(getResourceIcon(item.getResourceType()));
     }
 
     private String formatDateString(String updateDate) {

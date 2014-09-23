@@ -46,9 +46,8 @@ import com.jaspersoft.android.jaspermobile.activities.repository.adapter.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
+import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -132,6 +131,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Bean
     DefaultPrefHelper prefHelper;
+    @Bean
+    ResourceOpener resourceOpener;
 
     private int mTotal;
     private ResourceAdapter mAdapter;
@@ -140,6 +141,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        resourceOpener.setResourceTypes(resourceTypes);
+
         mSearchCriteria.setRecursive(recursiveLookup);
         mSearchCriteria.setTypes(resourceTypes);
         mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
@@ -204,19 +208,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         ResourceLookup resource = (ResourceLookup) listView.getItemAtPosition(position);
-        switch (resource.getResourceType()) {
-            case folder:
-                openFolder(resource);
-                break;
-            case reportUnit:
-                runReport(resource);
-                break;
-            case dashboard:
-                runDashboard(resource);
-                break;
-            default:
-                break;
-        }
+        resourceOpener.openResource(resource);
     }
 
     //---------------------------------------------------------------------
@@ -296,31 +288,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
-    private void openFolder(ResourceLookup resource) {
-        ResourcesControllerFragment newControllerFragment =
-                ResourcesControllerFragment_.builder()
-                        .emptyMessage(R.string.r_browser_nothing_to_display)
-                        .resourceTypes(resourceTypes)
-                        .resourceLabel(resource.getLabel())
-                        .resourceUri(resource.getUri())
-                        .build();
-        getFragmentManager().beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.controller, newControllerFragment, ResourcesControllerFragment.TAG + resource.getUri())
-                .commit();
-    }
-
-    private void runReport(final ResourceLookup resource) {
-        ReportHtmlViewerActivity_.intent(getActivity())
-                .resourceLabel(resource.getLabel())
-                .resourceUri(resource.getUri()).start();
-    }
-
-    private void runDashboard(ResourceLookup resource) {
-        DashboardHtmlViewerActivity_.intent(getActivity())
-                .resourceLabel(resource.getLabel())
-                .resourceUri(resource.getUri()).start();
-    }
 
     public void showEmptyText(int resId) {
         emptyText.setVisibility((listView.getChildCount() > 0) ? View.GONE : View.VISIBLE);

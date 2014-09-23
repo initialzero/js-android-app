@@ -299,6 +299,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     private void openFolder(ResourceLookup resource) {
         ResourcesControllerFragment newControllerFragment =
                 ResourcesControllerFragment_.builder()
+                        .emptyMessage(R.string.r_browser_nothing_to_display)
                         .resourceTypes(resourceTypes)
                         .resourceLabel(resource.getLabel())
                         .resourceUri(resource.getUri())

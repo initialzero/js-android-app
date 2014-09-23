@@ -136,6 +136,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     public void testFolderClick() {
         mMockedSpiceManager.addCachedResponse(reportsQueryResult);
         mMockedSpiceManager.addCachedResponse(levelRepositories);
+        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
         startActivityUnderTest();
 
         onData(is(instanceOf(ResourceLookup.class)))
@@ -148,6 +149,12 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         // Bug related: To check whether we have only one switcher. Otherwise it will rise 'matches multiple views in the hierarchy.'
         onView(withId(R.id.switchLayout)).check(matches(isDisplayed()));
 
+        onData(is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+
+        // Bug related: Check whether empty test displays correct message.
+        onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_browser_nothing_to_display)));
     }
 
     public void testSearchResultsPersistedOnRotation() {

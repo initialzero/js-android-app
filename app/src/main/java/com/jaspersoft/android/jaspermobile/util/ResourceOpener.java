@@ -95,8 +95,7 @@ public class ResourceOpener {
 
     private void runDashboard(ResourceLookup resource) {
         DashboardHtmlViewerActivity_.intent(activity)
-                .resourceLabel(resource.getLabel())
-                .resourceUri(resource.getUri()).start();
+                .resource(resource).start();
     }
 
 }

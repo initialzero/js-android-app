@@ -123,7 +123,7 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = mAdapter.getCursor();
-        cursor.moveToPosition(0);
+        cursor.moveToPosition(position);
 
         ResourceLookup resource = new ResourceLookup();
         resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));

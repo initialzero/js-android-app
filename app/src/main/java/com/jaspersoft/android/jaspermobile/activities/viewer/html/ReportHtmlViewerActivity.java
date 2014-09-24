@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -44,8 +43,6 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Progre
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
-import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -116,15 +113,13 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     private WebViewFragment webViewFragment;
     private ArrayList<ReportParameter> reportParameters;
     private boolean mSaveActionVisible, mFavoriteActionVisible, mFilterActionVisible;
-    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mToast =  Toast.makeText(this, "", Toast.LENGTH_SHORT);
         if (savedInstanceState == null) {
-            queryFavoriteUri();
+            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
 
             webViewFragment = WebViewFragment_.builder()
                     .resourceLabel(resource.getLabel()).resourceUri(resource.getUri()).build();
@@ -132,19 +127,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
-        }
-    }
-
-    private void queryFavoriteUri() {
-        Cursor cursor = favoritesHelper.queryFavoriteByResource(resource);
-        try {
-            if (cursor != null && cursor.getCount() > 0) {
-                cursor.moveToPosition(0);
-                String id = cursor.getString(cursor.getColumnIndex(FavoritesTable._ID));
-                favoriteEntryUri = Uri.withAppendedPath(JasperMobileProvider.FAVORITES_CONTENT_URI, id);
-            }
-        } finally {
-            if (cursor != null) cursor.close();
         }
     }
 
@@ -167,33 +149,8 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     @OptionsItem
     final void favoriteAction() {
-        int messageId;
-        int iconId;
-
-        if (favoriteEntryUri == null) {
-            favoriteEntryUri = favoritesHelper.addToFavorites(resource);
-            if (favoriteEntryUri == null) {
-                messageId = R.string.r_cm_add_to_favorites_failed;
-                iconId = R.drawable.ic_rating_not_favorite;
-            } else {
-                messageId = R.string.r_cm_add_to_favorites;
-                iconId = R.drawable.ic_rating_favorite;
-            }
-        } else {
-            int count = getContentResolver().delete(favoriteEntryUri, null, null);
-            if (count == 0) {
-                messageId = R.string.r_cm_remove_from_favorites_failed;
-                iconId = R.drawable.ic_rating_favorite;
-            } else {
-                favoriteEntryUri = null;
-                messageId = R.string.r_cm_remove_from_favorites;
-                iconId = R.drawable.ic_rating_not_favorite;
-            }
-        }
-
-        favoriteAction.setIcon(iconId);
-        mToast.setText(messageId);
-        mToast.show();
+        favoriteEntryUri = favoritesHelper.
+                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
     }
 
     @OptionsItem

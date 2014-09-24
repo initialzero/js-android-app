@@ -33,12 +33,15 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.SpiceService;
 import com.octo.android.robospice.exception.NetworkException;
@@ -87,6 +90,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
 
     private JsRestClient jsRestClient;
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+    private ServerInfo serverInfo;
 
     public InitialHomePageTest() {
         super(HomeActivity_.class);
@@ -95,6 +99,9 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
+
         MockitoAnnotations.initMocks(this);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
 
@@ -238,6 +245,9 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         }
 
         public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
+            if (request instanceof GetServerInfoRequest) {
+                requestListener.onRequestSuccess((T) serverInfo);
+            }
         }
     }
 

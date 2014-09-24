@@ -95,8 +95,6 @@ public class FavoritesHelper {
         mapValues.put(FavoritesTable.LABEL, resource.getLabel());
         mapValues.put(FavoritesTable.URI, resource.getUri());
         mapValues.put(FavoritesTable.WSTYPE, resource.getResourceType().toString());
-        mapValues.put(FavoritesTable.USERNAME, jsServerProfile.getUsername());
-        mapValues.put(FavoritesTable.ORGANIZATION, jsServerProfile.getOrganization());
         mapValues.put(FavoritesTable.SERVER_PROFILES_ID, jsServerProfile.getId() + "");
 
         List<String> conditions = Lists.newArrayList();
@@ -144,7 +142,7 @@ public class FavoritesHelper {
             }
         }
 
-        favoriteAction.setIcon(iconId);
+        if (favoriteAction != null) favoriteAction.setIcon(iconId);
         mToast.setText(messageId);
         mToast.show();
 

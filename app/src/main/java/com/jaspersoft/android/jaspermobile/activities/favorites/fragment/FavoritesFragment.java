@@ -25,12 +25,16 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -59,7 +63,7 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.*;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
  * @author Tom Koptel
@@ -67,7 +71,11 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.*;
  */
 @EFragment
 public class FavoritesFragment extends RoboFragment
-        implements SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+        implements SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener,
+        LoaderManager.LoaderCallbacks<Cursor> {
+    // Context menu action
+    private static final int ID_CM_FAVORITE = 10;
+
     @FragmentArg
     ViewType viewType;
 
@@ -94,6 +102,9 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setEmptyText(0);
+
+        registerForContextMenu(listView);
 
         String[] from = {FavoritesTable.LABEL, FavoritesTable.URI, FavoritesTable.WSTYPE};
         int[] to = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
@@ -108,6 +119,49 @@ public class FavoritesFragment extends RoboFragment
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
     }
 
+    //---------------------------------------------------------------------
+    // Implements Context Menu
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
+
+        // Determine on which item in the ListView the user long-clicked
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(info.position);
+
+        // Retrieve the label for that particular item and use it as title for the menu
+        menu.setHeaderTitle(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));
+
+        // Add all the menu options
+        menu.add(Menu.NONE, ID_CM_FAVORITE, Menu.NONE, R.string.r_cm_remove_from_favorites);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        // Determine on which item in the ListView the user long-clicked and get it from Cursor
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // Handle item selection
+        switch (item.getItemId()) {
+            case ID_CM_FAVORITE:
+                Cursor cursor = mAdapter.getCursor();
+                cursor.moveToPosition(info.position);
+                String id = cursor.getString(cursor.getColumnIndex(FavoritesTable._ID));
+                Uri uri = Uri.withAppendedPath(JasperMobileProvider.FAVORITES_CONTENT_URI, id);
+                getActivity().getContentResolver().delete(uri, null, null);
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Implements AbsListView.OnItemClickListener
+    //---------------------------------------------------------------------
+
     @Override
     public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
         if (columnIndex == cursor.getColumnIndex(FavoritesTable.WSTYPE)) {
@@ -119,6 +173,10 @@ public class FavoritesFragment extends RoboFragment
         }
         return false;
     }
+
+    //---------------------------------------------------------------------
+    // Implements SimpleCursorAdapter.ViewBinder
+    //---------------------------------------------------------------------
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -132,6 +190,10 @@ public class FavoritesFragment extends RoboFragment
 
         resourceOpener.openResource(resource);
     }
+
+    //---------------------------------------------------------------------
+    // Implements LoaderManager.LoaderCallbacks<Cursor>
+    //---------------------------------------------------------------------
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -151,8 +213,9 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mAdapter.swapCursor(cursor);
         if (cursor.getCount() > 0) {
-            mAdapter.swapCursor(cursor);
+            setEmptyText(0);
         } else {
             setEmptyText(R.string.f_empty_list_msg);
         }
@@ -160,7 +223,12 @@ public class FavoritesFragment extends RoboFragment
 
     @UiThread
     protected void setEmptyText(int resId) {
-        emptyText.setText(resId);
+        if (resId == 0) {
+            emptyText.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.VISIBLE);
+            emptyText.setText(resId);
+        }
     }
 
     @Override

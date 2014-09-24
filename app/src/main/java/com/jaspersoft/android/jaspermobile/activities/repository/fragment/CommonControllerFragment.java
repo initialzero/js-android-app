@@ -29,7 +29,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
+import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 
 import org.androidannotations.annotations.EFragment;
@@ -54,9 +54,7 @@ public class CommonControllerFragment extends Fragment {
 
     @OptionsItem
     final void showFavorites() {
-        Intent favoritesIntent = new Intent(getActivity(), FavoritesActivity.class);
-        favoritesIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(favoritesIntent);
+        FavoritesActivity_.intent(getActivity()).start();
     }
 
     @OptionsItem

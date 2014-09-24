@@ -36,6 +36,7 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -51,10 +52,15 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.doubleClick;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllFavorites;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Mockito.when;
@@ -76,6 +82,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     private SmartMockedSpiceManager mMockedSpiceManager;
     private ResourceLookupsList onlyDashboard;
     private ResourceLookupsList onlyReport;
+    private ResourceLookupsList onlyFolder;
 
     public FavoritesPageTest() {
         super(FavoritesActivity_.class);
@@ -89,9 +96,12 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
         onlyDashboard = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         onlyReport = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
+        onlyFolder = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
 
         mApplication = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
+        DefaultPrefHelper_ defaultPrefHelper = DefaultPrefHelper_.getInstance_(mApplication);
+        defaultPrefHelper.setAnimationEnabled(false);
         mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
 
         when(xmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
@@ -104,11 +114,12 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
     @Override
     protected void tearDown() throws Exception {
+        deleteAllFavorites(mApplication.getContentResolver());
         unregisterTestModule();
         super.tearDown();
     }
 
-    public void testAddToFavoriteFromDashboardView() throws InterruptedException {
+    public void testAddToFavoriteFromDashboardView() {
         mMockedSpiceManager.addCachedResponse(onlyDashboard);
         startActivityUnderTest();
 
@@ -136,10 +147,11 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         // Remove from favorite
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
-        onView(withId(android.R.id.empty)).check(matches(withText(R.string.f_empty_list_msg)));
+        onView(withId(android.R.id.list)).check(hasTotalCount(0));
+        onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
     }
 
-    public void testAddToFavoriteFromReportView() throws InterruptedException {
+    public void testAddToFavoriteFromReportView() {
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
@@ -155,7 +167,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         // Select report
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
+                .atPosition(0).perform(doubleClick());
 
         // Add to favorite
         onView(withId(R.id.favoriteAction)).perform(click());
@@ -167,9 +179,97 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
                 .atPosition(0).perform(click());
 
         // Remove from favorite
-        onView(withId(R.id.favoriteAction)).perform(click());
+        onView(withId(R.id.favoriteAction)).perform(doubleClick());
         pressBack();
-        onView(withId(android.R.id.empty)).check(matches(withText(R.string.f_empty_list_msg)));
+
+        onView(withId(android.R.id.list)).check(hasTotalCount(0));
+        onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
+    }
+
+    public void testAddReportToFavoriteFromContextMenu() throws Throwable {
+        mMockedSpiceManager.addCachedResponse(onlyReport);
+        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addCachedResponse(onlyReport);
+        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addCachedResponse(onlyReport);
+        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        deleteAllFavorites(mApplication.getContentResolver());
+        startActivityUnderTest();
+        startContextMenuInteractionTest();
+    }
+
+    public void testAddDashboardToFavoriteFromContextMenu() throws Throwable {
+        mMockedSpiceManager.addCachedResponse(onlyDashboard);
+        mMockedSpiceManager.addCachedResponse(onlyDashboard);
+        mMockedSpiceManager.addCachedResponse(onlyDashboard);
+        deleteAllFavorites(mApplication.getContentResolver());
+        startActivityUnderTest();
+        startContextMenuInteractionTest();
+    }
+
+    public void testAddFolderToFavoriteFromContextMenu() throws Throwable {
+        mMockedSpiceManager.addCachedResponse(onlyFolder);
+        mMockedSpiceManager.addCachedResponse(onlyFolder);
+        mMockedSpiceManager.addCachedResponse(onlyFolder);
+        mMockedSpiceManager.addCachedResponse(onlyFolder);
+        mMockedSpiceManager.addCachedResponse(onlyFolder);
+        deleteAllFavorites(mApplication.getContentResolver());
+        startActivityUnderTest();
+        startContextMenuInteractionTest();
+    }
+
+    private void startContextMenuInteractionTest() {
+        Intent intent = LibraryActivity_.intent(mApplication)
+                .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .get();
+        getInstrumentation().startActivitySync(intent);
+        getInstrumentation().waitForIdleSync();
+
+        onData(is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withText(R.string.r_cm_add_to_favorites)).perform(click());
+        pressBack();
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+        pressBack();
+
+        intent = LibraryActivity_.intent(mApplication)
+                .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .get();
+        getInstrumentation().startActivitySync(intent);
+        getInstrumentation().waitForIdleSync();
+
+        onData(is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withText(R.string.r_cm_remove_from_favorites)).perform(click());
+        pressBack();
+
+        onView(withId(android.R.id.list)).check(hasTotalCount(0));
+        onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
+
+        intent = LibraryActivity_.intent(mApplication)
+                .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .get();
+        getInstrumentation().startActivitySync(intent);
+        getInstrumentation().waitForIdleSync();
+
+        onData(is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withText(R.string.r_cm_add_to_favorites)).perform(click());
+        pressBack();
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withText(R.string.r_cm_remove_from_favorites)).perform(click());
+
+        onView(withId(android.R.id.list)).check(hasTotalCount(0));
+        onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
     }
 
     private class TestModule extends CommonTestModule {

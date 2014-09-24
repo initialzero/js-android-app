@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
+import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
@@ -47,6 +48,7 @@ import static com.google.android.apps.common.testing.ui.espresso.action.ViewActi
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.mockito.Mockito.when;
 
@@ -86,8 +88,14 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
+
         when(mockConectivityUtil.isConnected()).thenReturn(true);
+        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+
         registerTestModule(new TestModule());
+        deleteAllProfiles(getInstrumentation().getContext().getContentResolver());
+        setDefaultCurrentProfile();
+
         mMockedSpiceManager.setResponseForCacheRequest(mockServerInfo);
     }
 
@@ -100,8 +108,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     public void testMissingNetworkConnectionCase() {
         // Given simulation of connection loss
         when(mockConectivityUtil.isConnected()).thenReturn(false);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
 
         startActivityUnderTest();
         int[] ids = {R.id.home_item_library, R.id.home_item_repository, R.id.home_item_favorites};
@@ -117,14 +123,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     }
 
     public void testOverAllNavigationForDashboard() {
-        // Providing necessary mock for ServerProfile
-        when(mockServerProfile.getAlias()).thenReturn(ALIAS);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-
-        // Cut off SpiceManager
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
-
         startActivityUnderTest();
 
         // Check ActionBar server name
@@ -146,7 +144,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsRestClient.class).toInstance(mockRestClient);
+            bind(JsRestClient.class).in(Singleton.class);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
             bind(DatabaseProvider.class).toInstance(mockDatabaseProvider);
             bind(ConnectivityUtil.class).toInstance(mockConectivityUtil);

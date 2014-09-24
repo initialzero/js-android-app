@@ -26,11 +26,15 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.app.ActionBar;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -47,6 +51,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.IResour
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
@@ -79,8 +84,11 @@ public class ResourcesFragment extends RoboSpiceFragment
         IResourcesLoader {
 
     public static final String ROOT_URI = "/";
+    // Loader actions
     private static final int LOAD_FROM_CACHE = 1;
     private static final int LOAD_FROM_NETWORK = 2;
+    // Context menu actions
+    private static final int ID_CM_FAVORITE = 10;
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -133,6 +141,8 @@ public class ResourcesFragment extends RoboSpiceFragment
     DefaultPrefHelper prefHelper;
     @Bean
     ResourceOpener resourceOpener;
+    @Bean
+    FavoritesHelper favoritesHelper;
 
     private int mTotal;
     private ResourceAdapter mAdapter;
@@ -169,6 +179,8 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        registerForContextMenu(listView);
+
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 android.R.color.holo_blue_light,
@@ -199,6 +211,44 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     public boolean isLoading() {
         return mLoading;
+    }
+
+    //---------------------------------------------------------------------
+    // Implements Context Menu
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
+
+        // Determine on which item in the ListView the user long-clicked
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        ResourceLookup resource = mAdapter.getItem(info.position);
+        Uri uri = favoritesHelper.queryFavoriteUri(resource);
+
+        // Retrieve the label for that particular item and use it as title for the menu
+        menu.setHeaderTitle(resource.getLabel());
+
+        // Add all the menu options
+        menu.add(Menu.NONE, ID_CM_FAVORITE, Menu.NONE, (uri == null) ?
+                R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        // Determine on which item in the ListView the user long-clicked and get it from Cursor
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // Handle item selection
+        switch (item.getItemId()) {
+            case ID_CM_FAVORITE:
+                ResourceLookup resource = mAdapter.getItem(info.position);
+                Uri uri = favoritesHelper.queryFavoriteUri(resource);
+                favoritesHelper.handleFavoriteMenuAction(uri, resource, null);
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onContextItemSelected(item);
+        }
     }
 
     //---------------------------------------------------------------------

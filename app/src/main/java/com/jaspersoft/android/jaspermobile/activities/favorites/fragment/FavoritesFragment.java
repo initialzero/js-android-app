@@ -37,6 +37,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
@@ -51,6 +52,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.UiThread;
 
 import javax.inject.Inject;
 
@@ -71,6 +73,8 @@ public class FavoritesFragment extends RoboFragment
 
     @InjectView(android.R.id.list)
     AbsListView listView;
+    @InjectView(android.R.id.empty)
+    TextView emptyText;
 
     @Inject
     JsRestClient jsRestClient;
@@ -91,8 +95,7 @@ public class FavoritesFragment extends RoboFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-        String[] from = {FavoritesTable.TITLE, FavoritesTable.URI, FavoritesTable.WSTYPE};
+        String[] from = {FavoritesTable.LABEL, FavoritesTable.URI, FavoritesTable.WSTYPE};
         int[] to = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
 
         mAdapter = new SimpleCursorAdapter(getActivity(),
@@ -123,7 +126,7 @@ public class FavoritesFragment extends RoboFragment
         cursor.moveToPosition(0);
 
         ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
+        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));
         resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
         resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
 
@@ -148,7 +151,16 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        mAdapter.swapCursor(cursor);
+        if (cursor.getCount() > 0) {
+            mAdapter.swapCursor(cursor);
+        } else {
+            setEmptyText(R.string.f_empty_list_msg);
+        }
+    }
+
+    @UiThread
+    protected void setEmptyText(int resId) {
+        emptyText.setText(resId);
     }
 
     @Override

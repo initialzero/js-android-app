@@ -31,16 +31,13 @@
 			"name" : "favorites",
 			"members" : [{
 					"type" : "string",
-					"name" : "name"
-				}, {
-					"type" : "string",
-					"name" : "title"
-				}, {
-					"type" : "string",
-					"name" : "description"
+					"name" : "label"
 				}, {
 					"type" : "string",
 					"name" : "uri"
+				}, {
+					"type" : "string",
+					"name" : "description"
 				}, {
 					"type" : "string",
 					"name" : "wstype"

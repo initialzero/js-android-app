@@ -38,6 +38,8 @@ import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
 
 import org.mockito.Mock;
@@ -68,6 +70,7 @@ public class RealReportViewerPageTest extends ProtoActivityInstrumentation<Repor
     DatabaseProvider mockDbProvider;
     private SmartMockedSpiceManager mMockedSpiceManager;
     private InputControlsList inputControlList;
+    private ResourceLookup mResource;
 
     public RealReportViewerPageTest() {
         super(ReportHtmlViewerActivity_.class);
@@ -113,8 +116,14 @@ public class RealReportViewerPageTest extends ProtoActivityInstrumentation<Repor
 
     private void createReportIntent() {
         Intent htmlViewer = new Intent();
-        htmlViewer.putExtra(ReportHtmlViewerActivity_.RESOURCE_URI_EXTRA, RESOURCE_URI);
-        htmlViewer.putExtra(ReportHtmlViewerActivity_.RESOURCE_LABEL_EXTRA, RESOURCE_LABEL);
+        if (mResource == null) {
+            ResourceLookupsList resourceLookupsList =
+                    TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
+            mResource = resourceLookupsList.getResourceLookups().get(0);
+            mResource.setUri(RESOURCE_URI);
+            mResource.setLabel(RESOURCE_LABEL);
+        }
+        htmlViewer.putExtra(ReportHtmlViewerActivity_.RESOURCE_EXTRA, mResource);
         setActivityIntent(htmlViewer);
     }
 

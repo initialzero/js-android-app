@@ -43,7 +43,7 @@ import java.util.ArrayList;
  * @author Tom Koptel
  * @since 1.9
  */
-@EBean(scope = EBean.Scope.Singleton)
+@EBean
 public class ResourceOpener {
     @RootContext
     FragmentActivity activity;
@@ -90,8 +90,7 @@ public class ResourceOpener {
 
     private void runReport(final ResourceLookup resource) {
         ReportHtmlViewerActivity_.intent(activity)
-                .resourceLabel(resource.getLabel())
-                .resourceUri(resource.getUri()).start();
+                .resource(resource).start();
     }
 
     private void runDashboard(ResourceLookup resource) {

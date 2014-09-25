@@ -83,7 +83,9 @@
             android:label="@string/f_title" />
 
         <!-- Activity that performs viewing of the saved reports -->
-        <activity android:name=".activities.storage.SavedReportsActivity" />
+        <activity android:name=".activities.storage.SavedReportsActivity_"
+            android:label="@string/sdr_ab_title"
+            />
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity

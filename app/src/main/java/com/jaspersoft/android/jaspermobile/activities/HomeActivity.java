@@ -44,13 +44,12 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivit
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.FavoritesActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
+import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
@@ -170,8 +169,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_saved_reports)
     final void showSavedItems() {
-        Intent savedReportsIntent = new Intent(this, SavedReportsActivity.class);
-        startActivity(savedReportsIntent);
+        SavedReportsActivity_.intent(this).start();
     }
 
     @Click(R.id.home_item_settings)

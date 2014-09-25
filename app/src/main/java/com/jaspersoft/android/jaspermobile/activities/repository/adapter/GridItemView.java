@@ -87,7 +87,7 @@ public class GridItemView extends FrameLayout implements IResourceView {
         }
     }
 
-    public void setTimeTamp(CharSequence timestamp) {
+    public void setTimeStamp(CharSequence timestamp) {
         if (mTimestampStub != null) {
             if (mTimestampTxt == null) {
                 mTimestampTxt = (TextView) mTimestampStub.inflate();

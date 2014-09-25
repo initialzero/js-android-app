@@ -50,7 +50,7 @@ public class ResourceViewHelper {
         resourceView.setSubTitle(item.getDescription());
 
         if (item.getResourceType() == ResourceLookup.ResourceType.folder) {
-            resourceView.setTimeTamp(formatDateString(item.getCreationDate()));
+            resourceView.setTimeStamp(formatDateString(item.getCreationDate()));
         }
     }
 

@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.content.Intent;
+import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
@@ -73,9 +74,11 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     @Override
     public boolean onQueryTextSubmit(String query) {
         searchMenuItem.collapseActionView();
+        String resourceUri = getResourceUri();
         Intent searchIntent = SearchableActivity_
                 .intent(getActivity())
                 .query(query)
+                .resourceUri(resourceUri)
                 .resourceTypes(resourceTypes)
                 .get();
         searchIntent.setAction(Intent.ACTION_SEARCH);
@@ -92,4 +95,13 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
         this.resourceTypes = Lists.newArrayList(resourceTypes);
     }
 
+    public String getResourceUri() {
+        FragmentManager fm = getFragmentManager();
+        int entryCount = fm.getBackStackEntryCount();
+        if (entryCount == 0) {
+            return ResourcesFragment.ROOT_URI;
+        }
+        FragmentManager.BackStackEntry entry = fm.getBackStackEntryAt(entryCount - 1);
+        return entry.getName();
+    }
 }

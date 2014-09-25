@@ -50,6 +50,8 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
     ArrayList<String> resourceTypes;
     @Extra
     String query;
+    @Extra
+    String resourceUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +73,7 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
                                 .emptyMessage(R.string.r_search_nothing_to_display)
                                 .resourceLabel(getString(R.string.search_result_format, query))
                                 .resourceTypes(resourceTypes)
+                                .resourceUri(resourceUri)
                                 .query(query)
                                 .build();
                 getSupportFragmentManager().beginTransaction()

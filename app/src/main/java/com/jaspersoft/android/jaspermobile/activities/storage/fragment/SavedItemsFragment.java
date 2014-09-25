@@ -99,6 +99,7 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
         if ("HTML".equalsIgnoreCase(extension)) {
             // run the html report viewer
             SavedReportHtmlViewerActivity_.intent(this)
+                    .reportFile(reportFile)
                     .resourceLabel(baseName)
                     .resourceUri(reportOutputPath.toString())
                     .start();
@@ -156,7 +157,7 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
     }
 
     //---------------------------------------------------------------------
-    // Implements ISimpleDialogListener
+    // Implements Context Menu
     //---------------------------------------------------------------------
 
     @Override
@@ -212,7 +213,7 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
     }
 
     //---------------------------------------------------------------------
-    // Implements Context Menu
+    // Implements ISimpleDialogListener
     //---------------------------------------------------------------------
 
     @Override

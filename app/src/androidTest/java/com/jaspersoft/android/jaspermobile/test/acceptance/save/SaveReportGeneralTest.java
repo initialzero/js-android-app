@@ -28,6 +28,7 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.doubleClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -170,6 +171,43 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
         onView(withText(R.string.sdr_cm_delete)).perform(click());
 
         onOverflowView(getActivity(), withText(getActivity().getString(R.string.sdr_drd_msg, NEW_FILE_NAME))).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
+
+        onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.r_browser_nothing_to_display), isDisplayed())));
+        onView(withId(android.R.id.list)).check(hasTotalCount(0));
+    }
+
+    public void testDeleteSavedHtmlReportFromViewer() throws Throwable {
+        ResourceLookup resource = new ResourceLookup();
+        resource.setLabel(RESOURCE_LABEL);
+        resource.setUri(RESOURCE_URI);
+        resource.setResourceType(ResourceType.reportUnit.toString());
+
+        setActivityIntent(ReportHtmlViewerActivity_.intent(mApplication)
+                .resource(resource).get());
+        startActivityUnderTest();
+
+        onView(withId(R.id.saveReport)).perform(click());
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onView(withId(android.R.id.content)).check(matches(isDisplayed()));
+
+        getInstrumentation().startActivitySync(
+                SavedReportsActivity_.intent(getInstrumentation().getTargetContext())
+                        .flags(Intent.FLAG_ACTIVITY_NEW_TASK).get());
+        getInstrumentation().waitForIdleSync();
+
+        // We are on the list page
+        onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
+        onView(withId(android.R.id.list)).check(hasTotalCount(1));
+
+        onData(is(instanceOf(File.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+
+        onView(withId(R.id.deleteItem)).perform(doubleClick());
+
+        onOverflowView(getActivity(), withText(getActivity().getString(R.string.sdr_drd_msg, RESOURCE_LABEL))).check(matches(isDisplayed()));
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.r_browser_nothing_to_display), isDisplayed())));

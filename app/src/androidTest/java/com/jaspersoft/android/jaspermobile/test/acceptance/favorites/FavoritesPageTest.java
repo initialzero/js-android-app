@@ -167,7 +167,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         // Select report
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(doubleClick());
+                .atPosition(0).perform(click());
 
         // Add to favorite
         onView(withId(R.id.favoriteAction)).perform(click());

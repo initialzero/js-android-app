@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.test.utils;
 
 import android.app.Activity;
+import android.util.Log;
 
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleCallback;
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
@@ -77,6 +78,7 @@ public class SmartMockedSpiceManager extends SpiceManager {
     }
 
     public void removeLifeCycleListener() {
+        removeSpiceServiceListener(customSpiceServerListener);
         ActivityLifecycleMonitorRegistry.getInstance()
                 .removeLifecycleCallback(lifeCycleListener);
     }
@@ -101,6 +103,7 @@ public class SmartMockedSpiceManager extends SpiceManager {
     public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
                             final long cacheExpiryDuration, final RequestListener<T> requestListener) {
         if (mBehaveInRealMode) {
+
             addSpiceServiceListener(customSpiceServerListener);
             super.execute(request, requestCacheKey, cacheExpiryDuration, requestListener);
         } else {
@@ -150,60 +153,73 @@ public class SmartMockedSpiceManager extends SpiceManager {
     }
 
     private class CustomSpiceServerListener implements SpiceServiceListener {
+        private static final String TAG = "CountingIdlingResource";
+
         private final CountingIdlingResource idlingResource;
+        private final boolean mDebug;
 
         private CustomSpiceServerListener() {
-            idlingResource = new CountingIdlingResource("Spice server idle resource");
-            Espresso.registerIdlingResources(idlingResource);
+            this(false);
         }
 
-        @Override
-        public void onRequestSucceeded(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-            idlingResource.decrement();
-            removeSpiceServiceListener(this);
+        private CustomSpiceServerListener(boolean debug) {
+            mDebug = debug;
+            idlingResource = new CountingIdlingResource(
+                    String.format("CustomSpiceServerListener #{%d} idle resource", this.hashCode()), true);
+            Espresso.registerIdlingResources(idlingResource);
         }
 
         @Override
         public void onRequestFailed(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
             idlingResource.decrement();
-            removeSpiceServiceListener(this);
         }
 
         @Override
         public void onRequestCancelled(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
             idlingResource.decrement();
-            removeSpiceServiceListener(this);
         }
 
         @Override
         public void onRequestProgressUpdated(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-            int i = 0;
+        }
+
+        @Override
+        public void onRequestSucceeded(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
+            dumpLog("onRequestSucceeded", request.getResultType().getSimpleName(), request.hashCode());
+            if (!idlingResource.isIdleNow()) idlingResource.decrement();
         }
 
         @Override
         public void onRequestAdded(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
+            dumpLog("onRequestAdded", request.getResultType().getSimpleName(), request.hashCode());
             idlingResource.increment();
         }
 
         @Override
         public void onRequestAggregated(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-            int i = 0;
         }
 
         @Override
         public void onRequestNotFound(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
             idlingResource.decrement();
-            removeSpiceServiceListener(this);
         }
 
         @Override
         public void onRequestProcessed(CachedSpiceRequest<?> cachedSpiceRequest, RequestProcessingContext requestProcessingContext) {
-            int i = 0;
         }
 
         @Override
         public void onServiceStopped() {
-            int i = 0;
+        }
+
+        private void dumpLog(String tag, String what, long whatHashCode) {
+            dumpLog(tag, what, whatHashCode, "");
+        }
+
+        private void dumpLog(String tag, String what, long whatHashCode, String extraMsg) {
+            if (mDebug) {
+                Log.i(TAG, String.format("CustomSpiceServerListener %s for: %s %d %s", tag, what, whatHashCode, extraMsg));
+            }
         }
     }
 }

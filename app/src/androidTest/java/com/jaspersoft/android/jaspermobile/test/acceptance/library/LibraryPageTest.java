@@ -78,8 +78,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     private static final String GEO_QUERY = "Geo";
 
     @Mock
-    JsRestClient mockRestClient;
-    @Mock
     JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
     private SmartMockedSpiceManager mMockedSpiceManager;
@@ -176,7 +174,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
-    public void testFavoritesOptionMenu() {
+    public void testFavoritesOptionMenu() throws InterruptedException {
         startActivityUnderTest();
         openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
         onOverflowView(getActivity(), withText(R.string.r_ab_favorites)).perform(click());

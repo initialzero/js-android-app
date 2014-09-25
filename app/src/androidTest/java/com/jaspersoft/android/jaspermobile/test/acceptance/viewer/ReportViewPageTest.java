@@ -106,9 +106,10 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager())
                 .thenReturn(mMockedSpiceManager);
         registerTestModule(new TestModule());
+        setDefaultCurrentProfile();
+
         WebViewInjector.registerFor(ReportHtmlViewerActivity_.class);
 
-        setDefaultCurrentProfile();
         favoritesHelper = FavoritesHelper_.getInstance_(application);
 
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");

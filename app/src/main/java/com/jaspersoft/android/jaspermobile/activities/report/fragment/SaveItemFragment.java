@@ -249,8 +249,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
             if (runningRequests == 0) {
                 // activity is done and should be closed
-                Toast.makeText(getActivity(), R.string.sr_t_report_saved, Toast.LENGTH_SHORT).show();
                 setRefreshActionButtonState(false);
+                Toast.makeText(getActivity(), R.string.sr_t_report_saved, Toast.LENGTH_SHORT).show();
                 getActivity().finish();
             }
         }

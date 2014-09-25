@@ -72,7 +72,8 @@ public class SaveReportActivity extends RoboSpiceFragmentActivity {
                     .reportParameters(reportParameters)
                     .build();
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, saveItemFragment).commit();
+                    .add(android.R.id.content, saveItemFragment, SaveItemFragment.TAG)
+                    .commit();
         }
     }
 

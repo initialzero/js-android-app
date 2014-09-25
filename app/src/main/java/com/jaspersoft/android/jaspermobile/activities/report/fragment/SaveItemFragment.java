@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.activities.report.fragment;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -33,6 +34,7 @@ import org.androidannotations.annotations.ItemSelect;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
@@ -47,6 +49,8 @@ import roboguice.util.Ln;
 @EFragment(R.layout.save_report_layout)
 @OptionsMenu(R.menu.save_item_menu)
 public class SaveItemFragment extends RoboSpiceFragment {
+
+    public static final String TAG = SaveItemFragment.class.getSimpleName();
 
     @ViewById(R.id.output_format_spinner)
     Spinner formatSpinner;
@@ -68,6 +72,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @InstanceState
     int runningRequests;
+    @InstanceState
+    boolean mSaveActionIsVisible = true;
 
     protected static enum OutputFormat {
         HTML,
@@ -86,6 +92,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
         }
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        saveAction.setVisible(mSaveActionIsVisible);
+        super.onPrepareOptionsMenu(menu);
+    }
+
     @OptionsItem
     final void saveAction() {
         if (isReportNameValid()) {
@@ -99,11 +111,11 @@ public class SaveItemFragment extends RoboSpiceFragment {
             } else {
                 // save report
                 // run new report execution
+                setRefreshActionButtonState(true);
                 RunReportExecutionRequest request =
                         new RunReportExecutionRequest(jsRestClient, resourceUri,
                                 outputFormat.toString(), reportParameters, false, "./");
                 getSpiceManager().execute(request, new RunReportExecutionListener(reportFile, outputFormat));
-                getActivity().setProgressBarIndeterminateVisibility(true);
             }
         }
     }
@@ -122,6 +134,15 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @ItemSelect(R.id.output_format_spinner)
     public void formatItemSelected(boolean selected, OutputFormat selectedItem) {
         reportNameInput.setError(null);
+    }
+
+    @TextChange(R.id.report_name_input)
+    final void reportNameChanged() {
+        boolean nameValid = isReportNameValid();
+        reportNameInput.setError(null);
+        if (saveAction != null) {
+            saveAction.setIcon(nameValid ? R.drawable.ic_action_submit : R.drawable.ic_action_submit_disabled);
+        }
     }
 
     //---------------------------------------------------------------------
@@ -157,6 +178,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
         return reportDir;
     }
 
+    private void setRefreshActionButtonState(boolean refreshing) {
+        getActivity().setProgressBarIndeterminateVisibility(refreshing);
+        mSaveActionIsVisible  = !refreshing;
+        getActivity().invalidateOptionsMenu();
+    }
+
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
@@ -174,7 +201,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), false);
-            getActivity().setProgressBarIndeterminateVisibility(false);
+            setRefreshActionButtonState(false);
         }
 
         @Override
@@ -201,6 +228,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 }
             }
         }
+
     }
 
     private class SaveFileListener implements RequestListener<File> {
@@ -212,7 +240,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), false);
-            getActivity().setProgressBarIndeterminateVisibility(false);
+            setRefreshActionButtonState(false);
         }
 
         @Override
@@ -222,7 +250,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
             if (runningRequests == 0) {
                 // activity is done and should be closed
                 Toast.makeText(getActivity(), R.string.sr_t_report_saved, Toast.LENGTH_SHORT).show();
-                getActivity().setProgressBarIndeterminateVisibility(false);
+                setRefreshActionButtonState(false);
                 getActivity().finish();
             }
         }

@@ -225,18 +225,6 @@
     <!-- Save Report Layout -->
     <style name="saveReport" />
 
-    <style name="saveReport.scrollView">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:fillViewport">true</item>
-    </style>
-
-    <style name="saveReport.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:padding">10dp</item>
-    </style>
-
     <style name="saveReport.reportName" />
 
     <style name="saveReport.reportName.label" parent="inputControl.label" />
@@ -247,25 +235,8 @@
 
     <style name="saveReport.outputFormat" />
 
-    <style name="saveReport.outputFormat.label">
-        <item name="android:layout_margin">5dp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/js_blue</item>
-    </style>
+    <style name="saveReport.outputFormat.label" parent="inputControl.label"/>
 
-    <style name="saveReport.outputFormat.spinner">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <style name="saveReport.button">
-        <item name="android:layout_marginTop">25dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
 
     <!-- Dialogs -->
     <style name="dialog" />

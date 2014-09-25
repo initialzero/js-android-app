@@ -1,17 +1,12 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.save;
 
-import android.app.Activity;
 import android.app.Application;
-import android.content.ComponentName;
+import android.content.Intent;
 
-import com.google.android.apps.common.testing.testrunner.ActivityLifecycleCallback;
-import com.google.android.apps.common.testing.testrunner.Stage;
-import com.google.android.apps.common.testing.ui.espresso.Espresso;
-import com.google.android.apps.common.testing.ui.espresso.contrib.CountingIdlingResource;
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.acceptance.viewer.WebViewInjector;
@@ -28,13 +23,27 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Mockito.when;
 
 /**
@@ -45,6 +54,7 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
 
     protected static final String RESOURCE_URI = "/Reports/2_Sales_Mix_by_Demographic_Report";
     protected static final String RESOURCE_LABEL = "02. Sales Mix by Demographic Report";
+    private static final String NEW_FILE_NAME = "Renamed";
 
     @Mock
     JsXmlSpiceServiceWrapper jsXmlSpiceServiceWrapper;
@@ -88,7 +98,6 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
         super.tearDown();
     }
 
-    // TODO: provide test case
     public void testValidateFieldShouldNotAcceptSameName() throws Throwable {
         ResourceLookup resource = new ResourceLookup();
         resource.setLabel(RESOURCE_LABEL);
@@ -110,56 +119,61 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
         onView(withId(R.id.report_name_input)).check(matches(hasErrorText(getActivity().getString(R.string.sr_error_report_exists))));
     }
 
-    private class ActivityMonitor implements ActivityLifecycleCallback {
-        private final CountingIdlingResource idlingResource;
+    public void testHtmlSavedItemInteractions() throws Throwable {
+        ResourceLookup resource = new ResourceLookup();
+        resource.setLabel(RESOURCE_LABEL);
+        resource.setUri(RESOURCE_URI);
+        resource.setResourceType(ResourceType.reportUnit.toString());
 
-        private ActivityMonitor() {
-            idlingResource = new CountingIdlingResource("Activity idle resource");
-            Espresso.registerIdlingResources(idlingResource);
-        }
+        setActivityIntent(ReportHtmlViewerActivity_.intent(mApplication)
+                .resource(resource).get());
+        startActivityUnderTest();
 
-        @Override
-        public void onActivityLifecycleChanged(Activity activity, Stage stage) {
-            handleReportViewerLifeCycle(activity, stage);
-            handleSaveItemLifeCycle(activity, stage);
-        }
+        onView(withId(R.id.saveReport)).perform(click());
+        onView(withId(R.id.saveAction)).perform(click());
 
-        private void handleReportViewerLifeCycle(Activity activity, Stage stage) {
-            ComponentName targetComponentName =
-                    new ComponentName(activity, ReportHtmlViewerActivity_.class);
+        onView(withId(android.R.id.content)).check(matches(isDisplayed()));
 
-            ComponentName currentComponentName = activity.getComponentName();
-            if (!currentComponentName.equals(targetComponentName)) return;
+        getInstrumentation().startActivitySync(
+                SavedReportsActivity_.intent(getInstrumentation().getTargetContext())
+                        .flags(Intent.FLAG_ACTIVITY_NEW_TASK).get());
+        getInstrumentation().waitForIdleSync();
 
-            switch (stage) {
-                case RESTARTED:
-                    idlingResource.increment();
-                    break;
-                case RESUMED:
-                    if (!idlingResource.isIdleNow()) {
-                        idlingResource.decrement();
-                    }
-                    break;
-                default: // NOP
-            }
-        }
+        // We are on the list page
+        onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
+        onView(withId(android.R.id.list)).check(hasTotalCount(1));
 
-        private void handleSaveItemLifeCycle(Activity activity, Stage stage) {
-            ComponentName targetComponentName =
-                    new ComponentName(activity, SaveReportActivity_.class);
+        onData(is(instanceOf(File.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withText(R.string.sdr_cm_open)).perform(click());
+        pressBack();
 
-            ComponentName currentComponentName = activity.getComponentName();
-            if (!currentComponentName.equals(targetComponentName)) return;
+        onData(is(instanceOf(File.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+        pressBack();
 
-            switch (stage) {
-                case RESUMED:
-                    idlingResource.increment();
-                case DESTROYED:
-                    idlingResource.decrement();
-                    break;
-                default: // NOP
-            }
-        }
+        onData(is(instanceOf(File.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withText(R.string.sdr_cm_rename)).perform(click());
+
+        onOverflowView(getActivity(), withId(R.id.report_name_input)).perform(clearText());
+        onOverflowView(getActivity(), withId(R.id.report_name_input)).perform(typeText(NEW_FILE_NAME));
+        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
+        onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(NEW_FILE_NAME)))));
+
+        onData(is(instanceOf(File.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withText(R.string.sdr_cm_delete)).perform(click());
+
+        onOverflowView(getActivity(), withText(getActivity().getString(R.string.sdr_drd_msg, NEW_FILE_NAME))).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
+
+        onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.r_browser_nothing_to_display), isDisplayed())));
+        onView(withId(android.R.id.list)).check(hasTotalCount(0));
     }
 
     private class TestModule extends CommonTestModule {

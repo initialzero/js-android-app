@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
+import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsItem;
@@ -52,16 +53,10 @@ import static com.jaspersoft.android.jaspermobile.activities.repository.support.
  * @since 1.9
  */
 @EFragment
-@OptionsMenu(R.menu.switch_menu)
-public class ProfilesControllerFragment extends RoboFragment {
+public class ProfilesControllerFragment extends ControllerFragment {
 
     public static final String TAG = ProfilesControllerFragment.class.getSimpleName();
     public static final String CONTENT_TAG = "CONTENT_TAG";
-
-    @OptionsMenuItem(R.id.switchLayout)
-    public MenuItem switchLayoutMenuItem;
-    @Pref
-    RepositoryPref_ repositoryPref;
 
     private ServersFragment contentFragment;
 
@@ -79,48 +74,11 @@ public class ProfilesControllerFragment extends RoboFragment {
         }
     }
 
-    @OptionsItem
-    final void switchLayout() {
-        repositoryPref.viewType()
-                .put(getViewType() == LIST ? GRID.toString() : LIST.toString());
-        toggleSwitcher();
-        commitContentFragment();
-        getActivity().invalidateOptionsMenu();
-    }
-
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        toggleSwitcher();
-    }
-
-    private void toggleSwitcher() {
-        if (getViewType() == LIST) {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_grid);
-        } else {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_list);
-        }
-    }
-
-    private void commitContentFragment() {
-        boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (animationEnabled) {
-            transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        }
-        transaction
-                .replace(android.R.id.content, getContentFragment(), CONTENT_TAG)
-                .commit();
-    }
-
-    private Fragment getContentFragment() {
+    public Fragment getContentFragment() {
         contentFragment = ServersFragment_.builder()
                 .viewType(getViewType()).build();
         return contentFragment;
-    }
-
-    private ViewType getViewType() {
-        return ViewType.valueOf(repositoryPref);
     }
 
 }

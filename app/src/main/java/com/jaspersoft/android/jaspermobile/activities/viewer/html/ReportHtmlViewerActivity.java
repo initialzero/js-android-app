@@ -38,7 +38,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
@@ -155,17 +155,15 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     @OptionsItem
     final void saveReport() {
-        if (!FileUtils.isExternalStorageWritable()) {
-            // storage not available
-            Toast.makeText(ReportHtmlViewerActivity.this, R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
+        if (FileUtils.isExternalStorageWritable()) {
+            SaveReportActivity_.intent(this)
+                    .reportParameters(reportParameters)
+                    .resourceUri(resource.getUri())
+                    .resourceLabel(resource.getLabel())
+                    .start();
         } else {
-            // save report
-            Intent saveReport = new Intent();
-            saveReport.setClass(this, SaveReportActivity.class);
-            saveReport.putExtra(WebViewFragment.EXTRA_RESOURCE_URI, resource.getUri());
-            saveReport.putExtra(WebViewFragment.EXTRA_RESOURCE_LABEL, resource.getLabel());
-            saveReport.putExtra(EXTRA_REPORT_PARAMETERS, reportParameters);
-            startActivity(saveReport);
+            Toast.makeText(ReportHtmlViewerActivity.this,
+                    R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -271,6 +269,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                 showReportOptions(inputControls);
             } else {
                 mFavoriteActionVisible = true;
+                mSaveActionVisible = true;
                 List<ReportParameter> reportParameters = Lists.newArrayList();
                 String reportUrl = jsRestClient.generateReportUrl(resource.getUri(), reportParameters, OUTPUT_FORMAT);
                 loadUrl(reportUrl);
@@ -291,6 +290,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
             ProgressDialogFragment.dismiss(getSupportFragmentManager());
 
             mFavoriteActionVisible = true;
+            mSaveActionVisible = true;
             if (response.getTotalPages() == 0) {
                 AlertDialogFragment.createBuilder(ReportHtmlViewerActivity.this, getSupportFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)

@@ -29,48 +29,30 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourceSearchable;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
+import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
-import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.GRID;
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.LIST;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment
-@OptionsMenu(R.menu.switch_menu)
-public class ResourcesControllerFragment extends RoboSpiceFragment
+public class ResourcesControllerFragment extends ControllerFragment
         implements IResourcesLoader, IResourceSearchable {
     public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
     public static final String CONTENT_TAG = "CONTENT_TAG";
-
-    @Pref
-    RepositoryPref_ repositoryPref;
-
-    @OptionsMenuItem(R.id.switchLayout)
-    public MenuItem switchLayoutMenuItem;
 
     @InstanceState
     @FragmentArg
@@ -116,7 +98,8 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
         }
     }
 
-    private void commitContentFragment() {
+    @Override
+    protected void commitContentFragment() {
         boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         if (animationEnabled) {
@@ -127,30 +110,8 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
                 .commit();
     }
 
-    @OptionsItem
-    final void switchLayout() {
-        repositoryPref.viewType()
-                .put(getViewType() == LIST ? GRID.toString() : LIST.toString());
-        toggleSwitcher();
-        commitContentFragment();
-        getActivity().invalidateOptionsMenu();
-    }
-
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        toggleSwitcher();
-    }
-
-    private void toggleSwitcher() {
-        if (getViewType() == LIST) {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_grid);
-        } else {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_list);
-        }
-    }
-
-    private Fragment getContentFragment() {
+    public Fragment getContentFragment() {
         contentFragment = ResourcesFragment_.builder()
                 .query(query)
                 .emptyMessage(emptyMessage)
@@ -160,10 +121,6 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
                 .viewType(getViewType())
                 .resourceTypes(resourceTypes).build();
         return contentFragment;
-    }
-
-    private ViewType getViewType() {
-        return ViewType.valueOf(repositoryPref);
     }
 
     @Override
@@ -183,4 +140,5 @@ public class ResourcesControllerFragment extends RoboSpiceFragment
         contentFragment.setQuery(query);
         contentFragment.loadFirstPage();
     }
+
 }

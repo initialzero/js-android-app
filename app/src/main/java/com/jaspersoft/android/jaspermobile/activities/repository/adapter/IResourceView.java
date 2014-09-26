@@ -34,7 +34,7 @@ public interface IResourceView {
 
     void setSubTitle(CharSequence subTitle);
 
-    void setTimeTamp(CharSequence timestamp);
+    void setTimeStamp(CharSequence timestamp);
 
     void setMisc(CharSequence misc);
 

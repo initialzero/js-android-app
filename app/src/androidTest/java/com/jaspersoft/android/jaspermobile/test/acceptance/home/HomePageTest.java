@@ -48,7 +48,6 @@ import static com.google.android.apps.common.testing.ui.espresso.action.ViewActi
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.mockito.Mockito.when;
 
@@ -93,7 +92,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
 
         registerTestModule(new TestModule());
-        deleteAllProfiles(getInstrumentation().getContext().getContentResolver());
         setDefaultCurrentProfile();
 
         mMockedSpiceManager.setResponseForCacheRequest(mockServerInfo);

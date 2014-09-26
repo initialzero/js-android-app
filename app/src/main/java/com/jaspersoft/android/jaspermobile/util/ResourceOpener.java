@@ -83,7 +83,7 @@ public class ResourceOpener {
                         .resourceUri(resource.getUri())
                         .build();
         activity.getSupportFragmentManager().beginTransaction()
-                .addToBackStack(null)
+                .addToBackStack(resource.getUri())
                 .replace(R.id.controller, newControllerFragment, ResourcesControllerFragment.TAG + resource.getUri())
                 .commit();
     }

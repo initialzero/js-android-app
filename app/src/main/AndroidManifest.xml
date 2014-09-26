@@ -83,19 +83,9 @@
             android:label="@string/f_title" />
 
         <!-- Activity that performs viewing of the saved reports -->
-        <activity android:name=".activities.storage.SavedReportsActivity" />
-
-        <!-- Activity that performs searches based on a query string and presents the search results-->
-        <!--<activity android:name=".activities.repository.SearchActivity"-->
-        <!--android:launchMode="singleTop" >-->
-        <!--<intent-filter>-->
-        <!--<action android:name="android.intent.action.SEARCH" />-->
-        <!--</intent-filter>-->
-        <!--<meta-data-->
-        <!--android:name="android.app.searchable"-->
-        <!--android:resource="@xml/searchable"-->
-        <!--/>-->
-        <!--</activity>-->
+        <activity android:name=".activities.storage.SavedReportsActivity_"
+            android:label="@string/sdr_ab_title"
+            />
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity
@@ -120,7 +110,9 @@
 
         <!-- Activity that performs report saving to the local storage -->
         <activity
-            android:name=".activities.report.SaveReportActivity"
+            android:name=".activities.report.SaveReportActivity_"
+            android:label="@string/sr_ab_title"
+            android:configChanges="screenSize|orientation"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- Activity that allows to specify the application settings -->

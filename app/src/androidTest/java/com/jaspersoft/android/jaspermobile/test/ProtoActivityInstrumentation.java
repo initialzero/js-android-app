@@ -60,13 +60,11 @@ public class ProtoActivityInstrumentation<T extends Activity>
         profileHelper = ProfileHelper_.getInstance_(application);
 
         ContentResolver cr = application.getContentResolver();
+        DatabaseUtils.deleteTestProfiles(getInstrumentation().getTargetContext().getContentResolver());
+
+        DatabaseUtils.createDefaultProfile(cr);
         ServerProfiles profile = DatabaseUtils.queryProfileByAlias(
                 cr, ProfileHelper.DEFAULT_ALIAS);
-        if (profile == null) {
-            DatabaseUtils.createDefaultProfile(cr);
-            profile = DatabaseUtils.queryProfileByAlias(
-                    cr, ProfileHelper.DEFAULT_ALIAS);
-        }
         profileHelper.setCurrentServerProfile(profile.getRowId());
     }
 
@@ -74,7 +72,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
         mActivity = super.getActivity();
         // sometimes tests failed on emulator, following approach should avoid it
         // http://stackoverflow.com/questions/22737476/false-positives-junit-framework-assertionfailederror-edittext-is-not-found
-            getInstrumentation().runOnMainSync(new Runnable() {
+        getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -95,7 +93,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
     }
 
     protected void rotate() {
-        switch(mActivity.getResources().getConfiguration().orientation) {
+        switch (mActivity.getResources().getConfiguration().orientation) {
             case Configuration.ORIENTATION_PORTRAIT:
                 rotateToLandscape();
                 break;
@@ -158,9 +156,10 @@ public class ProtoActivityInstrumentation<T extends Activity>
             public void run() {
                 Collection<Activity> activites =
                         ActivityLifecycleMonitorRegistry.getInstance()
-                        .getActivitiesInStage(Stage.RESUMED);
+                                .getActivitiesInStage(Stage.RESUMED);
                 activity[0] = getOnlyElement(activites);
-            }});
+            }
+        });
         return activity[0];
     }
 }

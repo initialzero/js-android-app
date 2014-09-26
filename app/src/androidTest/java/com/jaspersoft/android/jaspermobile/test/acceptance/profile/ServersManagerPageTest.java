@@ -30,9 +30,9 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
@@ -50,14 +50,14 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_ALIAS;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_ORGANIZATION;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_PASS;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_SERVER_URL;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_USERNAME;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createTestProfile;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.deleteTestProfiles;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.queryTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ORGANIZATION;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_PASS;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_SERVER_URL;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_USERNAME;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteTestProfiles;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.queryTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
@@ -107,11 +107,11 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withId(R.id.addProfile)).perform(click());
         onView(withText(R.string.label_add_profile)).check(matches(isDisplayed()));
 
-        onView(withId(R.id.aliasEdit)).perform(typeText(TestServerProfileUtils.TEST_ALIAS));
-        onView(withId(R.id.serverUrlEdit)).perform(typeText(TestServerProfileUtils.TEST_SERVER_URL));
-        onView(withId(R.id.organizationEdit)).perform(typeText(TestServerProfileUtils.TEST_ORGANIZATION));
-        onView(withId(R.id.usernameEdit)).perform(typeText(TestServerProfileUtils.TEST_USERNAME));
-        onView(withId(R.id.passwordEdit)).perform(typeText(TestServerProfileUtils.TEST_PASS));
+        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(DatabaseUtils.TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText(DatabaseUtils.TEST_ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(typeText(DatabaseUtils.TEST_USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(DatabaseUtils.TEST_PASS));
 
         onView(withId(R.id.saveAction)).perform(click());
 
@@ -130,11 +130,11 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         onView(withId(R.id.addProfile)).perform(click());
 
-        onView(withId(R.id.aliasEdit)).perform(typeText(TestServerProfileUtils.TEST_ALIAS));
-        onView(withId(R.id.serverUrlEdit)).perform(typeText(TestServerProfileUtils.TEST_SERVER_URL));
-        onView(withId(R.id.organizationEdit)).perform(typeText(TestServerProfileUtils.TEST_ORGANIZATION));
-        onView(withId(R.id.usernameEdit)).perform(typeText(TestServerProfileUtils.TEST_USERNAME));
-        onView(withId(R.id.passwordEdit)).perform(typeText(TestServerProfileUtils.TEST_PASS));
+        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(DatabaseUtils.TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText(DatabaseUtils.TEST_ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(typeText(DatabaseUtils.TEST_USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(DatabaseUtils.TEST_PASS));
 
         onView(withId(R.id.saveAction)).perform(click());
 

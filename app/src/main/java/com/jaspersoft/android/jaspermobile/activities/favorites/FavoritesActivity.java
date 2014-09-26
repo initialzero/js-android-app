@@ -22,46 +22,47 @@
  *  <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
+package com.jaspersoft.android.jaspermobile.activities.favorites;
 
-import android.content.Intent;
+import android.app.ActionBar;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
+import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 
-import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
+
+import roboguice.activity.RoboFragmentActivity;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
-@OptionsMenu(R.menu.common_menu)
-public class CommonControllerFragment extends Fragment {
-
-    public static final String TAG = CommonControllerFragment.class.getSimpleName();
+@EActivity(R.layout.repositories_layout)
+public class FavoritesActivity extends RoboFragmentActivity {
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        if (savedInstanceState == null) {
+            FavoritesControllerFragment controllerFragment = FavoritesControllerFragment_.builder().build();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.controller, controllerFragment, FavoritesControllerFragment.TAG)
+                    .commit();
+        }
     }
 
-    @OptionsItem
-    final void showFavorites() {
-        FavoritesActivity_.intent(getActivity()).start();
-    }
-
-    @OptionsItem
-    final void showSettings() {
-        SettingsActivity_.intent(getActivity())
-                .flags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                .start();
+    @OptionsItem(android.R.id.home)
+    final void showHome() {
+        super.onBackPressed();
     }
 
 }

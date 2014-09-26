@@ -33,12 +33,15 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.SpiceService;
 import com.octo.android.robospice.exception.NetworkException;
@@ -64,9 +67,9 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.TEST_ALIAS;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createOnlyDefaultProfile;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils.createTestProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createOnlyDefaultProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
@@ -87,6 +90,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
 
     private JsRestClient jsRestClient;
     final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+    private ServerInfo serverInfo;
 
     public InitialHomePageTest() {
         super(HomeActivity_.class);
@@ -95,6 +99,9 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
+
         MockitoAnnotations.initMocks(this);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
 
@@ -238,6 +245,9 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         }
 
         public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
+            if (request instanceof GetServerInfoRequest) {
+                requestListener.onRequestSuccess((T) serverInfo);
+            }
         }
     }
 

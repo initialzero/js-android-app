@@ -28,24 +28,22 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
+import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.octo.android.robospice.SpiceManager;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -80,24 +78,17 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     private static final String GEO_QUERY = "Geo";
 
     @Mock
-    JsServerProfile mockServerProfile;
-    @Mock
-    DatabaseProvider mockDbProvider;
-    @Mock
     JsRestClient mockRestClient;
-    @Mock
-    SpiceManager mockSpiceService;
     @Mock
     JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+    private SmartMockedSpiceManager mMockedSpiceManager;
     private RepositoryPref_ repositoryPref;
     private ResourceLookupsList smallLookUp;
     private ResourceLookup reportResource;
     private ResourceLookup dashboardResource;
     private InputControlsList emptyInputControlsList;
     private InputControlsList fullInputControlsList;
-    private boolean withIC;
 
     public LibraryPageTest() {
         super(LibraryActivity_.class);
@@ -120,12 +111,11 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         fullInputControlsList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
 
         registerTestModule(new TestModule());
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-        when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+        setDefaultCurrentProfile();
 
-        mMockedSpiceManager.setResponseForCacheRequest(smallLookUp);
+        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
+        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+        mMockedSpiceManager.addCachedResponse(smallLookUp);
     }
 
     @Override
@@ -159,16 +149,19 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     }
 
     public void testReportWithICItemClicked() {
-        mMockedSpiceManager.setResponseForNetworkRequest(fullInputControlsList);
+        mMockedSpiceManager.addNetworkResponse(fullInputControlsList);
         clickOnReportItem();
     }
 
     public void testReportWithoutICItemClicked() {
-        mMockedSpiceManager.setResponseForNetworkRequest(emptyInputControlsList);
+        mMockedSpiceManager.addNetworkResponse(emptyInputControlsList);
         clickOnReportItem();
     }
 
     public void testSwitcher() {
+        mMockedSpiceManager.addCachedResponse(smallLookUp);
+        mMockedSpiceManager.addCachedResponse(smallLookUp);
+        mMockedSpiceManager.addCachedResponse(smallLookUp);
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
@@ -218,6 +211,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     }
 
     public void testSearchInRepository() {
+        mMockedSpiceManager.addCachedResponse(smallLookUp);
         startActivityUnderTest();
 
         try {
@@ -240,8 +234,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsRestClient.class).toInstance(mockRestClient);
-            bind(DatabaseProvider.class).toInstance(mockDbProvider);
+            bind(JsRestClient.class).in(Singleton.class);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
         }
     }

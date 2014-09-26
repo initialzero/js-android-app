@@ -24,17 +24,27 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.RelativeLayout;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 
 import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
@@ -46,31 +56,54 @@ import roboguice.inject.InjectView;
  * @since 1.4
  */
 @EActivity
+@OptionsMenu(R.menu.dashboard_menu)
 public class DashboardHtmlViewerActivity extends RoboFragmentActivity
         implements WebViewFragment.OnWebViewCreated {
+
     @Inject
     JsRestClient jsRestClient;
-
-    @Extra
-    String resourceUri;
-    @Extra
-    String resourceLabel;
-
     @InjectView(R.id.htmlViewer_layout)
-    protected RelativeLayout layout;
+    RelativeLayout layout;
+
+    @OptionsMenuItem
+    MenuItem favoriteAction;
+
+    @Extra
+    ResourceLookup resource;
+
+    @Bean
+    FavoritesHelper favoritesHelper;
+
+    @InstanceState
+    Uri favoriteEntryUri;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
+            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
+
             WebViewFragment webViewFragment = WebViewFragment_.builder()
-                    .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
+                    .resourceLabel(resource.getLabel()).resourceUri(resource.getUri()).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_rating_not_favorite : R.drawable.ic_rating_favorite);
+        return result;
+    }
+
+    @OptionsItem
+    final void favoriteAction() {
+        favoriteEntryUri = favoritesHelper.
+                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
     }
 
     @Override
@@ -85,7 +118,8 @@ public class DashboardHtmlViewerActivity extends RoboFragmentActivity
 
         String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
                 + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
-                + resourceUri;
+                + resource.getUri();
         webViewFragment.loadUrl(dashboardUrl);
     }
+
 }

@@ -31,7 +31,10 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -47,6 +50,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 public class DashboardViewPageTest extends ProtoActivityInstrumentation<DashboardHtmlViewerActivity_> {
     private static final String RESOURCE_URI = "/Dashboards/Supermart_Dashboard";
     private static final String RESOURCE_LABEL = "1. Supermart Dashboard";
+    private ResourceLookup mResource;
 
     public DashboardViewPageTest() {
         super(DashboardHtmlViewerActivity_.class);
@@ -58,6 +62,11 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
         WebViewInjector.registerFor(DashboardHtmlViewerActivity_.class);
+
+        ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
+        mResource = resourceLookupsList.getResourceLookups().get(0);
+        mResource.setLabel(RESOURCE_LABEL);
+        mResource.setUri(RESOURCE_URI);
     }
 
     @Override
@@ -77,8 +86,7 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
 
     private void createReportIntent() {
         Intent htmlViewer = new Intent();
-        htmlViewer.putExtra(DashboardHtmlViewerActivity_.RESOURCE_URI_EXTRA, RESOURCE_URI);
-        htmlViewer.putExtra(DashboardHtmlViewerActivity_.RESOURCE_LABEL_EXTRA, RESOURCE_LABEL);
+        htmlViewer.putExtra(DashboardHtmlViewerActivity_.RESOURCE_EXTRA, mResource);
         setActivityIntent(htmlViewer);
     }
 

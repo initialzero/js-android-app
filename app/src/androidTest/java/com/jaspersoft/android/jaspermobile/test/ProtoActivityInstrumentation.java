@@ -14,8 +14,8 @@ import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
+import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
-import com.jaspersoft.android.jaspermobile.test.utils.TestServerProfileUtils;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.squareup.spoon.Spoon;
@@ -60,11 +60,11 @@ public class ProtoActivityInstrumentation<T extends Activity>
         profileHelper = ProfileHelper_.getInstance_(application);
 
         ContentResolver cr = application.getContentResolver();
-        ServerProfiles profile = TestServerProfileUtils.queryProfileByAlias(
+        ServerProfiles profile = DatabaseUtils.queryProfileByAlias(
                 cr, ProfileHelper.DEFAULT_ALIAS);
         if (profile == null) {
-            TestServerProfileUtils.createDefaultProfile(cr);
-            profile = TestServerProfileUtils.queryProfileByAlias(
+            DatabaseUtils.createDefaultProfile(cr);
+            profile = DatabaseUtils.queryProfileByAlias(
                     cr, ProfileHelper.DEFAULT_ALIAS);
         }
         profileHelper.setCurrentServerProfile(profile.getRowId());

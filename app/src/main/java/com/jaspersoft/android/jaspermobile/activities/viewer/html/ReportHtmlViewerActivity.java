@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
@@ -50,11 +52,13 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
@@ -89,9 +93,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     JsRestClient jsRestClient;
 
     @Extra
-    String resourceUri;
-    @Extra
-    String resourceLabel;
+    ResourceLookup resource;
 
     @OptionsMenuItem
     MenuItem saveReport;
@@ -102,18 +104,25 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     @InstanceState
     ArrayList<InputControl> cachedInputControls;
+    @InstanceState
+    Uri favoriteEntryUri;
+
+    @Bean
+    FavoritesHelper favoritesHelper;
 
     private WebViewFragment webViewFragment;
     private ArrayList<ReportParameter> reportParameters;
-    private boolean mSaveActionVisible, mFilterActionVisible;
+    private boolean mSaveActionVisible, mFavoriteActionVisible, mFilterActionVisible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
+            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
+
             webViewFragment = WebViewFragment_.builder()
-                    .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
+                    .resourceLabel(resource.getLabel()).resourceUri(resource.getUri()).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
@@ -125,13 +134,23 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
         saveReport.setVisible(mSaveActionVisible);
+        favoriteAction.setVisible(mFavoriteActionVisible);
         showFilters.setVisible(mFilterActionVisible);
+
+        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_rating_not_favorite : R.drawable.ic_rating_favorite);
+
         return result;
     }
 
     @OptionsItem
     final void showFilters() {
         showReportOptions(cachedInputControls);
+    }
+
+    @OptionsItem
+    final void favoriteAction() {
+        favoriteEntryUri = favoritesHelper.
+                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
     }
 
     @OptionsItem
@@ -143,8 +162,8 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
             // save report
             Intent saveReport = new Intent();
             saveReport.setClass(this, SaveReportActivity.class);
-            saveReport.putExtra(WebViewFragment.EXTRA_RESOURCE_URI, resourceUri);
-            saveReport.putExtra(WebViewFragment.EXTRA_RESOURCE_LABEL, resourceLabel);
+            saveReport.putExtra(WebViewFragment.EXTRA_RESOURCE_URI, resource.getUri());
+            saveReport.putExtra(WebViewFragment.EXTRA_RESOURCE_LABEL, resource.getLabel());
             saveReport.putExtra(EXTRA_REPORT_PARAMETERS, reportParameters);
             startActivity(saveReport);
         }
@@ -155,7 +174,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         if (resultCode == Activity.RESULT_OK) {
             reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
             final RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient,
-                    resourceUri, OUTPUT_FORMAT, reportParameters);
+                    resource.getUri(), OUTPUT_FORMAT, reportParameters);
 
             ProgressDialogFragment.show(getSupportFragmentManager(),
                     new DialogInterface.OnCancelListener() {
@@ -187,7 +206,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     @Override
     public void onWebViewCreated(WebViewFragment webViewFragment) {
         final GetInputControlsRequest request =
-                new GetInputControlsRequest(jsRestClient, resourceUri);
+                new GetInputControlsRequest(jsRestClient, resource.getUri());
 
         ProgressDialogFragment.show(getSupportFragmentManager(),
                 new DialogInterface.OnCancelListener() {
@@ -217,8 +236,8 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     private void showReportOptions(ArrayList<InputControl> inputControls) {
         // Run Report Options activity
         Intent intent = new Intent(this, ReportOptionsActivity.class);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resourceUri);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resourceLabel);
+        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
+        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
         intent.putParcelableArrayListExtra(ReportOptionsActivity.EXTRA_REPORT_CONTROLS, inputControls);
         startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
     }
@@ -244,18 +263,19 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         public void onRequestSuccess(InputControlsList controlsList) {
             ProgressDialogFragment.dismiss(getSupportFragmentManager());
 
-            ArrayList<InputControl> inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+            ArrayList<InputControl> inputControls = Lists.newArrayList(controlsList.getInputControls());
             mFilterActionVisible = !inputControls.isEmpty();
-            invalidateOptionsMenu();
 
             if (mFilterActionVisible) {
                 cachedInputControls = inputControls;
                 showReportOptions(inputControls);
             } else {
+                mFavoriteActionVisible = true;
                 List<ReportParameter> reportParameters = Lists.newArrayList();
-                String reportUrl = jsRestClient.generateReportUrl(resourceUri, reportParameters, OUTPUT_FORMAT);
+                String reportUrl = jsRestClient.generateReportUrl(resource.getUri(), reportParameters, OUTPUT_FORMAT);
                 loadUrl(reportUrl);
             }
+            invalidateOptionsMenu();
         }
     }
 
@@ -270,6 +290,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         public void onRequestSuccess(ReportExecutionResponse response) {
             ProgressDialogFragment.dismiss(getSupportFragmentManager());
 
+            mFavoriteActionVisible = true;
             if (response.getTotalPages() == 0) {
                 AlertDialogFragment.createBuilder(ReportHtmlViewerActivity.this, getSupportFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
@@ -281,6 +302,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                 URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
                 loadUrl(reportUri.toString());
             }
+            invalidateOptionsMenu();
         }
     }
 

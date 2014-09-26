@@ -177,6 +177,7 @@ public class SmartMockedSpiceManager extends SpiceManager {
 
         @Override
         public void onRequestProgressUpdated(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
+            int i = 0;
         }
 
         @Override
@@ -186,6 +187,7 @@ public class SmartMockedSpiceManager extends SpiceManager {
 
         @Override
         public void onRequestAggregated(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
+            int i = 0;
         }
 
         @Override
@@ -196,10 +198,12 @@ public class SmartMockedSpiceManager extends SpiceManager {
 
         @Override
         public void onRequestProcessed(CachedSpiceRequest<?> cachedSpiceRequest, RequestProcessingContext requestProcessingContext) {
+            int i = 0;
         }
 
         @Override
         public void onServiceStopped() {
+            int i = 0;
         }
     }
 }

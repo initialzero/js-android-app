@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
@@ -163,8 +164,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_favorites)
     final void showFavorites() {
         if (hasNetwork() && hasServerProfileSetup()) {
-            Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
-            startActivity(favoritesIntent);
+            FavoritesActivity_.intent(this).start();
         }
     }
 

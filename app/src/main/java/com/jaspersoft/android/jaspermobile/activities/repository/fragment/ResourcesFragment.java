@@ -26,11 +26,15 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.app.ActionBar;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -46,9 +50,9 @@ import com.jaspersoft.android.jaspermobile.activities.repository.adapter.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -80,8 +84,11 @@ public class ResourcesFragment extends RoboSpiceFragment
         IResourcesLoader {
 
     public static final String ROOT_URI = "/";
+    // Loader actions
     private static final int LOAD_FROM_CACHE = 1;
     private static final int LOAD_FROM_NETWORK = 2;
+    // Context menu actions
+    private static final int ID_CM_FAVORITE = 10;
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -132,6 +139,10 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Bean
     DefaultPrefHelper prefHelper;
+    @Bean
+    ResourceOpener resourceOpener;
+    @Bean
+    FavoritesHelper favoritesHelper;
 
     private int mTotal;
     private ResourceAdapter mAdapter;
@@ -140,6 +151,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        resourceOpener.setResourceTypes(resourceTypes);
+
         mSearchCriteria.setRecursive(recursiveLookup);
         mSearchCriteria.setTypes(resourceTypes);
         mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
@@ -164,6 +178,8 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        registerForContextMenu(listView);
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
@@ -198,25 +214,51 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     //---------------------------------------------------------------------
+    // Implements Context Menu
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
+
+        // Determine on which item in the ListView the user long-clicked
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        ResourceLookup resource = mAdapter.getItem(info.position);
+        Uri uri = favoritesHelper.queryFavoriteUri(resource);
+
+        // Retrieve the label for that particular item and use it as title for the menu
+        menu.setHeaderTitle(resource.getLabel());
+
+        // Add all the menu options
+        menu.add(Menu.NONE, ID_CM_FAVORITE, Menu.NONE, (uri == null) ?
+                R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        // Determine on which item in the ListView the user long-clicked and get it from Cursor
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // Handle item selection
+        switch (item.getItemId()) {
+            case ID_CM_FAVORITE:
+                ResourceLookup resource = mAdapter.getItem(info.position);
+                Uri uri = favoritesHelper.queryFavoriteUri(resource);
+                favoritesHelper.handleFavoriteMenuAction(uri, resource, null);
+                return true;
+            default:
+                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    //---------------------------------------------------------------------
     // Implements AbsListView.OnItemClickListener
     //---------------------------------------------------------------------
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         ResourceLookup resource = (ResourceLookup) listView.getItemAtPosition(position);
-        switch (resource.getResourceType()) {
-            case folder:
-                openFolder(resource);
-                break;
-            case reportUnit:
-                runReport(resource);
-                break;
-            case dashboard:
-                runDashboard(resource);
-                break;
-            default:
-                break;
-        }
+        resourceOpener.openResource(resource);
     }
 
     //---------------------------------------------------------------------
@@ -296,31 +338,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
-    private void openFolder(ResourceLookup resource) {
-        ResourcesControllerFragment newControllerFragment =
-                ResourcesControllerFragment_.builder()
-                        .emptyMessage(R.string.r_browser_nothing_to_display)
-                        .resourceTypes(resourceTypes)
-                        .resourceLabel(resource.getLabel())
-                        .resourceUri(resource.getUri())
-                        .build();
-        getFragmentManager().beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.controller, newControllerFragment, ResourcesControllerFragment.TAG + resource.getUri())
-                .commit();
-    }
-
-    private void runReport(final ResourceLookup resource) {
-        ReportHtmlViewerActivity_.intent(getActivity())
-                .resourceLabel(resource.getLabel())
-                .resourceUri(resource.getUri()).start();
-    }
-
-    private void runDashboard(ResourceLookup resource) {
-        DashboardHtmlViewerActivity_.intent(getActivity())
-                .resourceLabel(resource.getLabel())
-                .resourceUri(resource.getUri()).start();
-    }
 
     public void showEmptyText(int resId) {
         emptyText.setVisibility((listView.getChildCount() > 0) ? View.GONE : View.VISIBLE);

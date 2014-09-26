@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
+import android.app.ActionBar;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -117,6 +118,15 @@ public class FavoritesFragment extends RoboFragment
         listView.setOnItemClickListener(this);
 
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.f_title);
+        }
     }
 
     //---------------------------------------------------------------------

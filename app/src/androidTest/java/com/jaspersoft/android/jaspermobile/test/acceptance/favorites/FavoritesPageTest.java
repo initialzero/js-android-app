@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -83,6 +84,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     private ResourceLookupsList onlyDashboard;
     private ResourceLookupsList onlyReport;
     private ResourceLookupsList onlyFolder;
+    private FavoritesHelper_ favoritesHelper;
 
     public FavoritesPageTest() {
         super(FavoritesActivity_.class);
@@ -108,7 +110,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
-
+        favoritesHelper = FavoritesHelper_.getInstance_(mApplication);
         deleteAllFavorites(mApplication.getContentResolver());
     }
 
@@ -270,6 +272,21 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
+    }
+
+    public void testPageShouldPreserveOriginalLabel() {
+        ResourceLookup resourceLookup = onlyFolder.getResourceLookups().get(0);
+        mMockedSpiceManager.addCachedResponse(onlyFolder);
+        favoritesHelper.addToFavorites(resourceLookup);
+        startActivityUnderTest();
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+
+        onView(withId(getActionBarTitleId())).check(matches(withText(resourceLookup.getLabel())));
+        pressBack();
+        onView(withId(getActionBarTitleId())).check(matches(withText(R.string.f_title)));
     }
 
     private class TestModule extends CommonTestModule {

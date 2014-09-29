@@ -13,7 +13,6 @@ This software includes third party software subject to the associated copyrights
 - Spoon Client 1.1.1 (Apache 2.0) - http://square.github.io/spoon/
 - Mockito 1.9.5 (MIT) - https://code.google.com/p/mockito/
 - Dexmaker 1.0 (Apache 2.0) - https://code.google.com/p/dexmaker/
-- Dexmaker 1.0 (Apache 2.0) - https://code.google.com/p/dexmaker/
 
 The text of licenses for the above software is included with the
 JasperMobile for Android package, in the /licenses folder.

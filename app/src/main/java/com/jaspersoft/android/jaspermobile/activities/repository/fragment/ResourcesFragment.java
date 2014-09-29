@@ -42,6 +42,8 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.common.primitives.Ints;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
@@ -68,6 +70,7 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -366,6 +369,7 @@ public class ResourcesFragment extends RoboSpiceFragment
             }
 
             List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
+            Collections.sort(datum, new OrderingByType());
             mAdapter.setNotifyOnChange(true);
             mAdapter.addAll(datum);
         }
@@ -379,4 +383,14 @@ public class ResourcesFragment extends RoboSpiceFragment
             emptyText.setVisibility((mAdapter.getCount() > 0) ? View.GONE : View.VISIBLE);
         }
     }
+
+    private static class OrderingByType extends Ordering<ResourceLookup> {
+        @Override
+        public int compare(ResourceLookup res1, ResourceLookup res2) {
+            ResourceLookup.ResourceType resType1 = res1.getResourceType();
+            ResourceLookup.ResourceType resType2 = res2.getResourceType();
+            return Ints.compare(resType1.ordinal(), resType2.ordinal());
+        }
+    }
+
 }

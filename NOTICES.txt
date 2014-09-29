@@ -2,9 +2,18 @@ THIRD PARTY COMPONENTS
 -------------------------------
 This software includes third party software subject to the associated copyrights, as follows:
 
+* Software for developing case
 - RoboGuice 2.0 (Apache 2.0) - https://github.com/roboguice/roboguice
-- ActionBarSherlock  4.2.0 (Apache 2.0) - http://actionbarsherlock.com/
-- Roboguice-sherlock 1.5 (Apache 2.0) - https://github.com/rtyley/roboguice-sherlock
+- Android Annotations 3.1 (Apache 2.0) - https://github.com/excilys/androidannotations
+- android-styled-dialogs 1.2.0 (Apache 2.0) - https://github.com/inmite/android-styled-dialogs
+- Google Guava 18.0 (Apache 2.0) - https://code.google.com/p/guava-libraries/
+
+* Software for testing case
+- Espresso 1.1 (Apache 2.0) - [ https://code.google.com/p/android-test-kit/ , https://github.com/JakeWharton/double-espresso ]
+- Spoon Client 1.1.1 (Apache 2.0) - http://square.github.io/spoon/
+- Mockito 1.9.5 (MIT) - https://code.google.com/p/mockito/
+- Dexmaker 1.0 (Apache 2.0) - https://code.google.com/p/dexmaker/
+- Dexmaker 1.0 (Apache 2.0) - https://code.google.com/p/dexmaker/
 
 The text of licenses for the above software is included with the
 JasperMobile for Android package, in the /licenses folder.

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import com.google.common.collect.Maps;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
@@ -37,10 +38,10 @@ public class FileAdapter extends ArrayAdapter<File> {
         super(context, 0);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
 
-        drawableIdsMap.put(FileType.HTML, com.jaspersoft.android.sdk.ui.R.drawable.ic_type_html);
-        drawableIdsMap.put(FileType.PDF, com.jaspersoft.android.sdk.ui.R.drawable.ic_type_pdf);
-        drawableIdsMap.put(FileType.XLS, com.jaspersoft.android.sdk.ui.R.drawable.ic_type_xls);
-        drawableIdsMap.put(FileType.UNKNOWN, com.jaspersoft.android.sdk.ui.R.drawable.ic_type_unknown);
+        drawableIdsMap.put(FileType.HTML, R.drawable.ic_composed_html);
+        drawableIdsMap.put(FileType.PDF, R.drawable.ic_composed_pdf);
+        drawableIdsMap.put(FileType.XLS, R.drawable.ic_composed_xls);
+        drawableIdsMap.put(FileType.UNKNOWN, R.drawable.js_grey_gradient);
     }
 
     @Override

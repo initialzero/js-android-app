@@ -24,19 +24,23 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance;
 
+import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -69,10 +73,6 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     private static final String SEARCH_QUERY = "Reports";
 
     @Mock
-    JsServerProfile mockServerProfile;
-    @Mock
-    DatabaseProvider mockDbProvider;
-    @Mock
     JsRestClient mockRestClient;
     @Mock
     SpiceManager mockSpiceService;
@@ -96,12 +96,14 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         reportsQueryResult = TestResources.get().fromXML(ResourceLookupsList.class, "reports_query_result");
         levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
 
-        registerTestModule(new TestModule());
-
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-        when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+        registerTestModule(new TestModule());
+        ContentResolver cr = getInstrumentation().getTargetContext().getContentResolver();
+        DatabaseUtils.deleteAllProfiles(cr);
+
+        Application application = (Application) getInstrumentation().getTargetContext().getApplicationContext();
+        ProfileHelper profileHelper = ProfileHelper_.getInstance_(application);
+        profileHelper.setCurrentServerProfile(DatabaseUtils.createDefaultProfile(cr));
 
         configureSearchIntent();
     }
@@ -119,7 +121,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
+                .atPosition(1).perform(click());
         pressBack();
     }
 
@@ -141,7 +143,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(1).perform(click());
+                .atPosition(0).perform(click());
 
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
@@ -191,8 +193,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsRestClient.class).toInstance(mockRestClient);
-            bind(DatabaseProvider.class).toInstance(mockDbProvider);
+            bind(JsRestClient.class).in(Singleton.class);
             bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
         }
     }

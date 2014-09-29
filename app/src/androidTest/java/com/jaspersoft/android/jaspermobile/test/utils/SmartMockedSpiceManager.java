@@ -69,6 +69,7 @@ public class SmartMockedSpiceManager extends SpiceManager {
         if (onlyMockBehavior) {
             lifeCycleListener = new LifeCycleListener();
             customSpiceServerListener = new CustomSpiceServerListener();
+            addSpiceServiceListener(customSpiceServerListener);
             ActivityLifecycleMonitorRegistry.getInstance()
                     .addLifecycleCallback(lifeCycleListener);
         } else {
@@ -103,8 +104,6 @@ public class SmartMockedSpiceManager extends SpiceManager {
     public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
                             final long cacheExpiryDuration, final RequestListener<T> requestListener) {
         if (mBehaveInRealMode) {
-
-            addSpiceServiceListener(customSpiceServerListener);
             super.execute(request, requestCacheKey, cacheExpiryDuration, requestListener);
         } else {
             requestListener.onRequestSuccess((T) responsesForCacheRequestQueue.pollFirst());
@@ -114,7 +113,6 @@ public class SmartMockedSpiceManager extends SpiceManager {
     @Override
     public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
         if (mBehaveInRealMode) {
-            addSpiceServiceListener(customSpiceServerListener);
             super.execute(request, requestListener);
         } else {
             requestListener.onRequestSuccess((T) responsesForNetworkRequestQueue.pollFirst());

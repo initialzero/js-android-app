@@ -37,7 +37,7 @@
     </resourceLookup>
     <resourceLookup>
         <creationDate>2014-09-16 11:01:54</creationDate>
-        <description>Reports</description>
+        <description>Reports folder</description>
         <label>Reports</label>
         <permissionMask>2</permissionMask>
         <updateDate>2012-10-15 16:25:29</updateDate>
@@ -47,7 +47,7 @@
     </resourceLookup>
     <resourceLookup>
         <creationDate>2014-09-16 11:01:55</creationDate>
-        <description>Reports that provide starting points for the Ad Hoc editor</description>
+        <description>Dashboard</description>
         <label>Topics</label>
         <permissionMask>30</permissionMask>
         <updateDate>2013-10-24 13:05:58</updateDate>

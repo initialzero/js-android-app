@@ -28,7 +28,6 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.doubleClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -205,7 +204,7 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        onView(withId(R.id.deleteItem)).perform(doubleClick());
+        onView(withId(R.id.deleteItem)).perform(click());
 
         onOverflowView(getActivity(), withText(getActivity().getString(R.string.sdr_drd_msg, RESOURCE_LABEL))).check(matches(isDisplayed()));
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());

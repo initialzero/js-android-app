@@ -177,7 +177,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     public void testFavoritesOptionMenu() throws InterruptedException {
         startActivityUnderTest();
         openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-        onOverflowView(getActivity(), withText(R.string.r_ab_favorites)).perform(click());
+        onView(withText(R.string.r_ab_favorites)).perform(click());
         onView(withText(R.string.f_title)).check(matches(isDisplayed()));
     }
 

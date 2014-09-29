@@ -209,16 +209,41 @@ public class FavoritesFragment extends RoboFragment
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String selection =
                 FavoritesTable.SERVER_PROFILES_ID + " =?  AND " +
-                        FavoritesTable.USERNAME + " =?  AND " +
-                        FavoritesTable.ORGANIZATION + " =?";
+                        FavoritesTable.USERNAME + " =?  AND ";
+
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
-        String[] selectionArgs = {
-                String.valueOf(jsServerProfile.getId()),
-                jsServerProfile.getUsername(),
-                jsServerProfile.getOrganization()
-        };
+        boolean noOrganization = jsServerProfile.getOrganization() == null;
+        if (noOrganization) {
+            selection += FavoritesTable.ORGANIZATION + " IS NULL";
+        } else {
+            selection += FavoritesTable.ORGANIZATION + " =?";
+        }
+        String[] selectionArgs;
+        if (noOrganization) {
+            selectionArgs = new String[] {
+                    String.valueOf(jsServerProfile.getId()),
+                    jsServerProfile.getUsername()
+            };
+        } else {
+            selectionArgs = new String[] {
+                    String.valueOf(jsServerProfile.getId()),
+                    jsServerProfile.getUsername(),
+                    jsServerProfile.getOrganization()
+            };
+        }
+
+        StringBuilder sortOrder = new StringBuilder("");
+        sortOrder.append("CASE WHEN ")
+                .append(FavoritesTable.WSTYPE)
+                .append(" LIKE ")
+                .append("'%" + ResourceType.folder + "%'")
+                .append(" THEN 1 ELSE 2 END")
+                .append(", ")
+                .append(FavoritesTable.WSTYPE)
+                .append(" COLLATE NOCASE");
+
         return new CursorLoader(getActivity(), JasperMobileProvider.FAVORITES_CONTENT_URI,
-                FavoritesTable.ALL_COLUMNS, selection, selectionArgs, null);
+                FavoritesTable.ALL_COLUMNS, selection, selectionArgs, sortOrder.toString());
     }
 
     @Override

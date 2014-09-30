@@ -74,7 +74,7 @@ public abstract class SingleChoiceSimpleCursorAdapter extends SimpleCursorAdapte
         return helper.getItemClickInActionModePolicy();
     }
 
-    protected void finishActionMode() {
+    public void finishActionMode() {
         helper.finishActionMode();
     }
 
@@ -110,4 +110,9 @@ public abstract class SingleChoiceSimpleCursorAdapter extends SimpleCursorAdapte
     protected View getViewImpl(int position, View convertView, ViewGroup parent) {
         return super.getView(position, convertView, parent);
     }
+
+    public int getCurrentPosition() {
+        return helper.getCurrentPosition();
+    }
+
 }

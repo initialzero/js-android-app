@@ -82,6 +82,12 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
         loadReportsListView();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mAdapter.save(outState);
+    }
+
     @ItemClick(android.R.id.list)
     final void itemClicked(File reportFile) {
         openReportFile(reportFile);

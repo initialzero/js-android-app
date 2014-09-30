@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites.adapter;
 
+import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -13,6 +14,10 @@ import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapterHelper;
  * @since 1.9
  */
 public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
+
+    private static String CURRENT_POSITION_KEY = "CURRENT_POSITION";
+    private int currentPosition;
+
     public SingleChoiceAdapterHelper(BaseAdapter owner) {
         super(owner);
     }
@@ -29,7 +34,7 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
             int correctedPosition = correctPositionAccountingForHeader(adapterView, position);
             long handle = positionToSelectionHandle(correctedPosition);
             boolean wasChecked = isChecked(handle);
-            getCheckedItems().add(handle);
+            currentPosition = position;
             setItemChecked(handle, !wasChecked);
         }
         return true;
@@ -47,6 +52,26 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
             position -= listView.getHeaderViewsCount();
         }
         return position;
+    }
+
+    public int getCurrentPosition() {
+        return currentPosition;
+    }
+
+    @Override
+    public void restoreSelectionFromSavedInstanceState(Bundle savedInstanceState) {
+        super.restoreSelectionFromSavedInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            currentPosition = savedInstanceState.getInt(CURRENT_POSITION_KEY);
+        }
+    }
+
+    @Override
+    public void save(Bundle outState) {
+        super.save(outState);
+        if (outState != null) {
+            outState.putInt(CURRENT_POSITION_KEY, currentPosition);
+        }
     }
 
 }

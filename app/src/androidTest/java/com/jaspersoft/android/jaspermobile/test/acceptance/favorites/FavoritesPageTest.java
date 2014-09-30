@@ -53,7 +53,6 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.doubleClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
@@ -181,7 +180,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
                 .atPosition(0).perform(click());
 
         // Remove from favorite
-        onView(withId(R.id.favoriteAction)).perform(doubleClick());
+        onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
@@ -232,6 +231,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
+        pressBack();
 
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -249,6 +249,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
+        pressBack();
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
@@ -262,7 +263,8 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withText(R.string.r_cm_add_to_favorites)).perform(click());
+        onView(withId(R.id.favoriteAction)).perform(click());
+        pressBack();
         pressBack();
 
         onData(is(instanceOf(Cursor.class)))

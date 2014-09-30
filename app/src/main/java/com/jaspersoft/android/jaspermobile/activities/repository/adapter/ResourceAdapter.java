@@ -35,13 +35,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import java.util.Set;
+import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -50,6 +49,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     private ResourceViewHelper viewHelper = new ResourceViewHelper();
 
     private final ViewType mViewType;
+    private MenuItem favoriteActionItem;
 
     public static Builder builder(Context context, Bundle savedInstanceState) {
         checkNotNull(context);
@@ -87,10 +87,27 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        MenuItem favoriteActionItem = menu.findItem(R.id.favoriteAction);
+        favoriteActionItem = menu.findItem(R.id.favoriteAction);
+        if (getCount() > 0) {
+            alterFavoriteIcon();
+            return true;
+        }
+        return false;
+    }
 
-        ResourceLookup resource = getResourceBySelection();
-        if (resource == null) return true;
+    @Override
+    public void addAll(Collection<? extends ResourceLookup> collection) {
+        super.addAll(collection);
+        // Because of rotation we are loosing content of adapter. For that
+        // reason we are altering ActionMode icon if it visible state to
+        // the required value.
+        if (favoriteActionItem != null && collection.size() > 0) {
+            alterFavoriteIcon();
+        }
+    }
+
+    private void alterFavoriteIcon() {
+        ResourceLookup resource = getItem(getCurrentPosition());
         Cursor cursor = favoriteHelper.queryFavoriteByResource(resource);
 
         try {
@@ -100,23 +117,15 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         } finally {
             if (cursor != null) cursor.close();
         }
-        return true;
     }
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        ResourceLookup resource = getResourceBySelection();
+        ResourceLookup resource = getItem(getCurrentPosition());
         Uri uri = favoriteHelper.queryFavoriteUri(resource);
         favoriteHelper.handleFavoriteMenuAction(uri, resource, null);
+        mode.invalidate();
         return true;
-    }
-
-    private ResourceLookup getResourceBySelection() {
-        if (getCheckedItemCount() == 0) return null;
-        Set<Long> items = getCheckedItems();
-        long selection = Lists.newArrayList(items).get(0);
-        int position = (int) selection;
-        return getItem(position);
     }
 
     public static class Builder {

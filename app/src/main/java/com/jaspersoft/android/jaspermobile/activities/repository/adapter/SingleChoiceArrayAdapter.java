@@ -120,4 +120,8 @@ public abstract class SingleChoiceArrayAdapter<T> extends ArrayAdapter<T> implem
     public String getActionModeTitle(int count) {
         return helper.getActionModeTitle(count);
     }
+
+    public int getCurrentPosition() {
+        return helper.getCurrentPosition();
+    }
 }

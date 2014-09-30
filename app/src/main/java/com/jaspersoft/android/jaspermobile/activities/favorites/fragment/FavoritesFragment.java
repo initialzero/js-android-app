@@ -26,27 +26,21 @@ package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
 import android.app.ActionBar;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.Checkable;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
@@ -75,7 +69,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  */
 @EFragment
 public class FavoritesFragment extends RoboFragment
-        implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor>, ActionMode.Callback, AdapterView.OnItemLongClickListener {
+        implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor>{
     // Context menu action
     private static final int ID_CM_FAVORITE = 10;
 
@@ -93,9 +87,7 @@ public class FavoritesFragment extends RoboFragment
     @Bean
     ResourceOpener resourceOpener;
 
-    private SimpleCursorAdapter mAdapter;
-    private int mSelectedPosition;
-    private View mSelectedView;
+    private FavoritesAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -109,15 +101,11 @@ public class FavoritesFragment extends RoboFragment
         super.onViewCreated(view, savedInstanceState);
         setEmptyText(0);
 
-        String[] from = {FavoritesTable.LABEL, FavoritesTable.URI, FavoritesTable.WSTYPE};
-        int[] to = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
-
-        mAdapter = new SimpleCursorAdapter(getActivity(),
-                (viewType == ViewType.LIST) ? R.layout.common_list_item : R.layout.common_grid_item,
-                null, from, to, 0);
+        int layout = (viewType == ViewType.LIST) ? R.layout.common_list_item : R.layout.common_grid_item;
+        mAdapter = new FavoritesAdapter(getActivity(), savedInstanceState, layout);
+        mAdapter.setAdapterView(listView);
         mAdapter.setViewBinder(this);
         listView.setAdapter(mAdapter);
-        listView.setOnItemLongClickListener(this);
 
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
     }
@@ -129,6 +117,26 @@ public class FavoritesFragment extends RoboFragment
         if (actionBar != null) {
             actionBar.setTitle(R.string.f_title);
         }
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        mAdapter.save(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    @ItemClick(android.R.id.list)
+    final void itemClick(int position) {
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(position);
+
+        ResourceLookup resource = new ResourceLookup();
+        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));
+        resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
+        resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
+
+        resourceOpener.openResource(resource);
     }
 
     //---------------------------------------------------------------------
@@ -145,39 +153,6 @@ public class FavoritesFragment extends RoboFragment
             return true;
         }
         return false;
-    }
-
-    //---------------------------------------------------------------------
-    // Implements AbsListView.OnItemLongClickListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        mSelectedPosition = position;
-        mSelectedView = view;
-        setViewChecked(view, true);
-        getActivity().startActionMode(this);
-        return true;
-    }
-
-    private void setViewChecked(View view, boolean state) {
-        if (view instanceof Checkable) {
-            Checkable checkable = (Checkable) view;
-            checkable.setChecked(state);
-        }
-    }
-
-    @ItemClick(android.R.id.list)
-    final void itemClick(int position) {
-        Cursor cursor = mAdapter.getCursor();
-        cursor.moveToPosition(position);
-
-        ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));
-        resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
-        resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
-
-        resourceOpener.openResource(resource);
     }
 
     //---------------------------------------------------------------------
@@ -248,45 +223,5 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
     }
-
-    //---------------------------------------------------------------------
-    // Implements ActionMode.Callback
-    //---------------------------------------------------------------------
-
-    @Override
-    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.am_favorites_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        mode.setTitle(R.string.r_cm_remove_from_favorites);
-        return true;
-    }
-
-    @Override
-    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        if (item.getItemId() == R.id.removeFromFavorites) {
-            Cursor cursor = mAdapter.getCursor();
-            cursor.moveToPosition(mSelectedPosition);
-            String id = cursor.getString(cursor.getColumnIndex(FavoritesTable._ID));
-            Uri uri = Uri.withAppendedPath(JasperMobileProvider.FAVORITES_CONTENT_URI, id);
-            getActivity().getContentResolver().delete(uri, null, null);
-
-            setViewChecked(mSelectedView, false);
-            mode.finish();
-
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onDestroyActionMode(ActionMode mode) {
-    }
-
-
 
 }

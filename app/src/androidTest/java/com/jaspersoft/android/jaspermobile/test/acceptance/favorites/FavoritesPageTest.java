@@ -268,7 +268,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withText(R.string.r_cm_remove_from_favorites)).perform(click());
+        onView(withId(R.id.removeFromFavorites)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));

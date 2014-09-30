@@ -69,7 +69,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  */
 @EFragment
 public class FavoritesFragment extends RoboFragment
-        implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor>{
+        implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor> {
     // Context menu action
     private static final int ID_CM_FAVORITE = 10;
 
@@ -174,12 +174,12 @@ public class FavoritesFragment extends RoboFragment
         }
         String[] selectionArgs;
         if (noOrganization) {
-            selectionArgs = new String[] {
+            selectionArgs = new String[]{
                     String.valueOf(jsServerProfile.getId()),
                     jsServerProfile.getUsername()
             };
         } else {
-            selectionArgs = new String[] {
+            selectionArgs = new String[]{
                     String.valueOf(jsServerProfile.getId()),
                     jsServerProfile.getUsername(),
                     jsServerProfile.getOrganization()
@@ -194,7 +194,9 @@ public class FavoritesFragment extends RoboFragment
                 .append(" THEN 1 ELSE 2 END")
                 .append(", ")
                 .append(FavoritesTable.WSTYPE)
-                .append(" COLLATE NOCASE");
+                .append(" COLLATE NOCASE")
+                .append(", ").append(FavoritesTable.LABEL)
+                .append(" ASC");
 
         return new CursorLoader(getActivity(), JasperMobileProvider.FAVORITES_CONTENT_URI,
                 FavoritesTable.ALL_COLUMNS, selection, selectionArgs, sortOrder.toString());

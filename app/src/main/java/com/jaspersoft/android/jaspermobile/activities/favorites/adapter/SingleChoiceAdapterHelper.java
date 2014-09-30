@@ -13,7 +13,7 @@ import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapterHelper;
  * @since 1.9
  */
 public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
-    protected SingleChoiceAdapterHelper(BaseAdapter owner) {
+    public SingleChoiceAdapterHelper(BaseAdapter owner) {
         super(owner);
     }
 
@@ -29,6 +29,7 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
             int correctedPosition = correctPositionAccountingForHeader(adapterView, position);
             long handle = positionToSelectionHandle(correctedPosition);
             boolean wasChecked = isChecked(handle);
+            getCheckedItems().add(handle);
             setItemChecked(handle, !wasChecked);
         }
         return true;
@@ -47,4 +48,5 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
         }
         return position;
     }
+
 }

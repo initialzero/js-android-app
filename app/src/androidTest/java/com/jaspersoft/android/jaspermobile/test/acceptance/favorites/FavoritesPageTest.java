@@ -230,7 +230,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withText(R.string.r_cm_add_to_favorites)).perform(click());
+        onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
 
         onData(is(instanceOf(Cursor.class)))
@@ -247,7 +247,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withText(R.string.r_cm_remove_from_favorites)).perform(click());
+        onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));

@@ -26,19 +26,14 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.app.ActionBar;
 import android.database.DataSetObserver;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
@@ -68,6 +63,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.ItemClick;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,7 +78,6 @@ import roboguice.inject.InjectView;
 @EFragment
 public class ResourcesFragment extends RoboSpiceFragment
         implements AbsListView.OnScrollListener,
-        AdapterView.OnItemClickListener,
         SwipeRefreshLayout.OnRefreshListener,
         IResourcesLoader {
 
@@ -182,8 +177,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        registerForContextMenu(listView);
-
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 android.R.color.holo_blue_light,
@@ -191,20 +184,23 @@ public class ResourcesFragment extends RoboSpiceFragment
                 android.R.color.holo_blue_light,
                 android.R.color.holo_blue_bright);
 
-        listView.setOnItemClickListener(this);
         listView.setOnScrollListener(this);
 
-        if (mAdapter == null) {
-            mAdapter = ResourceAdapter.builder(getActivity())
-                    .setViewType(viewType)
-                    .create();
-            mAdapter.registerDataSetObserver(mObservable);
-            listView.setAdapter(mAdapter);
-        }
+        mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
+                .setViewType(viewType)
+                .create();
+        mAdapter.setAdapterView(listView);
+        mAdapter.registerDataSetObserver(mObservable);
+        listView.setAdapter(mAdapter);
 
         loadFirstPage();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        mAdapter.save(outState);
+        super.onSaveInstanceState(outState);
+    }
 
     public void loadFirstPage() {
         mSearchCriteria.setOffset(0);
@@ -216,51 +212,8 @@ public class ResourcesFragment extends RoboSpiceFragment
         return mLoading;
     }
 
-    //---------------------------------------------------------------------
-    // Implements Context Menu
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-
-        // Determine on which item in the ListView the user long-clicked
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        ResourceLookup resource = mAdapter.getItem(info.position);
-        Uri uri = favoritesHelper.queryFavoriteUri(resource);
-
-        // Retrieve the label for that particular item and use it as title for the menu
-        menu.setHeaderTitle(resource.getLabel());
-
-        // Add all the menu options
-        menu.add(Menu.NONE, ID_CM_FAVORITE, Menu.NONE, (uri == null) ?
-                R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        // Determine on which item in the ListView the user long-clicked and get it from Cursor
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        // Handle item selection
-        switch (item.getItemId()) {
-            case ID_CM_FAVORITE:
-                ResourceLookup resource = mAdapter.getItem(info.position);
-                Uri uri = favoritesHelper.queryFavoriteUri(resource);
-                favoritesHelper.handleFavoriteMenuAction(uri, resource, null);
-                return true;
-            default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-                return super.onContextItemSelected(item);
-        }
-    }
-
-    //---------------------------------------------------------------------
-    // Implements AbsListView.OnItemClickListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ResourceLookup resource = (ResourceLookup) listView.getItemAtPosition(position);
+    @ItemClick(android.R.id.list)
+    public void onItemClick(ResourceLookup resource) {
         resourceOpener.openResource(resource);
     }
 

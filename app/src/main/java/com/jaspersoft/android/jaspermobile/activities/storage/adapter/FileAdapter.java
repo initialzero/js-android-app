@@ -1,16 +1,21 @@
 package com.jaspersoft.android.jaspermobile.activities.storage.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.SingleChoiceArrayAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
@@ -24,18 +29,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @author Tom Koptel
  * @since 1.9
  */
-public class FileAdapter extends ArrayAdapter<File> {
+public class FileAdapter extends SingleChoiceArrayAdapter<File> {
 
     private final ViewType mViewType;
     private final Map<FileType, Integer> drawableIdsMap = Maps.newEnumMap(FileType.class);
+    private FileInteractionListener fileInteractionListener;
 
-    public static Builder builder(Context context) {
+    public static Builder builder(Context context, Bundle savedInstanceState) {
         checkNotNull(context);
-        return new Builder(context);
+        return new Builder(context, savedInstanceState);
     }
 
-    public FileAdapter(Context context, ViewType viewType) {
-        super(context, 0);
+    private FileAdapter(Context context, Bundle savedInstanceState, ViewType viewType) {
+        super(savedInstanceState, context, 0);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
 
         drawableIdsMap.put(FileType.HTML, R.drawable.ic_composed_html);
@@ -45,17 +51,8 @@ public class FileAdapter extends ArrayAdapter<File> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return getViewImpl(position, (IResourceView) convertView);
-    }
-
-    private View getViewImpl(int position, IResourceView convertView) {
-        IResourceView itemView;
-        if (mViewType == ViewType.LIST) {
-            itemView = convertView;
-        } else {
-            itemView = convertView;
-        }
+    public View getViewImpl(int position, View convertView, ViewGroup parent) {
+        IResourceView itemView = (IResourceView) convertView;
 
         if (itemView == null) {
             if (mViewType == ViewType.LIST) {
@@ -74,6 +71,10 @@ public class FileAdapter extends ArrayAdapter<File> {
         itemView.setSubTitle(getFormattedDateModified(file));
 
         return (View) itemView;
+    }
+
+    public void setFileInteractionListener(FileInteractionListener fileInteractionListener) {
+        this.fileInteractionListener = fileInteractionListener;
     }
 
     //---------------------------------------------------------------------
@@ -112,6 +113,43 @@ public class FileAdapter extends ArrayAdapter<File> {
         sort(new LastModifiedComparator());
     }
 
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        MenuInflater inflater = mode.getMenuInflater();
+        inflater.inflate(R.menu.am_saved_items_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        File file = getItem(getCurrentPosition());
+        switch (item.getItemId()) {
+            case R.id.openItem:
+                if (fileInteractionListener != null) {
+                    fileInteractionListener.onOpened(file);
+                }
+                break;
+            case R.id.renameItem:
+                if (fileInteractionListener != null) {
+                    fileInteractionListener.onRenamed(file);
+                }
+                break;
+            case R.id.deleteItem:
+                if (fileInteractionListener != null) {
+                    fileInteractionListener.onDelete(getCurrentPosition(), file);
+                }
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
     private static class LastModifiedComparator implements Comparator<File> {
         @Override
         public int compare(File f1, File f2) {
@@ -123,20 +161,28 @@ public class FileAdapter extends ArrayAdapter<File> {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    public enum FileType {
+    private static enum FileType {
         HTML,
         PDF,
         XLS,
         UNKNOWN
     }
 
+    public static interface FileInteractionListener {
+        void onOpened(File item);
+        void onRenamed(File file);
+        void onDelete(int currentPosition, File file);
+    }
+
     public static class Builder {
         private final Context context;
+        private final Bundle savedInstanceState;
 
         private ViewType viewType;
 
-        public Builder(Context context) {
+        public Builder(Context context, Bundle savedInstanceState) {
             this.context = context;
+            this.savedInstanceState = savedInstanceState;
         }
 
         public Builder setViewType(ViewType viewType) {
@@ -145,7 +191,7 @@ public class FileAdapter extends ArrayAdapter<File> {
         }
 
         public FileAdapter create() {
-            return new FileAdapter(context, viewType);
+            return new FileAdapter(context, savedInstanceState, viewType);
         }
     }
 }

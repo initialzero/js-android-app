@@ -214,6 +214,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @ItemClick(android.R.id.list)
     public void onItemClick(ResourceLookup resource) {
+        mAdapter.finishActionMode();
         resourceOpener.openResource(resource);
     }
 

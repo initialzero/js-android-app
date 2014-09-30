@@ -92,7 +92,7 @@ public abstract class SingleChoiceArrayAdapter<T> extends ArrayAdapter<T> implem
         return helper.getItemClickInActionModePolicy();
     }
 
-    protected void finishActionMode() {
+    public void finishActionMode() {
         helper.finishActionMode();
     }
 

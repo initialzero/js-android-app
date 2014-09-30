@@ -5,15 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +40,7 @@ import static com.jaspersoft.android.jaspermobile.activities.storage.fragment.Re
  * @since 1.9
  */
 @EFragment
-public class SavedItemsFragment extends RoboFragment implements ISimpleDialogListener {
+public class SavedItemsFragment extends RoboFragment implements ISimpleDialogListener, FileAdapter.FileInteractionListener {
 
     // Context menu IDs
     private static final int ID_CM_OPEN = 10;
@@ -72,9 +68,11 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        registerForContextMenu(listView);
         emptyText.setVisibility(View.GONE);
-        mAdapter = FileAdapter.builder(getActivity()).setViewType(viewType).create();
+        mAdapter = FileAdapter.builder(getActivity(), savedInstanceState)
+                .setViewType(viewType).create();
+        mAdapter.setAdapterView(listView);
+        mAdapter.setFileInteractionListener(this);
         listView.setAdapter(mAdapter);
     }
 
@@ -157,59 +155,38 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
     }
 
     //---------------------------------------------------------------------
-    // Implements Context Menu
+    // Implements FileAdapter.FileInteractionListener
     //---------------------------------------------------------------------
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-
-        // Determine on which item in the ListView the user long-clicked
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        File selectedFile = mAdapter.getItem(info.position);
-
-        String baseName = FileUtils.getBaseName(selectedFile.getName());
-        menu.setHeaderTitle(baseName);
-
-        // Add all the menu options
-        menu.add(Menu.NONE, ID_CM_OPEN, Menu.NONE, R.string.sdr_cm_open);
-        menu.add(Menu.NONE, ID_CM_RENAME, Menu.NONE, R.string.sdr_cm_rename);
-        menu.add(Menu.NONE, ID_CM_DELETE, Menu.NONE, R.string.sdr_cm_delete);
+    public void onOpened(File item) {
+        mAdapter.finishActionMode();
+        openReportFile(item);
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        // Determine on which item in the ListView the user long-clicked and get it from Cursor
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        File reportFile = mAdapter.getItem(info.position);
-        // Handle item selection
-        switch (item.getItemId()) {
-            case ID_CM_OPEN:
-                openReportFile(reportFile);
-                return true;
-            case ID_CM_RENAME:
-                RenameDialogFragment.show(getFragmentManager(), reportFile, new OnRenamedAction() {
+    public void onRenamed(File file) {
+        RenameDialogFragment.show(getFragmentManager(), file,
+                new OnRenamedAction() {
                     @Override
                     public void onRenamed() {
+                        mAdapter.finishActionMode();
                         loadReportsListView();
                     }
                 });
-                return true;
-            case ID_CM_DELETE:
-                AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTargetFragment(this, info.position)
-                        .setTitle(R.string.sdr_drd_title)
-                        .setMessage(getActivity().getString(R.string.sdr_drd_msg,
-                                FileUtils.getBaseName(reportFile.getName())))
-                        .setPositiveButtonText(R.string.spm_delete_btn)
-                        .setNegativeButtonText(android.R.string.cancel)
-                        .show();
-                return true;
-            default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-                return super.onContextItemSelected(item);
-        }
+    }
+
+    @Override
+    public void onDelete(int currentPosition, File file) {
+        AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTargetFragment(this, currentPosition)
+                .setTitle(R.string.sdr_drd_title)
+                .setMessage(getActivity().getString(R.string.sdr_drd_msg,
+                        FileUtils.getBaseName(file.getName())))
+                .setPositiveButtonText(R.string.spm_delete_btn)
+                .setNegativeButtonText(android.R.string.cancel)
+                .show();
     }
 
     //---------------------------------------------------------------------
@@ -228,6 +205,7 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
         } else {
             Toast.makeText(getActivity(), R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
         }
+        mAdapter.finishActionMode();
     }
 
     @Override
@@ -237,4 +215,5 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
     @Override
     public void onNeutralButtonClicked(int i) {
     }
+
 }

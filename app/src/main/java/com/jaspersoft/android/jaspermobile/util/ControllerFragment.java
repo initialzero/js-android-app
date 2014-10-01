@@ -90,6 +90,9 @@ public abstract class ControllerFragment extends RoboFragment {
     }
 
     protected ViewType getViewType() {
+        if (repositoryPref == null) {
+            repositoryPref = new RepositoryPref_(getActivity());
+        }
         return ViewType.valueOf(repositoryPref);
     }
 

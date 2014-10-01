@@ -133,13 +133,6 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
 
         onData(is(instanceOf(File.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(longClick());
-        onView(withId(R.id.openItem)).perform(click());
-        pressBack();
-        pressBack();
-
-        onData(is(instanceOf(File.class)))
-                .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
         pressBack();
 

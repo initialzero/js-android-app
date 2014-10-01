@@ -40,12 +40,8 @@ import static com.jaspersoft.android.jaspermobile.activities.storage.fragment.Re
  * @since 1.9
  */
 @EFragment
-public class SavedItemsFragment extends RoboFragment implements ISimpleDialogListener, FileAdapter.FileInteractionListener {
-
-    // Context menu IDs
-    private static final int ID_CM_OPEN = 10;
-    private static final int ID_CM_RENAME = 11;
-    private static final int ID_CM_DELETE = 12;
+public class SavedItemsFragment extends RoboFragment
+        implements ISimpleDialogListener, FileAdapter.FileInteractionListener {
 
     @FragmentArg
     ViewType viewType;
@@ -65,14 +61,14 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         emptyText.setVisibility(View.GONE);
         mAdapter = FileAdapter.builder(getActivity(), savedInstanceState)
                 .setViewType(viewType).create();
-        mAdapter.setAdapterView(listView);
         mAdapter.setFileInteractionListener(this);
+        mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
     }
 
@@ -84,13 +80,14 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         mAdapter.save(outState);
+        super.onSaveInstanceState(outState);
     }
 
     @ItemClick(android.R.id.list)
-    final void itemClicked(File reportFile) {
-        openReportFile(reportFile);
+    public void onItemClick(File file) {
+        mAdapter.finishActionMode();
+        openReportFile(file);
     }
 
     private void openReportFile(File reportFile) {
@@ -165,13 +162,7 @@ public class SavedItemsFragment extends RoboFragment implements ISimpleDialogLis
     //---------------------------------------------------------------------
 
     @Override
-    public void onOpened(File item) {
-        mAdapter.finishActionMode();
-        openReportFile(item);
-    }
-
-    @Override
-    public void onRenamed(File file) {
+    public void onRename(File file) {
         RenameDialogFragment.show(getFragmentManager(), file,
                 new OnRenamedAction() {
                     @Override

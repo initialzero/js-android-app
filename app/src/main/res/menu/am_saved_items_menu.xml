@@ -26,11 +26,6 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/openItem"
-        android:showAsAction="always"
-        android:icon="@drawable/ic_action_open"
-        android:title="@string/sdr_cm_open" />
-    <item
         android:id="@+id/renameItem"
         android:showAsAction="ifRoom"
         android:icon="@drawable/ic_content_edit"

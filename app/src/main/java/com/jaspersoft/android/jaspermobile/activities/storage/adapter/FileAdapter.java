@@ -32,7 +32,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class FileAdapter extends SingleChoiceArrayAdapter<File> {
 
     private final ViewType mViewType;
-    private final Map<FileType, Integer> drawableIdsMap = Maps.newEnumMap(FileType.class);
+    private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = Maps.newEnumMap(FileType.class);
+    static {
+        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.ic_composed_html);
+        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.ic_composed_pdf);
+        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.ic_composed_xls);
+        DRAWABLE_IDS_MAP.put(FileType.UNKNOWN, R.drawable.js_grey_gradient);
+    }
     private FileInteractionListener fileInteractionListener;
 
     public static Builder builder(Context context, Bundle savedInstanceState) {
@@ -43,12 +49,7 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
     private FileAdapter(Context context, Bundle savedInstanceState, ViewType viewType) {
         super(savedInstanceState, context, 0);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
-
-        drawableIdsMap.put(FileType.HTML, R.drawable.ic_composed_html);
-        drawableIdsMap.put(FileType.PDF, R.drawable.ic_composed_pdf);
-        drawableIdsMap.put(FileType.XLS, R.drawable.ic_composed_xls);
-        drawableIdsMap.put(FileType.UNKNOWN, R.drawable.js_grey_gradient);
-    }
+     }
 
     @Override
     public View getViewImpl(int position, View convertView, ViewGroup parent) {
@@ -83,7 +84,7 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
 
     private int getFileIconByExtension(String extension) {
         FileType type = getFileTypeByExtension(extension);
-        return drawableIdsMap.get(type);
+        return DRAWABLE_IDS_MAP.get(type);
     }
 
     private FileType getFileTypeByExtension(String extension) {
@@ -129,14 +130,9 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         File file = getItem(getCurrentPosition());
         switch (item.getItemId()) {
-            case R.id.openItem:
-                if (fileInteractionListener != null) {
-                    fileInteractionListener.onOpened(file);
-                }
-                break;
             case R.id.renameItem:
                 if (fileInteractionListener != null) {
-                    fileInteractionListener.onRenamed(file);
+                    fileInteractionListener.onRename(file);
                 }
                 break;
             case R.id.deleteItem:
@@ -169,8 +165,7 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
     }
 
     public static interface FileInteractionListener {
-        void onOpened(File item);
-        void onRenamed(File file);
+        void onRename(File file);
         void onDelete(int currentPosition, File file);
     }
 
@@ -194,4 +189,5 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
             return new FileAdapter(context, savedInstanceState, viewType);
         }
     }
+
 }

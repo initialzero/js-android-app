@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
+package com.jaspersoft.android.jaspermobile.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

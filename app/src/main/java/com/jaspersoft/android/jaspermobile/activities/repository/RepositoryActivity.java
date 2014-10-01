@@ -36,18 +36,17 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
-
-import roboguice.activity.RoboFragmentActivity;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EActivity(R.layout.repositories_layout)
-public class RepositoryActivity extends RoboFragmentActivity {
+public class RepositoryActivity extends RoboAccentFragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

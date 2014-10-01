@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
+package com.jaspersoft.android.jaspermobile.dialog;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;

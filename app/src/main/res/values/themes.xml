@@ -24,7 +24,8 @@
 
 <resources>
     <!-- Actionbar -->
-    <style name="Theme.JasperMobile" parent="@android:style/Theme.Holo">
+    <style name="Theme.JasperMobile" parent="Theme.HoloAccent.ColoredActionBar">
+        <item name="accentColor">#33B5E5</item>
         <item name="android:windowBackground">@drawable/ic_resources_background</item>
         <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
 

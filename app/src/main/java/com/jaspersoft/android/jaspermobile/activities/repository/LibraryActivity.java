@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -45,15 +46,13 @@ import org.androidannotations.annotations.OptionsMenu;
 
 import java.util.List;
 
-import roboguice.activity.RoboFragmentActivity;
-
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EActivity
 @OptionsMenu(R.menu.libraries_menu)
-public class LibraryActivity extends RoboFragmentActivity {
+public class LibraryActivity extends RoboAccentFragmentActivity {
 
     @Bean
     FilterOptions filterOptions;

@@ -1,67 +1,20 @@
-/*
- * Copyright (C) 2012-2014 Jaspersoft Corporation. All rights reserved.
- * http://community.jaspersoft.com/project/jaspermobile-android
- *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
- * the following license terms apply:
- *
- * This program is part of Jaspersoft Mobile for Android.
- *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>.
- */
-
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import android.content.res.Resources;
 
-import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.negusoft.holoaccent.AccentHelper;
 import com.negusoft.holoaccent.AccentResources;
-import com.octo.android.robospice.SpiceManager;
 
 import roboguice.activity.RoboFragmentActivity;
 
 /**
- * @author Ivan Gadzhega
  * @author Tom Koptel
  * @since 1.9
  */
-public class RoboSpiceFragmentActivity extends RoboFragmentActivity  {
+public class RoboAccentFragmentActivity extends RoboFragmentActivity {
 
     private final AccentHelper mAccentHelper = new AccentHelper(getOverrideAccentColor(),
             getOverrideAccentColorDark(), getOverrideAccentColorActionBar(), new MyInitListener());
-
-    @Inject
-    private JsXmlSpiceServiceWrapper jsXmlSpiceServiceWrapper;
-
-    @Override
-    protected void onStart() {
-        jsXmlSpiceServiceWrapper.onStart(this);
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        jsXmlSpiceServiceWrapper.onStop();
-        super.onStop();
-    }
-
-    public SpiceManager getSpiceManager() {
-        return jsXmlSpiceServiceWrapper.getSpiceManager();
-    }
 
     @Override
     public Resources getResources() {
@@ -116,4 +69,5 @@ public class RoboSpiceFragmentActivity extends RoboFragmentActivity  {
             onInitAccentResources(resources);
         }
     }
+
 }

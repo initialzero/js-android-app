@@ -128,6 +128,7 @@ public class FavoritesFragment extends RoboFragment
 
     @ItemClick(android.R.id.list)
     final void itemClick(int position) {
+        mAdapter.finishActionMode();
         Cursor cursor = mAdapter.getCursor();
         cursor.moveToPosition(position);
 

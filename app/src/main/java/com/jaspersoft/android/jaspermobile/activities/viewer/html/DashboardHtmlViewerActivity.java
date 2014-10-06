@@ -32,6 +32,7 @@ import android.widget.RelativeLayout;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -46,7 +47,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
 
 /**
@@ -57,7 +57,7 @@ import roboguice.inject.InjectView;
  */
 @EActivity
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardHtmlViewerActivity extends RoboFragmentActivity
+public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
         implements WebViewFragment.OnWebViewCreated {
 
     @Inject

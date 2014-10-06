@@ -19,6 +19,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewTyp
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.EFragment;
@@ -33,7 +34,7 @@ import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
-import static com.jaspersoft.android.jaspermobile.activities.storage.fragment.RenameDialogFragment.OnRenamedAction;
+import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.OnRenamedAction;
 
 /**
  * @author Tom Koptel

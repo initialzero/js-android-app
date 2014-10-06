@@ -30,18 +30,17 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
-
-import roboguice.activity.RoboFragmentActivity;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EActivity(R.layout.repositories_layout)
-public class FavoritesActivity extends RoboFragmentActivity {
+public class FavoritesActivity extends RoboAccentFragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

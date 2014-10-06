@@ -179,10 +179,10 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-                android.R.color.holo_blue_light,
-                android.R.color.holo_blue_dark,
-                android.R.color.holo_blue_light,
-                android.R.color.holo_blue_bright);
+                R.color.holo_blue_light,
+                R.color.holo_blue_dark,
+                R.color.holo_blue_light,
+                R.color.holo_blue_bright);
 
         listView.setOnScrollListener(this);
 

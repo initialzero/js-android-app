@@ -28,6 +28,9 @@
     <color name="card_title_txt">#4b4b4b</color>
     <color name="card_subtitle_txt">#9c9c9c</color>
     <color name="js_blue_50">#500480ba</color>
+    <color name="holo_blue_light">#ff33b5e5</color>
+    <color name="holo_blue_bright">#ff00ddff</color>
+    <color name="holo_blue_dark">#ff0099cc</color>
 
     <color name="card_header_config">#484a4f</color>
 

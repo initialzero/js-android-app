@@ -99,13 +99,7 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
     }
 
     public void testValidateFieldShouldNotAcceptSameName() throws Throwable {
-        ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(RESOURCE_LABEL);
-        resource.setUri(RESOURCE_URI);
-        resource.setResourceType(ResourceType.reportUnit.toString());
-
-        setActivityIntent(ReportHtmlViewerActivity_.intent(mApplication)
-                .resource(resource).get());
+        configureIntent();
         startActivityUnderTest();
 
         onView(withId(R.id.saveReport)).perform(click());
@@ -120,13 +114,7 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
     }
 
     public void testHtmlSavedItemInteractions() throws Throwable {
-        ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(RESOURCE_LABEL);
-        resource.setUri(RESOURCE_URI);
-        resource.setResourceType(ResourceType.reportUnit.toString());
-
-        setActivityIntent(ReportHtmlViewerActivity_.intent(mApplication)
-                .resource(resource).get());
+        configureIntent();
         startActivityUnderTest();
 
         onView(withId(R.id.saveReport)).perform(click());
@@ -145,19 +133,13 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
 
         onData(is(instanceOf(File.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(longClick());
-        onView(withText(R.string.sdr_cm_open)).perform(click());
-        pressBack();
-
-        onData(is(instanceOf(File.class)))
-                .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
         pressBack();
 
         onData(is(instanceOf(File.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withText(R.string.sdr_cm_rename)).perform(click());
+        onView(withId(R.id.renameItem)).perform(click());
 
         onOverflowView(getActivity(), withId(R.id.report_name_input)).perform(clearText());
         onOverflowView(getActivity(), withId(R.id.report_name_input)).perform(typeText(NEW_FILE_NAME));
@@ -167,7 +149,7 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
         onData(is(instanceOf(File.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withText(R.string.sdr_cm_delete)).perform(click());
+        onView(withId(R.id.deleteItem)).perform(click());
 
         onOverflowView(getActivity(), withText(getActivity().getString(R.string.sdr_drd_msg, NEW_FILE_NAME))).check(matches(isDisplayed()));
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
@@ -177,13 +159,7 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
     }
 
     public void testDeleteSavedHtmlReportFromViewer() throws Throwable {
-        ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(RESOURCE_LABEL);
-        resource.setUri(RESOURCE_URI);
-        resource.setResourceType(ResourceType.reportUnit.toString());
-
-        setActivityIntent(ReportHtmlViewerActivity_.intent(mApplication)
-                .resource(resource).get());
+        configureIntent();
         startActivityUnderTest();
 
         onView(withId(R.id.saveReport)).perform(click());
@@ -202,7 +178,7 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
 
         onData(is(instanceOf(File.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
+                .atPosition(0).perform(longClick());
 
         onView(withId(R.id.deleteItem)).perform(click());
 
@@ -211,6 +187,16 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
 
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.r_browser_nothing_to_display), isDisplayed())));
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
+    }
+
+    private void configureIntent() {
+        ResourceLookup resource = new ResourceLookup();
+        resource.setLabel(RESOURCE_LABEL);
+        resource.setUri(RESOURCE_URI);
+        resource.setResourceType(ResourceType.reportUnit.toString());
+
+        setActivityIntent(ReportHtmlViewerActivity_.intent(mApplication)
+                .resource(resource).get());
     }
 
     private class TestModule extends CommonTestModule {

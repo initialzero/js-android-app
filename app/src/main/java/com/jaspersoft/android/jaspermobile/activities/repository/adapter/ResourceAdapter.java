@@ -25,42 +25,46 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+
+import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ResourceAdapter extends ArrayAdapter<ResourceLookup> {
+public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
+    private final FavoritesHelper_ favoriteHelper;
     private ResourceViewHelper viewHelper = new ResourceViewHelper();
 
     private final ViewType mViewType;
+    private MenuItem favoriteActionItem;
 
-    public static Builder builder(Context context) {
+    public static Builder builder(Context context, Bundle savedInstanceState) {
         checkNotNull(context);
-        return new Builder(context);
+        return new Builder(context, savedInstanceState);
     }
 
-    private ResourceAdapter(Context context, ViewType viewType) {
-        super(context, 0);
+    private ResourceAdapter(Context context, Bundle savedInstanceState, ViewType viewType) {
+        super(savedInstanceState, context, 0);
+        favoriteHelper = FavoritesHelper_.getInstance_(context);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return getViewImpl(position, (IResourceView) convertView);
-    }
-
-    private View getViewImpl(int position, IResourceView convertView) {
-        IResourceView itemView;
-        if (mViewType == ViewType.LIST) {
-            itemView = convertView;
-        } else {
-            itemView = convertView;
-        }
+    protected View getViewImpl(int position, View convertView, ViewGroup parent) {
+        IResourceView itemView = (IResourceView) convertView;
 
         if (itemView == null) {
             if (mViewType == ViewType.LIST) {
@@ -74,13 +78,65 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup> {
         return (View) itemView;
     }
 
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        MenuInflater inflater = mode.getMenuInflater();
+        inflater.inflate(R.menu.am_resource_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        favoriteActionItem = menu.findItem(R.id.favoriteAction);
+        if (getCount() > 0) {
+            alterFavoriteIcon();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void addAll(Collection<? extends ResourceLookup> collection) {
+        super.addAll(collection);
+        // Because of rotation we are loosing content of adapter. For that
+        // reason we are altering ActionMode icon if it visible state to
+        // the required value.
+        if (favoriteActionItem != null && collection.size() > 0) {
+            alterFavoriteIcon();
+        }
+    }
+
+    private void alterFavoriteIcon() {
+        ResourceLookup resource = getItem(getCurrentPosition());
+        Cursor cursor = favoriteHelper.queryFavoriteByResource(resource);
+
+        try {
+            boolean alreadyFavorite = (cursor.getCount() > 0);
+            favoriteActionItem.setIcon(alreadyFavorite ? R.drawable.ic_rating_favorite : R.drawable.ic_rating_not_favorite);
+            favoriteActionItem.setTitle(alreadyFavorite ? R.string.r_cm_remove_from_favorites : R.string.r_cm_add_to_favorites);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        ResourceLookup resource = getItem(getCurrentPosition());
+        Uri uri = favoriteHelper.queryFavoriteUri(resource);
+        favoriteHelper.handleFavoriteMenuAction(uri, resource, null);
+        mode.invalidate();
+        return true;
+    }
+
     public static class Builder {
         private final Context context;
+        private final Bundle savedInstanceState;
 
         private ViewType viewType;
 
-        public Builder(Context context) {
+        public Builder(Context context, Bundle savedInstanceState) {
             this.context = context;
+            this.savedInstanceState = savedInstanceState;
         }
 
         public Builder setViewType(ViewType viewType) {
@@ -89,7 +145,7 @@ public class ResourceAdapter extends ArrayAdapter<ResourceLookup> {
         }
 
         public ResourceAdapter create() {
-            return new ResourceAdapter(context, viewType);
+            return new ResourceAdapter(context, savedInstanceState, viewType);
         }
     }
 }

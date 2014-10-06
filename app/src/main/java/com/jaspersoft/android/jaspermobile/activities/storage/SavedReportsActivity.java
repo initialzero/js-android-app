@@ -3,13 +3,12 @@ package com.jaspersoft.android.jaspermobile.activities.storage;
 import android.app.ActionBar;
 import android.os.Bundle;
 
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
-
-import roboguice.activity.RoboFragmentActivity;
 
 /**
  * @author Ivan Gadzhega
@@ -17,7 +16,7 @@ import roboguice.activity.RoboFragmentActivity;
  * @since 1.8
  */
 @EActivity
-public class SavedReportsActivity extends RoboFragmentActivity {
+public class SavedReportsActivity extends RoboAccentFragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -34,6 +34,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.widget.CheckedRelativeLayout;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EViewGroup;
@@ -41,7 +42,7 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 @EViewGroup(R.layout.res_list_item)
-public class ListItemView extends RelativeLayout implements IResourceView {
+public class ListItemView extends CheckedRelativeLayout implements IResourceView {
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;

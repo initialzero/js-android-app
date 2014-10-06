@@ -26,25 +26,21 @@ package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
 import android.app.ActionBar;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
@@ -57,6 +53,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 
 import javax.inject.Inject;
@@ -72,8 +69,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  */
 @EFragment
 public class FavoritesFragment extends RoboFragment
-        implements SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener,
-        LoaderManager.LoaderCallbacks<Cursor> {
+        implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor> {
     // Context menu action
     private static final int ID_CM_FAVORITE = 10;
 
@@ -91,7 +87,7 @@ public class FavoritesFragment extends RoboFragment
     @Bean
     ResourceOpener resourceOpener;
 
-    private SimpleCursorAdapter mAdapter;
+    private FavoritesAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -105,17 +101,11 @@ public class FavoritesFragment extends RoboFragment
         super.onViewCreated(view, savedInstanceState);
         setEmptyText(0);
 
-        registerForContextMenu(listView);
-
-        String[] from = {FavoritesTable.LABEL, FavoritesTable.URI, FavoritesTable.WSTYPE};
-        int[] to = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
-
-        mAdapter = new SimpleCursorAdapter(getActivity(),
-                (viewType == ViewType.LIST) ? R.layout.common_list_item : R.layout.common_grid_item,
-                null, from, to, 0);
+        int layout = (viewType == ViewType.LIST) ? R.layout.common_list_item : R.layout.common_grid_item;
+        mAdapter = new FavoritesAdapter(getActivity(), savedInstanceState, layout);
+        mAdapter.setAdapterView(listView);
         mAdapter.setViewBinder(this);
         listView.setAdapter(mAdapter);
-        listView.setOnItemClickListener(this);
 
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
     }
@@ -129,47 +119,29 @@ public class FavoritesFragment extends RoboFragment
         }
     }
 
-    //---------------------------------------------------------------------
-    // Implements Context Menu
-    //---------------------------------------------------------------------
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
+    public void onSaveInstanceState(Bundle outState) {
+        mAdapter.save(outState);
+        super.onSaveInstanceState(outState);
+    }
 
-        // Determine on which item in the ListView the user long-clicked
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+    @ItemClick(android.R.id.list)
+    final void itemClick(int position) {
+        mAdapter.finishActionMode();
         Cursor cursor = mAdapter.getCursor();
-        cursor.moveToPosition(info.position);
+        cursor.moveToPosition(position);
 
-        // Retrieve the label for that particular item and use it as title for the menu
-        menu.setHeaderTitle(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));
+        ResourceLookup resource = new ResourceLookup();
+        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));
+        resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
+        resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
 
-        // Add all the menu options
-        menu.add(Menu.NONE, ID_CM_FAVORITE, Menu.NONE, R.string.r_cm_remove_from_favorites);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        // Determine on which item in the ListView the user long-clicked and get it from Cursor
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        // Handle item selection
-        switch (item.getItemId()) {
-            case ID_CM_FAVORITE:
-                Cursor cursor = mAdapter.getCursor();
-                cursor.moveToPosition(info.position);
-                String id = cursor.getString(cursor.getColumnIndex(FavoritesTable._ID));
-                Uri uri = Uri.withAppendedPath(JasperMobileProvider.FAVORITES_CONTENT_URI, id);
-                getActivity().getContentResolver().delete(uri, null, null);
-                return true;
-            default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-                return super.onContextItemSelected(item);
-        }
+        resourceOpener.openResource(resource);
     }
 
     //---------------------------------------------------------------------
-    // Implements AbsListView.OnItemClickListener
+    // Implements SimpleCursorAdapter.ViewBinder
     //---------------------------------------------------------------------
 
     @Override
@@ -182,23 +154,6 @@ public class FavoritesFragment extends RoboFragment
             return true;
         }
         return false;
-    }
-
-    //---------------------------------------------------------------------
-    // Implements SimpleCursorAdapter.ViewBinder
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Cursor cursor = mAdapter.getCursor();
-        cursor.moveToPosition(position);
-
-        ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));
-        resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
-        resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
-
-        resourceOpener.openResource(resource);
     }
 
     //---------------------------------------------------------------------
@@ -220,12 +175,12 @@ public class FavoritesFragment extends RoboFragment
         }
         String[] selectionArgs;
         if (noOrganization) {
-            selectionArgs = new String[] {
+            selectionArgs = new String[]{
                     String.valueOf(jsServerProfile.getId()),
                     jsServerProfile.getUsername()
             };
         } else {
-            selectionArgs = new String[] {
+            selectionArgs = new String[]{
                     String.valueOf(jsServerProfile.getId()),
                     jsServerProfile.getUsername(),
                     jsServerProfile.getOrganization()
@@ -240,7 +195,9 @@ public class FavoritesFragment extends RoboFragment
                 .append(" THEN 1 ELSE 2 END")
                 .append(", ")
                 .append(FavoritesTable.WSTYPE)
-                .append(" COLLATE NOCASE");
+                .append(" COLLATE NOCASE")
+                .append(", ").append(FavoritesTable.LABEL)
+                .append(" COLLATE NOCASE ASC");
 
         return new CursorLoader(getActivity(), JasperMobileProvider.FAVORITES_CONTENT_URI,
                 FavoritesTable.ALL_COLUMNS, selection, selectionArgs, sortOrder.toString());

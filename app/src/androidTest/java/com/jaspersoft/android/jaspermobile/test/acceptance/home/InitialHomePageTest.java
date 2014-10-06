@@ -144,7 +144,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onView(withId(R.id.home_item_servers)).perform(click());
 
         onView(withText(ProfileHelper.DEFAULT_ALIAS)).perform(longClick());
-        onView(withText(R.string.spm_cm_delete)).perform(click());
+        onView(withId(R.id.deleteItem)).perform(click());
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(ProfileHelper.DEFAULT_ALIAS)))));
@@ -155,7 +155,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         startActivityUnderTest();
 
         onView(withText(TEST_ALIAS)).perform(longClick());
-        onView(withText(R.string.spm_cm_switch)).perform(click());
+        onView(withId(R.id.connectItem)).perform(click());
 
         onView(withId(R.id.profile_name)).check(matches(withText(TEST_ALIAS)));
     }

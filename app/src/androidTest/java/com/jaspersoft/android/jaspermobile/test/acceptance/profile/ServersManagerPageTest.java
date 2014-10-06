@@ -176,7 +176,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withId(R.id.saveAction)).perform(click());
 
         onView(withText(TEST_ALIAS + "_suffix")).perform(longClick());
-        onView(withText(R.string.spm_cm_edit)).perform(click());
+        onView(withId(R.id.editItem)).perform(click());
 
         onView(withId(R.id.aliasEdit)).perform(clearText());
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
@@ -190,7 +190,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         startActivityUnderTest();
 
         onView(withText(TEST_ALIAS)).perform(longClick());
-        onView(withText(R.string.spm_cm_delete)).perform(click());
+        onView(withId(R.id.deleteItem)).perform(click());
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(1));

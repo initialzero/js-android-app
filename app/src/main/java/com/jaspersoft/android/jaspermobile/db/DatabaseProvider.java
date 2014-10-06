@@ -280,22 +280,6 @@ public class DatabaseProvider {
 
     }
 
-    public Cursor fetchReportOptions(long serverProfileId, String username, String organization, String reportUri) throws SQLException {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] columns = new String[] {
-                ReportOptions._ID,
-                ReportOptions.KEY_NAME,
-                ReportOptions.KEY_VALUE,
-                ReportOptions.KEY_IS_LIST_ITEM
-        };
-        return db.query(ReportOptions.TABLE_NAME, columns,
-                ReportOptions.KEY_SERVER_PROFILE_ID + "=" + serverProfileId
-                        + " and " + ReportOptions.KEY_USERNAME + "= ? "
-                        + " and " + ReportOptions.KEY_ORGANIZATION + "= ?"
-                        + " and " + ReportOptions.KEY_REPORT_URI + "= ?",
-                new String[] { username, organization, reportUri }, null, null, ReportOptions.KEY_NAME);
-    }
-
     public long insertReportOption(String name, String value, boolean isListItem, long serverProfileId,
                                    String username, String organization, String reportUri) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();

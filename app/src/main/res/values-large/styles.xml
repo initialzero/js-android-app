@@ -29,16 +29,19 @@
     <style name="list2.item" />
 
     <style name="list2.item.title">
+        <item name="android:textColor">@color/list_label_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceLargeInverse</item>
         <item name="android:singleLine">true</item>
     </style>
 
     <style name="list2.item.subTitle">
+        <item name="android:textColor">@color/list_label_light_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
         <item name="android:singleLine">true</item>
     </style>
 
     <style name="list2.item.metadata">
+        <item name="android:textColor">@color/list_label_light_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:singleLine">true</item>
     </style>
@@ -48,12 +51,14 @@
     <style name="grid.item"/>
 
     <style name="grid.item.title">
+        <item name="android:textColor">@color/list_label_grey</item>
         <item name="android:layout_margin">6dp</item>
         <item name="android:textAppearance">?android:attr/textAppearanceLargeInverse</item>
         <item name="android:maxLines">2</item>
     </style>
 
     <style name="grid.item.subTitle">
+        <item name="android:textColor">@color/list_label_light_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:maxLines">2</item>
     </style>

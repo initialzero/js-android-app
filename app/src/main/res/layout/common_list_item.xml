@@ -24,10 +24,12 @@
   ~  <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.jaspersoft.android.jaspermobile.widget.CheckedRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/list2.item.layout"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/list_item_height">
+    android:layout_height="@dimen/list_item_height"
+    android:background="@drawable/custom_list_item_bg">
 
-    <include layout="@layout/res_list_item"/>
-</RelativeLayout>
+    <include layout="@layout/res_list_item" />
+
+</com.jaspersoft.android.jaspermobile.widget.CheckedRelativeLayout>

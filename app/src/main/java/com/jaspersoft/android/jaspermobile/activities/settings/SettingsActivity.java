@@ -31,12 +31,11 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentPreferenceActivity;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
-
-import roboguice.activity.RoboPreferenceActivity;
 
 /**
  * @author Ivan Gadzhega
@@ -44,7 +43,7 @@ import roboguice.activity.RoboPreferenceActivity;
  * @since 1.5
  */
 @EActivity
-public class SettingsActivity extends RoboPreferenceActivity {
+public class SettingsActivity extends RoboAccentPreferenceActivity {
     public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";

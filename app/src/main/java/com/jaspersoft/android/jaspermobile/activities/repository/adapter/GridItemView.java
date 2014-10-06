@@ -28,11 +28,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewStub;
 import android.widget.AbsListView;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.widget.CheckedRelativeLayout;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EViewGroup;
@@ -40,7 +40,7 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 @EViewGroup(R.layout.res_grid_item)
-public class GridItemView extends FrameLayout implements IResourceView {
+public class GridItemView extends CheckedRelativeLayout implements IResourceView {
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;

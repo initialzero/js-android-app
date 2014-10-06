@@ -135,29 +135,6 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         // get report uri from extras
         reportUri = getIntent().getExtras().getString(EXTRA_REPORT_URI);
 
-        // Get a cursor with saved options for current report
-        JsServerProfile profile = jsRestClient.getServerProfile();
-        Cursor cursor = dbProvider.fetchReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
-        if (cursor != null) {
-            startManagingCursor(cursor);
-
-            Map<String, ReportParameter> savedOptions = new HashMap<String, ReportParameter>();
-            if (cursor.getCount() != 0) {
-                // Iterate DB Records
-                cursor.moveToFirst();
-                while (!cursor.isAfterLast()) {
-                    String name = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_NAME));
-                    String value = cursor.getString(cursor.getColumnIndex(ReportOptions.KEY_VALUE));
-                    if (savedOptions.containsKey(name)) {
-                        savedOptions.get(name).getValues().add(value);
-                    } else {
-                        savedOptions.put(name, new ReportParameter(name, value));
-                    }
-                    cursor.moveToNext();
-                }
-            }
-        }
-
         // prepare input controls
         initInputControls();
     }

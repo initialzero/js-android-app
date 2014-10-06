@@ -48,6 +48,7 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
+import com.jaspersoft.android.jaspermobile.activities.profile.adapter.ServersAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
@@ -68,7 +69,7 @@ import roboguice.inject.InjectView;
  */
 @EFragment
 public class ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, ISimpleDialogListener {
+        SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, ISimpleDialogListener, ServersAdapter.ServersInteractionListener {
     public static final String EXTRA_SERVER_PROFILE_ID = "ServersFragment.EXTRA_SERVER_PROFILE_ID";
 
     // Context menu IDs
@@ -85,7 +86,7 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     @Inject
     JsRestClient jsRestClient;
 
-    private SimpleCursorAdapter mAdapter;
+    private ServersAdapter mAdapter;
     private JsServerProfile mServerProfile;
     private long mServerProfileId;
     private AdapterView.AdapterContextMenuInfo currentInfo;
@@ -106,72 +107,51 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
             mServerProfileId = mServerProfile.getId();
         }
 
-        String[] from = {ServerProfilesTable.ALIAS, ServerProfilesTable.SERVER_URL, ServerProfilesTable._ID};
-        int[] to = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
 
-        mAdapter = new SimpleCursorAdapter(getActivity(),
-                (viewType == ViewType.LIST) ? R.layout.common_list_item : R.layout.common_grid_item,
-                null, from, to, 0);
+        int layout = (viewType == ViewType.LIST) ? R.layout.common_list_item : R.layout.common_grid_item;
+        mAdapter = new ServersAdapter(getActivity(), savedInstanceState, layout);
+        mAdapter.setServersInteractionListener(this);
+        mAdapter.setAdapterView(listView);
         mAdapter.setViewBinder(this);
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(this);
-
-        registerForContextMenu(listView);
 
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-
-        // Determine on which item in the ListView the user long-clicked
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        Cursor cursor = mAdapter.getCursor();
-        cursor.moveToPosition(info.position);
-
-        // Retrieve the label for that particular item and use it as title for the menu
-        menu.setHeaderTitle(cursor.getString(cursor.getColumnIndex(ServerProfilesTable.ALIAS)));
-
-        // Add all the menu options
-        menu.add(Menu.NONE, ID_CM_SWITCH, Menu.NONE, R.string.spm_cm_switch);
-        menu.add(Menu.NONE, ID_CM_EDIT, Menu.NONE, R.string.spm_cm_edit);
-        menu.add(Menu.NONE, ID_CM_DELETE, Menu.NONE, R.string.spm_cm_delete);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mAdapter.save(outState);
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        // Determine on which item in the ListView the user long-clicked and get it from Cursor
-        currentInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        // Handle item selection
-        switch (item.getItemId()) {
-            case ID_CM_SWITCH:
-                // return result with specified server profile id to home activity
-                onItemClick(listView, null, currentInfo.position, currentInfo.id);
-                return true;
-            case ID_CM_EDIT:
-                // Launch activity to edit the server profile
-                Cursor cursor = mAdapter.getCursor();
-                cursor.moveToPosition(currentInfo.position);
+    public void onConnect(int position) {
+        mAdapter.finishActionMode();
+        onItemClick(listView, null, position, 0);
+    }
 
-                long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+    @Override
+    public void onEdit(int position) {
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(position);
 
-                ServerProfileActivity_.intent(getActivity()).profileId(profileId).start();
-                return true;
-            case ID_CM_DELETE:
-                AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTargetFragment(this, 0)
-                        .setTitle(R.string.warning_msg)
-                        .setMessage(R.string.spm_ad_delete_profile_msg)
-                        .setPositiveButtonText(R.string.spm_delete_btn)
-                        .setNegativeButtonText(R.string.spm_cancel_btn)
-                        .show();
-                return true;
-            default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-                return super.onContextItemSelected(item);
-        }
+        long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+
+        ServerProfileActivity_.intent(getActivity()).profileId(profileId).start();
+        mAdapter.finishActionMode();
+    }
+
+    @Override
+    public void onDelete(int position) {
+        AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTargetFragment(this, position)
+                .setTitle(R.string.warning_msg)
+                .setMessage(R.string.spm_ad_delete_profile_msg)
+                .setPositiveButtonText(R.string.spm_delete_btn)
+                .setNegativeButtonText(R.string.spm_cancel_btn)
+                .show();
     }
 
     @Override
@@ -221,17 +201,20 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
 
 
     @Override
-    public void onPositiveButtonClicked(int i) {
-        if (currentInfo == null) return;
-        if (mServerProfileId == currentInfo.id) {
+    public void onPositiveButtonClicked(int position) {
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(position);
+        long id = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+        if (mServerProfileId == id) {
             Toast.makeText(getActivity(), "Can`t delete active profile", Toast.LENGTH_SHORT).show();
             return;
         }
-        Uri uri = Uri.withAppendedPath(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(currentInfo.id));
+        Uri uri = Uri.withAppendedPath(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(id));
         int deleteCount = getActivity().getContentResolver().delete(uri, null, null);
         if (deleteCount > 0) {
             Toast.makeText(getActivity(), R.string.spm_profile_deleted_toast, Toast.LENGTH_SHORT).show();
         }
+        mAdapter.finishActionMode();
     }
 
     @Override
@@ -241,4 +224,6 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     @Override
     public void onNeutralButtonClicked(int i) {
     }
+
+
 }

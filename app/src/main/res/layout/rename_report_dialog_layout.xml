@@ -39,9 +39,4 @@
         style="@style/dialog.editText"
     />
 
-    <TextView
-        android:id="@+id/report_name_error"
-        style="@style/dialog.textView.error"
-    />
-
 </LinearLayout>

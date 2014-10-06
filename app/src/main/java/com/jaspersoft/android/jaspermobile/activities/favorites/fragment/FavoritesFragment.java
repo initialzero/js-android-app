@@ -196,7 +196,7 @@ public class FavoritesFragment extends RoboFragment
                 .append(FavoritesTable.WSTYPE)
                 .append(" COLLATE NOCASE")
                 .append(", ").append(FavoritesTable.LABEL)
-                .append(" ASC");
+                .append(" COLLATE NOCASE ASC");
 
         return new CursorLoader(getActivity(), JasperMobileProvider.FAVORITES_CONTENT_URI,
                 FavoritesTable.ALL_COLUMNS, selection, selectionArgs, sortOrder.toString());

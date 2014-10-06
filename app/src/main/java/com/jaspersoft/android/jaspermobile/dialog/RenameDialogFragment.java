@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -10,8 +11,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -37,7 +38,6 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
 
     private AlertDialog mDialog;
     private EditText reportNameEdit;
-    private TextView reportNameError;
     private OnRenamedAction onRenamedActionListener;
 
     public static void show(FragmentManager fm, File file, OnRenamedAction onRenamedAction) {
@@ -56,7 +56,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
                 .inflate(R.layout.rename_report_dialog_layout, null);
         reportNameEdit = (EditText) customLayout.findViewById(R.id.report_name_input);
         reportNameEdit.setText(FileUtils.getBaseName(selectedFile.getName()));
-        reportNameError = (TextView) customLayout.findViewById(R.id.report_name_error);
+        reportNameEdit.setSelection(reportNameEdit.getText().length());
 
         reportNameEdit.addTextChangedListener(new TextWatcher() {
             @Override
@@ -65,7 +65,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
             public void afterTextChanged(Editable s) { }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                reportNameError.setVisibility(View.GONE);
+                reportNameEdit.setError(null);
             }
         });
 
@@ -86,6 +86,8 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
     @Override
     public void onShow(DialogInterface dialogInterface) {
         mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(this);
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(reportNameEdit, 0);
     }
 
     @Override
@@ -93,8 +95,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
         String newReportName = reportNameEdit.getText().toString().trim();
 
         if (newReportName.isEmpty()) {
-            reportNameError.setText(R.string.sdr_rrd_error_name_is_empty);
-            reportNameError.setVisibility(View.VISIBLE);
+            reportNameEdit.setError(getString(R.string.sdr_rrd_error_name_is_empty));
             return;
         }
 
@@ -102,8 +103,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
         String newFileName = newReportName + "." + extension;
 
         if (FileUtils.nameContainsReservedChars(newFileName)) {
-            reportNameError.setText(R.string.sdr_rrd_error_characters_not_allowed);
-            reportNameError.setVisibility(View.VISIBLE);
+            reportNameEdit.setError(getString(R.string.sdr_rrd_error_characters_not_allowed));
             return;
         }
 
@@ -111,8 +111,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
 
         if (!selectedFile.equals(destFile)) {
             if (destFile.exists()) {
-                reportNameError.setText(R.string.sdr_rrd_error_report_exists);
-                reportNameError.setVisibility(View.VISIBLE);
+                reportNameEdit.setError(getString(R.string.sdr_rrd_error_report_exists));
                 return;
             }
 

@@ -31,12 +31,11 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ProfilesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ProfilesControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-
-import roboguice.activity.RoboFragmentActivity;
 
 /**
  * @author Tom Koptel
@@ -44,7 +43,7 @@ import roboguice.activity.RoboFragmentActivity;
  */
 @EActivity
 @OptionsMenu(R.menu.servers_menu)
-public class ServersManagerActivity extends RoboFragmentActivity {
+public class ServersManagerActivity extends RoboAccentFragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -32,14 +32,12 @@ import com.negusoft.holoaccent.AccentHelper;
 import com.negusoft.holoaccent.AccentResources;
 import com.octo.android.robospice.SpiceManager;
 
-import roboguice.activity.RoboFragmentActivity;
-
 /**
  * @author Ivan Gadzhega
  * @author Tom Koptel
  * @since 1.9
  */
-public class RoboSpiceFragmentActivity extends RoboFragmentActivity  {
+public class RoboSpiceFragmentActivity extends RoboAccentFragmentActivity  {
 
     private final AccentHelper mAccentHelper = new AccentHelper(getOverrideAccentColor(),
             getOverrideAccentColorDark(), getOverrideAccentColorActionBar(), new MyInitListener());

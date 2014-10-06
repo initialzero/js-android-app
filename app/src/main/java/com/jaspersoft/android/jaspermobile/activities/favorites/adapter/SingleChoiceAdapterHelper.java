@@ -15,6 +15,7 @@ import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapterHelper;
  */
 public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
 
+    public static final int NO_POSITION = -1;
     private static String CURRENT_POSITION_KEY = "CURRENT_POSITION";
     private int currentPosition;
 
@@ -56,6 +57,10 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
 
     public int getCurrentPosition() {
         return currentPosition;
+    }
+
+   public void resetCurrentPosition() {
+        currentPosition = NO_POSITION;
     }
 
     @Override

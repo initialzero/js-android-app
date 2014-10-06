@@ -27,24 +27,28 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
 
+import org.hamcrest.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
@@ -55,6 +59,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.withNotDecorView;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,18 +70,17 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     @Mock
     JsServerProfile mockServerProfile;
     @Mock
-    DatabaseProvider mockDbProvider;
-    @Mock
     JsRestClient mockRestClient;
     @Mock
     SpiceManager mockSpiceService;
     @Mock
     JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+    private SmartMockedSpiceManager mMockedSpiceManager;
     private ResourceLookupsList allLookUp;
     private ResourceLookupsList onlyDashboardLookUp;
     private ResourceLookupsList onlyReportLookUp;
+    private ResourceLookupsList bigLookUp;
 
     public LibraryPageFilterTest() {
         super(LibraryActivity_.class);
@@ -88,8 +92,10 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         MockitoAnnotations.initMocks(this);
 
         allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
+        bigLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
         onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         onlyReportLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
+        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
 
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
@@ -105,7 +111,8 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testLibraryFilterDialog() {
-        mMockedSpiceManager.setResponseForCacheRequest(onlyDashboardLookUp);
+        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
+        mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
         startActivityUnderTest();
 
         clickOnDialogText(android.R.string.cancel);
@@ -113,7 +120,9 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testDashboardAndAllFilterOption() throws InterruptedException {
-        mMockedSpiceManager.setResponseForCacheRequest(onlyDashboardLookUp);
+        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
+        mMockedSpiceManager.addCachedResponse(allLookUp);
         startActivityUnderTest();
 
         clickFilterMenuItem();
@@ -121,7 +130,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyDashboardLookUp.getResourceLookups().size()));
 
-        mMockedSpiceManager.setResponseForCacheRequest(allLookUp);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
@@ -129,7 +137,8 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testReportFilterOption() {
-        mMockedSpiceManager.setResponseForCacheRequest(onlyReportLookUp);
+        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
         startActivityUnderTest();
 
         clickFilterMenuItem();
@@ -139,7 +148,10 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testFilteringIsPersistent() {
-        mMockedSpiceManager.setResponseForCacheRequest(onlyReportLookUp);
+        mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
+        mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
+        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
+        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
         startActivityUnderTest();
         rotateToPortrait();
 
@@ -147,7 +159,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
 
-        mMockedSpiceManager.setResponseForCacheRequest(onlyDashboardLookUp);
         rotate();
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).check(matches(isChecked()));
@@ -157,6 +168,26 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         rotate();
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).check(matches(isChecked()));
+    }
+
+    // Bug related to the custom single choice implementation.
+    // We need long click on the item within big data list.
+    // Then switch to the list with few items. As soon as we
+    // kept reference to incorrect index position we received crash.
+    // Test asserts that adapter clear() method resets old reference
+    public void testCurrentPositionResetAfterNewFilterSelected() {
+        mMockedSpiceManager.addCachedResponse(bigLookUp);
+        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
+        startActivityUnderTest();
+
+        onData(Matchers.is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(5).perform(longClick());
+        pressBack();
+
+        clickFilterMenuItem();
+        onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
+        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
     }
 
     private void clickOnDialogText(int resId) {

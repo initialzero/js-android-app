@@ -124,4 +124,8 @@ public abstract class SingleChoiceArrayAdapter<T> extends ArrayAdapter<T> implem
     public int getCurrentPosition() {
         return helper.getCurrentPosition();
     }
+
+    protected void resetCurrentPosition() {
+        helper.resetCurrentPosition();
+    }
 }

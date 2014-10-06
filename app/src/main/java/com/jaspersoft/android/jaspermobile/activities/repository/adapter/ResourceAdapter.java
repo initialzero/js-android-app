@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceAdapterHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -101,9 +102,16 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         // Because of rotation we are loosing content of adapter. For that
         // reason we are altering ActionMode icon if it visible state to
         // the required value.
-        if (favoriteActionItem != null && collection.size() > 0) {
+        if (favoriteActionItem != null && collection.size() > 0
+                && getCurrentPosition() != SingleChoiceAdapterHelper.NO_POSITION) {
             alterFavoriteIcon();
         }
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        resetCurrentPosition();
     }
 
     private void alterFavoriteIcon() {

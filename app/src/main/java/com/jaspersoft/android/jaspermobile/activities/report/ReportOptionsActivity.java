@@ -28,7 +28,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -46,6 +45,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
@@ -53,10 +53,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.db.tables.ReportOptions;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
@@ -77,10 +75,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
@@ -106,8 +102,6 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     @Inject
     protected JsRestClient jsRestClient;
-    @Inject
-    protected DatabaseProvider dbProvider;
     @InjectView(R.id.runReportButton)
     protected Button runReportButton;
 
@@ -227,13 +221,6 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         super.onStop();
     }
 
-    @Override
-    public void onDestroy() {
-        // close any open database object
-        if (dbProvider != null) dbProvider.close();
-        super.onDestroy();
-    }
-
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -249,7 +236,6 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     private void runReport() {
         String reportTitle = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
-        saveParametersToDatabase(parameters);
         runReportViewer(reportUri, reportTitle, parameters);
     }
 
@@ -259,20 +245,6 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
             parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
         }
         return parameters;
-    }
-
-    private void saveParametersToDatabase(List<ReportParameter> parameters) {
-        if (parameters.isEmpty()) return;
-        //delete previous values from db
-        JsServerProfile profile = jsRestClient.getServerProfile();
-        dbProvider.deleteReportOptions(profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
-        // Save new values to db
-        for (ReportParameter parameter : parameters) {
-            for (String value : parameter.getValues()) {
-                dbProvider.insertReportOption(parameter.getName(), value, false,
-                        profile.getId(), profile.getUsername(), profile.getOrganization(), reportUri);
-            }
-        }
     }
 
     private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
@@ -344,18 +316,17 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     }
 
     private void initBooleanControl(final InputControl inputControl, LinearLayout baseLayout, LayoutInflater inflater) {
-        View layoutView = inflater.inflate(R.layout.ic_boolean_layout, baseLayout, false);
-        CheckBox checkBox = (CheckBox) layoutView.findViewById(R.id.ic_checkbox);
-        checkBox.setText(inputControl.getLabel());
+        Switch switchView = (Switch) inflater.inflate(R.layout.control_boolean_layout, baseLayout, false);
+        switchView.setText(inputControl.getLabel());
         // set default value
         if (inputControl.getState().getValue() == null)
             inputControl.getState().setValue("false");
-        checkBox.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));
+        switchView.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));
         //listener
         if (inputControl.isReadOnly()) {
-            checkBox.setEnabled(false);
+            switchView.setEnabled(false);
         } else {
-            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     onStringValueChanged(inputControl, String.valueOf(isChecked));
@@ -363,9 +334,9 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
             });
         }
         // assign views to the control
-        inputControl.setInputView(checkBox);
+        inputControl.setInputView(switchView);
         // show the control
-        baseLayout.addView(layoutView);
+        baseLayout.addView(switchView);
     }
 
     private void initSingleValueControl(final InputControl inputControl, LinearLayout baseLayout, LayoutInflater inflater) {

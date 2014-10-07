@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -141,7 +140,9 @@
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
-
+    <string name="ro_ab_apply">Apply</string>
+    <string name="ro_switch_text_on">YES</string>
+    <string name="ro_switch_text_off">NO</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

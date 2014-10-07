@@ -201,6 +201,15 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
+    <style name="reportOptions.switch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@drawable/input_controls_divider</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
     <!-- Report HTML Viewer Layout -->
     <style name="htmlViewer" />
 
@@ -235,7 +244,7 @@
 
     <style name="saveReport.outputFormat" />
 
-    <style name="saveReport.outputFormat.label" parent="inputControl.label"/>
+    <style name="saveReport.outputFormat.label" parent="inputControl.label" />
 
 
     <!-- Dialogs -->
@@ -347,9 +356,9 @@
         <item name="android:inputType">textPassword</item>
     </style>
 
-    <style name="list2"/>
+    <style name="list2" />
 
-    <style name="list2.item"/>
+    <style name="list2.item" />
 
     <style name="list2.item.layout">
         <item name="android:background">@drawable/custom_list_item_bg</item>
@@ -373,9 +382,9 @@
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="grid"/>
+    <style name="grid" />
 
-    <style name="grid.item"/>
+    <style name="grid.item" />
 
     <style name="grid.layout">
         <item name="android:paddingLeft">0dp</item>

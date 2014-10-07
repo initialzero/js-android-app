@@ -16,6 +16,8 @@ import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.squareup.spoon.Spoon;
@@ -44,6 +46,9 @@ public class ProtoActivityInstrumentation<T extends Activity>
     protected void setUp() throws Exception {
         super.setUp();
         nameUtils = new NameUtils(pageName);
+        DefaultPrefHelper helper = DefaultPrefHelper_
+                .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
+        helper.setAnimationEnabled(false);
     }
 
     @Override

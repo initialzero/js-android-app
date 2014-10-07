@@ -43,6 +43,7 @@ import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
@@ -82,6 +83,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     private SmartMockedSpiceManager mMockedSpiceManager;
     private ResourceLookupsList reportsQueryResult;
     private ResourceLookupsList levelRepositories;
+    private ReportExecutionResponse reportExecution;
 
     public SearchableActivityTest() {
         super(SearchableActivity_.class);
@@ -95,6 +97,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
         reportsQueryResult = TestResources.get().fromXML(ResourceLookupsList.class, "reports_query_result");
         levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
 
         when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
         registerTestModule(new TestModule());
@@ -117,6 +120,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     public void testReportClick() {
         mMockedSpiceManager.addCachedResponse(reportsQueryResult);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         startActivityUnderTest();
 
         onData(is(instanceOf(ResourceLookup.class)))

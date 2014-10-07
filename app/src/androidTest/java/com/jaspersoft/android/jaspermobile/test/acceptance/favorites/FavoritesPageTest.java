@@ -43,6 +43,7 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
@@ -84,6 +85,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     private ResourceLookupsList onlyReport;
     private ResourceLookupsList onlyFolder;
     private FavoritesHelper_ favoritesHelper;
+    private ReportExecutionResponse reportExecution;
 
     public FavoritesPageTest() {
         super(FavoritesActivity_.class);
@@ -98,6 +100,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onlyDashboard = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         onlyReport = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
         onlyFolder = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
 
         mApplication = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
@@ -155,7 +158,9 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddToFavoriteFromReportView() {
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         startActivityUnderTest();
 
         // Force only reports
@@ -190,10 +195,13 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddReportToFavoriteFromContextMenu() throws Throwable {
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
         startContextMenuInteractionTest();

@@ -39,6 +39,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.report.fragment.PaginationFragment;
+import com.jaspersoft.android.jaspermobile.activities.report.fragment.PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
@@ -68,7 +70,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import java.net.URI;
 import java.util.ArrayList;
 
 /**
@@ -309,9 +310,12 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
             } else {
                 String executionId = response.getRequestId();
                 String exportType = response.getExports().get(0).getId();
-                String exportOutput = String.format("%s;pages=1", exportType);
-                URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
-                loadUrl(reportUri.toString());
+                int totalPage = response.getTotalPages();
+                PaginationFragment paginationFragment = PaginationFragment_.builder()
+                        .executionId(executionId).exportType(exportType)
+                        .totalPage(totalPage).build();
+                getSupportFragmentManager().beginTransaction()
+                        .add(android.R.id.content, paginationFragment).commit();
             }
             invalidateOptionsMenu();
         }

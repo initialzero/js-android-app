@@ -36,6 +36,7 @@ import com.google.android.apps.common.testing.ui.espresso.Espresso;
 import com.google.android.apps.common.testing.ui.espresso.IdlingPolicies;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 
 import java.util.concurrent.TimeUnit;
@@ -45,7 +46,6 @@ import java.util.concurrent.TimeUnit;
  * @since 1.9
  */
 public class WebViewInjector implements ActivityLifecycleCallback {
-    private static WebViewInjector injector;
     private final WebViewIdlingResource mWebViewIdlingResource;
     private final Class<? extends FragmentActivity> mClass;
     private boolean mInjected;
@@ -88,17 +88,28 @@ public class WebViewInjector implements ActivityLifecycleCallback {
         }
     }
 
-    public static void registerFor(Class<? extends FragmentActivity> clazz) {
+    public static IdleInjector registerFor(Class<? extends FragmentActivity> clazz) {
         IdlingPolicies.setIdlingResourceTimeout(150, TimeUnit.SECONDS);
         WebViewIdlingResource webViewIdlingResource = new WebViewIdlingResource();
         Espresso.registerIdlingResources(webViewIdlingResource);
-        injector = new WebViewInjector(clazz, webViewIdlingResource);
+
+        WebViewInjector injector = new WebViewInjector(clazz, webViewIdlingResource);
         ActivityLifecycleMonitorRegistry.getInstance()
                 .addLifecycleCallback(injector);
+        return new InjectorHolder(injector);
     }
 
-    public static void unregister() {
-        ActivityLifecycleMonitorRegistry.getInstance()
-                .removeLifecycleCallback(injector);
+    private static class InjectorHolder implements IdleInjector {
+        private final WebViewInjector injector;
+
+        private InjectorHolder(WebViewInjector injector) {
+            this.injector = injector;
+        }
+
+        @Override
+        public void unregister() {
+            ActivityLifecycleMonitorRegistry.getInstance()
+                    .removeLifecycleCallback(injector);
+        }
     }
 }

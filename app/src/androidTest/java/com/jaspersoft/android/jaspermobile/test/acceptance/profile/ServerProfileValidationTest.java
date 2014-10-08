@@ -30,11 +30,9 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -49,7 +47,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_USERNAME;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteTestProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -59,9 +56,6 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
     public ServerProfileValidationTest() {
         super(ServerProfileActivity_.class);
     }
-
-    @Mock
-    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
     private SmartMockedSpiceManager mMockedSpiceManager;
     private ServerInfo serverInfo;
@@ -73,9 +67,8 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
 
         MockitoAnnotations.initMocks(this);
-        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
         mMockedSpiceManager.addNetworkResponse(serverInfo);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
         registerTestModule(new TestModule());
         startActivityUnderTest();
     }
@@ -141,7 +134,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
 

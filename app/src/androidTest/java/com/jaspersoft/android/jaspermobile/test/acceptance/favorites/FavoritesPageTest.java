@@ -38,11 +38,11 @@ import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
@@ -63,7 +63,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -75,8 +74,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     JsRestClient mockJsRestClient;
     @Mock
     JsServerProfile jsServerProfile;
-    @Mock
-    JsXmlSpiceServiceWrapper xmlSpiceServiceWrapper;
 
     private Application mApplication;
     private SmartMockedSpiceManager mMockedSpiceManager;
@@ -84,6 +81,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     private ResourceLookupsList onlyReport;
     private ResourceLookupsList onlyFolder;
     private FavoritesHelper_ favoritesHelper;
+    private ReportExecutionResponse reportExecution;
 
     public FavoritesPageTest() {
         super(FavoritesActivity_.class);
@@ -98,14 +96,13 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onlyDashboard = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         onlyReport = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
         onlyFolder = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
 
         mApplication = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
         DefaultPrefHelper_ defaultPrefHelper = DefaultPrefHelper_.getInstance_(mApplication);
         defaultPrefHelper.setAnimationEnabled(false);
-        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
-
-        when(xmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
@@ -155,7 +152,9 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddToFavoriteFromReportView() {
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         startActivityUnderTest();
 
         // Force only reports
@@ -190,10 +189,13 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddReportToFavoriteFromContextMenu() throws Throwable {
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
         startContextMenuInteractionTest();
@@ -295,7 +297,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(xmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
 

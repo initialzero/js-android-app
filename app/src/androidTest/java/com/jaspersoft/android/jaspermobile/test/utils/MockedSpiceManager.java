@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils;
 
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
@@ -32,8 +33,6 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.SpiceService;
 import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -42,12 +41,11 @@ import com.octo.android.robospice.request.listener.RequestListener;
  * @since 1.9
  */
 @Deprecated
-public class MockedSpiceManager extends SpiceManager {
+public class MockedSpiceManager extends JsSpiceManager {
     private Object responseForCacheRequest;
     private Object responseForNetworkRequest;
 
-    public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
-        super(spiceServiceClass);
+    public MockedSpiceManager() {
     }
 
     public void setResponseForCacheRequest(Object cachedResponse) {

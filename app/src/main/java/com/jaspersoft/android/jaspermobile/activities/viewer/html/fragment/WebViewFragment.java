@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment;
 
+import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -31,7 +32,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -170,10 +170,9 @@ public class WebViewFragment extends RoboFragment {
         webView.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
                 // fade in
-                if (progressBar.getProgress() == 0) {
-                    AlphaAnimation fadeInAnimation = new AlphaAnimation(0.0f, 1.0f);
-                    fadeInAnimation.setDuration(500);
-                    progressBar.startAnimation(fadeInAnimation);
+                if (progressBar.getAlpha() == 0) {
+                    ObjectAnimator.ofFloat(progressBar, "alpha", 0f, 1f)
+                            .setDuration(500).start();
                 }
                 // update value
                 int maxProgress = progressBar.getMax();
@@ -181,10 +180,8 @@ public class WebViewFragment extends RoboFragment {
                 // fade out
                 if (progress == maxProgress) {
                     mResourceLoaded = true;
-                    AlphaAnimation fadeOutAnimation = new AlphaAnimation(1.0f, 0.0f);
-                    fadeOutAnimation.setDuration(1000);
-                    progressBar.startAnimation(fadeOutAnimation);
-                    progressBar.setVisibility(View.GONE);
+                    ObjectAnimator.ofFloat(progressBar, "alpha", 1f, 0f)
+                            .setDuration(1000).start();
                 }
             }
         });

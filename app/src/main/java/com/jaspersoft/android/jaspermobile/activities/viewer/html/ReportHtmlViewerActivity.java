@@ -39,17 +39,20 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.activities.report.fragment.PaginationFragment;
+import com.jaspersoft.android.jaspermobile.activities.report.fragment.PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -67,9 +70,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -225,12 +226,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                 });
     }
 
-    private void loadUrl(String reportUrl) {
-        if (webViewFragment != null) {
-            webViewFragment.loadUrl(reportUrl);
-        }
-    }
-
     private void showReportOptions(ArrayList<InputControl> inputControls) {
         // Run Report Options activity
         Intent intent = new Intent(this, ReportOptionsActivity.class);
@@ -259,7 +254,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
-            ProgressDialogFragment.dismiss(getSupportFragmentManager());
 
             ArrayList<InputControl> inputControls = Lists.newArrayList(controlsList.getInputControls());
             mFilterActionVisible = !inputControls.isEmpty();
@@ -267,12 +261,23 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
             if (mFilterActionVisible) {
                 cachedInputControls = inputControls;
                 showReportOptions(inputControls);
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
             } else {
                 mFavoriteActionVisible = true;
                 mSaveActionVisible = true;
-                List<ReportParameter> reportParameters = Lists.newArrayList();
-                String reportUrl = jsRestClient.generateReportUrl(resource.getUri(), reportParameters, OUTPUT_FORMAT);
-                loadUrl(reportUrl);
+
+                ReportExecutionRequest requestData = new ReportExecutionRequest();
+                requestData.setReportUnitUri(resource.getUri());
+                requestData.setOutputFormat(OUTPUT_FORMAT);
+                requestData.setInteractive(true);
+                // Force server to generate all html data
+                requestData.setAsync(false);
+                // Enable pagination for report preview
+                requestData.setIgnorePagination(false);
+
+                final RunReportExecutionRequest request =
+                        new RunReportExecutionRequest(jsRestClient, requestData);
+                getSpiceManager().execute(request, new RunReportExecutionListener());
             }
             invalidateOptionsMenu();
         }
@@ -298,9 +303,13 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                         .setMessage(R.string.rv_error_empty_report).show();
             } else {
                 String executionId = response.getRequestId();
-                String exportOutput = response.getExports().get(0).getId();
-                URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
-                loadUrl(reportUri.toString());
+                String exportType = response.getExports().get(0).getId();
+                int totalPage = response.getTotalPages();
+                PaginationFragment paginationFragment = PaginationFragment_.builder()
+                        .executionId(executionId).exportType(exportType)
+                        .totalPage(totalPage).build();
+                getSupportFragmentManager().beginTransaction()
+                        .add(android.R.id.content, paginationFragment).commit();
             }
             invalidateOptionsMenu();
         }

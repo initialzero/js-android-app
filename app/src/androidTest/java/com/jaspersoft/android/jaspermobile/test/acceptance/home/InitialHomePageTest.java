@@ -34,21 +34,17 @@ import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.SpiceService;
 import com.octo.android.robospice.exception.NetworkException;
 import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
@@ -78,18 +74,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
-    @Mock
-    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
-
     private JsRestClient jsRestClient;
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager();
     private ServerInfo serverInfo;
 
     public InitialHomePageTest() {
@@ -103,7 +95,6 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
 
         MockitoAnnotations.initMocks(this);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
 
         Application application = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
@@ -230,10 +221,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         assertThat(profile.getPassword(), is(PASSWORD));
     }
 
-    private class MockedSpiceManager extends SpiceManager {
-        public MockedSpiceManager(Class<? extends SpiceService> spiceServiceClass) {
-            super(spiceServiceClass);
-        }
+    private class MockedSpiceManager extends JsSpiceManager {
 
         public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
                                 final long cacheExpiryDuration, final RequestListener<T> requestListener) {
@@ -254,7 +242,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
             bind(JsRestClient.class).in(Singleton.class);
         }
     }

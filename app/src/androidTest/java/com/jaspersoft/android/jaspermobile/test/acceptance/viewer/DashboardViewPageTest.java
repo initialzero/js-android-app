@@ -31,6 +31,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -51,6 +52,7 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
     private static final String RESOURCE_URI = "/Dashboards/Supermart_Dashboard";
     private static final String RESOURCE_LABEL = "1. Supermart Dashboard";
     private ResourceLookup mResource;
+    private IdleInjector idleInjector;
 
     public DashboardViewPageTest() {
         super(DashboardHtmlViewerActivity_.class);
@@ -61,7 +63,7 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         super.setUp();
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
-        WebViewInjector.registerFor(DashboardHtmlViewerActivity_.class);
+        idleInjector = WebViewInjector.registerFor(DashboardHtmlViewerActivity_.class);
 
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         mResource = resourceLookupsList.getResourceLookups().get(0);
@@ -72,7 +74,7 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
-        WebViewInjector.unregister();
+        idleInjector.unregister();
         super.tearDown();
     }
 

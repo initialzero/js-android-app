@@ -37,10 +37,9 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
@@ -84,10 +83,8 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     JsRestClient mockRestClient;
     @Mock
     SpiceManager mockSpiceService;
-    @Mock
-    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager();
     private ResourceLookupsList rootRepositories;
     private RepositoryPref_ repositoryPref;
     private ResourceLookupsList levelRepositories;
@@ -109,7 +106,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
         mMockedSpiceManager.setResponseForCacheRequest(rootRepositories);
     }
 
@@ -206,7 +202,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
             bind(DatabaseProvider.class).toInstance(mockDbProvider);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
 }

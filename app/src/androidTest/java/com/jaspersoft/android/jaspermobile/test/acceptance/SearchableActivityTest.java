@@ -37,12 +37,12 @@ import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
@@ -63,7 +63,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMa
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -76,12 +75,11 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     JsRestClient mockRestClient;
     @Mock
     SpiceManager mockSpiceService;
-    @Mock
-    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
     private SmartMockedSpiceManager mMockedSpiceManager;
     private ResourceLookupsList reportsQueryResult;
     private ResourceLookupsList levelRepositories;
+    private ReportExecutionResponse reportExecution;
 
     public SearchableActivityTest() {
         super(SearchableActivity_.class);
@@ -92,11 +90,11 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         super.setUp();
         MockitoAnnotations.initMocks(this);
 
-        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
         reportsQueryResult = TestResources.get().fromXML(ResourceLookupsList.class, "reports_query_result");
         levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
 
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
         registerTestModule(new TestModule());
         ContentResolver cr = getInstrumentation().getTargetContext().getContentResolver();
         DatabaseUtils.deleteAllProfiles(cr);
@@ -117,6 +115,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     public void testReportClick() {
         mMockedSpiceManager.addCachedResponse(reportsQueryResult);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         startActivityUnderTest();
 
         onData(is(instanceOf(ResourceLookup.class)))
@@ -194,7 +193,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
 }

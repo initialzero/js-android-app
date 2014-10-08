@@ -54,9 +54,7 @@ import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHand
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;

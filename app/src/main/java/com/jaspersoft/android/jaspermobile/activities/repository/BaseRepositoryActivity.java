@@ -48,7 +48,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.BaseHtmlViewer
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -94,7 +94,7 @@ public abstract class BaseRepositoryActivity extends RoboListActivity {
     @Inject
     protected DatabaseProvider dbProvider;
     @Inject
-    private JsXmlSpiceServiceWrapper jsXmlSpiceServiceWrapper;
+    private JsSpiceManager jsSpiceManager;
 
     protected ResourceLookup resourceLookup;
 
@@ -139,13 +139,13 @@ public abstract class BaseRepositoryActivity extends RoboListActivity {
 
     @Override
     protected void onStart() {
-        jsXmlSpiceServiceWrapper.onStart(this);
+        if (!jsSpiceManager.isStarted()) jsSpiceManager.start(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        jsXmlSpiceServiceWrapper.onStop();
+        if (jsSpiceManager.isStarted()) jsSpiceManager.shouldStop();
         super.onStop();
     }
 
@@ -157,7 +157,7 @@ public abstract class BaseRepositoryActivity extends RoboListActivity {
     }
 
     public SpiceManager getSpiceManager() {
-        return jsXmlSpiceServiceWrapper.getSpiceManager();
+        return jsSpiceManager;
     }
 
     //---------------------------------------------------------------------

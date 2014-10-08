@@ -63,8 +63,7 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment(R.layout.html_viewer_layout)
 public class WebViewFragment extends RoboFragment {
-    public static final String EXTRA_RESOURCE_URI = "BaseHtmlViewerActivity.EXTRA_RESOURCE_URI";
-    public static final String EXTRA_RESOURCE_LABEL = "BaseHtmlViewerActivity.EXTRA_RESOURCE_LABEL";
+
     public static final String TAG = WebViewFragment.class.getSimpleName();
 
     @ViewById
@@ -79,6 +78,8 @@ public class WebViewFragment extends RoboFragment {
 
     @InstanceState
     boolean mResourceLoaded;
+    @InstanceState
+    String currentUrl;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -142,6 +143,7 @@ public class WebViewFragment extends RoboFragment {
         String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
         map.put("Authorization", encodedAuthorisation);
         // load url
+        currentUrl = url;
         webView.loadUrl(url, map);
     }
 
@@ -199,6 +201,10 @@ public class WebViewFragment extends RoboFragment {
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
+    }
+
+    public void refresh() {
+        loadUrl(currentUrl);
     }
 
     public interface OnWebViewCreated {

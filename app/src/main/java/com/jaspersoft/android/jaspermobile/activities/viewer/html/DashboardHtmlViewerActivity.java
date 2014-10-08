@@ -77,6 +77,8 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
     @InstanceState
     Uri favoriteEntryUri;
 
+    private WebViewFragment webViewFragment;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +86,7 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
         if (savedInstanceState == null) {
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
 
-            WebViewFragment webViewFragment = WebViewFragment_.builder()
+            webViewFragment = WebViewFragment_.builder()
                     .resourceLabel(resource.getLabel()).resourceUri(resource.getUri()).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
@@ -106,16 +108,15 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
                 handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
     }
 
+    @OptionsItem
+    final void refreshAction() {
+        if (webViewFragment != null) {
+            webViewFragment.refresh();
+        }
+    }
+
     @Override
     public void onWebViewCreated(WebViewFragment webViewFragment) {
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.htmlViewer_layout);
-        // Get the screen's density scale
-        final float scale = getResources().getDisplayMetrics().density;
-        // Convert the dps to pixels, based on density scale
-        int padding_2dp = (int) (2 * scale + 0.5f);
-        // set padding in dp for layout
-        layout.setPadding(padding_2dp, padding_2dp, padding_2dp, padding_2dp);
-
         String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
                 + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
                 + resource.getUri();

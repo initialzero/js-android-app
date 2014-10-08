@@ -102,6 +102,8 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     MenuItem favoriteAction;
     @OptionsMenuItem
     MenuItem showFilters;
+    @OptionsMenuItem
+    MenuItem refreshAction;
 
     @InstanceState
     ArrayList<InputControl> cachedInputControls;
@@ -136,6 +138,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         boolean result = super.onCreateOptionsMenu(menu);
         saveReport.setVisible(mSaveActionVisible);
         favoriteAction.setVisible(mFavoriteActionVisible);
+        refreshAction.setVisible(mFavoriteActionVisible);
         showFilters.setVisible(mFilterActionVisible);
 
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_rating_not_favorite : R.drawable.ic_rating_favorite);
@@ -165,6 +168,13 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         } else {
             Toast.makeText(ReportHtmlViewerActivity.this,
                     R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @OptionsItem
+    final void refreshAction() {
+        if (webViewFragment != null) {
+            webViewFragment.refresh();
         }
     }
 

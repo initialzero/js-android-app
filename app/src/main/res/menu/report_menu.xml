@@ -30,18 +30,24 @@
         android:id="@+id/showFilters"
         android:icon="@drawable/ic_action_filter"
         android:title="@string/rv_ab_show_filters"
-        android:showAsAction="always" />
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/saveReport"
         android:icon="@drawable/ic_action_save"
         android:title="@string/rv_ab_save_report"
-        android:showAsAction="ifRoom" />
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/refreshAction"
+        android:icon="@drawable/ic_action_refresh"
+        android:title="@string/r_ab_refresh"
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/favoriteAction"
         android:icon="@drawable/ic_rating_not_favorite"
         android:title="@string/r_cm_add_to_favorites"
-        android:showAsAction="ifRoom" />
+        android:showAsAction="always" />
 
 </menu>

@@ -31,10 +31,9 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
@@ -73,8 +72,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     JsRestClient mockRestClient;
     @Mock
     SpiceManager mockSpiceService;
-    @Mock
-    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
     private SmartMockedSpiceManager mMockedSpiceManager;
     private ResourceLookupsList allLookUp;
@@ -95,12 +92,11 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         bigLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
         onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         onlyReportLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
-        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
 
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
         registerTestModule(new TestModule());
     }
 
@@ -219,7 +215,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
 }

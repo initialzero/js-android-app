@@ -35,12 +35,12 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlView
 import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlStatesList;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
@@ -64,7 +64,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -75,17 +74,17 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     protected static final String RESOURCE_LABEL = "02. Sales Mix by Demographic Report";
 
     @Mock
-    protected JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
-    @Mock
     protected SpiceManager mockSpiceService;
     @Mock
     protected DatabaseProvider mockDbProvider;
+    protected ReportExecutionResponse reportExecution;
 
     protected InputControlsList inputControlList;
     protected SmartMockedSpiceManager mMockedSpiceManager;
     protected ReportExecutionResponse emptyReportExecution;
     private ResourceLookup mResource;
     private FavoritesHelper_ favoritesHelper;
+    private IdleInjector idleInjector;
 
     public ReportViewPageTest() {
         super(ReportHtmlViewerActivity_.class);
@@ -97,18 +96,16 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
         Application application = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
-
-        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
         inputControlList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
         emptyReportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "empty_report_execution");
+        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
 
         MockitoAnnotations.initMocks(this);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager())
-                .thenReturn(mMockedSpiceManager);
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
 
-        WebViewInjector.registerFor(ReportHtmlViewerActivity_.class);
+        idleInjector = WebViewInjector.registerFor(ReportHtmlViewerActivity_.class);
 
         favoritesHelper = FavoritesHelper_.getInstance_(application);
 
@@ -122,12 +119,13 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
-        WebViewInjector.unregister();
+        idleInjector.unregister();
         super.tearDown();
     }
 
     public void testReportWithNoInputControls() {
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         createReportIntent();
         startActivityUnderTest();
 
@@ -153,6 +151,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     public void testToggleFavoritesState() {
         ContentResolver contentResolver = getInstrumentation().getContext().getContentResolver();
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
 
         deleteAllFavorites(contentResolver);
         createReportIntent();
@@ -174,6 +173,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     public void testRemoveFromFavorites() {
         ContentResolver contentResolver = getInstrumentation().getContext().getContentResolver();
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
 
         deleteAllFavorites(contentResolver);
         favoritesHelper.addToFavorites(mResource);
@@ -199,7 +199,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
             bind(DatabaseProvider.class).toInstance(mockDbProvider);
         }
     }

@@ -31,55 +31,66 @@ import com.google.android.apps.common.testing.testrunner.ActivityLifecycleCallba
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.android.apps.common.testing.ui.espresso.Espresso;
+import com.google.android.apps.common.testing.ui.espresso.IdlingPolicies;
 import com.google.android.apps.common.testing.ui.espresso.contrib.CountingIdlingResource;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.SpiceService;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.octo.android.robospice.request.CachedSpiceRequest;
 import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
-import com.octo.android.robospice.request.listener.SpiceServiceListener;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class SmartMockedSpiceManager extends SpiceManager {
+public class SmartMockedSpiceManager extends JsSpiceManager {
 
     private final ArrayDeque<Object> responsesForCacheRequestQueue = Queues.newArrayDeque();
     private final ArrayDeque<Object> responsesForNetworkRequestQueue = Queues.newArrayDeque();
-    private final CustomSpiceServerListener customSpiceServerListener;
+    private final SmartSpiceServiceListener customSpiceServerListener;
     private final LifeCycleListener lifeCycleListener;
-    private final boolean mOnlyMockBehavior;
-    private boolean mBehaveInRealMode;
+    private boolean mOnlyMockBehavior;
+    private boolean mDebugable;
+    private boolean spiceListenerAdded;
 
-    public static SmartMockedSpiceManager createMockedManager(Class<? extends SpiceService> spiceServiceClass) {
-        return new SmartMockedSpiceManager(spiceServiceClass, false);
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static SmartMockedSpiceManager createHybridManager(Class<? extends SpiceService> spiceServiceClass) {
-        return new SmartMockedSpiceManager(spiceServiceClass, true);
+    public static SmartMockedSpiceManager getInstance() {
+        return new Builder().build();
     }
 
-    private SmartMockedSpiceManager(Class<? extends SpiceService> spiceServiceClass, boolean onlyMockBehavior) {
-        super(spiceServiceClass);
+    private SmartMockedSpiceManager(boolean onlyMockBehavior, boolean debugable, Class<?>... responseChain) {
         mOnlyMockBehavior = onlyMockBehavior;
+        mDebugable = debugable;
         if (onlyMockBehavior) {
-            lifeCycleListener = new LifeCycleListener();
-            customSpiceServerListener = new CustomSpiceServerListener();
-            addSpiceServiceListener(customSpiceServerListener);
-            ActivityLifecycleMonitorRegistry.getInstance()
-                    .addLifecycleCallback(lifeCycleListener);
-        } else {
             customSpiceServerListener = null;
             lifeCycleListener = null;
+        } else {
+            if (responseChain.length > 0) {
+                customSpiceServerListener = new ChainSpiceServerListener(responseChain);
+            } else {
+                customSpiceServerListener = new LinearSpiceServerListener();
+            }
+            lifeCycleListener = new LifeCycleListener();
+            ActivityLifecycleMonitorRegistry.getInstance()
+                    .addLifecycleCallback(lifeCycleListener);
         }
     }
 
     public void removeLifeCycleListener() {
-        removeSpiceServiceListener(customSpiceServerListener);
         ActivityLifecycleMonitorRegistry.getInstance()
                 .removeLifecycleCallback(lifeCycleListener);
     }
@@ -103,121 +114,171 @@ public class SmartMockedSpiceManager extends SpiceManager {
     @Override
     public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
                             final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-        if (mBehaveInRealMode) {
-            super.execute(request, requestCacheKey, cacheExpiryDuration, requestListener);
-        } else {
+        if (!spiceListenerAdded) {
+            spiceListenerAdded = true;
+            addSpiceServiceListener(customSpiceServerListener);
+        }
+        if (mOnlyMockBehavior) {
             requestListener.onRequestSuccess((T) responsesForCacheRequestQueue.pollFirst());
+        } else {
+            super.execute(request, requestCacheKey, cacheExpiryDuration, requestListener);
         }
     }
 
     @Override
     public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-        if (mBehaveInRealMode) {
-            super.execute(request, requestListener);
-        } else {
+        if (!spiceListenerAdded) {
+            spiceListenerAdded = true;
+            addSpiceServiceListener(customSpiceServerListener);
+        }
+        if (mOnlyMockBehavior) {
             requestListener.onRequestSuccess((T) responsesForNetworkRequestQueue.pollFirst());
+        } else {
+            super.execute(request, requestListener);
         }
     }
 
+    @Override
+    public synchronized void shouldStop() {
+        removeSpiceServiceListener(customSpiceServerListener);
+        spiceListenerAdded = false;
+        super.shouldStop();
+    }
+
+
     public void behaveInRealMode() {
-        setBehaveInRealMode(true);
+        setBehaveInMockedState(false);
     }
 
     public void behaveInMockedMode() {
-        setBehaveInRealMode(false);
+        setBehaveInMockedState(true);
     }
 
-    public void setBehaveInRealMode(boolean value) {
-        mBehaveInRealMode = value;
+    public void setBehaveInMockedState(boolean value) {
+        mOnlyMockBehavior = value;
     }
 
     private class LifeCycleListener implements ActivityLifecycleCallback {
         @Override
         public void onActivityLifecycleChanged(Activity activity, Stage stage) {
-            switch (stage) {
-                case RESUMED:
-                    if (!isStarted()) {
-                        start(activity);
+            Log.d("CountingIdlingResource", activity.getClass().getSimpleName() + " Stage stage " + stage + " isStarted()" + isStarted());
+        }
+    }
+
+    private class ChainSpiceServerListener extends SmartSpiceServiceListener {
+        private final HashMap<Class<?>, CountingIdlingResource> idlingMap = Maps.newHashMap();
+        private final ArrayList<Class<?>> requestChain;
+        private final CountingIdlingResource chainIdlingResource;
+
+        private ChainSpiceServerListener(Class<?>... responseChain) {
+            super(mDebugable);
+            Preconditions.checkState((responseChain.length != 0));
+
+            requestChain = Lists.newArrayList(responseChain);
+            chainIdlingResource = new CountingIdlingResource(String.format(" for response chain %s",
+                    ArrayUtils.toString(requestChain)), mDebugable);
+            Espresso.registerIdlingResources(chainIdlingResource);
+            for (int i = 0; i < responseChain.length; i++) {
+                chainIdlingResource.increment();
+            }
+        }
+
+        @Override
+        protected void incrementIdleResource(CachedSpiceRequest<?> request) {
+            if (!idlingMap.keySet().contains(request.getResultType())) {
+                Preconditions.checkState(requestChain.contains(request.getResultType()));
+                idlingMap.put(request.getResultType(), chainIdlingResource);
+            }
+
+            if (chainIdlingResource.isIdleNow()) chainIdlingResource.increment();
+        }
+
+        @Override
+        protected void decrementIdleResource(CachedSpiceRequest<?> request) {
+            if (idlingMap.keySet().contains(request.getResultType())) {
+                if (requestChain.contains(request.getResultType())) {
+                    if (!chainIdlingResource.isIdleNow()) {
+                        requestChain.remove(request.getResultType());
+                        chainIdlingResource.decrement();
                     }
-                    break;
-                case PAUSED:
-                    if (isStarted()) {
-                        shouldStop();
-                    }
-                    break;
-                default: // NOP
+                }
+            } else {
+                logd(TAG, String.format("Could not decrement Idle resource for this request %s with #{%d}",
+                        request.getResultType().getSimpleName(), request.hashCode()));
             }
         }
     }
 
-    private class CustomSpiceServerListener implements SpiceServiceListener {
-        private static final String TAG = "CountingIdlingResource";
+    private class LinearSpiceServerListener extends SmartSpiceServiceListener {
+        private final TreeMap<CachedSpiceRequest<?>, CountingIdlingResource> idlingMap = Maps.newTreeMap();
 
-        private final CountingIdlingResource idlingResource;
-        private final boolean mDebug;
-
-        private CustomSpiceServerListener() {
-            this(false);
-        }
-
-        private CustomSpiceServerListener(boolean debug) {
-            mDebug = debug;
-            idlingResource = new CountingIdlingResource(
-                    String.format("CustomSpiceServerListener #{%d} idle resource", this.hashCode()), true);
-            Espresso.registerIdlingResources(idlingResource);
+        private LinearSpiceServerListener() {
+            super(mDebugable);
         }
 
         @Override
-        public void onRequestFailed(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-            idlingResource.decrement();
+        protected void incrementIdleResource(CachedSpiceRequest<?> request) {
+            CountingIdlingResource idlingResource;
+            if (idlingMap.keySet().contains(request)) {
+                idlingResource = idlingMap.get(request);
+            } else {
+                idlingResource = new CountingIdlingResource(
+                        String.format(" for request %s with #{%d}",
+                                request.getResultType().getSimpleName(), request.hashCode()), mDebugable);
+                Espresso.registerIdlingResources(idlingResource);
+                idlingMap.put(request, idlingResource);
+            }
+
+            if (idlingResource.isIdleNow()) idlingResource.increment();
         }
 
         @Override
-        public void onRequestCancelled(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-            idlingResource.decrement();
-        }
-
-        @Override
-        public void onRequestProgressUpdated(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-        }
-
-        @Override
-        public void onRequestSucceeded(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-            dumpLog("onRequestSucceeded", request.getResultType().getSimpleName(), request.hashCode());
-            if (!idlingResource.isIdleNow()) idlingResource.decrement();
-        }
-
-        @Override
-        public void onRequestAdded(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-            dumpLog("onRequestAdded", request.getResultType().getSimpleName(), request.hashCode());
-            idlingResource.increment();
-        }
-
-        @Override
-        public void onRequestAggregated(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-        }
-
-        @Override
-        public void onRequestNotFound(CachedSpiceRequest<?> request, RequestProcessingContext requestProcessingContext) {
-            idlingResource.decrement();
-        }
-
-        @Override
-        public void onRequestProcessed(CachedSpiceRequest<?> cachedSpiceRequest, RequestProcessingContext requestProcessingContext) {
-        }
-
-        @Override
-        public void onServiceStopped() {
-        }
-
-        private void dumpLog(String tag, String what, long whatHashCode) {
-            dumpLog(tag, what, whatHashCode, "");
-        }
-
-        private void dumpLog(String tag, String what, long whatHashCode, String extraMsg) {
-            if (mDebug) {
-                Log.i(TAG, String.format("CustomSpiceServerListener %s for: %s %d %s", tag, what, whatHashCode, extraMsg));
+        protected void decrementIdleResource(CachedSpiceRequest<?> request) {
+            CountingIdlingResource idlingResource;
+            if (idlingMap.keySet().contains(request)) {
+                idlingResource = idlingMap.get(request);
+                if (!idlingResource.isIdleNow()) idlingResource.decrement();
+            } else {
+                logd(TAG, String.format("Could not decrement Idle resource for this request %s with #{%d}",
+                        request.getResultType().getSimpleName(), request.hashCode()));
             }
         }
     }
+
+    public static class Builder {
+        private boolean mocked;
+        private boolean debugable;
+        private Class<?>[] responseChain;
+
+        public Builder() {
+            this.mocked = true;
+            this.responseChain = new Class<?>[0];
+        }
+
+        public Builder setIdlingResourceTimeout(long timeout, TimeUnit timeUnit) {
+            IdlingPolicies.setIdlingResourceTimeout(timeout, timeUnit);
+            return this;
+        }
+
+        public Builder setMocked(boolean mocked) {
+            this.mocked = mocked;
+            return this;
+        }
+
+        public Builder setResponseChain(Class<?>... responseChain) {
+            this.responseChain = responseChain;
+            this.mocked = false;
+            return this;
+        }
+
+        public Builder setDebugable(boolean debugable) {
+            this.debugable = debugable;
+            return this;
+        }
+
+        public SmartMockedSpiceManager build() {
+            return new SmartMockedSpiceManager(mocked, debugable, responseChain);
+        }
+    }
+
 }

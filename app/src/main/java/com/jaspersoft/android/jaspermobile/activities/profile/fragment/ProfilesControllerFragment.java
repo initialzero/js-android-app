@@ -27,26 +27,10 @@ package com.jaspersoft.android.jaspermobile.activities.profile.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.view.Menu;
-import android.view.MenuItem;
 
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
-import org.androidannotations.annotations.sharedpreferences.Pref;
-
-import roboguice.fragment.RoboFragment;
-
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.GRID;
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.LIST;
 
 /**
  * @author Tom Koptel

@@ -32,10 +32,9 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 
@@ -67,8 +66,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     @Mock
     JsServerProfile mockServerProfile;
     @Mock
-    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
-    @Mock
     SpiceManager mockSpiceService;
     @Mock
     DatabaseProvider mockDatabaseProvider;
@@ -77,7 +74,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     @Mock
     ServerInfo mockServerInfo;
 
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager(JsXmlSpiceService.class);
+    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager();
 
     public HomePageTest() {
         super(HomeActivity_.class);
@@ -89,7 +86,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         MockitoAnnotations.initMocks(this);
 
         when(mockConectivityUtil.isConnected()).thenReturn(true);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
@@ -143,7 +139,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
             bind(DatabaseProvider.class).toInstance(mockDatabaseProvider);
             bind(ConnectivityUtil.class).toInstance(mockConectivityUtil);
         }

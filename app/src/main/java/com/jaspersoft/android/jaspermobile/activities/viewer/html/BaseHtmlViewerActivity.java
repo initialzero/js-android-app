@@ -42,7 +42,7 @@ import android.widget.ProgressBar;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -76,7 +76,7 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
     protected String resourceLabel;
 
     @Inject
-    private JsXmlSpiceServiceWrapper jsXmlSpiceServiceWrapper;
+    private JsSpiceManager jsSpiceManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -134,18 +134,20 @@ public abstract class BaseHtmlViewerActivity extends RoboActivity {
 
     @Override
     protected void onStart() {
-        jsXmlSpiceServiceWrapper.onStart(this);
+        if (!jsSpiceManager.isStarted())
+        jsSpiceManager.start(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        jsXmlSpiceServiceWrapper.onStop();
+        if (jsSpiceManager.isStarted())
+            jsSpiceManager.shouldStop();
         super.onStop();
     }
 
     protected SpiceManager getSpiceManager() {
-        return jsXmlSpiceServiceWrapper.getSpiceManager();
+        return jsSpiceManager;
     }
 
     //---------------------------------------------------------------------

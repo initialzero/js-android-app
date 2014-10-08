@@ -37,15 +37,14 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
@@ -65,7 +64,6 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -76,9 +74,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     private static final int DASHBOARD_ITEM_POSITION = 1;
 
     private static final String GEO_QUERY = "Geo";
-
-    @Mock
-    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
     private SmartMockedSpiceManager mMockedSpiceManager;
     private RepositoryPref_ repositoryPref;
@@ -92,6 +87,8 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         super(LibraryActivity_.class);
     }
 
+    protected ReportExecutionResponse reportExecution;
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -99,6 +96,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
+        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
 
         reportResource = smallLookUp.getResourceLookups().get(REPORT_ITEM_POSITION);
         dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
@@ -108,12 +106,12 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
         fullInputControlsList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
 
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
+        mMockedSpiceManager.addCachedResponse(smallLookUp);
+
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
 
-        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
-        mMockedSpiceManager.addCachedResponse(smallLookUp);
     }
 
     @Override
@@ -153,6 +151,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
     public void testReportWithoutICItemClicked() {
         mMockedSpiceManager.addNetworkResponse(emptyInputControlsList);
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
         clickOnReportItem();
     }
 
@@ -233,7 +232,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
 }

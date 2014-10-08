@@ -31,10 +31,9 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.octo.android.robospice.SpiceManager;
 
@@ -67,8 +66,6 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
     JsRestClient mockRestClient;
     @Mock
     SpiceManager mockSpiceService;
-    @Mock
-    JsXmlSpiceServiceWrapper mockJsXmlSpiceServiceWrapper;
 
     private SmartMockedSpiceManager mMockedSpiceManager;
     private ResourceLookupsList smallLookUp;
@@ -88,13 +85,12 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         bigLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
         emptyLookUp = new ResourceLookupsList();
 
-        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
 
         registerTestModule(new TestModule());
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
         when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
         when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        when(mockJsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
     }
 
     @Override
@@ -129,7 +125,7 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).toInstance(mockRestClient);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(mockJsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
 }

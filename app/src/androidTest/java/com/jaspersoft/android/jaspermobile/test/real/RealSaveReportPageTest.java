@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.test.acceptance.save;
+package com.jaspersoft.android.jaspermobile.test.real;
 
 import android.app.Application;
 import android.content.Intent;
@@ -11,21 +11,21 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlView
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.acceptance.viewer.WebViewInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.DummyResourceUtils;
+import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
@@ -34,37 +34,33 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.DummyResourceUtils.RESOURCE_DEFAULT_LABEL;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity_> {
+public class RealSaveReportPageTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity_> {
 
-    protected static final String RESOURCE_URI = "/Reports/2_Sales_Mix_by_Demographic_Report";
-    protected static final String RESOURCE_LABEL = "02. Sales Mix by Demographic Report";
     private static final String NEW_FILE_NAME = "Renamed";
 
-    @Mock
-    JsXmlSpiceServiceWrapper jsXmlSpiceServiceWrapper;
     @Mock
     File mockFile;
 
     private SmartMockedSpiceManager mockedSpiceManager;
     private Application mApplication;
+    private IdleInjector idleInjector;
 
-    public SaveReportGeneralTest() {
+    public RealSaveReportPageTest() {
         super(ReportHtmlViewerActivity_.class);
     }
 
@@ -74,9 +70,9 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
 
         MockitoAnnotations.initMocks(this);
         mApplication = (Application) getInstrumentation().getTargetContext().getApplicationContext();
-        mockedSpiceManager = SmartMockedSpiceManager.createHybridManager(JsXmlSpiceService.class);
-        mockedSpiceManager.behaveInRealMode();
-        when(jsXmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mockedSpiceManager);
+        mockedSpiceManager = SmartMockedSpiceManager.builder()
+                .setIdlingResourceTimeout(3, TimeUnit.MINUTES)
+                .setMocked(false).build();
         registerTestModule(new TestModule());
 
         // Force default profile
@@ -87,54 +83,47 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
         FileUtils.deleteFilesInDirectory(savedReportsDir);
 
-        WebViewInjector.registerFor(ReportHtmlViewerActivity_.class);
+        idleInjector = WebViewInjector.registerFor(ReportHtmlViewerActivity_.class);
+        configureIntent();
+        startActivityUnderTest();
     }
 
     @Override
     protected void tearDown() throws Exception {
-        WebViewInjector.unregister();
+        idleInjector.unregister();
         mockedSpiceManager.removeLifeCycleListener();
         unregisterTestModule();
         super.tearDown();
     }
 
-    public void testValidateFieldShouldNotAcceptSameName() throws Throwable {
-        configureIntent();
-        startActivityUnderTest();
-
+    public void testValidateFieldShouldNotAcceptSameName() {
         onView(withId(R.id.saveReport)).perform(click());
+        onView(withId(R.id.output_format_spinner)).perform(click());
+        onView(withText("PDF")).perform(click());
         onView(withId(R.id.saveAction)).perform(click());
 
-        getCurrentActivity();
         onView(withId(android.R.id.content)).check(matches(isDisplayed()));
+        onView(withId(R.id.output_format_spinner)).perform(click());
+        onView(withText("PDF")).perform(click());
         onView(withId(R.id.saveReport)).perform(click());
 
         onView(withId(R.id.saveAction)).perform(click());
         onView(withId(R.id.report_name_input)).check(matches(hasErrorText(getActivity().getString(R.string.sr_error_report_exists))));
     }
 
-    public void testHtmlSavedItemInteractions() throws Throwable {
-        configureIntent();
-        startActivityUnderTest();
-
+    public void testHtmlSavedItemInteractions() throws InterruptedException {
         onView(withId(R.id.saveReport)).perform(click());
+        onView(withId(R.id.output_format_spinner)).perform(click());
+        onView(withText("PDF")).perform(click());
         onView(withId(R.id.saveAction)).perform(click());
 
         onView(withId(android.R.id.content)).check(matches(isDisplayed()));
 
-        getInstrumentation().startActivitySync(
-                SavedReportsActivity_.intent(getInstrumentation().getTargetContext())
-                        .flags(Intent.FLAG_ACTIVITY_NEW_TASK).get());
-        getInstrumentation().waitForIdleSync();
+        openSavePage();
 
         // We are on the list page
         onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
         onView(withId(android.R.id.list)).check(hasTotalCount(1));
-
-        onData(is(instanceOf(File.class)))
-                .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
-        pressBack();
 
         onData(is(instanceOf(File.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -159,18 +148,14 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
     }
 
     public void testDeleteSavedHtmlReportFromViewer() throws Throwable {
-        configureIntent();
-        startActivityUnderTest();
-
         onView(withId(R.id.saveReport)).perform(click());
+        onView(withId(R.id.output_format_spinner)).perform(click());
+        onView(withText("HTML")).perform(click());
         onView(withId(R.id.saveAction)).perform(click());
 
         onView(withId(android.R.id.content)).check(matches(isDisplayed()));
 
-        getInstrumentation().startActivitySync(
-                SavedReportsActivity_.intent(getInstrumentation().getTargetContext())
-                        .flags(Intent.FLAG_ACTIVITY_NEW_TASK).get());
-        getInstrumentation().waitForIdleSync();
+        openSavePage();
 
         // We are on the list page
         onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
@@ -182,28 +167,32 @@ public class SaveReportGeneralTest extends ProtoActivityInstrumentation<ReportHt
 
         onView(withId(R.id.deleteItem)).perform(click());
 
-        onOverflowView(getActivity(), withText(getActivity().getString(R.string.sdr_drd_msg, RESOURCE_LABEL))).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withText(getActivity().getString(R.string.sdr_drd_msg, RESOURCE_DEFAULT_LABEL))).check(matches(isDisplayed()));
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.r_browser_nothing_to_display), isDisplayed())));
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
     }
 
-    private void configureIntent() {
-        ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(RESOURCE_LABEL);
-        resource.setUri(RESOURCE_URI);
-        resource.setResourceType(ResourceType.reportUnit.toString());
+    private void openSavePage() {
+        getInstrumentation().startActivitySync(
+                SavedReportsActivity_.intent(getInstrumentation().getTargetContext())
+                        .flags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        .get());
+        getInstrumentation().waitForIdleSync();
+    }
 
+    private void configureIntent() {
         setActivityIntent(ReportHtmlViewerActivity_.intent(mApplication)
-                .resource(resource).get());
+                .flags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                .resource(DummyResourceUtils.createDefaultLookup()).get());
     }
 
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(jsXmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mockedSpiceManager);
         }
     }
 

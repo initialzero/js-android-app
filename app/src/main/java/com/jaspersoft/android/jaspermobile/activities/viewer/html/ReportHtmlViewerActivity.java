@@ -226,12 +226,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
                 });
     }
 
-    private void loadUrl(String reportUrl) {
-        if (webViewFragment != null) {
-            webViewFragment.loadUrl(reportUrl);
-        }
-    }
-
     private void showReportOptions(ArrayList<InputControl> inputControls) {
         // Run Report Options activity
         Intent intent = new Intent(this, ReportOptionsActivity.class);

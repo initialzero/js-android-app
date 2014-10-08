@@ -13,12 +13,10 @@ import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonito
 import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
-import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.squareup.spoon.Spoon;
 
@@ -65,12 +63,8 @@ public class ProtoActivityInstrumentation<T extends Activity>
         profileHelper = ProfileHelper_.getInstance_(application);
 
         ContentResolver cr = application.getContentResolver();
-        DatabaseUtils.deleteTestProfiles(getInstrumentation().getTargetContext().getContentResolver());
-
-        DatabaseUtils.createDefaultProfile(cr);
-        ServerProfiles profile = DatabaseUtils.queryProfileByAlias(
-                cr, ProfileHelper.DEFAULT_ALIAS);
-        profileHelper.setCurrentServerProfile(profile.getRowId());
+        DatabaseUtils.deleteAllProfiles(cr);
+        profileHelper.setCurrentServerProfile(DatabaseUtils.createDefaultProfile(cr));
     }
 
     public void startActivityUnderTest() {

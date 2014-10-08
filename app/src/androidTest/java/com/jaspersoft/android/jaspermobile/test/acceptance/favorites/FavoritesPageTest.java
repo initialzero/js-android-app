@@ -38,10 +38,9 @@ import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -64,7 +63,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -76,8 +74,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     JsRestClient mockJsRestClient;
     @Mock
     JsServerProfile jsServerProfile;
-    @Mock
-    JsXmlSpiceServiceWrapper xmlSpiceServiceWrapper;
 
     private Application mApplication;
     private SmartMockedSpiceManager mMockedSpiceManager;
@@ -106,9 +102,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
                 .getTargetContext().getApplicationContext();
         DefaultPrefHelper_ defaultPrefHelper = DefaultPrefHelper_.getInstance_(mApplication);
         defaultPrefHelper.setAnimationEnabled(false);
-        mMockedSpiceManager = SmartMockedSpiceManager.createMockedManager(JsXmlSpiceService.class);
-
-        when(xmlSpiceServiceWrapper.getSpiceManager()).thenReturn(mMockedSpiceManager);
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
@@ -303,7 +297,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         @Override
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
-            bind(JsXmlSpiceServiceWrapper.class).toInstance(xmlSpiceServiceWrapper);
+            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
 

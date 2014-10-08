@@ -25,7 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.octo.android.robospice.SpiceManager;
 
 import roboguice.fragment.RoboListFragment;
@@ -38,22 +38,24 @@ import roboguice.fragment.RoboListFragment;
 public class RoboSpiceListFragment extends RoboListFragment {
 
     @Inject
-    private JsXmlSpiceServiceWrapper xmlSpiceServiceWrapper;
+    private JsSpiceManager jsSpiceManager;
 
     @Override
     public void onStart() {
+        if (!jsSpiceManager.isStarted())
+            jsSpiceManager.start(getActivity());
         super.onStart();
-        xmlSpiceServiceWrapper.onStart(getActivity());
     }
 
     @Override
     public void onStop() {
-        xmlSpiceServiceWrapper.onStop();
+        if (jsSpiceManager.isStarted())
+            jsSpiceManager.shouldStop();
         super.onStop();
     }
 
     public SpiceManager getSpiceManager() {
-        return xmlSpiceServiceWrapper.getSpiceManager();
+        return jsSpiceManager;
     }
 
 }

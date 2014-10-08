@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.robospice;
 import android.content.res.Resources;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.util.JsXmlSpiceServiceWrapper;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.negusoft.holoaccent.AccentHelper;
 import com.negusoft.holoaccent.AccentResources;
 import com.octo.android.robospice.SpiceManager;
@@ -43,22 +43,24 @@ public class RoboSpiceFragmentActivity extends RoboAccentFragmentActivity  {
             getOverrideAccentColorDark(), getOverrideAccentColorActionBar(), new MyInitListener());
 
     @Inject
-    private JsXmlSpiceServiceWrapper jsXmlSpiceServiceWrapper;
+    private JsSpiceManager jsSpiceManager;
 
     @Override
     protected void onStart() {
-        jsXmlSpiceServiceWrapper.onStart(this);
+        if (!jsSpiceManager.isStarted())
+        jsSpiceManager.start(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        jsXmlSpiceServiceWrapper.onStop();
+        if (jsSpiceManager.isStarted())
+            jsSpiceManager.shouldStop();
         super.onStop();
     }
 
     public SpiceManager getSpiceManager() {
-        return jsXmlSpiceServiceWrapper.getSpiceManager();
+        return jsSpiceManager;
     }
 
     @Override

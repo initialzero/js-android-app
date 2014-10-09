@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.sdk.client.async.JsXmlSpiceService;
 import com.octo.android.robospice.SpiceManager;
 
@@ -32,6 +33,7 @@ import com.octo.android.robospice.SpiceManager;
  * @since 1.9
  */
 public class JsSpiceManager extends SpiceManager {
+    @Inject
     public JsSpiceManager() {
         super(JsXmlSpiceService.class);
     }

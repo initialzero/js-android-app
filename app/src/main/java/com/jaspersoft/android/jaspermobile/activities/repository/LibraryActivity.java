@@ -89,10 +89,6 @@ public class LibraryActivity extends RoboAccentFragmentActivity {
                             .resourceTypes(filterOptions.getFilters())
                             .build();
             transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
-
-//            CommonControllerFragment commonControllerFragment =
-//                    CommonControllerFragment_.builder().build();
-//            transaction.add(commonControllerFragment, CommonControllerFragment.TAG);
             transaction.commit();
         } else {
             resourcesController = (ResourcesControllerFragment) getSupportFragmentManager()

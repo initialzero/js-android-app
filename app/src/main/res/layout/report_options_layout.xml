@@ -41,14 +41,6 @@
                 style="@style/reportOptions.container.inputControls.layout"
             />
 
-            <!-- Run report button -->
-            <Button
-                android:id="@+id/runReportButton"
-                style="@style/reportOptions.button"
-                android:text="@string/ro_run_report_btn"
-                android:onClick="runReportButtonClickHandler"
-            />
-
         </LinearLayout>
 
     </ScrollView>

@@ -94,14 +94,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     public static final String EXTRA_REPORT_URI = "ReportOptionsActivity.EXTRA_REPORT_URI";
     public static final String EXTRA_REPORT_CONTROLS = "ReportOptionsActivity.EXTRA_REPORT_CONTROLS";
 
-    // Action Bar IDs
-    private static final int ID_AB_INDETERMINATE_PROGRESS = 20;
-    private static final int ID_AB_SETTINGS = 21;
-
     @Inject
     protected JsRestClient jsRestClient;
-    @InjectView(R.id.runReportButton)
-    protected Button runReportButton;
 
     protected Menu optionsMenu;
     protected String reportUri;
@@ -131,12 +125,6 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         initInputControls();
     }
 
-    public void runReportButtonClickHandler(View view) {
-        setRefreshActionButtonState(true);
-        ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
-        getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
@@ -147,14 +135,10 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // indeterminate progress
-        MenuItem item = menu.add(Menu.NONE, ID_AB_INDETERMINATE_PROGRESS, Menu.NONE, R.string.loading_msg);
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         // settings
-        menu.add(Menu.NONE, ID_AB_SETTINGS, Menu.NONE, R.string.ab_settings)
-                .setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-
-        setRefreshActionButtonState(false);
+        MenuItem applyMenuItem = menu.add(Menu.NONE, R.id.saveAction, Menu.NONE, R.string.ro_ab_apply)
+                .setIcon(R.drawable.ic_action_submit);
+        applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -163,8 +147,10 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case ID_AB_SETTINGS:
-                SettingsActivity_.intent(this).start();
+            case R.id.saveAction:
+                setRefreshActionButtonState(true);
+                ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
+                getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
                 return true;
             case android.R.id.home:
                 finish();
@@ -176,11 +162,9 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     }
 
     protected void setRefreshActionButtonState(boolean refreshing) {
-        runReportButton.setEnabled(!refreshing);
         if (optionsMenu != null) {
-            MenuItem refreshItem = optionsMenu.findItem(ID_AB_INDETERMINATE_PROGRESS);
+            MenuItem refreshItem = optionsMenu.findItem(R.id.saveAction);
             if (refreshItem != null) {
-                refreshItem.setVisible(refreshing);
                 if (refreshing) {
                     refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
                 } else {
@@ -645,7 +629,6 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
             } else {
                 showValidationMessages(invalidStateList);
             }
-            setRefreshActionButtonState(false);
         }
 
     }

@@ -29,8 +29,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
@@ -72,10 +70,6 @@ public class RepositoryActivity extends RoboAccentFragmentActivity {
                     .resourceTypes(FilterOptions.ALL_REPOSITORY_TYPES)
                     .build();
             transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
-
-            CommonControllerFragment commonControllerFragment =
-                    CommonControllerFragment_.builder().build();
-            transaction.add(commonControllerFragment, CommonControllerFragment.TAG);
             transaction.commit();
         }
     }

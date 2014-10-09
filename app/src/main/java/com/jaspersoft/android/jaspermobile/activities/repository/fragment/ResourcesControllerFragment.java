@@ -32,8 +32,9 @@ import android.text.TextUtils;
 
 import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourceSearchable;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourceSearchable;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
@@ -50,13 +51,16 @@ import java.util.List;
  */
 @EFragment
 public class ResourcesControllerFragment extends ControllerFragment
-        implements IResourcesLoader, IResourceSearchable {
+        implements ResourcesLoader, ResourceSearchable {
     public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
     public static final String CONTENT_TAG = "CONTENT_TAG";
 
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
+    @InstanceState
+    @FragmentArg
+    SortOrder sortOrder;
     @InstanceState
     @FragmentArg
     boolean recursiveLookup;
@@ -119,7 +123,9 @@ public class ResourcesControllerFragment extends ControllerFragment
                 .resourceUri(resourceUri)
                 .resourceLabel(resourceLabel)
                 .viewType(getViewType())
-                .resourceTypes(resourceTypes).build();
+                .resourceTypes(resourceTypes)
+                .sortOrder(sortOrder)
+                .build();
         return contentFragment;
     }
 
@@ -128,6 +134,14 @@ public class ResourcesControllerFragment extends ControllerFragment
         resourceTypes = Lists.newArrayList(types);
         if (contentFragment != null) {
             contentFragment.loadResourcesByTypes(types);
+        }
+    }
+
+    @Override
+    public void loadResourcesBySortOrder(SortOrder order) {
+        sortOrder = order;
+        if (contentFragment != null) {
+            contentFragment.loadResourcesBySortOrder(order);
         }
     }
 

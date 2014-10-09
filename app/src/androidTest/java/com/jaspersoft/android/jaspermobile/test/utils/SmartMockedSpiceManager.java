@@ -119,7 +119,12 @@ public class SmartMockedSpiceManager extends JsSpiceManager {
             addSpiceServiceListener(customSpiceServerListener);
         }
         if (mOnlyMockBehavior) {
-            requestListener.onRequestSuccess((T) responsesForCacheRequestQueue.pollFirst());
+            Object response = responsesForCacheRequestQueue.pollFirst();
+            if (response instanceof RequestExecutionAssertion) {
+                requestListener.onRequestSuccess((T) ((RequestExecutionAssertion) response).getResponse());
+            } else {
+                requestListener.onRequestSuccess((T) response);
+            }
         } else {
             super.execute(request, requestCacheKey, cacheExpiryDuration, requestListener);
         }
@@ -132,7 +137,12 @@ public class SmartMockedSpiceManager extends JsSpiceManager {
             addSpiceServiceListener(customSpiceServerListener);
         }
         if (mOnlyMockBehavior) {
-            requestListener.onRequestSuccess((T) responsesForNetworkRequestQueue.pollFirst());
+            Object response = responsesForNetworkRequestQueue.pollFirst();
+            if (response instanceof RequestExecutionAssertion) {
+                requestListener.onRequestSuccess((T) ((RequestExecutionAssertion) response).getResponse());
+            } else {
+                requestListener.onRequestSuccess((T) response);
+            }
         } else {
             super.execute(request, requestListener);
         }

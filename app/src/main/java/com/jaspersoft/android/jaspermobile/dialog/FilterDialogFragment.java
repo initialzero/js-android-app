@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
+package com.jaspersoft.android.jaspermobile.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -77,22 +77,6 @@ public class FilterDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle(R.string.s_ab_filter_by);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (filterSelectedListener != null) {
-                    filterSelectedListener.onDialogPositiveClick(mTypes);
-                }
-                dialog.cancel();
-            }
-        });
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
         CharSequence[] options = {
                 getString(R.string.s_fd_option_all),
                 getString(R.string.s_fd_option_reports),
@@ -123,10 +107,16 @@ public class FilterDialogFragment extends DialogFragment {
                         break;
                 }
                 filterOptions.putFilters(mTypes);
+                if (filterSelectedListener != null) {
+                    filterSelectedListener.onDialogPositiveClick(mTypes);
+                }
+                dismiss();
             }
         });
 
-        return builder.create();
+        Dialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(true);
+        return dialog;
     }
 
     public void setFilterSelectedListener(FilterDialogListener filterSelectedListener) {

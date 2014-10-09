@@ -37,5 +37,9 @@ import java.util.Set;
 public interface RepositoryPref {
     @DefaultString("LIST")
     String viewType();
+
+    @DefaultString("LABEL")
+    String sortType();
+
     Set<String> filterTypes();
 }

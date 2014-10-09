@@ -29,15 +29,16 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.CommonControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -56,6 +57,8 @@ public class LibraryActivity extends RoboAccentFragmentActivity {
 
     @Bean
     FilterOptions filterOptions;
+    @Bean
+    SortOptions sortOptions;
 
     private ResourcesControllerFragment resourcesController;
     private SearchControllerFragment searchControllerFragment;
@@ -76,6 +79,7 @@ public class LibraryActivity extends RoboAccentFragmentActivity {
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
                             .resourceTypes(filterOptions.getFilters())
+                            .sortOrder(sortOptions.getOrder())
                             .recursiveLookup(true)
                             .build();
             transaction.add(resourcesController, ResourcesControllerFragment.TAG);
@@ -86,9 +90,9 @@ public class LibraryActivity extends RoboAccentFragmentActivity {
                             .build();
             transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
 
-            CommonControllerFragment commonControllerFragment =
-                    CommonControllerFragment_.builder().build();
-            transaction.add(commonControllerFragment, CommonControllerFragment.TAG);
+//            CommonControllerFragment commonControllerFragment =
+//                    CommonControllerFragment_.builder().build();
+//            transaction.add(commonControllerFragment, CommonControllerFragment.TAG);
             transaction.commit();
         } else {
             resourcesController = (ResourcesControllerFragment) getSupportFragmentManager()
@@ -118,4 +122,17 @@ public class LibraryActivity extends RoboAccentFragmentActivity {
                     }
                 });
     }
+
+    @OptionsItem(R.id.sort)
+    final void startSorting() {
+        SortDialogFragment.show(getSupportFragmentManager(), new SortDialogFragment.SortDialogListener() {
+            @Override
+            public void onOptionSelected(SortOrder sortOrder) {
+                if (resourcesController != null) {
+                    resourcesController.loadResourcesBySortOrder(sortOrder);
+                }
+            }
+        });
+    }
+
 }

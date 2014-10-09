@@ -24,10 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.support;
 
+import java.util.List;
+
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public interface IResourceSearchable {
-    void doSearch(String query);
+public interface ResourcesLoader {
+    void loadResourcesByTypes(List<String> resourceTypes);
+    void loadResourcesBySortOrder(SortOrder sortOrder);
 }

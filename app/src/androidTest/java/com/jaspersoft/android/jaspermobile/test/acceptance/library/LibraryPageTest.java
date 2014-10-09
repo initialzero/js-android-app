@@ -173,20 +173,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
-    public void testFavoritesOptionMenu() throws InterruptedException {
-        startActivityUnderTest();
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-        onView(withText(R.string.r_ab_favorites)).perform(click());
-        onView(withText(R.string.f_title)).check(matches(isDisplayed()));
-    }
-
-    public void testSettingsOptionMenu() {
-        startActivityUnderTest();
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-        onOverflowView(getActivity(), withText(R.string.ab_settings)).perform(click());
-        onView(withText(R.string.st_title)).check(matches(isDisplayed()));
-    }
-
     public void testHomeAsUp() {
         startActivityUnderTest();
         onView(withId(android.R.id.home)).perform(click());

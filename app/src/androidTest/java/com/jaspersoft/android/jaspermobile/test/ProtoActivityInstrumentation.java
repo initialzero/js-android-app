@@ -135,6 +135,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
     }
 
     protected void registerTestModule(AbstractModule module) {
+        unregisterTestModule();
         Application application = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
         RoboGuice.setBaseApplicationInjector(application,

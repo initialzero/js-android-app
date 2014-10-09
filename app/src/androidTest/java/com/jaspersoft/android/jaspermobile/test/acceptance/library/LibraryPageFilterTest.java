@@ -106,15 +106,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         super.tearDown();
     }
 
-    public void testLibraryFilterDialog() {
-        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
-        mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
-        startActivityUnderTest();
-
-        clickOnDialogText(android.R.string.cancel);
-        clickOnDialogText(android.R.string.ok);
-    }
-
     public void testDashboardAndAllFilterOption() throws InterruptedException {
         mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
         mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
@@ -123,12 +114,10 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
-        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyDashboardLookUp.getResourceLookups().size()));
 
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
-        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(allLookUp.getResourceLookups().size()));
     }
 
@@ -139,7 +128,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
-        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyReportLookUp.getResourceLookups().size()));
     }
 
@@ -153,13 +141,11 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
-        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
 
         rotate();
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).check(matches(isChecked()));
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
-        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
 
         rotate();
         clickFilterMenuItem();
@@ -183,7 +169,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
-        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
     }
 
     private void clickOnDialogText(int resId) {

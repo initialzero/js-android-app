@@ -122,11 +122,15 @@
     <string name="s_hint">Search resources</string>
     <!-- Action Bar -->
     <string name="s_ab_filter_by">Filter by</string>
+    <string name="s_ab_sort_by">Sort by</string>
     <!-- Filter Dialog -->
     <string name="s_fd_filter_by">Filter by</string>
+    <string name="s_fd_sort_by">Sort by</string>
     <string name="s_fd_option_all">All</string>
     <string name="s_fd_option_reports">Reports</string>
     <string name="s_fd_option_dashboards">Dashboards</string>
+   <string name="s_fd_sort_label">By label</string>
+    <string name="s_fd_sort_date">By creation date</string>
 
 
     <!-- Resource Info Activity -->

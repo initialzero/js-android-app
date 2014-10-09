@@ -143,7 +143,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         createReportIntent();
         startActivityUnderTest();
 
-        onView(withId(R.id.runReportButton)).perform(click());
+        onView(withId(R.id.saveAction)).perform(click());
         onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.warning_msg)));
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.rv_error_empty_report)));
     }

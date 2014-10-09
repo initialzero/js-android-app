@@ -44,7 +44,8 @@ import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.IResourcesLoader;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
@@ -79,7 +80,7 @@ import roboguice.inject.InjectView;
 public class ResourcesFragment extends RoboSpiceFragment
         implements AbsListView.OnScrollListener,
         SwipeRefreshLayout.OnRefreshListener,
-        IResourcesLoader {
+        ResourcesLoader {
 
     public static final String ROOT_URI = "/";
     // Loader actions
@@ -104,6 +105,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
+    @InstanceState
+    @FragmentArg
+    SortOrder sortOrder;
     @InstanceState
     @FragmentArg
     boolean recursiveLookup;
@@ -157,6 +161,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
         if (!TextUtils.isEmpty(query)) {
             mSearchCriteria.setQuery(query);
+        }
+        if (sortOrder != null) {
+            mSearchCriteria.setSortBy(sortOrder.getValue());
         }
 
         ActionBar actionBar = getActivity().getActionBar();
@@ -257,13 +264,21 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     //---------------------------------------------------------------------
-    // Implements IResourcesLoader
+    // Implements ResourcesLoader
     //---------------------------------------------------------------------
 
     @Override
     public void loadResourcesByTypes(List<String> types) {
         resourceTypes = Lists.newArrayList(types);
         mSearchCriteria.setTypes(resourceTypes);
+        mAdapter.clear();
+        loadFirstPage();
+    }
+
+    @Override
+    public void loadResourcesBySortOrder(SortOrder order) {
+        sortOrder = order;
+        mSearchCriteria.setSortBy(order.getValue());
         mAdapter.clear();
         loadFirstPage();
     }

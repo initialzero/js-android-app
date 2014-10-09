@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
+import android.view.ViewConfiguration;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
@@ -34,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.webkit.WebkitCookieManagerProxy;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
+import java.lang.reflect.Field;
 import java.net.CookieHandler;
 import java.net.CookiePolicy;
 
@@ -51,9 +53,28 @@ public class JasperMobileApplication extends Application {
 
     @Override
     public void onCreate() {
+        forceOverFlowMenu();
         syncCookies();
         profileHelper.initJsRestClient();
         profileHelper.seedProfilesIfNeed();
+    }
+
+    /**
+     * We are forcing OS to show overflow menu for the devices which expose hardware implementation.
+     * WARNING: This is considered to be bad practice though we decide to violate rules.
+     * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
+     */
+    private void forceOverFlowMenu() {
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if(menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception ex) {
+            // Ignore
+        }
     }
 
     //---------------------------------------------------------------------

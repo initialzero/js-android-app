@@ -199,6 +199,7 @@ public class WebViewFragment extends RoboFragment {
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         webView.setWebViewClient(new WebViewClient());
         webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setDisplayZoomControls(false);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
     }

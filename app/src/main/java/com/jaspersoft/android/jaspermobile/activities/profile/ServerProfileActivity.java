@@ -267,6 +267,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             isFieldValid = !TextUtils.isEmpty(entry.getValue()) && !TextUtils.isEmpty(entry.getValue().trim());
             if (!isFieldValid) {
                 entry.getKey().setError(getString(R.string.sp_error_field_required));
+                entry.getKey().requestFocus();
             }
             formValid &= isFieldValid;
         }
@@ -275,6 +276,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             String url = trimUrl(serverUrl);
             if (!URLUtil.isNetworkUrl(url)) {
                 serverUrlEdit.setError(getString(R.string.sp_error_url_not_valid));
+                serverUrlEdit.requestFocus();
                 formValid &= false;
             }
         }
@@ -340,6 +342,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
         if (entryExists) {
             aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
+            aliasEdit.requestFocus();
             Toast.makeText(this, getString(R.string.sp_error_unique_alias, alias),
                     Toast.LENGTH_SHORT).show();
         } else {

@@ -65,7 +65,7 @@ import roboguice.inject.InjectView;
  * @since 1.9
  */
 @EFragment
-public class ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+public class    ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, ISimpleDialogListener, ServersAdapter.ServersInteractionListener {
     public static final String EXTRA_SERVER_PROFILE_ID = "ServersFragment.EXTRA_SERVER_PROFILE_ID";
 

@@ -31,8 +31,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -54,6 +57,8 @@ public class NumberDialogFragment extends DialogFragment {
     int totalPages;
     @FragmentArg
     int currentPage;
+
+    public int mValue;
 
     private OnPageSelectedListener onPageSelectedListener;
 
@@ -79,6 +84,26 @@ public class NumberDialogFragment extends DialogFragment {
                 .inflate(R.layout.number_dialog_layout, null);
         final NumberPicker numberPicker = (NumberPicker)
                 customView.findViewById(R.id.numberPicker);
+        mValue = numberPicker.getValue();
+
+        int inputId = getActivity().getResources().getIdentifier("numberpicker_input", "id", "android");
+        EditText editText = (EditText) numberPicker.findViewById(inputId);
+        editText.addTextChangedListener(new AbstractTextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence sequence, int start, int before, int count) {
+                try {
+                    mValue = Integer.valueOf(String.valueOf(sequence));
+                } catch (NumberFormatException ex) {
+                    // swallow error
+                }
+            }
+        });
+        numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                mValue = newVal;
+            }
+        });
         numberPicker.setMinValue(1);
         numberPicker.setMaxValue(totalPages);
 
@@ -86,11 +111,13 @@ public class NumberDialogFragment extends DialogFragment {
         builder.setView(customView);
         builder.setCancelable(true);
         builder.setNegativeButton(android.R.string.cancel, null);
+
+
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (onPageSelectedListener != null) {
-                    onPageSelectedListener.onPageSelected(numberPicker.getValue());
+                    onPageSelectedListener.onPageSelected(mValue);
                 }
             }
         });
@@ -114,4 +141,15 @@ public class NumberDialogFragment extends DialogFragment {
         void onPageSelected(int page);
     }
 
+    private static class AbstractTextWatcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
+    }
 }

@@ -28,6 +28,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,7 +36,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -65,6 +69,7 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
@@ -114,11 +119,22 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     @InstanceState
     String password;
 
+    @SystemService
+    InputMethodManager inputMethodManager;
+
     private ServerProfiles mServerProfile;
+    private int mActionBarSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        final TypedArray styledAttributes = getTheme().obtainStyledAttributes(
+                new int[]{android.R.attr.actionBarSize});
+        mActionBarSize = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+
 
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
@@ -215,18 +231,18 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         switch (code) {
             case LOAD_PROFILE:
                 selection = ServerProfilesTable._ID + " =?";
-                selectionArgs = new String[] {String.valueOf(profileId)};
+                selectionArgs = new String[]{String.valueOf(profileId)};
                 return new CursorLoader(this, JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
                         ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
             case QUERY_UNIQUENESS:
                 selection = ServerProfilesTable.ALIAS + " =?";
-                selectionArgs = new String[] {alias};
+                selectionArgs = new String[]{alias};
                 if (profileId != 0) {
                     selection += " AND " + ServerProfilesTable._ID + " !=?";
-                    selectionArgs = new String[] {alias, String.valueOf(profileId)};
+                    selectionArgs = new String[]{alias, String.valueOf(profileId)};
                 }
                 return new CursorLoader(this, JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
-                        new String[] {ServerProfilesTable._ID}, selection, selectionArgs, null);
+                        new String[]{ServerProfilesTable._ID}, selection, selectionArgs, null);
             default:
                 throw new UnsupportedOperationException();
         }
@@ -343,8 +359,11 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         if (entryExists) {
             aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
             aliasEdit.requestFocus();
-            Toast.makeText(this, getString(R.string.sp_error_unique_alias, alias),
-                    Toast.LENGTH_SHORT).show();
+
+            Toast toast = Toast.makeText(this, getString(R.string.sp_error_unique_alias, alias),
+                    Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER, 0, mActionBarSize + (mActionBarSize / 2));
+            toast.show();
         } else {
             JsRestClient jsRestClient = new JsRestClient();
             JsServerProfile profile = new JsServerProfile();
@@ -358,6 +377,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
             GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
             getSpiceManager().execute(request, new GetServerInfoListener());
+            hideKeyboard();
         }
     }
 
@@ -365,6 +385,14 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         Intent resultIntent = new Intent();
         resultIntent.putExtra(ServersFragment.EXTRA_SERVER_PROFILE_ID, profileId);
         setResult(Activity.RESULT_OK, resultIntent);
+    }
+
+    private void hideKeyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     //---------------------------------------------------------------------

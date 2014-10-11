@@ -54,6 +54,7 @@ import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.pressImeActionButton;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -191,6 +192,21 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
         onView(withText(reportResource.getLabel())).check(matches(isDisplayed()));
         pressBack();
+    }
+
+    public void testActionModeAboutIcon() {
+        ResourceLookup resource = smallLookUp.getResourceLookups().get(0);
+        mMockedSpiceManager.addCachedResponse(smallLookUp);
+        startActivityUnderTest();
+
+        onData(is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+
+        onView(withId(R.id.showAction)).perform(click());
+
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(resource.getLabel())));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(resource.getDescription())));
     }
 
     public void testSearchInRepository() {

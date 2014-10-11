@@ -28,6 +28,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,6 +44,8 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;
+
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -130,8 +134,19 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         ResourceLookup resource = getItem(getCurrentPosition());
-        Uri uri = favoriteHelper.queryFavoriteUri(resource);
-        favoriteHelper.handleFavoriteMenuAction(uri, resource, null);
+        switch (item.getItemId()) {
+            case R.id.favoriteAction:
+                Uri uri = favoriteHelper.queryFavoriteUri(resource);
+                favoriteHelper.handleFavoriteMenuAction(uri, resource, null);
+                break;
+            case R.id.showAction:
+                FragmentManager fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
+                SimpleDialogFragment.createBuilder(getContext(), fm)
+                        .setTitle(resource.getLabel())
+                        .setMessage(resource.getDescription())
+                        .show();
+                break;
+        }
         mode.invalidate();
         return true;
     }

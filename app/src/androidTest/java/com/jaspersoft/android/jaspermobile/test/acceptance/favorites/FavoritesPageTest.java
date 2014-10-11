@@ -60,6 +60,7 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllFavorites;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -291,6 +292,20 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onView(withId(getActionBarTitleId())).check(matches(withText(resourceLookup.getLabel())));
         pressBack();
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.f_title)));
+    }
+
+    public void testActionModeAboutIcon() {
+        ResourceLookup resource = onlyReport.getResourceLookups().get(0);
+        favoritesHelper.addToFavorites(resource);
+        startActivityUnderTest();
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+
+        onView(withId(R.id.showAction)).perform(click());
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(resource.getLabel())));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(resource.getDescription())));
     }
 
     private class TestModule extends CommonTestModule {

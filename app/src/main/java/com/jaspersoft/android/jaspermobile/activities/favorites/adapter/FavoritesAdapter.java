@@ -25,16 +25,22 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
  * @author Tom Koptel
@@ -64,15 +70,42 @@ public class FavoritesAdapter extends SingleChoiceSimpleCursorAdapter {
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        if (item.getItemId() == R.id.removeFromFavorites) {
-            for (long id : getCheckedItems()) {
-                Uri uri = Uri.withAppendedPath(JasperMobileProvider.FAVORITES_CONTENT_URI, String.valueOf(id));
+        long id = Lists.newArrayList(getCheckedItems()).get(0);
+        Uri uri = Uri.withAppendedPath(JasperMobileProvider.FAVORITES_CONTENT_URI,
+                String.valueOf(id));
+
+        switch (item.getItemId()) {
+            case R.id.removeFromFavorites:
                 getContext().getContentResolver().delete(uri, null, null);
-            }
-            finishActionMode();
-            return true;
+                return true;
+            case R.id.showAction:
+                showAboutInfo(uri);
+                return true;
+            default:
+                return false;
         }
-        return false;
+    }
+
+    private void showAboutInfo(Uri uri) {
+        Cursor cursor = getContext().getContentResolver().query(uri,
+                new String[]{FavoritesTable.LABEL, FavoritesTable.DESCRIPTION}, null, null, null);
+        if (cursor != null) {
+            try {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+
+                    String title = cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL));
+                    String description = cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION));
+                    FragmentManager fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
+                    SimpleDialogFragment.createBuilder(getContext(), fm)
+                            .setTitle(title)
+                            .setMessage(description)
+                            .show();
+                }
+            } finally {
+                cursor.close();
+            }
+        }
     }
 
 }

@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile.activities.storage.adapter;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.text.format.DateUtils;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -46,6 +48,8 @@ import com.jaspersoft.android.sdk.util.FileUtils;
 import java.io.File;
 import java.util.Comparator;
 import java.util.Map;
+
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -164,10 +168,25 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
                     fileInteractionListener.onDelete(getCurrentPosition(), file);
                 }
                 break;
+            case R.id.showAction:
+                showInfo(file);
+                break;
             default:
                 return false;
         }
         return true;
+    }
+
+    private void showInfo(File file) {
+        String title = FileUtils.getBaseName(file.getName());
+        String description = String.format("%s \n %s", getFormattedDateModified(file),
+                getHumanReadableFileSize(file));
+
+        FragmentManager fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
+        SimpleDialogFragment.createBuilder(getContext(), fm)
+                .setTitle(title)
+                .setMessage(description)
+                .show();
     }
 
     private static class LastModifiedComparator implements Comparator<File> {

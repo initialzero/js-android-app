@@ -39,7 +39,8 @@ subprojects {
     group = 'com.jaspersoft.android'
     description = 'js-android-jaspermobile'
 
-    ext.androidToolsBuildGradle = '0.12.+'
+    ext.androidToolsBuildGradle = '0.13.3'
+    ext.androidApt = '1.4'
     ext.androidBuildToolsVersion = '20.0.0';
     ext.androidMinSdkVersion = 15;
     ext.androidCompileSdkVersion = 19;

@@ -27,6 +27,7 @@
     <!-- Home screen -->
     <color name="profile_title_txt">#7d7f85</color>
     <color name="card_title_txt">#4b4b4b</color>
+    <color name="repo_item_bg">#474747</color>
     <color name="card_subtitle_txt">#9c9c9c</color>
     <color name="js_blue_50">#500480ba</color>
     <color name="holo_blue_light">#ff33b5e5</color>

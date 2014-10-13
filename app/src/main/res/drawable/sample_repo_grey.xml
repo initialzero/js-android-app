@@ -23,10 +23,11 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" >
-    <gradient
-        android:type="linear"
-        android:startColor="#AA66CC"
-        android:endColor="#9933CC"
-        android:angle="225"/>
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/repo_item_bg" />
+    <item>
+        <bitmap android:gravity="center" android:src="@drawable/ic_repository_home" />
+    </item>
+
+</layer-list>

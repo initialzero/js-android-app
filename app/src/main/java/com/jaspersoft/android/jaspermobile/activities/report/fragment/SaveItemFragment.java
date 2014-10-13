@@ -149,7 +149,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         reportNameInput.setText(resourceLabel);
 
         // show spinner with available output formats
-        ArrayAdapter<OutputFormat> arrayAdapter = new ArrayAdapter<>(getActivity(),
+        ArrayAdapter<OutputFormat> arrayAdapter = new ArrayAdapter<OutputFormat>(getActivity(),
                 android.R.layout.simple_spinner_item, OutputFormat.values());
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         formatSpinner.setAdapter(arrayAdapter);

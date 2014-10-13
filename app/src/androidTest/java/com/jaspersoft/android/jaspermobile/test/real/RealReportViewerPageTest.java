@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.test.real;
 
+import android.test.suitebuilder.annotation.Suppress;
+
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
@@ -52,6 +54,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
  * @author Tom Koptel
  * @since 1.9
  */
+@Suppress
 public class RealReportViewerPageTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity_> {
 
     private final ResourceLookup mResource = DummyResourceUtils.createLookupWithIC();

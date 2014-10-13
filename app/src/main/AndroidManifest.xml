@@ -140,4 +140,10 @@
             android:exported="false" />
     </application>
 
+    <!-- No need for project and is ignored at runtime. This is useful for Android Studio exclusively.
+     As soon as you run tests from it, you should explicitly tell him here about your default instrumentation. -->
+    <instrumentation
+        android:name="com.jaspersoft.android.jaspermobile.test.AnimLessInstrumentationTestRunner"
+        android:targetPackage="com.jaspersoft.android.jaspermobile.test.acceptance" />
+
 </manifest>

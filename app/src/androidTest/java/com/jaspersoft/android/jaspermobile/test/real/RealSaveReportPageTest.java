@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.test.real;
 
 import android.app.Application;
 import android.content.Intent;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
@@ -73,6 +74,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
+@Suppress
 public class RealSaveReportPageTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity_> {
 
     private static final String NEW_FILE_NAME = "Renamed";

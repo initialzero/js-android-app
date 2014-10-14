@@ -26,7 +26,7 @@
 <resources>
 
     <!-- General -->
-    <string name="app_label">JasperMobile</string>
+    <string name="app_label">Tibco JasperMobile</string>
     <!-- Action Bar -->
     <string name="ab_settings">Settings</string>
 

@@ -37,7 +37,7 @@
     <application
         android:name=".JasperMobileApplication_"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/ic_launcher_jaspermobile"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
         android:theme="@style/Theme.JasperMobile">
 

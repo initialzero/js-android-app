@@ -42,11 +42,13 @@ import android.widget.ProgressBar;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -83,6 +85,8 @@ public class WebViewFragment extends RoboFragment {
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Bean
+    ScrollableTitleHelper scrollableTitleHelper;
 
     private OnWebViewCreated onWebViewCreated;
     private JSWebView webView;
@@ -100,7 +104,7 @@ public class WebViewFragment extends RoboFragment {
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(resourceLabel);
+            scrollableTitleHelper.injectTitle(getActivity(), resourceLabel);
         }
     }
 

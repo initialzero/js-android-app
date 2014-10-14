@@ -54,6 +54,8 @@ import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHand
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
@@ -114,9 +116,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
         // get report label from extras and update title
         String reportLabel = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
-        if (getActionBar() != null) {
-            getActionBar().setTitle(reportLabel);
-        }
+        ScrollableTitleHelper scrollableTitleHelper = ScrollableTitleHelper_.getInstance_(this);
+        scrollableTitleHelper.injectTitle(this, reportLabel);
 
         // get report uri from extras
         reportUri = getIntent().getExtras().getString(EXTRA_REPORT_URI);

@@ -25,17 +25,26 @@
 package com.jaspersoft.android.jaspermobile.activities.settings;
 
 import android.app.ActionBar;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.util.Linkify;
+import android.view.View;
+import android.widget.TextView;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentPreferenceActivity;
+import com.negusoft.holoaccent.dialog.AccentAlertDialog;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
 
 /**
  * @author Ivan Gadzhega
@@ -43,6 +52,7 @@ import org.androidannotations.annotations.OptionsItem;
  * @since 1.5
  */
 @EActivity
+@OptionsMenu(R.menu.settings_menu)
 public class SettingsActivity extends RoboAccentPreferenceActivity {
     public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
@@ -83,6 +93,12 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
         HomeActivity.goHome(this);
     }
 
+    @OptionsItem
+    final void showAbout() {
+        AboutDialog aboutDialog = new AboutDialog();
+        aboutDialog.show(getFragmentManager(), AboutDialog.class.getSimpleName());
+    }
+
     //---------------------------------------------------------------------
     // Static methods
     //---------------------------------------------------------------------
@@ -103,6 +119,34 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
     public static boolean isAnimationEnabled(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
+    }
+
+    public static class AboutDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AccentAlertDialog.Builder builder = new AccentAlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.sa_show_about);
+            builder.setMessage(R.string.sa_about_info);
+            builder.setCancelable(true);
+            builder.setNeutralButton(android.R.string.cancel, null);
+
+            Dialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(true);
+
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    View decorView = getDialog().getWindow().getDecorView();
+                    if (decorView != null) {
+                        TextView messageText = (TextView) decorView.findViewById(android.R.id.message);
+                        if (messageText != null) {
+                            Linkify.addLinks(messageText, Linkify.ALL);
+                        }
+                    }
+                }
+            });
+            return dialog;
+        }
     }
 
 }

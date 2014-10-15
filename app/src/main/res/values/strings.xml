@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright © 2014 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -131,10 +130,14 @@
     <string name="s_fd_option_all">All</string>
     <string name="s_fd_option_reports">Reports</string>
     <string name="s_fd_option_dashboards">Dashboards</string>
-   <string name="s_fd_sort_label">By label</string>
+    <string name="s_fd_sort_label">By label</string>
     <string name="s_fd_sort_date">By creation date</string>
 
-
+    <!-- Search Activity -->
+    <string name="sa_show_about">About</string>
+    <string name="sa_about_info">
+        Jaspersoft Mobile v1.9\n\nManagement tool and report viewer for JasperReports Server 5.2 and greater.\n\nFor more information visit:\nhttp://community.jaspersoft.com/project/jaspermobile-android\n\n© 2014 Tibco Jaspersoft Corp.
+    </string>
     <!-- Resource Info Activity -->
     <string name="ri_title">Resource Info</string>
     <string name="ri_properties">Resource Properties:</string>
@@ -257,5 +260,7 @@
     <string name="toast_select_profile">Please, select your profile</string>
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
+
+
 
 </resources>

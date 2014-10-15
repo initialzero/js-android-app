@@ -102,7 +102,7 @@
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Запуск отчета…</string>
     <!-- Error messages -->
-    <string name="r_error_server_not_supported">Недопустимый URL или версия сервера старее чем 5.0 (не поддерживается).</string>
+    <string name="r_error_server_not_supported">Недопустимый URL или версия сервера старее чем 5.2 (не поддерживается).</string>
 
 
     <!-- Search Activity -->

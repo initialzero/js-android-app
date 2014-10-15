@@ -258,8 +258,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Override
     public void onRefresh() {
         mLoaderState = LOAD_FROM_NETWORK;
-        mAdapter.setNotifyOnChange(false);
-        mAdapter.clear();
         loadFirstPage();
     }
 
@@ -339,6 +337,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
             List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
             Collections.sort(datum, new OrderingByType());
+            mAdapter.setNotifyOnChange(false);
+            mAdapter.clear();
             mAdapter.setNotifyOnChange(true);
             mAdapter.addAll(datum);
         }

@@ -32,6 +32,6 @@
         android:top="@dimen/card_composed_image_padding">
         <bitmap
             android:gravity="left|top"
-            android:src="@drawable/ic_library_home" />
+            android:src="@drawable/ic_home_library" />
     </item>
 </layer-list>

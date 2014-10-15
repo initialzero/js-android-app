@@ -33,6 +33,6 @@
 
         <bitmap
             android:gravity="left|top"
-            android:src="@drawable/ic_config_home" />
+            android:src="@drawable/ic_home_config" />
     </item>
 </layer-list>

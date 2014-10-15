@@ -27,7 +27,7 @@
 
     <item android:drawable="@color/repo_item_bg" />
     <item>
-        <bitmap android:gravity="center" android:src="@drawable/ic_repository_home" />
+        <bitmap android:gravity="center" android:src="@drawable/ic_home_repository" />
     </item>
 
 </layer-list>

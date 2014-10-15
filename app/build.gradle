@@ -122,6 +122,7 @@ apt {
 
 dependencies {
     compile project(':database-generator')
+    compile project(':library-circular')
 
     compile 'com.jaspersoft.android.sdk:js-android-sdk-client:2.0-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:2.0-SNAPSHOT'

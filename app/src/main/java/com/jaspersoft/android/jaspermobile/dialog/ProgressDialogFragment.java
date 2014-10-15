@@ -34,6 +34,8 @@ import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
 
+import fr.castorflex.android.circularprogressbar.CircularProgressDrawable;
+
 import static android.content.DialogInterface.OnCancelListener;
 import static android.content.DialogInterface.OnShowListener;
 
@@ -61,6 +63,15 @@ public class ProgressDialogFragment extends DialogFragment {
         ProgressDialog progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage(getString(R.string.r_pd_running_report_msg));
         progressDialog.setOnShowListener(onShowListener);
+
+        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable
+                .Builder(getActivity())
+                .colors(getResources().getIntArray(R.array.holo_colors))
+                .sweepSpeed(1f)
+                .strokeWidth(6)
+                .style(CircularProgressDrawable.Style.ROUNDED).build();
+        progressDialog.setIndeterminateDrawable(circularProgressDrawable);
+
         return progressDialog;
     }
 

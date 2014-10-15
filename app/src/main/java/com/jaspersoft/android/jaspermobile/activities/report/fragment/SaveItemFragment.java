@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.report.fragment;
 
 import android.app.ActionBar;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -96,8 +95,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @InstanceState
     int runningRequests;
-    @InstanceState
-    boolean mSaveActionIsVisible = true;
 
     protected static enum OutputFormat {
         HTML,
@@ -114,12 +111,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
         if (actionBar != null) {
             actionBar.setTitle(R.string.sr_ab_title);
         }
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        saveAction.setVisible(mSaveActionIsVisible);
-        super.onPrepareOptionsMenu(menu);
     }
 
     @OptionsItem
@@ -203,9 +194,11 @@ public class SaveItemFragment extends RoboSpiceFragment {
     }
 
     private void setRefreshActionButtonState(boolean refreshing) {
-        getActivity().setProgressBarIndeterminateVisibility(refreshing);
-        mSaveActionIsVisible  = !refreshing;
-        getActivity().invalidateOptionsMenu();
+        if (refreshing) {
+            saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
+        } else {
+            saveAction.setActionView(null);
+        }
     }
 
     //---------------------------------------------------------------------

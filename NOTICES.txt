@@ -10,6 +10,8 @@ This software includes third party software subject to the associated copyrights
 - MultiChoiceAdapter 3.1.0 (Apache 2.0) - https://github.com/ManuelPeinado/MultiChoiceAdapter
 - HoloAccent 1.0.1 (Apache 2.0) - https://github.com/negusoft/holoaccent
 - RoboCoP 0.5.1 (Apache 2.0) - https://github.com/mediarain/RoboCoP
+- SmoothProgressBar 1.0.1 (Apache 2.0) - https://github.com/castorflex/SmoothProgressBar
+- NineOldAndroids 2.4.0 (Apache 2.0) - https://github.com/JakeWharton/NineOldAndroids/
 
 * Software for testing case
 - Espresso 1.1 (Apache 2.0) - [ https://code.google.com/p/android-test-kit/ , https://github.com/JakeWharton/double-espresso ]

@@ -337,8 +337,13 @@ public class ResourcesFragment extends RoboSpiceFragment
 
             List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
             Collections.sort(datum, new OrderingByType());
-            mAdapter.setNotifyOnChange(false);
-            mAdapter.clear();
+
+            // Do this for explicit refresh during pull to refresh interaction
+            if (mLoaderState == LOAD_FROM_NETWORK) {
+                mAdapter.setNotifyOnChange(false);
+                mAdapter.clear();
+            }
+
             mAdapter.setNotifyOnChange(true);
             mAdapter.addAll(datum);
         }

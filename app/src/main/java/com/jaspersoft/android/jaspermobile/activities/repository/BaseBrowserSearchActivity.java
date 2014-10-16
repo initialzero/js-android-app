@@ -228,7 +228,7 @@ public abstract class BaseBrowserSearchActivity extends BaseRepositoryActivity i
 
         @Override
         public void onRequestSuccess(ServerInfo serverInfo) {
-            int currentVersion = serverInfo.getVersionCode();
+            double currentVersion = serverInfo.getVersionCode();
             if (currentVersion >= ServerInfo.VERSION_CODES.EMERALD_TWO) {
                 // REST v2
                 offset = 0;

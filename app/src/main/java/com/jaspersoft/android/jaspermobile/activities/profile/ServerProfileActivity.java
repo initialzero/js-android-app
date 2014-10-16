@@ -411,8 +411,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             saveAction.setActionView(null);
 
             Context context = ServerProfileActivity.this;
-            int currentVersion = serverInfo.getVersionCode();
-            if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_MR1) {
+            double currentVersion = serverInfo.getVersionCode();
+            if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
                 AlertDialogFragment.createBuilder(context, getSupportFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.error_msg)

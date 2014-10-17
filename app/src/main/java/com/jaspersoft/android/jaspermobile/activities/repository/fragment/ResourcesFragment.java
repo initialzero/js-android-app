@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.app.ActionBar;
-import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -37,13 +36,12 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
-import com.google.common.primitives.Ints;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
+import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -67,7 +65,6 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -78,9 +75,7 @@ import roboguice.inject.InjectView;
  */
 @EFragment
 public class ResourcesFragment extends RoboSpiceFragment
-        implements AbsListView.OnScrollListener,
-        SwipeRefreshLayout.OnRefreshListener,
-        ResourcesLoader {
+        implements SwipeRefreshLayout.OnRefreshListener, ResourcesLoader {
 
     public static final String ROOT_URI = "/";
     // Loader actions
@@ -148,7 +143,6 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     private int mTotal;
     private ResourceAdapter mAdapter;
-    private final DataObservable mObservable = new DataObservable();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -191,13 +185,12 @@ public class ResourcesFragment extends RoboSpiceFragment
                 R.color.holo_blue_light,
                 R.color.holo_blue_bright);
 
-        listView.setOnScrollListener(this);
+        listView.setOnScrollListener(new ScrollListener());
 
         mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
                 .setViewType(viewType)
                 .create();
         mAdapter.setAdapterView(listView);
-        mAdapter.registerDataSetObserver(mObservable);
         listView.setAdapter(mAdapter);
 
         loadFirstPage();
@@ -209,46 +202,18 @@ public class ResourcesFragment extends RoboSpiceFragment
         super.onSaveInstanceState(outState);
     }
 
-    public void loadFirstPage() {
-        mSearchCriteria.setOffset(0);
-        mSearchCriteria.setLimit(mLimit);
-        loadResources(mLoaderState);
-    }
-
     public boolean isLoading() {
         return mLoading;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
     }
 
     @ItemClick(android.R.id.list)
     public void onItemClick(ResourceLookup resource) {
         mAdapter.finishActionMode();
         resourceOpener.openResource(resource);
-    }
-
-    //---------------------------------------------------------------------
-    // Implements AbsListView.OnScrollListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
-            loadNextPage();
-        }
-
-        boolean enable = false;
-        if (listView != null && listView.getChildCount() > 0) {
-            // check if the first item of the list is visible
-            boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;
-            // check if the top of the first item is visible
-            boolean topOfFirstItemVisible = listView.getChildAt(0).getTop() == 0;
-            // enabling or disabling the refresh layout
-            enable = firstItemVisible && topOfFirstItemVisible;
-        }
-        swipeRefreshLayout.setEnabled(enable);
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
     }
 
     //---------------------------------------------------------------------
@@ -281,13 +246,19 @@ public class ResourcesFragment extends RoboSpiceFragment
         loadFirstPage();
     }
 
+    public void loadFirstPage() {
+        mSearchCriteria.setOffset(0);
+        mSearchCriteria.setLimit(mLimit);
+        loadResources(mLoaderState);
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
     private void loadNextPage() {
         if (!mLoading && hasNextPage()) {
-            mSearchCriteria.setOffset(mSearchCriteria.getOffset() + mLimit);
+            mSearchCriteria.setOffset(calculateNextOffset());
             mLoaderState = LOAD_FROM_CACHE;
             loadResources(mLoaderState);
         }
@@ -297,9 +268,12 @@ public class ResourcesFragment extends RoboSpiceFragment
         return mSearchCriteria.getOffset() + mLimit < mTotal;
     }
 
+    private int calculateNextOffset() {
+        return mSearchCriteria.getOffset() + mLimit;
+    }
+
     private void loadResources(int state) {
-        mLoading = true;
-        swipeRefreshLayout.setRefreshing(true);
+        setRefreshState(true);
         showEmptyText(R.string.loading_msg);
 
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
@@ -308,62 +282,74 @@ public class ResourcesFragment extends RoboSpiceFragment
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
-
-    public void showEmptyText(int resId) {
+    private void showEmptyText(int resId) {
         emptyText.setVisibility((listView.getChildCount() > 0) ? View.GONE : View.VISIBLE);
         if (resId != 0) emptyText.setText(resId);
     }
 
-    public void setQuery(String query) {
-        this.query = query;
+    private void setRefreshState(boolean refreshing) {
+        mLoading = refreshing;
+        swipeRefreshLayout.setRefreshing(refreshing);
     }
 
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), true);
-            mLoading = false;
+            setRefreshState(false);
             showEmptyText(R.string.failed_load_data);
         }
 
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
+            // set pagination data
             boolean isFirstPage = mSearchCriteria.getOffset() == 0;
-            showEmptyText(emptyMessage);
-
             if (isFirstPage) {
                 mTotal = resourceLookupsList.getTotalCount();
             }
 
+            // set data
             List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
-            Collections.sort(datum, new OrderingByType());
-
             // Do this for explicit refresh during pull to refresh interaction
             if (mLoaderState == LOAD_FROM_NETWORK) {
                 mAdapter.setNotifyOnChange(false);
                 mAdapter.clear();
             }
-
-            mAdapter.setNotifyOnChange(true);
             mAdapter.addAll(datum);
-        }
-    }
+            mAdapter.sortByType();
+            mAdapter.setNotifyOnChange(true);
+            mAdapter.notifyDataSetChanged();
 
-    private class DataObservable extends DataSetObserver {
-        public void onChanged() {
-            super.onChanged();
-            mLoading = false;
-            swipeRefreshLayout.setRefreshing(false);
+            // set refresh states
+            setRefreshState(false);
             emptyText.setVisibility((mAdapter.getCount() > 0) ? View.GONE : View.VISIBLE);
         }
     }
 
-    private static class OrderingByType extends Ordering<ResourceLookup> {
+    //---------------------------------------------------------------------
+    // Implements AbsListView.OnScrollListener
+    //---------------------------------------------------------------------
+
+    private class ScrollListener extends SimpleScrollListener {
         @Override
-        public int compare(ResourceLookup res1, ResourceLookup res2) {
-            ResourceLookup.ResourceType resType1 = res1.getResourceType();
-            ResourceLookup.ResourceType resType2 = res2.getResourceType();
-            return Ints.compare(resType1.ordinal(), resType2.ordinal());
+        public void onScroll(AbsListView listView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
+                loadNextPage();
+            }
+            enableRefreshLayout(listView);
+        }
+
+        private void enableRefreshLayout(AbsListView listView) {
+            boolean enable = false;
+            if (listView != null && listView.getChildCount() > 0) {
+                // check if the first item of the list is visible
+                boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;
+                // check if the top of the first item is visible
+                boolean topOfFirstItemVisible = listView.getChildAt(0).getTop() == 0;
+                // enabling or disabling the refresh layout
+                enable = firstItemVisible && topOfFirstItemVisible;
+            }
+            swipeRefreshLayout.setEnabled(enable);
         }
     }
 

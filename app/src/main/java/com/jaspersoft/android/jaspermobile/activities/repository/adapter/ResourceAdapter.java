@@ -37,6 +37,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.collect.Ordering;
+import com.google.common.primitives.Ints;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceAdapterHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -149,6 +151,19 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         }
         mode.invalidate();
         return true;
+    }
+
+    public void sortByType() {
+        super.sort(new OrderingByType());
+    }
+
+    private static class OrderingByType extends Ordering<ResourceLookup> {
+        @Override
+        public int compare(ResourceLookup res1, ResourceLookup res2) {
+            ResourceLookup.ResourceType resType1 = res1.getResourceType();
+            ResourceLookup.ResourceType resType2 = res2.getResourceType();
+            return Ints.compare(resType1.ordinal(), resType2.ordinal());
+        }
     }
 
     public static class Builder {

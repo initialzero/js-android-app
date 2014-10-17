@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -41,7 +42,6 @@ import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
-import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -49,8 +49,10 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
+import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
@@ -59,7 +61,6 @@ import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
-import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -144,14 +145,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     FavoritesHelper favoritesHelper;
 
     private ResourceAdapter mAdapter;
-    private ServerInfo serverInfo;
-
-    @InstanceState
-    int mTotal;
-    @InstanceState
-    int mNextOffset;
-    @InstanceState
-    boolean mHasNextPage;
+    private PaginationPolicy mPaginationPolicy;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -203,13 +197,14 @@ public class ResourcesFragment extends RoboSpiceFragment
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
 
-        setServerInfo();
+        fetchServerInfo();
     }
 
-    @Background
-    protected void setServerInfo() {
-        serverInfo = jsRestClient.getServerInfo();
-        loadFirstPage();
+    private void fetchServerInfo() {
+        showEmptyText(R.string.loading_msg);
+        setRefreshState(true);
+        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+        getSpiceManager().execute(request, new GetServerInfoListener());
     }
 
     @Override
@@ -281,25 +276,11 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     private boolean hasNextPage() {
-        double versionCode = serverInfo.getVersionCode();
-        if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
-            return mSearchCriteria.getOffset() + mLimit < mTotal;
-        }
-        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
-           return mHasNextPage;
-        }
-        throw new UnsupportedOperationException();
+        return mPaginationPolicy.hasNextPage();
     }
 
     private int calculateNextOffset() {
-        double versionCode = serverInfo.getVersionCode();
-        if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
-            return mSearchCriteria.getOffset() + mLimit;
-        }
-        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
-            return mNextOffset;
-        }
-        throw new UnsupportedOperationException();
+        return mPaginationPolicy.calculateNextOffset();
     }
 
     private void loadResources(int state) {
@@ -322,6 +303,44 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
+
+    private class GetServerInfoListener implements RequestListener<ServerInfo> {
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            RequestExceptionHandler.handle(e, getActivity(), false);
+        }
+
+        @Override
+        public void onRequestSuccess(ServerInfo serverInfo) {
+            setUpPaginationPolicy(serverInfo);
+            loadFirstPage();
+        }
+
+        protected void setUpPaginationPolicy(ServerInfo serverInfo) {
+            double versionCode = serverInfo.getVersionCode();
+            if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                PaginationPolicy policy = Emerald2PaginationFragment_.builder().build();
+                mPaginationPolicy = policy;
+            }
+            if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                PaginationPolicy policy = Emerald3PaginationFragment_.builder().build();
+                mPaginationPolicy = policy;
+            }
+
+            if (mPaginationPolicy == null) {
+                throw new UnsupportedOperationException();
+            } else {
+                mPaginationPolicy.setSearchCriteria(mSearchCriteria);
+                getChildFragmentManager().beginTransaction()
+                        .add((Fragment) mPaginationPolicy,
+                                PaginationPolicy.class.getSimpleName()).commit();
+            }
+        }
+    }
+
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
 
         @Override
@@ -334,18 +353,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
             // set pagination data
-            double versionCode = serverInfo.getVersionCode();
-            if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                boolean isFirstPage = mSearchCriteria.getOffset() == 0;
-                if (isFirstPage) {
-                    mTotal = resourceLookupsList.getTotalCount();
-                }
-            }
-            if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                int offset = resourceLookupsList.getNextOffset();
-                mNextOffset = offset;
-                mHasNextPage = offset != ResourceLookupsList.NO_OFFSET;
-            }
+            mPaginationPolicy.handleLookup(resourceLookupsList);
 
             // set data
             List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();

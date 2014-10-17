@@ -54,10 +54,12 @@ import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLook
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -141,8 +143,15 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Bean
     FavoritesHelper favoritesHelper;
 
-    private int mTotal;
     private ResourceAdapter mAdapter;
+    private ServerInfo serverInfo;
+
+    @InstanceState
+    int mTotal;
+    @InstanceState
+    int mNextOffset;
+    @InstanceState
+    boolean mHasNextPage;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -150,6 +159,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         resourceOpener.setResourceTypes(resourceTypes);
 
+        mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setRecursive(recursiveLookup);
         mSearchCriteria.setTypes(resourceTypes);
         mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
@@ -193,6 +203,12 @@ public class ResourcesFragment extends RoboSpiceFragment
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
 
+        setServerInfo();
+    }
+
+    @Background
+    protected void setServerInfo() {
+        serverInfo = jsRestClient.getServerInfo();
         loadFirstPage();
     }
 
@@ -265,11 +281,25 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     private boolean hasNextPage() {
-        return mSearchCriteria.getOffset() + mLimit < mTotal;
+        double versionCode = serverInfo.getVersionCode();
+        if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+            return mSearchCriteria.getOffset() + mLimit < mTotal;
+        }
+        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
+           return mHasNextPage;
+        }
+        throw new UnsupportedOperationException();
     }
 
     private int calculateNextOffset() {
-        return mSearchCriteria.getOffset() + mLimit;
+        double versionCode = serverInfo.getVersionCode();
+        if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+            return mSearchCriteria.getOffset() + mLimit;
+        }
+        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
+            return mNextOffset;
+        }
+        throw new UnsupportedOperationException();
     }
 
     private void loadResources(int state) {
@@ -293,6 +323,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
+
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), true);
@@ -303,9 +334,17 @@ public class ResourcesFragment extends RoboSpiceFragment
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
             // set pagination data
-            boolean isFirstPage = mSearchCriteria.getOffset() == 0;
-            if (isFirstPage) {
-                mTotal = resourceLookupsList.getTotalCount();
+            double versionCode = serverInfo.getVersionCode();
+            if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                boolean isFirstPage = mSearchCriteria.getOffset() == 0;
+                if (isFirstPage) {
+                    mTotal = resourceLookupsList.getTotalCount();
+                }
+            }
+            if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                int offset = resourceLookupsList.getNextOffset();
+                mNextOffset = offset;
+                mHasNextPage = offset != ResourceLookupsList.NO_OFFSET;
             }
 
             // set data

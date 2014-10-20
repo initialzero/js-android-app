@@ -33,7 +33,7 @@ import android.support.annotation.Nullable;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 
 /**
@@ -55,14 +55,14 @@ public class DatabaseUtils {
         serverProfile.setUsername(TEST_USERNAME);
         serverProfile.setPassword(TEST_PASS);
 
-        Uri uri = contentResolver.insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
+        Uri uri = contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
         return Long.valueOf(uri.getLastPathSegment());
     }
 
     public static void updateProfile(ContentResolver contentResolver, long id, String column, String value) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(column, value);
-        Uri uri = Uri.withAppendedPath(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(id));
+        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(id));
         contentResolver.update(uri, contentValues, null, null);
     }
 
@@ -74,19 +74,19 @@ public class DatabaseUtils {
         serverProfile.setUsername(ProfileHelper.DEFAULT_USERNAME);
         serverProfile.setPassword(ProfileHelper.DEFAULT_PASS);
 
-        Uri uri = contentResolver.insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
+        Uri uri = contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
         return Long.valueOf(uri.getLastPathSegment());
     }
 
     public static void deleteAllProfiles(ContentResolver contentResolver) {
-        contentResolver.delete(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, null, null);
+        contentResolver.delete(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, null, null);
     }
 
     public static void deleteAllFavorites(ContentResolver contentResolver) {
-        contentResolver.delete(JasperMobileProvider.FAVORITES_CONTENT_URI, null, null);
+        contentResolver.delete(JasperMobileDbProvider.FAVORITES_CONTENT_URI, null, null);
     }
     public static Cursor getAllFavorites(ContentResolver contentResolver) {
-        return contentResolver.query(JasperMobileProvider.FAVORITES_CONTENT_URI,
+        return contentResolver.query(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 FavoritesTable.ALL_COLUMNS, null, null, null);
     }
 
@@ -95,14 +95,14 @@ public class DatabaseUtils {
         createDefaultProfile(contentResolver);
     }
         public static void deleteTestProfiles(ContentResolver contentResolver) {
-        contentResolver.delete(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, null, null);
+        contentResolver.delete(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, null, null);
         createDefaultProfile(contentResolver);
     }
 
     public static Cursor queryTestProfile(ContentResolver contentResolver) {
         String selection = ServerProfilesTable.ALIAS + "= ?";
         String[] selectionArgs = {DatabaseUtils.TEST_ALIAS};
-        return contentResolver.query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+        return contentResolver.query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                 ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
     }
 
@@ -110,7 +110,7 @@ public class DatabaseUtils {
     public static ServerProfiles queryProfileByAlias(ContentResolver contentResolver, String alias) {
         String selection = ServerProfilesTable.ALIAS + "= ?";
         String[] selectionArgs = {alias};
-        Cursor cursor = contentResolver.query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+        Cursor cursor = contentResolver.query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                 ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
         if (cursor == null) return null;
         if (cursor.getCount() == 0) {

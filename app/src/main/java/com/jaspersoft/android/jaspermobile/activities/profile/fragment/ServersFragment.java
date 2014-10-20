@@ -48,7 +48,7 @@ import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActiv
 import com.jaspersoft.android.jaspermobile.activities.profile.adapter.ServersAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -153,7 +153,7 @@ public class    ServersFragment extends RoboFragment implements LoaderManager.Lo
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(getActivity(), JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+        return new CursorLoader(getActivity(), JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                 ServerProfilesTable.ALL_COLUMNS, null, null, null);
     }
 
@@ -206,7 +206,7 @@ public class    ServersFragment extends RoboFragment implements LoaderManager.Lo
             Toast.makeText(getActivity(), "Can`t delete active profile", Toast.LENGTH_SHORT).show();
             return;
         }
-        Uri uri = Uri.withAppendedPath(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(id));
+        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(id));
         int deleteCount = getActivity().getContentResolver().delete(uri, null, null);
         if (deleteCount > 0) {
             Toast.makeText(getActivity(), R.string.spm_profile_deleted_toast, Toast.LENGTH_SHORT).show();

@@ -39,7 +39,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -77,25 +77,29 @@ public class FavoritesHelper {
     public Uri addToFavorites(ResourceLookup resource) {
         JsServerProfile profile = jsRestClient.getServerProfile();
         Favorites favoriteEntry = new Favorites();
+
+        // TODO: Migrated from old schema scheduled for the deletion in future
+        favoriteEntry.setName("");
+
         favoriteEntry.setUri(resource.getUri());
-        favoriteEntry.setLabel(resource.getLabel());
+        favoriteEntry.setTitle(resource.getLabel());
         favoriteEntry.setDescription(resource.getDescription());
         favoriteEntry.setWstype(resource.getResourceType().toString());
         favoriteEntry.setUsername(profile.getUsername());
         favoriteEntry.setOrganization(profile.getOrganization());
-        favoriteEntry.setServerProfilesId(profile.getId());
+        favoriteEntry.setServerProfileId(profile.getId());
 
-        return context.getContentResolver().insert(JasperMobileProvider.FAVORITES_CONTENT_URI,
+        return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 favoriteEntry.getContentValues());
     }
 
     public Cursor queryFavoriteByResource(ResourceLookup resource) {
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         Map<String, String> mapValues = Maps.newHashMap();
-        mapValues.put(FavoritesTable.LABEL, resource.getLabel());
+        mapValues.put(FavoritesTable.TITLE, resource.getLabel());
         mapValues.put(FavoritesTable.URI, resource.getUri());
         mapValues.put(FavoritesTable.WSTYPE, resource.getResourceType().toString());
-        mapValues.put(FavoritesTable.SERVER_PROFILES_ID, jsServerProfile.getId() + "");
+        mapValues.put(FavoritesTable.SERVER_PROFILE_ID, jsServerProfile.getId() + "");
 
         List<String> conditions = Lists.newArrayList();
         for (Map.Entry<String, String> entry : mapValues.entrySet()) {
@@ -113,7 +117,7 @@ public class FavoritesHelper {
         String[] selectionArgs = new String[mapValues.values().size()];
         args.toArray(selectionArgs);
 
-        return context.getContentResolver().query(JasperMobileProvider.FAVORITES_CONTENT_URI,
+        return context.getContentResolver().query(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 new String[]{FavoritesTable._ID}, selection, selectionArgs, null);
     }
 
@@ -156,7 +160,7 @@ public class FavoritesHelper {
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToPosition(0);
                 String id = cursor.getString(cursor.getColumnIndex(FavoritesTable._ID));
-                favoriteEntryUri = Uri.withAppendedPath(JasperMobileProvider.FAVORITES_CONTENT_URI, id);
+                favoriteEntryUri = Uri.withAppendedPath(JasperMobileDbProvider.FAVORITES_CONTENT_URI, id);
             }
         } finally {
             if (cursor != null) cursor.close();

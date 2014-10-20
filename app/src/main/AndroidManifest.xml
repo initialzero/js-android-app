@@ -135,7 +135,7 @@
             android:exported="false" />
 
         <provider
-            android:name=".db.provider.JasperMobileProvider"
+            android:name=".db.provider.JasperMobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
             android:exported="false" />
     </application>

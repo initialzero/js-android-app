@@ -44,7 +44,7 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.Favorite
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -133,7 +133,7 @@ public class FavoritesFragment extends RoboFragment
         cursor.moveToPosition(position);
 
         ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.LABEL)));
+        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
         resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
         resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
 
@@ -163,7 +163,7 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String selection =
-                FavoritesTable.SERVER_PROFILES_ID + " =?  AND " +
+                FavoritesTable.SERVER_PROFILE_ID + " =?  AND " +
                         FavoritesTable.USERNAME + " =?  AND ";
 
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
@@ -196,10 +196,10 @@ public class FavoritesFragment extends RoboFragment
                 .append(", ")
                 .append(FavoritesTable.WSTYPE)
                 .append(" COLLATE NOCASE")
-                .append(", ").append(FavoritesTable.LABEL)
+                .append(", ").append(FavoritesTable.TITLE)
                 .append(" COLLATE NOCASE ASC");
 
-        return new CursorLoader(getActivity(), JasperMobileProvider.FAVORITES_CONTENT_URI,
+        return new CursorLoader(getActivity(), JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 FavoritesTable.ALL_COLUMNS, selection, selectionArgs, sortOrder.toString());
     }
 

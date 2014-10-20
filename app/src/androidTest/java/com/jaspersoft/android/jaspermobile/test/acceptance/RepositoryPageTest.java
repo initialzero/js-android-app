@@ -28,24 +28,20 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
+import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.octo.android.robospice.SpiceManager;
-
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -65,7 +61,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMa
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -75,19 +70,11 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
     private static final String REPORTS_QUERY = "Reports";
 
-    @Mock
-    JsServerProfile mockServerProfile;
-    @Mock
-    DatabaseProvider mockDbProvider;
-    @Mock
-    JsRestClient mockRestClient;
-    @Mock
-    SpiceManager mockSpiceService;
-
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager();
     private ResourceLookupsList rootRepositories;
     private RepositoryPref_ repositoryPref;
     private ResourceLookupsList levelRepositories;
+    private SmartMockedSpiceManager mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
+    private ServerInfo serverInfo;
 
     public RepositoryPageTest() {
         super(RepositoryActivity_.class);
@@ -96,17 +83,16 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
 
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
         rootRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "root_repositories");
         levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
 
         registerTestModule(new TestModule());
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-        when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        mMockedSpiceManager.setResponseForCacheRequest(rootRepositories);
+        setDefaultCurrentProfile();
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(rootRepositories);
     }
 
     @Override
@@ -121,12 +107,19 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         startActivityUnderTest();
 
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         rotate();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
 
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         onView(withId(R.id.switchLayout)).perform(click());
-
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         rotate();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
@@ -147,12 +140,17 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
-        mMockedSpiceManager.setResponseForCacheRequest(levelRepositories);
         String firstRootRepoLabel = rootRepositories.getResourceLookups().get(0).getLabel();
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(rootRepositories);
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
         onView(withId(getActionBarTitleId())).check(matches(withText(firstRootRepoLabel)));
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(rootRepositories);
         pressBack();
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.h_repository_label)));
     }
@@ -161,18 +159,28 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
-        mMockedSpiceManager.setResponseForCacheRequest(levelRepositories);
         String rootLevelRepoLabel = rootRepositories.getResourceLookups().get(0).getLabel();
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
-
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         rotate();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(rootRepositories);
         pressBack();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(rootLevelRepoLabel)))));
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(rootRepositories);
         rotate();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(rootLevelRepoLabel)))));
     }
@@ -187,6 +195,9 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
             onOverflowView(getActivity(), withText(android.R.string.search_go)).perform(click());
         }
         onView(withId(getSearcFieldId())).perform(typeText(REPORTS_QUERY));
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         onView(withId(getSearcFieldId())).perform(pressImeActionButton());
 
         onView(withText(getActivity().getString(R.string.search_result_format, REPORTS_QUERY)))
@@ -200,8 +211,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     public class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsRestClient.class).toInstance(mockRestClient);
-            bind(DatabaseProvider.class).toInstance(mockDbProvider);
+            bind(JsRestClient.class).in(Singleton.class);
             bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }

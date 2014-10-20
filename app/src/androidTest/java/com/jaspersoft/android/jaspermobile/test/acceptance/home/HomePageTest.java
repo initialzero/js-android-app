@@ -27,16 +27,15 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.MockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.SpiceManager;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -56,25 +55,14 @@ import static org.mockito.Mockito.when;
  */
 public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
 
-    private static final String PASSWORD = "SOME_PASSWORD";
     private static final String ALIAS = "Mobile Demo";
-    private static final String USERNAME = "Joe";
-    private static final String ORGANIZATION = "Jasper";
 
-    @Mock
-    JsRestClient mockRestClient;
-    @Mock
-    JsServerProfile mockServerProfile;
-    @Mock
-    SpiceManager mockSpiceService;
-    @Mock
-    DatabaseProvider mockDatabaseProvider;
     @Mock
     ConnectivityUtil mockConectivityUtil;
-    @Mock
-    ServerInfo mockServerInfo;
 
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager();
+    private final ServerInfo mockServerInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
+    private final ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+    private final SmartMockedSpiceManager mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
 
     public HomePageTest() {
         super(HomeActivity_.class);
@@ -84,13 +72,11 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-
         when(mockConectivityUtil.isConnected()).thenReturn(true);
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
-
-        mMockedSpiceManager.setResponseForCacheRequest(mockServerInfo);
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
     }
 
     @Override
@@ -122,10 +108,16 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         // Check ActionBar server name
         onView(withId(R.id.profile_name)).check(matches(withText(ALIAS)));
 
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         onView(withId(R.id.home_item_library)).perform(click());
         pressBack();
+
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
+        mMockedSpiceManager.addCachedResponse(levelRepositories);
         onView(withId(R.id.home_item_repository)).perform(click());
         pressBack();
+
         onView(withId(R.id.home_item_favorites)).perform(click());
         pressBack();
         onView(withId(R.id.home_item_saved_reports)).perform(click());
@@ -140,7 +132,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
             bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-            bind(DatabaseProvider.class).toInstance(mockDatabaseProvider);
             bind(ConnectivityUtil.class).toInstance(mockConectivityUtil);
         }
     }

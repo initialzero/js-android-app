@@ -84,8 +84,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     // Loader actions
     private static final int LOAD_FROM_CACHE = 1;
     private static final int LOAD_FROM_NETWORK = 2;
-    // Context menu actions
-    private static final int ID_CM_FAVORITE = 10;
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -322,12 +320,10 @@ public class ResourcesFragment extends RoboSpiceFragment
         protected void setUpPaginationPolicy(ServerInfo serverInfo) {
             double versionCode = serverInfo.getVersionCode();
             if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                PaginationPolicy policy = Emerald2PaginationFragment_.builder().build();
-                mPaginationPolicy = policy;
+                mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
             }
             if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                PaginationPolicy policy = Emerald3PaginationFragment_.builder().build();
-                mPaginationPolicy = policy;
+                mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
             }
 
             if (mPaginationPolicy == null) {
@@ -363,7 +359,10 @@ public class ResourcesFragment extends RoboSpiceFragment
                 mAdapter.clear();
             }
             mAdapter.addAll(datum);
-            mAdapter.sortByType();
+            // We won`t sort by type in Library section
+            if (resourceTypes.contains(ResourceLookup.ResourceType.folder.toString())) {
+                mAdapter.sortByType();
+            }
             mAdapter.setNotifyOnChange(true);
             mAdapter.notifyDataSetChanged();
 

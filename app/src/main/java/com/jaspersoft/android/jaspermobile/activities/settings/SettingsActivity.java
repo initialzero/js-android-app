@@ -128,7 +128,7 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
             builder.setTitle(R.string.sa_show_about);
             builder.setMessage(R.string.sa_about_info);
             builder.setCancelable(true);
-            builder.setNeutralButton(android.R.string.cancel, null);
+            builder.setNeutralButton(android.R.string.ok, null);
 
             Dialog dialog = builder.create();
             dialog.setCanceledOnTouchOutside(true);

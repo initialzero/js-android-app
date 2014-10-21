@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.RelativeLayout;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -47,7 +46,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import roboguice.inject.InjectView;
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
  * Activity that performs dashboard viewing in HTML format.
@@ -62,8 +61,6 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
 
     @Inject
     JsRestClient jsRestClient;
-    @InjectView(R.id.htmlViewer_layout)
-    RelativeLayout layout;
 
     @OptionsMenuItem
     MenuItem favoriteAction;
@@ -113,6 +110,14 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
         if (webViewFragment != null) {
             webViewFragment.refresh();
         }
+    }
+
+    @OptionsItem
+    final void aboutAction() {
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setTitle(resource.getLabel())
+                .setMessage(resource.getDescription())
+                .show();
     }
 
     @Override

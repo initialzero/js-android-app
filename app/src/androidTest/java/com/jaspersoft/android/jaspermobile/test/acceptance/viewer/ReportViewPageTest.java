@@ -188,6 +188,19 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         cursor.close();
     }
 
+    public void testAboutAction() {
+        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
+        mMockedSpiceManager.addNetworkResponse(reportExecution);
+
+        createReportIntent();
+        startActivityUnderTest();
+
+        onView(withId(R.id.aboutAction)).perform(click());
+
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(mResource.getLabel())));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(mResource.getDescription())));
+    }
+
     protected void createReportIntent() {
         Intent htmlViewer = new Intent();
 

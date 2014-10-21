@@ -72,6 +72,8 @@ import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
 
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
+
 /**
  * Activity that performs report viewing in HTML format.
  *
@@ -176,6 +178,14 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         if (webViewFragment != null) {
             webViewFragment.refresh();
         }
+    }
+
+    @OptionsItem
+    final void aboutAction() {
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setTitle(resource.getLabel())
+                .setMessage(resource.getDescription())
+                .show();
     }
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)

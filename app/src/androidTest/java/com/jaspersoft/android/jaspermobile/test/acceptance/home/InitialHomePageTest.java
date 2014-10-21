@@ -74,6 +74,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.hamcrest.text.StringContains.containsString;
 
 /**
  * @author Tom Koptel
@@ -134,7 +135,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
                 .atPosition(0).perform(click());
         onView(withId(R.id.home_item_servers)).perform(click());
 
-        onView(withText(ProfileHelper.DEFAULT_ALIAS)).perform(longClick());
+        onView(withText(containsString(ProfileHelper.DEFAULT_ALIAS))).perform(longClick());
         onView(withId(R.id.deleteItem)).perform(click());
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 

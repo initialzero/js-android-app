@@ -37,4 +37,10 @@
         android:title="@string/r_ab_refresh"
         android:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/aboutAction"
+        android:icon="@drawable/ic_action_about"
+        android:title="@string/r_cm_show_resource_info"
+        android:showAsAction="ifRoom" />
+
 </menu>

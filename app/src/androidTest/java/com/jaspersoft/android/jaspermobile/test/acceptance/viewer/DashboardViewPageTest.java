@@ -38,11 +38,13 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 
 /**
  * @author Tom Koptel
@@ -84,6 +86,16 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));
         rotate();
         onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
+    }
+
+    public void testAboutAction() {
+        createReportIntent();
+        startActivityUnderTest();
+
+        onView(withId(R.id.aboutAction)).perform(click());
+
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(mResource.getLabel())));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(mResource.getDescription())));
     }
 
     private void createReportIntent() {

@@ -40,6 +40,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
@@ -68,11 +69,6 @@ import roboguice.inject.InjectView;
 public class    ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, ISimpleDialogListener, ServersAdapter.ServersInteractionListener {
     public static final String EXTRA_SERVER_PROFILE_ID = "ServersFragment.EXTRA_SERVER_PROFILE_ID";
-
-    // Context menu IDs
-    private static final int ID_CM_SWITCH = 20;
-    private static final int ID_CM_EDIT = 21;
-    private static final int ID_CM_DELETE = 22;
 
     @FragmentArg
     ViewType viewType;
@@ -177,6 +173,19 @@ public class    ServersFragment extends RoboFragment implements LoaderManager.Lo
 
                 imageView.setImageResource((mServerProfileId == entryId) ?
                         R.drawable.ic_composed_active_server : R.drawable.ic_composed_config_home);
+            }
+            return true;
+        }
+        if (columnIndex == cursor.getColumnIndex(ServerProfilesTable.ALIAS)) {
+            TextView textView = (TextView) view;
+            String alias = cursor.getString(columnIndex);
+            if (mServerProfile == null) {
+                textView.setText(alias);
+            } else {
+                long entryId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+                boolean isItemActive = (mServerProfileId == entryId);
+                textView.setText(isItemActive ?
+                        getString(R.string.sp_active_item, alias) : alias);
             }
             return true;
         }

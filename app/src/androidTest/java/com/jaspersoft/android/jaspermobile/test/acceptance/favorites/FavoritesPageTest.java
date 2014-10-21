@@ -45,6 +45,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -83,6 +84,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     private ResourceLookupsList onlyFolder;
     private FavoritesHelper_ favoritesHelper;
     private ReportExecutionResponse reportExecution;
+    private ServerInfo serverInfo;
 
     public FavoritesPageTest() {
         super(FavoritesActivity_.class);
@@ -98,6 +100,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onlyReport = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
         onlyFolder = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
         reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
 
         mApplication = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
@@ -119,6 +122,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     }
 
     public void testAddToFavoriteFromDashboardView() {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyDashboard);
         startActivityUnderTest();
 
@@ -151,9 +155,11 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     }
 
     public void testAddToFavoriteFromReportView() {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
         mMockedSpiceManager.addNetworkResponse(reportExecution);
+
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
         mMockedSpiceManager.addNetworkResponse(reportExecution);
         startActivityUnderTest();
@@ -188,35 +194,53 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     }
 
     public void testAddReportToFavoriteFromContextMenu() throws Throwable {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyReport);
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
         mMockedSpiceManager.addNetworkResponse(reportExecution);
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyReport);
-        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
-        mMockedSpiceManager.addNetworkResponse(reportExecution);
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyReport);
-        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
-        mMockedSpiceManager.addNetworkResponse(reportExecution);
+
         deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
         startContextMenuInteractionTest();
     }
 
     public void testAddDashboardToFavoriteFromContextMenu() throws Throwable {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyDashboard);
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyDashboard);
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyDashboard);
+
         deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
         startContextMenuInteractionTest();
     }
 
     public void testAddFolderToFavoriteFromContextMenu() throws Throwable {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyFolder);
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyFolder);
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyFolder);
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyFolder);
+
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyFolder);
+
         deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
         startContextMenuInteractionTest();
@@ -281,6 +305,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
     public void testPageShouldPreserveOriginalLabel() {
         ResourceLookup resourceLookup = onlyFolder.getResourceLookups().get(0);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyFolder);
         favoritesHelper.addToFavorites(resourceLookup);
         startActivityUnderTest();

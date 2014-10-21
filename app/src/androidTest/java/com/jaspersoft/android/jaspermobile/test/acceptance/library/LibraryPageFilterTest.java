@@ -36,6 +36,7 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 
 import org.hamcrest.Matchers;
@@ -50,14 +51,10 @@ import static com.google.android.apps.common.testing.ui.espresso.action.ViewActi
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.withNotDecorView;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Mockito.when;
 
@@ -78,6 +75,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     private ResourceLookupsList onlyDashboardLookUp;
     private ResourceLookupsList onlyReportLookUp;
     private ResourceLookupsList bigLookUp;
+    private ServerInfo serverInfo;
 
     public LibraryPageFilterTest() {
         super(LibraryActivity_.class);
@@ -92,6 +90,8 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         bigLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
         onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         onlyReportLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
+
         mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
 
         when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
@@ -107,8 +107,11 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testDashboardAndAllFilterOption() throws InterruptedException {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(allLookUp);
         startActivityUnderTest();
 
@@ -122,7 +125,9 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testReportFilterOption() {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
         startActivityUnderTest();
 
@@ -132,9 +137,13 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testFilteringIsPersistent() {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
         startActivityUnderTest();
         rotateToPortrait();
@@ -158,7 +167,9 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     // kept reference to incorrect index position we received crash.
     // Test asserts that adapter clear() method resets old reference
     public void testCurrentPositionResetAfterNewFilterSelected() {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(bigLookUp);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
         startActivityUnderTest();
 
@@ -169,18 +180,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
-    }
-
-    private void clickOnDialogText(int resId) {
-        clickFilterMenuItem();
-        onOverflowView(getActivity(), withText(R.string.s_fd_filter_by))
-                .check(matches(isDisplayed()));
-        onOverflowView(getActivity(), withText(resId))
-                .perform(click());
-
-        withNotDecorView(
-                is(not(getActivity().getWindow().getDecorView()))
-        ).matches(matches(not(isDisplayed())));
     }
 
     private void clickFilterMenuItem() {

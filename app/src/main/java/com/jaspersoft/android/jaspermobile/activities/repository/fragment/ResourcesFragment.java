@@ -292,7 +292,8 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     private void showEmptyText(int resId) {
-        emptyText.setVisibility((listView.getChildCount() > 0) ? View.GONE : View.VISIBLE);
+        boolean noItems = (mAdapter.getCount() > 0);
+        emptyText.setVisibility(noItems ? View.GONE : View.VISIBLE);
         if (resId != 0) emptyText.setText(resId);
     }
 
@@ -360,7 +361,8 @@ public class ResourcesFragment extends RoboSpiceFragment
             }
             mAdapter.addAll(datum);
             // We won`t sort by type in Library section
-            if (resourceTypes.contains(ResourceLookup.ResourceType.folder.toString())) {
+            if (resourceTypes != null &&
+                    resourceTypes.contains(ResourceLookup.ResourceType.folder.toString())) {
                 mAdapter.sortByType();
             }
             mAdapter.setNotifyOnChange(true);
@@ -368,7 +370,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
             // set refresh states
             setRefreshState(false);
-            emptyText.setVisibility((mAdapter.getCount() > 0) ? View.GONE : View.VISIBLE);
+            // If need we show 'empty' message
+            showEmptyText(emptyMessage);
         }
     }
 

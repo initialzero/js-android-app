@@ -70,10 +70,11 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
     private static final String REPORTS_QUERY = "Reports";
 
-    private ResourceLookupsList rootRepositories;
     private RepositoryPref_ repositoryPref;
+    private SmartMockedSpiceManager mMockedSpiceManager;
+
+    private ResourceLookupsList rootRepositories;
     private ResourceLookupsList levelRepositories;
-    private SmartMockedSpiceManager mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
     private ServerInfo serverInfo;
 
     public RepositoryPageTest() {
@@ -84,7 +85,9 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     protected void setUp() throws Exception {
         super.setUp();
 
+        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
+
         rootRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "root_repositories");
         levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
         serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");

@@ -44,6 +44,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.mockito.MockitoAnnotations;
 
@@ -83,6 +84,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     private ResourceLookup dashboardResource;
     private InputControlsList emptyInputControlsList;
     private InputControlsList fullInputControlsList;
+    private ServerInfo serverInfo;
 
     public LibraryPageTest() {
         super(LibraryActivity_.class);
@@ -98,6 +100,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
         reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
 
         reportResource = smallLookUp.getResourceLookups().get(REPORT_ITEM_POSITION);
         dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
@@ -108,6 +111,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         fullInputControlsList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
 
         mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(smallLookUp);
 
         registerTestModule(new TestModule());
@@ -157,8 +161,11 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     }
 
     public void testSwitcher() {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(smallLookUp);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(smallLookUp);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(smallLookUp);
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
@@ -186,17 +193,16 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(REPORT_ITEM_POSITION).perform(click());
-// TODO: needs further ivestigation of reasons it failing
-//        onViewDialogText(getActivity(), R.string.r_pd_running_report_msg)
-//                .check(matches(isDisplayed()));
 
         onView(withText(reportResource.getLabel())).check(matches(isDisplayed()));
         pressBack();
     }
 
     public void testActionModeAboutIcon() {
-        ResourceLookup resource = smallLookUp.getResourceLookups().get(0);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(smallLookUp);
+
+        ResourceLookup resource = smallLookUp.getResourceLookups().get(0);
         startActivityUnderTest();
 
         onData(is(instanceOf(ResourceLookup.class)))
@@ -210,6 +216,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     }
 
     public void testSearchInRepository() {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(smallLookUp);
         startActivityUnderTest();
 

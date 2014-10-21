@@ -24,7 +24,7 @@
 <resources>
 
     <!-- General -->
-    <string name="app_label">Tibco JasperMobile</string>
+    <string name="app_label">TIBCO JasperMobile</string>
     <!-- Action Bar -->
     <string name="ab_settings">Settings</string>
 
@@ -131,7 +131,7 @@
     <!-- Search Activity -->
     <string name="sa_show_about">About</string>
     <string name="sa_about_info">
-        Tibco Jaspersoft Mobile v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\nhttp://community.jaspersoft.com/project/jaspermobile-android\n\n© 2014 Tibco Jaspersoft Corp.
+        TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\nhttp://community.jaspersoft.com/project/jaspermobile-android\n\nCopyright © 2005-2014 TIBCO Software, Inc.
     </string>
     <!-- Resource Info Activity -->
     <string name="ri_title">Resource Info</string>

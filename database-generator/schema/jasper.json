@@ -1,7 +1,7 @@
 {
 	"packageName" : "com.jaspersoft.android.jaspermobile.db",
-	"providerName" : "jasper_mobile",
-	"databaseVersion" : 3,
+	"providerName" : "jasper_mobile_db",
+	"databaseVersion" : 2,
 	"tables" : [{
 			"name" : "server_profiles",
 			"members" : [{
@@ -19,19 +19,16 @@
 				}, {
 					"type" : "string",
 					"name" : "password"
-				}, {
-					"type" : "long",
-					"name" : "created_at"
-				}, {
-					"type" : "long",
-					"name" : "updated_at"
 				}
 			]
 		}, {
 			"name" : "favorites",
 			"members" : [{
 					"type" : "string",
-					"name" : "label"
+					"name" : "name"
+				}, {
+					"type" : "string",
+					"name" : "title"
 				}, {
 					"type" : "string",
 					"name" : "uri"
@@ -58,6 +55,9 @@
 					"type" : "string",
 					"name" : "value"
 				}, {
+					"type" : "boolean",
+					"name" : "is_list_item"
+				}, {
 					"type" : "string",
 					"name" : "username"
 				}, {
@@ -74,11 +74,13 @@
 			"name" : "server_profiles_favorites",
 			"left_table" : "server_profiles",
 			"right_table" : "favorites",
+			"foreign_key" : "server_profile_id", 
 			"type" : "to_many"
 		}, {
 			"name" : "server_profiles_report_opts",
 			"left_table" : "server_profiles",
 			"right_table" : "report_options",
+			"foreign_key" : "server_profile_id",
 			"type" : "to_many"
 		}
 	]

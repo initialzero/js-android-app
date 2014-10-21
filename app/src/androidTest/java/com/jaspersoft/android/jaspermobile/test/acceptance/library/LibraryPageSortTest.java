@@ -39,6 +39,7 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -63,7 +64,8 @@ import static org.mockito.Mockito.verify;
 public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryActivity_> {
 
     private final SmartMockedSpiceManager mMockedSpiceManager = spy(SmartMockedSpiceManager.getInstance());
-    private ResourceLookupsList allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
+    private ResourceLookupsList allLookUp;
+    private ServerInfo serverInfo;
 
     public LibraryPageSortTest() {
         super(LibraryActivity_.class);
@@ -72,6 +74,8 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
     }
@@ -86,6 +90,7 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
 
     private void verifySortBy(final SortOrder sortOrder, int menuLabelRes) {
         // We don`t need to listen initial load of page
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(allLookUp);
         // We will assert Search query whether it was setup correctly
         mMockedSpiceManager.addCachedResponse(new RequestExecutionAssertion(allLookUp) {

@@ -57,7 +57,7 @@ public class ResourceViewHelper {
     public static int getResourceIcon(ResourceLookup.ResourceType resourceType) {
         switch (resourceType) {
             case folder:
-                return R.drawable.sample_repo_grey;
+                return R.drawable.sample_repo_blue;
             case dashboard:
                 return R.drawable.sample_dashboard_blue;
             case reportUnit:

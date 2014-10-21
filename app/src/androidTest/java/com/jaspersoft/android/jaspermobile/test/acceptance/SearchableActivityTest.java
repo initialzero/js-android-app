@@ -45,6 +45,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 
 import org.mockito.Mock;
@@ -58,6 +59,7 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.TestResources.get;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static org.hamcrest.Matchers.is;
@@ -79,7 +81,9 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     private SmartMockedSpiceManager mMockedSpiceManager;
     private ResourceLookupsList reportsQueryResult;
     private ResourceLookupsList levelRepositories;
+    private ResourceLookupsList rootRepositories;
     private ReportExecutionResponse reportExecution;
+    private ServerInfo mockServerInfo;
 
     public SearchableActivityTest() {
         super(SearchableActivity_.class);
@@ -91,9 +95,11 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         MockitoAnnotations.initMocks(this);
 
         mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-        reportsQueryResult = TestResources.get().fromXML(ResourceLookupsList.class, "reports_query_result");
-        levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
-        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
+        reportsQueryResult = get().fromXML(ResourceLookupsList.class, "reports_query_result");
+        levelRepositories = get().fromXML(ResourceLookupsList.class, "level_repositories");
+        rootRepositories = get().fromXML(ResourceLookupsList.class, "root_repositories");
+        reportExecution = get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
+        mockServerInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
 
         registerTestModule(new TestModule());
         ContentResolver cr = getInstrumentation().getTargetContext().getContentResolver();
@@ -113,18 +119,24 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     }
 
     public void testReportClick() {
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
         mMockedSpiceManager.addCachedResponse(reportsQueryResult);
+
         mMockedSpiceManager.addNetworkResponse(new InputControlsList());
         mMockedSpiceManager.addNetworkResponse(reportExecution);
+
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
+        mMockedSpiceManager.addCachedResponse(reportsQueryResult);
         startActivityUnderTest();
 
-        onData(is(instanceOf(ResourceLookup.class)))
-                .inAdapterView(withId(android.R.id.list))
-                .atPosition(1).perform(click());
+
+        onView(withText("Employees")).perform(click());
+
         pressBack();
     }
 
     public void testDashboardClick() {
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
         mMockedSpiceManager.addCachedResponse(reportsQueryResult);
         startActivityUnderTest();
 
@@ -135,8 +147,11 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     }
 
     public void testFolderClick() {
-        mMockedSpiceManager.addCachedResponse(reportsQueryResult);
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
         mMockedSpiceManager.addCachedResponse(levelRepositories);
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
+        mMockedSpiceManager.addCachedResponse(rootRepositories);
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
         mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
         startActivityUnderTest();
 
@@ -159,7 +174,9 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     }
 
     public void testSearchResultsPersistedOnRotation() {
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
         mMockedSpiceManager.addCachedResponse(levelRepositories);
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
         mMockedSpiceManager.addCachedResponse(levelRepositories);
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
 
@@ -171,7 +188,9 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     }
 
     public void testSearchResultsWithNoResults() {
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
         mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
         mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
         startActivityUnderTest();
 

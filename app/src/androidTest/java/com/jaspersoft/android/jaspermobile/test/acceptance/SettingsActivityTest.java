@@ -99,7 +99,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onView(withId(R.id.showAbout)).perform(click());
 
         onOverflowView(getActivity(), withText(R.string.sa_show_about)).check(matches(isDisplayed()));
-        onOverflowView(getActivity(), withText(R.string.sa_about_info)).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withId(android.R.id.message)).check(matches(isDisplayed()));
     }
 
 }

@@ -53,7 +53,7 @@ import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFr
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -159,14 +159,12 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             Calendar calendar = Calendar.getInstance();
             if (mServerProfile == null) {
                 mServerProfile = new ServerProfiles();
-                mServerProfile.setCreatedAt(calendar.getTime().getTime());
             }
             mServerProfile.setAlias(alias);
             mServerProfile.setServerUrl(serverUrl);
             mServerProfile.setOrganization(organization);
             mServerProfile.setUsername(username);
             mServerProfile.setPassword(password);
-            mServerProfile.setUpdatedAt(calendar.getTime().getTime());
 
             getSupportLoaderManager().initLoader(QUERY_UNIQUENESS, null, this);
         }
@@ -232,7 +230,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             case LOAD_PROFILE:
                 selection = ServerProfilesTable._ID + " =?";
                 selectionArgs = new String[]{String.valueOf(profileId)};
-                return new CursorLoader(this, JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                return new CursorLoader(this, JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                         ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
             case QUERY_UNIQUENESS:
                 selection = ServerProfilesTable.ALIAS + " =?";
@@ -241,7 +239,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                     selection += " AND " + ServerProfilesTable._ID + " !=?";
                     selectionArgs = new String[]{alias, String.valueOf(profileId)};
                 }
-                return new CursorLoader(this, JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                return new CursorLoader(this, JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                         new String[]{ServerProfilesTable._ID}, selection, selectionArgs, null);
             default:
                 throw new UnsupportedOperationException();
@@ -420,13 +418,13 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                         .show();
             } else {
                 if (profileId == 0) {
-                    Uri uri = getContentResolver().insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+                    Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
                     profileId = Long.valueOf(uri.getLastPathSegment());
                     Toast.makeText(context, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
                 } else {
                     String selection = ServerProfilesTable._ID + " =?";
                     String[] selectionArgs = {String.valueOf(profileId)};
-                    getContentResolver().update(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                    getContentResolver().update(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                             mServerProfile.getContentValues(), selection, selectionArgs);
                     Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
                 }

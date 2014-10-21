@@ -31,7 +31,7 @@ import android.database.Cursor;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileProvider;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
@@ -88,7 +88,7 @@ public class ProfileHelper {
         String where = ServerProfilesTable._ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
         Cursor cursor = context.getContentResolver()
-                .query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+                .query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                         ServerProfilesTable.ALL_COLUMNS, where, selectionArgs, null);
 
         if (cursor != null) {
@@ -110,12 +110,11 @@ public class ProfileHelper {
 
     public void seedProfilesIfNeed() {
         ContentResolver contentResolver = context.getContentResolver();
-        Cursor cursor = contentResolver.query(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI,
+        Cursor cursor = contentResolver.query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                 new String[]{ServerProfilesTable._ID}, null, null, null);
         if (cursor != null) {
             try {
                 if (cursor.getCount() == 0) {
-                    Calendar calendar = Calendar.getInstance();
                     ServerProfiles testProfile = new ServerProfiles();
 
                     testProfile.setAlias(DEFAULT_ALIAS);
@@ -123,10 +122,8 @@ public class ProfileHelper {
                     testProfile.setOrganization(DEFAULT_ORGANIZATION);
                     testProfile.setUsername(DEFAULT_USERNAME);
                     testProfile.setPassword(DEFAULT_PASS);
-                    testProfile.setCreatedAt(calendar.getTime().getTime());
-                    testProfile.setUpdatedAt(calendar.getTime().getTime());
 
-                    contentResolver.insert(JasperMobileProvider.SERVER_PROFILES_CONTENT_URI, testProfile.getContentValues());
+                    contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, testProfile.getContentValues());
                 }
             } finally {
                 cursor.close();

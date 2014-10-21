@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.SpiceManager;
 
 import org.mockito.Mock;
@@ -71,6 +72,7 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
     private ResourceLookupsList smallLookUp;
     private ResourceLookupsList bigLookUp;
     private ResourceLookupsList emptyLookUp;
+    private ServerInfo serverInfo;
 
     public LibraryPageRefreshingTest() {
         super(LibraryActivity_.class);
@@ -83,6 +85,7 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
 
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
         bigLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
+        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
         emptyLookUp = new ResourceLookupsList();
 
         mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
@@ -100,7 +103,9 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
     }
 
     public void testPullToRefresh() throws InterruptedException {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(bigLookUp);
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(smallLookUp);
         startActivityUnderTest();
 
@@ -113,6 +118,7 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
     }
 
     public void testEmptyTextShouldBeInVisibleWhileContentExist() throws InterruptedException {
+        mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(emptyLookUp);
         startActivityUnderTest();
 

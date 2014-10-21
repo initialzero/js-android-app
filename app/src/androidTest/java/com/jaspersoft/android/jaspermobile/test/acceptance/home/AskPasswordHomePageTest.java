@@ -38,7 +38,6 @@ import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.exception.NetworkException;
@@ -77,6 +76,10 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
 
     private JsRestClient jsRestClient;
     private ServerInfo serverInfo;
+
+    private final HttpStatusCodeException statusCodeException = new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
+    private final NetworkException authorizationException = new NetworkException(statusCodeException);
+    private boolean throwError;
 
     public AskPasswordHomePageTest() {
         super(HomeActivity_.class);
@@ -148,7 +151,9 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
+        throwError = true;
         onView(withId(R.id.home_item_library)).perform(click());
+        throwError = false;
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
         onView(withId(getActionBarSubTitleId())).check(matches(withText(ProfileHelper.DEFAULT_ALIAS)));
@@ -158,19 +163,14 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
     }
 
     private class MockedSpiceManager extends JsSpiceManager {
-
-        public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
-                                final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-            if (request instanceof GetResourceLookupsRequest) {
-                HttpStatusCodeException statusCodeException = new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
-                NetworkException networkException = new NetworkException(statusCodeException);
-                requestListener.onRequestFailure(networkException);
-            }
-        }
-
+        @Override
         public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
             if (request instanceof GetServerInfoRequest) {
-                requestListener.onRequestSuccess((T) serverInfo);
+                if (throwError) {
+                    requestListener.onRequestFailure(authorizationException);
+                } else {
+                    requestListener.onRequestSuccess((T) serverInfo);
+                }
             }
         }
     }

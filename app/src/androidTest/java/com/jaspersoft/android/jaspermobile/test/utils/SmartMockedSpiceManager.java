@@ -38,6 +38,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
+import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.CachedSpiceRequest;
 import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -56,6 +57,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class SmartMockedSpiceManager extends JsSpiceManager {
 
+    private final ArrayDeque<SpiceException> errorsForCacheRequestQueue = Queues.newArrayDeque();
+    private final ArrayDeque<SpiceException> errorsForNetworkRequestQueue = Queues.newArrayDeque();
     private final ArrayDeque<Object> responsesForCacheRequestQueue = Queues.newArrayDeque();
     private final ArrayDeque<Object> responsesForNetworkRequestQueue = Queues.newArrayDeque();
     private final SmartSpiceServiceListener customSpiceServerListener;
@@ -103,6 +106,14 @@ public class SmartMockedSpiceManager extends JsSpiceManager {
         responsesForNetworkRequestQueue.add(responseForNetworkRequest);
     }
 
+    public void addErrorForNetworkCall(SpiceException sp) {
+        errorsForNetworkRequestQueue.add(sp);
+    }
+
+    public void addErrorForCachedCall(SpiceException sp) {
+        errorsForCacheRequestQueue.add(sp);
+    }
+
     public void clearNetworkResponses() {
         responsesForNetworkRequestQueue.clear();
     }
@@ -114,18 +125,19 @@ public class SmartMockedSpiceManager extends JsSpiceManager {
     @Override
     public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
                             final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-        if (!spiceListenerAdded) {
-            spiceListenerAdded = true;
-            addSpiceServiceListener(customSpiceServerListener);
-        }
+
         if (mOnlyMockBehavior) {
-            Object response = responsesForCacheRequestQueue.pollFirst();
-            if (response instanceof RequestExecutionAssertion) {
-                requestListener.onRequestSuccess((T) ((RequestExecutionAssertion) response).getResponse());
+            if (responsesForCacheRequestQueue.isEmpty()) {
+                Preconditions.checkState(!errorsForCacheRequestQueue.isEmpty());
+                handleError(requestListener, errorsForCacheRequestQueue);
             } else {
-                requestListener.onRequestSuccess((T) response);
+                handleResponse(requestListener, responsesForCacheRequestQueue);
             }
         } else {
+            if (!spiceListenerAdded) {
+                spiceListenerAdded = true;
+                addSpiceServiceListener(customSpiceServerListener);
+            }
             super.execute(request, requestCacheKey, cacheExpiryDuration, requestListener);
         }
     }
@@ -137,14 +149,31 @@ public class SmartMockedSpiceManager extends JsSpiceManager {
             addSpiceServiceListener(customSpiceServerListener);
         }
         if (mOnlyMockBehavior) {
-            Object response = responsesForNetworkRequestQueue.pollFirst();
-            if (response instanceof RequestExecutionAssertion) {
-                requestListener.onRequestSuccess((T) ((RequestExecutionAssertion) response).getResponse());
+            if (responsesForNetworkRequestQueue.isEmpty()) {
+                Preconditions.checkState(!errorsForNetworkRequestQueue.isEmpty());
+                handleError(requestListener, errorsForNetworkRequestQueue);
             } else {
-                requestListener.onRequestSuccess((T) response);
+                handleResponse(requestListener, responsesForNetworkRequestQueue);
             }
-        } else {
+         } else {
+            if (!spiceListenerAdded) {
+                spiceListenerAdded = true;
+                addSpiceServiceListener(customSpiceServerListener);
+            }
             super.execute(request, requestListener);
+        }
+    }
+
+    private <T> void handleError(RequestListener<T> requestListener, ArrayDeque<SpiceException> queue) {
+        requestListener.onRequestFailure(queue.pollFirst());
+    }
+
+    private <T> void handleResponse(RequestListener<T> requestListener, ArrayDeque<Object> queue) {
+        Object response = queue.pollFirst();
+        if (response instanceof RequestExecutionAssertion) {
+            requestListener.onRequestSuccess((T) ((RequestExecutionAssertion) response).getResponse());
+        } else {
+            requestListener.onRequestSuccess((T) response);
         }
     }
 

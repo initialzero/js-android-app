@@ -48,19 +48,19 @@ import android.widget.Toast;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
+import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.EActivity;
@@ -73,6 +73,7 @@ import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
+import org.springframework.http.HttpStatus;
 
 import java.util.Calendar;
 import java.util.List;
@@ -80,7 +81,8 @@ import java.util.Map;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @author Ivan Gadzhega
+ * @since 1.0
  */
 @EActivity(R.layout.server_create_form)
 @OptionsMenu(R.menu.profile_menu)
@@ -397,15 +399,31 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetServerInfoListener implements RequestListener<ServerInfo> {
-        @Override
-        public void onRequestFailure(SpiceException e) {
-            RequestExceptionHandler.handle(e, ServerProfileActivity.this, false);
-            saveAction.setActionView(null);
+    private class GetServerInfoListener extends CommonRequestListener<ServerInfo> {
+        GetServerInfoListener() {
+            super();
+            // We will handle this rule manually
+            removeRule(ExceptionRule.UNAUTHORIZED);
         }
 
         @Override
-        public void onRequestSuccess(ServerInfo serverInfo) {
+        public void onSemanticFailure(SpiceException spiceException) {
+            saveAction.setActionView(null);
+
+            HttpStatus statusCode = extractStatusCode(spiceException);
+            if (statusCode != null && statusCode == HttpStatus.UNAUTHORIZED) {
+                AlertDialogFragment
+                        .createBuilder(ServerProfileActivity.this, getSupportFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(R.string.error_msg)
+                        .setMessage(ExceptionRule.UNAUTHORIZED.getMessage())
+                        .setNegativeButtonText(android.R.string.ok)
+                        .show();
+            }
+        }
+
+        @Override
+        public void onSemanticSuccess(ServerInfo serverInfo) {
             saveAction.setActionView(null);
 
             Context context = ServerProfileActivity.this;
@@ -432,6 +450,11 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                 setOkResult();
                 finish();
             }
+        }
+
+        @Override
+        public Activity getCurrentActivity() {
+            return ServerProfileActivity.this;
         }
     }
 

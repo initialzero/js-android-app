@@ -28,14 +28,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
+import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.octo.android.robospice.exception.NetworkException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import java.util.EnumMap;
 
 import roboguice.util.Ln;
 
@@ -46,40 +50,44 @@ import roboguice.util.Ln;
 public class RequestExceptionHandler {
 
     public static void handle(Exception exception, Activity activity, boolean finishActivity) {
+        handle(exception, activity, ExceptionRule.all(), finishActivity);
+    }
+
+    public static void handle(Exception exception, Activity activity) {
+        handle(exception, activity, ExceptionRule.all(), false);
+    }
+
+    public static void handle(Exception exception, Activity activity,
+                              EnumMap<HttpStatus, ExceptionRule> rules,
+                              boolean finishActivity) {
+        HttpStatus statusCode = extractStatusCode(exception);
+        if (statusCode != null) {
+            if (rules.keySet().contains(statusCode)) {
+                ExceptionRule rule = rules.get(statusCode);
+                if (statusCode == HttpStatus.UNAUTHORIZED) {
+                    showAuthErrorDialog(rule.getMessage(), activity, finishActivity);
+                } else {
+                    showErrorDialog(rule.getMessage(), activity, finishActivity);
+                }
+            }
+        } else {
+            showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);
+        }
+        Ln.e(exception);
+    }
+
+    /**
+     * Extracts HttpStatus code otherwise returns null.
+     */
+    @Nullable
+    public static HttpStatus extractStatusCode(Exception exception) {
         if (exception instanceof NetworkException) {
             Throwable cause = exception.getCause();
             if (cause instanceof HttpStatusCodeException) {
-                HttpStatus statusCode = ((HttpStatusCodeException) cause).getStatusCode();
-                switch (statusCode) {
-                    case BAD_REQUEST:
-                        showErrorDialog(R.string.error_http_400, activity, finishActivity);
-                        return;
-                    case UNAUTHORIZED:
-                        showAuthErrorDialog(R.string.error_http_401, activity, finishActivity);
-                        return;
-                    case FORBIDDEN:
-                        showErrorDialog(R.string.error_http_403, activity, finishActivity);
-                        return;
-                    case NOT_FOUND:
-                        showErrorDialog(R.string.error_http_404, activity, finishActivity);
-                        return;
-                    case INTERNAL_SERVER_ERROR:
-                        showErrorDialog(R.string.error_http_500, activity, finishActivity);
-                        return;
-                    case BAD_GATEWAY:
-                        showErrorDialog(R.string.error_http_502, activity, finishActivity);
-                        return;
-                    case SERVICE_UNAVAILABLE:
-                        showErrorDialog(R.string.error_http_503, activity, finishActivity);
-                        return;
-                    case GATEWAY_TIMEOUT:
-                        showErrorDialog(R.string.error_http_504, activity, finishActivity);
-                        return;
-                }
+                return ((HttpStatusCodeException) cause).getStatusCode();
             }
         }
-        showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);
-        Ln.e(exception);
+        return null;
     }
 
     //---------------------------------------------------------------------
@@ -100,11 +108,11 @@ public class RequestExceptionHandler {
 
         // add a neutral button to the alert box and assign a click listener
         alertBox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                // click listener on the alert box
-                public void onClick(DialogInterface arg0, int arg1) {
+            // click listener on the alert box
+            public void onClick(DialogInterface arg0, int arg1) {
                 if (finishActivity) activity.finish();
             }
-            });
+        });
 
         alertBox.show();
     }
@@ -138,5 +146,5 @@ public class RequestExceptionHandler {
 
         alertBox.show();
     }
-    
+
 }

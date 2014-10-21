@@ -129,7 +129,6 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         mMockedSpiceManager.addCachedResponse(reportsQueryResult);
         startActivityUnderTest();
 
-
         onView(withText("Employees")).perform(click());
 
         pressBack();

@@ -88,7 +88,7 @@ android {
     }
 
     lintOptions {
-        checkReleaseBuilds false
+        lintConfig file("lint.xml")
     }
 
     applicationVariants.all { variant ->

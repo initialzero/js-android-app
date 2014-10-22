@@ -77,6 +77,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
@@ -368,7 +369,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         for (DateTimeFormatValidationRule validationRule : inputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
             format = validationRule.getFormat();
         }
-        DateFormat formatter = new SimpleDateFormat(format);
+        Locale current = getResources().getConfiguration().locale;
+        DateFormat formatter = new SimpleDateFormat(format, current);
 
         // set default value
         final Calendar startDate = Calendar.getInstance();

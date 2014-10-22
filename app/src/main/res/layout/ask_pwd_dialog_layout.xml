@@ -28,7 +28,7 @@
     style="@style/dialog.layout"
     android:orientation="vertical">
 
-    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <TableLayout
         style="@style/home.dialog.table.layout">
 
         <!-- Server Profile -->

@@ -52,6 +52,7 @@ import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
+import java.util.Locale;
 
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import roboguice.fragment.RoboFragment;
@@ -116,10 +117,11 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     private void openReportFile(File reportFile) {
+        Locale current = getResources().getConfiguration().locale;
         File reportOutputFile = new File(reportFile, reportFile.getName());
         String fileName = reportOutputFile.getName();
         String baseName = FileUtils.getBaseName(fileName);
-        String extension = FileUtils.getExtension(fileName).toLowerCase();
+        String extension = FileUtils.getExtension(fileName).toLowerCase(current);
         Uri reportOutputPath = Uri.fromFile(reportOutputFile);
 
         if ("HTML".equalsIgnoreCase(extension)) {

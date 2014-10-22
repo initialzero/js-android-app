@@ -43,6 +43,7 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
 import java.net.URI;
+import java.util.Locale;
 
 /**
  * @author Tom Koptel
@@ -170,7 +171,8 @@ public class PaginationFragment extends RoboSpiceFragment {
 
     private void loadPage() {
         if (webViewFragment != null) {
-            String exportOutput = String.format("%s;pages=%d", exportType, currentPage);
+            Locale current = getResources().getConfiguration().locale;
+            String exportOutput = String.format(current, "%s;pages=%d", exportType, currentPage);
             URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
 
             webViewFragment.loadUrl(reportUri.toString());

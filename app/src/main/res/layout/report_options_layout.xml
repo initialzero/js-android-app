@@ -27,15 +27,15 @@
     android:orientation="vertical"
     style="@style/reportOptions.layout" >
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    <ScrollView
         style="@style/reportOptions.scrollView" >
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:orientation="vertical"
             style="@style/reportOptions.container.layout" >
 
             <!-- Input Controls -->
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <LinearLayout
                 android:id="@+id/input_controls_layout"
                 android:orientation="vertical"
                 style="@style/reportOptions.container.inputControls.layout"

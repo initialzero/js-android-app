@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Ivan Gadzhega
@@ -157,7 +158,8 @@ class DatePickerDialogHelper {
             for (DateTimeFormatValidationRule validationRule : activeInputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
                 format = validationRule.getFormat();
             }
-            DateFormat formatter = new SimpleDateFormat(format);
+            Locale current = activity.getResources().getConfiguration().locale;
+            DateFormat formatter = new SimpleDateFormat(format, current);
             String date = formatter.format(activeDate.getTime()) ;
             activeDateDisplay.setText(date);
         }

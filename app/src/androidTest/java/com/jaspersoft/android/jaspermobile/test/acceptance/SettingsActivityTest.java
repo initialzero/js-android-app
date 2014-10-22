@@ -85,7 +85,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
 
     public void testConnectionCacheExpirationShouldNotAcceptIncorrectInteger() {
         startActivityUnderTest();
-        onView(withText(R.string.st_title_cache_expiration)).perform(click());
+        onView(withId(R.id.cacheExpiration)).perform(click());
         onOverflowView(getActivity(), withId(android.R.id.edit)).perform(typeText("214748364799"));
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));

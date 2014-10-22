@@ -102,10 +102,10 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         mockServerInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
 
         registerTestModule(new TestModule());
-        ContentResolver cr = getInstrumentation().getTargetContext().getContentResolver();
+        Application application = (Application) getInstrumentation().getTargetContext().getApplicationContext();
+        ContentResolver cr = application.getContentResolver();
         DatabaseUtils.deleteAllProfiles(cr);
 
-        Application application = (Application) getInstrumentation().getTargetContext().getApplicationContext();
         ProfileHelper profileHelper = ProfileHelper_.getInstance_(application);
         profileHelper.setCurrentServerProfile(DatabaseUtils.createDefaultProfile(cr));
 
@@ -114,6 +114,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
 
     @Override
     protected void tearDown() throws Exception {
+        getActivity().finish();
         unregisterTestModule();
         super.tearDown();
     }
@@ -142,7 +143,6 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(2).perform(click());
-        pressBack();
     }
 
     public void testFolderClick() {

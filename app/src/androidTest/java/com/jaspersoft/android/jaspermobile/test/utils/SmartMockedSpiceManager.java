@@ -125,12 +125,12 @@ public class SmartMockedSpiceManager extends JsSpiceManager {
     @Override
     public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
                             final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-
         if (mOnlyMockBehavior) {
             if (responsesForCacheRequestQueue.isEmpty()) {
                 Preconditions.checkState(!errorsForCacheRequestQueue.isEmpty());
                 handleError(requestListener, errorsForCacheRequestQueue);
             } else {
+                Preconditions.checkState(!responsesForCacheRequestQueue.isEmpty());
                 handleResponse(requestListener, responsesForCacheRequestQueue);
             }
         } else {
@@ -144,15 +144,12 @@ public class SmartMockedSpiceManager extends JsSpiceManager {
 
     @Override
     public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-        if (!spiceListenerAdded) {
-            spiceListenerAdded = true;
-            addSpiceServiceListener(customSpiceServerListener);
-        }
         if (mOnlyMockBehavior) {
             if (responsesForNetworkRequestQueue.isEmpty()) {
                 Preconditions.checkState(!errorsForNetworkRequestQueue.isEmpty());
                 handleError(requestListener, errorsForNetworkRequestQueue);
             } else {
+                Preconditions.checkState(!responsesForNetworkRequestQueue.isEmpty());
                 handleResponse(requestListener, responsesForNetworkRequestQueue);
             }
          } else {

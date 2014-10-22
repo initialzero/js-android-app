@@ -48,6 +48,7 @@ import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsAc
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_REPO_CACHE_EXPIRATION;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_SEND_CRASHES;
 
 /**
  * @author Tom Koptel
@@ -57,6 +58,7 @@ import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsAc
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private SharedPreferences sharedPreferences;
     private SwitchPreference animEnabledPref;
+    private SwitchPreference sendCrashesPref;
     private EditTextPreference repoCacheExpirationPref;
     private EditTextPreference connectTimeoutPref;
     private EditTextPreference readTimeoutPref;
@@ -88,12 +90,14 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
         readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
         animEnabledPref = (SwitchPreference) getPreferenceScreen().findPreference(KEY_PREF_ANIMATION_ENABLED);
+        sendCrashesPref = (SwitchPreference) getPreferenceScreen().findPreference(KEY_PREF_SEND_CRASHES);
 
         // init summaries for all preferences
         updatePreferenceSummary(KEY_PREF_REPO_CACHE_EXPIRATION);
         updatePreferenceSummary(KEY_PREF_CONNECT_TIMEOUT);
         updatePreferenceSummary(KEY_PREF_READ_TIMEOUT);
         updatePreferenceSummary(KEY_PREF_ANIMATION_ENABLED);
+        updatePreferenceSummary(KEY_PREF_SEND_CRASHES);
     }
 
     @Override
@@ -173,6 +177,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         } else if (key.equals(KEY_PREF_ANIMATION_ENABLED)) {
             boolean animationsEnabled = sharedPreferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
             animEnabledPref.setChecked(animationsEnabled);
+        } else if (key.equals(KEY_PREF_SEND_CRASHES)) {
+            boolean sendCrashReports = sharedPreferences.getBoolean(KEY_PREF_SEND_CRASHES, true);
+            sendCrashesPref.setChecked(sendCrashReports);
         }
     }
 

@@ -72,4 +72,10 @@
         android:defaultValue="true"
         />
 
+    <SwitchPreference
+        android:key="pref_crash_reports"
+        android:title="@string/st_send_crashes"
+        android:defaultValue="true"
+        />
+
 </PreferenceScreen>

@@ -203,6 +203,7 @@
     <string name="st_title_connect_timeout">Connection timeout</string>
     <string name="st_title_read_timeout">Data read timeout</string>
     <string name="st_title_animations">Application animations</string>
+    <string name="st_send_crashes">Send crash reports</string>
     <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>

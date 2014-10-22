@@ -50,29 +50,44 @@ android {
         testInstrumentationRunner INSTRUMENTATION_RUNNER
     }
 
-    if (project.hasProperty('JMA_STORE_FILE')) {
-        signingConfigs {
-            release {
-                storeFile file(JMA_STORE_FILE)
-                storePassword JMA_STORE_PASSWORD
-                keyAlias JMA_KEY_ALIAS
-                keyPassword JMA_KEY_PASSWORD
-            }
-        }
+//    if (project.hasProperty('JMA_STORE_FILE')) {
+//        signingConfigs {
+//            release {
+//                storeFile file(JMA_STORE_FILE)
+//                storePassword JMA_STORE_PASSWORD
+//                keyAlias JMA_KEY_ALIAS
+//                keyPassword JMA_KEY_PASSWORD
+//            }
+//        }
+//
+//        buildTypes {
+//            release {
+//                runProguard true
+//                proguardFile "proguard.cfg"
+//                proguardFile getDefaultProguardFile('proguard-android.txt')
+//                signingConfig signingConfigs.release
+//            }
+//        }
+//    }
 
-        buildTypes {
-            release {
-                runProguard true
-                proguardFile "proguard.cfg"
-                proguardFile getDefaultProguardFile('proguard-android.txt')
-                signingConfig signingConfigs.release
-            }
+    signingConfigs {
+        release {
+            storeFile file("../jaspersoft_test.jks")
+            storePassword "123456"
+            keyAlias "test"
+            keyPassword "123456"
         }
     }
 
     buildTypes {
         debug {
             testCoverageEnabled = false
+        }
+        release {
+            runProguard true
+            proguardFile "proguard.cfg"
+            proguardFile getDefaultProguardFile('proguard-android.txt')
+            signingConfig signingConfigs.release
         }
     }
 
@@ -142,6 +157,9 @@ dependencies {
     compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'
     // For homogeneous design on all platforms
     compile 'com.negusoft.holoaccent:library:1.0.1'
+
+    // Splunk Mint(Bugsense)
+    compile "com.splunk.mint:mint:4.0.3"
 
     androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
         exclude group: 'com.google.guava'

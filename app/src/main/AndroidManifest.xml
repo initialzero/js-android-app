@@ -60,14 +60,6 @@
             android:name=".activities.profile.ServersManagerActivity_"
             android:label="@string/h_ab_servers" />
 
-        <!-- Activity that performs repository browsing -->
-        <activity android:name=".activities.repository.BrowserActivity">
-            <!-- enable the search dialog to send searches to SearchActivity -->
-            <meta-data
-                android:name="android.app.default_searchable"
-                android:value=".activities.repository.SearchActivity" />
-        </activity>
-
         <!--Activity that performs library view -->
         <activity
             android:name=".activities.repository.LibraryActivity_"

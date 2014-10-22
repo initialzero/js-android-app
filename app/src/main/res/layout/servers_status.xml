@@ -42,6 +42,10 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/profile_title_txt"
         tools:text="Server: JRS Pro Test" />
-
+    <Button
+        android:id="@+id/crash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="C"/>
 </FrameLayout>
 

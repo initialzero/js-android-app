@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import android.content.res.Resources;
 
+import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.negusoft.holoaccent.AccentHelper;
 import com.negusoft.holoaccent.AccentResources;
 
@@ -85,6 +86,18 @@ public class RoboAccentPreferenceActivity extends RoboPreferenceActivity {
      */
     public void onInitAccentResources(AccentResources resources) {
         // To be overriden in child classes.
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        BugSenseWrapper.startSession(this);
+    }
+
+    @Override
+    protected void onStop() {
+        BugSenseWrapper.closeSession(this);
+        super.onStop();
     }
 
     private class MyInitListener implements AccentHelper.OnInitListener {

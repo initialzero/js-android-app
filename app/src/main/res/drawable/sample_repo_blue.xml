@@ -27,7 +27,7 @@
 
     <item android:drawable="@drawable/js_blue_gradient" />
     <item>
-        <bitmap android:gravity="center" android:src="@drawable/ic_home_repository" />
+        <bitmap android:gravity="center" android:src="@drawable/ic_repository" />
     </item>
 
 </layer-list>

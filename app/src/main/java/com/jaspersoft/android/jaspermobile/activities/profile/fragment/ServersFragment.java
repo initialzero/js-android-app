@@ -66,7 +66,7 @@ import roboguice.inject.InjectView;
  * @since 1.9
  */
 @EFragment
-public class    ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+public class ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, ISimpleDialogListener, ServersAdapter.ServersInteractionListener {
     public static final String EXTRA_SERVER_PROFILE_ID = "ServersFragment.EXTRA_SERVER_PROFILE_ID";
 
@@ -167,12 +167,12 @@ public class    ServersFragment extends RoboFragment implements LoaderManager.Lo
         if (columnIndex == cursor.getColumnIndex(ServerProfilesTable._ID)) {
             ImageView imageView = (ImageView) view;
             if (mServerProfile == null) {
-                imageView.setImageResource(R.drawable.ic_composed_config_home);
+                imageView.setImageResource(R.drawable.ic_composed_server);
             } else {
                 long entryId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
 
                 imageView.setImageResource((mServerProfileId == entryId) ?
-                        R.drawable.ic_composed_active_server : R.drawable.ic_composed_config_home);
+                        R.drawable.ic_composed_active_server : R.drawable.ic_composed_server);
             }
             return true;
         }

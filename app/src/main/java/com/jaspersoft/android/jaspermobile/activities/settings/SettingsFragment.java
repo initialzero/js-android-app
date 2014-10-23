@@ -24,8 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.settings;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
@@ -33,11 +37,14 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
+import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.SystemService;
 
 import roboguice.RoboGuice;
 
@@ -48,6 +55,7 @@ import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsAc
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_REPO_CACHE_EXPIRATION;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_SEND_CRASHES;
 
 /**
  * @author Tom Koptel
@@ -55,8 +63,10 @@ import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsAc
  */
 @EFragment
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private static final int PENDING_INTENT_ID = 123456;
     private SharedPreferences sharedPreferences;
     private SwitchPreference animEnabledPref;
+    private SwitchPreference sendCrashesPref;
     private EditTextPreference repoCacheExpirationPref;
     private EditTextPreference connectTimeoutPref;
     private EditTextPreference readTimeoutPref;
@@ -65,6 +75,16 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     private JsRestClient mJsRestClient;
     @Bean
     protected DefaultPrefHelper prefHelper;
+    @SystemService
+    protected AlarmManager alarmManager;
+
+    private final Handler mHandler = new Handler();
+    private final Runnable restartAppTask = new Runnable() {
+        @Override
+        public void run() {
+            restartApp();
+        }
+    };
     //---------------------------------------------------------------------
     // Public methods
     //---------------------------------------------------------------------
@@ -88,12 +108,14 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
         readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
         animEnabledPref = (SwitchPreference) getPreferenceScreen().findPreference(KEY_PREF_ANIMATION_ENABLED);
+        sendCrashesPref = (SwitchPreference) getPreferenceScreen().findPreference(KEY_PREF_SEND_CRASHES);
 
         // init summaries for all preferences
         updatePreferenceSummary(KEY_PREF_REPO_CACHE_EXPIRATION);
         updatePreferenceSummary(KEY_PREF_CONNECT_TIMEOUT);
         updatePreferenceSummary(KEY_PREF_READ_TIMEOUT);
         updatePreferenceSummary(KEY_PREF_ANIMATION_ENABLED);
+        updatePreferenceSummary(KEY_PREF_SEND_CRASHES);
     }
 
     @Override
@@ -108,6 +130,12 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         super.onPause();
         // Unregister the listener whenever a key changes
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onStop() {
+        mHandler.removeCallbacks(restartAppTask);
+        super.onStop();
     }
 
     //---------------------------------------------------------------------
@@ -173,7 +201,18 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         } else if (key.equals(KEY_PREF_ANIMATION_ENABLED)) {
             boolean animationsEnabled = sharedPreferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
             animEnabledPref.setChecked(animationsEnabled);
+        } else if (key.equals(KEY_PREF_SEND_CRASHES)) {
+            boolean sendCrashReports = sharedPreferences.getBoolean(KEY_PREF_SEND_CRASHES, true);
+            sendCrashesPref.setChecked(sendCrashReports);
         }
+    }
+
+    private void restartApp() {
+        Intent mStartActivity = HomeActivity_.intent(getActivity()).get();
+        PendingIntent mPendingIntent = PendingIntent.getActivity(getActivity(),
+                PENDING_INTENT_ID, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+        System.exit(0);
     }
 
     private void updateDependentObjects(String key) {
@@ -198,6 +237,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                         .apply();
                 throw ex;
             }
+        }
+        if (key.equals(KEY_PREF_SEND_CRASHES)) {
+            if (!sendCrashesPref.isChecked())
+                BugSenseWrapper.closeSession(getActivity());
+            mHandler.postDelayed(restartAppTask, 500);
         }
     }
 

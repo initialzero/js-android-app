@@ -67,6 +67,16 @@ public class DefaultPrefHelper {
         return preferences.getBoolean(SettingsActivity.KEY_PREF_ANIMATION_ENABLED, value);
     }
 
+    public boolean sendCrashReports() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(SettingsActivity.KEY_PREF_SEND_CRASHES, true);
+    }
+
+    public boolean setSendCrashReports(boolean value) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(SettingsActivity.KEY_PREF_SEND_CRASHES, value);
+    }
+
     public long getRepoCacheExpirationValue() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean repoCacheEnabled = preferences.getBoolean(

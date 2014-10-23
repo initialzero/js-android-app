@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
@@ -41,7 +42,6 @@ import org.androidannotations.annotations.OptionsMenu;
 import java.io.File;
 
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
-import roboguice.activity.RoboFragmentActivity;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -52,7 +52,7 @@ import roboguice.activity.RoboFragmentActivity;
 
 @EActivity
 @OptionsMenu(R.menu.saved_report)
-public class SavedReportHtmlViewerActivity extends RoboFragmentActivity
+public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
         implements WebViewFragment.OnWebViewCreated, ISimpleDialogListener {
 
     @Extra

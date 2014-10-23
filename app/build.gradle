@@ -50,34 +50,26 @@ android {
         testInstrumentationRunner INSTRUMENTATION_RUNNER
     }
 
-//    if (project.hasProperty('JMA_STORE_FILE')) {
-//        signingConfigs {
-//            release {
-//                storeFile file(JMA_STORE_FILE)
-//                storePassword JMA_STORE_PASSWORD
-//                keyAlias JMA_KEY_ALIAS
-//                keyPassword JMA_KEY_PASSWORD
-//            }
-//        }
-//
-//        buildTypes {
-//            release {
-//                runProguard true
-//                proguardFile "proguard.cfg"
-//                proguardFile getDefaultProguardFile('proguard-android.txt')
-//                signingConfig signingConfigs.release
-//            }
-//        }
-//    }
+    if (project.hasProperty('JMA_STORE_FILE')) {
+        signingConfigs {
+            release {
+                storeFile file(JMA_STORE_FILE)
+                storePassword JMA_STORE_PASSWORD
+                keyAlias JMA_KEY_ALIAS
+                keyPassword JMA_KEY_PASSWORD
+            }
+        }
 
-    signingConfigs {
-        release {
-            storeFile file("../jaspersoft_test.jks")
-            storePassword "123456"
-            keyAlias "test"
-            keyPassword "123456"
+        buildTypes {
+            release {
+                runProguard true
+                proguardFile "proguard.cfg"
+                proguardFile getDefaultProguardFile('proguard-android.txt')
+                signingConfig signingConfigs.release
+            }
         }
     }
+
 
     buildTypes {
         debug {

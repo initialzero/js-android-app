@@ -36,9 +36,11 @@ import com.splunk.mint.Mint;
  */
 public class BugSenseWrapper {
 
-    public static void initAndStartSession(Context context, String apiKey) {
+    private static final String API_KEY = "b1a1b0d2";
+
+    public static void initAndStartSession(Context context) {
         if (sendReport(context)) {
-            Mint.initAndStartSession(context, apiKey);
+            Mint.initAndStartSession(context, API_KEY);
         }
     }
 
@@ -49,9 +51,7 @@ public class BugSenseWrapper {
     }
 
     public static void closeSession(Context context) {
-        if (sendReport(context)) {
-            Mint.closeSession(context);
-        }
+        Mint.closeSession(context);
     }
 
     private static boolean sendReport(Context context) {

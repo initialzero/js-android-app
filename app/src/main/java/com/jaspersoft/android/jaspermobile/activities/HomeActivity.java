@@ -34,7 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -131,13 +130,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         boolean result = super.onCreateOptionsMenu(menu);
         View actionView = serverProfileMenuItem.getActionView();
         mProfileNameText = (TextView) actionView.findViewById(R.id.profile_name);
-        Button crashButton = (Button) actionView.findViewById(R.id.crash);
-        crashButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int i = 9/0;
-            }
-        });
         reloadProfileNameView();
         return result;
     }

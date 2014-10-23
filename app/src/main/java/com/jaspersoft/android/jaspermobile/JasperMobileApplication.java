@@ -46,7 +46,6 @@ import java.net.CookiePolicy;
  */
 @EApplication
 public class JasperMobileApplication extends Application {
-    private static final String API_KEY = "b1a1b0d2";
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
 
     @Bean
@@ -58,7 +57,6 @@ public class JasperMobileApplication extends Application {
         syncCookies();
         profileHelper.initJsRestClient();
         profileHelper.seedProfilesIfNeed();
-        BugSenseWrapper.initAndStartSession(this, API_KEY);
     }
 
     /**

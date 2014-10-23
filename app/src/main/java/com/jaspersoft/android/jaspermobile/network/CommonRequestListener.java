@@ -39,7 +39,7 @@ public abstract class CommonRequestListener<T> extends SimpleRequestListener<T> 
 
     @Override
     public final void onRequestFailure(SpiceException spiceException) {
-        RequestExceptionHandler.handle(spiceException, getCurrentActivity());
+        RequestExceptionHandler.handle(spiceException, getCurrentActivity(), rules);
         onSemanticFailure(spiceException);
     }
 

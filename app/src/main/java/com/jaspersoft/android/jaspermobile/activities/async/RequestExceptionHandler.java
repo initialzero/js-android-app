@@ -58,6 +58,11 @@ public class RequestExceptionHandler {
     }
 
     public static void handle(Exception exception, Activity activity,
+                              EnumMap<HttpStatus, ExceptionRule> rules) {
+        handle(exception, activity, rules, false);
+    }
+
+    public static void handle(Exception exception, Activity activity,
                               EnumMap<HttpStatus, ExceptionRule> rules,
                               boolean finishActivity) {
         HttpStatus statusCode = extractStatusCode(exception);

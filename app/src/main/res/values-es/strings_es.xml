@@ -27,17 +27,9 @@
 
     <!-- Home Activity -->
     <string name="h_repository_label">Repositorio</string>
-    <string name="h_repository_descr">Examinar y ver artículos del repositorio</string>
     <string name="h_library_label">Biblioteca</string>
-    <string name="h_library_descr">Lista de todos los informes</string>
-    <string name="h_search_label">Buscar</string>
-    <string name="h_search_descr">Buscar artículos en el repositorio</string>
-    <string name="h_favorites_label">Favoritos</string>
-    <string name="h_favorites_descr">Examinar y ver artículos favoritos</string>
     <string name="h_server_profile_label">"Perfil del servidor: "</string>
     <string name="h_server_switched_toast">El servidor ha cambiado a \"%s\"</string>
-    <!-- Action Bar -->
-    <string name="h_ab_servers">Servidores</string>
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">Sin conexión</string>
     <string name="h_ad_msg_no_connection">Compruebe la configuración de red del móvil y vuelva a intentarlo.</string>
@@ -90,43 +82,19 @@
     <string name="r_browser_nothing_to_display">No hay recursos en esta carpeta.</string>
     <string name="r_search_nothing_to_display">La búsqueda no ha producido resultados.</string>
     <!-- Action Bar -->
-    <string name="r_ab_favorites">Favoritos</string>
     <string name="r_ab_search">Buscar</string>
     <string name="r_ab_refresh">Actualizar</string>
     <!-- Context Menu -->
-    <string name="r_cm_open">Abrir</string>
-    <string name="r_cm_run">Ejecutar</string>
     <string name="r_cm_view_details">Ver detalles</string>
     <string name="r_cm_add_to_favorites">Añadir a favoritos</string>
     <string name="r_cm_remove_from_favorites">Eliminar desde favoritos</string>
 
 
     <!-- Search Activity -->
-    <string name="s_title">Resultados de la búsqueda</string>
     <string name="s_hint">Recursos de la búsqueda</string>
 
-
-    <!-- Resource Info Activity -->
-    <string name="ri_title">Información de recurso</string>
-    <string name="ri_properties">Propiedades de recurso:</string>
-    <string name="ri_name">Nombre:</string>
-    <string name="ri_label">Etiqueta:</string>
-    <string name="ri_description">Descripción:</string>
-    <string name="ri_type">Tipo:</string>
-
-
     <!-- Report Options Activity -->
-    <string name="ro_output_format_label">Formato de salida del informe:</string>
     <string name="ro_run_report_btn">Ejecutar informe</string>
-    <!-- Notifications -->
-    <string name="ro_no_app_available_toast">No se ha instalado ningún visor de \"%s\".</string>
-    <!-- Progress Dialog -->
-    <string name="ro_pd_loading_report_info_msg">Cargando informe…</string>
-    <string name="ro_pd_running_report_msg">Ejecutando informe…</string>
-    <string name="ro_pd_downloading_report_msg">Descargando informe…</string>
-    <!-- Error messages -->
-    <string name="ro_error_field_is_mandatory">Este campo es obligatorio.</string>
-
 
     <!-- Favorites activity -->
     <string name="f_title">Favoritos</string>

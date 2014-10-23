@@ -24,6 +24,5 @@
 -->
 
 <resources>
-    <bool name="phone">true</bool>
     <bool name="tablet">false</bool>
 </resources>

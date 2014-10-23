@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -193,6 +194,7 @@ public class WebViewFragment extends RoboFragment {
         });
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void prepareWebView() {
         // disable hardware acceleration
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){

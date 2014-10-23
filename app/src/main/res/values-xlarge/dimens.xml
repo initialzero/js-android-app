@@ -28,8 +28,6 @@
     <dimen name="abs__action_button_min_width">64dip</dimen>
 
     <dimen name="card_body_padding">16dp</dimen>
-    <dimen name="home_card_title">22sp</dimen>
-    <dimen name="home_card_subtitle">12sp</dimen>
 
     <dimen name="grid_item_size">250dp</dimen>
     <dimen name="list_item_height">120dp</dimen>

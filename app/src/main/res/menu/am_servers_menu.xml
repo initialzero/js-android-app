@@ -38,5 +38,5 @@
         android:id="@+id/deleteItem"
         android:showAsAction="ifRoom"
         android:icon="@drawable/ic_resource_delete"
-        android:title="@string/sdr_cm_delete" />
+        android:title="@string/spm_cm_delete" />
 </menu>

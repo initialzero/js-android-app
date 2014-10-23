@@ -28,7 +28,7 @@
         android:id="@+id/showAction"
         android:showAsAction="always"
         android:icon="@drawable/ic_action_about"
-        android:title="@string/r_cm_show_resource_info" />
+        android:title="@string/r_cm_view_details" />
     <item
         android:id="@+id/renameItem"
         android:showAsAction="ifRoom"

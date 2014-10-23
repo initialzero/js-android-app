@@ -25,24 +25,11 @@
 
 <resources>
 
-    <!-- Action Bar -->
-    <string name="ab_settings">Настройки</string>
-
     <!-- Home Activity -->
     <string name="h_repository_label">Репозиторий</string>
-    <string name="h_repository_descr">Просмотр элементов репозитория.</string>
     <string name="h_library_label">Библиотека</string>
-    <string name="h_library_descr">Список всех отчетов.</string>
-    <string name="h_search_label">Поиск</string>
-    <string name="h_search_descr">Поиск ресурсов в вашем репозитории.</string>
-    <string name="h_favorites_label">Избранное</string>
-    <string name="h_favorites_descr">Просмотр избранных элементов.</string>
-    <string name="h_saved_reports_label">Сохраненные отчеты</string>
-    <string name="h_saved_reports_descr">Список всех сохраненных отчетов</string>
     <string name="h_server_profile_label">"Профиль Сервера: "</string>
     <string name="h_server_switched_toast">Сервер был изменен на \"%s\".</string>
-    <!-- Action Bar -->
-    <string name="h_ab_servers">Серверы</string>
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">Нет соединения</string>
     <string name="h_ad_msg_no_connection">Проверьте настройки вашей мобильной сети и попробуйте еще раз.</string>
@@ -90,12 +77,9 @@
     <string name="r_browser_nothing_to_display">В этой папке нет ресурсов.</string>
     <string name="r_search_nothing_to_display">Ничего не найдено.</string>
     <!-- Action Bar -->
-    <string name="r_ab_favorites">Избранное</string>
     <string name="r_ab_search">Поиск</string>
     <string name="r_ab_refresh">Обновить</string>
     <!-- Context Menu -->
-    <string name="r_cm_open">Открыть</string>
-    <string name="r_cm_run">Выполнить</string>
     <string name="r_cm_view_details">Информация</string>
     <string name="r_cm_add_to_favorites">Добавить в избранное</string>
     <string name="r_cm_remove_from_favorites">Удалить из избранного</string>
@@ -106,22 +90,11 @@
 
 
     <!-- Search Activity -->
-    <string name="s_title">Результаты Поиска</string>
     <string name="s_hint">Поиск ресурсов</string>
     <!-- Action Bar -->
     <string name="s_ab_filter_by">Сортировка</string>
     <!-- Filter Dialog -->
-    <string name="s_fd_filter_by">Сортировка</string>
     <string name="s_fd_option_all">Все</string>
-
-
-    <!-- Resource Info Activity -->
-    <string name="ri_title">Информация о ресурсе</string>
-    <string name="ri_properties">Свойства Ресурса:</string>
-    <string name="ri_name">Имя:</string>
-    <string name="ri_label">Название:</string>
-    <string name="ri_description">Описание:</string>
-    <string name="ri_type">Тип:</string>
 
 
     <!-- Report Options Activity -->
@@ -132,13 +105,11 @@
     <string name="rv_ab_save_report">Сохранить Отчет</string>
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">Внешняя карта памяти недоступна. Пожалуйста, вставьте карту и попробуйте еще раз.</string>
-    <string name="rv_t_report_saving_not_supported">Этот функционал доступен только для JasperReports Server 5.2 и выше.</string>
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">Сохранить Отчет</string>
     <string name="sr_report_name">Имя Отчета</string>
     <string name="sr_output_format">Формат вывода</string>
-    <string name="sr_save_report_btn">Сохранить</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">Отчет успешно сохранен.</string>
     <!-- Error messages -->
@@ -154,7 +125,6 @@
     <!-- Saved Reports Activity -->
     <string name="sdr_ab_title">Сохраненные отчеты</string>
     <!-- Context Menu -->
-    <string name="sdr_cm_open">Открыть</string>
     <string name="sdr_cm_rename">Переименовать</string>
     <string name="sdr_cm_delete">Удалить</string>
     <!-- Rename Report Dialog -->

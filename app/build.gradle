@@ -94,8 +94,12 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
+//    lintOptions {
+//        lintConfig file("lint.xml")
+//    }
+
     lintOptions {
-        lintConfig file("lint.xml")
+        checkReleaseBuilds false
     }
 
     applicationVariants.all { variant ->

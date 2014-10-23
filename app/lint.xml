@@ -35,4 +35,7 @@
     <issue id="UnusedResources">
         <ignore path="src/main/res/values/roboguice.xml" />
     </issue>
+    <issue id="MissingTranslation">
+        <ignore path="src/main/res/values/roboguice.xml" />
+    </issue>
 </lint>

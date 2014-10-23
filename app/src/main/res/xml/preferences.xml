@@ -64,7 +64,7 @@
     />
 
     <PreferenceCategory
-        android:title="@string/st_category_general"
+        android:title="@string/sp_label_general"
         />
 
     <SwitchPreference

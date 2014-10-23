@@ -48,7 +48,7 @@
             android:id="@+id/home_item_saved_reports"
             style="@style/home.card.box"
             auto:body_subtitle="@string/saved_items_card_desc"
-            auto:body_title="@string/saved_items_card_label"
+            auto:body_title="@string/sdr_ab_title"
             auto:header_background="@drawable/ic_composed_saved_items_home" />
 
     </TableRow>

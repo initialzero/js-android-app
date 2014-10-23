@@ -26,5 +26,5 @@
 <Switch xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ic_switch"
     style="@style/reportOptions.switch"
-    android:textOn="@string/ro_switch_text_on"
-    android:textOff="@string/ro_switch_text_off"/>
+    android:textOn="@android:string/yes"
+    android:textOff="@android:string/no"/>

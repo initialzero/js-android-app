@@ -23,8 +23,12 @@
 -->
 <resources>
 
-    <!-- General -->
-    <string name="app_label">TIBCO JasperMobile</string>
+    <!--General-->
+    <string name="app_label" translatable="false">TIBCO JasperMobile</string>
+    <!-- Images content description -->
+    <string name="img_cd_list_item" translatable="false">List item preview</string>
+    <string name="img_cd_grid_item" translatable="false">Grid item preview</string>
+
 
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
@@ -87,7 +91,7 @@
     <string name="sp_error_field_required">This field is required.</string>
     <string name="sp_error_url_not_valid">URL is not valid.</string>
     <string name="sp_error_duplicate_alias">Duplicate alias.</string>
-    <string name="sp_error_unique_alias">Couldn`t create server with such alias \'%s\' exists.</string>
+    <string name="sp_error_unique_alias">Server with such alias \'%s\' already exists. </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">There are no resources in this folder.</string>
@@ -118,7 +122,6 @@
     <string name="s_ab_sort_by">Sort by</string>
 
     <!-- Filter Dialog -->
-    <string name="s_fd_sort_by">Sort by</string>
     <string name="s_fd_option_all">All</string>
     <string name="s_fd_option_reports">Reports</string>
     <string name="s_fd_option_dashboards">Dashboards</string>
@@ -127,14 +130,12 @@
 
     <!-- Search Activity -->
     <string name="sa_show_about">About</string>
-    <string name="sa_about_info">
+    <string name="sa_about_info" translatable="false">
         TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\nhttp://community.jaspersoft.com/project/jaspermobile-android\n\nCopyright © 2005-2014 TIBCO Software, Inc.
     </string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
-    <string name="ro_switch_text_on">YES</string>
-    <string name="ro_switch_text_off">NO</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
@@ -186,7 +187,6 @@
     <string name="st_title">Settings</string>
     <string name="st_category_repo_cache">Repository Cache</string>
     <string name="st_category_connection">Connection</string>
-    <string name="st_category_general">General</string>
     <string name="st_title_cache_enable">Enable cache</string>
     <string name="st_title_cache_expiration">Cache expiration</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
@@ -220,7 +220,6 @@
     <!-- New Home Page Labels -->
     <string name="library_card_label">Library</string>
     <string name="library_card_desc">Browse your JR Server Library.</string>
-    <string name="saved_items_card_label">Saved Items</string>
     <string name="saved_items_card_desc">View Items Saved on this Device.</string>
     <string name="repository_card_label">Repository</string>
     <string name="repository_card_desc">Browse your JR Server Repository.</string>
@@ -229,7 +228,7 @@
     <string name="servers_card_label">Servers</string>
     <string name="servers_card_desc">Select your JR Server profile.</string>
     <string name="settings_card_label">Settings</string>
-    <string name="settings_card_desc">Configure your JasperSoft Mobile App.</string>
+    <string name="settings_card_desc">Configure your TIBCO Jaspersoft Mobile App.</string>
     <string name="search_result_format">Search result for \'%s\'</string>
     <string name="failed_load_data">Failed load data!</string>
 
@@ -237,8 +236,6 @@
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
 
-    <!-- Images content description -->
-    <string name="img_cd_list_item">List item preview</string>
-    <string name="img_cd_grid_item">Grid item preview</string>
+
 
 </resources>

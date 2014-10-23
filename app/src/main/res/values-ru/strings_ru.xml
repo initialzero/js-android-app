@@ -24,7 +24,6 @@
 -->
 
 <resources>
-
     <!-- Home Activity -->
     <string name="h_repository_label">Репозиторий</string>
     <string name="h_library_label">Библиотека</string>
@@ -92,7 +91,7 @@
     <!-- Search Activity -->
     <string name="s_hint">Поиск ресурсов</string>
     <!-- Action Bar -->
-    <string name="s_ab_filter_by">Сортировка</string>
+    <string name="s_ab_filter_by">Фильтровать</string>
     <!-- Filter Dialog -->
     <string name="s_fd_option_all">Все</string>
 

@@ -67,12 +67,12 @@ public class FavoritesHelper {
     JsRestClient jsRestClient;
     private Toast mToast;
 
+    @SuppressWarnings("ShowToast")
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);
-        mToast = new Toast(context);
-        mToast.setDuration(Toast.LENGTH_SHORT);
+        mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
     }
 
     public Uri addToFavorites(ResourceLookup resource) {

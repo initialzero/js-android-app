@@ -159,6 +159,10 @@ dependencies {
     // Splunk Mint(Bugsense)
     compile "com.splunk.mint:mint:4.0.3"
 
+    // Remove gradle dependency
+    // When all required testing for JRS will be completed
+    compile 'com.google.code.gson:gson:1.7.2'
+
     androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
         exclude group: 'com.google.guava'
     }

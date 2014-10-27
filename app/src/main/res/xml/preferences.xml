@@ -37,6 +37,7 @@
     />
 
     <EditTextPreference
+        android:id="@+id/cacheExpiration"
         android:key="pref_repo_cache_expiration"
         android:dependency="pref_repo_cache_enabled"
         android:title="@string/st_title_cache_expiration"
@@ -63,7 +64,7 @@
     />
 
     <PreferenceCategory
-        android:title="@string/st_category_general"
+        android:title="@string/sp_label_general"
         />
 
     <SwitchPreference

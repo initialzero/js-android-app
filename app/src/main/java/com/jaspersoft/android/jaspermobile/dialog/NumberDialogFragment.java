@@ -81,7 +81,7 @@ public class NumberDialogFragment extends DialogFragment {
         AccentAlertDialog.Builder builder = new AccentAlertDialog.Builder(getActivity());
 
         ViewGroup customView = (ViewGroup) LayoutInflater.from(getActivity())
-                .inflate(R.layout.number_dialog_layout, null);
+                .inflate(R.layout.number_dialog_layout, (ViewGroup) getView(), false);
         final NumberPicker numberPicker = (NumberPicker)
                 customView.findViewById(R.id.numberPicker);
         mValue = numberPicker.getValue();

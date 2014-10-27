@@ -46,6 +46,7 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;
+import java.util.Locale;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
@@ -53,7 +54,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     private final FavoritesHelper_ favoriteHelper;
-    private ResourceViewHelper viewHelper = new ResourceViewHelper();
+    private final ResourceViewHelper viewHelper;
 
     private final ViewType mViewType;
     private MenuItem favoriteActionItem;
@@ -67,6 +68,8 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         super(savedInstanceState, context, 0);
         favoriteHelper = FavoritesHelper_.getInstance_(context);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
+        Locale current = context.getResources().getConfiguration().locale;
+        viewHelper = new ResourceViewHelper(current);
     }
 
     @Override

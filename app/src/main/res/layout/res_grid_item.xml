@@ -32,12 +32,13 @@
         android:orientation="vertical">
 
         <ImageView
+            android:contentDescription="@string/img_cd_grid_item"
             android:id="@android:id/icon"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2"
             android:scaleType="fitXY"
-            tools:background="@drawable/js_gradient" />
+            tools:background="@drawable/js_grey_gradient" />
 
 
         <CheckedTextView

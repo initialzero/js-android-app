@@ -69,7 +69,7 @@ public class SortDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setTitle(R.string.s_fd_sort_by);
+        builder.setTitle(R.string.s_ab_sort_by);
 
         CharSequence[] options = {
                 getString(R.string.s_fd_sort_label),

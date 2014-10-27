@@ -94,6 +94,10 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
+//    lintOptions {
+//        lintConfig file("lint.xml")
+//    }
+
     lintOptions {
         checkReleaseBuilds false
     }
@@ -127,6 +131,7 @@ apt {
 dependencies {
     compile project(':database-generator')
     compile project(':library-circular')
+    compile project(':library-holoaccent')
 
     compile 'com.jaspersoft.android.sdk:js-android-sdk-client:2.0-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:2.0-SNAPSHOT'
@@ -148,10 +153,15 @@ dependencies {
     // For action mode support within list views
     compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'
     // For homogeneous design on all platforms
-    compile 'com.negusoft.holoaccent:library:1.0.1'
+    // Will use local dependency because for Android L there is no proper support.
+//    compile 'com.negusoft.holoaccent:library:1.0.1'
 
     // Splunk Mint(Bugsense)
     compile "com.splunk.mint:mint:4.0.3"
+
+    // Remove gradle dependency
+    // When all required testing for JRS will be completed
+    compile 'com.google.code.gson:gson:1.7.2'
 
     androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
         exclude group: 'com.google.guava'

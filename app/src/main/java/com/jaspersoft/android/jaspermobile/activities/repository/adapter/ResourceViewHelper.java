@@ -31,6 +31,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -40,7 +41,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ResourceViewHelper {
     private static final String INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat(INITIAL_DATE_FORMAT);
+    private final SimpleDateFormat dateFormat;
+
+    public ResourceViewHelper(Locale current) {
+        dateFormat = new SimpleDateFormat(INITIAL_DATE_FORMAT, current);
+    }
 
     public void populateView(IResourceView resourceView, ResourceLookup item) {
         setIcon(resourceView, item);

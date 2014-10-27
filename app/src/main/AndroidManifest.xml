@@ -53,12 +53,12 @@
 
         <!-- Activity that provides functionality for creating and modifying server profiles -->
         <activity android:name=".activities.profile.ServerProfileActivity_"
-            android:label="@string/label_add_profile"/>
+            android:label="@string/sp_bc_add_profile"/>
 
         <!-- Activity that provides the server profiles management -->
         <activity
             android:name=".activities.profile.ServersManagerActivity_"
-            android:label="@string/h_ab_servers" />
+            android:label="@string/spm_list_title" />
 
         <!--Activity that performs library view -->
         <activity

@@ -26,17 +26,6 @@
 <resources>
 
     <!-- Default ListView Style -->
-    <style name="list.view">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@android:color/white</item>
-        <item name="android:drawSelectorOnTop">false</item>
-        <item name="android:cacheColorHint">@android:color/white</item>
-        <item name="android:divider">@color/js_lighter_grey</item>
-        <item name="android:dividerHeight">1px</item>
-    </style>
-
-
     <style name="editText">
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginRight">16dp</item>
@@ -53,127 +42,8 @@
         <item name="android:textColor">@color/js_blue</item>
     </style>
 
-
-    <!-- Server Profiles Manager Layout -->
-    <style name="serverProfileManager" />
-
-    <style name="serverProfileManager.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@android:color/white</item>
-    </style>
-
-    <!-- Server Profile Layout -->
-    <style name="serverProfile" />
-
-    <style name="serverProfile.scrollView">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:fillViewport">true</item>
-    </style>
-
-    <style name="serverProfile.editsContainer" />
-
-    <style name="serverProfile.editsContainer.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:padding">10dp</item>
-    </style>
-
-    <style name="serverProfile.button">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">15dip</item>
-    </style>
-
-    <style name="serverProfile.checkBox">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:textColor">@color/js_blue</item>
-    </style>
-
-    <!-- Repository Layout -->
-    <style name="repository" />
-
-    <style name="repository.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@android:color/white</item>
-    </style>
-
-    <style name="repository.nothingToDisplayLabel">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:textColor">@color/js_light_grey</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <!-- Resource Edit Layout -->
-    <style name="resourceEdit" />
-
-    <style name="resourceEdit.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:paddingTop">10dip</item>
-        <item name="android:paddingBottom">10dip</item>
-        <item name="android:paddingLeft">20dip</item>
-        <item name="android:paddingRight">20dip</item>
-        <item name="android:background">@android:color/white</item>
-    </style>
-
-    <style name="resourceEdit.button">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">15dip</item>
-    </style>
-
-    <!-- Resource Info Layout -->
-    <style name="resourceInfo" />
-
-    <style name="resourceInfo.table" />
-
-    <style name="resourceInfo.table.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:padding">10dp</item>
-        <item name="android:background">@android:color/white</item>
-    </style>
-
-    <style name="resourceInfo.table.name">
-        <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:paddingRight">10dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/js_dark_grey</item>
-    </style>
-
-    <style name="resourceInfo.table.info">
-        <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/js_blue</item>
-    </style>
-
-    <style name="resourceInfo.spacer">
-        <item name="android:layout_height">1px</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:background">@color/js_light_grey</item>
-    </style>
-
-    <style name="resourceInfo.spacer.short">
-        <item name="android:layout_marginTop">5dp</item>
-        <item name="android:layout_marginBottom">5dp</item>
-    </style>
-
     <!-- Report Options Layout -->
     <style name="reportOptions" />
-
-    <style name="reportOptions.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
 
     <style name="reportOptions.scrollView">
         <item name="android:layout_width">match_parent</item>
@@ -208,7 +78,6 @@
         <item name="android:background">@drawable/input_controls_divider</item>
         <item name="android:textSize">16sp</item>
         <item name="android:singleLine">true</item>
-        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
     <!-- Report HTML Viewer Layout -->

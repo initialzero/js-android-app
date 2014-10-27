@@ -27,17 +27,9 @@
 
     <!-- Home Activity -->
     <string name="h_repository_label">リポジトリ</string>
-    <string name="h_repository_descr">リポジトリ項目を参照、表示</string>
     <string name="h_library_label">ライブラリ</string>
-    <string name="h_library_descr">すべてのレポートのリスト</string>
-    <string name="h_search_label">検索</string>
-    <string name="h_search_descr">リポジトリ内の項目を検索</string>
-    <string name="h_favorites_label">お気に入り</string>
-    <string name="h_favorites_descr">お気に入りの項目を参照、表示</string>
     <string name="h_server_profile_label">"サーバープロファイル："</string>
     <string name="h_server_switched_toast">サーバーが「%s」に切り替えられました</string>
-    <!-- Action Bar -->
-    <string name="h_ab_servers">サーバー</string>
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">接続がありません</string>
     <string name="h_ad_msg_no_connection">モバイルネットワーク設定を確認の上、もう一度お試しください。</string>
@@ -90,43 +82,19 @@
     <string name="r_browser_nothing_to_display">このフォルダにリソースはありません。</string>
     <string name="r_search_nothing_to_display">検索結果はありません。</string>
     <!-- Action Bar -->
-    <string name="r_ab_favorites">お気に入り</string>
     <string name="r_ab_search">検索</string>
     <string name="r_ab_refresh">更新</string>
     <!-- Context Menu -->
-    <string name="r_cm_open">開く</string>
-    <string name="r_cm_run">実行</string>
     <string name="r_cm_view_details">詳細を表示</string>
     <string name="r_cm_add_to_favorites">お気に入りに追加</string>
     <string name="r_cm_remove_from_favorites">お気に入りから削除</string>
 
 
     <!-- Search Activity -->
-    <string name="s_title">検索結果</string>
     <string name="s_hint">リソースの検索</string>
 
-
-    <!-- Resource Info Activity -->
-    <string name="ri_title">リソース情報</string>
-    <string name="ri_properties">リソースのプロパティ：</string>
-    <string name="ri_name">名前：</string>
-    <string name="ri_label">ラベル：</string>
-    <string name="ri_description">説明：</string>
-    <string name="ri_type">タイプ：</string>
-
-
     <!-- Report Options Activity -->
-    <string name="ro_output_format_label">レポート出力形式：</string>
     <string name="ro_run_report_btn">レポートの実行</string>
-    <!-- Notifications -->
-    <string name="ro_no_app_available_toast">「%s」ビューアがインストールされていません。</string>
-    <!-- Progress Dialog -->
-    <string name="ro_pd_loading_report_info_msg">レポートをロード中…</string>
-    <string name="ro_pd_running_report_msg">レポートを実行中…</string>
-    <string name="ro_pd_downloading_report_msg">レポートをダウンロード中…</string>
-    <!-- Error messages -->
-    <string name="ro_error_field_is_mandatory">このフィールドは必須項目です.</string>
-
 
     <!-- Favorites activity -->
     <string name="f_title">お気に入り</string>

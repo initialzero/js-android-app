@@ -27,17 +27,9 @@
 
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
-    <string name="h_repository_descr">Repository-Elemente durchsuchen und anzeigen</string>
     <string name="h_library_label">Bibliothek</string>
-    <string name="h_library_descr">Liste aller Berichte</string>
-    <string name="h_search_label">Suchen</string>
-    <string name="h_search_descr">Nach Elementen in Ihrem Repository suchen</string>
-    <string name="h_favorites_label">Favoriten</string>
-    <string name="h_favorites_descr">Favoriten durchsuchen und anzeigen</string>
     <string name="h_server_profile_label">"Serverprofil: "</string>
     <string name="h_server_switched_toast">Es wurde zu Server \"%s\" gewechselt.</string>
-    <!-- Action Bar -->
-    <string name="h_ab_servers">Server</string>
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">Keine Verbindung</string>
     <string name="h_ad_msg_no_connection">Prüfen Sie die Einstellungen Ihres mobilen Netzwerks, und versuchen Sie es erneut.</string>
@@ -90,43 +82,19 @@
     <string name="r_browser_nothing_to_display">Dieser Ordner enthält keine Ressourcen.</string>
     <string name="r_search_nothing_to_display">Die Suche hat keine Ergebnisse zurückgegeben.</string>
     <!-- Action Bar -->
-    <string name="r_ab_favorites">Favoriten</string>
     <string name="r_ab_search">Suchen</string>
     <string name="r_ab_refresh">Aktualisieren</string>
     <!-- Context Menu -->
-    <string name="r_cm_open">Öffnen</string>
-    <string name="r_cm_run">Ausführen</string>
     <string name="r_cm_view_details">Details anzeigen</string>
     <string name="r_cm_add_to_favorites">Zu Favoriten hinzufügen</string>
     <string name="r_cm_remove_from_favorites">Aus Favoriten löschen</string>
 
 
     <!-- Search Activity -->
-    <string name="s_title">Suchergebnisse</string>
     <string name="s_hint">Ressourcen durchsuchen</string>
 
-
-    <!-- Resource Info Activity -->
-    <string name="ri_title">Ressourceninfo</string>
-    <string name="ri_properties">Ressourceneigenschaften:</string>
-    <string name="ri_name">Name:</string>
-    <string name="ri_label">Bezeichnung:</string>
-    <string name="ri_description">Beschreibung:</string>
-    <string name="ri_type">Typ:</string>
-
-
     <!-- Report Options Activity -->
-    <string name="ro_output_format_label">Berichtsausgabeformat:</string>
     <string name="ro_run_report_btn">Bericht ausführen</string>
-    <!-- Notifications -->
-    <string name="ro_no_app_available_toast">Kein \"%s\"-Viewer installiert.</string>
-    <!-- Progress Dialog -->
-    <string name="ro_pd_loading_report_info_msg">Bericht laden…</string>
-    <string name="ro_pd_running_report_msg">Bericht ausführen…</string>
-    <string name="ro_pd_downloading_report_msg">Bericht herunterladen…</string>
-    <!-- Error messages -->
-    <string name="ro_error_field_is_mandatory">Dieses Feld muss ausgefüllt werden.</string>
-
 
     <!-- Favorites activity -->
     <string name="f_title">Favoriten</string>

@@ -32,7 +32,6 @@ import android.database.Cursor;
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.db.DatabaseProvider;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
@@ -75,8 +74,6 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
     @Mock
     protected SpiceManager mockSpiceService;
-    @Mock
-    protected DatabaseProvider mockDbProvider;
     protected ReportExecutionResponse reportExecution;
 
     protected InputControlsList inputControlList;
@@ -213,7 +210,6 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         protected void semanticConfigure() {
             bind(JsRestClient.class).in(Singleton.class);
             bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-            bind(DatabaseProvider.class).toInstance(mockDbProvider);
         }
     }
 

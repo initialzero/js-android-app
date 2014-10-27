@@ -94,6 +94,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
         mOrganizationTableRow = view.findViewById(R.id.dialogOrganizationTableRow);
         builder.setView(view);
 
+        builder.setTitle(R.string.h_ad_title_enter_password);
         builder.setCancelable(false)
                 .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

@@ -27,9 +27,11 @@ public class ScrollableTitleHelper {
 
         TextView acionBarTitle = (TextView) activity.findViewById(barTitleId);
                 LayoutInflater inflator = LayoutInflater.from(activity);
-        ((ViewGroup)acionBarTitle.getParent()).removeView(acionBarTitle);
+        ViewGroup actionBarTitleParent = ((ViewGroup)acionBarTitle.getParent());
+        actionBarTitleParent.removeView(acionBarTitle);
 
-        View scrollContainer = inflator.inflate(R.layout.scrollable_title_container, null);
+        View scrollContainer = inflator.inflate(R.layout.scrollable_title_container,
+                actionBarTitleParent, false);
         ViewGroup container = (ViewGroup) scrollContainer.findViewById(R.id.container);
         container.addView(acionBarTitle);
 

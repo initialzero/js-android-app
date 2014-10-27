@@ -101,7 +101,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
-        repositoryPref = null;
+        getActivity().finish();
         super.tearDown();
     }
 

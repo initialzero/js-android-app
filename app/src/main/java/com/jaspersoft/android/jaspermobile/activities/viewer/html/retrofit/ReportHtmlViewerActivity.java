@@ -37,6 +37,8 @@ import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHand
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.FilterManagerFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.FilterManagerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.PaginationManagerFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.PaginationManagerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportActionFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportActionFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportExecutionFragment;
@@ -55,6 +57,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.api.ViewServer;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -63,7 +66,7 @@ import org.androidannotations.annotations.OptionsItem;
  * @author Tom Koptel
  * @since 1.4
  */
-@EActivity
+@EActivity(R.layout.report_viewer_layout)
 public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
 
     @Extra
@@ -116,6 +119,24 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
         super.onBackPressed();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ViewServer.get(this).addWindow(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ViewServer.get(this).removeWindow(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ViewServer.get(this).setFocusedWindow(this);
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -135,6 +156,10 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
         @Override
         public void onRequestSuccess(ServerInfo data) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            PaginationManagerFragment paginationManagerFragment = PaginationManagerFragment_
+                    .builder().build();
+            transaction.add(R.id.control, paginationManagerFragment, PaginationManagerFragment.TAG);
 
             ReportExecutionFragment reportExecutionFragment = ReportExecutionFragment_.builder()
                     .resource(resource).versionCode(data.getVersionCode()).build();

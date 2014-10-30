@@ -1,19 +1,23 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment;
 
-import android.app.Activity;
 import android.content.DialogInterface;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -97,19 +101,33 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener extends CommonRequestListener<ReportExecutionResponse> {
+    private class RunReportExecutionListener  implements RequestListener<ReportExecutionResponse> {
         @Override
-        public void onSemanticFailure(SpiceException spiceException) {
+        public void onRequestFailure(SpiceException exception) {
+            if (exception instanceof RequestCancelledException) {
+                Toast.makeText(getActivity(), R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
+            } else {
+                RequestExceptionHandler.handle(exception, getActivity(), false);
+            }
             ProgressDialogFragment.dismiss(getFragmentManager());
         }
 
-        public void onSemanticSuccess(ReportExecutionResponse data) {
-            ProgressDialogFragment.dismiss(getFragmentManager());
-        }
+        public void onRequestSuccess(ReportExecutionResponse response) {
+            PaginationManagerFragment paginationManagerFragment = (PaginationManagerFragment)
+                    getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
 
-        @Override
-        public Activity getCurrentActivity() {
-            return getActivity();
+            String requestId = response.getRequestId();
+            paginationManagerFragment.setRequestId(requestId);
+            paginationManagerFragment.paginateToCurrentSelection();
+
+            ReportStatus status = response.getReportStatus();
+            if (status == ReportStatus.READY) {
+                int totalPageCount = response.getTotalPages();
+                paginationManagerFragment.showTotalPageCount(totalPageCount);
+            } else {
+                // loop check for status
+            }
         }
     }
+
 }

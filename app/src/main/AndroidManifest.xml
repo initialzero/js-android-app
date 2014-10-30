@@ -86,9 +86,14 @@
             android:configChanges="screenSize|orientation"
             android:windowSoftInputMode="stateHidden" />
 
+        <!-- Older implementation for report viewer in HTML format -->
+        <activity
+            android:name=".activities.viewer.html.emerald2.ReportHtmlViewerActivity_"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
+
         <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.ReportHtmlViewerActivity_"
+            android:name=".activities.viewer.html.retrofit.ReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation" />
 
         <!-- Activity that performs report viewing in HTML format -->

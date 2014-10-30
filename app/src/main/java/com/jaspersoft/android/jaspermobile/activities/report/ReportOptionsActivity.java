@@ -38,7 +38,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -52,8 +51,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -79,7 +77,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
 import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DATE_DIALOG_ID;

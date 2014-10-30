@@ -84,8 +84,8 @@ public class ProgressDialogFragment extends DialogFragment {
     public static void show(FragmentManager fm,
                             OnCancelListener onCancelListener,
                             OnShowListener onShowListener) {
-        ProgressDialogFragment dialogFragment = (ProgressDialogFragment)
-                fm.findFragmentByTag(TAG);
+        ProgressDialogFragment dialogFragment = getInstance(fm);
+
         if (dialogFragment == null) {
             dialogFragment = new ProgressDialogFragment();
             dialogFragment.setOnCancelListener(onCancelListener);
@@ -95,10 +95,17 @@ public class ProgressDialogFragment extends DialogFragment {
     }
 
     public static void dismiss(FragmentManager fm) {
-        ProgressDialogFragment dialogFragment = (ProgressDialogFragment)
-                fm.findFragmentByTag(TAG);
+        ProgressDialogFragment dialogFragment = getInstance(fm);
         if (dialogFragment != null) {
             dialogFragment.dismiss();
         }
+    }
+
+    public static boolean isVisible(FragmentManager fm) {
+        return (getInstance(fm) != null);
+    }
+
+    public static ProgressDialogFragment getInstance(FragmentManager fm) {
+        return (ProgressDialogFragment) fm.findFragmentByTag(TAG);
     }
 }

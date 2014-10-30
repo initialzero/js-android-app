@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.report.fragment;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment;
 
 import android.os.Bundle;
 import android.view.View;
@@ -31,7 +31,6 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
@@ -173,7 +172,7 @@ public class PaginationFragment extends RoboSpiceFragment {
         if (webViewFragment != null) {
             Locale current = getResources().getConfiguration().locale;
             String exportOutput = String.format(current, "%s;pages=%d", exportType, currentPage);
-            URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
+            URI reportUri = jsRestClient.getExportOutputResourceURI(executionId, exportOutput);
 
             webViewFragment.loadUrl(reportUri.toString());
         }

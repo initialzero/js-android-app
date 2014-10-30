@@ -26,18 +26,24 @@ package com.jaspersoft.android.jaspermobile.util;
 
 import android.support.v4.app.FragmentActivity;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
+import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
 import java.util.ArrayList;
+
+import roboguice.RoboGuice;
+import roboguice.inject.RoboInjector;
 
 /**
  * @author Tom Koptel
@@ -47,6 +53,14 @@ import java.util.ArrayList;
 public class ResourceOpener {
     @RootContext
     FragmentActivity activity;
+    @Inject
+    JsRestClient jsRestClient;
+
+    @AfterInject
+    void injectRoboGuiceDependencies() {
+        final RoboInjector injector = RoboGuice.getInjector(activity);
+        injector.injectMembersWithoutViews(this);
+    }
 
     private ArrayList<String> resourceTypes;
 
@@ -89,8 +103,14 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        ReportHtmlViewerActivity_.intent(activity)
-                .resource(resource).start();
+        ServerInfo serverInfo = jsRestClient.getServerInfo();
+        if (serverInfo.getVersionCode() <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+            com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.ReportHtmlViewerActivity_.intent(activity)
+                    .resource(resource).start();
+        } else {
+            com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.ReportHtmlViewerActivity_.intent(activity)
+                    .resource(resource).start();
+        }
     }
 
     private void runDashboard(ResourceLookup resource) {

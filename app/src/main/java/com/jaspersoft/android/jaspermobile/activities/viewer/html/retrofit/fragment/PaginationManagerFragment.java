@@ -24,10 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment;
 
+import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.view.View;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
@@ -35,8 +37,12 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.ReportDetailsRequest;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -76,7 +82,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     TextView totalPageLabel;
 
     @InstanceState
-    int totalPage;
+    int mTotalPage;
     @InstanceState
     String requestId;
 
@@ -98,12 +104,12 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     }
 
     public void showTotalPageCount(int totalPage) {
-        if (totalPage > 1) {
-            totalPageLabel.setVisibility(View.VISIBLE);
-            lastPage.setVisibility(View.VISIBLE);
+        mTotalPage = totalPage;
 
-            totalPageLabel.setText(getString(R.string.of, totalPage));
-        }
+        totalPageLabel.setVisibility(View.VISIBLE);
+        lastPage.setVisibility(View.VISIBLE);
+
+        totalPageLabel.setText(getString(R.string.of, totalPage));
     }
 
     @Click
@@ -122,7 +128,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     @Click
     final void nextPage() {
-        if (currentPage != totalPage) {
+        if (currentPage != mTotalPage) {
             currentPage += 1;
         }
         paginateToCurrentSelection();
@@ -130,14 +136,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     @Click
     final void lastPage() {
-        currentPage = totalPage;
+        currentPage = mTotalPage;
         paginateToCurrentSelection();
     }
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        if (totalPage != 0) {
-            NumberDialogFragment.show(getFragmentManager(), currentPage, totalPage,
+        if (mTotalPage != 0) {
+            NumberDialogFragment.show(getFragmentManager(), currentPage, mTotalPage,
                     new NumberDialogFragment.OnPageSelectedListener() {
                         @Override
                         public void onPageSelected(int page) {
@@ -148,21 +154,26 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         }
     }
 
-    public void paginateToCurrentSelection() {
-        if (rootContainer.getVisibility() == View.GONE) {
-            rootContainer.setVisibility(View.VISIBLE);
-        }
+    public void setVisible(boolean visible) {
+        TranslateAnimation animate = new TranslateAnimation(0, 0, 0,
+                (visible ? 0 : 1) * rootContainer.getHeight());
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        rootContainer.startAnimation(animate);
+        rootContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
 
+    public void paginateToCurrentSelection() {
         alterControlStates();
 
         NodeWebViewFragment nodeWebViewFragment;
         if (mAdapter.getCount() == 0) {
-            nodeWebViewFragment = getNodeWebViewFragment();
+            nodeWebViewFragment = createNodeWebViewFragment();
         } else {
             if (pagesMap.containsKey(currentPage)) {
                 nodeWebViewFragment = pagesMap.get(currentPage);
             } else {
-                nodeWebViewFragment = getNodeWebViewFragment();
+                nodeWebViewFragment = createNodeWebViewFragment();
             }
         }
 
@@ -171,7 +182,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                         NodeWebViewFragment.TAG + currentPage).commit();
     }
 
-    private NodeWebViewFragment getNodeWebViewFragment() {
+    private NodeWebViewFragment createNodeWebViewFragment() {
         NodeWebViewFragment nodeWebViewFragment =
                 NodeWebViewFragment_.builder().requestId(requestId).page(currentPage).build();
         pagesMap.put(currentPage, nodeWebViewFragment);
@@ -181,7 +192,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     private void alterControlStates() {
         currentPageLabel.setText(String.valueOf(currentPage));
 
-        if (currentPage == totalPage) {
+        if (currentPage == mTotalPage) {
             previousPage.setEnabled(true);
             firstPage.setEnabled(true);
             nextPage.setEnabled(false);
@@ -205,11 +216,40 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         this.requestId = requestId;
     }
 
+    public void update() {
+        boolean paginationLoaded = (mTotalPage != 0);
+        if (!paginationLoaded) {
+            ReportDetailsRequest reportDetailsRequest = new ReportDetailsRequest(jsRestClient, requestId);
+            ReportDetailsRequestListener requestListener = new ReportDetailsRequestListener();
+            getSpiceManager().execute(reportDetailsRequest, requestListener);
+        }
+
+        NodeWebViewFragment nodeWebViewFragment = getCurrentNodeWebViewFragment();
+        if (nodeWebViewFragment.isResourceLoaded()) {
+            // check Output-Final
+        }
+    }
+
+    public boolean isResourceLoaded() {
+        NodeWebViewFragment currentWebView = getCurrentNodeWebViewFragment();
+        if (currentWebView == null) return false;
+        return currentWebView.isResourceLoaded();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    public class PagesAdapter extends FragmentPagerAdapter {
+    private NodeWebViewFragment getCurrentNodeWebViewFragment() {
+        return (NodeWebViewFragment)
+                getFragmentManager().findFragmentByTag(NodeWebViewFragment.TAG + currentPage);
+    }
+
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
+
+    private class PagesAdapter extends FragmentPagerAdapter {
         public PagesAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -225,4 +265,28 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         }
     }
 
+    private class ReportDetailsRequestListener extends CommonRequestListener<ReportExecutionResponse> {
+        @Override
+        public final void onSemanticSuccess(ReportExecutionResponse response) {
+            int totalPageCount = response.getTotalPages();
+            boolean needToShow = (totalPageCount > 1);
+            setVisible(needToShow);
+
+            if (needToShow) {
+                showTotalPageCount(response.getTotalPages());
+            }
+
+            if (totalPageCount == 0) {
+                AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(R.string.warning_msg)
+                        .setMessage(R.string.rv_error_empty_report).show();
+            }
+        }
+
+        @Override
+        public Activity getCurrentActivity() {
+            return getActivity();
+        }
+    }
 }

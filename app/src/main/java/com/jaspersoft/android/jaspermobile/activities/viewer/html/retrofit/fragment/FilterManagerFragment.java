@@ -82,6 +82,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
                 public void onCancel(DialogInterface dialog) {
                     if (!request.isCancelled()) {
                         getSpiceManager().cancel(request);
+                        getActivity().finish();
                     }
                 }
             };

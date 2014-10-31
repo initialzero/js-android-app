@@ -44,6 +44,7 @@ import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
@@ -195,10 +196,10 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         });
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
     private void prepareWebView() {
         // disable hardware acceleration
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         // configure additional settings
@@ -209,6 +210,10 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         webView.getSettings().setDisplayZoomControls(false);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
+
+        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
     }
 
     private void fetchReport() {
@@ -247,7 +252,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     private ExportsRequest prepareExportsData() {
         ExportsRequest executionData = new ExportsRequest();
         executionData.configureExecutionForProfile(jsRestClient);
-        executionData.setMarkupType(ReportExecutionRequest.MARKUP_TYPE_EMBEDDABLE);
         executionData.setAllowInlineScripts(false);
         executionData.setOutputFormat("html");
         executionData.setPages(String.valueOf(page));
@@ -272,6 +276,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             handleFailure(exception);
+            mResourceLoaded = true;
         }
 
         @Override
@@ -304,12 +309,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException spiceException) {
             handleFailure(spiceException);
+            mResourceLoaded = true;
         }
 
         @Override
         public void onRequestSuccess(String response) {
             ProgressDialogFragment.dismiss(getFragmentManager());
             loadHtml(response);
+            mResourceLoaded = true;
         }
     }
 

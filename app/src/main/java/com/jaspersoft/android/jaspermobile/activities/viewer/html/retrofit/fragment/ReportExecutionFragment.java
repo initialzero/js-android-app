@@ -1,19 +1,23 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment;
 
 import android.content.DialogInterface;
+import android.os.Handler;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.CheckReportStatusRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportStatusResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -23,6 +27,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Tom Koptel
@@ -40,9 +45,12 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     @Inject
     JsRestClient jsRestClient;
 
+    private final Handler mHandler = new Handler();
+    private PaginationManagerFragment paginationManagerFragment;
+
     // Stub
     public boolean isResourceLoaded() {
-        return true;
+        return getPaginationManagerFragment().isResourceLoaded();
     }
 
     public void executeReport(ArrayList<ReportParameter> reportParameters) {
@@ -53,6 +61,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             public void onCancel(DialogInterface dialog) {
                 if (!request.isCancelled()) {
                     getSpiceManager().cancel(request);
+                    getActivity().finish();
                 }
             }
         };
@@ -77,31 +86,43 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         executeReport(new ArrayList<ReportParameter>());
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
     private ReportExecutionRequest prepareExecutionData(ArrayList<ReportParameter> reportParameters) {
         ReportExecutionRequest executionData = new ReportExecutionRequest();
-        executionData.configureExecutionForProfile(jsRestClient);
         executionData.setReportUnitUri(resource.getUri());
-        executionData.setMarkupType(ReportExecutionRequest.MARKUP_TYPE_EMBEDDABLE);
         executionData.setOutputFormat("html");
-        executionData.setPages("1");
         executionData.setAsync(true);
         executionData.setInteractive(true);
-        executionData.setFreshData(false);
-        executionData.setSaveDataSnapshot(false);
-        executionData.setAllowInlineScripts(false);
-        executionData.setParameters(reportParameters);
+        executionData.setFreshData(true);
+        executionData.setIgnorePagination(false);
+        if (!reportParameters.isEmpty()) {
+            executionData.setParameters(reportParameters);
+        }
         return executionData;
+    }
+
+    private PaginationManagerFragment getPaginationManagerFragment() {
+        if (paginationManagerFragment == null) {
+            paginationManagerFragment = (PaginationManagerFragment)
+                    getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
+        }
+        return paginationManagerFragment;
     }
 
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener  implements RequestListener<ReportExecutionResponse> {
+    private class RunReportExecutionListener implements RequestListener<ReportExecutionResponse> {
         @Override
         public void onRequestFailure(SpiceException exception) {
             if (exception instanceof RequestCancelledException) {
@@ -113,19 +134,68 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         }
 
         public void onRequestSuccess(ReportExecutionResponse response) {
-            PaginationManagerFragment paginationManagerFragment = (PaginationManagerFragment)
-                    getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
+            PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
 
-            String requestId = response.getRequestId();
+            final String requestId = response.getRequestId();
             paginationManagerFragment.setRequestId(requestId);
             paginationManagerFragment.paginateToCurrentSelection();
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.READY) {
                 int totalPageCount = response.getTotalPages();
+                boolean isHidden = (totalPageCount <= 1);
+                paginationManagerFragment.setVisible(isHidden);
                 paginationManagerFragment.showTotalPageCount(totalPageCount);
+
+                if (totalPageCount == 0) {
+                    AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle(R.string.warning_msg)
+                            .setMessage(R.string.rv_error_empty_report).show();
+                }
             } else {
-                // loop check for status
+                paginationManagerFragment.setVisible(true);
+                mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            }
+        }
+    }
+
+    private class StatusCheckTask implements Runnable {
+        private final String requestId;
+
+        private StatusCheckTask(String requestId) {
+            this.requestId = requestId;
+        }
+
+        @Override
+        public void run() {
+            CheckReportStatusRequest checkReportStatusRequest =
+                    new CheckReportStatusRequest(jsRestClient, requestId);
+            CheckReportStatusRequestListener checkReportStatusRequestListener =
+                    new CheckReportStatusRequestListener(requestId);
+            getSpiceManager().execute(checkReportStatusRequest, checkReportStatusRequestListener);
+        }
+    }
+
+    private class CheckReportStatusRequestListener implements RequestListener<ReportStatusResponse> {
+        private final String requestId;
+
+        private CheckReportStatusRequestListener(String requestId) {
+            this.requestId = requestId;
+        }
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, getActivity(), false);
+        }
+
+        @Override
+        public void onRequestSuccess(ReportStatusResponse response) {
+            ReportStatus status = response.getReportStatus();
+            if (status == ReportStatus.READY) {
+                getPaginationManagerFragment().update();
+            } else {
+                mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
             }
         }
     }

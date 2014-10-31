@@ -49,6 +49,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
@@ -63,6 +64,9 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     public static final String TAG = PaginationManagerFragment.class.getSimpleName();
     private static final int FIRST_PAGE = 1;
+
+    @FragmentArg
+    double versionCode;
 
     @Inject
     JsRestClient jsRestClient;
@@ -191,7 +195,9 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     private NodeWebViewFragment createNodeWebViewFragment() {
         NodeWebViewFragment nodeWebViewFragment =
-                NodeWebViewFragment_.builder().requestId(requestId).page(currentPage).build();
+                NodeWebViewFragment_.builder().requestId(requestId)
+                        .page(currentPage).versionCode(versionCode)
+                        .build();
         pagesMap.put(currentPage, nodeWebViewFragment);
         return nodeWebViewFragment;
     }

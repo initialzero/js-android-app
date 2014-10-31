@@ -54,12 +54,14 @@ import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -90,6 +92,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     @InstanceState
     @FragmentArg
+    double versionCode;
+    @InstanceState
+    @FragmentArg
     int page;
     @InstanceState
     @FragmentArg
@@ -99,8 +104,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     boolean mResourceLoaded;
     @InstanceState
     boolean mOutputFinal;
-    @InstanceState
-    String currentHtml;
     @InstanceState
     String executionId;
 
@@ -164,9 +167,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     private void loadHtml(String html) {
         Preconditions.checkNotNull(html);
-        if (!html.equals(currentHtml)) {
-            currentHtml = html;
-        }
         String mime = "text/html";
         String encoding = "utf-8";
         webView.loadDataWithBaseURL(null, html, mime, encoding, null);
@@ -294,6 +294,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         @Override
         public void onRequestSuccess(ExportExecution response) {
             executionId = response.getId();
+            if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                executionId = ("html;pages=" + page);
+            }
 
             final RunReportExportOutputRequest request = new RunReportExportOutputRequest(jsRestClient,
                     requestId, executionId);
@@ -329,7 +332,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
             ProgressDialogFragment.dismiss(getFragmentManager());
             mResourceLoaded = true;
             mOutputFinal = true;
-            
+
             HttpStatus httpStatus = extractStatusCode(spiceException);
             if (httpStatus == HttpStatus.FORBIDDEN) {
                 HttpStatusCodeException exception = (HttpStatusCodeException)

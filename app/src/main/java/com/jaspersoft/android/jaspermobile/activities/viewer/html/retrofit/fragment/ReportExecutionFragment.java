@@ -98,6 +98,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
     private ReportExecutionRequest prepareExecutionData(ArrayList<ReportParameter> reportParameters) {
         ReportExecutionRequest executionData = new ReportExecutionRequest();
+        executionData.configureExecutionForProfile(jsRestClient);
         executionData.setReportUnitUri(resource.getUri());
         executionData.setOutputFormat("html");
         executionData.setAsync(true);

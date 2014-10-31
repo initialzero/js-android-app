@@ -158,7 +158,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             PaginationManagerFragment paginationManagerFragment = PaginationManagerFragment_
-                    .builder().build();
+                    .builder().versionCode(data.getVersionCode()).build();
             transaction.add(R.id.control, paginationManagerFragment, PaginationManagerFragment.TAG);
 
             ReportExecutionFragment reportExecutionFragment = ReportExecutionFragment_.builder()

@@ -169,7 +169,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         for (int id : ids) {
             pressBack();
             onView(withId(id)).perform(click());
-            onView(withId(getActionBarTitleId())).check(matches(withText(R.string.h_ab_servers)));
+            onView(withId(getActionBarTitleId())).check(matches(withText(R.string.spm_list_title)));
         }
     }
 

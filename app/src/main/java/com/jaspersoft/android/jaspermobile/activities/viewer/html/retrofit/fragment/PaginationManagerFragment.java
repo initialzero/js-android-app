@@ -226,7 +226,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
         NodeWebViewFragment nodeWebViewFragment = getCurrentNodeWebViewFragment();
         if (nodeWebViewFragment.isResourceLoaded()) {
-            // check Output-Final
+            nodeWebViewFragment.loadFinalOutput();
         }
     }
 

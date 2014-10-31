@@ -55,7 +55,7 @@ import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequ
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -91,6 +91,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     @InstanceState
     boolean mResourceLoaded;
+    @InstanceState
+    boolean mOutputFinal;
     @InstanceState
     String currentHtml;
     @InstanceState
@@ -268,6 +270,10 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         ProgressDialogFragment.dismiss(getFragmentManager());
     }
 
+    public void loadFinalOutput() {
+        if (!mOutputFinal) fetchReport();
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -305,7 +311,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         }
     }
 
-    private class RunReportExportOutputRequestListener implements RequestListener<String> {
+    private class RunReportExportOutputRequestListener
+            implements RequestListener<ReportDataResponse> {
         @Override
         public void onRequestFailure(SpiceException spiceException) {
             handleFailure(spiceException);
@@ -313,10 +320,11 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         }
 
         @Override
-        public void onRequestSuccess(String response) {
+        public void onRequestSuccess(ReportDataResponse response) {
             ProgressDialogFragment.dismiss(getFragmentManager());
-            loadHtml(response);
+            loadHtml(response.getData());
             mResourceLoaded = true;
+            mOutputFinal = response.isFinal();
         }
     }
 

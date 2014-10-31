@@ -32,6 +32,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
@@ -131,7 +132,7 @@ public class PaginationFragment extends RoboSpiceFragment {
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
         NumberDialogFragment.show(getFragmentManager(), currentPage, totalPage,
-                new NumberDialogFragment.OnPageSelectedListener() {
+                new OnPageSelectedListener() {
                     @Override
                     public void onPageSelected(int page) {
                         currentPage = page;

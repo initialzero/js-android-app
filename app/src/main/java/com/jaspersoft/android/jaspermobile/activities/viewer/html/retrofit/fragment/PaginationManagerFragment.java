@@ -39,6 +39,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
+import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.ReportDetailsRequest;
@@ -94,6 +96,15 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     private final Map<Integer, NodeWebViewFragment> pagesMap = Maps.newHashMap();
     private PagesAdapter mAdapter;
 
+    private final OnPageSelectedListener onPageSelectedListener =
+            new OnPageSelectedListener() {
+                @Override
+                public void onPageSelected(int page) {
+                    currentPage = page;
+                    paginateToCurrentSelection();
+                }
+            };
+
     @AfterViews
     final void init() {
         mAdapter = new PagesAdapter(getFragmentManager());
@@ -141,15 +152,12 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        if (mTotalPage != 0) {
-            NumberDialogFragment.show(getFragmentManager(), currentPage, mTotalPage,
-                    new NumberDialogFragment.OnPageSelectedListener() {
-                        @Override
-                        public void onPageSelected(int page) {
-                            currentPage = page;
-                            paginateToCurrentSelection();
-                        }
-                    });
+        boolean totalPagesLoaded = mTotalPage != 0;
+        if (totalPagesLoaded) {
+            NumberDialogFragment.show(getFragmentManager(),
+                    currentPage, mTotalPage, onPageSelectedListener);
+        } else {
+            PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
         }
     }
 

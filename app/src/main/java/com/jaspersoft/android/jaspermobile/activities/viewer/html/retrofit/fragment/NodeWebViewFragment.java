@@ -48,11 +48,15 @@ import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
+import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
+import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
@@ -66,6 +70,8 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 /**
  * @author Tom Koptel
@@ -312,19 +318,43 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     }
 
     private class RunReportExportOutputRequestListener
-            implements RequestListener<ReportDataResponse> {
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            handleFailure(spiceException);
-            mResourceLoaded = true;
+            extends CommonRequestListener<ReportDataResponse> {
+        private RunReportExportOutputRequestListener() {
+            super();
+            removeRule(ExceptionRule.FORBIDDEN);
         }
 
         @Override
-        public void onRequestSuccess(ReportDataResponse response) {
+        public void onSemanticFailure(SpiceException spiceException) {
+            ProgressDialogFragment.dismiss(getFragmentManager());
+            mResourceLoaded = true;
+            mOutputFinal = true;
+            
+            HttpStatus httpStatus = extractStatusCode(spiceException);
+            if (httpStatus == HttpStatus.FORBIDDEN) {
+                HttpStatusCodeException exception = (HttpStatusCodeException)
+                        spiceException.getCause();
+                ErrorDescriptor errorDescriptor = ErrorDescriptor.valueOf(exception);
+                AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(errorDescriptor.getErrorCode())
+                        .setMessage(errorDescriptor.getMessage()).show();
+            } else {
+                handleFailure(spiceException);
+            }
+        }
+
+        @Override
+        public void onSemanticSuccess(ReportDataResponse response) {
             ProgressDialogFragment.dismiss(getFragmentManager());
             loadHtml(response.getData());
             mResourceLoaded = true;
             mOutputFinal = response.isFinal();
+        }
+
+        @Override
+        public Activity getCurrentActivity() {
+            return getActivity();
         }
     }
 

@@ -75,6 +75,8 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     TextView lastPage;
     @ViewById
     View rootContainer;
+    @ViewById
+    View progressLayout;
 
     @ViewById
     TextView currentPageLabel;
@@ -95,10 +97,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     @AfterViews
     final void init() {
         mAdapter = new PagesAdapter(getFragmentManager());
-
-        totalPageLabel.setVisibility(View.INVISIBLE);
-        lastPage.setVisibility(View.INVISIBLE);
-
         currentPageLabel.setText(String.valueOf(currentPage));
         alterControlStates();
     }
@@ -106,8 +104,9 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     public void showTotalPageCount(int totalPage) {
         mTotalPage = totalPage;
 
+        progressLayout.setVisibility(View.GONE);
         totalPageLabel.setVisibility(View.VISIBLE);
-        lastPage.setVisibility(View.VISIBLE);
+        lastPage.setEnabled(true);
 
         totalPageLabel.setText(getString(R.string.of, totalPage));
     }
@@ -148,7 +147,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                         @Override
                         public void onPageSelected(int page) {
                             currentPage = page;
-                            alterControlStates();
+                            paginateToCurrentSelection();
                         }
                     });
         }
@@ -190,26 +189,27 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     }
 
     private void alterControlStates() {
+        boolean hasTotalCount = (mTotalPage > 0);
         currentPageLabel.setText(String.valueOf(currentPage));
 
         if (currentPage == mTotalPage) {
             previousPage.setEnabled(true);
             firstPage.setEnabled(true);
             nextPage.setEnabled(false);
-            lastPage.setEnabled(false);
+            lastPage.setEnabled(!hasTotalCount);
             return;
         }
         if (currentPage == FIRST_PAGE) {
             previousPage.setEnabled(false);
             firstPage.setEnabled(false);
             nextPage.setEnabled(true);
-            lastPage.setEnabled(true);
+            lastPage.setEnabled(hasTotalCount);
             return;
         }
         previousPage.setEnabled(true);
         firstPage.setEnabled(true);
         nextPage.setEnabled(true);
-        lastPage.setEnabled(true);
+        lastPage.setEnabled(hasTotalCount);
     }
 
     public void setRequestId(String requestId) {

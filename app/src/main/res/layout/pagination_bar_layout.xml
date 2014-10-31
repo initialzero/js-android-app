@@ -78,12 +78,15 @@
 
             <TextView
                 android:id="@+id/totalPageLabel"
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/primary_text_dark"
                 tools:text="of 47" />
+
+            <include layout="@layout/actionbar_indeterminate_progress"/>
         </LinearLayout>
 
 

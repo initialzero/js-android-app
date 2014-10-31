@@ -103,6 +103,8 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
+        JsRestClient.flushCookies();
+
         ServerInfo serverInfo = jsRestClient.getServerInfo();
         if (serverInfo.getVersionCode() <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
             com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.ReportHtmlViewerActivity_.intent(activity)

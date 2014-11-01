@@ -186,7 +186,9 @@
     <!-- Settings activity -->
     <string name="st_title">Settings</string>
     <string name="st_category_repo_cache">Repository Cache</string>
+    <string name="st_category_repo_cache_summary">Change global connection settings for network calls</string>
     <string name="st_category_connection">Connection</string>
+    <string name="st_category_connection_summary">Change repository caching options</string>
     <string name="st_title_cache_enable">Enable cache</string>
     <string name="st_title_cache_expiration">Cache expiration</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
@@ -198,6 +200,7 @@
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Invalid number format</string>
+    <string name="st_category_more">More</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>

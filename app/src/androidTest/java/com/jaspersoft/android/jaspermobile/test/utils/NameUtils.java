@@ -27,8 +27,6 @@ package com.jaspersoft.android.jaspermobile.test.utils;
 
 import android.app.Activity;
 
-import com.jaspersoft.android.jaspermobile.R;
-
 
 public final class NameUtils {
 
@@ -55,7 +53,7 @@ public final class NameUtils {
     }
 
     private String getDeviceName(Activity activity) {
-        return activity.getResources().getString(R.string.device);
+        return "";
     }
 
 }

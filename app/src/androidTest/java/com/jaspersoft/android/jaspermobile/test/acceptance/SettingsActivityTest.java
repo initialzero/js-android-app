@@ -65,6 +65,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
 
     public void testReadTimeOutShouldNotAcceptIncorrectInteger() {
         startActivityUnderTest();
+        onView(withText(R.string.st_category_connection)).perform(click());
         onView(withText(R.string.st_title_read_timeout)).perform(click());
         onOverflowView(getActivity(), withId(android.R.id.edit)).perform(typeText("50000000000"));
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
@@ -75,6 +76,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
 
     public void testConnectionTimeOutShouldNotAcceptIncorrectInteger() {
         startActivityUnderTest();
+        onView(withText(R.string.st_category_connection)).perform(click());
         onView(withText(R.string.st_title_connect_timeout)).perform(click());
         onOverflowView(getActivity(), withId(android.R.id.edit)).perform(typeText("50000000000"));
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
@@ -85,7 +87,8 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
 
     public void testConnectionCacheExpirationShouldNotAcceptIncorrectInteger() {
         startActivityUnderTest();
-        onView(withId(R.id.cacheExpiration)).perform(click());
+        onView(withText(R.string.st_category_repo_cache)).perform(click());
+        onView(withText(R.string.st_title_cache_expiration)).perform(click());
         onOverflowView(getActivity(), withId(android.R.id.edit)).perform(typeText("214748364799"));
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));

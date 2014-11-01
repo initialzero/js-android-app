@@ -98,7 +98,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         startActivityUnderTest();
 
         onView(withId(R.id.addProfile)).perform(click());
-        onView(withText(R.string.label_add_profile)).check(matches(isDisplayed()));
+        onView(withText(R.string.sp_bc_add_profile)).check(matches(isDisplayed()));
 
         onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(DatabaseUtils.TEST_SERVER_URL));

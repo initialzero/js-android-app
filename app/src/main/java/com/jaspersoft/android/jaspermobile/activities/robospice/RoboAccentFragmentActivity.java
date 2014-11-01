@@ -103,8 +103,8 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
 
     @Override
     protected void onPause() {
+        super.onPause();
         BugSenseWrapper.closeSession(this);
-        super.onStop();
     }
 
     private class MyInitListener implements AccentHelper.OnInitListener {

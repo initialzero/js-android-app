@@ -173,7 +173,7 @@ public class PaginationFragment extends RoboSpiceFragment {
         if (webViewFragment != null) {
             Locale current = getResources().getConfiguration().locale;
             String exportOutput = String.format(current, "%s;pages=%d", exportType, currentPage);
-            URI reportUri = jsRestClient.getExportOuptutResourceURI(executionId, exportOutput);
+            URI reportUri = jsRestClient.getExportOutputResourceURI(executionId, exportOutput);
 
             webViewFragment.loadUrl(reportUri.toString());
         }

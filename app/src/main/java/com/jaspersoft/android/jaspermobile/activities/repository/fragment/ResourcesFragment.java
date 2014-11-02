@@ -316,8 +316,10 @@ public class ResourcesFragment extends RoboSpiceFragment
             setUpPaginationPolicy(serverInfo);
 
             String proVersion = ServerInfo.EDITIONS.PRO;
-            if (proVersion.equals(serverInfo.getEdition())
-                    && TextUtils.isEmpty(resourceUri)) {
+            boolean isRepository = !recursiveLookup;
+            boolean isRoot = TextUtils.isEmpty(resourceUri);
+            boolean isProJrs = proVersion.equals(serverInfo.getEdition());
+            if (isRepository && isRoot && isProJrs) {
                 // set hardcoded elements
                 ResourceLookup publicLookup = new ResourceLookup();
                 publicLookup.setResourceType(ResourceLookup.ResourceType.folder);

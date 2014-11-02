@@ -257,7 +257,6 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     public void loadFirstPage() {
         mSearchCriteria.setOffset(0);
-        mSearchCriteria.setLimit(mLimit);
         loadResources(mLoaderState);
     }
 
@@ -315,7 +314,28 @@ public class ResourcesFragment extends RoboSpiceFragment
         @Override
         public void onRequestSuccess(ServerInfo serverInfo) {
             setUpPaginationPolicy(serverInfo);
-            loadFirstPage();
+
+            String proVersion = ServerInfo.EDITIONS.PRO;
+            if (proVersion.equals(serverInfo.getEdition())
+                    && TextUtils.isEmpty(resourceUri)) {
+                // set hardcoded elements
+                ResourceLookup publicLookup = new ResourceLookup();
+                publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
+                publicLookup.setLabel("Public");
+                publicLookup.setUri("/public");
+                mAdapter.add(publicLookup);
+
+                ResourceLookup organizationLookup = new ResourceLookup();
+                organizationLookup.setResourceType(ResourceLookup.ResourceType.folder);
+                organizationLookup.setLabel("Organizations");
+                organizationLookup.setUri("/organizations");
+                mAdapter.add(organizationLookup);
+
+                setRefreshState(false);
+                showEmptyText(emptyMessage);
+            } else {
+                loadFirstPage();
+            }
         }
 
         protected void setUpPaginationPolicy(ServerInfo serverInfo) {

@@ -55,6 +55,7 @@ import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
@@ -173,7 +174,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         Preconditions.checkNotNull(html);
         String mime = "text/html";
         String encoding = "utf-8";
-        webView.loadDataWithBaseURL(null, html, mime, encoding, null);
+        webView.loadDataWithBaseURL(
+                jsRestClient.getServerProfile().getServerUrl(),
+                html, mime, encoding, null);
     }
 
     //---------------------------------------------------------------------

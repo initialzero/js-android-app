@@ -152,8 +152,8 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.READY) {
                 int totalPageCount = response.getTotalPages();
-                boolean isHidden = (totalPageCount <= 1);
-                paginationManagerFragment.setVisible(isHidden);
+                boolean needToBeShown = (totalPageCount > 1);
+                paginationManagerFragment.setVisible(needToBeShown);
                 paginationManagerFragment.showTotalPageCount(totalPageCount);
 
                 if (totalPageCount == 0) {

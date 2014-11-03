@@ -46,6 +46,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
+                <action android:name="com.jaspersoft.android.samples.jaspermobile.action.CLOSE_APPLICATION" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

@@ -25,9 +25,12 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -77,9 +80,11 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 @EActivity(R.layout.home_layout)
 @OptionsMenu(R.menu.home_menu)
 public class HomeActivity extends RoboSpiceFragmentActivity {
+    private static final int PENDING_INTENT_ID = 123456;
 
     // Special intent actions
     public static final String EDIT_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.EDIT_SERVER_PROFILE";
+    public static final String CLOSE_APPLICATION_ACTION = "com.jaspersoft.android.samples.jaspermobile.action.CLOSE_APPLICATION";
     // Request Codes
     public static final int RC_UPDATE_SERVER_PROFILE = 20;
     public static final int RC_SWITCH_SERVER_PROFILE = 21;
@@ -108,6 +113,20 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     private TextView mProfileNameText;
     private Bundle mSavedInstanceState;
+
+    private final Handler mHandler = new Handler();
+    private final Runnable restartAppTask = new Runnable() {
+        @Override
+        public void run() {
+            Activity context = HomeActivity.this;
+            Intent mStartActivity = HomeActivity_.intent(context).get();
+            PendingIntent mPendingIntent = PendingIntent.getActivity(context,
+                    PENDING_INTENT_ID, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager alarmManager = ((AlarmManager) context.getSystemService(Context.ALARM_SERVICE));
+            alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+            System.exit(0);
+        }
+    };
 
     //---------------------------------------------------------------------
     // Static methods
@@ -242,6 +261,11 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
             ServerProfileActivity_.intent(this)
                     .profileId(mJsRestClient.getServerProfile().getId())
                     .startForResult(RC_UPDATE_SERVER_PROFILE);
+            return;
+        }
+
+        if (CLOSE_APPLICATION_ACTION.equals(intent.getAction())) {
+            mHandler.postDelayed(restartAppTask, 100);
         }
     }
 

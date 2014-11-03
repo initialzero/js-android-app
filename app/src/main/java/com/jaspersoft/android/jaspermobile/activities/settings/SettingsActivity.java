@@ -37,14 +37,14 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentPreferenceActivity;
 import com.negusoft.holoaccent.dialog.AccentAlertDialog;
-import com.octo.android.robospice.persistence.DurationInMillis;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+
+import java.util.List;
 
 /**
  * @author Ivan Gadzhega
@@ -66,7 +66,6 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
     public static final String DEFAULT_CONNECT_TIMEOUT = "15";
     public static final String DEFAULT_READ_TIMEOUT = "120";
 
-
     //---------------------------------------------------------------------
     // Public methods
     //---------------------------------------------------------------------
@@ -80,18 +79,16 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
 
-        if (savedInstanceState == null) {
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(android.R.id.content, SettingsFragment_.builder().build())
-                    .commit();
-        }
+    @Override
+    public void onBuildHeaders(List<Header> target) {
+        loadHeadersFromResource(R.xml.preference_headers, target);
     }
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
-        HomeActivity.goHome(this);
+        super.onBackPressed();
     }
 
     @OptionsItem
@@ -103,18 +100,6 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
     //---------------------------------------------------------------------
     // Static methods
     //---------------------------------------------------------------------
-
-    @Deprecated
-    public static long getRepoCacheExpirationValue(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean repoCacheEnabled = preferences.getBoolean(KEY_PREF_REPO_CACHE_ENABLED, DEFAULT_REPO_CACHE_ENABLED);
-        if (repoCacheEnabled) {
-            String value = preferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
-            return Integer.parseInt(value) * DurationInMillis.ONE_HOUR;
-        } else {
-            return -1;
-        }
-    }
 
     @Deprecated
     public static boolean isAnimationEnabled(Context context) {

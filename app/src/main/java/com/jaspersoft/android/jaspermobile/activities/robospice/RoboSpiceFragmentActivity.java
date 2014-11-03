@@ -68,7 +68,7 @@ public class RoboSpiceFragmentActivity extends RoboAccentFragmentActivity  {
 
     @Override
     public void onPause() {
-        super.onResume();
+        super.onPause();
         BugSenseWrapper.closeSession(this);
     }
 

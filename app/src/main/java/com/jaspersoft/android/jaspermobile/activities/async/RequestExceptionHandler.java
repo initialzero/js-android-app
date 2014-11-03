@@ -25,14 +25,15 @@
 package com.jaspersoft.android.jaspermobile.activities.async;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.octo.android.robospice.exception.NetworkException;
 
@@ -104,22 +105,19 @@ public class RequestExceptionHandler {
     }
 
     private static void showErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        // prepare the alert box
-        AlertDialog.Builder alertBox = new AlertDialog.Builder(activity);
-        alertBox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
-
-        // set the message to display
-        alertBox.setMessage(message);
-
-        // add a neutral button to the alert box and assign a click listener
-        alertBox.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            // click listener on the alert box
-            public void onClick(DialogInterface arg0, int arg1) {
-                if (finishActivity) activity.finish();
-            }
-        });
-
-        alertBox.show();
+        AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setNeutralButton(
+                        new View.OnClickListener() {
+                            public void onClick(View view) {
+                                if (finishActivity) activity.finish();
+                            }
+                        }
+                )
+                .setNeutralButtonText(android.R.string.ok)
+                .setTitle(R.string.error_msg)
+                .setMessage(message)
+                .show();
     }
 
     private static void showAuthErrorDialog(int messageId, Activity activity, boolean finishActivity) {
@@ -127,29 +125,45 @@ public class RequestExceptionHandler {
     }
 
     private static void showAuthErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        // prepare the alert box
-        AlertDialog.Builder alertBox = new AlertDialog.Builder(activity);
-        alertBox.setTitle(R.string.error_msg).setIcon(android.R.drawable.ic_dialog_alert);
-
-        // set the message to display
-        alertBox.setMessage(message);
-
-        alertBox.setCancelable(false)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        HomeActivity_.intent(activity)
-                                .action(HomeActivity.EDIT_SERVER_PROFILE_ACTION)
-                                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                .start();
+        AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(new View.OnClickListener() {
+                    public void onClick(View view) {
+                        Intent intent = new Intent();
+                        intent.setClass(activity, HomeActivity.class);
+                        intent.setAction(HomeActivity.EDIT_SERVER_PROFILE_ACTION);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        activity.startActivity(intent);
                     }
                 })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+                .setNegativeButton(new View.OnClickListener() {
+                    public void onClick(View v) {
                         if (finishActivity) activity.finish();
                     }
-                });
+                })
+                .setNegativeButtonText(android.R.string.cancel)
+                .setPositiveButtonText(android.R.string.ok)
+                .setTitle(R.string.error_msg)
+                .setMessage(message)
+                .show();
+    }
 
-        alertBox.show();
+    /**
+     * It is dirty method will leave here until
+     * we move to android.app.FragmentManager
+     *
+     * @param activity instance of activity should support
+     *                 getSupportFragmentManager() otherwise
+     *                 will return null
+     * @return FragmentManager or null
+     */
+    @Nullable
+    private static FragmentManager getSupportFragmentManager(Activity activity) {
+        if (activity instanceof FragmentActivity) {
+            return ((FragmentActivity) activity).getSupportFragmentManager();
+        } else {
+            return null;
+        }
     }
 
 }

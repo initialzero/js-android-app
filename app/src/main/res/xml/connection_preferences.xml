@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="pref_connect_timeout"
+        android:title="@string/st_title_connect_timeout"
+        android:inputType="number"
+        android:defaultValue="15"
+        />
+
+    <EditTextPreference
+        android:key="pref_read_timeout"
+        android:title="@string/st_title_read_timeout"
+        android:inputType="number"
+        android:defaultValue="120"
+        />
+</PreferenceScreen>

@@ -56,7 +56,28 @@
 			"mUsername" : "joeuser",
 			"mPassword" : "joeuser"
 		},
-		
+		{
+			"mAlias" : "PRO 6.0 Superuser",
+			"mServerUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
+			"mOrganization" : "",
+			"mUsername" : "superuser",
+			"mPassword" : "superuser"
+		},
+		{
+			"mAlias" : "PRO 6.0 Adminuser",
+			"mServerUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
+			"mOrganization" : "",
+			"mUsername" : "jasperadmin",
+			"mPassword" : "jasperadmin"
+		},
+		{
+			"mAlias" : "PRO 6.0 JoeUser",
+			"mServerUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
+			"mOrganization" : "",
+			"mUsername" : "joeuser",
+			"mPassword" : "joeuser"
+		},
+
 	    {
 			"mAlias" : "CE 5.5.0 LOCAL JasperAdmin",
 			"mServerUrl" : "http://192.168.88.55:8085/jasperserver-550",

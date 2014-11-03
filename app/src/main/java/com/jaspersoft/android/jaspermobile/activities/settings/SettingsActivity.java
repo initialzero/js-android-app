@@ -36,8 +36,12 @@ import android.text.util.Linkify;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentPreferenceActivity;
+import com.jaspersoft.android.jaspermobile.activities.settings.fragment.CacheSettingsFragment_;
+import com.jaspersoft.android.jaspermobile.activities.settings.fragment.ConnectionSettingsFragment_;
+import com.jaspersoft.android.jaspermobile.activities.settings.fragment.GeneralSettingsFragment_;
 import com.negusoft.holoaccent.dialog.AccentAlertDialog;
 
 import org.androidannotations.annotations.EActivity;
@@ -66,6 +70,12 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
     public static final String DEFAULT_CONNECT_TIMEOUT = "15";
     public static final String DEFAULT_READ_TIMEOUT = "120";
 
+    private static final String[] ALLOWED_FRAGMENTS = {
+            CacheSettingsFragment_.class.getName(),
+            ConnectionSettingsFragment_.class.getName(),
+            GeneralSettingsFragment_.class.getName()
+    };
+
     //---------------------------------------------------------------------
     // Public methods
     //---------------------------------------------------------------------
@@ -78,6 +88,31 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+
+    /**
+     * http://stackoverflow.com/questions/19973034/isvalidfragment-android-api-19
+     * http://stackoverflow.com/questions/20868643/why-does-kit-kat-require-the-use-of-the-isvalidfragment
+     *
+     * A New Vulnerability in the Android Framework: Fragment Injection
+     * We have recently disclosed a new vulnerability to the Android Security Team. The vulnerability
+     * affected many apps, including Settings (the one that is found on every Android device), Gmail,
+     * Google Now, DropBox and Evernote. To be more accurate, any App which extended the
+     * PreferenceActivity class using an exported activity was automatically vulnerable. A patch has
+     * been provided in Android KitKat. If you wondered why your code is now broken, it is due to the
+     * Android KitKat patch which requires applications to override the new method,
+     * PreferenceActivity.isValidFragment, which has been added to the Android Framework.
+     * @param fragmentName fragment user opens
+     * @return tru for older versions
+     */
+    @Override
+    protected boolean isValidFragment(String fragmentName) {
+        if (getApplicationInfo().targetSdkVersion  >= android.os.Build.VERSION_CODES.KITKAT) {
+            return Lists.newArrayList(ALLOWED_FRAGMENTS).contains(fragmentName);
+        } else {
+            return true;
         }
     }
 

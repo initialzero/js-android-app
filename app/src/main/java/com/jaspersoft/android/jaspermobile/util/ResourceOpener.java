@@ -60,6 +60,7 @@ public class ResourceOpener {
     }
 
     public void openResource(ResourceLookup resource) {
+        JsRestClient.flushCookies();
         switch (resource.getResourceType()) {
             case folder:
                 openFolder(resource);
@@ -90,7 +91,6 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        JsRestClient.flushCookies();
         ReportHtmlViewerActivity_.intent(activity)
                 .resource(resource).start();
     }

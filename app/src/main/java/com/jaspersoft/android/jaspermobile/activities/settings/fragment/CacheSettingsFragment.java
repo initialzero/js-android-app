@@ -61,7 +61,6 @@ public class CacheSettingsFragment extends PreferenceFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        validatePreferenceValue(key, DEFAULT_REPO_CACHE_EXPIRATION);
         try {
             prefHelper.getRepoCacheExpirationValue();
         } catch (NumberFormatException ex) {
@@ -75,14 +74,6 @@ public class CacheSettingsFragment extends PreferenceFragment
                 DEFAULT_REPO_CACHE_EXPIRATION);
         String summary = getString(R.string.st_summary_h, value);
         repoCacheExpirationPref.setSummary(summary);
-    }
-
-    private void validatePreferenceValue(String key, String defValue) {
-        if (sharedPreferences.getString(key, defValue).length() == 0) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(key, defValue);
-            editor.apply();
-        }
     }
 
 }

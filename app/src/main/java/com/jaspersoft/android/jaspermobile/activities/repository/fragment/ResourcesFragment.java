@@ -335,29 +335,6 @@ public class ResourcesFragment extends RoboSpiceFragment
             }
         }
 
-        private class GetRootFolderDataRequestListener implements RequestListener<FolderDataResponse> {
-            @Override
-            public void onRequestFailure(SpiceException exception) {
-                RequestExceptionHandler.handle(exception, getActivity(), true);
-                setRefreshState(false);
-                showEmptyText(R.string.failed_load_data);
-            }
-
-            @Override
-            public void onRequestSuccess(FolderDataResponse folderDataResponse) {
-                mAdapter.add(folderDataResponse);
-
-                ResourceLookup publicLookup = new ResourceLookup();
-                publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
-                publicLookup.setLabel("Public");
-                publicLookup.setUri("/public");
-                mAdapter.add(publicLookup);
-
-                setRefreshState(false);
-                showEmptyText(emptyMessage);
-            }
-        }
-
         protected void setUpPaginationPolicy(ServerInfo serverInfo) {
             double versionCode = serverInfo.getVersionCode();
             if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
@@ -378,6 +355,29 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
+    private class GetRootFolderDataRequestListener implements RequestListener<FolderDataResponse> {
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, getActivity(), true);
+            setRefreshState(false);
+            showEmptyText(R.string.failed_load_data);
+        }
+
+        @Override
+        public void onRequestSuccess(FolderDataResponse folderDataResponse) {
+            mAdapter.add(folderDataResponse);
+
+            ResourceLookup publicLookup = new ResourceLookup();
+            publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
+            publicLookup.setLabel("Public");
+            publicLookup.setUri("/public");
+            mAdapter.add(publicLookup);
+
+            setRefreshState(false);
+            showEmptyText(emptyMessage);
+        }
+    }
+    
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
 
         @Override

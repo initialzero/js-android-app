@@ -52,9 +52,9 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
+import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
@@ -66,6 +66,7 @@ import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -109,6 +110,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     @Inject
     protected JsRestClient jsRestClient;
+
+    @Bean
+    ReportExecutionUtil reportExecutionUtil;
 
     private JSWebView webView;
 
@@ -259,7 +263,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     private ExportsRequest prepareExportsData() {
         ExportsRequest executionData = new ExportsRequest();
-        executionData.configureExecutionForProfile(jsRestClient);
+        reportExecutionUtil.setupAttachmentPrefix(executionData, versionCode);
+        reportExecutionUtil.setupBaseUrl(executionData);
         executionData.setAllowInlineScripts(false);
         executionData.setOutputFormat("html");
         executionData.setPages(String.valueOf(page));

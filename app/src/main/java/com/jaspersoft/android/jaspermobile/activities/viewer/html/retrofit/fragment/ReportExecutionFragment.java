@@ -10,6 +10,7 @@ import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHand
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.CheckReportStatusRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
@@ -23,6 +24,7 @@ import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
@@ -44,6 +46,9 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
     @Inject
     JsRestClient jsRestClient;
+
+    @Bean
+    ReportExecutionUtil reportExecutionUtil;
 
     private final Handler mHandler = new Handler();
     private PaginationManagerFragment paginationManagerFragment;
@@ -98,7 +103,10 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
     private ReportExecutionRequest prepareExecutionData(ArrayList<ReportParameter> reportParameters) {
         ReportExecutionRequest executionData = new ReportExecutionRequest();
-        executionData.configureExecutionForProfile(jsRestClient);
+
+        reportExecutionUtil.setupAttachmentPrefix(executionData, versionCode);
+        reportExecutionUtil.setupBaseUrl(executionData);
+
         executionData.setReportUnitUri(resource.getUri());
         executionData.setOutputFormat("html");
         executionData.setAsync(true);

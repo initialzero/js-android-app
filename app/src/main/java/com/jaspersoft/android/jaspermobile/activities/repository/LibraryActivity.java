@@ -24,9 +24,13 @@
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuItem;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
@@ -36,14 +40,20 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Search
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.List;
 
@@ -53,12 +63,25 @@ import java.util.List;
  */
 @EActivity
 @OptionsMenu(R.menu.libraries_menu)
-public class LibraryActivity extends RoboAccentFragmentActivity {
+public class LibraryActivity extends RoboSpiceFragmentActivity {
+
+    @Inject
+    JsRestClient jsRestClient;
 
     @Bean
     FilterOptions filterOptions;
     @Bean
     SortOptions sortOptions;
+
+    @OptionsMenuItem
+    MenuItem filter;
+    @OptionsMenuItem
+    MenuItem sort;
+
+    @InstanceState
+    boolean mShowFilterOption;
+    @InstanceState
+    boolean mShowSortOption;
 
     private ResourcesControllerFragment resourcesController;
     private SearchControllerFragment searchControllerFragment;
@@ -96,6 +119,17 @@ public class LibraryActivity extends RoboAccentFragmentActivity {
             searchControllerFragment = (SearchControllerFragment) getSupportFragmentManager()
                     .findFragmentByTag(SearchControllerFragment.TAG);
         }
+
+        getSpiceManager().execute(new GetServerInfoRequest(jsRestClient),
+                new GetServerInfoRequestListener());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        filter.setVisible(mShowFilterOption);
+        sort.setVisible(mShowSortOption);
+        return true;
     }
 
     @OptionsItem(android.R.id.home)
@@ -129,6 +163,21 @@ public class LibraryActivity extends RoboAccentFragmentActivity {
                 }
             }
         });
+    }
+
+    private class GetServerInfoRequestListener extends CommonRequestListener<ServerInfo> {
+        @Override
+        public void onSemanticSuccess(ServerInfo serverInfo) {
+            mShowSortOption = true;
+            String proVersion = ServerInfo.EDITIONS.PRO;
+            mShowFilterOption = (proVersion.equals(serverInfo.getEdition()));
+            invalidateOptionsMenu();
+        }
+
+        @Override
+        public Activity getCurrentActivity() {
+            return LibraryActivity.this;
+        }
     }
 
 }

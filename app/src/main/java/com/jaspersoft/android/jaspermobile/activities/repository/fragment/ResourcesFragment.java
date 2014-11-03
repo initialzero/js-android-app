@@ -51,8 +51,10 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
+import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
@@ -257,7 +259,6 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     public void loadFirstPage() {
         mSearchCriteria.setOffset(0);
-        mSearchCriteria.setLimit(mLimit);
         loadResources(mLoaderState);
     }
 
@@ -308,14 +309,53 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     private class GetServerInfoListener implements RequestListener<ServerInfo> {
         @Override
-        public void onRequestFailure(SpiceException e) {
-            RequestExceptionHandler.handle(e, getActivity(), false);
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, getActivity(), true);
+            setRefreshState(false);
+            showEmptyText(R.string.failed_load_data);
         }
 
         @Override
         public void onRequestSuccess(ServerInfo serverInfo) {
             setUpPaginationPolicy(serverInfo);
-            loadFirstPage();
+
+            String proVersion = ServerInfo.EDITIONS.PRO;
+            boolean isRepository = !recursiveLookup;
+            boolean isRoot = TextUtils.isEmpty(resourceUri);
+            boolean isProJrs = proVersion.equals(serverInfo.getEdition());
+            if (isRepository && isRoot && isProJrs) {
+                // Fetch default URI
+                GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
+                long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
+                        ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
+                getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
+                        new GetRootFolderDataRequestListener());
+            } else {
+                loadFirstPage();
+            }
+        }
+
+        private class GetRootFolderDataRequestListener implements RequestListener<FolderDataResponse> {
+            @Override
+            public void onRequestFailure(SpiceException exception) {
+                RequestExceptionHandler.handle(exception, getActivity(), true);
+                setRefreshState(false);
+                showEmptyText(R.string.failed_load_data);
+            }
+
+            @Override
+            public void onRequestSuccess(FolderDataResponse folderDataResponse) {
+                mAdapter.add(folderDataResponse);
+
+                ResourceLookup publicLookup = new ResourceLookup();
+                publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
+                publicLookup.setLabel("Public");
+                publicLookup.setUri("/public");
+                mAdapter.add(publicLookup);
+
+                setRefreshState(false);
+                showEmptyText(emptyMessage);
+            }
         }
 
         protected void setUpPaginationPolicy(ServerInfo serverInfo) {

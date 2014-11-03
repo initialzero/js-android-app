@@ -77,7 +77,7 @@ public class ResourceViewHelper {
     }
 
     private String formatDateString(String updateDate) {
-        checkNotNull(updateDate, "Trying to format date with a null String");
+        if (updateDate == null) return "";
 
         try {
             Date dateValue = dateFormat.parse(updateDate);

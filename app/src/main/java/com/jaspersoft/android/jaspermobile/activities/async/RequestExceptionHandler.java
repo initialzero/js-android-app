@@ -33,6 +33,7 @@ import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.octo.android.robospice.exception.NetworkException;
@@ -129,11 +130,10 @@ public class RequestExceptionHandler {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(new View.OnClickListener() {
                     public void onClick(View view) {
-                        Intent intent = new Intent();
-                        intent.setClass(activity, HomeActivity.class);
-                        intent.setAction(HomeActivity.EDIT_SERVER_PROFILE_ACTION);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        activity.startActivity(intent);
+                        HomeActivity_.intent(activity)
+                                .action(HomeActivity.EDIT_SERVER_PROFILE_ACTION)
+                                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                .start();
                     }
                 })
                 .setNegativeButton(new View.OnClickListener() {

@@ -377,8 +377,11 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             JsRestClient.flushCookies();
 
             saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
-            GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-            getSpiceManager().execute(request, new GetServerInfoListener());
+
+            JsRestClient.flushCookies();
+
+            getSpiceManager().execute(
+                    new GetServerInfoRequest(jsRestClient), new GetServerInfoListener());
             hideKeyboard();
         }
     }

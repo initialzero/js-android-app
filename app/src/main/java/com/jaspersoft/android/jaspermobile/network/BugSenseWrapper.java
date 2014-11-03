@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.network;
 
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.splunk.mint.Mint;
 
@@ -40,7 +41,6 @@ public class BugSenseWrapper {
     public static void initAndStartSession(Context context) {
         if (sendReport(context)) {
             Mint.initAndStartSession(context, API_KEY);
-            Mint.enableDebug();
         }
     }
 
@@ -56,7 +56,7 @@ public class BugSenseWrapper {
 
     private static boolean sendReport(Context context) {
         DefaultPrefHelper_ prefHelper = DefaultPrefHelper_.getInstance_(context);
-        return prefHelper.sendCrashReports();
+        return (!BuildConfig.DEBUG && prefHelper.sendCrashReports());
     }
 
 }

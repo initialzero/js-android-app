@@ -16,7 +16,7 @@ public enum ExceptionRule {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, R.string.error_http_400),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, R.string.error_http_401),
     FORBIDDEN(HttpStatus.FORBIDDEN, R.string.error_http_403),
-    NOT_FOUND(HttpStatus.FORBIDDEN, R.string.error_http_404),
+    NOT_FOUND(HttpStatus.NOT_FOUND, R.string.error_http_404),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, R.string.error_http_500),
     BAD_GATEWAY(HttpStatus.BAD_GATEWAY, R.string.error_http_502),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, R.string.error_http_503),

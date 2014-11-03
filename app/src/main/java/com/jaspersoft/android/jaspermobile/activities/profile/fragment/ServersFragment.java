@@ -194,6 +194,8 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        JsRestClient.flushCookies();
+
         Cursor cursor = mAdapter.getCursor();
         cursor.moveToPosition(position);
 

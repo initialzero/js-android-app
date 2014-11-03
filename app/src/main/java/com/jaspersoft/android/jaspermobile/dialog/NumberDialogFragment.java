@@ -137,10 +137,6 @@ public class NumberDialogFragment extends DialogFragment {
         this.onPageSelectedListener = onPageSelectedListener;
     }
 
-    public static interface OnPageSelectedListener {
-        void onPageSelected(int page);
-    }
-
     private static class AbstractTextWatcher implements TextWatcher {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {

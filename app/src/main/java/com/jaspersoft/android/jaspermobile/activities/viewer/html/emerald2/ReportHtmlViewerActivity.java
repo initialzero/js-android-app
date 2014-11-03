@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -39,11 +39,11 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
-import com.jaspersoft.android.jaspermobile.activities.report.fragment.PaginationFragment;
-import com.jaspersoft.android.jaspermobile.activities.report.fragment.PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.PaginationFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.PaginationFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -89,7 +89,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
     // Extras
     public static final String EXTRA_REPORT_PARAMETERS = "ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS";
     // Result Code
-    private static final int REQUEST_REPORT_PARAMETERS = 100;
+    public static final int REQUEST_REPORT_PARAMETERS = 100;
     private static final String OUTPUT_FORMAT = "HTML";
 
     @Inject

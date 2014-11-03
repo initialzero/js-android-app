@@ -28,7 +28,7 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.acceptance.viewer.WebViewInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;

@@ -374,6 +374,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             profile.setPassword(password);
             jsRestClient.setServerProfile(profile);
 
+            JsRestClient.flushCookies();
+
             saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
 
             JsRestClient.flushCookies();

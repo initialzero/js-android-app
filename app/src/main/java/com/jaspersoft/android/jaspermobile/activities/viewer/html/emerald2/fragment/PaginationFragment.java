@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.report.fragment;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment;
 
 import android.os.Bundle;
 import android.view.View;
@@ -31,8 +31,8 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
@@ -132,7 +132,7 @@ public class PaginationFragment extends RoboSpiceFragment {
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
         NumberDialogFragment.show(getFragmentManager(), currentPage, totalPage,
-                new NumberDialogFragment.OnPageSelectedListener() {
+                new OnPageSelectedListener() {
                     @Override
                     public void onPageSelected(int page) {
                         currentPage = page;

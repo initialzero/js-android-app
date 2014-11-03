@@ -17,6 +17,7 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/progressLayout"
     android:layout_height="wrap_content"
     android:layout_width="@dimen/abs__action_button_min_width"
     android:minWidth="@dimen/abs__action_button_min_width">

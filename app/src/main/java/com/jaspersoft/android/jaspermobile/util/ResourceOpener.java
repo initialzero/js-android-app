@@ -32,6 +32,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EBean;
@@ -89,6 +90,7 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
+        JsRestClient.flushCookies();
         ReportHtmlViewerActivity_.intent(activity)
                 .resource(resource).start();
     }

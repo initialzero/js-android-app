@@ -89,7 +89,7 @@
             style="@style/home.card.box"
             auto:body_subtitle="@string/servers_card_desc"
             auto:body_title="@string/servers_card_label"
-            auto:header_background="@drawable/ic_composed_config_home" />
+            auto:header_background="@drawable/ic_composed_servers_home" />
 
     </TableRow>
 

@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import android.content.res.Resources;
-import android.os.Bundle;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
@@ -46,12 +45,6 @@ public class RoboSpiceFragmentActivity extends RoboAccentFragmentActivity  {
 
     @Inject
     private JsSpiceManager jsSpiceManager;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        BugSenseWrapper.initAndStartSession(this);
-    }
 
     @Override
     protected void onStart() {

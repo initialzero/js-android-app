@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import android.content.res.Resources;
-import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.negusoft.holoaccent.AccentHelper;
@@ -87,12 +86,6 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
      */
     public void onInitAccentResources(AccentResources resources) {
         // To be overriden in child classes.
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        BugSenseWrapper.initAndStartSession(this);
     }
 
     @Override

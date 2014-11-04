@@ -29,6 +29,7 @@ import android.view.ViewConfiguration;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
+import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.jaspermobile.webkit.WebkitCookieManagerProxy;
 
@@ -52,6 +53,8 @@ public class JasperMobileApplication extends Application {
 
     @Override
     public void onCreate() {
+        super.onCreate();
+        BugSenseWrapper.initAndStartSession(this);
         forceOverFlowMenu();
         syncCookies();
         profileHelper.initJsRestClient();

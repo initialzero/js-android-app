@@ -29,7 +29,7 @@
 
     <item>
         <bitmap
-            android:gravity="right|top"
-            android:src="@drawable/ic_profile" />
+            android:gravity="center"
+            android:src="@drawable/ic_server" />
     </item>
 </layer-list>

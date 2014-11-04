@@ -113,11 +113,6 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         // init helper for date/time picker dialogs
         dialogHelper = new DatePickerDialogHelper(this);
 
-        // get report label from extras and update title
-        String reportLabel = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
-        ScrollableTitleHelper scrollableTitleHelper = ScrollableTitleHelper_.getInstance_(this);
-        scrollableTitleHelper.injectTitle(this, reportLabel);
-
         // get report uri from extras
         reportUri = getIntent().getExtras().getString(EXTRA_REPORT_URI);
 

@@ -84,6 +84,7 @@
         <!-- Activity that allows to specify the report options before running it -->
         <activity
             android:name=".activities.report.ReportOptionsActivity"
+            android:label="@string/ro_page_title"
             android:configChanges="screenSize|orientation"
             android:windowSoftInputMode="stateHidden" />
 

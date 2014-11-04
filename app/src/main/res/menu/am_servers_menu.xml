@@ -25,11 +25,6 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/connectItem"
-        android:showAsAction="always"
-        android:icon="@drawable/ic_action_connect"
-        android:title="@string/spm_cm_switch" />
-    <item
         android:id="@+id/editItem"
         android:showAsAction="ifRoom"
         android:icon="@drawable/ic_content_edit"

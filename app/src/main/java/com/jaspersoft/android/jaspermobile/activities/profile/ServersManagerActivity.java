@@ -29,8 +29,9 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
-import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ProfilesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ProfilesControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
+import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 
 import org.androidannotations.annotations.EActivity;
@@ -55,9 +56,10 @@ public class ServersManagerActivity extends RoboAccentFragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            ProfilesControllerFragment controllerFragment = ProfilesControllerFragment_.builder().build();
+            ServersFragment serversFragment = ServersFragment_.builder()
+                    .viewType(ViewType.LIST).build();
             getSupportFragmentManager().beginTransaction()
-                    .add(controllerFragment, ProfilesControllerFragment.TAG)
+                    .add(android.R.id.content, serversFragment, ServersFragment.TAG)
                     .commit();
         }
     }

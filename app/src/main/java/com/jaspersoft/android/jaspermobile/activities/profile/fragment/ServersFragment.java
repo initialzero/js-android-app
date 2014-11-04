@@ -69,6 +69,7 @@ import roboguice.inject.InjectView;
 public class ServersFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, ISimpleDialogListener, ServersAdapter.ServersInteractionListener {
     public static final String EXTRA_SERVER_PROFILE_ID = "ServersFragment.EXTRA_SERVER_PROFILE_ID";
+    public static final String TAG = ServersFragment.class.getSimpleName();
 
     @FragmentArg
     ViewType viewType;
@@ -82,7 +83,6 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     private ServersAdapter mAdapter;
     private JsServerProfile mServerProfile;
     private long mServerProfileId;
-    private AdapterView.AdapterContextMenuInfo currentInfo;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -116,12 +116,6 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mAdapter.save(outState);
-    }
-
-    @Override
-    public void onConnect(int position) {
-        mAdapter.finishActionMode();
-        onItemClick(listView, null, position, 0);
     }
 
     @Override

@@ -68,11 +68,6 @@ public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.connectItem:
-                if (serversInteractionListener != null) {
-                    serversInteractionListener.onConnect(getCurrentPosition());
-                }
-                break;
             case R.id.editItem:
                 if (serversInteractionListener != null) {
                     serversInteractionListener.onEdit(getCurrentPosition());
@@ -90,8 +85,6 @@ public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
     }
 
     public static interface ServersInteractionListener {
-        void onConnect(int position);
-
         void onEdit(int position);
 
         void onDelete(int position);

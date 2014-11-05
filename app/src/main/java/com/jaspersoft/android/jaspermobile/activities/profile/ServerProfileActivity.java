@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
@@ -374,11 +375,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             profile.setPassword(password);
             jsRestClient.setServerProfile(profile);
 
-            JsRestClient.flushCookies();
-
+            JasperMobileApplication.removeAllCookies();
             saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
-
-            JsRestClient.flushCookies();
 
             getSpiceManager().execute(
                     new GetServerInfoRequest(jsRestClient), new GetServerInfoListener());

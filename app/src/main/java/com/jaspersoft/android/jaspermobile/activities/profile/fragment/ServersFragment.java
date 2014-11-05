@@ -44,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.adapter.ServersAdapter;
@@ -188,7 +189,7 @@ public class ServersFragment extends RoboFragment implements LoaderManager.Loade
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        JsRestClient.flushCookies();
+        JasperMobileApplication.removeAllCookies();
 
         Cursor cursor = mAdapter.getCursor();
         cursor.moveToPosition(position);

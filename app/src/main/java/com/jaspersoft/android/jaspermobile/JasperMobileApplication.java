@@ -28,6 +28,7 @@ import android.app.Application;
 import android.view.ViewConfiguration;
 
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
@@ -41,9 +42,12 @@ import java.lang.reflect.Field;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
-
     @Bean
     ProfileHelper profileHelper;
+
+    public static void removeAllCookies() {
+        JsRestClient.flushCookies();
+    }
 
     @Override
     public void onCreate() {

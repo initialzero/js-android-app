@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
@@ -73,7 +74,7 @@ public class ResourceOpener {
     }
 
     public void openResource(ResourceLookup resource) {
-        JsRestClient.flushCookies();
+        JasperMobileApplication.removeAllCookies();
         switch (resource.getResourceType()) {
             case folder:
                 openFolder(resource);

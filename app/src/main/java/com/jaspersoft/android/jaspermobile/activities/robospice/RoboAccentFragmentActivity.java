@@ -28,8 +28,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.negusoft.holoaccent.AccentHelper;
 import com.negusoft.holoaccent.AccentResources;
 
@@ -119,7 +119,7 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
 
         // Checks the orientation of the screen
         if (newConfig.locale != currentLocale) {
-            JsRestClient.flushCookies();
+            JasperMobileApplication.removeAllCookies();
             currentLocale = newConfig.locale;
         }
     }

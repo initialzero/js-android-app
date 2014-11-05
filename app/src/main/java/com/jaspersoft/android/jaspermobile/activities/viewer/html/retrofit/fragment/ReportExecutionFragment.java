@@ -20,6 +20,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportStatusResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -116,6 +117,10 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         if (!reportParameters.isEmpty()) {
             executionData.setParameters(reportParameters);
         }
+
+        boolean interactive = !(versionCode >= ServerInfo.VERSION_CODES.EMERALD_THREE || versionCode < ServerInfo.VERSION_CODES.AMBER);
+        executionData.setInteractive(interactive);
+
         return executionData;
     }
 

@@ -98,7 +98,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     int currentPage = FIRST_PAGE;
 
     private final Map<Integer, NodeWebViewFragment> pagesMap = Maps.newHashMap();
-    private PagesAdapter mAdapter;
 
     private final OnPageSelectedListener onPageSelectedListener =
             new OnPageSelectedListener() {
@@ -111,9 +110,13 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     @AfterViews
     final void init() {
-        mAdapter = new PagesAdapter(getFragmentManager());
         currentPageLabel.setText(String.valueOf(currentPage));
         alterControlStates();
+
+        if (mTotalPage != 0) {
+            showTotalPageCount(mTotalPage);
+            setVisible(true);
+        }
     }
 
     public void showTotalPageCount(int totalPage) {
@@ -178,7 +181,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         alterControlStates();
 
         NodeWebViewFragment nodeWebViewFragment;
-        if (mAdapter.getCount() == 0) {
+        if (pagesMap.keySet().size() == 0) {
             nodeWebViewFragment = createNodeWebViewFragment();
         } else {
             if (pagesMap.containsKey(currentPage)) {

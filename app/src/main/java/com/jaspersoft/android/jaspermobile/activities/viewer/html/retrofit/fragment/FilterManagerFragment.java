@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -23,6 +24,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -62,6 +64,8 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @InstanceState
     ArrayList<InputControl> cachedInputControls;
+    @InstanceState
+    ArrayList<ReportParameter> reportParameters;
     @InstanceState
     boolean mShowFilterOption;
     @InstanceState
@@ -111,6 +115,20 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     }
 
     @OptionsItem
+    final void saveReport() {
+        if (FileUtils.isExternalStorageWritable()) {
+            SaveReportActivity_.intent(this)
+                    .reportParameters(reportParameters)
+                    .resourceUri(resource.getUri())
+                    .resourceLabel(resource.getLabel())
+                    .start();
+        } else {
+            Toast.makeText(getActivity(),
+                    R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @OptionsItem
     final void showFilters() {
         showReportOptions(cachedInputControls);
     }
@@ -127,7 +145,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadReportParameters(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            ArrayList<ReportParameter> reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
+            reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
             getReportExecutionFragment().executeReport(reportParameters);
         } else {
             // Check if user has experienced report loading. Otherwise remove him from this page.

@@ -31,12 +31,6 @@
         android:title="@string/r_cm_add_to_favorites"
         android:showAsAction="always" />
 
-    <!--<item-->
-        <!--android:id="@+id/refreshAction"-->
-        <!--android:icon="@drawable/ic_action_refresh"-->
-        <!--android:title="@string/r_ab_refresh"-->
-        <!--android:showAsAction="ifRoom" />-->
-
     <item
         android:id="@+id/aboutAction"
         android:icon="@drawable/ic_action_about"

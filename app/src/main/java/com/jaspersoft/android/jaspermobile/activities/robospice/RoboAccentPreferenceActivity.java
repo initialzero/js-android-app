@@ -24,12 +24,16 @@
 
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.negusoft.holoaccent.AccentHelper;
 import com.negusoft.holoaccent.AccentResources;
+
+import java.util.Locale;
 
 import roboguice.activity.RoboPreferenceActivity;
 
@@ -41,6 +45,7 @@ public class RoboAccentPreferenceActivity extends RoboPreferenceActivity {
 
     private final AccentHelper mAccentHelper = new AccentHelper(getOverrideAccentColor(),
             getOverrideAccentColorDark(), getOverrideAccentColorActionBar(), new MyInitListener());
+    private Locale currentLocale;
 
     @Override
     public Resources getResources() {
@@ -92,6 +97,7 @@ public class RoboAccentPreferenceActivity extends RoboPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        currentLocale = Locale.getDefault();
         BugSenseWrapper.initAndStartSession(this);
     }
 
@@ -105,6 +111,17 @@ public class RoboAccentPreferenceActivity extends RoboPreferenceActivity {
     protected void onPause() {
         super.onPause();
         BugSenseWrapper.closeSession(this);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen
+        if (newConfig.locale != currentLocale) {
+            JsRestClient.flushCookies();
+            currentLocale = newConfig.locale;
+        }
     }
 
     private class MyInitListener implements AccentHelper.OnInitListener {

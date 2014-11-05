@@ -26,19 +26,13 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
 import android.view.ViewConfiguration;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 
-import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.jaspermobile.webkit.WebkitCookieManagerProxy;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
 import java.lang.reflect.Field;
-import java.net.CookieHandler;
-import java.net.CookiePolicy;
 
 /**
  * @author Ivan Gadzhega
@@ -54,9 +48,7 @@ public class JasperMobileApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        BugSenseWrapper.initAndStartSession(this);
         forceOverFlowMenu();
-        syncCookies();
         profileHelper.initJsRestClient();
         profileHelper.seedProfilesIfNeed();
     }
@@ -77,19 +69,6 @@ public class JasperMobileApplication extends Application {
         } catch (Exception ex) {
             // Ignore
         }
-    }
-
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
-
-    /**
-     * Sync cookies between HttpURLConnection and WebView
-     */
-    private void syncCookies() {
-        CookieSyncManager.createInstance(this);
-        CookieManager.getInstance().setAcceptCookie(true);
-        CookieHandler.setDefault(new WebkitCookieManagerProxy(CookiePolicy.ACCEPT_ALL));
     }
 
 }

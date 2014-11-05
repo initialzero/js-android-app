@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.robospice;
 import android.content.res.Resources;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.negusoft.holoaccent.AccentHelper;
 import com.negusoft.holoaccent.AccentResources;
@@ -53,23 +52,11 @@ public class RoboSpiceFragmentActivity extends RoboAccentFragmentActivity  {
         super.onStart();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        BugSenseWrapper.startSession(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        BugSenseWrapper.closeSession(this);
-    }
 
     @Override
     protected void onStop() {
         if (jsSpiceManager.isStarted())
             jsSpiceManager.shouldStop();
-        BugSenseWrapper.closeSession(this);
         super.onStop();
     }
 

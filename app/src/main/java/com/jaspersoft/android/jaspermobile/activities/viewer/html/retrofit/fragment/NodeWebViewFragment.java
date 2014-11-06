@@ -32,6 +32,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
@@ -115,6 +116,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     boolean mOutputFinal;
     @InstanceState
     String executionId;
+    @InstanceState
+    String currentHtml;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -149,6 +152,10 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
             ((ViewGroup) webView.getParent()).removeView(webView);
         }
         webViewPlaceholder.addView(webView);
+
+        if (!TextUtils.isEmpty(currentHtml)) {
+            loadHtml(currentHtml);
+        }
     }
 
     @Override
@@ -156,6 +163,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         if (webView != null) webViewPlaceholder.removeView(webView);
         super.onConfigurationChanged(newConfig);
         initWebView();
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (webView != null) {
+            webView.restoreState(savedInstanceState);
+        }
     }
 
     @Override
@@ -167,11 +182,11 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     }
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (webView != null) {
-            webView.restoreState(savedInstanceState);
-        }
+    public void onDestroy() {
+        super.onDestroy();
+        webViewPlaceholder.removeAllViews();
+        webView.destroy();
+        webView = null;
     }
 
     public boolean isResourceLoaded() {
@@ -180,6 +195,11 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     private void loadHtml(String html) {
         Preconditions.checkNotNull(html);
+        Preconditions.checkNotNull(webView);
+        Preconditions.checkNotNull(jsRestClient);
+        if (!html.equals(currentHtml)) {
+            currentHtml = html;
+        }
         String mime = "text/html";
         String encoding = "utf-8";
         webView.loadDataWithBaseURL(
@@ -192,7 +212,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
 
     private void createWebView() {
-        webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
+        webView = new JSWebView(getActivity().getApplicationContext(), null, R.style.htmlViewer_webView);
         syncCookies();
         prepareWebView();
         setWebViewClient();

@@ -42,6 +42,7 @@ import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest
 import com.jaspersoft.android.sdk.client.async.request.SaveExportAttachmentRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportOutputRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
@@ -127,9 +128,16 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 // save report
                 // run new report execution
                 setRefreshActionButtonState(true);
+
+                ReportExecutionRequest executionRequest = new ReportExecutionRequest();
+                executionRequest.setReportUnitUri(resourceUri);
+                executionRequest.setInteractive(false);
+                executionRequest.setOutputFormat(outputFormat.toString());
+                if (reportParameters != null && !reportParameters.isEmpty()) {
+                    executionRequest.setParameters(reportParameters);
+                }
                 RunReportExecutionRequest request =
-                        new RunReportExecutionRequest(jsRestClient, resourceUri,
-                                outputFormat.toString(), reportParameters, false, "./");
+                        new RunReportExecutionRequest(jsRestClient, executionRequest);
                 getSpiceManager().execute(request, new RunReportExecutionListener(reportFile, outputFormat));
             }
         }

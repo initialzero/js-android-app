@@ -16,21 +16,21 @@
 		}
 		,{
 			"mAlias" : "PRO 5.6.0 Superuser",
-			"mServerUrl" : "http://172.17.10.91:8080/jasperserver-pro-56",
+			"mServerUrl" : "http://172.17.10.35:8080/jasperserver-pro-56",
 			"mOrganization" : "",
 			"mUsername" : "superuser",
 			"mPassword" : "superuser"
 		},
 		{
 			"mAlias" : "PRO 5.6.0 Adminuser",
-			"mServerUrl" : "http://172.17.10.91:8080/jasperserver-pro-56",
+			"mServerUrl" : "http://172.17.10.35:8080/jasperserver-pro-56",
 			"mOrganization" : "",
 			"mUsername" : "jasperadmin",
 			"mPassword" : "jasperadmin"
 		},
 		{
 			"mAlias" : "PRO 5.6.0 JoeUser",
-			"mServerUrl" : "http://172.17.10.91:8080/jasperserver-pro-56",
+			"mServerUrl" : "http://172.17.10.35:8080/jasperserver-pro-56",
 			"mOrganization" : "",
 			"mUsername" : "joeuser",
 			"mPassword" : "joeuser"
@@ -57,21 +57,21 @@
 			"mPassword" : "joeuser"
 		},
 		{
-			"mAlias" : "PRO 6.0 Superuser",
+			"mAlias" : "PRO TRUNK Superuser",
 			"mServerUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
 			"mOrganization" : "",
 			"mUsername" : "superuser",
 			"mPassword" : "superuser"
 		},
 		{
-			"mAlias" : "PRO 6.0 Adminuser",
+			"mAlias" : "PRO TRUNK Adminuser",
 			"mServerUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
 			"mOrganization" : "",
 			"mUsername" : "jasperadmin",
 			"mPassword" : "jasperadmin"
 		},
 		{
-			"mAlias" : "PRO 6.0 JoeUser",
+			"mAlias" : "PRO TRUNK JoeUser",
 			"mServerUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
 			"mOrganization" : "",
 			"mUsername" : "joeuser",

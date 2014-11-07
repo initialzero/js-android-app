@@ -24,16 +24,22 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.message.BasicHeader;
+import org.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public final class TestResources {
+
     private TestResources() {
     }
 
@@ -50,6 +56,18 @@ public final class TestResources {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    public String rawData(String fileName) {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName + ".xml");
+        StringWriter writer = new StringWriter();
+        try {
+            IOUtils.copy(inputStream, writer, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+        return writer.toString();
     }
 
     public static TestResources get() {

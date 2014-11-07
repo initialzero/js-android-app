@@ -28,17 +28,20 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
-import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.acceptance.hacked.HackedJsRestClient;
+import com.jaspersoft.android.jaspermobile.test.acceptance.hacked.JasperRobolectric;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.HttpResponseUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
@@ -75,6 +78,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
     private ResourceLookupsList rootRepositories;
     private ResourceLookupsList levelRepositories;
+    private FolderDataResponse rootFolder;
     private ServerInfo serverInfo;
 
     public RepositoryPageTest() {
@@ -90,12 +94,21 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
         rootRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "root_repositories");
         levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        rootFolder = TestResources.get().fromXML(FolderDataResponse.class, "root_folder");
         serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(rootRepositories);
+
+        JasperRobolectric.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                HttpResponseUtil.get().xmlType("server_info"));
+        JasperRobolectric.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                HttpResponseUtil.get().xmlType("root_folder"));
+        JasperRobolectric.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                HttpResponseUtil.get().xmlType("root_repositories"));
     }
 
     @Override
@@ -103,6 +116,12 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         unregisterTestModule();
         getActivity().finish();
         super.tearDown();
+    }
+
+    public void testInitialLoadOfGrid() {
+        forcePreview(ViewType.GRID);
+        startActivityUnderTest();
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
     public void testSwitcher() throws InterruptedException {
@@ -124,12 +143,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         mMockedSpiceManager.addNetworkResponse(serverInfo);
         mMockedSpiceManager.addCachedResponse(levelRepositories);
         rotate();
-        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
-    }
-
-    public void testInitialLoadOfGrid() {
-        forcePreview(ViewType.GRID);
-        startActivityUnderTest();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
@@ -214,8 +227,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     public class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsRestClient.class).in(Singleton.class);
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
+            bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
         }
     }
 }

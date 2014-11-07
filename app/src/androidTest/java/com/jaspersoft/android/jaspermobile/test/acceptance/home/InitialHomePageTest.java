@@ -63,9 +63,7 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createOnlyDefaultProfile;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
@@ -140,16 +138,6 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(ProfileHelper.DEFAULT_ALIAS)))));
-    }
-
-    public void testSwitchToProfileFromContextMenu() {
-        createTestProfile(getActivity().getContentResolver());
-        startActivityUnderTest();
-
-        onView(withText(TEST_ALIAS)).perform(longClick());
-        onView(withId(R.id.connectItem)).perform(click());
-
-        onView(withId(R.id.profile_name)).check(matches(withText(TEST_ALIAS)));
     }
 
     public void testUsersRotateScreen() {

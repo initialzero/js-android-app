@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
     Copyright © 2014 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -23,12 +24,11 @@
 -->
 <resources>
 
-    <!--General-->
+    <!-- General -->
     <string name="app_label" translatable="false">TIBCO JasperMobile</string>
     <!-- Images content description -->
     <string name="img_cd_list_item" translatable="false">List item preview</string>
     <string name="img_cd_grid_item" translatable="false">Grid item preview</string>
-
 
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
@@ -130,9 +130,7 @@
 
     <!-- Search Activity -->
     <string name="sa_show_about">About</string>
-    <string name="sa_about_info" translatable="false">
-        TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\nhttp://community.jaspersoft.com/project/jaspermobile-android\n\nCopyright © 2005-2014 TIBCO Software, Inc.
-    </string>
+    <string name="sa_about_info" translatable="false">        TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\nhttp://community.jaspersoft.com/project/jaspermobile-android\n\nCopyright © 2005-2014 TIBCO Software, Inc.</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
@@ -240,7 +238,8 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
-
-
+    <string name="title_activity_test">TestActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

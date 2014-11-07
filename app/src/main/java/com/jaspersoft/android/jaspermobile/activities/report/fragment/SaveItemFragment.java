@@ -194,7 +194,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
         File reportDir = new File(savedReportsDir, reportName);
 
-        if (!reportDir.exists() && !reportDir.mkdirs()){
+        if (!reportDir.exists() && !reportDir.mkdirs()) {
             Ln.e("Unable to create %s", savedReportsDir);
         }
 
@@ -265,7 +265,10 @@ public class SaveItemFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), false);
-            setRefreshActionButtonState(false);
+            runningRequests--;
+            if (runningRequests == 0) {
+                setRefreshActionButtonState(false);
+            }
         }
 
         @Override

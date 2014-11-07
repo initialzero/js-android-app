@@ -117,8 +117,10 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        // Checks the orientation of the screen
-        if (newConfig.locale != currentLocale) {
+        // Checks change of localization
+        // We are removing cookies as soon as they persist locale
+        // New Basic Auth call we be triggered
+        if (!currentLocale.equals(newConfig.locale)) {
             JasperMobileApplication.removeAllCookies();
             currentLocale = newConfig.locale;
         }

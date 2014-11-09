@@ -22,29 +22,18 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance.hacked;
+package org.apache.http.hacked;
 
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import org.apache.http.fake.FakeHttpLayer;
+
+import org.springframework.http.HttpMethod;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class HackedJsRestClient {
-
-    private static class HackedJsRestClientHolder {
-        private static final HackedJsRestClient INSTANCE = new HackedJsRestClient();
+public class GetUriRegexMatcher extends FakeHttpLayer.UriRegexMatcher {
+    public GetUriRegexMatcher(String uriRegex) {
+        super(HttpMethod.GET.toString(), uriRegex);
     }
-
-    private HackedJsRestClient() {
-    }
-
-    public JsRestClient getHackedInstance() {
-        return new JsRestClient(new HackedRestTemplate(true));
-    }
-
-    public static JsRestClient get() {
-        return HackedJsRestClientHolder.INSTANCE.getHackedInstance();
-    }
-
 }

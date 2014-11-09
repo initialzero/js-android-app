@@ -22,17 +22,30 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance.hacked;
+package com.jaspersoft.android.jaspermobile.test.utils;
 
-import org.robolectric.tester.org.apache.http.FakeHttpLayer;
-import org.springframework.http.HttpMethod;
+import org.apache.http.fake.TestHttpResponse;
+
+import org.apache.http.message.BasicHeader;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class GetUriRegexMatcher extends FakeHttpLayer.UriRegexMatcher {
-    public GetUriRegexMatcher(String uriRegex) {
-        super(HttpMethod.GET.toString(), uriRegex);
+public class TestResponses {
+    private static final class HttpResponseUtilHolder {
+        private static final TestResponses INSTANCE = new TestResponses();
     }
+
+    private TestResponses() {}
+
+    public static TestResponses get() {
+        return HttpResponseUtilHolder.INSTANCE;
+    }
+
+    public TestHttpResponse xml(String fileName) {
+        BasicHeader contentType = new BasicHeader("Content-Type", "application/xml");
+        return new TestHttpResponse(200, TestResources.get().rawData(fileName), contentType);
+    }
+
 }

@@ -26,11 +26,11 @@ package com.jaspersoft.android.jaspermobile.test.acceptance;
 
 import com.jaspersoft.android.jaspermobile.TestActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.acceptance.hacked.HackedRestTemplate;
-import com.jaspersoft.android.jaspermobile.test.acceptance.hacked.JasperRobolectric;
+import org.apache.http.hacked.HackedRestTemplate;
+import org.apache.http.fake.FakeHttpLayerManager;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.HttpResponseUtil;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -59,9 +59,9 @@ public class OverriderTest extends ProtoActivityInstrumentation<TestActivity_> {
     }
 
     public void testAssist() {
-        JasperRobolectric.addHttpResponseRule(
+        FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                HttpResponseUtil.get().xmlType("server_info"));
+                TestResponses.get().xml("server_info"));
 
         startActivityUnderTest();
         onView(withId(android.R.id.button1)).perform(click());

@@ -22,38 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance.hacked;
+package org.apache.http.hacked;
 
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-
-import java.lang.reflect.Field;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-class HackedHttpComponentsClientHttpRequestFactory extends HttpComponentsClientHttpRequestFactory {
+public class HackedJsRestClient {
 
-    /**
-     * {@inheritDoc}
-     */
-    public HackedHttpComponentsClientHttpRequestFactory() {
-        super();
+    private static class HackedJsRestClientHolder {
+        private static final HackedJsRestClient INSTANCE = new HackedJsRestClient();
+    }
 
-        Field declaredField;
-        try {
-            declaredField = HttpComponentsClientHttpRequestFactory.class.getDeclaredField("httpClient");
-            declaredField.setAccessible(true);
+    private HackedJsRestClient() {
+    }
 
-            HackedDefaultHttpClient hackedDefaultHttpClient
-                    = new HackedDefaultHttpClient(getHttpClient().getConnectionManager(), null);
-            declaredField.set(this, hackedDefaultHttpClient);
-        } catch (NoSuchFieldException
-                | SecurityException
-                | IllegalArgumentException
-                | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public JsRestClient getHackedInstance() {
+        return new JsRestClient(new HackedRestTemplate(true));
+    }
+
+    public static JsRestClient get() {
+        return HackedJsRestClientHolder.INSTANCE.getHackedInstance();
     }
 
 }

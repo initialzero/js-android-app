@@ -33,18 +33,17 @@ import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActiv
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.acceptance.hacked.HackedJsRestClient;
-import com.jaspersoft.android.jaspermobile.test.acceptance.hacked.JasperRobolectric;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.HttpResponseUtil;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+
+import org.apache.http.fake.FakeHttpLayerManager;
+import org.apache.http.hacked.HackedJsRestClient;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -73,14 +72,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
     private static final String REPORTS_QUERY = "Reports";
 
-    private RepositoryPref_ repositoryPref;
-    private SmartMockedSpiceManager mMockedSpiceManager;
-
-    private ResourceLookupsList rootRepositories;
-    private ResourceLookupsList levelRepositories;
-    private FolderDataResponse rootFolder;
-    private ServerInfo serverInfo;
-
     public RepositoryPageTest() {
         super(RepositoryActivity_.class);
     }
@@ -89,26 +80,15 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     protected void setUp() throws Exception {
         super.setUp();
 
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-        repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
-
-        rootRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "root_repositories");
-        levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
-        rootFolder = TestResources.get().fromXML(FolderDataResponse.class, "root_folder");
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
 
-        JasperRobolectric.addHttpResponseRule(
+        FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                HttpResponseUtil.get().xmlType("server_info"));
-        JasperRobolectric.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                HttpResponseUtil.get().xmlType("root_folder"));
-        JasperRobolectric.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                HttpResponseUtil.get().xmlType("root_repositories"));
+                TestResponses.get().xml("server_info"));
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.GET_ROOT_FOLDER,
+                TestResponses.get().xml("root_folder"));
     }
 
     @Override
@@ -129,19 +109,12 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         startActivityUnderTest();
 
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
         rotate();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
 
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
         onView(withId(R.id.switchLayout)).perform(click());
-        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
 
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
         rotate();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
@@ -153,55 +126,52 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     }
 
     public void testRepoClickCase() throws InterruptedException {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.ROOT_FOLDER_CONTENT,
+                TestResponses.get().xml("root_repositories"));
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
-        String firstRootRepoLabel = rootRepositories.getResourceLookups().get(0).getLabel();
+        FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, "root_folder");
+        String firstRootRepoLabel = rootFolder.getLabel();
 
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(rootRepositories);
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
         onView(withId(getActionBarTitleId())).check(matches(withText(firstRootRepoLabel)));
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(rootRepositories);
         pressBack();
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.h_repository_label)));
     }
 
     public void testRepoBackstackPersistance() throws InterruptedException {
+        FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, "root_folder");
+        String rootLevelRepoLabel = rootFolder.getLabel();
+        ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
+
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.ROOT_FOLDER_CONTENT,
+                TestResponses.get().xml("level_repositories"));
+
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
-        String rootLevelRepoLabel = rootRepositories.getResourceLookups().get(0).getLabel();
-        String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
         rotate();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(rootRepositories);
         pressBack();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(rootLevelRepoLabel)))));
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(rootRepositories);
         rotate();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(rootLevelRepoLabel)))));
     }
 
     public void testSearchInRepository() {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.ROOT_FOLDER_CONTENT,
+                TestResponses.get().xml("level_repositories"));
         startActivityUnderTest();
 
         try {
@@ -211,9 +181,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
             onOverflowView(getActivity(), withText(android.R.string.search_go)).perform(click());
         }
         onView(withId(getSearcFieldId())).perform(typeText(REPORTS_QUERY));
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
         onView(withId(getSearcFieldId())).perform(pressImeActionButton());
 
         onView(withText(getActivity().getString(R.string.search_result_format, REPORTS_QUERY)))
@@ -221,6 +188,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     }
 
     private void forcePreview(ViewType viewType) {
+        RepositoryPref_ repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
         repositoryPref.viewType().put(viewType.toString());
     }
 

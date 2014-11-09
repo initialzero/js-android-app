@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance.hacked;
+package org.apache.http.hacked;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.client.AuthenticationHandler;

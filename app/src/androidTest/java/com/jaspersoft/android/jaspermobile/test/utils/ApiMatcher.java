@@ -24,9 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils;
 
-import com.jaspersoft.android.jaspermobile.test.acceptance.hacked.GetUriRegexMatcher;
-
-import org.robolectric.tester.org.apache.http.RequestMatcher;
+import org.apache.http.fake.RequestMatcher;
+import org.apache.http.hacked.GetUriRegexMatcher;
 
 /**
  * @author Tom Koptel
@@ -34,6 +33,9 @@ import org.robolectric.tester.org.apache.http.RequestMatcher;
  */
 public class ApiMatcher {
     public static final RequestMatcher SERVER_INFO = new GetUriRegexMatcher(".*/(serverInfo)$");
+    public static final RequestMatcher GET_ROOT_FOLDER = new GetUriRegexMatcher(".*/(resources)$");
+    public static final RequestMatcher ROOT_FOLDER_CONTENT = new GetUriRegexMatcher(".*/(folderUri=/)$");
+    public static final RequestMatcher REPORTS_QUERY = new GetUriRegexMatcher(".*/(q=Reports)$");
 
     private ApiMatcher() {}
 }

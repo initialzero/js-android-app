@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance.hacked;
+package org.apache.http.hacked;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
@@ -39,14 +39,14 @@ import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.fake.FakeHttpLayerManager;
+import org.apache.http.fake.HttpRequestInfo;
+import org.apache.http.fake.Util;
 import org.apache.http.impl.client.DefaultRequestDirector;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
-import org.robolectric.Robolectric;
-import org.robolectric.tester.org.apache.http.HttpRequestInfo;
-import org.robolectric.util.Util;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -68,17 +68,17 @@ class HackedDefaultRequestDirector extends DefaultRequestDirector {
     }
 
     public HttpResponse execute(HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws HttpException, IOException {
-        if (JasperRobolectric.getFakeHttpLayer().isInterceptingHttpRequests()) {
-            return JasperRobolectric.getFakeHttpLayer().emulateRequest(httpHost, httpRequest, httpContext, this);
+        if (FakeHttpLayerManager.getFakeHttpLayer().isInterceptingHttpRequests()) {
+            return FakeHttpLayerManager.getFakeHttpLayer().emulateRequest(httpHost, httpRequest, httpContext, this);
         } else {
-            JasperRobolectric.getFakeHttpLayer().addRequestInfo(new HttpRequestInfo(httpRequest, httpHost, httpContext, this));
+            FakeHttpLayerManager.getFakeHttpLayer().addRequestInfo(new HttpRequestInfo(httpRequest, httpHost, httpContext, this));
             HttpResponse response = super.execute(httpHost, httpRequest, httpContext);
 
-            if (JasperRobolectric.getFakeHttpLayer().isInterceptingResponseContent()) {
+            if (FakeHttpLayerManager.getFakeHttpLayer().isInterceptingResponseContent()) {
                 interceptResponseContent(response);
             }
 
-            JasperRobolectric.getFakeHttpLayer().addHttpResponse(response);
+            FakeHttpLayerManager.getFakeHttpLayer().addHttpResponse(response);
             return response;
         }
     }
@@ -104,7 +104,7 @@ class HackedDefaultRequestDirector extends DefaultRequestDirector {
 
                 byte[] buffer = Util.readBytes(content);
 
-                Robolectric.getFakeHttpLayer().addHttpResponseContent(buffer);
+                FakeHttpLayerManager.getFakeHttpLayer().addHttpResponseContent(buffer);
                 contentField.set(basicEntity, new ByteArrayInputStream(buffer));
             } catch (Exception e) {
                 // fail to record

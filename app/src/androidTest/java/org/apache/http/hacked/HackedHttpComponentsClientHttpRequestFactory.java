@@ -22,29 +22,38 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.utils;
+package org.apache.http.hacked;
 
-import org.apache.http.message.BasicHeader;
-import org.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+
+import java.lang.reflect.Field;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class HttpResponseUtil {
-    private static final class HttpResponseUtilHolder {
-        private static final HttpResponseUtil INSTANCE = new HttpResponseUtil();
-    }
+class HackedHttpComponentsClientHttpRequestFactory extends HttpComponentsClientHttpRequestFactory {
 
-    private HttpResponseUtil() {}
+    /**
+     * {@inheritDoc}
+     */
+    public HackedHttpComponentsClientHttpRequestFactory() {
+        super();
 
-    public static HttpResponseUtil get() {
-        return HttpResponseUtilHolder.INSTANCE;
-    }
+        Field declaredField;
+        try {
+            declaredField = HttpComponentsClientHttpRequestFactory.class.getDeclaredField("httpClient");
+            declaredField.setAccessible(true);
 
-    public TestHttpResponse xmlType(String fileName) {
-        BasicHeader contentType = new BasicHeader("Content-Type", "application/xml");
-        return new TestHttpResponse(200, TestResources.get().rawData(fileName), contentType);
+            HackedDefaultHttpClient hackedDefaultHttpClient
+                    = new HackedDefaultHttpClient(getHttpClient().getConnectionManager(), null);
+            declaredField.set(this, hackedDefaultHttpClient);
+        } catch (NoSuchFieldException
+                | SecurityException
+                | IllegalArgumentException
+                | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

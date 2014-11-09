@@ -1,51 +1,42 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
- * http://community.jaspersoft.com/project/jaspermobile-android
+ * The MIT License
  *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
- * the following license terms apply:
+ * Copyright (c) 2010 Xtreme Labs and Pivotal Labs
  *
- * This program is part of Jaspersoft Mobile for Android.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
-package com.jaspersoft.android.jaspermobile.test.acceptance.hacked;
+package org.apache.http.fake;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.robolectric.shadows.HttpResponseGenerator;
-import org.robolectric.shadows.ShadowDefaultRequestDirector;
-import org.robolectric.tester.org.apache.http.FakeHttpLayer;
-import org.robolectric.tester.org.apache.http.HttpRequestInfo;
-import org.robolectric.tester.org.apache.http.RequestMatcher;
 
 import java.util.List;
 
-/**
- * @author Tom Koptel
- * @since 1.9
- */
-public class JasperRobolectric {
-    private static class JasperFakeHttpLayerHolder {
+public class FakeHttpLayerManager {
+    private static class FakeHttpLayerManagerHolder {
         private static final FakeHttpLayer INSTANCE = new FakeHttpLayer();
     }
 
     public static FakeHttpLayer getFakeHttpLayer() {
-        return JasperFakeHttpLayerHolder.INSTANCE;
+        return FakeHttpLayerManagerHolder.INSTANCE;
     }
 
     /**
@@ -100,7 +91,8 @@ public class JasperRobolectric {
     }
 
     public static HttpRequest getLatestSentHttpRequest() {
-        return ShadowDefaultRequestDirector.getLatestSentHttpRequest();
+        int requestCount = FakeHttpLayerManager.getFakeHttpLayer().getSentHttpRequestInfos().size();
+        return FakeHttpLayerManager.getFakeHttpLayer().getSentHttpRequestInfo(requestCount - 1).getHttpRequest();
     }
 
     /**

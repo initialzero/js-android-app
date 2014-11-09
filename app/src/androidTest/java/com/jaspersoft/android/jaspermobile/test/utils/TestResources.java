@@ -25,8 +25,6 @@
 package com.jaspersoft.android.jaspermobile.test.utils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.message.BasicHeader;
-import org.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 

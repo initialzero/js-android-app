@@ -48,4 +48,8 @@ public class TestResponses {
         return new TestHttpResponse(200, TestResources.get().rawData(fileName), contentType);
     }
 
+    public TestHttpResponse noContent() {
+        return new TestHttpResponse(204, "");
+    }
+
 }

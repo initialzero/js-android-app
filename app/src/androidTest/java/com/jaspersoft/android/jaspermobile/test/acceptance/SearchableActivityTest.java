@@ -24,32 +24,23 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance;
 
-import android.app.Application;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.SpiceManager;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.apache.http.fake.FakeHttpLayerManager;
+import org.apache.http.fake.RequestMatcher;
+import org.apache.http.hacked.GetUriRegexMatcher;
+import org.apache.http.hacked.HackedJsRestClient;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -73,18 +64,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 public class SearchableActivityTest extends ProtoActivityInstrumentation<SearchableActivity_> {
     private static final String SEARCH_QUERY = "Reports";
 
-    @Mock
-    JsRestClient mockRestClient;
-    @Mock
-    SpiceManager mockSpiceService;
-
-    private SmartMockedSpiceManager mMockedSpiceManager;
-    private ResourceLookupsList reportsQueryResult;
-    private ResourceLookupsList levelRepositories;
-    private ResourceLookupsList rootRepositories;
-    private ReportExecutionResponse reportExecution;
-    private ServerInfo mockServerInfo;
-
     public SearchableActivityTest() {
         super(SearchableActivity_.class);
     }
@@ -92,24 +71,12 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
-
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-        reportsQueryResult = get().fromXML(ResourceLookupsList.class, "reports_query_result");
-        levelRepositories = get().fromXML(ResourceLookupsList.class, "level_repositories");
-        rootRepositories = get().fromXML(ResourceLookupsList.class, "root_repositories");
-        reportExecution = get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
-        mockServerInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-
         registerTestModule(new TestModule());
-        Application application = (Application) getInstrumentation().getTargetContext().getApplicationContext();
-        ContentResolver cr = application.getContentResolver();
-        DatabaseUtils.deleteAllProfiles(cr);
-
-        ProfileHelper profileHelper = ProfileHelper_.getInstance_(application);
-        profileHelper.setCurrentServerProfile(DatabaseUtils.createDefaultProfile(cr));
-
+        setDefaultCurrentProfile();
         configureSearchIntent();
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.get().xml("server_info"));
     }
 
     @Override
@@ -119,64 +86,54 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         super.tearDown();
     }
 
-    public void testReportClick() {
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(reportsQueryResult);
-
-        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
-        mMockedSpiceManager.addNetworkResponse(reportExecution);
-
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(reportsQueryResult);
+    public void testDashboardClick() {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.REPORTS_QUERY,
+                TestResponses.get().xml("reports_query_result"));
         startActivityUnderTest();
-
-        onView(withText("Employees")).perform(click());
-
+        onView(withText("Dashboard")).perform(click());
         pressBack();
     }
 
-    public void testDashboardClick() {
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(reportsQueryResult);
-        startActivityUnderTest();
-
-        onData(is(instanceOf(ResourceLookup.class)))
-                .inAdapterView(withId(android.R.id.list))
-                .atPosition(2).perform(click());
-    }
-
     public void testFolderClick() {
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(rootRepositories);
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.REPORTS_QUERY,
+                TestResponses.get().xml("level_repositories"));
+        RequestMatcher uriRegexMatcher =
+                new GetUriRegexMatcher(".*(folderUri=/organizations/org_template).*");
+        FakeHttpLayerManager.addHttpResponseRule(
+                uriRegexMatcher,
+                TestResponses.get().xml("root_repositories"));
+        uriRegexMatcher =
+                new GetUriRegexMatcher(".*(folderUri=/public).*");
+        FakeHttpLayerManager.addHttpResponseRule(
+                uriRegexMatcher,
+                TestResponses.get().noContent());
+
         startActivityUnderTest();
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
+        ResourceLookupsList levelRepositories = get().fromXML(ResourceLookupsList.class, "level_repositories");
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
 
         // Bug related: To check whether we have only one switcher. Otherwise it will rise 'matches multiple views in the hierarchy.'
         onView(withId(R.id.switchLayout)).check(matches(isDisplayed()));
 
-        onData(is(instanceOf(ResourceLookup.class)))
-                .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
+        onView(withText("Public")).perform(click());
 
         // Bug related: Check whether empty test displays correct message.
         onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_browser_nothing_to_display)));
     }
 
     public void testSearchResultsPersistedOnRotation() {
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.REPORTS_QUERY,
+                TestResponses.get().xml("level_repositories"));
+        ResourceLookupsList levelRepositories = get().fromXML(ResourceLookupsList.class, "level_repositories");
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
 
         startActivityUnderTest();
@@ -187,10 +144,9 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     }
 
     public void testSearchResultsWithNoResults() {
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.REPORTS_QUERY,
+                TestResponses.get().noContent());
         startActivityUnderTest();
 
         onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_search_nothing_to_display)));
@@ -210,8 +166,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsRestClient.class).in(Singleton.class);
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
+            bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
         }
     }
 }

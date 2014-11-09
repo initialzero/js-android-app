@@ -170,7 +170,7 @@ public class FakeHttpLayer {
         }
 
         if (httpResponse == null) {
-            throw new RuntimeException("Unexpected call to execute, no pending responses are available. See Robolectric.addPendingResponse(). Request was: " +
+            throw new RuntimeException("Unexpected call to execute, no pending responses are available. See FakeHttpLayerManager.addPendingResponse(). Request was: " +
                     httpRequest.getRequestLine().getMethod() + " " + httpRequest.getRequestLine().getUri());
         } else {
             HttpParams params = httpResponse.getParams();

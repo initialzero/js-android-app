@@ -104,7 +104,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
-    public void testSwitcher() throws InterruptedException {
+    public void testSwitcher() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
@@ -125,7 +125,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
-    public void testRepoClickCase() throws InterruptedException {
+    public void testRepoClickCase() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.ROOT_FOLDER_CONTENT,
                 TestResponses.get().xml("root_repositories"));
@@ -143,7 +143,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.h_repository_label)));
     }
 
-    public void testRepoBackstackPersistance() throws InterruptedException {
+    public void testRepoBackstackPersistance() {
         FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, "root_folder");
         String rootLevelRepoLabel = rootFolder.getLabel();
         ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
@@ -170,7 +170,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
     public void testSearchInRepository() {
         FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.ROOT_FOLDER_CONTENT,
+                ApiMatcher.REPORTS_QUERY,
                 TestResponses.get().xml("level_repositories"));
         startActivityUnderTest();
 

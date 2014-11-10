@@ -22,47 +22,24 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package org.apache.http.hacked;
+package com.jaspersoft.android.jaspermobile.test.utils;
 
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
+import com.octo.android.robospice.exception.NetworkException;
+import com.octo.android.robospice.request.CachedSpiceRequest;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class HackedRestTemplate extends RestTemplate {
-    private ClientHttpRequestFactory hackedRequestFactory;
-
-    public HackedRestTemplate() {
-        super(false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public HackedRestTemplate(boolean includeDefaultConverters) {
-        super(includeDefaultConverters);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public HackedRestTemplate(ClientHttpRequestFactory requestFactory) {
-        super(false, requestFactory);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public HackedRestTemplate(boolean includeDefaultConverters, ClientHttpRequestFactory requestFactory) {
-        super(includeDefaultConverters, requestFactory);
-    }
-
-    public ClientHttpRequestFactory getRequestFactory() {
-        if (hackedRequestFactory == null) {
-            hackedRequestFactory = new HackedHttpComponentsClientHttpRequestFactory();
+public class SyncSpiceManager extends JsSpiceManager {
+    @Override
+    public <T> void execute(CachedSpiceRequest<T> cachedSpiceRequest, final RequestListener<T> requestListener) {
+        try {
+            requestListener.onRequestSuccess(cachedSpiceRequest.loadDataFromNetwork());
+        } catch (Exception e) {
+            requestListener.onRequestFailure( new NetworkException("Exception occurred during invocation of web service.", e));
         }
-        return hackedRequestFactory;
     }
 }

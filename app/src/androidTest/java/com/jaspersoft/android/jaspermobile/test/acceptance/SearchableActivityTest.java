@@ -31,16 +31,14 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.apache.http.fake.RequestMatcher;
 import org.apache.http.hacked.GetUriRegexMatcher;
-import org.apache.http.hacked.HackedJsRestClient;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -71,7 +69,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        registerTestModule(new TestModule());
+        registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
         configureSearchIntent();
         FakeHttpLayerManager.addHttpResponseRule(
@@ -163,10 +161,4 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         setActivityIntent(launchIntent);
     }
 
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
-        }
-    }
 }

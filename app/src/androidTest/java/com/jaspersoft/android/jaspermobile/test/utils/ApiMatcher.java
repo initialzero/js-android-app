@@ -33,6 +33,7 @@ import org.apache.http.hacked.GetUriRegexMatcher;
  */
 public class ApiMatcher {
     public static final RequestMatcher SERVER_INFO = new GetUriRegexMatcher(".*/(serverInfo)$");
+    public static final RequestMatcher RESOURCES = new GetUriRegexMatcher(".*/(resources).*");
     public static final RequestMatcher GET_ROOT_FOLDER = new GetUriRegexMatcher(".*/(resources)$");
     public static final RequestMatcher ROOT_FOLDER_CONTENT = new GetUriRegexMatcher(".*(folderUri=/).*");
     public static final RequestMatcher REPORTS_QUERY = new GetUriRegexMatcher(".*(q=Reports).*");

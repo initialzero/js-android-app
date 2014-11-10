@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils;
 
+import android.util.Log;
+
 import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.octo.android.robospice.exception.NetworkException;
 import com.octo.android.robospice.request.CachedSpiceRequest;
@@ -40,6 +42,7 @@ public class SyncSpiceManager extends JsSpiceManager {
             requestListener.onRequestSuccess(cachedSpiceRequest.loadDataFromNetwork());
         } catch (Exception e) {
             requestListener.onRequestFailure( new NetworkException("Exception occurred during invocation of web service.", e));
+            Log.e(SyncSpiceManager.class.getSimpleName(), "SyncSpiceManager processed error: ", e);
         }
     }
 }

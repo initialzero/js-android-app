@@ -28,26 +28,18 @@ import android.app.Application;
 import android.database.Cursor;
 
 import com.google.inject.Injector;
-import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.exception.NetworkException;
-import com.octo.android.robospice.request.SpiceRequest;
-import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.apache.http.fake.FakeHttpLayerManager;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
 
 import roboguice.RoboGuice;
 
@@ -71,15 +63,8 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager();
-
+    public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     private JsRestClient jsRestClient;
-    private ServerInfo serverInfo;
-
-    private final HttpStatusCodeException statusCodeException = new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
-    private final NetworkException authorizationException = new NetworkException(statusCodeException);
-    private boolean throwError;
 
     public AskPasswordHomePageTest() {
         super(HomeActivity_.class);
@@ -90,11 +75,9 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         super.setUp();
         MockitoAnnotations.initMocks(this);
 
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-
         Application application = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
-        registerTestModule(new TestModule());
+        registerTestModule(new HackedTestModule());
 
         Injector injector = RoboGuice.getBaseApplicationInjector(application);
         jsRestClient = injector.getInstance(JsRestClient.class);
@@ -147,39 +130,28 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
     }
 
     private void setAskForPasswordOption() throws Throwable {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.get().xml("server_info"));
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        throwError = true;
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.get().unAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
-        throwError = false;
+
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
         onView(withId(getActionBarSubTitleId())).check(matches(withText(ProfileHelper.DEFAULT_ALIAS)));
 
         onView(withId(R.id.askPasswordCheckBox)).perform(click());
+
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.get().xml("server_info"));
         onView(withId(R.id.saveAction)).perform(click());
     }
 
-    private class MockedSpiceManager extends JsSpiceManager {
-        @Override
-        public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-            if (request instanceof GetServerInfoRequest) {
-                if (throwError) {
-                    requestListener.onRequestFailure(authorizationException);
-                } else {
-                    requestListener.onRequestSuccess((T) serverInfo);
-                }
-            }
-        }
-    }
-
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-            bind(JsRestClient.class).in(Singleton.class);
-        }
-    }
 }

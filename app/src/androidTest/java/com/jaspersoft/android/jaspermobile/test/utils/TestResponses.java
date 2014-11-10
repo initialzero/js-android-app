@@ -52,4 +52,8 @@ public class TestResponses {
         return new TestHttpResponse(204, "");
     }
 
+    public TestHttpResponse unAuthorized() {
+        return new TestHttpResponse(401, "");
+    }
+
 }

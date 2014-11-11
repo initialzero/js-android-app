@@ -28,17 +28,11 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.exception.NetworkException;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
+import org.apache.http.fake.FakeHttpLayerManager;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
@@ -60,26 +54,17 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
  * @since 1.9
  */
 public class ServerProfileValidationTest extends ProtoActivityInstrumentation<ServerProfileActivity_> {
+
     public ServerProfileValidationTest() {
         super(ServerProfileActivity_.class);
     }
-
-    private SmartMockedSpiceManager mMockedSpiceManager;
-    private ServerInfo serverInfo;
-
-    private final HttpStatusCodeException statusCodeException = new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
-    private final NetworkException unathorizedException = new NetworkException(statusCodeException);
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-
-        MockitoAnnotations.initMocks(this);
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        registerTestModule(new TestModule());
+        registerTestModule(new HackedTestModule());
+        setDefaultCurrentProfile();
     }
 
     @Override
@@ -149,8 +134,9 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
     // As soon as we shared same RequestExceptionHandler for all
     // failure listeners we experienced flow which required customization
     public void testPageShouldProperlyHandleUnAthorized() {
-        mMockedSpiceManager.clearNetworkResponses();
-        mMockedSpiceManager.addErrorForNetworkCall(unathorizedException);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.get().notAuthorized());
         startActivityUnderTest();
 
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
@@ -164,13 +150,6 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(ExceptionRule.UNAUTHORIZED.getMessage())));
         onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).check(matches(withText(android.R.string.ok)));
         onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).perform(click());
-    }
-
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-        }
     }
 
 }

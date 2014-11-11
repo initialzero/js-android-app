@@ -29,14 +29,12 @@ import android.database.Cursor;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 
-import org.mockito.MockitoAnnotations;
+import org.apache.http.fake.FakeHttpLayerManager;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
@@ -71,20 +69,17 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         super(ServersManagerActivity_.class);
     }
 
-    private SmartMockedSpiceManager mMockedSpiceManager;
-    private ServerInfo serverInfo;
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
+        registerTestModule(new HackedTestModule());
+        setDefaultCurrentProfile();
 
-        MockitoAnnotations.initMocks(this);
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        registerTestModule(new TestModule());
-        startActivityUnderTest();
+        FakeHttpLayerManager.clearHttpResponseRules();
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.SERVER_INFO);
     }
 
     @Override
@@ -117,10 +112,11 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
     }
 
     public void testServerLowerThanEmeraldNotAcceptable() {
-        mMockedSpiceManager.clearNetworkResponses();
-        serverInfo.setVersionCode(ServerInfo.VERSION_CODES.EMERALD_MR1);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-
+        FakeHttpLayerManager.clearHttpResponseRules();
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.get().xml("emerald_mr1_server_info"));
+        startActivityUnderTest();
         onView(withId(R.id.addProfile)).perform(click());
 
         onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
@@ -179,7 +175,9 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
     }
 
     public void testNotActiveServerProfileCanBeDeleted() {
-        createTestProfile(getActivity().getContentResolver());
+        DatabaseUtils.deleteAllProfiles(getActivity().getContentResolver());
+        DatabaseUtils.createTestProfile(getActivity().getContentResolver());
+        DatabaseUtils.createDefaultProfile(getActivity().getContentResolver());
         startActivityUnderTest();
 
         onView(withText(TEST_ALIAS)).perform(longClick());
@@ -187,13 +185,6 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(1));
-    }
-
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-        }
     }
 
 }

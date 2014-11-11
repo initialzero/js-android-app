@@ -46,6 +46,8 @@ public final class TestResources {
     public static final String SMALL_LOOKUP = "library_reports_small";
     public static final String ROOT_FOLDER = "root_folder";
     public static final String ROOT_REPOSITORIES = "root_repositories";
+    public static final String REPORT_EXECUTION = "report_execution";
+    public static final String INPUT_CONTROLS = "input_contols_list";
 
     private TestResources() {
     }

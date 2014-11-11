@@ -25,14 +25,10 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment;
 
 import android.app.Activity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.view.View;
 import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -265,22 +261,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
-
-    private class PagesAdapter extends FragmentPagerAdapter {
-        public PagesAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public int getCount() {
-            return pagesMap.keySet().size();
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return Lists.newLinkedList(pagesMap.values()).get(position);
-        }
-    }
 
     private class ReportDetailsRequestListener extends CommonRequestListener<ReportExecutionResponse> {
         @Override

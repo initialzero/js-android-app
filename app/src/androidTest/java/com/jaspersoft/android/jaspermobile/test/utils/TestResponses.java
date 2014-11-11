@@ -42,6 +42,8 @@ public class TestResponses {
     public static final TestHttpResponse SMALL_LOOKUP = TestResponses.get().xml(TestResources.SMALL_LOOKUP);
     public static final TestHttpResponse ROOT_FOLDER = TestResponses.get().xml(TestResources.ROOT_FOLDER);
     public static final TestHttpResponse ROOT_REPOSITORIES = TestResponses.get().xml(TestResources.ROOT_REPOSITORIES);
+    public static final TestHttpResponse REPORT_EXECUTION = TestResponses.get().xml(TestResources.REPORT_EXECUTION);
+    public static final TestHttpResponse INPUT_CONTROLS = TestResponses.get().xml(TestResources.INPUT_CONTROLS);
 
     private static final class HttpResponseUtilHolder {
         private static final TestResponses INSTANCE = new TestResponses();

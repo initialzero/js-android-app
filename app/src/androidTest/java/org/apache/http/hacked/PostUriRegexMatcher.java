@@ -22,24 +22,17 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.utils;
+package org.apache.http.hacked;
 
-import org.apache.http.fake.RequestMatcher;
-import org.apache.http.hacked.GetUriRegexMatcher;
-import org.apache.http.hacked.PostUriRegexMatcher;
+import org.apache.http.fake.FakeHttpLayer;
+import org.springframework.http.HttpMethod;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class ApiMatcher {
-    public static final RequestMatcher SERVER_INFO = new GetUriRegexMatcher(".*/(serverInfo)$");
-    public static final RequestMatcher RESOURCES = new GetUriRegexMatcher(".*/(resources).*");
-    public static final RequestMatcher GET_ROOT_FOLDER = new GetUriRegexMatcher(".*/(resources)$");
-    public static final RequestMatcher ROOT_FOLDER_CONTENT = new GetUriRegexMatcher(".*(folderUri=/).*");
-    public static final RequestMatcher REPORTS_QUERY = new GetUriRegexMatcher(".*(q=Reports).*");
-    public static final RequestMatcher INPUT_CONTROLS = new PostUriRegexMatcher(".*/(inputControls)$");
-    public static final RequestMatcher REPORT_EXECUTIONS = new PostUriRegexMatcher(".*/(reportExecutions)$");
-
-    private ApiMatcher() {}
+public class PostUriRegexMatcher extends FakeHttpLayer.UriRegexMatcher {
+    public PostUriRegexMatcher(String uriRegex) {
+        super(HttpMethod.POST.toString(), uriRegex);
+    }
 }

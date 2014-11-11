@@ -139,7 +139,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().unAuthorized());
+                TestResponses.get().notAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
 
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());

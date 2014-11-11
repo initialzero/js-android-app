@@ -28,20 +28,15 @@ import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewExceptio
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.SpiceManager;
 
+import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -56,26 +51,12 @@ import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMat
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryActivity_> {
-    @Mock
-    JsServerProfile mockServerProfile;
-    @Mock
-    JsRestClient mockRestClient;
-    @Mock
-    SpiceManager mockSpiceService;
-
-    private SmartMockedSpiceManager mMockedSpiceManager;
-    private ResourceLookupsList allLookUp;
-    private ResourceLookupsList onlyDashboardLookUp;
-    private ResourceLookupsList onlyReportLookUp;
-    private ResourceLookupsList bigLookUp;
-    private ServerInfo serverInfo;
 
     public LibraryPageFilterTest() {
         super(LibraryActivity_.class);
@@ -84,20 +65,13 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
+        registerTestModule(new HackedTestModule());
+        setDefaultCurrentProfile();
 
-        allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
-        bigLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
-        onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
-        onlyReportLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-        when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
-        registerTestModule(new TestModule());
+        FakeHttpLayerManager.clearHttpResponseRules();
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.SERVER_INFO);
     }
 
     @Override
@@ -107,44 +81,50 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     }
 
     public void testDashboardAndAllFilterOption() throws InterruptedException {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(allLookUp);
+        ResourceLookupsList onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_DASHBOARD);
+        ResourceLookupsList allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ALL_RESOURCES);
+
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.get().noContent());
         startActivityUnderTest();
 
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_DASHBOARD);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyDashboardLookUp.getResourceLookups().size()));
 
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ALL_RESOURCES);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(allLookUp.getResourceLookups().size()));
     }
 
     public void testReportFilterOption() {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(new ResourceLookupsList());
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
+        ResourceLookupsList onlyReportLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_REPORT);
+
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.get().noContent());
         startActivityUnderTest();
 
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_REPORT);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyReportLookUp.getResourceLookups().size()));
     }
 
     public void testFilteringIsPersistent() {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyReportLookUp);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_REPORT);
+
         startActivityUnderTest();
         rotateToPortrait();
 
@@ -154,8 +134,11 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         rotate();
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_reports)).check(matches(isChecked()));
-        onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
 
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_DASHBOARD);
+        onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
         rotate();
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).check(matches(isChecked()));
@@ -167,10 +150,9 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     // kept reference to incorrect index position we received crash.
     // Test asserts that adapter clear() method resets old reference
     public void testCurrentPositionResetAfterNewFilterSelected() {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(bigLookUp);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyDashboardLookUp);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.BIG_LOOKUP);
         startActivityUnderTest();
 
         onData(Matchers.is(instanceOf(ResourceLookup.class)))
@@ -178,6 +160,9 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
                 .atPosition(5).perform(longClick());
         pressBack();
 
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_DASHBOARD);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
     }
@@ -195,11 +180,4 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         }
     }
 
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsRestClient.class).toInstance(mockRestClient);
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-        }
-    }
 }

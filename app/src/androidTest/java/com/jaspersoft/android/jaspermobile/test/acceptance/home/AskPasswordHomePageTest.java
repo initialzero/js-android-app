@@ -132,7 +132,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
     private void setAskForPasswordOption() throws Throwable {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
@@ -150,7 +150,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         onView(withId(R.id.saveAction)).perform(click());
     }
 

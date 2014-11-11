@@ -32,6 +32,7 @@ import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
@@ -48,7 +49,6 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.TestResources.get;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static org.hamcrest.Matchers.is;
@@ -74,7 +74,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         configureSearchIntent();
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
     }
 
     @Override
@@ -96,12 +96,12 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     public void testFolderClick() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
-                TestResponses.get().xml("level_repositories"));
+                TestResponses.ONLY_FOLDER);
         RequestMatcher uriRegexMatcher =
                 new GetUriRegexMatcher(".*(folderUri=/organizations/org_template).*");
         FakeHttpLayerManager.addHttpResponseRule(
                 uriRegexMatcher,
-                TestResponses.get().xml("root_repositories"));
+                TestResponses.ROOT_REPOSITORIES);
         uriRegexMatcher =
                 new GetUriRegexMatcher(".*(folderUri=/public).*");
         FakeHttpLayerManager.addHttpResponseRule(
@@ -114,7 +114,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        ResourceLookupsList levelRepositories = get().fromXML(ResourceLookupsList.class, "level_repositories");
+        ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_FOLDER);
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
 
@@ -130,8 +130,8 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     public void testSearchResultsPersistedOnRotation() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
-                TestResponses.get().xml("level_repositories"));
-        ResourceLookupsList levelRepositories = get().fromXML(ResourceLookupsList.class, "level_repositories");
+                TestResponses.ONLY_FOLDER);
+        ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_FOLDER);
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
 
         startActivityUnderTest();

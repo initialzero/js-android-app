@@ -25,24 +25,25 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
-import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.acceptance.library.assertion.RequestAssert;
+import com.jaspersoft.android.jaspermobile.test.acceptance.library.assertion.RequestAssertRule;
+import com.jaspersoft.android.jaspermobile.test.acceptance.library.assertion.SpiceManagerRequestAssert;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.RequestExecutionAssertion;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.apache.http.fake.FakeHttpLayerManager;
+import org.apache.http.hacked.HackedJsRestClient;
 import org.mockito.ArgumentCaptor;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -63,9 +64,7 @@ import static org.mockito.Mockito.verify;
  */
 public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryActivity_> {
 
-    private final SmartMockedSpiceManager mMockedSpiceManager = spy(SmartMockedSpiceManager.getInstance());
-    private ResourceLookupsList allLookUp;
-    private ServerInfo serverInfo;
+    private final SpiceManagerRequestAssert mMockedSpiceManager = spy(new SpiceManagerRequestAssert());
 
     public LibraryPageSortTest() {
         super(LibraryActivity_.class);
@@ -74,33 +73,43 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
+
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
+
+        // We don`t need to listen initial load of page
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.SERVER_INFO);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ALL_RESOURCES);
     }
 
     public void testSortByDate() {
         verifySortBy(SortOrder.CREATION_DATE, R.string.s_fd_sort_date);
     }
 
-     public void testSortByLabel() {
+    public void testSortByLabel() {
         verifySortBy(SortOrder.LABEL, R.string.s_fd_sort_label);
     }
 
     private void verifySortBy(final SortOrder sortOrder, int menuLabelRes) {
-        // We don`t need to listen initial load of page
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(allLookUp);
         // We will assert Search query whether it was setup correctly
-        mMockedSpiceManager.addCachedResponse(new RequestExecutionAssertion(allLookUp) {
-            @Override
-            public <T> void assertExecution(SpiceRequest<T> request, RequestListener<T> requestListener) {
-                GetResourceLookupsRequest resourceLookupsRequest = (GetResourceLookupsRequest) request;
-                ResourceLookupSearchCriteria searchCriteria = resourceLookupsRequest.getSearchCriteria();
-                assertThat(searchCriteria.getSortBy(), is(sortOrder.getValue()));
-            }
-        });
+        mMockedSpiceManager.addAssertRule(
+                RequestAssertRule.builder()
+                        .setRequestKey(GetResourceLookupsRequest.class)
+                        .setRequestAssert(new RequestAssert() {
+                            @Override
+                            public <T> void assertExecution(SpiceRequest<T> request, RequestListener<T> requestListener) {
+                                GetResourceLookupsRequest resourceLookupsRequest = (GetResourceLookupsRequest) request;
+                                ResourceLookupSearchCriteria searchCriteria = resourceLookupsRequest.getSearchCriteria();
+                                assertThat(searchCriteria.getSortBy(), is(sortOrder.getValue()));
+                            }
+                        })
+                        .create());
+
+
         startActivityUnderTest();
 
         clickSortMenuItem();
@@ -132,10 +141,9 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
     private class TestModule extends CommonTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsRestClient.class).in(Singleton.class);
+            bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
             bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }
     }
-
 
 }

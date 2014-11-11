@@ -183,7 +183,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         FakeHttpLayerManager.clearHttpResponseRules();
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         onView(withId(R.id.saveAction)).perform(click());
 
         // Check whether our dialog is shown with Appropriate info

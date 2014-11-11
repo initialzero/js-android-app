@@ -99,20 +99,20 @@ import static org.mockito.Mockito.when;
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.get().xml("level_repositories"));
+                TestResponses.ONLY_FOLDER);
         onView(withId(R.id.home_item_library)).perform(click());
         Espresso.pressBack();
 
         FakeHttpLayerManager.clearHttpResponseRules();
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.GET_ROOT_FOLDER,
-                TestResponses.get().xml("root_folder"));
+                TestResponses.ROOT_FOLDER);
         onView(withId(R.id.home_item_repository)).perform(click());
         Espresso.pressBack();
 

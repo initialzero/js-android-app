@@ -85,10 +85,10 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.GET_ROOT_FOLDER,
-                TestResponses.get().xml("root_folder"));
+                TestResponses.ROOT_FOLDER);
     }
 
     @Override
@@ -128,11 +128,11 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     public void testRepoClickCase() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.ROOT_FOLDER_CONTENT,
-                TestResponses.get().xml("root_repositories"));
+                TestResponses.ROOT_REPOSITORIES);
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
-        FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, "root_folder");
+        FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, TestResources.ROOT_FOLDER);
         String firstRootRepoLabel = rootFolder.getLabel();
 
         onData(is(instanceOf(ResourceLookup.class)))
@@ -144,14 +144,14 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     }
 
     public void testRepoBackstackPersistance() {
-        FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, "root_folder");
+        FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, TestResources.ROOT_FOLDER);
         String rootLevelRepoLabel = rootFolder.getLabel();
-        ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_FOLDER);
         String firstLevelRepoLabel = levelRepositories.getResourceLookups().get(0).getLabel();
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.ROOT_FOLDER_CONTENT,
-                TestResponses.get().xml("level_repositories"));
+                TestResponses.ONLY_FOLDER);
 
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
@@ -171,7 +171,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     public void testSearchInRepository() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
-                TestResponses.get().xml("level_repositories"));
+                TestResponses.ONLY_FOLDER);
         startActivityUnderTest();
 
         try {

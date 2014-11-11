@@ -37,6 +37,15 @@ import java.io.StringWriter;
  * @since 1.9
  */
 public final class TestResources {
+    public static final String SERVER_INFO = "server_info";
+    public static final String ONLY_DASHBOARD = "only_dashboard";
+    public static final String ONLY_REPORT = "only_report";
+    public static final String ONLY_FOLDER = "level_repositories";
+    public static final String ALL_RESOURCES = "library_reports_small";
+    public static final String BIG_LOOKUP = "library_0_40";
+    public static final String SMALL_LOOKUP = "library_reports_small";
+    public static final String ROOT_FOLDER = "root_folder";
+    public static final String ROOT_REPOSITORIES = "root_repositories";
 
     private TestResources() {
     }

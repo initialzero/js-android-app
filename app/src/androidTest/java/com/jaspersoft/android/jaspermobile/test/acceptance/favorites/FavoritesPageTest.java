@@ -91,7 +91,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     }
 
     public void testActionModeAboutIcon() {
-        ResourceLookupsList onlyReport = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
+        ResourceLookupsList onlyReport = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_REPORT);
         ResourceLookup resource = onlyReport.getResourceLookups().get(0);
         favoritesHelper.addToFavorites(resource);
         startActivityUnderTest();
@@ -108,7 +108,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddDashboardToFavoriteFromContextMenu() throws Throwable {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.get().xml("only_dashboard"));
+                TestResponses.ONLY_DASHBOARD);
 
         deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
@@ -118,7 +118,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddFolderToFavoriteFromContextMenu() throws Throwable {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.get().xml("level_repositories"));
+                TestResponses.ONLY_FOLDER);
 
         deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
@@ -128,7 +128,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddReportToFavoriteFromContextMenu() throws Throwable {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.get().xml("only_report"));
+                TestResponses.ONLY_REPORT);
 
         deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
@@ -138,10 +138,10 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddToFavoriteFromDashboardView() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.get().xml("only_dashboard"));
+                TestResponses.ONLY_DASHBOARD);
         startActivityUnderTest();
 
         // Force only dashboards
@@ -175,10 +175,10 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     public void testAddToFavoriteFromReportView() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.get().xml("only_report"));
+                TestResponses.ONLY_REPORT);
         startActivityUnderTest();
 
         // Force only reports
@@ -212,16 +212,16 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     }
 
     public void testPageShouldPreserveOriginalLabel() {
-        ResourceLookupsList onlyFolder = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
+        ResourceLookupsList onlyFolder = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_FOLDER);
         ResourceLookup resourceLookup = onlyFolder.getResourceLookups().get(0);
         favoritesHelper.addToFavorites(resourceLookup);
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.get().xml("level_repositories"));
+                TestResponses.ONLY_FOLDER);
 
         startActivityUnderTest();
 
@@ -241,7 +241,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     private void startContextMenuInteractionTest() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
-                TestResponses.get().xml("server_info"));
+                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.INPUT_CONTROLS,
                 TestResponses.get().noContent());

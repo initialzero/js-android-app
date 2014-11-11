@@ -33,6 +33,16 @@ import org.apache.http.message.BasicHeader;
  * @since 1.9
  */
 public class TestResponses {
+    public static final TestHttpResponse SERVER_INFO = TestResponses.get().xml(TestResources.SERVER_INFO);
+    public static final TestHttpResponse ONLY_DASHBOARD = TestResponses.get().xml(TestResources.ONLY_DASHBOARD);
+    public static final TestHttpResponse ONLY_REPORT = TestResponses.get().xml(TestResources.ONLY_REPORT);
+    public static final TestHttpResponse ONLY_FOLDER = TestResponses.get().xml(TestResources.ONLY_FOLDER);
+    public static final TestHttpResponse ALL_RESOURCES = TestResponses.get().xml(TestResources.ALL_RESOURCES);
+    public static final TestHttpResponse BIG_LOOKUP = TestResponses.get().xml(TestResources.BIG_LOOKUP);
+    public static final TestHttpResponse SMALL_LOOKUP = TestResponses.get().xml(TestResources.SMALL_LOOKUP);
+    public static final TestHttpResponse ROOT_FOLDER = TestResponses.get().xml(TestResources.ROOT_FOLDER);
+    public static final TestHttpResponse ROOT_REPOSITORIES = TestResponses.get().xml(TestResources.ROOT_REPOSITORIES);
+
     private static final class HttpResponseUtilHolder {
         private static final TestResponses INSTANCE = new TestResponses();
     }

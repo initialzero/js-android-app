@@ -72,6 +72,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
         configureSearchIntent();
+        FakeHttpLayerManager.clearHttpResponseRules();
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
                 TestResponses.SERVER_INFO);
@@ -87,9 +88,12 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     public void testDashboardClick() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
-                TestResponses.get().xml("reports_query_result"));
+                TestResponses.ONLY_DASHBOARD);
         startActivityUnderTest();
-        onView(withText("Dashboard")).perform(click());
+
+        onData(is(instanceOf(ResourceLookup.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
         pressBack();
     }
 

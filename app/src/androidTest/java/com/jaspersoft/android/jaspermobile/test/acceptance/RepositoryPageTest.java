@@ -143,7 +143,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.h_repository_label)));
     }
 
-    public void testRepoBackstackPersistance() {
+    public void testRepoBackstackPersistance() throws InterruptedException {
         FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, TestResources.ROOT_FOLDER);
         String rootLevelRepoLabel = rootFolder.getLabel();
         ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_FOLDER);
@@ -155,6 +155,9 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
+
+        // Force this test not to be fluky
+        Thread.sleep(200);
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))

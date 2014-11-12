@@ -34,6 +34,7 @@ import org.apache.http.message.BasicHeader;
  */
 public class TestResponses {
     public static final TestHttpResponse SERVER_INFO = TestResponses.get().xml(TestResources.SERVER_INFO);
+    public static final TestHttpResponse EMERALD_MR1_SERVER_INFO = TestResponses.get().xml(TestResources.EMERALD_MR1_SERVER_INFO);
     public static final TestHttpResponse ONLY_DASHBOARD = TestResponses.get().xml(TestResources.ONLY_DASHBOARD);
     public static final TestHttpResponse ONLY_REPORT = TestResponses.get().xml(TestResources.ONLY_REPORT);
     public static final TestHttpResponse ONLY_FOLDER = TestResponses.get().xml(TestResources.ONLY_FOLDER);

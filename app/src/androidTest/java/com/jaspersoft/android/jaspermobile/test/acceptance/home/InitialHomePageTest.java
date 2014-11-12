@@ -145,9 +145,6 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     }
 
     public void testProfileIncorrectSetup() throws Throwable {
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.get().notAuthorized());
         startActivityUnderTest();
 
         onData(is(instanceOf(Cursor.class)))

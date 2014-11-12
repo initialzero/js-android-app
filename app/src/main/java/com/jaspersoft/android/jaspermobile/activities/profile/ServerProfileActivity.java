@@ -371,20 +371,45 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             toast.show();
         } else {
             JsServerProfile oldProfile = jsRestClient.getServerProfile();
-            JsServerProfile newProfile = new JsServerProfile();
-            newProfile.setAlias(alias);
-            newProfile.setServerUrl(serverUrl);
-            newProfile.setOrganization(organization);
-            newProfile.setUsername(username);
-            newProfile.setPassword(password);
-            jsRestClient.setServerProfile(newProfile);
+            if (oldProfile != null && oldProfile.getId() == profileId) {
+                updateServerProfile(oldProfile);
+            } else {
+                persistProfileData(this);
+                setOkResult();
+                finish();
+            }
 
-            JasperMobileApplication.removeAllCookies();
-            saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
-
-            getSpiceManager().execute(
-                    new GetServerInfoRequest(jsRestClient), new GetServerInfoListener(oldProfile));
             hideKeyboard();
+        }
+    }
+
+    private void updateServerProfile(JsServerProfile oldProfile) {
+        saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
+        JasperMobileApplication.removeAllCookies();
+
+        JsServerProfile newProfile = new JsServerProfile();
+        newProfile.setAlias(alias);
+        newProfile.setServerUrl(serverUrl);
+        newProfile.setOrganization(organization);
+        newProfile.setUsername(username);
+        newProfile.setPassword(password);
+        jsRestClient.setServerProfile(newProfile);
+
+        getSpiceManager().execute(
+                new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+    }
+
+    private void persistProfileData(Context context) {
+        if (profileId == 0) {
+            Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+            profileId = Long.valueOf(uri.getLastPathSegment());
+            Toast.makeText(context, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+        } else {
+            String selection = ServerProfilesTable._ID + " =?";
+            String[] selectionArgs = {String.valueOf(profileId)};
+            getContentResolver().update(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
+                    mServerProfile.getContentValues(), selection, selectionArgs);
+            Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -406,10 +431,10 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetServerInfoListener extends CommonRequestListener<ServerInfo> {
+    private class ValidateServerInfoListener extends CommonRequestListener<ServerInfo> {
         private final JsServerProfile mOldProfile;
 
-        GetServerInfoListener(JsServerProfile oldProfile) {
+        ValidateServerInfoListener(JsServerProfile oldProfile) {
             super();
             // We will handle this rule manually
             removeRule(ExceptionRule.UNAUTHORIZED);
@@ -418,7 +443,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
-            resetOldProfile();
+            // Reset back to old profile
+            jsRestClient.setServerProfile(mOldProfile);
             saveAction.setActionView(null);
 
             HttpStatus statusCode = extractStatusCode(spiceException);
@@ -435,38 +461,23 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
         @Override
         public void onSemanticSuccess(ServerInfo serverInfo) {
-            resetOldProfile();
             saveAction.setActionView(null);
 
             Context context = ServerProfileActivity.this;
             double currentVersion = serverInfo.getVersionCode();
             if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                // Reset back to old profile
+                jsRestClient.setServerProfile(mOldProfile);
+
                 AlertDialogFragment.createBuilder(context, getSupportFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.error_msg)
                         .setMessage(R.string.r_error_server_not_supported)
                         .show();
             } else {
-                if (profileId == 0) {
-                    Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
-                    profileId = Long.valueOf(uri.getLastPathSegment());
-                    Toast.makeText(context, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
-                } else {
-                    String selection = ServerProfilesTable._ID + " =?";
-                    String[] selectionArgs = {String.valueOf(profileId)};
-                    getContentResolver().update(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                            mServerProfile.getContentValues(), selection, selectionArgs);
-                    Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
-                }
-
+                persistProfileData(context);
                 setOkResult();
                 finish();
-            }
-        }
-
-        private void resetOldProfile() {
-            if (mOldProfile != null) {
-                jsRestClient.setServerProfile(mOldProfile);
             }
         }
 

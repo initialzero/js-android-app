@@ -38,6 +38,7 @@ import java.io.StringWriter;
  */
 public final class TestResources {
     public static final String SERVER_INFO = "server_info";
+    public static final String EMERALD_MR1_SERVER_INFO = "emerald_mr1_server_info";
     public static final String ONLY_DASHBOARD = "only_dashboard";
     public static final String ONLY_REPORT = "only_report";
     public static final String ONLY_FOLDER = "level_repositories";

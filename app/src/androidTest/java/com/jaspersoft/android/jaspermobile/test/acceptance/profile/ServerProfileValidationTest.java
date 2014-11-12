@@ -26,20 +26,14 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
-import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
-
-import org.apache.http.fake.FakeHttpLayerManager;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ORGANIZATION;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_PASS;
@@ -47,7 +41,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_USERNAME;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteTestProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 
 /**
  * @author Tom Koptel
@@ -128,28 +121,6 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
 
         onView(withId(R.id.saveAction)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_url_not_valid))));
-    }
-
-    // Bug related: When user enter invalid data REST will rise 401
-    // As soon as we shared same RequestExceptionHandler for all
-    // failure listeners we experienced flow which required customization
-    public void testPageShouldProperlyHandleUnAthorized() {
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.get().notAuthorized());
-        startActivityUnderTest();
-
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
-        onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
-        onView(withId(R.id.organizationEdit)).perform(typeText("some invalid organization"));
-        onView(withId(R.id.usernameEdit)).perform(typeText("some invalid username"));
-        onView(withId(R.id.passwordEdit)).perform(typeText("some invalid password"));
-        onView(withId(R.id.saveAction)).perform(click());
-
-        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.error_msg)));
-        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(ExceptionRule.UNAUTHORIZED.getMessage())));
-        onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).check(matches(withText(android.R.string.ok)));
-        onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).perform(click());
     }
 
 }

@@ -71,11 +71,6 @@ public class ServerProfileGenearalTest extends ProtoActivityInstrumentation<Serv
         super.setUp();
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
-
-        FakeHttpLayerManager.clearHttpResponseRules();
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
     }
 
     @Override

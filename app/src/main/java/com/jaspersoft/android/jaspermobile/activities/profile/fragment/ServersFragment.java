@@ -34,6 +34,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -226,18 +227,28 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
                 (oldProfile != null && oldProfile.getId() == profileId);
 
         if (isSameCurrentProfileSelected) {
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, profileId);
-            getActivity().setResult(Activity.RESULT_OK, resultIntent);
-            getActivity().finish();
+            setResultOk(profileId);
         } else {
             profileHelper.setCurrentServerProfile(cursor);
 
-            addProfile.setActionView(R.layout.actionbar_indeterminate_progress);
+            String password = jsRestClient.getServerProfile().getPassword();
+            boolean alwaysAskPassword = TextUtils.isEmpty(password);
+            if (alwaysAskPassword) {
+                setResultOk(profileId);
+            } else {
+                addProfile.setActionView(R.layout.actionbar_indeterminate_progress);
 
-            getSpiceManager().execute(
-                    new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+                getSpiceManager().execute(
+                        new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+            }
         }
+    }
+
+    private void setResultOk(long profileId) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, profileId);
+        getActivity().setResult(Activity.RESULT_OK, resultIntent);
+        getActivity().finish();
     }
 
     @Override

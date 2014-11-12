@@ -400,11 +400,19 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             setOkResult();
             finish();
         } else {
-            // Alter update only for changes
-            jsRestClient.setServerProfile(newProfile);
+            if (askPasswordCheckBox.isChecked()) {
+                // We can`t validate profile on server side without password
+                // so we are explicitly saving it!
+                persistProfileData(this);
+                setOkResult();
+                finish();
+            } else {
+                // Alter update only for changes
+                jsRestClient.setServerProfile(newProfile);
 
-            getSpiceManager().execute(
-                    new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+                getSpiceManager().execute(
+                        new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+            }
         }
     }
 

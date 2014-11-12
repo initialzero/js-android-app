@@ -180,4 +180,21 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         assertThat(FakeHttpLayerManager.getUnHandledRequestsCount(), is(0));
     }
 
+    public void testProfilePersistedWhileAskForPasswordChecked() {
+        onData(Matchers.is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+
+        onView(withId(R.id.usernameEdit)).perform(clearText());
+        onView(withId(R.id.usernameEdit)).perform(typeText("another_user"));
+        onView(withId(R.id.askPasswordCheckBox)).perform(click());
+        onView(withId(R.id.saveAction)).perform(click());
+
+        // Assert out profile still the same
+        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
+        assertThat(jsServerProfile.getPassword(), is(not("")));
+        assertThat(jsServerProfile.getUsername(), is(not("another_user")));
+    }
+
 }

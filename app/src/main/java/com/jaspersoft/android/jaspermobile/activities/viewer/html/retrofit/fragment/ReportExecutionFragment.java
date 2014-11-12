@@ -118,7 +118,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             executionData.setParameters(reportParameters);
         }
 
-        boolean interactive = !(versionCode >= ServerInfo.VERSION_CODES.EMERALD_THREE || versionCode < ServerInfo.VERSION_CODES.AMBER);
+        boolean interactive = !(versionCode >= ServerInfo.VERSION_CODES.EMERALD_THREE && versionCode < ServerInfo.VERSION_CODES.AMBER);
         executionData.setInteractive(interactive);
 
         return executionData;

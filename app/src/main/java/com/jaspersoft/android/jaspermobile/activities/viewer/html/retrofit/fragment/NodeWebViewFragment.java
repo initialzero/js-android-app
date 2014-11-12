@@ -334,12 +334,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     private void handleFailure(SpiceException exception) {
         Activity activity = getActivity();
-        if (exception instanceof RequestCancelledException) {
-            Toast.makeText(activity, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-        } else {
-            RequestExceptionHandler.handle(exception, activity, false);
+        if (isVisible() && activity != null) {
+            if (exception instanceof RequestCancelledException) {
+                Toast.makeText(activity, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
+            } else {
+                RequestExceptionHandler.handle(exception, activity, false);
+            }
+            ProgressDialogFragment.dismiss(getFragmentManager());
         }
-        ProgressDialogFragment.dismiss(getFragmentManager());
     }
 
     public void loadFinalOutput() {

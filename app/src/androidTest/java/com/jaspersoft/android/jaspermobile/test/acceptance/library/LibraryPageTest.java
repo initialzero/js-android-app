@@ -28,27 +28,19 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
-import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
-import org.mockito.MockitoAnnotations;
-
-import java.util.ArrayList;
+import org.apache.http.fake.FakeHttpLayerManager;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -72,51 +64,36 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @since 1.9
  */
 public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivity_> {
-    private static final int REPORT_ITEM_POSITION = 0;
     private static final int DASHBOARD_ITEM_POSITION = 1;
 
     private static final String GEO_QUERY = "Geo";
 
-    private SmartMockedSpiceManager mMockedSpiceManager;
     private RepositoryPref_ repositoryPref;
     private ResourceLookupsList smallLookUp;
-    private ResourceLookup reportResource;
     private ResourceLookup dashboardResource;
-    private InputControlsList emptyInputControlsList;
-    private InputControlsList fullInputControlsList;
-    private ServerInfo serverInfo;
 
     public LibraryPageTest() {
         super(LibraryActivity_.class);
     }
 
-    protected ReportExecutionResponse reportExecution;
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
 
         repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
-        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-
-        reportResource = smallLookUp.getResourceLookups().get(REPORT_ITEM_POSITION);
         dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
 
-        emptyInputControlsList = new InputControlsList();
-        emptyInputControlsList.setInputControls(new ArrayList<InputControl>());
-
-        fullInputControlsList = TestResources.get().fromXML(InputControlsList.class, "input_contols_list");
-
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(smallLookUp);
-
-        registerTestModule(new TestModule());
+        registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
+        FakeHttpLayerManager.clearHttpResponseRules();
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.SERVER_INFO,
+                TestResponses.SERVER_INFO);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.SMALL_LOOKUP);
     }
 
     @Override
@@ -149,24 +126,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
-    public void testReportWithICItemClicked() {
-        mMockedSpiceManager.addNetworkResponse(fullInputControlsList);
-        clickOnReportItem();
-    }
-
-    public void testReportWithoutICItemClicked() {
-        mMockedSpiceManager.addNetworkResponse(emptyInputControlsList);
-        mMockedSpiceManager.addNetworkResponse(reportExecution);
-        clickOnReportItem();
-    }
-
     public void testSwitcher() {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(smallLookUp);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(smallLookUp);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(smallLookUp);
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
@@ -187,21 +147,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }
 
-    private void clickOnReportItem() {
-        forcePreview(ViewType.LIST);
-        startActivityUnderTest();
-        onData(is(instanceOf(ResourceLookup.class)))
-                .inAdapterView(withId(android.R.id.list))
-                .atPosition(REPORT_ITEM_POSITION).perform(click());
-
-        onView(withText(reportResource.getLabel())).check(matches(isDisplayed()));
-        pressBack();
-    }
-
     public void testActionModeAboutIcon() {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(smallLookUp);
-
         ResourceLookup resource = smallLookUp.getResourceLookups().get(0);
         startActivityUnderTest();
 
@@ -216,8 +162,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     }
 
     public void testSearchInRepository() {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(smallLookUp);
         startActivityUnderTest();
 
         try {
@@ -237,11 +181,4 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         repositoryPref.viewType().put(viewType.toString());
     }
 
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsRestClient.class).in(Singleton.class);
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-        }
-    }
 }

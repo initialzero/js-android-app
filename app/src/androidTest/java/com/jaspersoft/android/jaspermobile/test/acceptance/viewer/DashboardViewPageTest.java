@@ -26,14 +26,12 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
 import android.content.Intent;
 
-import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
@@ -63,7 +61,7 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        registerTestModule(new TestModule());
+        registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
         idleInjector = WebViewInjector.registerFor(DashboardHtmlViewerActivity_.class);
 
@@ -102,13 +100,6 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         Intent htmlViewer = new Intent();
         htmlViewer.putExtra(DashboardHtmlViewerActivity_.RESOURCE_EXTRA, mResource);
         setActivityIntent(htmlViewer);
-    }
-
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsRestClient.class).in(Singleton.class);
-        }
     }
 
 }

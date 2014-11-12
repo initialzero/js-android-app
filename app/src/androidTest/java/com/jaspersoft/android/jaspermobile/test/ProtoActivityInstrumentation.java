@@ -71,6 +71,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
         DefaultPrefHelper helper = DefaultPrefHelper_
                 .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
         helper.setAnimationEnabled(false);
+        helper.setRepoCacheEnabled(false);
     }
 
     @Override

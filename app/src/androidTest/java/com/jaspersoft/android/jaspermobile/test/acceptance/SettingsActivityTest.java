@@ -86,7 +86,9 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
     }
 
     public void testConnectionCacheExpirationShouldNotAcceptIncorrectInteger() {
+        prefHelper.setRepoCacheEnabled(true);
         startActivityUnderTest();
+
         onView(withText(R.string.st_category_repo_cache)).perform(click());
         onView(withText(R.string.st_title_cache_expiration)).perform(click());
         onOverflowView(getActivity(), withId(android.R.id.edit)).perform(typeText("214748364799"));

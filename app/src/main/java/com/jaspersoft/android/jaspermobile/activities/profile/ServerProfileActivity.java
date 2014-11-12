@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
@@ -124,6 +125,9 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
     @SystemService
     InputMethodManager inputMethodManager;
+
+    @Inject
+    JsRestClient jsRestClient;
 
     private ServerProfiles mServerProfile;
     private int mActionBarSize;
@@ -366,20 +370,20 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             toast.setGravity(Gravity.TOP | Gravity.CENTER, 0, mActionBarSize + (mActionBarSize / 2));
             toast.show();
         } else {
-            JsRestClient jsRestClient = new JsRestClient();
-            JsServerProfile profile = new JsServerProfile();
-            profile.setAlias(alias);
-            profile.setServerUrl(serverUrl);
-            profile.setOrganization(organization);
-            profile.setUsername(username);
-            profile.setPassword(password);
-            jsRestClient.setServerProfile(profile);
+            JsServerProfile oldProfile = jsRestClient.getServerProfile();
+            JsServerProfile newProfile = new JsServerProfile();
+            newProfile.setAlias(alias);
+            newProfile.setServerUrl(serverUrl);
+            newProfile.setOrganization(organization);
+            newProfile.setUsername(username);
+            newProfile.setPassword(password);
+            jsRestClient.setServerProfile(newProfile);
 
             JasperMobileApplication.removeAllCookies();
             saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
 
             getSpiceManager().execute(
-                    new GetServerInfoRequest(jsRestClient), new GetServerInfoListener());
+                    new GetServerInfoRequest(jsRestClient), new GetServerInfoListener(oldProfile));
             hideKeyboard();
         }
     }
@@ -403,14 +407,18 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     //---------------------------------------------------------------------
 
     private class GetServerInfoListener extends CommonRequestListener<ServerInfo> {
-        GetServerInfoListener() {
+        private final JsServerProfile mOldProfile;
+
+        GetServerInfoListener(JsServerProfile oldProfile) {
             super();
             // We will handle this rule manually
             removeRule(ExceptionRule.UNAUTHORIZED);
+            mOldProfile = oldProfile;
         }
 
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
+            jsRestClient.setServerProfile(mOldProfile);
             saveAction.setActionView(null);
 
             HttpStatus statusCode = extractStatusCode(spiceException);
@@ -427,6 +435,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
         @Override
         public void onSemanticSuccess(ServerInfo serverInfo) {
+            jsRestClient.setServerProfile(mOldProfile);
             saveAction.setActionView(null);
 
             Context context = ServerProfileActivity.this;

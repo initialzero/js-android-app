@@ -147,11 +147,14 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     public void testProfileIncorrectSetup() throws Throwable {
         startActivityUnderTest();
 
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.get().notAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
+
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
         onView(withId(getActionBarSubTitleId())).check(matches(withText(ProfileHelper.DEFAULT_ALIAS)));
@@ -160,15 +163,14 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     }
 
     public void testProfileIncorrectSetupWithNoPassword() throws Throwable {
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.get().notAuthorized());
         startActivityUnderTest();
 
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.get().notAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
 
@@ -177,10 +179,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
 
         onView(withId(R.id.askPasswordCheckBox)).perform(click());
 
-        FakeHttpLayerManager.clearHttpResponseRules();
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         onView(withId(R.id.saveAction)).perform(click());
 
         // Check whether our dialog is shown with Appropriate info

@@ -393,10 +393,19 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         newProfile.setOrganization(organization);
         newProfile.setUsername(username);
         newProfile.setPassword(password);
-        jsRestClient.setServerProfile(newProfile);
 
-        getSpiceManager().execute(
-                new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+        if (oldProfile.equals(newProfile)) {
+            // Otherwise close the instance
+            profileId = oldProfile.getId();
+            setOkResult();
+            finish();
+        } else {
+            // Alter update only for changes
+            jsRestClient.setServerProfile(newProfile);
+
+            getSpiceManager().execute(
+                    new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+        }
     }
 
     private void persistProfileData(Context context) {

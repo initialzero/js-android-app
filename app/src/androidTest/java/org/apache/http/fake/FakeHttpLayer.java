@@ -25,31 +25,7 @@
 package org.apache.http.fake;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;/*
- * The MIT License
- *
- * Copyright (c) 2010 Xtreme Labs and Pivotal Labs
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -71,6 +47,7 @@ import java.util.regex.Pattern;
 
 public class FakeHttpLayer {
     List<HttpResponseGenerator> pendingHttpResponses = new ArrayList<HttpResponseGenerator>();
+    List<HttpRequestInfo> unHandledRequestInfos = new ArrayList<HttpRequestInfo>();
     List<HttpRequestInfo> httpRequestInfos = new ArrayList<HttpRequestInfo>();
     List<HttpResponse> httpResponses = new ArrayList<HttpResponse>();
     List<HttpEntityStub.ResponseRule> httpResponseRules = new ArrayList<HttpEntityStub.ResponseRule>();
@@ -82,7 +59,7 @@ public class FakeHttpLayer {
     private boolean interceptResponseContent;
 
     public HttpRequestInfo getLastSentHttpRequestInfo() {
-        List<HttpRequestInfo> requestInfos = FakeHttpLayerManager.getFakeHttpLayer().getSentHttpRequestInfos();
+        List<HttpRequestInfo> requestInfos = getSentHttpRequestInfos();
         if (requestInfos.isEmpty()) {
             return null;
         }
@@ -170,6 +147,7 @@ public class FakeHttpLayer {
         }
 
         if (httpResponse == null) {
+            addUnHandledRequestInfo(new HttpRequestInfo(httpRequest, httpHost, httpContext, requestDirector));
             throw new RuntimeException("Unexpected call to execute, no pending responses are available. See FakeHttpLayerManager.addPendingResponse(). Request was: " +
                     httpRequest.getRequestLine().getMethod() + " " + httpRequest.getRequestLine().getUri());
         } else {
@@ -211,6 +189,10 @@ public class FakeHttpLayer {
         httpRequestInfos.add(requestInfo);
     }
 
+    public void addUnHandledRequestInfo(HttpRequestInfo requestInfo) {
+        unHandledRequestInfos.add(requestInfo);
+    }
+
     public boolean hasResponseRules() {
         return !httpResponseRules.isEmpty();
     }
@@ -246,6 +228,10 @@ public class FakeHttpLayer {
 
     public List<HttpRequestInfo> getSentHttpRequestInfos() {
         return new ArrayList<HttpRequestInfo>(httpRequestInfos);
+    }
+
+    public List<HttpRequestInfo> getUnHandledRequestInfos() {
+        return new ArrayList<HttpRequestInfo>(unHandledRequestInfos);
     }
 
     public void clearHttpResponseRules() {

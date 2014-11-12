@@ -220,14 +220,25 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
         cursor.moveToPosition(position);
 
         JsServerProfile oldProfile = jsRestClient.getServerProfile();
-        profileHelper.setCurrentServerProfile(cursor);
+        long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
 
-        addProfile.setActionView(R.layout.actionbar_indeterminate_progress);
+        boolean isSameCurrentProfileSelected =
+                (oldProfile != null && oldProfile.getId() == profileId);
 
-        getSpiceManager().execute(
-                new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+        if (isSameCurrentProfileSelected) {
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, profileId);
+            getActivity().setResult(Activity.RESULT_OK, resultIntent);
+            getActivity().finish();
+        } else {
+            profileHelper.setCurrentServerProfile(cursor);
+
+            addProfile.setActionView(R.layout.actionbar_indeterminate_progress);
+
+            getSpiceManager().execute(
+                    new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+        }
     }
-
 
     @Override
     public void onPositiveButtonClicked(int position) {

@@ -172,4 +172,12 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.error_msg)));
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.r_error_server_not_supported)));
     }
+
+    public void testSelectionOfAlreadyActiveProfileChangeNothing() {
+        onData(Matchers.is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+        assertThat(FakeHttpLayerManager.getUnHandledRequestsCount(), is(0));
+    }
+
 }

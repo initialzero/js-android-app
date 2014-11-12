@@ -24,8 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
+import android.app.Application;
 import android.database.Cursor;
 
+import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -33,8 +35,11 @@ import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+
+import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
@@ -185,6 +190,29 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(1));
+    }
+
+    public void testUnauthorizedUserCanCreateProfile() {
+        Application application = (Application) this.getInstrumentation()
+                .getTargetContext().getApplicationContext();
+
+        Injector injector = RoboGuice.getBaseApplicationInjector(application);
+        JsRestClient jsRestClient = injector.getInstance(JsRestClient.class);
+        jsRestClient.setServerProfile(null);
+
+        startActivityUnderTest();
+
+        onView(withId(R.id.addProfile)).perform(click());
+
+        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
+
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onView(withText(TEST_ALIAS)).check(matches(isDisplayed()));
     }
 
 }

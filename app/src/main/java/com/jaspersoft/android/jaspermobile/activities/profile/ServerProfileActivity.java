@@ -418,7 +418,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
-            jsRestClient.setServerProfile(mOldProfile);
+            resetOldProfile();
             saveAction.setActionView(null);
 
             HttpStatus statusCode = extractStatusCode(spiceException);
@@ -435,7 +435,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
         @Override
         public void onSemanticSuccess(ServerInfo serverInfo) {
-            jsRestClient.setServerProfile(mOldProfile);
+            resetOldProfile();
             saveAction.setActionView(null);
 
             Context context = ServerProfileActivity.this;
@@ -461,6 +461,12 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
                 setOkResult();
                 finish();
+            }
+        }
+
+        private void resetOldProfile() {
+            if (mOldProfile != null) {
+                jsRestClient.setServerProfile(mOldProfile);
             }
         }
 

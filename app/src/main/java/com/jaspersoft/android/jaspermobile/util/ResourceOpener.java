@@ -74,12 +74,12 @@ public class ResourceOpener {
     }
 
     public void openResource(ResourceLookup resource) {
-        JasperMobileApplication.removeAllCookies();
         switch (resource.getResourceType()) {
             case folder:
                 openFolder(resource);
                 break;
             case reportUnit:
+                JasperMobileApplication.removeAllCookies();
                 runReport(resource);
                 break;
             case dashboard:

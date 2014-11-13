@@ -38,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
@@ -54,6 +55,7 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.List;
 
@@ -68,6 +70,8 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
     @Inject
     JsRestClient jsRestClient;
 
+    @Pref
+    LibraryPref_ pref;
     @Bean
     FilterOptions filterOptions;
     @Bean
@@ -96,6 +100,9 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
         }
 
         if (savedInstanceState == null) {
+            // Reset all controls state
+            pref.clear();
+
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             resourcesController =

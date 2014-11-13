@@ -32,7 +32,7 @@ public enum ViewType {
     GRID,
     LIST;
 
-    public static ViewType valueOf(RepositoryPref_ pref) {
+    public static ViewType valueOf(ControllerPref pref) {
         return valueOf(pref.viewType().get());
     }
 }

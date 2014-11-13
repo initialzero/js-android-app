@@ -33,6 +33,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -47,6 +50,7 @@ import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.util.StaticCacheHelper;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -55,8 +59,10 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.ViewById;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 
 import roboguice.fragment.RoboFragment;
 
@@ -68,6 +74,7 @@ import roboguice.fragment.RoboFragment;
 public class WebViewFragment extends RoboFragment {
 
     public static final String TAG = WebViewFragment.class.getSimpleName();
+    private static final String COOKIE_STORE = "cookieStore";
 
     @ViewById
     FrameLayout webViewPlaceholder;
@@ -164,12 +171,43 @@ public class WebViewFragment extends RoboFragment {
     // Helper methods
     //---------------------------------------------------------------------
 
+
     private void createWebView() {
         webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
+        syncCookies();
         prepareWebView();
         setWebViewClient();
         if (onWebViewCreated != null) {
             onWebViewCreated.onWebViewCreated(this);
+        }
+    }
+
+    /**
+     * Sync cookies between HttpURLConnection and WebView
+     */
+    @SuppressLint({"NewApi"})
+    protected void syncCookies() {
+        final List<String> cookieStore = (List<String>) StaticCacheHelper.retrieveObjectFromCache(COOKIE_STORE);
+        if (cookieStore != null) {
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                CookieSyncManager.createInstance(getActivity());
+            }
+
+            final CookieManager cookieManager = CookieManager.getInstance();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cookieManager.removeSessionCookies(new ValueCallback<Boolean>() {
+                    @Override
+                    public void onReceiveValue(Boolean value) {
+                        cookieManager.setCookie(jsRestClient.getServerProfile().getServerUrl(), StringUtils.join(cookieStore, ";"));
+                        CookieManager.getInstance().flush();
+                    }
+                });
+            } else {
+                cookieManager.removeSessionCookie();
+                cookieManager.setCookie(jsRestClient.getServerProfile().getServerUrl(), StringUtils.join(cookieStore, ";"));
+                CookieSyncManager.getInstance().sync();
+            }
         }
     }
 

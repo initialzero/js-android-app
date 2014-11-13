@@ -30,7 +30,7 @@ import android.widget.ListView;
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
@@ -71,6 +71,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryActivity_> {
 
     private static final String REPORTS_QUERY = "Reports";
+    private static final String CLASS_NAME = "activities.repository.RepositoryActivity_";
 
     public RepositoryPageTest() {
         super(RepositoryActivity_.class);
@@ -83,12 +84,8 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
 
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.GET_ROOT_FOLDER,
-                TestResponses.ROOT_FOLDER);
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.GET_ROOT_FOLDER, TestResponses.ROOT_FOLDER);
     }
 
     @Override
@@ -125,7 +122,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
-    public void testRepoClickCase() {
+    public void testRepoClickCase() throws InterruptedException {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.ROOT_FOLDER_CONTENT,
                 TestResponses.ROOT_REPOSITORIES);
@@ -134,6 +131,9 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
         FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, TestResources.ROOT_FOLDER);
         String firstRootRepoLabel = rootFolder.getLabel();
+
+        // Force to wait so that test won`t be fluky
+        Thread.sleep(500);
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -191,8 +191,8 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
     }
 
     private void forcePreview(ViewType viewType) {
-        RepositoryPref_ repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
-        repositoryPref.viewType().put(viewType.toString());
+        ControllerPref controllerPref = new ControllerPref(getInstrumentation().getContext(), CLASS_NAME);
+        controllerPref.viewType().put(viewType.toString());
     }
 
     public class TestModule extends CommonTestModule {

@@ -32,7 +32,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 
@@ -50,12 +50,12 @@ public abstract class ControllerFragment extends RoboFragment {
     public static final String CONTENT_TAG = "CONTENT_TAG";
 
     private MenuItem switchLayoutMenuItem;
-    private RepositoryPref_ repositoryPref;
+    private ControllerPref controllerPref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        repositoryPref = new RepositoryPref_(getActivity());
+        controllerPref = new ControllerPref(getActivity(), getActivity().getLocalClassName());
         super.onCreate(savedInstanceState);
     }
 
@@ -87,7 +87,7 @@ public abstract class ControllerFragment extends RoboFragment {
     }
 
     private void switchLayout() {
-        repositoryPref.viewType()
+        controllerPref.viewType()
                 .put(getViewType() == LIST ? GRID.toString() : LIST.toString());
         toggleSwitcher();
         commitContentFragment();
@@ -114,11 +114,12 @@ public abstract class ControllerFragment extends RoboFragment {
     }
 
     protected ViewType getViewType() {
-        if (repositoryPref == null) {
-            repositoryPref = new RepositoryPref_(getActivity());
+        if (controllerPref == null) {
+            controllerPref = new ControllerPref(getActivity(), getActivity().getLocalClassName());
         }
-        return ViewType.valueOf(repositoryPref);
+        return ViewType.valueOf(controllerPref);
     }
 
     public abstract Fragment getContentFragment();
+
 }

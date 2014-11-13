@@ -91,8 +91,11 @@ public class FakeHttpLayerManager {
     }
 
     public static HttpRequest getLatestSentHttpRequest() {
-        int requestCount = FakeHttpLayerManager.getFakeHttpLayer().getSentHttpRequestInfos().size();
-        return FakeHttpLayerManager.getFakeHttpLayer().getSentHttpRequestInfo(requestCount - 1).getHttpRequest();
+        return FakeHttpLayerManager.getFakeHttpLayer().getLastSentHttpRequestInfo().getHttpRequest();
+    }
+
+    public static int getUnHandledRequestsCount() {
+        return FakeHttpLayerManager.getFakeHttpLayer().getUnHandledRequestInfos().size();
     }
 
     /**

@@ -193,6 +193,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         return mResourceLoaded;
     }
 
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void loadHtml(String html) {
         Preconditions.checkNotNull(html);
         Preconditions.checkNotNull(webView);
@@ -206,10 +214,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 jsRestClient.getServerProfile().getServerUrl(),
                 html, mime, encoding, null);
     }
-
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
 
     private void createWebView() {
         webView = new JSWebView(getActivity().getApplicationContext(), null, R.style.htmlViewer_webView);

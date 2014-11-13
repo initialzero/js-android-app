@@ -186,6 +186,8 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                 nodeWebViewFragment = createNodeWebViewFragment();
             }
         }
+        // We need refresh request id so that new exports data comes in proper way
+        nodeWebViewFragment.setRequestId(requestId);
 
         getFragmentManager().beginTransaction()
                 .replace(R.id.content, nodeWebViewFragment,

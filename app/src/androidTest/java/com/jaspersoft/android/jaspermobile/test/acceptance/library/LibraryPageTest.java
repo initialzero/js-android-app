@@ -30,7 +30,7 @@ import android.widget.ListView;
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.RepositoryPref_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
@@ -67,8 +67,8 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     private static final int DASHBOARD_ITEM_POSITION = 1;
 
     private static final String GEO_QUERY = "Geo";
+    private static final String CLASS_NAME = "activities.repository.LibraryActivity_";
 
-    private RepositoryPref_ repositoryPref;
     private ResourceLookupsList smallLookUp;
     private ResourceLookup dashboardResource;
 
@@ -80,7 +80,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     protected void setUp() throws Exception {
         super.setUp();
 
-        repositoryPref = new RepositoryPref_(getInstrumentation().getContext());
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
         dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
 
@@ -99,7 +98,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
-        repositoryPref = null;
         super.tearDown();
     }
 
@@ -178,7 +176,8 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     }
 
     private void forcePreview(ViewType viewType) {
-        repositoryPref.viewType().put(viewType.toString());
+        ControllerPref controllerPref = new ControllerPref(getInstrumentation().getContext(), CLASS_NAME);
+        controllerPref.viewType().put(viewType.toString());
     }
 
 }

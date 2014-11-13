@@ -34,10 +34,7 @@ import java.util.Set;
  * @since 1.9
  */
 @SharedPref(value=SharedPref.Scope.UNIQUE)
-public interface RepositoryPref {
-    @DefaultString("LIST")
-    String viewType();
-
+public interface LibraryPref {
     @DefaultString("LABEL")
     String sortType();
 

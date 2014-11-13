@@ -24,19 +24,38 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.FilterManagerFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.FilterManagerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.PaginationManagerFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.PaginationManagerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportActionFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportActionFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportExecutionFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportExecutionFragment_;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.octo.android.robospice.exception.RequestCancelledException;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -45,6 +64,9 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
@@ -56,7 +78,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
+public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         implements WebViewFragment.OnWebViewCreated {
 
     @Inject
@@ -89,6 +111,7 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
+
         }
     }
 
@@ -122,10 +145,46 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
 
     @Override
     public void onWebViewCreated(WebViewFragment webViewFragment) {
-        String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
-                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
-                + resource.getUri();
-        webViewFragment.loadUrl(dashboardUrl);
+        final GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+        getSpiceManager().execute(request,
+                new GetServerInfoRequestListener());
+    }
+
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
+
+    private class GetServerInfoRequestListener implements RequestListener<ServerInfo> {
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            RequestExceptionHandler.handle(exception, DashboardHtmlViewerActivity.this, false);
+        }
+
+        @Override
+        public void onRequestSuccess(ServerInfo data) {
+            WebViewFragment webViewFragment = (WebViewFragment)
+                    getSupportFragmentManager().findFragmentByTag(WebViewFragment.TAG);
+
+            String dashboardUrl;
+            String serverUrl = jsRestClient.getServerProfile().getServerUrl();
+
+            dashboardUrl = serverUrl
+                    + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
+                    + resource.getUri();
+            if (data.getVersionCode() >= ServerInfo.VERSION_CODES.AMBER) {
+                if (resource.getResourceType() == ResourceLookup.ResourceType.dashboard) {
+                    try {
+                        String url = URLEncoder.encode(resource.getUri(), "UTF-8");
+                        dashboardUrl = serverUrl + "/dashboard/viewer.html?decorate=no#" + url;
+                    } catch (UnsupportedEncodingException e) {
+                        RequestExceptionHandler.handle(e, DashboardHtmlViewerActivity.this, false);
+                        return;
+                    }
+                }
+            }
+
+            webViewFragment.loadUrl(dashboardUrl);
+        }
     }
 
 }

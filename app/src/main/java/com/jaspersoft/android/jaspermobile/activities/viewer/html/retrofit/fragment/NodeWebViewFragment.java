@@ -330,7 +330,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         ExportsRequest executionData = new ExportsRequest();
         reportExecutionUtil.setupAttachmentPrefix(executionData, versionCode);
         reportExecutionUtil.setupBaseUrl(executionData);
-        executionData.setAllowInlineScripts(false);
         executionData.setOutputFormat("html");
         executionData.setPages(String.valueOf(page));
         return executionData;

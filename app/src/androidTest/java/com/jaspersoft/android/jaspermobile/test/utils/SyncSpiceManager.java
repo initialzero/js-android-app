@@ -22,24 +22,27 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.support;
+package com.jaspersoft.android.jaspermobile.test.utils;
 
-import org.androidannotations.annotations.sharedpreferences.DefaultString;
-import org.androidannotations.annotations.sharedpreferences.SharedPref;
+import android.util.Log;
 
-import java.util.Set;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
+import com.octo.android.robospice.exception.NetworkException;
+import com.octo.android.robospice.request.CachedSpiceRequest;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-@SharedPref(value=SharedPref.Scope.UNIQUE)
-public interface RepositoryPref {
-    @DefaultString("LIST")
-    String viewType();
-
-    @DefaultString("LABEL")
-    String sortType();
-
-    Set<String> filterTypes();
+public class SyncSpiceManager extends JsSpiceManager {
+    @Override
+    public <T> void execute(CachedSpiceRequest<T> cachedSpiceRequest, final RequestListener<T> requestListener) {
+        try {
+            requestListener.onRequestSuccess(cachedSpiceRequest.loadDataFromNetwork());
+        } catch (Exception e) {
+            requestListener.onRequestFailure( new NetworkException("Exception occurred during invocation of web service.", e));
+            Log.e(SyncSpiceManager.class.getSimpleName(), "SyncSpiceManager processed error: ", e);
+        }
+    }
 }

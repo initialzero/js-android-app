@@ -35,7 +35,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 public class SortOptions {
 
     @Pref
-    RepositoryPref_ repositoryPref;
+    LibraryPref_ repositoryPref;
 
     public SortOrder getOrder() {
         return SortOrder.valueOf(repositoryPref.sortType().get());

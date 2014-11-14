@@ -625,6 +625,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
             } else {
                 showValidationMessages(invalidStateList);
             }
+            setRefreshActionButtonState(false);
         }
 
     }

@@ -193,6 +193,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         return mResourceLoaded;
     }
 
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void loadHtml(String html) {
         Preconditions.checkNotNull(html);
         Preconditions.checkNotNull(webView);
@@ -206,10 +214,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 jsRestClient.getServerProfile().getServerUrl(),
                 html, mime, encoding, null);
     }
-
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
 
     private void createWebView() {
         webView = new JSWebView(getActivity().getApplicationContext(), null, R.style.htmlViewer_webView);
@@ -326,7 +330,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         ExportsRequest executionData = new ExportsRequest();
         reportExecutionUtil.setupAttachmentPrefix(executionData, versionCode);
         reportExecutionUtil.setupBaseUrl(executionData);
-        executionData.setAllowInlineScripts(false);
         executionData.setOutputFormat("html");
         executionData.setPages(String.valueOf(page));
         return executionData;
@@ -334,12 +337,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     private void handleFailure(SpiceException exception) {
         Activity activity = getActivity();
-        if (exception instanceof RequestCancelledException) {
-            Toast.makeText(activity, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-        } else {
-            RequestExceptionHandler.handle(exception, activity, false);
+        if (isVisible() && activity != null) {
+            if (exception instanceof RequestCancelledException) {
+                Toast.makeText(activity, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
+            } else {
+                RequestExceptionHandler.handle(exception, activity, false);
+            }
+            ProgressDialogFragment.dismiss(getFragmentManager());
         }
-        ProgressDialogFragment.dismiss(getFragmentManager());
     }
 
     public void loadFinalOutput() {

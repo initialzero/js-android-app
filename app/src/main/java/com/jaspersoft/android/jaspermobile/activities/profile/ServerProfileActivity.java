@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
@@ -124,6 +125,9 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
     @SystemService
     InputMethodManager inputMethodManager;
+
+    @Inject
+    JsRestClient jsRestClient;
 
     private ServerProfiles mServerProfile;
     private int mActionBarSize;
@@ -366,21 +370,63 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             toast.setGravity(Gravity.TOP | Gravity.CENTER, 0, mActionBarSize + (mActionBarSize / 2));
             toast.show();
         } else {
-            JsRestClient jsRestClient = new JsRestClient();
-            JsServerProfile profile = new JsServerProfile();
-            profile.setAlias(alias);
-            profile.setServerUrl(serverUrl);
-            profile.setOrganization(organization);
-            profile.setUsername(username);
-            profile.setPassword(password);
-            jsRestClient.setServerProfile(profile);
+            JsServerProfile oldProfile = jsRestClient.getServerProfile();
+            if (oldProfile != null && oldProfile.getId() == profileId) {
+                updateServerProfile(oldProfile);
+            } else {
+                persistProfileData(this);
+                setOkResult();
+                finish();
+            }
 
-            JasperMobileApplication.removeAllCookies();
-            saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
-
-            getSpiceManager().execute(
-                    new GetServerInfoRequest(jsRestClient), new GetServerInfoListener());
             hideKeyboard();
+        }
+    }
+
+    private void updateServerProfile(JsServerProfile oldProfile) {
+        saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
+        JasperMobileApplication.removeAllCookies();
+
+        JsServerProfile newProfile = new JsServerProfile();
+        newProfile.setAlias(alias);
+        newProfile.setServerUrl(serverUrl);
+        newProfile.setOrganization(organization);
+        newProfile.setUsername(username);
+        newProfile.setPassword(password);
+
+        if (oldProfile.equals(newProfile)) {
+            // Otherwise close the instance
+            profileId = oldProfile.getId();
+            setOkResult();
+            finish();
+        } else {
+            if (askPasswordCheckBox.isChecked()) {
+                // We can`t validate profile on server side without password
+                // so we are explicitly saving it!
+                persistProfileData(this);
+                setOkResult();
+                finish();
+            } else {
+                // Alter update only for changes
+                jsRestClient.setServerProfile(newProfile);
+
+                getSpiceManager().execute(
+                        new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+            }
+        }
+    }
+
+    private void persistProfileData(Context context) {
+        if (profileId == 0) {
+            Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+            profileId = Long.valueOf(uri.getLastPathSegment());
+            Toast.makeText(context, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+        } else {
+            String selection = ServerProfilesTable._ID + " =?";
+            String[] selectionArgs = {String.valueOf(profileId)};
+            getContentResolver().update(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
+                    mServerProfile.getContentValues(), selection, selectionArgs);
+            Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -402,15 +448,20 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetServerInfoListener extends CommonRequestListener<ServerInfo> {
-        GetServerInfoListener() {
+    private class ValidateServerInfoListener extends CommonRequestListener<ServerInfo> {
+        private final JsServerProfile mOldProfile;
+
+        ValidateServerInfoListener(JsServerProfile oldProfile) {
             super();
             // We will handle this rule manually
             removeRule(ExceptionRule.UNAUTHORIZED);
+            mOldProfile = oldProfile;
         }
 
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
+            // Reset back to old profile
+            jsRestClient.setServerProfile(mOldProfile);
             saveAction.setActionView(null);
 
             HttpStatus statusCode = extractStatusCode(spiceException);
@@ -432,24 +483,16 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             Context context = ServerProfileActivity.this;
             double currentVersion = serverInfo.getVersionCode();
             if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
+                // Reset back to old profile
+                jsRestClient.setServerProfile(mOldProfile);
+
                 AlertDialogFragment.createBuilder(context, getSupportFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.error_msg)
                         .setMessage(R.string.r_error_server_not_supported)
                         .show();
             } else {
-                if (profileId == 0) {
-                    Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
-                    profileId = Long.valueOf(uri.getLastPathSegment());
-                    Toast.makeText(context, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
-                } else {
-                    String selection = ServerProfilesTable._ID + " =?";
-                    String[] selectionArgs = {String.valueOf(profileId)};
-                    getContentResolver().update(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                            mServerProfile.getContentValues(), selection, selectionArgs);
-                    Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
-                }
-
+                persistProfileData(context);
                 setOkResult();
                 finish();
             }

@@ -77,6 +77,12 @@ public class DefaultPrefHelper {
         return preferences.getBoolean(SettingsActivity.KEY_PREF_SEND_CRASHES, value);
     }
 
+    public void setRepoCacheEnabled(boolean value) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(
+                SettingsActivity.KEY_PREF_REPO_CACHE_ENABLED, value).apply();
+    }
+
     public long getRepoCacheExpirationValue() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean repoCacheEnabled = preferences.getBoolean(

@@ -118,7 +118,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             executionData.setParameters(reportParameters);
         }
 
-        boolean interactive = !(versionCode >= ServerInfo.VERSION_CODES.EMERALD_THREE || versionCode < ServerInfo.VERSION_CODES.AMBER);
+        boolean interactive = !(versionCode >= ServerInfo.VERSION_CODES.EMERALD_THREE && versionCode < ServerInfo.VERSION_CODES.AMBER);
         executionData.setInteractive(interactive);
 
         return executionData;
@@ -148,6 +148,12 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         }
 
         public void onRequestSuccess(ReportExecutionResponse response) {
+            // This is possible in the test case, as soon as we are stubing out all responses
+            if (response == null) {
+                ProgressDialogFragment.dismiss(getFragmentManager());
+                return;
+            }
+
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
 
             final String requestId = response.getRequestId();

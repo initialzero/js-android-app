@@ -29,9 +29,7 @@ import android.content.Intent;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-
-import org.mockito.MockitoAnnotations;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
@@ -58,8 +56,8 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
-        registerTestModule(new TestModule());
+        registerTestModule(new HackedTestModule());
+        setDefaultCurrentProfile();
     }
 
     @Override
@@ -100,9 +98,4 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         setActivityIntent(metaIntent);
     }
 
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-        }
-    }
 }

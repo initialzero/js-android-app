@@ -106,6 +106,7 @@ public class ProgressDialogFragment extends DialogFragment {
     }
 
     public static ProgressDialogFragment getInstance(FragmentManager fm) {
+        if (fm == null) return null;
         return (ProgressDialogFragment) fm.findFragmentByTag(TAG);
     }
 }

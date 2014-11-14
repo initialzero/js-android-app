@@ -75,10 +75,12 @@ android {
         exclude 'NOTICE'
         exclude 'LICENSE'
         exclude 'LICENSE.txt'
-        exclude 'META-INF/notice.txt'
         exclude 'META-INF/license.txt'
         exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/notice.txt'
         exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
     }
 
 //    lintOptions {

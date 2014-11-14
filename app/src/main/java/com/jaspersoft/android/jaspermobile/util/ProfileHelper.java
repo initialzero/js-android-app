@@ -79,6 +79,7 @@ public class ProfileHelper {
         injector.injectMembersWithoutViews(this);
     }
 
+
     public void initJsRestClient() {
         // set timeouts
         jsRestClient.setConnectTimeout(defaultPrefHelper.getConnectTimeoutValue() * 1000);
@@ -101,17 +102,21 @@ public class ProfileHelper {
             try {
                 if (cursor.getCount() > 0) {
                     cursor.moveToPosition(0);
-
-                    ServerProfiles dbProfile = new ServerProfiles(cursor);
-                    JsServerProfile serverProfile = new JsServerProfile(id, dbProfile.getAlias(),
-                            dbProfile.getServerUrl(), dbProfile.getOrganization(),
-                            dbProfile.getUsername(), dbProfile.getPassword());
-                    jsRestClient.setServerProfile(serverProfile);
+                    setCurrentServerProfile(cursor);
                 }
             } finally {
                 cursor.close();
             }
         }
+    }
+
+    public void setCurrentServerProfile(Cursor cursor) {
+        long id = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+        ServerProfiles dbProfile = new ServerProfiles(cursor);
+        JsServerProfile serverProfile = new JsServerProfile(id, dbProfile.getAlias(),
+                dbProfile.getServerUrl(), dbProfile.getOrganization(),
+                dbProfile.getUsername(), dbProfile.getPassword());
+        jsRestClient.setServerProfile(serverProfile);
     }
 
     public void seedProfilesIfNeed() {

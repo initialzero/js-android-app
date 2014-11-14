@@ -55,6 +55,7 @@ import java.util.concurrent.TimeUnit;
  * @author Tom Koptel
  * @since 1.9
  */
+@Deprecated
 public class SmartMockedSpiceManager extends JsSpiceManager {
 
     private final ArrayDeque<SpiceException> errorsForCacheRequestQueue = Queues.newArrayDeque();

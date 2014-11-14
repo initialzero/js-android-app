@@ -24,19 +24,23 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
+import android.app.Application;
 import android.database.Cursor;
 
+import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
+import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
-import org.mockito.MockitoAnnotations;
+import org.apache.http.fake.FakeHttpLayerManager;
+
+import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
@@ -67,24 +71,21 @@ import static org.hamcrest.Matchers.is;
  */
 public class ServersManagerPageTest extends ProtoActivityInstrumentation<ServersManagerActivity_> {
 
+    private Application mApplication;
+
     public ServersManagerPageTest() {
         super(ServersManagerActivity_.class);
     }
 
-    private SmartMockedSpiceManager mMockedSpiceManager;
-    private ServerInfo serverInfo;
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
+        mApplication = (Application) this.getInstrumentation()
+                .getTargetContext().getApplicationContext();
 
-        MockitoAnnotations.initMocks(this);
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        registerTestModule(new TestModule());
-        startActivityUnderTest();
+        deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
+        registerTestModule(new HackedTestModule());
+        setDefaultCurrentProfile();
     }
 
     @Override
@@ -108,7 +109,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         onView(withId(R.id.saveAction)).perform(click());
 
-        Cursor cursor = queryTestProfile(getActivity().getContentResolver());
+        Cursor cursor = queryTestProfile(mApplication.getContentResolver());
         try {
             assertThat(cursor.getCount(), is(1));
         } finally {
@@ -116,27 +117,8 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         }
     }
 
-    public void testServerLowerThanEmeraldNotAcceptable() {
-        mMockedSpiceManager.clearNetworkResponses();
-        serverInfo.setVersionCode(ServerInfo.VERSION_CODES.EMERALD_MR1);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-
-        onView(withId(R.id.addProfile)).perform(click());
-
-        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
-        onView(withId(R.id.serverUrlEdit)).perform(typeText(DatabaseUtils.TEST_SERVER_URL));
-        onView(withId(R.id.organizationEdit)).perform(typeText(DatabaseUtils.TEST_ORGANIZATION));
-        onView(withId(R.id.usernameEdit)).perform(typeText(DatabaseUtils.TEST_USERNAME));
-        onView(withId(R.id.passwordEdit)).perform(typeText(DatabaseUtils.TEST_PASS));
-
-        onView(withId(R.id.saveAction)).perform(click());
-
-        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.error_msg)));
-        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.r_error_server_not_supported)));
-    }
-
     public void testServerAliasShouldBeUniqueDuringCreation() {
-        createTestProfile(getActivity().getContentResolver());
+        createTestProfile(mApplication.getContentResolver());
         startActivityUnderTest();
 
         onView(withId(R.id.addProfile)).perform(click());
@@ -157,7 +139,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
     }
 
     public void testServerAliasShouldBeUniqueDuringUpdate() {
-        createTestProfile(getActivity().getContentResolver());
+        createTestProfile(mApplication.getContentResolver());
         startActivityUnderTest();
 
         onView(withId(R.id.addProfile)).perform(click());
@@ -179,7 +161,9 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
     }
 
     public void testNotActiveServerProfileCanBeDeleted() {
-        createTestProfile(getActivity().getContentResolver());
+        DatabaseUtils.deleteAllProfiles(mApplication.getContentResolver());
+        DatabaseUtils.createTestProfile(mApplication.getContentResolver());
+        DatabaseUtils.createDefaultProfile(mApplication.getContentResolver());
         startActivityUnderTest();
 
         onView(withText(TEST_ALIAS)).perform(longClick());
@@ -189,11 +173,69 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withId(android.R.id.list)).check(hasTotalCount(1));
     }
 
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-        }
+    public void testUnauthorizedUserCanCreateProfile() {
+        Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
+        JsRestClient jsRestClient = injector.getInstance(JsRestClient.class);
+        jsRestClient.setServerProfile(null);
+
+        startActivityUnderTest();
+
+        onView(withId(R.id.addProfile)).perform(click());
+
+        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
+
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onView(withText(TEST_ALIAS)).check(matches(isDisplayed()));
     }
+
+    // Bug related: When user enter invalid data REST will rise 401
+    // As soon as we shared same RequestExceptionHandler for all
+    // failure listeners we experienced flow which required customization
+    public void testPageShouldProperlyHandleUnAuthorized() {
+        startActivityUnderTest();
+
+        onView(withId(R.id.addProfile)).perform(click());
+
+        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText("some invalid organization"));
+        onView(withId(R.id.usernameEdit)).perform(typeText("some invalid username"));
+        onView(withId(R.id.passwordEdit)).perform(typeText("some invalid password"));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        FakeHttpLayerManager.clearHttpResponseRules();
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.get().notAuthorized());
+        onView(withText(TEST_ALIAS)).perform(click());
+
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.error_msg)));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(ExceptionRule.UNAUTHORIZED.getMessage())));
+        onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).check(matches(withText(android.R.string.ok)));
+        onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).perform(click());
+    }
+
+    public void testServerLowerThanEmeraldNotAcceptable() {
+        startActivityUnderTest();
+        onView(withId(R.id.addProfile)).perform(click());
+
+        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(DatabaseUtils.TEST_SERVER_URL));
+        onView(withId(R.id.organizationEdit)).perform(typeText(DatabaseUtils.TEST_ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(typeText(DatabaseUtils.TEST_USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(DatabaseUtils.TEST_PASS));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        FakeHttpLayerManager.clearHttpResponseRules();
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.EMERALD_MR1_SERVER_INFO);
+        onView(withText(TEST_ALIAS)).perform(click());
+
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.error_msg)));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.r_error_server_not_supported)));
+    }
+
 
 }

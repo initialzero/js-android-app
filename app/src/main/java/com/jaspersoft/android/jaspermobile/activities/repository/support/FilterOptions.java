@@ -58,7 +58,7 @@ public class FilterOptions {
     }};
 
     @Pref
-    RepositoryPref_ repositoryPref;
+    LibraryPref_ repositoryPref;
 
     public ArrayList<String> getFilters() {
         Set<String> initialTypes = repositoryPref.filterTypes().get();

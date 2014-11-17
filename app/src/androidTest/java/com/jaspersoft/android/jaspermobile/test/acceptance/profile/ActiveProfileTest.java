@@ -51,8 +51,10 @@ import static com.google.android.apps.common.testing.ui.espresso.action.ViewActi
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isEnabled;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.not;
@@ -180,21 +182,59 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         assertThat(FakeHttpLayerManager.getUnHandledRequestsCount(), is(0));
     }
 
-    public void testProfilePersistedWhileAskForPasswordChecked() {
+
+    // Bug related. When user selects active profile and apply change it should be
+    // persisted properly. There was a case when app lost reference to the profile
+    // because of wrong saved data.
+    public void testProfileShouldBeActiveAfterUpdate() {
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.editItem)).perform(click());
 
+        onView(withId(R.id.organizationEdit)).perform(clearText());
         onView(withId(R.id.usernameEdit)).perform(clearText());
         onView(withId(R.id.usernameEdit)).perform(typeText("another_user"));
+        onView(withId(R.id.passwordEdit)).perform(clearText());
+        onView(withId(R.id.passwordEdit)).perform(typeText("1234"));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        JsServerProfile profile = jsRestClient.getServerProfile();
+        assertThat(profile.getId(), is(not(0l)));
+        assertThat(profile.getPassword(), is("1234"));
+        assertThat(profile.getUsername(), is("another_user"));
+        assertThat(profile.getOrganization(), is(""));
+    }
+
+    // Bug related. All alterations around password should be persisted properly.
+    // There was a case when user set ask for password and then altered password data again.
+    // This behavior was buggy and user saw previously saved state, not the one he currently applied.
+    public void testProfilePasswordResetShouldBePersistent() {
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
+        onData(Matchers.is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+
+        onView(withId(R.id.organizationEdit)).perform(clearText());
         onView(withId(R.id.askPasswordCheckBox)).perform(click());
         onView(withId(R.id.saveAction)).perform(click());
 
-        // Assert out profile still the same
-        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
-        assertThat(jsServerProfile.getPassword(), is(not("")));
-        assertThat(jsServerProfile.getUsername(), is(not("another_user")));
+        onData(Matchers.is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+        onView(withId(R.id.askPasswordCheckBox)).perform(click());
+        onView(withId(R.id.passwordEdit)).perform(typeText("1234"));
+        onView(withId(R.id.saveAction)).perform(click());
+
+
+        onData(Matchers.is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+        onView(withId(R.id.passwordEdit)).check(matches(isEnabled()));
+        onView(withId(R.id.passwordEdit)).check(matches(hasText("1234")));
     }
 
 }

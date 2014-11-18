@@ -22,29 +22,27 @@
  * <http://www.gnu.org/licenses/lgpl>./
  */
 
-package com.jaspersoft.android.jaspermobile.util;
+package com.jaspersoft.android.jaspermobile.db;
 
-import com.google.inject.Inject;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
-/**
- * @author Tom Koptel
- * @since 1.9
- */
-public class ServerInfoHolder {
+import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
 
-    private ServerInfo serverInfo;
 
-    @Inject
-    public ServerInfoHolder() {
+public class JasperMobileDatabase extends JasperMobileDbDatabase {
+
+    public JasperMobileDatabase(Context context) {
+        super(context);
     }
 
-    public ServerInfo getServerInfo() {
-        return serverInfo;
-    }
-
-    public void setServerInfo(ServerInfo serverInfo) {
-        this.serverInfo = serverInfo;
+    @Override
+    public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+        if (oldVersion == 2 && newVersion == 3) {
+            db.execSQL("DROP TABLE IF EXISTS report_options;");
+            db.execSQL("ALTER TABLE server_profiles ADD COLUMN edition TEXT;");
+            db.execSQL("ALTER TABLE server_profiles ADD COLUMN version_code NUMERIC;");
+        }
     }
 
 }

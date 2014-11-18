@@ -34,8 +34,9 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
-import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
@@ -64,7 +65,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
     @Inject
     JsRestClient jsRestClient;
     @Inject
-    ServerInfoHolder infoHolder;
+    ServerInfoManager infoManager;
 
     @OptionsMenuItem
     MenuItem favoriteAction;
@@ -126,9 +127,16 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
     }
 
     @Override
-    public void onWebViewCreated(WebViewFragment webViewFragment) {
-        ServerInfo serverInfo = infoHolder.getServerInfo();
+    public void onWebViewCreated(final WebViewFragment webViewFragment) {
+        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+            @Override
+            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                setDashboardUrl(webViewFragment, serverInfo);
+            }
+        });
+    }
 
+    private void setDashboardUrl(WebViewFragment webViewFragment, ServerInfoSnapshot serverInfo) {
         String dashboardUrl;
         String serverUrl = jsRestClient.getServerProfile().getServerUrl();
 

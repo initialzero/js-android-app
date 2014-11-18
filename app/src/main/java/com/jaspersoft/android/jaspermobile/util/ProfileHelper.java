@@ -28,6 +28,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -35,8 +36,10 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -72,13 +75,14 @@ public class ProfileHelper {
     DefaultPrefHelper defaultPrefHelper;
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoManager serverInfoHolder;
 
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);
     }
-
 
     public void initJsRestClient() {
         // set timeouts
@@ -91,12 +95,45 @@ public class ProfileHelper {
         setCurrentServerProfile(profileId);
     }
 
+    public void initServerInfoSnapshot() {
+        long profileId = generalPref.currentProfileId().getOr(-1);
+        Cursor cursor = queryServerProfile(profileId);
+        if (cursor != null) {
+            try {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToPosition(0);
+                    serverInfoHolder.setServerInfo(new ServerProfiles(cursor));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+    }
+
+    public void updateCurrentInfoSnapshot(long profileId, ServerInfo serverInfo) {
+        Cursor cursor = queryServerProfile(profileId);
+        if (cursor != null) {
+            try {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToPosition(0);
+                    ServerProfiles profile = new ServerProfiles(cursor);
+                    profile.setVersioncode(serverInfo.getVersionCode());
+                    profile.setEdition(serverInfo.getEdition());
+
+                    Uri uri = Uri.withAppendedPath(
+                            JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(profileId));
+                    context.getContentResolver().update(uri, profile.getContentValues(), null, null);
+
+                    serverInfoHolder.setServerInfo(new ServerProfiles(cursor));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+    }
+
     public void setCurrentServerProfile(long id) {
-        String where = ServerProfilesTable._ID + " = ?";
-        String[] selectionArgs = {String.valueOf(id)};
-        Cursor cursor = context.getContentResolver()
-                .query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                        ServerProfilesTable.ALL_COLUMNS, where, selectionArgs, null);
+        Cursor cursor = queryServerProfile(id);
 
         if (cursor != null) {
             try {
@@ -141,6 +178,14 @@ public class ProfileHelper {
                 cursor.close();
             }
         }
+    }
+
+    private Cursor queryServerProfile(long id) {
+        String where = ServerProfilesTable._ID + " = ?";
+        String[] selectionArgs = {String.valueOf(id)};
+        return context.getContentResolver()
+                .query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
+                        ServerProfilesTable.ALL_COLUMNS, where, selectionArgs, null);
     }
 
     /**

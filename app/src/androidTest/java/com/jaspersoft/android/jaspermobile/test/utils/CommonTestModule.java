@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.test.utils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 /**
@@ -36,10 +36,10 @@ import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 public abstract class CommonTestModule extends AbstractModule {
     @Override
     protected final void configure() {
-        ServerInfoHolder serverInfoHolder = new ServerInfoHolder();
+        ServerInfoManager serverInfoHolder = new ServerInfoManager();
         serverInfoHolder.setServerInfo(TestResources.get()
                 .fromXML(ServerInfo.class, TestResources.SERVER_INFO));
-        bind(ServerInfoHolder.class).toInstance(serverInfoHolder);
+        bind(ServerInfoManager.class).toInstance(serverInfoHolder);
 
         bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
         bindConstant().annotatedWith(Names.named("LIMIT")).to(40);

@@ -59,7 +59,7 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
@@ -97,7 +97,7 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
     @Inject
     JsRestClient jsRestClient;
     @Inject
-    ServerInfoHolder infoHolder;
+    ServerInfoManager infoHolder;
 
     @Bean
     ProfileHelper profileHelper;
@@ -327,11 +327,14 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
                         .setMessage(R.string.r_error_server_not_supported)
                         .show();
             } else {
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, jsRestClient.getServerProfile().getId());
+                long newProfileId = jsRestClient.getServerProfile().getId();
+                // Lets update ServerInfo snapshot for later use
+                profileHelper.updateCurrentInfoSnapshot(newProfileId, serverInfo);
                 // Reset back to old profile
                 jsRestClient.setServerProfile(mOldProfile);
-                infoHolder.setServerInfo(serverInfo);
+
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, newProfileId);
                 getActivity().setResult(Activity.RESULT_OK, resultIntent);
                 getActivity().finish();
             }

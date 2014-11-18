@@ -43,7 +43,8 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
@@ -68,7 +69,7 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
     @Inject
     JsRestClient jsRestClient;
     @Inject
-    ServerInfoHolder infoHolder;
+    ServerInfoManager infoManager;
 
     @Pref
     LibraryPref_ pref;
@@ -131,11 +132,15 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
     }
 
     private void updateOptionsMenu() {
-        ServerInfo serverInfo = infoHolder.getServerInfo();
-        mShowSortOption = true;
-        String proVersion = ServerInfo.EDITIONS.PRO;
-        mShowFilterOption = (proVersion.equals(serverInfo.getEdition()));
-        invalidateOptionsMenu();
+        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+            @Override
+            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                mShowSortOption = true;
+                String proVersion = ServerInfo.EDITIONS.PRO;
+                mShowFilterOption = (proVersion.equals(serverInfo.getEdition()));
+                invalidateOptionsMenu();
+            }
+        });
     }
 
     @Override

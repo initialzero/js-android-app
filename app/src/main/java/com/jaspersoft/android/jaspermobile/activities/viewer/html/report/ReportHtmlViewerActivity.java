@@ -39,11 +39,11 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportActionFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportExecutionFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportExecutionFragment_;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
-import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -74,7 +74,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
     @Inject
     JsRestClient jsRestClient;
     @Inject
-    ServerInfoHolder infoHolder;
+    ServerInfoManager infoHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,13 +87,16 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            commitFragments();
+            infoHolder.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+                @Override
+                public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                    commitFragments(serverInfo);
+                }
+            });
         }
     }
 
-    private void commitFragments() {
-        ServerInfo serverInfo = infoHolder.getServerInfo();
-
+    private void commitFragments(ServerInfoSnapshot serverInfo) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         PaginationManagerFragment paginationManagerFragment = PaginationManagerFragment_

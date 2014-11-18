@@ -46,10 +46,11 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
@@ -98,7 +99,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     @Inject
     JsRestClient jsRestClient;
     @Inject
-    ServerInfoHolder infoHolder;
+    ServerInfoManager infoHolder;
     @Inject
     ResourceLookupSearchCriteria mSearchCriteria;
 
@@ -199,9 +200,14 @@ public class ResourcesFragment extends RoboSpiceFragment
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
 
-        ServerInfo serverInfo = infoHolder.getServerInfo();
-        updatePaginationPolicy(serverInfo);
-        loadRootFolders(serverInfo);
+        infoHolder.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+            @Override
+            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                updatePaginationPolicy(serverInfo);
+                loadRootFolders(serverInfo);
+            }
+        });
+
     }
 
     @Override
@@ -263,7 +269,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void updatePaginationPolicy(ServerInfo serverInfo) {
+    private void updatePaginationPolicy(ServerInfoSnapshot serverInfo) {
         double versionCode = serverInfo.getVersionCode();
         if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
             mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
@@ -282,7 +288,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-    private void loadRootFolders(ServerInfo serverInfo) {
+    private void loadRootFolders(ServerInfoSnapshot serverInfo) {
         String proVersion = ServerInfo.EDITIONS.PRO;
         boolean isRepository = !recursiveLookup;
         boolean isRoot = TextUtils.isEmpty(resourceUri);

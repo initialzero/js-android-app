@@ -38,7 +38,7 @@ import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
@@ -84,7 +84,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         setDefaultCurrentProfile();
 
         Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
-        ServerInfoHolder holder = injector.getInstance(ServerInfoHolder.class);
+        ServerInfoManager holder = injector.getInstance(ServerInfoManager.class);
 
         favoritesHelper = FavoritesHelper_.getInstance_(mApplication);
         deleteAllFavorites(mApplication.getContentResolver());

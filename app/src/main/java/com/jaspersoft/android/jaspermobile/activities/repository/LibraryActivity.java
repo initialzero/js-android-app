@@ -24,7 +24,6 @@
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
@@ -44,9 +43,8 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.Bean;
@@ -69,6 +67,8 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoHolder infoHolder;
 
     @Pref
     LibraryPref_ pref;
@@ -127,8 +127,15 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
                     .findFragmentByTag(SearchControllerFragment.TAG);
         }
 
-        getSpiceManager().execute(new GetServerInfoRequest(jsRestClient),
-                new GetServerInfoRequestListener());
+        updateOptionsMenu();
+    }
+
+    private void updateOptionsMenu() {
+        ServerInfo serverInfo = infoHolder.getServerInfo();
+        mShowSortOption = true;
+        String proVersion = ServerInfo.EDITIONS.PRO;
+        mShowFilterOption = (proVersion.equals(serverInfo.getEdition()));
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -170,21 +177,6 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
                 }
             }
         });
-    }
-
-    private class GetServerInfoRequestListener extends CommonRequestListener<ServerInfo> {
-        @Override
-        public void onSemanticSuccess(ServerInfo serverInfo) {
-            mShowSortOption = true;
-            String proVersion = ServerInfo.EDITIONS.PRO;
-            mShowFilterOption = (proVersion.equals(serverInfo.getEdition()));
-            invalidateOptionsMenu();
-        }
-
-        @Override
-        public Activity getCurrentActivity() {
-            return LibraryActivity.this;
-        }
     }
 
 }

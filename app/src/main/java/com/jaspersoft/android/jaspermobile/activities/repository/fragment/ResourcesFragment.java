@@ -53,7 +53,6 @@ import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
@@ -197,14 +196,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
 
-        fetchServerInfo();
-    }
-
-    private void fetchServerInfo() {
-        showEmptyText(R.string.loading_msg);
-        setRefreshState(true);
-        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-        getSpiceManager().execute(request, new GetServerInfoListener());
+        ServerInfo serverInfo = jsRestClient.getServerInfo();
+        updatePaginationPolicy(serverInfo);
+        loadRootFolders(serverInfo);
     }
 
     @Override
@@ -266,6 +260,42 @@ public class ResourcesFragment extends RoboSpiceFragment
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void updatePaginationPolicy(ServerInfo serverInfo) {
+        double versionCode = serverInfo.getVersionCode();
+        if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+            mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
+        }
+        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
+            mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
+        }
+
+        if (mPaginationPolicy == null) {
+            throw new UnsupportedOperationException();
+        } else {
+            mPaginationPolicy.setSearchCriteria(mSearchCriteria);
+            getChildFragmentManager().beginTransaction()
+                    .add((Fragment) mPaginationPolicy,
+                            PaginationPolicy.class.getSimpleName()).commit();
+        }
+    }
+
+    private void loadRootFolders(ServerInfo serverInfo) {
+        String proVersion = ServerInfo.EDITIONS.PRO;
+        boolean isRepository = !recursiveLookup;
+        boolean isRoot = TextUtils.isEmpty(resourceUri);
+        boolean isProJrs = proVersion.equals(serverInfo.getEdition());
+        if (isRepository && isRoot && isProJrs) {
+            // Fetch default URI
+            GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
+            long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
+                    ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
+            getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
+                    new GetRootFolderDataRequestListener());
+        } else {
+            loadFirstPage();
+        }
+    }
+
     private void loadNextPage() {
         if (!mLoading && hasNextPage()) {
             mSearchCriteria.setOffset(calculateNextOffset());
@@ -306,54 +336,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
-
-    private class GetServerInfoListener implements RequestListener<ServerInfo> {
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, getActivity(), true);
-            setRefreshState(false);
-            showEmptyText(R.string.failed_load_data);
-        }
-
-        @Override
-        public void onRequestSuccess(ServerInfo serverInfo) {
-            setUpPaginationPolicy(serverInfo);
-
-            String proVersion = ServerInfo.EDITIONS.PRO;
-            boolean isRepository = !recursiveLookup;
-            boolean isRoot = TextUtils.isEmpty(resourceUri);
-            boolean isProJrs = proVersion.equals(serverInfo.getEdition());
-            if (isRepository && isRoot && isProJrs) {
-                // Fetch default URI
-                GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
-                long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
-                        ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-                getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
-                        new GetRootFolderDataRequestListener());
-            } else {
-                loadFirstPage();
-            }
-        }
-
-        protected void setUpPaginationPolicy(ServerInfo serverInfo) {
-            double versionCode = serverInfo.getVersionCode();
-            if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
-            }
-            if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
-            }
-
-            if (mPaginationPolicy == null) {
-                throw new UnsupportedOperationException();
-            } else {
-                mPaginationPolicy.setSearchCriteria(mSearchCriteria);
-                getChildFragmentManager().beginTransaction()
-                        .add((Fragment) mPaginationPolicy,
-                                PaginationPolicy.class.getSimpleName()).commit();
-            }
-        }
-    }
 
     private class GetRootFolderDataRequestListener implements RequestListener<FolderDataResponse> {
         @Override

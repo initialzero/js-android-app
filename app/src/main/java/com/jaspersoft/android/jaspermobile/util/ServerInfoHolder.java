@@ -19,33 +19,32 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>.
+ * <http://www.gnu.org/licenses/lgpl>./
  */
 
-package com.jaspersoft.android.jaspermobile.test.utils;
+package com.jaspersoft.android.jaspermobile.util;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
-import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
+import com.google.inject.Inject;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public abstract class CommonTestModule extends AbstractModule {
-    @Override
-    protected final void configure() {
-        ServerInfoHolder serverInfoHolder = new ServerInfoHolder();
-        serverInfoHolder.setServerInfo(TestResources.get()
-                .fromXML(ServerInfo.class, TestResources.SERVER_INFO));
-        bind(ServerInfoHolder.class).toInstance(serverInfoHolder);
+public class ServerInfoHolder {
 
-        bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
-        bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
-        bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
-        semanticConfigure();
+    private ServerInfo serverInfo;
+
+    @Inject
+    public ServerInfoHolder() {
     }
 
-    protected abstract void semanticConfigure();
+    public ServerInfo getServerInfo() {
+        return serverInfo;
+    }
+
+    public void setServerInfo(ServerInfo serverInfo) {
+        this.serverInfo = serverInfo;
+    }
+
 }

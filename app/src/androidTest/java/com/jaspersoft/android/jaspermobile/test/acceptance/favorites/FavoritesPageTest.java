@@ -28,6 +28,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.database.Cursor;
 
+import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
@@ -37,10 +38,13 @@ import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
+import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+
+import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -79,8 +83,12 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
+        Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
+        ServerInfoHolder holder = injector.getInstance(ServerInfoHolder.class);
+
         favoritesHelper = FavoritesHelper_.getInstance_(mApplication);
         deleteAllFavorites(mApplication.getContentResolver());
+        FakeHttpLayerManager.clearHttpResponseRules();
     }
 
     @Override
@@ -137,9 +145,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
     public void testAddToFavoriteFromDashboardView() {
         FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
-        FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.ONLY_DASHBOARD);
         startActivityUnderTest();
@@ -173,9 +178,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     }
 
     public void testAddToFavoriteFromReportView() {
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.ONLY_REPORT);
@@ -217,9 +219,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         favoritesHelper.addToFavorites(resourceLookup);
 
         FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
-        FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.ONLY_FOLDER);
 
@@ -238,10 +237,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void startContextMenuInteractionTest() {
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
+    private void startContextMenuInteractionTest() throws InterruptedException {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.INPUT_CONTROLS,
                 TestResponses.get().noContent());
@@ -280,6 +276,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         pressBack();
         pressBack();
 
+        Thread.sleep(200);
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
 

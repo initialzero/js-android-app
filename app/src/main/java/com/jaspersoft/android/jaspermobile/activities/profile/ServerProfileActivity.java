@@ -58,6 +58,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
+import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
@@ -127,6 +128,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoHolder infoHolder;
 
     private ServerProfiles mServerProfile;
     private int mActionBarSize;
@@ -493,6 +496,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                         .setMessage(R.string.r_error_server_not_supported)
                         .show();
             } else {
+                jsRestClient.setServerProfile(mOldProfile);
+                infoHolder.setServerInfo(serverInfo);
                 persistProfileData(context);
                 setOkResult();
                 finish();

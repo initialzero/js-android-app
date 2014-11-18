@@ -31,17 +31,14 @@ import android.view.MenuItem;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -66,6 +63,8 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoHolder infoHolder;
 
     @OptionsMenuItem
     MenuItem favoriteAction;
@@ -128,40 +127,21 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     @Override
     public void onWebViewCreated(WebViewFragment webViewFragment) {
-        final GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-        getSpiceManager().execute(request,
-                new GetServerInfoRequestListener());
-    }
+        ServerInfo serverInfo = infoHolder.getServerInfo();
 
-    //---------------------------------------------------------------------
-    // Inner classes
-    //---------------------------------------------------------------------
+        String dashboardUrl;
+        String serverUrl = jsRestClient.getServerProfile().getServerUrl();
 
-    private class GetServerInfoRequestListener implements RequestListener<ServerInfo> {
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, DashboardHtmlViewerActivity.this, false);
-        }
-
-        @Override
-        public void onRequestSuccess(ServerInfo data) {
-            WebViewFragment webViewFragment = (WebViewFragment)
-                    getSupportFragmentManager().findFragmentByTag(WebViewFragment.TAG);
-
-            String dashboardUrl;
-            String serverUrl = jsRestClient.getServerProfile().getServerUrl();
-
-            dashboardUrl = serverUrl
-                    + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
-                    + resource.getUri();
-            if (data.getVersionCode() >= ServerInfo.VERSION_CODES.AMBER) {
-                if (resource.getResourceType() == ResourceLookup.ResourceType.dashboard) {
-                    dashboardUrl = serverUrl + "/dashboard/viewer.html?_opt=false&decorate=no#" + resource.getUri();
-                }
+        dashboardUrl = serverUrl
+                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
+                + resource.getUri();
+        if (serverInfo.getVersionCode() >= ServerInfo.VERSION_CODES.AMBER) {
+            if (resource.getResourceType() == ResourceLookup.ResourceType.dashboard) {
+                dashboardUrl = serverUrl + "/dashboard/viewer.html?_opt=false&decorate=no#" + resource.getUri();
             }
-
-            webViewFragment.loadUrl(dashboardUrl);
         }
+
+        webViewFragment.loadUrl(dashboardUrl);
     }
 
 }

@@ -25,15 +25,11 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.FilterManagerFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.FilterManagerFragment_;
@@ -43,15 +39,11 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragm
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportActionFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportExecutionFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportExecutionFragment_;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.exception.RequestCancelledException;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -76,6 +68,8 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoHolder infoHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,30 +82,32 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            fetchSeverInfo();
+            commitFragments();
         }
     }
 
-    private void fetchSeverInfo() {
-        final GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+    private void commitFragments() {
+        ServerInfo serverInfo = infoHolder.getServerInfo();
 
-        ProgressDialogFragment.show(getSupportFragmentManager(),
-                new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        if (!request.isCancelled()) {
-                            getSpiceManager().cancel(request);
-                            finish();
-                        }
-                    }
-                },
-                new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        getSpiceManager().execute(request,
-                                new GetServerInfoRequestListener());
-                    }
-                });
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        PaginationManagerFragment paginationManagerFragment = PaginationManagerFragment_
+                .builder().versionCode(serverInfo.getVersionCode()).build();
+        transaction.add(R.id.control, paginationManagerFragment, PaginationManagerFragment.TAG);
+
+        ReportExecutionFragment reportExecutionFragment = ReportExecutionFragment_.builder()
+                .resource(resource).versionCode(serverInfo.getVersionCode()).build();
+        transaction.add(reportExecutionFragment, ReportExecutionFragment.TAG);
+
+        ReportActionFragment reportActionFragment = ReportActionFragment_.builder()
+                .resource(resource).build();
+        transaction.add(reportActionFragment, ReportActionFragment.TAG);
+
+        FilterManagerFragment filterManagerFragment = FilterManagerFragment_.builder()
+                .resource(resource).build();
+        transaction.add(filterManagerFragment, FilterManagerFragment.TAG);
+
+        transaction.commit();
     }
 
     @OptionsItem(android.R.id.home)
@@ -135,46 +131,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
     public void onResume() {
         super.onResume();
         ViewServer.get(this).setFocusedWindow(this);
-    }
-
-    //---------------------------------------------------------------------
-    // Inner classes
-    //---------------------------------------------------------------------
-
-    private class GetServerInfoRequestListener implements RequestListener<ServerInfo> {
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            Activity activity = ReportHtmlViewerActivity.this;
-            if (exception instanceof RequestCancelledException) {
-                Toast.makeText(activity, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-            } else {
-                RequestExceptionHandler.handle(exception, activity, false);
-            }
-            ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        }
-
-        @Override
-        public void onRequestSuccess(ServerInfo data) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            PaginationManagerFragment paginationManagerFragment = PaginationManagerFragment_
-                    .builder().versionCode(data.getVersionCode()).build();
-            transaction.add(R.id.control, paginationManagerFragment, PaginationManagerFragment.TAG);
-
-            ReportExecutionFragment reportExecutionFragment = ReportExecutionFragment_.builder()
-                    .resource(resource).versionCode(data.getVersionCode()).build();
-            transaction.add(reportExecutionFragment, ReportExecutionFragment.TAG);
-
-            ReportActionFragment reportActionFragment = ReportActionFragment_.builder()
-                    .resource(resource).build();
-            transaction.add(reportActionFragment, ReportActionFragment.TAG);
-
-            FilterManagerFragment filterManagerFragment = FilterManagerFragment_.builder()
-                    .resource(resource).build();
-            transaction.add(filterManagerFragment, FilterManagerFragment.TAG);
-
-            transaction.commit();
-        }
     }
 
 }

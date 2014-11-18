@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportAttachmentRequest;
@@ -46,6 +47,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -93,6 +95,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoHolder infoHolder;
 
     @InstanceState
     int runningRequests;
@@ -136,6 +140,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 if (reportParameters != null && !reportParameters.isEmpty()) {
                     executionRequest.setParameters(reportParameters);
                 }
+
+                double currentVersionCode = infoHolder.getServerInfo().getVersionCode();
+                if (currentVersionCode > ServerInfo.VERSION_CODES.EMERALD_TWO){
+                    executionRequest.setAttachmentsPrefix("./");
+                }
+
                 RunReportExecutionRequest request =
                         new RunReportExecutionRequest(jsRestClient, executionRequest);
                 getSpiceManager().execute(request, new RunReportExecutionListener(reportFile, outputFormat));

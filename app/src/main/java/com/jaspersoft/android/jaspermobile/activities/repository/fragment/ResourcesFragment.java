@@ -49,6 +49,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
+import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
@@ -96,6 +97,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoHolder infoHolder;
     @Inject
     ResourceLookupSearchCriteria mSearchCriteria;
 
@@ -196,7 +199,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
 
-        ServerInfo serverInfo = jsRestClient.getServerInfo();
+        ServerInfo serverInfo = infoHolder.getServerInfo();
         updatePaginationPolicy(serverInfo);
         loadRootFolders(serverInfo);
     }

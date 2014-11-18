@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
 import android.app.ActionBar;
 import android.os.Bundle;
@@ -31,14 +31,14 @@ import android.support.v4.app.FragmentTransaction;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.FilterManagerFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.FilterManagerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.PaginationManagerFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.PaginationManagerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportActionFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportActionFragment_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportExecutionFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment.ReportExecutionFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.FilterManagerFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.FilterManagerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.PaginationManagerFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.PaginationManagerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportActionFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportActionFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportExecutionFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportExecutionFragment_;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.ServerInfoHolder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -60,6 +60,11 @@ import org.androidannotations.api.ViewServer;
  */
 @EActivity(R.layout.report_viewer_layout)
 public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
+
+    // Extras
+    public static final String EXTRA_REPORT_PARAMETERS = "ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS";
+    // Result Code
+    public static final int REQUEST_REPORT_PARAMETERS = 100;
 
     @Extra
     ResourceLookup resource;

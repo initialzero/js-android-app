@@ -198,4 +198,30 @@ public final class JasperMatcher {
             description.appendText("with error: " + expectedError);
         }
     }
+
+    public static Matcher<? super View> hasText(String expectedError) {
+        return new HasTextMatcher(expectedError);
+    }
+
+    private static class HasTextMatcher extends TypeSafeMatcher<View> {
+        private final String expectedText;
+
+        private HasTextMatcher(String expectedError) {
+            this.expectedText = checkNotNull(expectedError);
+        }
+
+        @Override
+        public boolean matchesSafely(View view) {
+            if (!(view instanceof EditText)) {
+                return false;
+            }
+            EditText editText = (EditText) view;
+            return expectedText.equals(editText.getText().toString());
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("with error: " + expectedText);
+        }
+    }
 }

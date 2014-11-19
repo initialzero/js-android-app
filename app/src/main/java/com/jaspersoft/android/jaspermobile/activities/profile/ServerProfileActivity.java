@@ -77,7 +77,6 @@ import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.springframework.http.HttpStatus;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -163,7 +162,6 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     @OptionsItem
     final void saveAction() {
         if (isFormValid()) {
-            Calendar calendar = Calendar.getInstance();
             if (mServerProfile == null) {
                 mServerProfile = new ServerProfiles();
             }
@@ -388,6 +386,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         JasperMobileApplication.removeAllCookies();
 
         JsServerProfile newProfile = new JsServerProfile();
+        newProfile.setId(profileId);
         newProfile.setAlias(alias);
         newProfile.setServerUrl(serverUrl);
         newProfile.setOrganization(organization);
@@ -403,6 +402,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             if (askPasswordCheckBox.isChecked()) {
                 // We can`t validate profile on server side without password
                 // so we are explicitly saving it!
+                jsRestClient.setServerProfile(newProfile);
                 persistProfileData(this);
                 setOkResult();
                 finish();
@@ -428,6 +428,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                     mServerProfile.getContentValues(), selection, selectionArgs);
             Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
         }
+        getContentResolver().notifyChange(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, null);
     }
 
     private void setOkResult() {

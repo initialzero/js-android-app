@@ -97,6 +97,10 @@ public class ProfileHelper {
 
     public void initServerInfoSnapshot() {
         long profileId = generalPref.currentProfileId().getOr(-1);
+        setCurrentInfoSnapshot(profileId);
+    }
+
+    public void setCurrentInfoSnapshot(long profileId) {
         Cursor cursor = queryServerProfile(profileId);
         if (cursor != null) {
             try {

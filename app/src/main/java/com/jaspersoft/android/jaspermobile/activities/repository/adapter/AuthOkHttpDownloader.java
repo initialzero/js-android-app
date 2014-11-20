@@ -24,21 +24,35 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
-import android.widget.ImageView;
+import android.content.Context;
+import android.net.Uri;
+import android.util.Base64;
 
-/**
- * @author Tom Koptel
- * @since 1.9
- */
-public interface IResourceView {
+import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.squareup.picasso.OkHttpDownloader;
 
-    void setTitle(CharSequence title);
+import java.io.IOException;
+import java.net.HttpURLConnection;
 
-    void setSubTitle(CharSequence subTitle);
+class AuthOkHttpDownloader extends OkHttpDownloader {
 
-    void setTimeStamp(CharSequence timestamp);
+    private final JsServerProfile mProfile;
 
-    void setMisc(CharSequence misc);
+    public AuthOkHttpDownloader(Context context, JsServerProfile profile) {
+        super(context);
+        mProfile = profile;
+    }
 
-    ImageView getImageView();
+    @Override
+    protected HttpURLConnection openConnection(Uri uri) throws IOException {
+        HttpURLConnection connection = super.openConnection(uri);
+
+        String authorisation = mProfile.getUsernameWithOrgId() + ":" + mProfile.getPassword();
+        String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
+        connection.addRequestProperty("Authorization", encodedAuthorisation);
+        connection.addRequestProperty("Accept", "image/jpeg");
+
+        return connection;
+    }
+
 }

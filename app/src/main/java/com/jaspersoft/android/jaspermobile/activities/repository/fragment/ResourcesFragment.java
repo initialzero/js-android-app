@@ -53,6 +53,7 @@ import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
@@ -182,7 +183,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -194,20 +195,14 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         listView.setOnScrollListener(new ScrollListener());
 
-        mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
-                .setViewType(viewType)
-                .create();
-        mAdapter.setAdapterView(listView);
-        listView.setAdapter(mAdapter);
-
         infoHolder.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
             @Override
             public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                setDataAdapter(serverInfo, savedInstanceState);
                 updatePaginationPolicy(serverInfo);
                 loadRootFolders(serverInfo);
             }
         });
-
     }
 
     @Override
@@ -268,6 +263,17 @@ public class ResourcesFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void setDataAdapter(ServerInfoSnapshot serverInfo, Bundle savedInstanceState) {
+        JsServerProfile profile = jsRestClient.getServerProfile();
+        mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
+                .setViewType(viewType)
+                .serverVersion(serverInfo.getVersionCode())
+                .profile(profile)
+                .create();
+        mAdapter.setAdapterView(listView);
+        listView.setAdapter(mAdapter);
+    }
 
     private void updatePaginationPolicy(ServerInfoSnapshot serverInfo) {
         double versionCode = serverInfo.getVersionCode();

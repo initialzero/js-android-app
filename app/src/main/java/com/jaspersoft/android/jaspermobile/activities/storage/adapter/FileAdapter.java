@@ -93,7 +93,7 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
 
         File file = getItem(position);
         String extension = FileUtils.getExtension(file.getName());
-        itemView.setImageIcon(getFileIconByExtension(extension));
+        itemView.getImageView().setImageResource(getFileIconByExtension(extension));
 
         itemView.setTitle(FileUtils.getBaseName(file.getName()));
         itemView.setTimeStamp(getHumanReadableFileSize(file));

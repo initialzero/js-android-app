@@ -24,8 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
+import android.content.Context;
+import android.widget.ImageView;
+
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -42,8 +48,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ResourceViewHelper {
     private static final String INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private final SimpleDateFormat dateFormat;
+    private final double mServerVersion;
+    private final Context mContext;
+    private final JsServerProfile mProfile;
 
-    public ResourceViewHelper(Locale current) {
+    public ResourceViewHelper(Context context, double serverVersion, JsServerProfile profile) {
+        mContext = context;
+        mServerVersion = serverVersion;
+        mProfile = profile;
+
+        Locale current = context.getResources().getConfiguration().locale;
         dateFormat = new SimpleDateFormat(INITIAL_DATE_FORMAT, current);
     }
 
@@ -73,7 +87,26 @@ public class ResourceViewHelper {
     }
 
     private void setIcon(IResourceView resourceView, ResourceLookup item) {
-        resourceView.setImageIcon(getResourceIcon(item.getResourceType()));
+        ImageView imageView = resourceView.getImageView();
+        int resource = getResourceIcon(item.getResourceType());
+
+        boolean isAmberOrHigher = mServerVersion >= ServerInfo.VERSION_CODES.AMBER;
+        boolean isReport = item.getResourceType().equals(ResourceLookup.ResourceType.reportUnit);
+
+        if (isAmberOrHigher && isReport) {
+            String imageUri = mProfile.getServerUrl() + "/rest_v2/thumbnails"
+                    + item.getUri() + "?defaultAllowed=true";
+
+            Picasso.Builder builder = new Picasso.Builder(mContext);
+            builder.downloader(new AuthOkHttpDownloader(mContext, mProfile))
+                    .build()
+                    .load(imageUri)
+                    .placeholder(resource)
+                    .error(resource)
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(resource);
+        }
     }
 
     private String formatDateString(String updateDate) {

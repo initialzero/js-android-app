@@ -26,13 +26,10 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
-        classpath 'com.stanfy.spoon:spoon-gradle-plugin:0.10.1-SNAPSHOT'
-        classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'hugo'
 apply plugin: 'android-apt'
 apply from: 'build_utils.gradle'
 
@@ -150,12 +147,15 @@ dependencies {
 
     // Remove gradle dependency
     // When all required testing for JRS will be completed
-    compile 'com.google.code.gson:gson:1.7.2'
+    compile 'com.google.code.gson:gson:2.3'
+
+    compile 'com.squareup.picasso:picasso:2.4.0'
+//    compile 'com.squareup.okhttp:okhttp:2.0.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
 
     androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
         exclude group: 'com.google.guava'
     }
-    androidTestCompile 'com.squareup.spoon:spoon-client:1.1.0'
     androidTestCompile('org.mockito:mockito-core:1.9.5') {
         exclude group: "org.hamcrest"
     }

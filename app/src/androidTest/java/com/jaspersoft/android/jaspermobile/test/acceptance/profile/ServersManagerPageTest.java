@@ -39,9 +39,11 @@ import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.hamcrest.Matchers;
 
 import roboguice.RoboGuice;
 
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
@@ -64,6 +66,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 /**
  * @author Tom Koptel
@@ -237,5 +240,31 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.r_error_server_not_supported)));
     }
 
+    public void testCloneFeatureCreatesClonedProfile() {
+        createTestProfile(mApplication.getContentResolver());
+        startActivityUnderTest();
+
+        onView(withText(TEST_ALIAS)).perform(longClick());
+        onView(withId(R.id.cloneItem)).perform(click());
+
+        onView(withId(R.id.aliasEdit)).check(matches(withText(TEST_ALIAS + " - Clone")));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onView(withText(TEST_ALIAS + " - Clone")).check(matches(isDisplayed()));
+    }
+
+    public void testCloneFeatureRespectProfileUniqueness() {
+        createTestProfile(mApplication.getContentResolver());
+        startActivityUnderTest();
+
+        for (int i = 0; i < 2; i++) {
+            onView(withText(TEST_ALIAS)).perform(longClick());
+            onView(withId(R.id.cloneItem)).perform(click());
+
+            onView(withId(R.id.saveAction)).perform(click());
+        }
+
+        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
+    }
 
 }

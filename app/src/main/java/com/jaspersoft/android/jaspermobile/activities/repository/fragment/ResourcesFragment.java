@@ -46,14 +46,13 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
@@ -265,11 +264,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
 
     private void setDataAdapter(ServerInfoSnapshot serverInfo, Bundle savedInstanceState) {
-        JsServerProfile profile = jsRestClient.getServerProfile();
         mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
-                .setViewType(viewType)
+                .viewType(viewType)
                 .serverVersion(serverInfo.getVersionCode())
-                .profile(profile)
                 .create();
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);

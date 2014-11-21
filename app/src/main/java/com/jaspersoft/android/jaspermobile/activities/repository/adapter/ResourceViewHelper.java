@@ -27,7 +27,9 @@ package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 import android.content.Context;
 import android.widget.ImageView;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
@@ -38,6 +40,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import roboguice.RoboGuice;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -50,12 +54,15 @@ public class ResourceViewHelper {
     private final SimpleDateFormat dateFormat;
     private final double mServerVersion;
     private final Context mContext;
-    private final JsServerProfile mProfile;
 
-    public ResourceViewHelper(Context context, double serverVersion, JsServerProfile profile) {
+    @Inject
+    JsRestClient jsRestClient;
+
+    public ResourceViewHelper(Context context, double serverVersion) {
+        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
+
         mContext = context;
         mServerVersion = serverVersion;
-        mProfile = profile;
 
         Locale current = context.getResources().getConfiguration().locale;
         dateFormat = new SimpleDateFormat(INITIAL_DATE_FORMAT, current);
@@ -93,14 +100,12 @@ public class ResourceViewHelper {
         boolean isAmberOrHigher = mServerVersion >= ServerInfo.VERSION_CODES.AMBER;
         boolean isReport = item.getResourceType().equals(ResourceLookup.ResourceType.reportUnit);
 
+        JsServerProfile profile = jsRestClient.getServerProfile();
         if (isAmberOrHigher && isReport) {
-            String imageUri = mProfile.getServerUrl() + "/rest_v2/thumbnails"
-                    + item.getUri() + "?defaultAllowed=true";
-
-            Picasso.Builder builder = new Picasso.Builder(mContext);
-            builder.downloader(new AuthOkHttpDownloader(mContext, mProfile))
+            new Picasso.Builder(mContext)
+                    .downloader(new AuthOkHttpDownloader(mContext, profile))
                     .build()
-                    .load(imageUri)
+                    .load(jsRestClient.generateThumbNailUri(item.getUri(), true))
                     .placeholder(resource)
                     .error(resource)
                     .into(imageView);

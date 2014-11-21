@@ -43,7 +43,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceAdapterHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;
@@ -65,11 +64,11 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     }
 
     private ResourceAdapter(Context context, double serverVersion,
-                            JsServerProfile profile, Bundle savedInstanceState, ViewType viewType) {
+                            Bundle savedInstanceState, ViewType viewType) {
         super(savedInstanceState, context, 0);
         favoriteHelper = FavoritesHelper_.getInstance_(context);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
-        viewHelper = new ResourceViewHelper(context, serverVersion, profile);
+        viewHelper = new ResourceViewHelper(context, serverVersion);
     }
 
     @Override
@@ -175,14 +174,13 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
         private ViewType viewType;
         private double mServerVersion;
-        private JsServerProfile mProfile;
 
         public Builder(Context context, Bundle savedInstanceState) {
             this.context = context;
             this.savedInstanceState = savedInstanceState;
         }
 
-        public Builder setViewType(ViewType viewType) {
+        public Builder viewType(ViewType viewType) {
             this.viewType = viewType;
             return this;
         }
@@ -192,14 +190,8 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
             return this;
         }
 
-        public Builder profile(JsServerProfile profile) {
-            mProfile = profile;
-            return this;
-        }
-
         public ResourceAdapter create() {
-            return new ResourceAdapter(context, mServerVersion,
-                    mProfile, savedInstanceState, viewType);
+            return new ResourceAdapter(context, mServerVersion, savedInstanceState, viewType);
         }
     }
 }

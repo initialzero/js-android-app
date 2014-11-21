@@ -145,8 +145,12 @@ dependencies {
     // When all required testing for JRS will be completed
     compile 'com.google.code.gson:gson:2.3'
 
+    // Dependency for image loading management
     compile 'com.squareup.picasso:picasso:2.4.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+    // Fixes Proguard issues for this dependenxy
+    compile('com.squareup.okhttp:okhttp-urlconnection:2.0.0') {
+        exclude group: 'com.squareup.okio', module: 'okio'
+    }
 
     androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
         exclude group: 'com.google.guava'

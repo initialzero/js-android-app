@@ -41,7 +41,8 @@
             style="@style/home.card.box.left"
             auto:body_subtitle="@string/library_card_desc"
             auto:body_title="@string/library_card_label"
-            auto:header_background="@drawable/ic_composed_library_home" />
+            auto:header_icon="@drawable/ic_home_library"
+            auto:header_background="@color/dashboard_item_bg" />
 
         <!--Saved Items-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
@@ -49,7 +50,8 @@
             style="@style/home.card.box"
             auto:body_subtitle="@string/saved_items_card_desc"
             auto:body_title="@string/sdr_ab_title"
-            auto:header_background="@drawable/ic_composed_saved_items_home" />
+            auto:header_icon="@drawable/ic_home_saved_items"
+            auto:header_background="@color/dashboard_item_bg" />
 
     </TableRow>
 
@@ -61,7 +63,8 @@
             style="@style/home.card.box.left"
             auto:body_subtitle="@string/repository_card_desc"
             auto:body_title="@string/repository_card_label"
-            auto:header_background="@drawable/ic_composed_repository_home" />
+            auto:header_icon="@drawable/ic_home_repository"
+            auto:header_background="@color/dashboard_item_bg" />
 
         <!--Favorites-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
@@ -69,7 +72,8 @@
             style="@style/home.card.box"
             auto:body_subtitle="@string/favorites_card_desc"
             auto:body_title="@string/favorites_card_label"
-            auto:header_background="@drawable/ic_composed_favorites_home" />
+            auto:header_icon="@drawable/ic_home_favorites"
+            auto:header_background="@color/dashboard_item_bg" />
 
     </TableRow>
 
@@ -81,7 +85,8 @@
             style="@style/home.card.box.left"
             auto:body_subtitle="@string/settings_card_desc"
             auto:body_title="@string/settings_card_label"
-            auto:header_background="@drawable/ic_composed_config_home" />
+            auto:header_icon="@drawable/ic_home_config"
+            auto:header_background="@color/config_item_bg" />
 
         <!--Servers-->
         <com.jaspersoft.android.jaspermobile.widget.LinearCardView
@@ -89,7 +94,8 @@
             style="@style/home.card.box"
             auto:body_subtitle="@string/servers_card_desc"
             auto:body_title="@string/servers_card_label"
-            auto:header_background="@drawable/ic_composed_servers_home" />
+            auto:header_icon="@drawable/ic_home_servers"
+            auto:header_background="@color/config_item_bg" />
 
     </TableRow>
 

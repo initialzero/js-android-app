@@ -23,33 +23,15 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<resources>
+    <!-- Minimum width for an action button in the menu area of an action bar -->
+    <dimen name="abs__action_button_min_width">64dip</dimen>
 
-    <ImageView
-        android:id="@+id/card_header"
-        style="@style/home.card.head"
-        tools:src="@drawable/ic_home_library"
-        android:scaleType="fitStart"/>
+    <dimen name="card_body_padding">16dp</dimen>
+    <dimen name="card_composed_image_padding">16dp</dimen>
 
-    <LinearLayout style="@style/home.card.body">
+    <dimen name="grid_item_size">250dp</dimen>
+    <dimen name="list_item_height">120dp</dimen>
+    <dimen name="list_item_image_width">192dp</dimen>
 
-        <TextView
-            android:id="@+id/card_title_txt"
-            style="@style/home.card.title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            tools:text="Library" />
-
-        <TextView
-            android:id="@+id/card_subtitle_txt"
-            style="@style/home.card.subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text="Some description" />
-    </LinearLayout>
-
-</merge>
-
-
+</resources>

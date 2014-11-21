@@ -80,12 +80,8 @@ android {
         exclude 'META-INF/NOTICE'
     }
 
-//    lintOptions {
-//        lintConfig file("lint.xml")
-//    }
-
     lintOptions {
-        checkReleaseBuilds false
+        lintConfig file("lint.xml")
     }
 
     applicationVariants.all { variant ->
@@ -150,7 +146,6 @@ dependencies {
     compile 'com.google.code.gson:gson:2.3'
 
     compile 'com.squareup.picasso:picasso:2.4.0'
-//    compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
 
     androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {

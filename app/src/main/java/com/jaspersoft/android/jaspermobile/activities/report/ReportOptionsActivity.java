@@ -52,6 +52,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
@@ -79,6 +80,7 @@ import roboguice.util.Ln;
 
 import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DATE_DIALOG_ID;
 import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DEFAULT_DATE_FORMAT;
+import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DEFAULT_TIME_FORMAT;
 import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.TIME_DIALOG_ID;
 
 /**
@@ -101,12 +103,14 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     private DatePickerDialogHelper dialogHelper;
     private List<InputControl> inputControls;
+    private LinearLayout baseLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.report_options_layout);
+        baseLayout = (LinearLayout) findViewById(R.id.input_controls_layout);
 
         // init helper for date/time picker dialogs
         dialogHelper = new DatePickerDialogHelper(this);
@@ -259,38 +263,37 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     private void initInputControls() {
         inputControls = getIntent().getExtras().getParcelableArrayList(EXTRA_REPORT_CONTROLS);
 
-        LinearLayout baseLayout = (LinearLayout) findViewById(R.id.input_controls_layout);
-        LayoutInflater inflater = getLayoutInflater();
-
         // init UI components for ICs
         for (final InputControl inputControl : inputControls) {
             if (inputControl.isVisible()) {
                 switch (inputControl.getType()) {
                     case bool:
-                        initBooleanControl(inputControl, baseLayout, inflater);
+                        initBooleanControl(inputControl);
                         break;
                     case singleValueText:
                     case singleValueNumber:
-                        initSingleValueControl(inputControl, baseLayout, inflater);
+                        initSingleValueControl(inputControl);
                         break;
+                    case singleValueTime:
                     case singleValueDate:
                     case singleValueDatetime:
-                        initDateControl(inputControl, baseLayout, inflater);
+                        initDateControl(inputControl);
                         break;
                     case singleSelect:
                     case singleSelectRadio:
-                        initSingleSelectControl(inputControl, baseLayout, inflater);
+                        initSingleSelectControl(inputControl);
                         break;
                     case multiSelect:
                     case multiSelectCheckbox:
-                        initMultiSelectControl(inputControl, baseLayout, inflater);
+                        initMultiSelectControl(inputControl);
                         break;
                 }
             }
         }
     }
 
-    private void initBooleanControl(final InputControl inputControl, LinearLayout baseLayout, LayoutInflater inflater) {
+    private void initBooleanControl(final InputControl inputControl) {
+        LayoutInflater inflater = getLayoutInflater();
         Switch switchView = (Switch) inflater.inflate(R.layout.control_boolean_layout, baseLayout, false);
         switchView.setText(inputControl.getLabel());
         // set default value
@@ -314,7 +317,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         baseLayout.addView(switchView);
     }
 
-    private void initSingleValueControl(final InputControl inputControl, LinearLayout baseLayout, LayoutInflater inflater) {
+    private void initSingleValueControl(final InputControl inputControl) {
+        LayoutInflater inflater = getLayoutInflater();
         View layoutView = inflater.inflate(R.layout.ic_single_value_layout, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
@@ -330,18 +334,10 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         if (inputControl.isReadOnly()) {
             editText.setEnabled(false);
         } else {
-            editText.addTextChangedListener(new TextWatcher() {
+            editText.addTextChangedListener(new SimpleTextWatcher() {
                 @Override
                 public void afterTextChanged(Editable editable) {
                     onStringValueChanged(inputControl, editable.toString());
-                }
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
                 }
             });
         }
@@ -350,7 +346,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         baseLayout.addView(layoutView);
     }
 
-    private void initDateControl(final InputControl inputControl, LinearLayout baseLayout, LayoutInflater inflater) {
+    private void initDateControl(final InputControl inputControl) {
+        LayoutInflater inflater = getLayoutInflater();
         View layoutView = inflater.inflate(R.layout.ic_single_value_date_layout, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
@@ -384,15 +381,9 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
             timePicker.setEnabled(false);
             editText.setEnabled(false);
         } else {
-            // add a click listener
-            datePicker.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
-                }
-            });
-
             boolean isDateTime = (inputControl.getType() == InputControl.Type.singleValueDatetime);
-            if (isDateTime) {
+            boolean isOnlyTime = (inputControl.getType() == InputControl.Type.singleValueTime);
+            if (isDateTime || isOnlyTime) {
                 timePicker.setVisibility(View.VISIBLE);
                 // add a click listener
                 timePicker.setOnClickListener(new View.OnClickListener() {
@@ -401,20 +392,22 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
                     }
                 });
             }
+            if (isOnlyTime) {
+                datePicker.setVisibility(View.GONE);
+            } else {
+                // add a click listener
+                datePicker.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
+                    }
+                });
+            }
 
             // add listener for text field
-            editText.addTextChangedListener(new TextWatcher() {
+            editText.addTextChangedListener(new SimpleTextWatcher() {
                 @Override
                 public void afterTextChanged(Editable editable) {
                     onStringValueChanged(inputControl, editable.toString());
-                }
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
                 }
             });
         }
@@ -423,7 +416,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         baseLayout.addView(layoutView);
     }
 
-    private void initSingleSelectControl(final InputControl inputControl, LinearLayout baseLayout, LayoutInflater inflater) {
+    private void initSingleSelectControl(final InputControl inputControl) {
+        LayoutInflater inflater = getLayoutInflater();
         View layoutView = inflater.inflate(R.layout.ic_single_select_layout, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
@@ -471,7 +465,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         baseLayout.addView(layoutView);
     }
 
-    private void initMultiSelectControl(final InputControl inputControl, LinearLayout baseLayout, LayoutInflater inflater) {
+    private void initMultiSelectControl(final InputControl inputControl) {
+        LayoutInflater inflater = getLayoutInflater();
         View layoutView = inflater.inflate(R.layout.ic_multi_select_layout, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 

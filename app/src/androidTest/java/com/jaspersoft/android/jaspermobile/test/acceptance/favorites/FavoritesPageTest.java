@@ -81,6 +81,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
         favoritesHelper = FavoritesHelper_.getInstance_(mApplication);
         deleteAllFavorites(mApplication.getContentResolver());
+        FakeHttpLayerManager.clearHttpResponseRules();
     }
 
     @Override
@@ -137,9 +138,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
     public void testAddToFavoriteFromDashboardView() {
         FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
-        FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.ONLY_DASHBOARD);
         startActivityUnderTest();
@@ -173,9 +171,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     }
 
     public void testAddToFavoriteFromReportView() {
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.ONLY_REPORT);
@@ -217,9 +212,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         favoritesHelper.addToFavorites(resourceLookup);
 
         FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
-        FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.ONLY_FOLDER);
 
@@ -238,10 +230,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void startContextMenuInteractionTest() {
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
+    private void startContextMenuInteractionTest() throws InterruptedException {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.INPUT_CONTROLS,
                 TestResponses.get().noContent());
@@ -280,6 +269,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         pressBack();
         pressBack();
 
+        Thread.sleep(200);
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
 

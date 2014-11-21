@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
 import android.content.DialogInterface;
 import android.os.Handler;

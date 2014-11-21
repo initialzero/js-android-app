@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -39,8 +39,8 @@ import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
 
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS;
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS;
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
 /**
  * @author Tom Koptel

@@ -30,6 +30,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 /**
@@ -50,6 +51,7 @@ public class JasperMobileModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(JsRestClient.class).in(Singleton.class);
+        bind(ServerInfoManager.class).in(Singleton.class);
 
         int animationSpeed = mContext.getResources().getInteger(
                 android.R.integer.config_longAnimTime);

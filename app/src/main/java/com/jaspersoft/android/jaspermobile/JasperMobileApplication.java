@@ -54,6 +54,7 @@ public class JasperMobileApplication extends Application {
         super.onCreate();
         forceOverFlowMenu();
         profileHelper.initJsRestClient();
+        profileHelper.initServerInfoSnapshot();
         profileHelper.seedProfilesIfNeed();
     }
 

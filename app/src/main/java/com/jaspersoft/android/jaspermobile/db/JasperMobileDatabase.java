@@ -19,29 +19,30 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>.
+ * <http://www.gnu.org/licenses/lgpl>./
  */
 
-package com.jaspersoft.android.jaspermobile.test.utils;
+package com.jaspersoft.android.jaspermobile.db;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
-import com.google.inject.name.Names;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
-/**
- * @author Tom Koptel
- * @since 1.9
- */
-public abstract class CommonTestModule extends AbstractModule {
-    @Override
-    protected final void configure() {
-        bind(ServerInfoManager.class).in(Singleton.class);
-        bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
-        bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
-        bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
-        semanticConfigure();
+import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
+
+
+public class JasperMobileDatabase extends JasperMobileDbDatabase {
+
+    public JasperMobileDatabase(Context context) {
+        super(context);
     }
 
-    protected abstract void semanticConfigure();
+    @Override
+    public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+        if (oldVersion == 2 && newVersion == 3) {
+            db.execSQL("DROP TABLE IF EXISTS report_options;");
+            db.execSQL("ALTER TABLE server_profiles ADD COLUMN edition TEXT;");
+            db.execSQL("ALTER TABLE server_profiles ADD COLUMN version_code NUMERIC;");
+        }
+    }
+
 }

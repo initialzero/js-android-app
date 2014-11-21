@@ -88,9 +88,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
         FakeHttpLayerManager.clearHttpResponseRules();
         FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
-        FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.SMALL_LOOKUP);
     }

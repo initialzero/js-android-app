@@ -53,6 +53,7 @@ class DatePickerDialogHelper {
 
     // date format
     static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+    static final String DEFAULT_TIME_FORMAT = "HH:mm:ss";
     // Dialog IDs
     static final int DATE_DIALOG_ID = 10;
     static final int TIME_DIALOG_ID = 11;

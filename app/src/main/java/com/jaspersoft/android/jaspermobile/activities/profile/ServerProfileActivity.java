@@ -58,6 +58,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
@@ -127,6 +128,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoManager infoHolder;
 
     private ServerProfiles mServerProfile;
     private int mActionBarSize;
@@ -411,7 +414,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                 jsRestClient.setServerProfile(newProfile);
 
                 getSpiceManager().execute(
-                        new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+                        new GetServerInfoRequest(jsRestClient),
+                        new ValidateServerInfoListener(oldProfile));
             }
         }
     }
@@ -493,6 +497,10 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                         .setMessage(R.string.r_error_server_not_supported)
                         .show();
             } else {
+                // Lets update current profile instance in database with ServerInfo
+                mServerProfile.setVersioncode(serverInfo.getVersionCode());
+                mServerProfile.setEdition(serverInfo.getEdition());
+
                 persistProfileData(context);
                 setOkResult();
                 finish();

@@ -64,10 +64,7 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         super.setUp();
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
-
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
+        FakeHttpLayerManager.clearHttpResponseRules();
     }
 
     @Override

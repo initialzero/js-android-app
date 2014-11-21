@@ -73,6 +73,8 @@ public class DatabaseUtils {
         serverProfile.setOrganization(ProfileHelper.DEFAULT_ORGANIZATION);
         serverProfile.setUsername(ProfileHelper.DEFAULT_USERNAME);
         serverProfile.setPassword(ProfileHelper.DEFAULT_PASS);
+        serverProfile.setEdition("PRO");
+        serverProfile.setVersioncode(5.5d);
 
         Uri uri = contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
         return Long.valueOf(uri.getLastPathSegment());

@@ -182,6 +182,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">0dp</item>
         <item name="android:layout_weight">0.5</item>
+        <item name="android:padding">@dimen/card_composed_image_padding</item>
     </style>
 
     <style name="home.card.body">

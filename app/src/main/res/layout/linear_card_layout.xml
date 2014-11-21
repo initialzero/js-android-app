@@ -26,18 +26,20 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <View
+    <ImageView
         android:id="@+id/card_header"
         style="@style/home.card.head"
-        tools:background="@drawable/ic_composed_library_home" />
+        tools:src="@drawable/ic_home_library"
+        android:scaleType="fitStart"/>
 
     <LinearLayout style="@style/home.card.body">
 
         <TextView
             android:id="@+id/card_title_txt"
             style="@style/home.card.title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             tools:text="Library" />
 
         <TextView

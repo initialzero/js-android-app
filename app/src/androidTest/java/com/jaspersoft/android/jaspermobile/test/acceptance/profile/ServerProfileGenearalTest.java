@@ -108,6 +108,7 @@ public class ServerProfileGenearalTest extends ProtoActivityInstrumentation<Serv
         Intent launchIntent = new Intent();
         launchIntent.putExtra(ServerProfileActivity_.PROFILE_ID_EXTRA,
                 createTestProfile(getInstrumentation().getContext().getContentResolver()));
+        launchIntent.putExtra(ServerProfileActivity_.IN_EDIT_MODE_EXTRA, true);
         setActivityIntent(launchIntent);
         startActivityUnderTest();
 

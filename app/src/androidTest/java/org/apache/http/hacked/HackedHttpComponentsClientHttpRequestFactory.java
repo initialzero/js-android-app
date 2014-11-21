@@ -48,10 +48,7 @@ class HackedHttpComponentsClientHttpRequestFactory extends HttpComponentsClientH
             HackedDefaultHttpClient hackedDefaultHttpClient
                     = new HackedDefaultHttpClient(getHttpClient().getConnectionManager(), null);
             declaredField.set(this, hackedDefaultHttpClient);
-        } catch (NoSuchFieldException
-                | SecurityException
-                | IllegalArgumentException
-                | IllegalAccessException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

@@ -78,6 +78,11 @@ public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
                     serversInteractionListener.onDelete(getCurrentPosition());
                 }
                 break;
+            case R.id.cloneItem:
+                if (serversInteractionListener != null) {
+                    serversInteractionListener.onClone(getCurrentPosition());
+                }
+                break;
             default:
                 return false;
         }
@@ -88,5 +93,7 @@ public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
         void onEdit(int position);
 
         void onDelete(int position);
+
+        void onClone(int position);
     }
 }

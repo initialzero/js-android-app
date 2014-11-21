@@ -63,6 +63,8 @@ import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.PicassoTools;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -230,6 +232,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void onRefresh() {
+        PicassoTools.clearCache(Picasso.with(getActivity()));
         mLoaderState = LOAD_FROM_NETWORK;
         loadFirstPage();
     }

@@ -46,11 +46,11 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
@@ -182,7 +182,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -194,20 +194,14 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         listView.setOnScrollListener(new ScrollListener());
 
-        mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
-                .setViewType(viewType)
-                .create();
-        mAdapter.setAdapterView(listView);
-        listView.setAdapter(mAdapter);
-
         infoHolder.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
             @Override
             public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                setDataAdapter(serverInfo, savedInstanceState);
                 updatePaginationPolicy(serverInfo);
                 loadRootFolders(serverInfo);
             }
         });
-
     }
 
     @Override
@@ -268,6 +262,15 @@ public class ResourcesFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void setDataAdapter(ServerInfoSnapshot serverInfo, Bundle savedInstanceState) {
+        mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
+                .viewType(viewType)
+                .serverVersion(serverInfo.getVersionCode())
+                .create();
+        mAdapter.setAdapterView(listView);
+        listView.setAdapter(mAdapter);
+    }
 
     private void updatePaginationPolicy(ServerInfoSnapshot serverInfo) {
         double versionCode = serverInfo.getVersionCode();

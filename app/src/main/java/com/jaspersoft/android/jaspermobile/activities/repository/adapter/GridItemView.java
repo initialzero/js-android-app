@@ -105,8 +105,8 @@ public class GridItemView extends CheckedRelativeLayout implements IResourceView
         }
     }
 
-    public void setImageIcon(int image) {
-        mImageIcon.setImageResource(image);
+    public ImageView getImageView() {
+        return mImageIcon;
     }
 
 }

@@ -24,14 +24,24 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
+import android.content.Context;
+import android.widget.ImageView;
+
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import roboguice.RoboGuice;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -42,8 +52,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ResourceViewHelper {
     private static final String INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private final SimpleDateFormat dateFormat;
+    private final double mServerVersion;
+    private final Context mContext;
 
-    public ResourceViewHelper(Locale current) {
+    @Inject
+    JsRestClient jsRestClient;
+
+    public ResourceViewHelper(Context context, double serverVersion) {
+        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
+
+        mContext = context;
+        mServerVersion = serverVersion;
+
+        Locale current = context.getResources().getConfiguration().locale;
         dateFormat = new SimpleDateFormat(INITIAL_DATE_FORMAT, current);
     }
 
@@ -73,7 +94,24 @@ public class ResourceViewHelper {
     }
 
     private void setIcon(IResourceView resourceView, ResourceLookup item) {
-        resourceView.setImageIcon(getResourceIcon(item.getResourceType()));
+        ImageView imageView = resourceView.getImageView();
+        int resource = getResourceIcon(item.getResourceType());
+
+        boolean isAmberOrHigher = mServerVersion >= ServerInfo.VERSION_CODES.AMBER;
+        boolean isReport = item.getResourceType().equals(ResourceLookup.ResourceType.reportUnit);
+
+        JsServerProfile profile = jsRestClient.getServerProfile();
+        if (isAmberOrHigher && isReport) {
+            new Picasso.Builder(mContext)
+                    .downloader(new AuthOkHttpDownloader(mContext, profile))
+                    .build()
+                    .load(jsRestClient.generateThumbNailUri(item.getUri(), true))
+                    .placeholder(resource)
+                    .error(resource)
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(resource);
+        }
     }
 
     private String formatDateString(String updateDate) {

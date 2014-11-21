@@ -38,4 +38,7 @@
     <issue id="MissingTranslation">
         <ignore path="src/main/res/values/roboguice.xml" />
     </issue>
+    <issue id="InvalidPackage">
+        <ignore regexp="okio-2.0.0.jar" />
+    </issue>
 </lint>

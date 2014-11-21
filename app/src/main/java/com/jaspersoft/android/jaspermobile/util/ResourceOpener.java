@@ -33,7 +33,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 

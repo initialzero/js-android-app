@@ -73,9 +73,6 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         setDefaultCurrentProfile();
         configureSearchIntent();
         FakeHttpLayerManager.clearHttpResponseRules();
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
     }
 
     @Override

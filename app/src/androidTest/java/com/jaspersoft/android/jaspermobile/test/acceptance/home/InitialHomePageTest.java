@@ -152,7 +152,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.get().notAuthorized());
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.ROOT_FOLDER_CONTENT, TestResponses.get().notAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
 
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
@@ -170,7 +170,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.get().notAuthorized());
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.RESOURCES, TestResponses.get().notAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
 

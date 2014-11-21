@@ -35,7 +35,7 @@ import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.android.apps.common.testing.ui.espresso.Espresso;
 import com.google.android.apps.common.testing.ui.espresso.IdlingPolicies;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 

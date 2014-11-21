@@ -89,7 +89,9 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
         ContentResolver cr = application.getContentResolver();
         DatabaseUtils.deleteAllProfiles(cr);
-        profileHelper.setCurrentServerProfile(DatabaseUtils.createDefaultProfile(cr));
+        long id = DatabaseUtils.createDefaultProfile(cr);
+        profileHelper.setCurrentServerProfile(id);
+        profileHelper.setCurrentInfoSnapshot(id);
     }
 
     public void startActivityUnderTest() {

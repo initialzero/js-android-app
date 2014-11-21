@@ -104,14 +104,9 @@
             android:label="@string/ro_page_title"
             android:windowSoftInputMode="stateHidden" />
 
-        <!-- Older implementation for report viewer in HTML format -->
-        <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.ReportHtmlViewerActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
-
         <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.ReportHtmlViewerActivity_"
+            android:name="com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <!-- Activity that performs report viewing in HTML format -->
@@ -151,7 +146,7 @@
             android:exported="false" />
 
         <provider
-            android:name="com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider"
+            android:name="com.jaspersoft.android.jaspermobile.db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
             android:exported="false" />
 

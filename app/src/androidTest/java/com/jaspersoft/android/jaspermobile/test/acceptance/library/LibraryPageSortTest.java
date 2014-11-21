@@ -78,9 +78,7 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
         setDefaultCurrentProfile();
 
         // We don`t need to listen initial load of page
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
+        FakeHttpLayerManager.clearHttpResponseRules();
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.ALL_RESOURCES);

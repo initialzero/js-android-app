@@ -19,29 +19,18 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>.
+ * <http://www.gnu.org/licenses/lgpl>./
  */
 
-package com.jaspersoft.android.jaspermobile.test.utils;
+package com.jaspersoft.android.jaspermobile.db;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
-import com.google.inject.name.Names;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 
-/**
- * @author Tom Koptel
- * @since 1.9
- */
-public abstract class CommonTestModule extends AbstractModule {
+
+public class MobileDbProvider extends JasperMobileDbProvider {
     @Override
-    protected final void configure() {
-        bind(ServerInfoManager.class).in(Singleton.class);
-        bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
-        bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
-        bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
-        semanticConfigure();
+    public boolean onCreate() {
+        mDatabase = new JasperMobileDatabase(getContext());
+        return true;
     }
-
-    protected abstract void semanticConfigure();
 }

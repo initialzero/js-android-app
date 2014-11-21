@@ -22,11 +22,12 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.fragment;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.view.View;
-import android.view.animation.TranslateAnimation;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.common.collect.Maps;
@@ -77,6 +78,8 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     TextView lastPage;
     @ViewById
     View rootContainer;
+    @ViewById
+    View paginationLayout;
     @ViewById
     View progressLayout;
 
@@ -165,12 +168,13 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     }
 
     public void setVisible(boolean visible) {
-        TranslateAnimation animate = new TranslateAnimation(0, 0, 0,
-                (visible ? 0 : 1) * rootContainer.getHeight());
-        animate.setDuration(500);
-        animate.setFillAfter(true);
-        rootContainer.startAnimation(animate);
         rootContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
+
+        RelativeLayout htmlViewer = (RelativeLayout)
+                getActivity().findViewById(R.id.htmlViewer_layout);
+        if (htmlViewer != null) {
+            htmlViewer.setPadding(0, 0, 0, visible ? paginationLayout.getHeight() : 0);
+        }
     }
 
     public void paginateToCurrentSelection() {

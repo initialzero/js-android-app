@@ -63,7 +63,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-    public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
+public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     private JsRestClient jsRestClient;
 
     public AskPasswordHomePageTest() {
@@ -138,7 +138,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
                 .atPosition(0).perform(click());
 
         FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
+                ApiMatcher.ROOT_FOLDER_CONTENT,
                 TestResponses.get().notAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
 

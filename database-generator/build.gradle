@@ -24,7 +24,7 @@
 
 buildscript {
     dependencies {
-        classpath files('libs/RoboCoP-0.5.2-JASPER-jar-with-dependencies.jar')
+        classpath files('libs/RoboCoP-0.5.2.1-JASPER-jar-with-dependencies.jar')
     }
 }
 apply plugin: "java"

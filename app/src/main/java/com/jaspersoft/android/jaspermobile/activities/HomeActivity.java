@@ -224,10 +224,15 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
             // get selected server profile id from result data
             Bundle extras = data.getExtras();
             long profileId = extras.getLong(ServersFragment.EXTRA_SERVER_PROFILE_ID);
+
             generalPref.currentProfileId().put(profileId);
-
             profileHelper.setCurrentServerProfile(profileId);
+        }
 
+        // This inconsistent state possible for the situation when user ignores profile
+        // either selection(or creation and selection) step
+        boolean profileSelected = mJsRestClient.getServerProfile() != null;
+        if (profileSelected) {
             // check if the password is not specified
             if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
                 PasswordDialogFragment.show(getSupportFragmentManager());

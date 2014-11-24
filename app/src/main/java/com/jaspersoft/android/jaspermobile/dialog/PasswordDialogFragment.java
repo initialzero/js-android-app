@@ -39,7 +39,6 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import roboguice.fragment.RoboDialogFragment;
 
@@ -116,10 +115,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
                                 if (TextUtils.isEmpty(password)) {
                                     mPasswordEdit.setError(getString(R.string.sp_error_field_required));
                                 } else {
-                                    JsServerProfile currentProfile = mJsRestClient.getServerProfile();
-                                    currentProfile.setPassword(password);
-
-                                    mJsRestClient.setServerProfile(currentProfile);
+                                    mJsRestClient.getServerProfile().setPassword(password);
                                     dismiss();
                                 }
                             }

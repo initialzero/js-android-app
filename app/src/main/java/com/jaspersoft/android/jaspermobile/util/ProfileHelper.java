@@ -151,12 +151,16 @@ public class ProfileHelper {
         }
     }
 
-    public void setCurrentServerProfile(Cursor cursor) {
+    public JsServerProfile createProfileFromCursor(Cursor cursor) {
         long id = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
         ServerProfiles dbProfile = new ServerProfiles(cursor);
-        JsServerProfile serverProfile = new JsServerProfile(id, dbProfile.getAlias(),
+        return new JsServerProfile(id, dbProfile.getAlias(),
                 dbProfile.getServerUrl(), dbProfile.getOrganization(),
                 dbProfile.getUsername(), dbProfile.getPassword());
+    }
+
+    public void setCurrentServerProfile(Cursor cursor) {
+        JsServerProfile serverProfile = createProfileFromCursor(cursor);
         jsRestClient.setServerProfile(serverProfile);
     }
 

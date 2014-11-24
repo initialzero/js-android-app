@@ -36,12 +36,15 @@ import android.view.WindowManager;
 import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
 import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import java.util.Collection;
 
@@ -58,6 +61,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
     private NameUtils nameUtils;
     private String pageName = "UNSPECIFIED";
     private ProfileHelper_ profileHelper;
+    private Application mApplication;
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
         super(activityClass);
@@ -66,6 +70,8 @@ public class ProtoActivityInstrumentation<T extends Activity>
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        mApplication = (Application) this.getInstrumentation()
+                .getTargetContext().getApplicationContext();
         nameUtils = new NameUtils(pageName);
         DefaultPrefHelper helper = DefaultPrefHelper_
                 .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
@@ -75,6 +81,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     @Override
     protected void tearDown() throws Exception {
+        mApplication = null;
         nameUtils = null;
         mActivity = null;
         profileHelper = null;
@@ -179,5 +186,22 @@ public class ProtoActivityInstrumentation<T extends Activity>
             }
         });
         return activity[0];
+    }
+
+    protected JsRestClient getJsRestClient() {
+        Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
+        return injector.getInstance(JsRestClient.class);
+    }
+
+    protected JsServerProfile getServerProfile() {
+        return getJsRestClient().getServerProfile();
+    }
+
+    protected Application getApplication() {
+        return mApplication;
+    }
+
+    protected ContentResolver getContentResolver() {
+        return mApplication.getContentResolver();
     }
 }

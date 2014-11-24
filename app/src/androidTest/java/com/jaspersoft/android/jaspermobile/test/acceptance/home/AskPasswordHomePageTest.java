@@ -24,25 +24,18 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
-import android.app.Application;
 import android.database.Cursor;
 
-import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
-import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
 import org.mockito.MockitoAnnotations;
-
-import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -68,8 +61,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @since 1.9
  */
 public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
-    private JsRestClient jsRestClient;
-    private Application mApplication;
 
     public AskPasswordHomePageTest() {
         super(HomeActivity_.class);
@@ -79,20 +70,13 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-
-        mApplication = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        registerTestModule(new HackedTestModule());
-
-        Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
-        jsRestClient = injector.getInstance(JsRestClient.class);
-
-        createOnlyDefaultProfile(mApplication.getContentResolver());
+        registerTestModule(new SpiceAwareModule());
+        createOnlyDefaultProfile(getContentResolver());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        deleteAllProfiles(mApplication.getContentResolver());
+        deleteAllProfiles(getContentResolver());
         unregisterTestModule();
         super.tearDown();
     }
@@ -110,8 +94,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).perform(typeText(PASSWORD));
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
 
-        JsServerProfile profile = jsRestClient.getServerProfile();
-        assertThat(profile.getPassword(), is(PASSWORD));
+        assertThat(getServerProfile().getPassword(), is(PASSWORD));
     }
 
     public void testPasswordValidationCase() throws Throwable {
@@ -194,9 +177,6 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
 
 
     private void setAskForPasswordOption() throws Throwable {
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
@@ -211,10 +191,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onView(withId(getActionBarSubTitleId())).check(matches(withText(ProfileHelper.DEFAULT_ALIAS)));
 
         onView(withId(R.id.askPasswordCheckBox)).perform(click());
-
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
         onView(withId(R.id.saveAction)).perform(click());
     }
+
 }

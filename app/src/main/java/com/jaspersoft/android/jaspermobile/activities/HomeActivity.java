@@ -264,6 +264,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         if (EDIT_SERVER_PROFILE_ACTION.equals(intent.getAction())) {
             // Launch activity to edit current server profile
             ServerProfileActivity_.intent(this)
+                    .inEditMode(true)
                     .profileId(mJsRestClient.getServerProfile().getId())
                     .startForResult(RC_UPDATE_SERVER_PROFILE);
             return;

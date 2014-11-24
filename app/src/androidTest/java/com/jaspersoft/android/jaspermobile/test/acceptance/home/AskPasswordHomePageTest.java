@@ -135,6 +135,64 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).check(matches(withText(PASSWORD)));
     }
 
+    public void testAlwaysAskForPasswordShouldBeActiveOnActivityCancelState() {
+        setDefaultCurrentProfile();
+        startActivityUnderTest();
+
+        onView(withId(R.id.home_item_servers)).perform(click());
+
+        onData(Matchers.is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+
+        onView(withId(R.id.askPasswordCheckBox)).perform(click());
+        onView(withId(R.id.saveAction)).perform(click());
+
+        pressBack();
+
+        // Check whether our dialog is shown with Appropriate info
+        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(ProfileHelper.DEFAULT_USERNAME)));
+        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(ProfileHelper.DEFAULT_ORGANIZATION)));
+        onOverflowView(getActivity(), withId(R.id.dialogOrganizationTableRow)).check(matches(isDisplayed()));
+    }
+
+    // Bug related. As soon as, we have add clone feautre to the app we should consider to send
+    // proper flags to the activity so it will opens it in proper mode and won`t alter profile
+    // alias with clone prefix
+    public void testEditProfilePgeOpensInEditMode() throws Throwable {
+        startActivityUnderTest();
+        setAskForPasswordOption();
+
+        pressBack();
+
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.ROOT_FOLDER_CONTENT, TestResponses.get().notAuthorized());
+        onView(withId(R.id.home_item_library)).perform(click());
+
+        onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
+
+        // Check password has been properly loaded from DB. This is the key assert of test.
+        onView(withId(R.id.aliasEdit)).check(matches(withText(ProfileHelper.DEFAULT_ALIAS)));
+
+        // Disable ask password and reset password
+        onView(withId(R.id.askPasswordCheckBox)).perform(click());
+        onView(withId(R.id.passwordEdit)).perform(typeText(ProfileHelper.DEFAULT_PASS));
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onView(withId(R.id.home_item_servers)).perform(click());
+
+
+        // Assert password has been saved properly
+        onData(Matchers.is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+
+        onView(withId(R.id.passwordEdit)).check(matches(withText(ProfileHelper.DEFAULT_PASS)));
+    }
+
+
     private void setAskForPasswordOption() throws Throwable {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.SERVER_INFO,
@@ -158,28 +216,5 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
                 ApiMatcher.SERVER_INFO,
                 TestResponses.SERVER_INFO);
         onView(withId(R.id.saveAction)).perform(click());
-    }
-
-
-    public void testAlwaysAskForPasswordShouldBeActiveOnActivityCancelState() {
-        setDefaultCurrentProfile();
-        startActivityUnderTest();
-
-        onView(withId(R.id.home_item_servers)).perform(click());
-
-        onData(Matchers.is(instanceOf(Cursor.class)))
-                .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
-
-        onView(withId(R.id.askPasswordCheckBox)).perform(click());
-        onView(withId(R.id.saveAction)).perform(click());
-
-        pressBack();
-
-        // Check whether our dialog is shown with Appropriate info
-        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(ProfileHelper.DEFAULT_USERNAME)));
-        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(ProfileHelper.DEFAULT_ORGANIZATION)));
-        onOverflowView(getActivity(), withId(R.id.dialogOrganizationTableRow)).check(matches(isDisplayed()));
     }
 }

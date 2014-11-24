@@ -42,7 +42,6 @@ import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
-import com.squareup.spoon.Spoon;
 
 import java.util.Collection;
 
@@ -108,14 +107,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             }
         });
-    }
-
-
-    protected void makeScreenShot(String name) throws InterruptedException {
-        if (SLEEP_RATE > 0) {
-            Thread.sleep(SLEEP_RATE);
-            Spoon.screenshot(mActivity, nameUtils.generateName(mActivity, name));
-        }
     }
 
     protected void rotate() {

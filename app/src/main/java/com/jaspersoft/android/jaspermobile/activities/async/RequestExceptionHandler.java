@@ -106,16 +106,20 @@ public class RequestExceptionHandler {
     }
 
     private static void showErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setNeutralButton(
-                        new View.OnClickListener() {
-                            public void onClick(View view) {
-                                if (finishActivity) activity.finish();
-                            }
+        AlertDialogFragment.AlertDialogBuilder builder = AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
+                .setIcon(android.R.drawable.ic_dialog_alert);
+        if (finishActivity) {
+            builder.setNeutralButton(
+                    new View.OnClickListener() {
+                        public void onClick(View view) {
+                            if (finishActivity) activity.finish();
                         }
-                )
-                .setNeutralButtonText(android.R.string.ok)
+                    }
+            ).setNeutralButtonText(android.R.string.ok);
+        } else {
+            builder.setPositiveButtonText(android.R.string.ok);
+        }
+        builder
                 .setTitle(R.string.error_msg)
                 .setMessage(message)
                 .show();

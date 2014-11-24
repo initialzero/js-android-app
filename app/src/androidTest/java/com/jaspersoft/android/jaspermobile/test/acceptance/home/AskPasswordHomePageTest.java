@@ -39,20 +39,24 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.hamcrest.Matchers;
 import org.mockito.MockitoAnnotations;
 
 import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createOnlyDefaultProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -65,6 +69,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  */
 public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
     private JsRestClient jsRestClient;
+    private Application mApplication;
 
     public AskPasswordHomePageTest() {
         super(HomeActivity_.class);
@@ -75,18 +80,19 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         super.setUp();
         MockitoAnnotations.initMocks(this);
 
-        Application application = (Application) this.getInstrumentation()
+        mApplication = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
         registerTestModule(new HackedTestModule());
 
-        Injector injector = RoboGuice.getBaseApplicationInjector(application);
+        Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
         jsRestClient = injector.getInstance(JsRestClient.class);
 
-        createOnlyDefaultProfile(application.getContentResolver());
+        createOnlyDefaultProfile(mApplication.getContentResolver());
     }
 
     @Override
     protected void tearDown() throws Exception {
+        deleteAllProfiles(mApplication.getContentResolver());
         unregisterTestModule();
         super.tearDown();
     }
@@ -154,4 +160,26 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onView(withId(R.id.saveAction)).perform(click());
     }
 
+
+    public void testAlwaysAskForPasswordShouldBeActiveOnActivityCancelState() {
+        setDefaultCurrentProfile();
+        startActivityUnderTest();
+
+        onView(withId(R.id.home_item_servers)).perform(click());
+
+        onData(Matchers.is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+
+        onView(withId(R.id.askPasswordCheckBox)).perform(click());
+        onView(withId(R.id.saveAction)).perform(click());
+
+        pressBack();
+
+        // Check whether our dialog is shown with Appropriate info
+        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(ProfileHelper.DEFAULT_USERNAME)));
+        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(ProfileHelper.DEFAULT_ORGANIZATION)));
+        onOverflowView(getActivity(), withId(R.id.dialogOrganizationTableRow)).check(matches(isDisplayed()));
+    }
 }

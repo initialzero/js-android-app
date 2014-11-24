@@ -164,8 +164,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity
         if (FileUtils.isExternalStorageWritable()) {
             SaveReportActivity_.intent(this)
                     .reportParameters(reportParameters)
-                    .resourceUri(resource.getUri())
-                    .resourceLabel(resource.getLabel())
+                    .resource(resource)
                     .start();
         } else {
             Toast.makeText(ReportHtmlViewerActivity.this,

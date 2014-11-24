@@ -141,7 +141,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
 
             if (renameSavedReportFile(selectedFile, destFile)) {
                 if (onRenamedActionListener != null) {
-                    onRenamedActionListener.onRenamed();
+                    onRenamedActionListener.onRenamed(newReportName, destFile.getPath());
                 }
             } else {
                 Toast.makeText(getActivity(), R.string.sdr_t_report_renaming_error, Toast.LENGTH_SHORT).show();
@@ -179,7 +179,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
     //---------------------------------------------------------------------
 
     public static interface OnRenamedAction {
-        void onRenamed();
+        void onRenamed(String newFileName, String newFilePath);
     }
 
     private static class ReportFilenameFilter implements FilenameFilter {

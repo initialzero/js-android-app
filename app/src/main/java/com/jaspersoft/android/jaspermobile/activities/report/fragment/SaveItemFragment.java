@@ -28,6 +28,7 @@ import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -37,7 +38,11 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.db.model.Favorites;
+import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportAttachmentRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportOutputRequest;
@@ -46,12 +51,14 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemSelect;
@@ -63,6 +70,7 @@ import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 
 import roboguice.util.Ln;
 
@@ -80,11 +88,11 @@ public class SaveItemFragment extends RoboSpiceFragment {
     Spinner formatSpinner;
     @ViewById(R.id.report_name_input)
     EditText reportNameInput;
+    @ViewById(R.id.visible_for_all_checkbox)
+    CheckBox visibleForAllCheckbox;
 
     @FragmentArg
-    String resourceLabel;
-    @FragmentArg
-    String resourceUri;
+    ResourceLookup resource;
     @FragmentArg
     ArrayList<ReportParameter> reportParameters;
 
@@ -130,7 +138,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 setRefreshActionButtonState(true);
 
                 ReportExecutionRequest executionRequest = new ReportExecutionRequest();
-                executionRequest.setReportUnitUri(resourceUri);
+                executionRequest.setReportUnitUri(resource.getUri());
                 executionRequest.setInteractive(false);
                 executionRequest.setOutputFormat(outputFormat.toString());
                 if (reportParameters != null && !reportParameters.isEmpty()) {
@@ -145,7 +153,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @AfterViews
     final void init() {
-        reportNameInput.setText(resourceLabel);
+        reportNameInput.setText(resource.getLabel());
 
         // show spinner with available output formats
         ArrayAdapter<OutputFormat> arrayAdapter = new ArrayAdapter<OutputFormat>(getActivity(),
@@ -201,6 +209,26 @@ public class SaveItemFragment extends RoboSpiceFragment {
         return reportDir;
     }
 
+    private void addSavedItemRecord(File reportFile, OutputFormat fileFormat){
+        JsServerProfile profile = jsRestClient.getServerProfile();
+        SavedItems savedItemsEntry = new SavedItems();
+
+        savedItemsEntry.setName(resource.getLabel());
+        savedItemsEntry.setAlias(reportFile.getParentFile().getPath());
+        savedItemsEntry.setFileFormat(fileFormat.toString());
+        savedItemsEntry.setIsVisibleForAll(visibleForAllCheckbox.isChecked());
+        savedItemsEntry.setDescription(resource.getDescription());
+        savedItemsEntry.setWstype(resource.getResourceType().toString());
+        savedItemsEntry.setUsername(profile.getUsername());
+        savedItemsEntry.setOrganization(profile.getOrganization());
+        savedItemsEntry.setFileSize(reportFile.length());
+        savedItemsEntry.setCreationTime(new Date().getTime());
+        savedItemsEntry.setServerProfileId(profile.getId());
+
+        getActivity().getContentResolver().insert(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                savedItemsEntry.getContentValues());
+    }
+
     private void setRefreshActionButtonState(boolean refreshing) {
         if (refreshing) {
             saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
@@ -239,7 +267,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
             // save report file
             SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient,
                     executionId, exportOutput, reportFile);
-            getSpiceManager().execute(outputRequest, new SaveFileListener());
+            getSpiceManager().execute(outputRequest, new SaveFileListener(reportFile, outputFormat));
 
             // save attachments
             if (OutputFormat.HTML == outputFormat) {
@@ -249,7 +277,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
                     SaveExportAttachmentRequest attachmentRequest = new SaveExportAttachmentRequest(jsRestClient,
                             executionId, exportOutput, attachmentName, attachmentFile);
-                    getSpiceManager().execute(attachmentRequest, new SaveFileListener());
+                    getSpiceManager().execute(attachmentRequest, new SaveFileListener(null, null));
                 }
             }
         }
@@ -258,7 +286,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     private class SaveFileListener implements RequestListener<File> {
 
-        private SaveFileListener() {
+        private File reportFile;
+        private OutputFormat outputFormat;
+
+        private SaveFileListener(File reportFile, OutputFormat outputFormat) {
+            this.reportFile = reportFile;
+            this.outputFormat = outputFormat;
             runningRequests++;
         }
 
@@ -274,6 +307,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
         @Override
         public void onRequestSuccess(File outputFile) {
             runningRequests--;
+
+            if(reportFile != null)
+                addSavedItemRecord(reportFile, outputFormat);
 
             if (runningRequests == 0) {
                 // activity is done and should be closed

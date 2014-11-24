@@ -68,7 +68,41 @@
 					"name" : "report_uri"
 				}
 			]
-		}
+        }, {
+ 			"name" : "saved_items",
+ 			"members" : [{
+                    "type" : "string",
+                    "name" : "alias"
+                }, {
+ 					"type" : "string",
+ 					"name" : "name"
+                }, {
+  					"type" : "string",
+  					"name" : "file_format"
+  				}, {
+ 					"type" : "string",
+ 					"name" : "description"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "wstype"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "username"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "organization"
+                }, {
+  					"type" : "boolean",
+  					"name" : "is_visible_for_all"
+  				}, {
+  				    "type" : "long",
+  				    "name" : "creation_time"
+                }, {
+   				    "type" : "long",
+   				    "name" : "file_size"
+   				}
+ 			]
+ 		}
 	],
 	"relationships" : [{
 			"name" : "server_profiles_favorites",
@@ -82,6 +116,12 @@
 			"right_table" : "report_options",
 			"foreign_key" : "server_profile_id",
 			"type" : "to_many"
-		}
+        }, {
+   			"name" : "server_profiles_saved_items",
+   			"left_table" : "server_profiles",
+   			"right_table" : "saved_items",
+   			"foreign_key" : "server_profile_id",
+   			"type" : "to_many"
+   		}
 	]
 }

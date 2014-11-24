@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright © 2014 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -58,6 +57,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:prompt="@string/sr_output_format" />
+
+        <!-- Visibility -->
+        <CheckBox
+            android:id="@+id/visible_for_all_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="@string/sr_visible_for_all" />
+
 
     </LinearLayout>
 

@@ -151,6 +151,7 @@
     <string name="sr_ab_title">Save Report</string>
     <string name="sr_report_name">Report Name</string>
     <string name="sr_output_format">Output Format</string>
+    <string name="sr_visible_for_all">Visible for all users</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report saved successfully</string>
     <!-- Error messages -->

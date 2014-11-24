@@ -26,13 +26,10 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
-        classpath 'com.stanfy.spoon:spoon-gradle-plugin:0.10.1-SNAPSHOT'
-        classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'hugo'
 apply plugin: 'android-apt'
 apply from: 'build_utils.gradle'
 
@@ -83,12 +80,8 @@ android {
         exclude 'META-INF/NOTICE'
     }
 
-//    lintOptions {
-//        lintConfig file("lint.xml")
-//    }
-
     lintOptions {
-        checkReleaseBuilds false
+        lintConfig file("lint.xml")
     }
 
     applicationVariants.all { variant ->
@@ -118,9 +111,8 @@ apt {
 
 
 dependencies {
-    compile project(':database-generator')
+    provided project(':database-generator')
     compile project(':library-circular')
-    compile project(':library-holoaccent')
 
     compile 'com.jaspersoft.android.sdk:js-android-sdk-client:2.0-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:2.0-SNAPSHOT'
@@ -142,8 +134,7 @@ dependencies {
     // For action mode support within list views
     compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'
     // For homogeneous design on all platforms
-    // Will use local dependency because for Android L there is no proper support.
-//    compile 'com.negusoft.holoaccent:library:1.0.1'
+    compile 'com.negusoft.holoaccent:library:1.1'
 
     // Splunk Mint(Bugsense)
     compile "com.splunk.mint:mint:4.0.3"
@@ -155,7 +146,6 @@ dependencies {
     androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
         exclude group: 'com.google.guava'
     }
-    androidTestCompile 'com.squareup.spoon:spoon-client:1.1.0'
     androidTestCompile('org.mockito:mockito-core:1.9.5') {
         exclude group: "org.hamcrest"
     }

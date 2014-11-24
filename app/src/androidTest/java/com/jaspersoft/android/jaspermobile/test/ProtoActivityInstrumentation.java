@@ -39,13 +39,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
-import com.jaspersoft.android.jaspermobile.test.utils.NameUtils;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.squareup.spoon.Spoon;
 
 import java.util.Collection;
 
@@ -57,9 +55,8 @@ public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
     protected static final String USERNAME = "phoneuser|organization_1";
     protected static final String PASSWORD = "phoneuser";
-    private static final long SLEEP_RATE = 0;
+
     protected T mActivity;
-    private NameUtils nameUtils;
     private String pageName = "UNSPECIFIED";
     private ProfileHelper_ profileHelper;
     private Application mApplication;
@@ -73,7 +70,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
         super.setUp();
         mApplication = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
-        nameUtils = new NameUtils(pageName);
         DefaultPrefHelper helper = DefaultPrefHelper_
                 .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
         helper.setAnimationEnabled(false);
@@ -83,7 +79,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
     @Override
     protected void tearDown() throws Exception {
         mApplication = null;
-        nameUtils = null;
         mActivity = null;
         profileHelper = null;
         super.tearDown();
@@ -115,14 +110,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             }
         });
-    }
-
-
-    protected void makeScreenShot(String name) throws InterruptedException {
-        if (SLEEP_RATE > 0) {
-            Thread.sleep(SLEEP_RATE);
-            Spoon.screenshot(mActivity, nameUtils.generateName(mActivity, name));
-        }
     }
 
     protected void rotate() {
@@ -162,10 +149,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     protected View findViewById(int id) {
         return mActivity.findViewById(id);
-    }
-
-    public void setPageName(String pageName) {
-        this.pageName = pageName;
     }
 
     protected void registerTestModule(AbstractModule module) {

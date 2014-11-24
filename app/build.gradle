@@ -111,9 +111,8 @@ apt {
 
 
 dependencies {
-    compile project(':database-generator')
+    provided project(':database-generator')
     compile project(':library-circular')
-    compile project(':library-holoaccent')
 
     compile 'com.jaspersoft.android.sdk:js-android-sdk-client:2.0-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:2.0-SNAPSHOT'
@@ -135,8 +134,7 @@ dependencies {
     // For action mode support within list views
     compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'
     // For homogeneous design on all platforms
-    // Will use local dependency because for Android L there is no proper support.
-//    compile 'com.negusoft.holoaccent:library:1.0.1'
+    compile 'com.negusoft.holoaccent:library:1.1'
 
     // Splunk Mint(Bugsense)
     compile "com.splunk.mint:mint:4.0.3"

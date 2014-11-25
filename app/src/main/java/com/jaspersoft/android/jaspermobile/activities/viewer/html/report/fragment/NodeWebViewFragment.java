@@ -218,7 +218,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     }
 
     private void createWebView() {
-        webView = new JSWebView(getActivity().getApplicationContext(), null, R.style.htmlViewer_webView);
+        webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
         syncCookies();
         prepareWebView();
         setWebViewClient();

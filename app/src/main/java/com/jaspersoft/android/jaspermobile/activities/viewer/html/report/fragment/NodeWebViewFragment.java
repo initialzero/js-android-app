@@ -35,9 +35,6 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -52,6 +49,7 @@ import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
@@ -66,7 +64,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.jaspersoft.android.sdk.util.StaticCacheHelper;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -78,11 +75,8 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-
-import java.util.List;
 
 /**
  * @author Tom Koptel
@@ -219,38 +213,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     private void createWebView() {
         webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
-        syncCookies();
+        CookieManagerFactory.syncCookies(getActivity(), jsRestClient);
         prepareWebView();
         setWebViewClient();
-    }
-
-    /**
-     * Sync cookies between HttpURLConnection and WebView
-     */
-    @SuppressLint({"NewApi"})
-    protected void syncCookies() {
-        final List<String> cookieStore = (List<String>) StaticCacheHelper.retrieveObjectFromCache(COOKIE_STORE);
-        if (cookieStore != null) {
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                CookieSyncManager.createInstance(getActivity());
-            }
-
-            final CookieManager cookieManager = CookieManager.getInstance();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                cookieManager.removeSessionCookies(new ValueCallback<Boolean>() {
-                    @Override
-                    public void onReceiveValue(Boolean value) {
-                        cookieManager.setCookie(jsRestClient.getServerProfile().getServerUrl(), StringUtils.join(cookieStore, ";"));
-                        CookieManager.getInstance().flush();
-                    }
-                });
-            } else {
-                cookieManager.removeSessionCookie();
-                cookieManager.setCookie(jsRestClient.getServerProfile().getServerUrl(), StringUtils.join(cookieStore, ";"));
-                CookieSyncManager.getInstance().sync();
-            }
-        }
     }
 
     private void setWebViewClient() {

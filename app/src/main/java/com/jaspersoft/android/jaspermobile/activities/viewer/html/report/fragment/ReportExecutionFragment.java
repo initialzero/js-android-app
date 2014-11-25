@@ -54,7 +54,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     private final Handler mHandler = new Handler();
     private PaginationManagerFragment paginationManagerFragment;
 
-    // Stub
     public boolean isResourceLoaded() {
         return getPaginationManagerFragment().isResourceLoaded();
     }

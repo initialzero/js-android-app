@@ -144,20 +144,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         fetchReport();
     }
 
-    private void initWebView() {
-        // create new if necessary
-        if (webView == null) createWebView();
-        // attach to placeholder
-        if (webView.getParent() != null) {
-            ((ViewGroup) webView.getParent()).removeView(webView);
-        }
-        webViewPlaceholder.addView(webView);
-
-        if (!TextUtils.isEmpty(currentHtml)) {
-            loadHtml(currentHtml);
-        }
-    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         if (webView != null) webViewPlaceholder.removeView(webView);
@@ -201,6 +187,22 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void initWebView() {
+        // create new if necessary
+        if (webView == null) createWebView();
+        // attach to placeholder
+        if (webView.getParent() != null) {
+            ((ViewGroup) webView.getParent()).removeView(webView);
+        }
+        webViewPlaceholder.addView(webView);
+
+        if (TextUtils.isEmpty(currentHtml)) {
+            fetchReport();
+        } else {
+            loadHtml(currentHtml);
+        }
+    }
+
     private void loadHtml(String html) {
         Preconditions.checkNotNull(html);
         Preconditions.checkNotNull(webView);
@@ -212,7 +214,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         String encoding = "utf-8";
         webView.loadDataWithBaseURL(
                 jsRestClient.getServerProfile().getServerUrl(),
-                html, mime, encoding, null);
+                currentHtml, mime, encoding, null);
     }
 
     private void createWebView() {
@@ -220,7 +222,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         syncCookies();
         prepareWebView();
         setWebViewClient();
-        fetchReport();
     }
 
     /**

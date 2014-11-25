@@ -105,7 +105,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @InstanceState
     int runningRequests;
 
-    protected static enum OutputFormat {
+    public static enum OutputFormat {
         HTML,
         PDF,
         XLS
@@ -286,6 +286,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     private class SaveFileListener implements RequestListener<File> {
 
+        // If file not null that means we are storing report body
+        // otherwise we are processing chunks
         private File reportFile;
         private OutputFormat outputFormat;
 
@@ -308,8 +310,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
         public void onRequestSuccess(File outputFile) {
             runningRequests--;
 
-            if(reportFile != null)
+            if (reportFile != null){
                 addSavedItemRecord(reportFile, outputFormat);
+            }
 
             if (runningRequests == 0) {
                 // activity is done and should be closed

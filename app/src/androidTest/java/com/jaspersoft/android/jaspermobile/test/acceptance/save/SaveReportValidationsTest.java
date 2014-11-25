@@ -26,10 +26,24 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.save;
 
 import android.content.Intent;
 
+import com.google.common.base.Preconditions;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.http.fake.FakeHttpLayerManager;
+import org.apache.http.fake.TestHttpResponse;
+
+import java.io.File;
+import java.io.IOException;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
@@ -46,8 +60,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
  */
 public class SaveReportValidationsTest extends ProtoActivityInstrumentation<SaveReportActivity_> {
 
-    protected static final String RESOURCE_URI = "/Reports/2_Sales_Mix_by_Demographic_Report";
-    protected static final String RESOURCE_LABEL = "02. Sales Mix by Demographic Report";
+    private ResourceLookup report;
 
     public SaveReportValidationsTest() {
         super(SaveReportActivity_.class);
@@ -56,6 +69,11 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        ResourceLookupsList reports = TestResources.get()
+                .fromXML(ResourceLookupsList.class, TestResources.ONLY_REPORT);
+        report = reports.getResourceLookups().get(0);
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
     }
@@ -63,6 +81,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
     @Override
     protected void tearDown() throws Exception {
         unregisterTestModule();
+        FakeHttpLayerManager.clearHttpResponseRules();
         super.tearDown();
     }
 
@@ -80,7 +99,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         }
     }
 
-    public void testValidateFieldShouldNotBeEmpty() {
+    public void testValidateFieldShouldNotBeEmpty() throws IOException {
         prepareIntent();
         startActivityUnderTest();
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sr_ab_title)));
@@ -93,8 +112,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
 
     private void prepareIntent() {
         Intent metaIntent = new Intent();
-        metaIntent.putExtra(SaveReportActivity_.RESOURCE_LABEL_EXTRA, RESOURCE_LABEL);
-        metaIntent.putExtra(SaveReportActivity_.RESOURCE_URI_EXTRA, RESOURCE_URI);
+        metaIntent.putExtra(SaveReportActivity_.RESOURCE_EXTRA, report);
         setActivityIntent(metaIntent);
     }
 

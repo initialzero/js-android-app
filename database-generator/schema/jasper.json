@@ -76,9 +76,6 @@
  					"type" : "string",
  					"name" : "organization"
                 }, {
-  					"type" : "boolean",
-  					"name" : "is_visible_for_all"
-  				}, {
   				    "type" : "long",
   				    "name" : "creation_time"
                 }, {

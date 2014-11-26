@@ -1,12 +1,13 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.save;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.AssertDatabaseUtil;
@@ -34,12 +35,9 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 /**
@@ -60,6 +58,9 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
+        SavedFilesUtil.clear(getApplication());
+        DatabaseUtils.deleteAllSavedItems(getApplication().getContentResolver());
+
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
         resource = resourceLookupsList.getResourceLookups().get(0);
     }
@@ -68,13 +69,18 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     protected void tearDown() throws Exception {
         unregisterTestModule();
         FakeHttpLayerManager.clearHttpResponseRules();
+
+        SavedFilesUtil.clear(getApplication());
+        DatabaseUtils.deleteAllSavedItems(getApplication().getContentResolver());
+
         super.tearDown();
     }
 
     public void testSaveWithDifferentFormats() throws Throwable {
-        prepareSaveReportActivity();
+        prepareSaveReportActivity(resource);
 
         String reportName = resource.getLabel();
+        long profileId = getServerProfile().getId();
 
         // Save reports in different format
         saveReport("HTML");
@@ -87,9 +93,9 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         assertTrue(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), reportName, "XLS"));
 
         //Check if files are saved proper in file system
-        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "HTML"));
-        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "PDF"));
-        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "XLS"));
+        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "HTML", profileId));
+        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "PDF", profileId));
+        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "XLS", profileId));
 
         //Check if files are properly displayed in list
         openSavePage();
@@ -103,7 +109,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     }
 
     public void testNotSaveWithSameName() throws Throwable {
-        prepareSaveReportActivity();
+        prepareSaveReportActivity(resource);
         saveReport("PDF");
         // Asserting file uniqueness, so that storing again
         saveReport("PDF");
@@ -112,10 +118,11 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     }
 
     public void testRename() throws IOException {
-        prepareSaveReportActivity();
+        prepareSaveReportActivity(resource);
 
         String oldReportName = resource.getLabel();
         String newReportName = "Renamed - " + oldReportName;
+        long profileId = getServerProfile().getId();
 
         saveReport("PDF");
         openSavePage();
@@ -128,7 +135,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if file is renamed in db and in file system
         assertTrue(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), newReportName, "PDF"));
-        assertTrue(SavedFilesUtil.contains(getActivity(), newReportName, "PDF"));
+        assertTrue(SavedFilesUtil.contains(getActivity(), newReportName, "PDF", profileId));
 
         // Check if file is renamed in UI
         onData(Matchers.is(instanceOf(Cursor.class)))
@@ -138,13 +145,14 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if there is no file with old file name
         assertFalse(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), oldReportName, "PDF"));
-        assertFalse(SavedFilesUtil.contains(getActivity(), oldReportName, "PDF"));
+        assertFalse(SavedFilesUtil.contains(getActivity(), oldReportName, "PDF", profileId));
     }
 
     public void testDelete() throws IOException {
-        prepareSaveReportActivity();
+        prepareSaveReportActivity(resource);
 
         String reportName = resource.getLabel();
+        long profileId = getServerProfile().getId();
 
         saveReport("PDF");
         openSavePage();
@@ -158,19 +166,17 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if file is deleted from DB and file system
         assertFalse(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), reportName, "PDF"));
-        assertFalse(SavedFilesUtil.contains(getActivity(), reportName, "PDF"));
+        assertFalse(SavedFilesUtil.contains(getActivity(), reportName, "PDF", profileId));
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-    private void prepareSaveReportActivity() throws IOException {
+    private void prepareSaveReportActivity(ResourceLookup otherResource) throws IOException {
         FakeHttpLayerManager.setDefaultHttpResponse(TestResponses.get().noContent());
         FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
-        prepareIntent();
+        prepareIntent(otherResource);
         startActivityUnderTest();
-        SavedFilesUtil.clear(getActivity());
-        DatabaseUtils.deleteAllSavedItems(getActivity().getContentResolver());
 
         // Preparing HTPP call mocks
         TestHttpResponse fileResponse = new TestHttpResponse(200, TestResources.get().getBytes(TestResources.ONLY_REPORT));
@@ -178,9 +184,9 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.OUTPUT_RESOURCE, fileResponse);
     }
 
-    private void prepareIntent() {
+    private void prepareIntent(ResourceLookup otherResource) {
         Intent htmlViewer = new Intent();
-        htmlViewer.putExtra(ReportHtmlViewerActivity_.RESOURCE_EXTRA, resource);
+        htmlViewer.putExtra(ReportHtmlViewerActivity_.RESOURCE_EXTRA, otherResource);
         setActivityIntent(htmlViewer);
     }
 

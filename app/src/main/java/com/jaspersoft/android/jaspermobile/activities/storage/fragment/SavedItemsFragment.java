@@ -258,7 +258,7 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public void onRename(File file) {
-        RenameDialogFragment.show(getFragmentManager(), file,
+        RenameDialogFragment.show(getFragmentManager(), file, jsRestClient.getServerProfile().getId(),
                 new OnRenamedAction() {
                     @Override
                     public void onRenamed(String newFileName, String newFilePath) {

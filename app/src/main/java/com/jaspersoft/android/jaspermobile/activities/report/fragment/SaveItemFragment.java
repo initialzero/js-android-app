@@ -38,7 +38,6 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
@@ -61,7 +60,6 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemSelect;
@@ -91,8 +89,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
     Spinner formatSpinner;
     @ViewById(R.id.report_name_input)
     EditText reportNameInput;
-    @ViewById(R.id.visible_for_all_checkbox)
-    CheckBox visibleForAllCheckbox;
 
     @FragmentArg
     ResourceLookup resource;
@@ -130,8 +126,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @OptionsItem
     final void saveAction() {
         if (isReportNameValid()) {
+            long profileId = jsRestClient.getServerProfile().getId();
             final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
-            String reportName = reportNameInput.getText() + "." + outputFormat;
+            String reportName = profileId + "-" + (reportNameInput.getText() + "." + outputFormat);
             final File reportFile = new File(getReportDir(reportName), reportName);
 
             if (reportFile.exists()) {
@@ -142,7 +139,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 // run new report execution
                 setRefreshActionButtonState(true);
 
-                ReportExecutionRequest executionRequest = new ReportExecutionRequest();
+                final ReportExecutionRequest executionRequest = new ReportExecutionRequest();
                 executionRequest.setReportUnitUri(resource.getUri());
                 executionRequest.setInteractive(false);
                 executionRequest.setOutputFormat(outputFormat.toString());
@@ -154,7 +151,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                     @Override
                     public void onInfoReceived(ServerInfoSnapshot serverInfo) {
                         double versionCode = serverInfo.getVersionCode();
-                        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO){
+                        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
                             executionRequest.setAttachmentsPrefix("./");
                         }
 
@@ -233,7 +230,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
         savedItemsEntry.setName(resource.getLabel());
         savedItemsEntry.setAlias(reportFile.getParentFile().getPath());
         savedItemsEntry.setFileFormat(fileFormat.toString());
-        savedItemsEntry.setIsVisibleForAll(visibleForAllCheckbox.isChecked());
         savedItemsEntry.setDescription(resource.getDescription());
         savedItemsEntry.setWstype(resource.getResourceType().toString());
         savedItemsEntry.setUsername(profile.getUsername());

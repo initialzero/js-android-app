@@ -63,14 +63,17 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
     @FragmentArg
     long profileId;
 
+    @FragmentArg
+    String oldFileName;
+
     private AlertDialog mDialog;
     private EditText reportNameEdit;
     private OnRenamedAction onRenamedActionListener;
 
-    public static void show(FragmentManager fm, File file, long profileId, OnRenamedAction onRenamedAction) {
+    public static void show(FragmentManager fm, File file, String oldFileName, long profileId, OnRenamedAction onRenamedAction) {
         RenameDialogFragment dialogFragment = (RenameDialogFragment) fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
-            dialogFragment = RenameDialogFragment_.builder().selectedFile(file).profileId(profileId).build();
+            dialogFragment = RenameDialogFragment_.builder().selectedFile(file).oldFileName(oldFileName).profileId(profileId).build();
             dialogFragment.setRenamedActionListener(onRenamedAction);
             dialogFragment.show(fm, TAG);
         }
@@ -82,7 +85,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
         final View customLayout = LayoutInflater.from(getActivity())
                 .inflate(R.layout.rename_report_dialog_layout, null);
         reportNameEdit = (EditText) customLayout.findViewById(R.id.report_name_input);
-        reportNameEdit.setText(FileUtils.getBaseName(selectedFile.getName()));
+        reportNameEdit.setText(oldFileName);
         reportNameEdit.setSelection(reportNameEdit.getText().length());
 
         reportNameEdit.addTextChangedListener(new TextWatcher() {

@@ -135,7 +135,8 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
             case R.id.renameItem:
                 if (fileInteractionListener != null) {
                     File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.ALIAS)));
-                    fileInteractionListener.onRename(file);
+                    String title = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
+                    fileInteractionListener.onRename(file, title);
                 }
                 break;
             case R.id.deleteItem:
@@ -197,7 +198,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     //---------------------------------------------------------------------
 
     public static interface FileInteractionListener {
-        void onRename(File file);
+        void onRename(File file, String name);
 
         void onDelete(File file);
 

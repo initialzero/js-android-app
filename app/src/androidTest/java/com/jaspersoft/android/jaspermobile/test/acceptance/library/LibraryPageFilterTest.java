@@ -69,9 +69,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         setDefaultCurrentProfile();
 
         FakeHttpLayerManager.clearHttpResponseRules();
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
     }
 
     @Override

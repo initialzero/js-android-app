@@ -46,7 +46,6 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;
-import java.util.Locale;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
@@ -64,12 +63,12 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         return new Builder(context, savedInstanceState);
     }
 
-    private ResourceAdapter(Context context, Bundle savedInstanceState, ViewType viewType) {
+    private ResourceAdapter(Context context, double serverVersion,
+                            Bundle savedInstanceState, ViewType viewType) {
         super(savedInstanceState, context, 0);
         favoriteHelper = FavoritesHelper_.getInstance_(context);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
-        Locale current = context.getResources().getConfiguration().locale;
-        viewHelper = new ResourceViewHelper(current);
+        viewHelper = new ResourceViewHelper(context, serverVersion);
     }
 
     @Override
@@ -174,19 +173,25 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         private final Bundle savedInstanceState;
 
         private ViewType viewType;
+        private double mServerVersion;
 
         public Builder(Context context, Bundle savedInstanceState) {
             this.context = context;
             this.savedInstanceState = savedInstanceState;
         }
 
-        public Builder setViewType(ViewType viewType) {
+        public Builder viewType(ViewType viewType) {
             this.viewType = viewType;
             return this;
         }
 
+        public Builder serverVersion(double version) {
+            mServerVersion = version;
+            return this;
+        }
+
         public ResourceAdapter create() {
-            return new ResourceAdapter(context, savedInstanceState, viewType);
+            return new ResourceAdapter(context, mServerVersion, savedInstanceState, viewType);
         }
     }
 }

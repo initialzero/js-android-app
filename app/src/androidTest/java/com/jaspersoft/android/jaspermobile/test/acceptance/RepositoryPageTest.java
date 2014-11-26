@@ -84,7 +84,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
 
-        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.GET_ROOT_FOLDER, TestResponses.ROOT_FOLDER);
     }
 

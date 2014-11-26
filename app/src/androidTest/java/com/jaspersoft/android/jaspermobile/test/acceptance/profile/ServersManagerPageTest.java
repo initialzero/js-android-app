@@ -33,13 +33,22 @@ import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActi
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.octo.android.robospice.exception.NetworkException;
+import com.octo.android.robospice.request.CachedSpiceRequest;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 import roboguice.RoboGuice;
 
@@ -200,6 +209,18 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
     // As soon as we shared same RequestExceptionHandler for all
     // failure listeners we experienced flow which required customization
     public void testPageShouldProperlyHandleUnAuthorized() {
+        registerTestModule(new CommonTestModule() {
+            @Override
+            protected void semanticConfigure() {
+                bind(JsSpiceManager.class).toInstance(new JsSpiceManager() {
+                    @Override
+                    public <T> void execute(CachedSpiceRequest<T> cachedSpiceRequest, final RequestListener<T> requestListener) {
+                        HttpClientErrorException httpClientErrorException = new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
+                        requestListener.onRequestFailure(new NetworkException("Exception occurred during invocation of web service.", httpClientErrorException));
+                    }
+                });
+            }
+        });
         startActivityUnderTest();
 
         onView(withId(R.id.addProfile)).perform(click());
@@ -217,11 +238,22 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.error_msg)));
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(ExceptionRule.UNAUTHORIZED.getMessage())));
-        onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).check(matches(withText(android.R.string.ok)));
         onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).perform(click());
     }
 
     public void testServerLowerThanEmeraldNotAcceptable() {
+        registerTestModule(new CommonTestModule() {
+            @Override
+            protected void semanticConfigure() {
+                bind(JsSpiceManager.class).toInstance(new JsSpiceManager() {
+                    @Override
+                    public <T> void execute(CachedSpiceRequest<T> cachedSpiceRequest, final RequestListener<T> requestListener) {
+                        ServerInfo serverInfo = TestResources.get().fromXML(ServerInfo.class, TestResources.EMERALD_MR1_SERVER_INFO);
+                        requestListener.onRequestSuccess((T) serverInfo);
+                    }
+                });
+            }
+        });
         startActivityUnderTest();
         onView(withId(R.id.addProfile)).perform(click());
 

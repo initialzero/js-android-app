@@ -59,6 +59,7 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
@@ -95,6 +96,8 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ServerInfoManager infoHolder;
 
     @Bean
     ProfileHelper profileHelper;
@@ -246,17 +249,21 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
         if (isSameCurrentProfileSelected) {
             setResultOk(profileId);
         } else {
-            profileHelper.setCurrentServerProfile(cursor);
+            JsServerProfile newProfile = profileHelper.createProfileFromCursor(cursor);
+            String password = newProfile.getPassword();
 
-            String password = jsRestClient.getServerProfile().getPassword();
             boolean alwaysAskPassword = TextUtils.isEmpty(password);
             if (alwaysAskPassword) {
                 setResultOk(profileId);
             } else {
+                JsRestClient newRestClient = new JsRestClient();
+                newRestClient.setServerProfile(newProfile);
+
                 addProfile.setActionView(R.layout.actionbar_indeterminate_progress);
 
                 getSpiceManager().execute(
-                        new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+                        new GetServerInfoRequest(newRestClient),
+                        new ValidateServerInfoListener(newProfile));
             }
         }
     }
@@ -298,19 +305,17 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
     //---------------------------------------------------------------------
 
     private class ValidateServerInfoListener extends CommonRequestListener<ServerInfo> {
-        private final JsServerProfile mOldProfile;
+        private final JsServerProfile mNewProfile;
 
-        ValidateServerInfoListener(JsServerProfile oldProfile) {
+        ValidateServerInfoListener(JsServerProfile newProfile) {
             super();
             // We will handle this rule manually
             removeRule(ExceptionRule.UNAUTHORIZED);
-            mOldProfile = oldProfile;
+            mNewProfile = newProfile;
         }
 
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
-            // Reset back to old profile
-            jsRestClient.setServerProfile(mOldProfile);
             addProfile.setActionView(null);
 
             HttpStatus statusCode = extractStatusCode(spiceException);
@@ -331,20 +336,20 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
 
             Context context = getActivity();
             double currentVersion = serverInfo.getVersionCode();
-            if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                // Reset back to old profile
-                jsRestClient.setServerProfile(mOldProfile);
 
+            if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
                 AlertDialogFragment.createBuilder(context, getFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.error_msg)
                         .setMessage(R.string.r_error_server_not_supported)
                         .show();
             } else {
+                long newProfileId = mNewProfile.getId();
+                // Lets update ServerInfo snapshot for later use
+                profileHelper.updateCurrentInfoSnapshot(newProfileId, serverInfo);
+
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, jsRestClient.getServerProfile().getId());
-                // Reset back to old profile
-                jsRestClient.setServerProfile(mOldProfile);
+                resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, newProfileId);
                 getActivity().setResult(Activity.RESULT_OK, resultIntent);
                 getActivity().finish();
             }

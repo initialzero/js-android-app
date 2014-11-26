@@ -106,7 +106,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         String fileFormat = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
         String fileName = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
 
-        itemView.setImageIcon(getFileIconByExtension(fileFormat));
+        itemView.getImageView().setImageResource(getFileIconByExtension(fileFormat));
         itemView.setTitle(fileName);
         itemView.setTimeStamp(getHumanReadableFileSize(fileSize));
         itemView.setSubTitle(getFormattedDateModified(creationTime));

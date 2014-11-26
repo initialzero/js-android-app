@@ -98,18 +98,12 @@ import static org.mockito.Mockito.when;
         onView(withId(R.id.profile_name)).check(matches(withText("Mobile Demo")));
 
         FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
-        FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
                 TestResponses.ONLY_FOLDER);
         onView(withId(R.id.home_item_library)).perform(click());
         Espresso.pressBack();
 
         FakeHttpLayerManager.clearHttpResponseRules();
-        FakeHttpLayerManager.addHttpResponseRule(
-                ApiMatcher.SERVER_INFO,
-                TestResponses.SERVER_INFO);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.GET_ROOT_FOLDER,
                 TestResponses.ROOT_FOLDER);

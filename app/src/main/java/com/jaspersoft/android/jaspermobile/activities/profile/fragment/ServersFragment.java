@@ -108,8 +108,6 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
     @OptionsMenuItem
     MenuItem addProfile;
 
-    private JsRestClient tmpRestClient;
-
     private ServersAdapter mAdapter;
     private JsServerProfile mServerProfile;
     private long mServerProfileId;
@@ -244,10 +242,7 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
             if (alwaysAskPassword) {
                 setResultOk(profileId);
             } else {
-                if (tmpRestClient != null) {
-                    tmpRestClient.interruptAllRequests();
-                }
-                tmpRestClient = new JsRestClient();
+                JsRestClient tmpRestClient = new JsRestClient();
                 tmpRestClient.setConnectTimeout(prefHelper.getConnectTimeoutValue());
                 tmpRestClient.setReadTimeout(prefHelper.getReadTimeoutValue());
                 tmpRestClient.setServerProfile(newProfile);

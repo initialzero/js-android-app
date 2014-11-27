@@ -140,6 +140,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_"
+            android:configChanges="locale"
+            android:launchMode="singleTop" >
+        </activity>
+
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
             android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"

@@ -26,13 +26,32 @@ package com.jaspersoft.android.jaspermobile.activities.storage;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment;
+import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment_;
+import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.FilterSavedItemsDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ivan Gadzhega
@@ -40,7 +59,16 @@ import org.androidannotations.annotations.OptionsItem;
  * @since 1.8
  */
 @EActivity
+@OptionsMenu(R.menu.saved_items_menu)
 public class SavedReportsActivity extends RoboAccentFragmentActivity {
+
+    private SavedItemsControllerFragment savedItemsController;
+
+    @InstanceState
+    FileAdapter.FileType filterType;
+
+    @InstanceState
+    SortOrder sortOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +80,57 @@ public class SavedReportsActivity extends RoboAccentFragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            SavedItemsControllerFragment controllerFragment = SavedItemsControllerFragment_.builder().build();
-            getSupportFragmentManager().beginTransaction()
-                    .add(controllerFragment, SavedItemsControllerFragment.TAG)
-                    .commit();
+
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            savedItemsController = SavedItemsControllerFragment_.builder()
+                    .filterType(filterType)
+                    .sortOrder(sortOrder)
+                    .build();
+
+            transaction.add(savedItemsController, SavedItemsControllerFragment.TAG);
+
+            SavedItemsSearchFragment searchFragment = SavedItemsSearchFragment_.builder().build();
+            transaction.add(searchFragment, SearchControllerFragment.TAG);
+
+            transaction.commit();
+        } else {
+            savedItemsController = (SavedItemsControllerFragment) getSupportFragmentManager()
+                    .findFragmentByTag(SavedItemsControllerFragment.TAG);
         }
+
     }
 
     @OptionsItem(android.R.id.home)
     final void goHome() {
         super.onBackPressed();
+    }
+
+    @OptionsItem(R.id.filter)
+    final void startFiltering() {
+        FilterSavedItemsDialogFragment.show(getSupportFragmentManager(), filterType,
+                new FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener() {
+                    @Override
+                    public void onDialogPositiveClick(FileAdapter.FileType _filterType) {
+                        if (savedItemsController != null) {
+                            savedItemsController.loadItemsByTypes(_filterType);
+                            filterType = _filterType;
+                        }
+                    }
+                });
+    }
+
+    @OptionsItem(R.id.sort)
+    final void startSorting() {
+        SortDialogFragment.show(getSupportFragmentManager(), new SortDialogFragment.SortDialogListener() {
+            @Override
+            public void onOptionSelected(SortOrder _sortOrder) {
+                if (savedItemsController != null) {
+                    savedItemsController.loadItemsBySortOrder(_sortOrder);
+                    sortOrder = _sortOrder;
+                }
+            }
+        });
     }
 
 }

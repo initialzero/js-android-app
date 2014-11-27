@@ -57,7 +57,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     private static final String[] FROM = {SavedItemsTable.NAME, SavedItemsTable.CREATION_TIME, SavedItemsTable.FILE_SIZE, SavedItemsTable.FILE_FORMAT};
     private static final int[] TO = {android.R.id.text1, android.R.id.text2, R.id.timestampStub, android.R.id.icon};
 
-    private static enum FileType {
+    public static enum FileType {
         HTML,
         PDF,
         XLS,

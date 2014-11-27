@@ -47,14 +47,14 @@ public class DefaultPrefHelper {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String value = preferences.getString(
                 SettingsActivity.KEY_PREF_CONNECT_TIMEOUT, SettingsActivity.DEFAULT_CONNECT_TIMEOUT);
-        return Integer.parseInt(value);
+        return Integer.parseInt(value) * 1000;
     }
 
     public int getReadTimeoutValue() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String value = preferences.getString(
                 SettingsActivity.KEY_PREF_READ_TIMEOUT, SettingsActivity.DEFAULT_READ_TIMEOUT);
-        return Integer.parseInt(value);
+        return Integer.parseInt(value) * 1000;
     }
 
     public boolean isAnimationEnabled() {

@@ -63,6 +63,7 @@ public class ProgressDialogFragment extends DialogFragment {
         ProgressDialog progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage(getString(R.string.r_pd_running_report_msg));
         progressDialog.setOnShowListener(onShowListener);
+        progressDialog.setCanceledOnTouchOutside(false);
 
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable
                 .Builder(getActivity())
@@ -71,7 +72,6 @@ public class ProgressDialogFragment extends DialogFragment {
                 .strokeWidth(6)
                 .style(CircularProgressDrawable.Style.ROUNDED).build();
         progressDialog.setIndeterminateDrawable(circularProgressDrawable);
-
         return progressDialog;
     }
 

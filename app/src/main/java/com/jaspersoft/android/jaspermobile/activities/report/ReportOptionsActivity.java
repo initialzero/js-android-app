@@ -556,6 +556,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
                                     break;
                                 case singleValueText:
                                 case singleValueNumber:
+                                case singleValueTime:
                                 case singleValueDate:
                                 case singleValueDatetime:
                                     EditText editText = (EditText) slaveControl.getInputView();

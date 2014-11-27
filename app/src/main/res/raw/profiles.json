@@ -16,42 +16,42 @@
 		}
 		,{
 			"mAlias" : "PRO 5.6.0 Superuser",
-			"mServerUrl" : "http://172.17.10.35:8080/jasperserver-pro-56",
+			"mServerUrl" : "http://172.17.10.70:8080/jasperserver-pro-56",
 			"mOrganization" : "",
 			"mUsername" : "superuser",
 			"mPassword" : "superuser"
 		},
 		{
 			"mAlias" : "PRO 5.6.0 Adminuser",
-			"mServerUrl" : "http://172.17.10.35:8080/jasperserver-pro-56",
+			"mServerUrl" : "http://172.17.10.70:8080/jasperserver-pro-56",
 			"mOrganization" : "organization_1",
 			"mUsername" : "jasperadmin",
 			"mPassword" : "jasperadmin"
 		},
 		{
 			"mAlias" : "PRO 5.6.0 JoeUser",
-			"mServerUrl" : "http://172.17.10.35:8080/jasperserver-pro-56",
+			"mServerUrl" : "http://172.17.10.70:8080/jasperserver-pro-56",
 			"mOrganization" : "organization_1",
 			"mUsername" : "joeuser",
 			"mPassword" : "joeuser"
 		},
 		{
 			"mAlias" : "PRO 5.6.1 Superuser",
-			"mServerUrl" : "http://172.17.10.147:8080/jasperserver-pro-561",
+			"mServerUrl" : "http://172.17.10.71:8080/jasperserver-pro-561",
 			"mOrganization" : "",
 			"mUsername" : "superuser",
 			"mPassword" : "superuser"
 		},
 		{
 			"mAlias" : "PRO 5.6.1 Adminuser",
-			"mServerUrl" : "http://172.17.10.147:8080/jasperserver-pro-561",
+			"mServerUrl" : "http://172.17.10.71:8080/jasperserver-pro-561",
 			"mOrganization" : "organization_1",
 			"mUsername" : "jasperadmin",
 			"mPassword" : "jasperadmin"
 		},
 		{
 			"mAlias" : "PRO 5.6.1 JoeUser",
-			"mServerUrl" : "http://172.17.10.147:8080/jasperserver-pro-561",
+			"mServerUrl" : "http://172.17.10.71:8080/jasperserver-pro-561",
 			"mOrganization" : "organization_1",
 			"mUsername" : "joeuser",
 			"mPassword" : "joeuser"

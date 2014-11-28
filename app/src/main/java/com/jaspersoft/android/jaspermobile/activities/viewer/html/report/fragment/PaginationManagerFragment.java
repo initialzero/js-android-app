@@ -24,8 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -244,7 +244,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         }
 
         NodeWebViewFragment nodeWebViewFragment = getCurrentNodeWebViewFragment();
-        if (nodeWebViewFragment.isResourceLoaded()) {
+        if (nodeWebViewFragment != null && nodeWebViewFragment.isResourceLoaded()) {
             nodeWebViewFragment.loadFinalOutput();
         }
     }
@@ -259,6 +259,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     // Helper methods
     //---------------------------------------------------------------------
 
+    @Nullable
     private NodeWebViewFragment getCurrentNodeWebViewFragment() {
         return (NodeWebViewFragment)
                 getFragmentManager().findFragmentByTag(NodeWebViewFragment.TAG + currentPage);

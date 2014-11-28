@@ -78,9 +78,10 @@ public class RequestExceptionHandler {
                 }
             }
         } else {
-            showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);
+            Throwable cause = exception.getCause();
+            String message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
+            showErrorDialog(message, activity, finishActivity);
         }
-        Ln.e(exception);
     }
 
     /**

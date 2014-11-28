@@ -140,8 +140,16 @@
             </intent-filter>
         </activity>
 
+        <!-- Activity that allows to make search in Saved Items activity -->
         <activity
             android:name="com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_"
+            android:configChanges="locale"
+            android:launchMode="singleTop" >
+        </activity>
+
+        <!-- Activity that allows to make search in Favorites activity -->
+        <activity
+            android:name="com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesSearchableActivity_"
             android:configChanges="locale"
             android:launchMode="singleTop" >
         </activity>

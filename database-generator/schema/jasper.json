@@ -50,7 +50,10 @@
 				}, {
 					"type" : "string",
 					"name" : "organization"
-				}
+                }, {
+ 					"type" : "string",
+ 					"name" : "creation_time"
+ 				}
 			]
 		}, {
  			"name" : "saved_items",

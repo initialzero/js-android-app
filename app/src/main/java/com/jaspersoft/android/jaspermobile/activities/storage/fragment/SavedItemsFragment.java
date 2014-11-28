@@ -252,7 +252,7 @@ public class SavedItemsFragment extends RoboFragment
         if (sortOrder != null && sortOrder.getValue().equals(SortOrder.CREATION_DATE.getValue())) {
             sortOrderString = SavedItemsTable.CREATION_TIME + " DESC";
         } else {
-            sortOrderString = SavedItemsTable.NAME + " ASC";
+            sortOrderString = SavedItemsTable.NAME + " COLLATE NOCASE ASC";
         }
 
         //Add search query to WHERE params

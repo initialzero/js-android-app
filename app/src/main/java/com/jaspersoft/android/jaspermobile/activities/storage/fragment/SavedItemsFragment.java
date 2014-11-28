@@ -25,46 +25,29 @@
 package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
 
 import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -72,7 +55,6 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.EFragment;
@@ -82,11 +64,10 @@ import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -94,7 +75,6 @@ import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 
 import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.OnRenamedAction;
 
@@ -177,13 +157,13 @@ public class SavedItemsFragment extends RoboFragment
         }
     }
 
-    public void showSavedItemsByFilter(FileAdapter.FileType _filterType) {
-        filterType = _filterType;
+    public void showSavedItemsByFilter(FileAdapter.FileType selectedFilter) {
+        filterType = selectedFilter;
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }
 
-    public void showSavedItemsBySortOrder(SortOrder _sortOrder) {
-        sortOrder = _sortOrder;
+    public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
+        sortOrder = selectedSortOrder;
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }
 
@@ -234,9 +214,9 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+    public Loader<Cursor> onCreateLoader(int code, Bundle bundle) {
         StringBuilder selection = new StringBuilder("");
-        ArrayList<String> selectionArgs = new ArrayList<>();
+        ArrayList<String> selectionArgs = Lists.newArrayList();
 
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
@@ -284,7 +264,8 @@ public class SavedItemsFragment extends RoboFragment
         }
 
         return new CursorLoader(getActivity(), JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                SavedItemsTable.ALL_COLUMNS, selection.toString(), selectionArgs.toArray(new String[selectionArgs.size()]), sortOrderString);
+                SavedItemsTable.ALL_COLUMNS, selection.toString(),
+                selectionArgs.toArray(new String[selectionArgs.size()]), sortOrderString);
     }
 
     @Override

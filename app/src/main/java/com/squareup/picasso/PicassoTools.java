@@ -24,12 +24,28 @@
 
 package com.squareup.picasso;
 
+import android.util.Log;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public class PicassoTools {
+    private static final String TAG = PicassoTools.class.getSimpleName();
+    private static final String PICASSO_CACHE = "picasso-cache";
+
     public static void clearCache(Picasso picasso) {
+        File cache = new File(picasso.context.getApplicationContext().getCacheDir(), PICASSO_CACHE);
+        try {
+            FileUtils.cleanDirectory(cache);
+        } catch (IOException e) {
+            Log.w(TAG, "Failed to remove cache directory", e);
+        }
         picasso.cache.clear();
     }
 }

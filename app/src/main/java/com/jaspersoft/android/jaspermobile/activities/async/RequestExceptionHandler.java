@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.octo.android.robospice.exception.NetworkException;
 
@@ -48,6 +49,11 @@ import java.util.EnumMap;
  * @since 1.6
  */
 public class RequestExceptionHandler {
+    private static final String TAG = RequestExceptionHandler.class.getSimpleName();
+
+    public RequestExceptionHandler() {
+        throw new AssertionError();
+    }
 
     public static void handle(Exception exception, Activity activity, boolean finishActivity) {
         handle(exception, activity, ExceptionRule.all(), finishActivity);
@@ -66,9 +72,11 @@ public class RequestExceptionHandler {
                               EnumMap<HttpStatus, ExceptionRule> rules,
                               boolean finishActivity) {
         HttpStatus statusCode = extractStatusCode(exception);
+        String message = "No message";
         if (statusCode != null) {
             if (rules.keySet().contains(statusCode)) {
                 ExceptionRule rule = rules.get(statusCode);
+                message = activity.getString(rule.getMessage());
                 if (statusCode == HttpStatus.UNAUTHORIZED) {
                     showAuthErrorDialog(rule.getMessage(), activity, finishActivity);
                 } else {
@@ -77,8 +85,15 @@ public class RequestExceptionHandler {
             }
         } else {
             Throwable cause = exception.getCause();
-            String message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
+            message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
             showErrorDialog(message, activity, finishActivity);
+        }
+        Throwable cause = exception.getCause();
+        if (cause == null) {
+            BugSenseWrapper.logExceptionMessage(activity, TAG, message, exception);
+        } else {
+            BugSenseWrapper.logExceptionMessage(activity, TAG, message,
+                    new Exception(exception.getCause()));
         }
     }
 

@@ -59,5 +59,10 @@ public class BugSenseWrapper {
         return (!BuildConfig.DEBUG && prefHelper.sendCrashReports());
     }
 
+    public static void logExceptionMessage(Context context, String tag, String message, Exception exception) {
+        if (sendReport(context)) {
+            Mint.logExceptionMessage(tag, message, exception);
+        }
+    }
 }
 

@@ -56,7 +56,7 @@
  			"name" : "saved_items",
  			"members" : [{
                     "type" : "string",
-                    "name" : "alias"
+                    "name" : "file_path"
                 }, {
  					"type" : "string",
  					"name" : "name"

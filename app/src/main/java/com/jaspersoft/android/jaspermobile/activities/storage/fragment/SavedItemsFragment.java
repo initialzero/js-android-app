@@ -166,7 +166,7 @@ public class SavedItemsFragment extends RoboFragment
         Cursor cursor = mAdapter.getCursor();
         cursor.moveToPosition(position);
 
-        return new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.ALIAS)));
+        return new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
     }
 
     private void openReportFile(File reportFile) {
@@ -269,7 +269,7 @@ public class SavedItemsFragment extends RoboFragment
 
                         SavedItems savedItemsEntry = new SavedItems();
                         savedItemsEntry.setName(newFileName);
-                        savedItemsEntry.setAlias(newFilePath);
+                        savedItemsEntry.setFilePath(newFilePath);
 
                         getActivity().getContentResolver().update(uri, savedItemsEntry.getContentValues(), null, null);
 

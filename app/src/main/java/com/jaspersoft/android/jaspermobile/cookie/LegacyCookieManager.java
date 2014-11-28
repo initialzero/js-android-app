@@ -22,30 +22,32 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.squareup.picasso;
+package com.jaspersoft.android.jaspermobile.cookie;
 
-import android.util.Log;
+import android.content.Context;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class PicassoTools {
-    private static final String TAG = PicassoTools.class.getSimpleName();
-    private static final String PICASSO_CACHE = "picasso-cache";
+public class LegacyCookieManager extends AbstractCookieManager {
 
-    public static void clearCache(Picasso picasso) {
-        File cache = new File(picasso.context.getApplicationContext().getCacheDir(), PICASSO_CACHE);
-        try {
-            FileUtils.cleanDirectory(cache);
-        } catch (IOException e) {
-            Log.w(TAG, "Failed to remove cache directory", e);
-        }
-        picasso.cache.clear();
+    public LegacyCookieManager(Context context) {
+        super(context);
     }
+
+    @Override
+    public void semanticConfiguration(String targetDomain) {
+        CookieSyncManager.createInstance(getContext());
+
+        final CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeSessionCookie();
+        cookieManager.setCookie(targetDomain, StringUtils.join(getCookieStore(), ";"));
+        CookieSyncManager.getInstance().sync();
+    }
+
 }

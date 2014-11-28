@@ -22,30 +22,47 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.squareup.picasso;
+package com.jaspersoft.android.jaspermobile.cookie;
 
-import android.util.Log;
+import android.content.Context;
+import android.support.annotation.Nullable;
 
-import org.apache.commons.io.FileUtils;
+import com.jaspersoft.android.sdk.util.StaticCacheHelper;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class PicassoTools {
-    private static final String TAG = PicassoTools.class.getSimpleName();
-    private static final String PICASSO_CACHE = "picasso-cache";
+public abstract class AbstractCookieManager {
 
-    public static void clearCache(Picasso picasso) {
-        File cache = new File(picasso.context.getApplicationContext().getCacheDir(), PICASSO_CACHE);
-        try {
-            FileUtils.cleanDirectory(cache);
-        } catch (IOException e) {
-            Log.w(TAG, "Failed to remove cache directory", e);
-        }
-        picasso.cache.clear();
+    protected static final String COOKIE_STORE = "cookieStore";
+    private final Context mContext;
+
+    public AbstractCookieManager(Context context) {
+        mContext = context;
     }
+
+    public Context getContext() {
+        return mContext;
+    }
+
+    public final void setCookieForServerUrl(String targetDomain) {
+        if (cookieStoreExists()) {
+            semanticConfiguration(targetDomain);
+        }
+    }
+
+    protected abstract void semanticConfiguration(String targetDomain);
+
+    protected boolean cookieStoreExists() {
+        return getCookieStore() != null;
+    }
+
+    @Nullable
+    protected List<String> getCookieStore() {
+        return (List<String>) StaticCacheHelper.retrieveObjectFromCache(COOKIE_STORE);
+    }
+
 }

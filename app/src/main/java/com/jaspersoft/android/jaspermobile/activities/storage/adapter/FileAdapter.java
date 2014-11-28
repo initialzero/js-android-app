@@ -134,14 +134,14 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         switch (item.getItemId()) {
             case R.id.renameItem:
                 if (fileInteractionListener != null) {
-                    File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.ALIAS)));
+                    File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
                     String title = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
                     fileInteractionListener.onRename(file, title);
                 }
                 break;
             case R.id.deleteItem:
                 if (fileInteractionListener != null) {
-                    File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.ALIAS)));
+                    File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
                     fileInteractionListener.onDelete(file);
                 }
                 break;

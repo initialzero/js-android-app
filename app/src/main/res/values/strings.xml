@@ -119,7 +119,7 @@
 
     <!-- Search Activity -->
     <string name="s_hint">Search resources</string>
-    <string name="s_saved_items_hint">Search in saved items</string>
+    <string name="s_saved_items_hint" translatable="false">Search in saved items</string>
 
     <!-- Action Bar -->
     <string name="s_ab_filter_by">Filter by</string>
@@ -133,12 +133,12 @@
     <string name="s_fd_sort_date">By creation date</string>
 
     <!-- Filter Saved Items Dialog -->
-    <string name="si_fd_option_all">All</string>
-    <string name="si_fd_option_html">HTML</string>
-    <string name="si_fd_option_pdf">PDF</string>
-    <string name="si_fd_option_xls">XLS</string>
-    <string name="si_fd_sort_label">By label</string>
-    <string name="si_fd_sort_date">By creation date</string>
+    <string name="si_fd_option_all" translatable="false">All</string>
+    <string name="si_fd_option_html" translatable="false">HTML</string>
+    <string name="si_fd_option_pdf" translatable="false">PDF</string>
+    <string name="si_fd_option_xls" translatable="false">XLS</string>
+    <string name="si_fd_sort_label" translatable="false">By label</string>
+    <string name="si_fd_sort_date" translatable="false">By creation date</string>
 
     <!-- Search Activity -->
     <string name="sa_show_about">About</string>
@@ -160,7 +160,7 @@
     <string name="sr_ab_title">Save Report</string>
     <string name="sr_report_name">Report Name</string>
     <string name="sr_output_format">Output Format</string>
-    <string name="sr_visible_for_all">Visible for all users</string>
+    <string name="sr_visible_for_all" translatable="false">Visible for all users</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report saved successfully</string>
     <!-- Error messages -->

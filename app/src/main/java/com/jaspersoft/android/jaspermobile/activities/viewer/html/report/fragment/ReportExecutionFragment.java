@@ -54,7 +54,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     private final Handler mHandler = new Handler();
     private PaginationManagerFragment paginationManagerFragment;
 
-    // Stub
     public boolean isResourceLoaded() {
         return getPaginationManagerFragment().isResourceLoaded();
     }
@@ -132,6 +131,10 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         return paginationManagerFragment;
     }
 
+    private boolean isStatusPending(ReportStatus status) {
+        return (status == ReportStatus.QUEUED || status == ReportStatus.EXECUTION);
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -173,9 +176,11 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                             .setTitle(R.string.warning_msg)
                             .setMessage(R.string.rv_error_empty_report).show();
                 }
-            } else {
+            } else if (isStatusPending(status)) {
                 paginationManagerFragment.setVisible(true);
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            }  else {
+                getPaginationManagerFragment().setVisible(false);
             }
         }
     }
@@ -214,8 +219,10 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.READY) {
                 getPaginationManagerFragment().update();
-            } else {
+            } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            } else {
+                getPaginationManagerFragment().setVisible(false);
             }
         }
     }

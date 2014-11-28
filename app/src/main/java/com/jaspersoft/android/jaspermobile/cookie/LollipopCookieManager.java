@@ -22,30 +22,36 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.squareup.picasso;
+package com.jaspersoft.android.jaspermobile.cookie;
 
-import android.util.Log;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.os.Build;
+import android.webkit.CookieManager;
+import android.webkit.ValueCallback;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class PicassoTools {
-    private static final String TAG = PicassoTools.class.getSimpleName();
-    private static final String PICASSO_CACHE = "picasso-cache";
+public class LollipopCookieManager extends AbstractCookieManager {
+    public LollipopCookieManager(Context context) {
+        super(context);
+    }
 
-    public static void clearCache(Picasso picasso) {
-        File cache = new File(picasso.context.getApplicationContext().getCacheDir(), PICASSO_CACHE);
-        try {
-            FileUtils.cleanDirectory(cache);
-        } catch (IOException e) {
-            Log.w(TAG, "Failed to remove cache directory", e);
-        }
-        picasso.cache.clear();
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    protected void semanticConfiguration(final String targetDomain) {
+        final CookieManager cookieManager = CookieManager.getInstance();
+
+        cookieManager.removeSessionCookies(new ValueCallback<Boolean>() {
+            @Override
+            public void onReceiveValue(Boolean value) {
+                cookieManager.setCookie(targetDomain, StringUtils.join(getCookieStore(), ";"));
+                CookieManager.getInstance().flush();
+            }
+        });
     }
 }

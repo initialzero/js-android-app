@@ -375,12 +375,40 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 HttpStatusCodeException exception = (HttpStatusCodeException)
                         spiceException.getCause();
                 ErrorDescriptor errorDescriptor = ErrorDescriptor.valueOf(exception);
-                AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle(errorDescriptor.getErrorCode())
-                        .setMessage(errorDescriptor.getMessage())
-                        .setCancelableOnTouchOutside(false)
-                        .show();
+
+                boolean outOfRange = errorDescriptor.getErrorCode().equals("export.pages.out.of.range");
+                if (outOfRange) {
+                    AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setNegativeButton(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .setPositiveButton(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    PaginationManagerFragment paginationManagerFragment =
+                                            (PaginationManagerFragment) getFragmentManager()
+                                                    .findFragmentByTag(PaginationManagerFragment.TAG);
+                                    paginationManagerFragment.paginateTo(1);
+                                }
+                            })
+                            .setTitle(R.string.rv_out_of_range)
+                            .setMessage(errorDescriptor.getMessage())
+                            .setCancelableOnTouchOutside(false)
+                            .setNegativeButtonText(android.R.string.cancel)
+                            .setPositiveButtonText(R.string.rv_dialog_reload)
+                            .show();
+                } else {
+                    AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle(errorDescriptor.getErrorCode())
+                            .setMessage(errorDescriptor.getMessage())
+                            .setCancelableOnTouchOutside(false)
+                            .show();
+                }
             } else {
                 handleFailure(spiceException);
             }

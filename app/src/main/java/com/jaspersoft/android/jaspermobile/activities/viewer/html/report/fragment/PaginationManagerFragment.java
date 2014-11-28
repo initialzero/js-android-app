@@ -177,6 +177,11 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         }
     }
 
+    public void paginateTo(int page) {
+        currentPage = page;
+        paginateToCurrentSelection();
+    }
+
     public void paginateToCurrentSelection() {
         alterControlStates();
 

@@ -60,14 +60,20 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
     @FragmentArg
     File selectedFile;
 
+    @FragmentArg
+    long profileId;
+
+    @FragmentArg
+    String oldFileName;
+
     private AlertDialog mDialog;
     private EditText reportNameEdit;
     private OnRenamedAction onRenamedActionListener;
 
-    public static void show(FragmentManager fm, File file, OnRenamedAction onRenamedAction) {
+    public static void show(FragmentManager fm, File file, String oldFileName, long profileId, OnRenamedAction onRenamedAction) {
         RenameDialogFragment dialogFragment = (RenameDialogFragment) fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
-            dialogFragment = RenameDialogFragment_.builder().selectedFile(file).build();
+            dialogFragment = RenameDialogFragment_.builder().selectedFile(file).oldFileName(oldFileName).profileId(profileId).build();
             dialogFragment.setRenamedActionListener(onRenamedAction);
             dialogFragment.show(fm, TAG);
         }
@@ -79,7 +85,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
         final View customLayout = LayoutInflater.from(getActivity())
                 .inflate(R.layout.rename_report_dialog_layout, null);
         reportNameEdit = (EditText) customLayout.findViewById(R.id.report_name_input);
-        reportNameEdit.setText(FileUtils.getBaseName(selectedFile.getName()));
+        reportNameEdit.setText(oldFileName);
         reportNameEdit.setSelection(reportNameEdit.getText().length());
 
         reportNameEdit.addTextChangedListener(new TextWatcher() {
@@ -124,8 +130,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
         }
 
         String extension = FileUtils.getExtension(selectedFile.getName());
-        String newFileName = newReportName + "." + extension;
-
+        String newFileName = profileId + "-" + newReportName + "." + extension;
         if (FileUtils.nameContainsReservedChars(newFileName)) {
             reportNameEdit.setError(getString(R.string.sdr_rrd_error_characters_not_allowed));
             return;
@@ -141,7 +146,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
 
             if (renameSavedReportFile(selectedFile, destFile)) {
                 if (onRenamedActionListener != null) {
-                    onRenamedActionListener.onRenamed();
+                    onRenamedActionListener.onRenamed(newReportName, destFile.getPath());
                 }
             } else {
                 Toast.makeText(getActivity(), R.string.sdr_t_report_renaming_error, Toast.LENGTH_SHORT).show();
@@ -179,7 +184,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
     //---------------------------------------------------------------------
 
     public static interface OnRenamedAction {
-        void onRenamed();
+        void onRenamed(String newFileName, String newFilePath);
     }
 
     private static class ReportFilenameFilter implements FilenameFilter {

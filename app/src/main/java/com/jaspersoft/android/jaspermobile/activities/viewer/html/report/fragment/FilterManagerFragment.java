@@ -119,8 +119,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         if (FileUtils.isExternalStorageWritable()) {
             SaveReportActivity_.intent(this)
                     .reportParameters(reportParameters)
-                    .resourceUri(resource.getUri())
-                    .resourceLabel(resource.getLabel())
+                    .resource(resource)
                     .start();
         } else {
             Toast.makeText(getActivity(),

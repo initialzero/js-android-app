@@ -71,7 +71,8 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
 
-        assertThat(prefHelper.getReadTimeoutValue(), is(Integer.valueOf(DEFAULT_READ_TIMEOUT)));
+        // We are storing values in milli seconds
+        assertThat(prefHelper.getReadTimeoutValue(), is(Integer.valueOf(DEFAULT_READ_TIMEOUT) * 1000));
     }
 
     public void testConnectionTimeOutShouldNotAcceptIncorrectInteger() {
@@ -82,7 +83,8 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
 
-        assertThat(prefHelper.getConnectTimeoutValue(), is(Integer.valueOf(DEFAULT_CONNECT_TIMEOUT)));
+        // We are storing values in milli seconds
+        assertThat(prefHelper.getConnectTimeoutValue(), is(Integer.valueOf(DEFAULT_CONNECT_TIMEOUT) * 1000));
     }
 
     public void testConnectionCacheExpirationShouldNotAcceptIncorrectInteger() {

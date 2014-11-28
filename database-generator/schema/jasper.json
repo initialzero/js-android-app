@@ -52,7 +52,38 @@
 					"name" : "organization"
 				}
 			]
-		}
+		}, {
+ 			"name" : "saved_items",
+ 			"members" : [{
+                    "type" : "string",
+                    "name" : "file_path"
+                }, {
+ 					"type" : "string",
+ 					"name" : "name"
+                }, {
+  					"type" : "string",
+  					"name" : "file_format"
+  				}, {
+ 					"type" : "string",
+ 					"name" : "description"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "wstype"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "username"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "organization"
+                }, {
+  				    "type" : "long",
+  				    "name" : "creation_time"
+                }, {
+   				    "type" : "long",
+   				    "name" : "file_size"
+   				}
+ 			]
+ 		}
 	],
 	"relationships" : [{
 			"name" : "server_profiles_favorites",
@@ -60,6 +91,12 @@
 			"right_table" : "favorites",
 			"foreign_key" : "server_profile_id", 
 			"type" : "to_many"
-		}
+        }, {
+   			"name" : "server_profiles_saved_items",
+   			"left_table" : "server_profiles",
+   			"right_table" : "saved_items",
+   			"foreign_key" : "server_profile_id",
+   			"type" : "to_many"
+   		}
 	]
 }

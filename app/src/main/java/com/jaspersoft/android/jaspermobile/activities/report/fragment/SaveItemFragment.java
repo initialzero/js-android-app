@@ -28,6 +28,7 @@ import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -37,9 +38,12 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportAttachmentRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportOutputRequest;
@@ -48,6 +52,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -66,6 +71,7 @@ import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 
 import roboguice.util.Ln;
 
@@ -85,9 +91,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     EditText reportNameInput;
 
     @FragmentArg
-    String resourceLabel;
-    @FragmentArg
-    String resourceUri;
+    ResourceLookup resource;
     @FragmentArg
     ArrayList<ReportParameter> reportParameters;
 
@@ -102,7 +106,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @InstanceState
     int runningRequests;
 
-    protected static enum OutputFormat {
+    public static enum OutputFormat {
         HTML,
         PDF,
         XLS
@@ -122,8 +126,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @OptionsItem
     final void saveAction() {
         if (isReportNameValid()) {
+            long profileId = jsRestClient.getServerProfile().getId();
             final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
-            String reportName = reportNameInput.getText() + "." + outputFormat;
+            String reportName = profileId + "-" + (reportNameInput.getText() + "." + outputFormat);
             final File reportFile = new File(getReportDir(reportName), reportName);
 
             if (reportFile.exists()) {
@@ -135,7 +140,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 setRefreshActionButtonState(true);
 
                 final ReportExecutionRequest executionRequest = new ReportExecutionRequest();
-                executionRequest.setReportUnitUri(resourceUri);
+                executionRequest.setReportUnitUri(resource.getUri());
                 executionRequest.setInteractive(false);
                 executionRequest.setOutputFormat(outputFormat.toString());
                 if (reportParameters != null && !reportParameters.isEmpty()) {
@@ -146,7 +151,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                     @Override
                     public void onInfoReceived(ServerInfoSnapshot serverInfo) {
                         double versionCode = serverInfo.getVersionCode();
-                        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO){
+                        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
                             executionRequest.setAttachmentsPrefix("./");
                         }
 
@@ -162,7 +167,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @AfterViews
     final void init() {
-        reportNameInput.setText(resourceLabel);
+        reportNameInput.setText(resource.getLabel());
 
         // show spinner with available output formats
         ArrayAdapter<OutputFormat> arrayAdapter = new ArrayAdapter<OutputFormat>(getActivity(),
@@ -218,6 +223,25 @@ public class SaveItemFragment extends RoboSpiceFragment {
         return reportDir;
     }
 
+    private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {
+        JsServerProfile profile = jsRestClient.getServerProfile();
+        SavedItems savedItemsEntry = new SavedItems();
+
+        savedItemsEntry.setName(resource.getLabel());
+        savedItemsEntry.setFilePath(reportFile.getParentFile().getPath());
+        savedItemsEntry.setFileFormat(fileFormat.toString());
+        savedItemsEntry.setDescription(resource.getDescription());
+        savedItemsEntry.setWstype(resource.getResourceType().toString());
+        savedItemsEntry.setUsername(profile.getUsername());
+        savedItemsEntry.setOrganization(profile.getOrganization());
+        savedItemsEntry.setFileSize(reportFile.length());
+        savedItemsEntry.setCreationTime(new Date().getTime());
+        savedItemsEntry.setServerProfileId(profile.getId());
+
+        getActivity().getContentResolver().insert(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                savedItemsEntry.getContentValues());
+    }
+
     private void setRefreshActionButtonState(boolean refreshing) {
         if (refreshing) {
             saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
@@ -256,7 +280,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
             // save report file
             SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient,
                     executionId, exportOutput, reportFile);
-            getSpiceManager().execute(outputRequest, new SaveFileListener());
+            getSpiceManager().execute(outputRequest, new ReportFileSaveListener(reportFile, outputFormat));
 
             // save attachments
             if (OutputFormat.HTML == outputFormat) {
@@ -266,16 +290,16 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
                     SaveExportAttachmentRequest attachmentRequest = new SaveExportAttachmentRequest(jsRestClient,
                             executionId, exportOutput, attachmentName, attachmentFile);
-                    getSpiceManager().execute(attachmentRequest, new SaveFileListener());
+                    getSpiceManager().execute(attachmentRequest, new AttachmentFileSaveListener());
                 }
             }
         }
 
     }
 
-    private class SaveFileListener implements RequestListener<File> {
+    private class AttachmentFileSaveListener implements RequestListener<File> {
 
-        private SaveFileListener() {
+        private AttachmentFileSaveListener() {
             runningRequests++;
         }
 
@@ -298,6 +322,25 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 Toast.makeText(getActivity(), R.string.sr_t_report_saved, Toast.LENGTH_SHORT).show();
                 getActivity().finish();
             }
+        }
+
+    }
+
+    private class ReportFileSaveListener extends AttachmentFileSaveListener {
+
+        private File reportFile;
+        private OutputFormat outputFormat;
+
+        private ReportFileSaveListener(File reportFile, OutputFormat outputFormat) {
+            super();
+            this.reportFile = reportFile;
+            this.outputFormat = outputFormat;
+        }
+
+        @Override
+        public void onRequestSuccess(File outputFile) {
+            addSavedItemRecord(reportFile, outputFormat);
+            super.onRequestSuccess(outputFile);
         }
 
     }

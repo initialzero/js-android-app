@@ -25,25 +25,52 @@
 package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
 
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
+import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.EFragment;
@@ -52,9 +79,14 @@ import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
 
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
@@ -67,10 +99,13 @@ import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.On
  */
 @EFragment
 public class SavedItemsFragment extends RoboFragment
-        implements ISimpleDialogListener, FileAdapter.FileInteractionListener {
+        implements ISimpleDialogListener, FileAdapter.FileInteractionListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     @FragmentArg
     ViewType viewType;
+
+    @Inject
+    JsRestClient jsRestClient;
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -90,18 +125,15 @@ public class SavedItemsFragment extends RoboFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        emptyText.setVisibility(View.GONE);
-        mAdapter = FileAdapter.builder(getActivity(), savedInstanceState)
-                .setViewType(viewType).create();
-        mAdapter.setFileInteractionListener(this);
-        mAdapter.setAdapterView(listView);
-        listView.setAdapter(mAdapter);
-    }
+        setEmptyText(0);
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadReportsListView();
+        int layout = (viewType == ViewType.LIST) ? R.layout.common_list_item : R.layout.common_grid_item;
+        mAdapter = new FileAdapter(getActivity(), savedInstanceState, layout, viewType);
+        mAdapter.setAdapterView(listView);
+        mAdapter.setFileInteractionListener(this);
+        listView.setAdapter(mAdapter);
+
+        getActivity().getSupportLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -111,9 +143,30 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     @ItemClick(android.R.id.list)
-    public void onItemClick(File file) {
+    public void onItemClick(int position) {
         mAdapter.finishActionMode();
-        openReportFile(file);
+        openReportFile(getFileByPosition(position));
+    }
+
+    @UiThread
+    protected void setEmptyText(int resId) {
+        if (resId == 0) {
+            emptyText.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.VISIBLE);
+            emptyText.setText(resId);
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private File getFileByPosition(int position) {
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(position);
+
+        return new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
     }
 
     private void openReportFile(File reportFile) {
@@ -147,41 +200,56 @@ public class SavedItemsFragment extends RoboFragment
         }
     }
 
-    @UiThread
-    protected void setEmptyText(int resId) {
-        if (resId == 0) {
-            emptyText.setVisibility(View.GONE);
+    //---------------------------------------------------------------------
+    // Implements LoaderManager.LoaderCallbacks<Cursor>
+    //---------------------------------------------------------------------
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String selection =
+                SavedItemsTable.SERVER_PROFILE_ID + " =?  AND " +
+                        SavedItemsTable.USERNAME + " =?  AND ";
+
+        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
+        boolean noOrganization = jsServerProfile.getOrganization() == null;
+        if (noOrganization) {
+            selection += SavedItemsTable.ORGANIZATION + " IS NULL";
         } else {
-            emptyText.setVisibility(View.VISIBLE);
-            emptyText.setText(resId);
+            selection += SavedItemsTable.ORGANIZATION + " =?";
+        }
+        String[] selectionArgs;
+        if (noOrganization) {
+            selectionArgs = new String[]{
+                    String.valueOf(jsServerProfile.getId()),
+                    jsServerProfile.getUsername()
+            };
+        } else {
+            selectionArgs = new String[]{
+                    String.valueOf(jsServerProfile.getId()),
+                    jsServerProfile.getUsername(),
+                    jsServerProfile.getOrganization()
+            };
+        }
+
+        String sortOrder = SavedItemsTable.CREATION_TIME + " DESC";
+
+        return new CursorLoader(getActivity(), JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                SavedItemsTable.ALL_COLUMNS, selection, selectionArgs, sortOrder);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mAdapter.swapCursor(cursor);
+        if (cursor.getCount() > 0) {
+            setEmptyText(0);
+        } else {
+            setEmptyText(R.string.f_empty_list_msg);
         }
     }
 
-    private void loadReportsListView() {
-        File[] files = getSavedReportsDir().listFiles();
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
-        if (files != null && files.length > 0) {
-            mAdapter.setNotifyOnChange(false);
-            mAdapter.clear();
-            mAdapter.addAll(files);
-            mAdapter.sortByLstModified();
-            mAdapter.setNotifyOnChange(true);
-            mAdapter.notifyDataSetChanged();
-        } else {
-            mAdapter.clear();
-            setEmptyText(R.string.r_browser_nothing_to_display);
-        }
-    }
-
-    private File getSavedReportsDir() {
-        File appFilesDir = getActivity().getExternalFilesDir(null);
-        File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
-
-        if (!savedReportsDir.exists() && !savedReportsDir.mkdirs()){
-            Ln.e("Unable to create %s", savedReportsDir);
-        }
-
-        return savedReportsDir;
     }
 
     //---------------------------------------------------------------------
@@ -189,19 +257,30 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onRename(File file) {
+    public void onRename(File file, String name) {
         RenameDialogFragment.show(getFragmentManager(), file,
+                name ,jsRestClient.getServerProfile().getId(),
                 new OnRenamedAction() {
                     @Override
-                    public void onRenamed() {
+                    public void onRenamed(String newFileName, String newFilePath) {
+                        long id = Lists.newArrayList(mAdapter.getCheckedItems()).get(0);
+                        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                                String.valueOf(id));
+
+                        SavedItems savedItemsEntry = new SavedItems();
+                        savedItemsEntry.setName(newFileName);
+                        savedItemsEntry.setFilePath(newFilePath);
+
+                        getActivity().getContentResolver().update(uri, savedItemsEntry.getContentValues(), null, null);
+
                         mAdapter.finishActionMode();
-                        loadReportsListView();
                     }
                 });
     }
 
     @Override
-    public void onDelete(int currentPosition, File file) {
+    public void onDelete(File file) {
+        int currentPosition = mAdapter.getCurrentPosition();
         AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTargetFragment(this, currentPosition)
@@ -213,19 +292,31 @@ public class SavedItemsFragment extends RoboFragment
                 .show();
     }
 
+    @Override
+    public void onInfo(String title, String description) {
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        SimpleDialogFragment.createBuilder(getActivity(), fm)
+                .setTitle(title)
+                .setMessage(description)
+                .show();
+    }
+
     //---------------------------------------------------------------------
     // Implements ISimpleDialogListener
     //---------------------------------------------------------------------
 
     @Override
     public void onPositiveButtonClicked(int position) {
-        File selectedFile = mAdapter.getItem(position);
+        File selectedFile = getFileByPosition(position);
         if (selectedFile.isDirectory()) {
             FileUtils.deleteFilesInDirectory(selectedFile);
         }
 
-        if (selectedFile.delete()) {
-            loadReportsListView();
+        if (selectedFile.delete() || !selectedFile.exists()) {
+            long id = Lists.newArrayList(mAdapter.getCheckedItems()).get(0);
+            Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                    String.valueOf(id));
+            getActivity().getContentResolver().delete(uri, null, null);
         } else {
             Toast.makeText(getActivity(), R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
         }

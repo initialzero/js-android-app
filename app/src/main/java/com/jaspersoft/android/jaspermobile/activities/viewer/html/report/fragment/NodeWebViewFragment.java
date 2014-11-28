@@ -378,7 +378,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(errorDescriptor.getErrorCode())
-                        .setMessage(errorDescriptor.getMessage()).show();
+                        .setMessage(errorDescriptor.getMessage())
+                        .setCancelableOnTouchOutside(false)
+                        .show();
             } else {
                 handleFailure(spiceException);
             }

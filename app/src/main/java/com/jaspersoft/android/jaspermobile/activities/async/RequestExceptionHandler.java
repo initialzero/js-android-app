@@ -43,8 +43,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.EnumMap;
 
-import roboguice.util.Ln;
-
 /**
  * @author Ivan Gadzhega
  * @since 1.6
@@ -122,6 +120,7 @@ public class RequestExceptionHandler {
         }
         builder
                 .setTitle(R.string.error_msg)
+                .setCancelableOnTouchOutside(false)
                 .setMessage(message)
                 .show();
     }
@@ -149,6 +148,7 @@ public class RequestExceptionHandler {
                 .setNegativeButtonText(android.R.string.cancel)
                 .setPositiveButtonText(android.R.string.ok)
                 .setTitle(R.string.error_msg)
+                .setCancelableOnTouchOutside(false)
                 .setMessage(message)
                 .show();
     }

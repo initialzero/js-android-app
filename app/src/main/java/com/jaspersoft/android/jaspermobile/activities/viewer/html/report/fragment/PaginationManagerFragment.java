@@ -284,7 +284,9 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                 AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.warning_msg)
-                        .setMessage(R.string.rv_error_empty_report).show();
+                        .setCancelableOnTouchOutside(false)
+                        .setMessage(R.string.rv_error_empty_report)
+                        .show();
             }
         }
 

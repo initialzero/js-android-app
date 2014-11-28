@@ -129,7 +129,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     }
 
     @OptionsItem
-    final void showFilters() {
+    public void showFilters() {
         showReportOptions(cachedInputControls);
     }
 

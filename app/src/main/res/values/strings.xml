@@ -119,6 +119,7 @@
 
     <!-- Search Activity -->
     <string name="s_hint">Search resources</string>
+    <string name="s_saved_items_hint">Search in saved items</string>
 
     <!-- Action Bar -->
     <string name="s_ab_filter_by">Filter by</string>
@@ -130,6 +131,14 @@
     <string name="s_fd_option_dashboards">Dashboards</string>
     <string name="s_fd_sort_label">By label</string>
     <string name="s_fd_sort_date">By creation date</string>
+
+    <!-- Filter Saved Items Dialog -->
+    <string name="si_fd_option_all">All</string>
+    <string name="si_fd_option_html">HTML</string>
+    <string name="si_fd_option_pdf">PDF</string>
+    <string name="si_fd_option_xls">XLS</string>
+    <string name="si_fd_sort_label">By label</string>
+    <string name="si_fd_sort_date">By creation date</string>
 
     <!-- Search Activity -->
     <string name="sa_show_about">About</string>

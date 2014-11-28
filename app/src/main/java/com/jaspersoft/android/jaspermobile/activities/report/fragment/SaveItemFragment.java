@@ -227,7 +227,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         JsServerProfile profile = jsRestClient.getServerProfile();
         SavedItems savedItemsEntry = new SavedItems();
 
-        savedItemsEntry.setName(resource.getLabel());
+        savedItemsEntry.setName(reportNameInput.getText().toString());
         savedItemsEntry.setFilePath(reportFile.getParentFile().getPath());
         savedItemsEntry.setFileFormat(fileFormat.toString());
         savedItemsEntry.setDescription(resource.getDescription());

@@ -25,44 +25,29 @@
 package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
 
 import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -70,18 +55,19 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -89,7 +75,6 @@ import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
-import roboguice.util.Ln;
 
 import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.OnRenamedAction;
 
@@ -101,6 +86,8 @@ import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.On
 public class SavedItemsFragment extends RoboFragment
         implements ISimpleDialogListener, FileAdapter.FileInteractionListener, LoaderManager.LoaderCallbacks<Cursor> {
 
+    private final int SAVED_ITEMS_LOADER_ID = 0;
+
     @FragmentArg
     ViewType viewType;
 
@@ -111,6 +98,18 @@ public class SavedItemsFragment extends RoboFragment
     AbsListView listView;
     @InjectView(android.R.id.empty)
     TextView emptyText;
+
+    @FragmentArg
+    @InstanceState
+    FileAdapter.FileType filterType;
+
+    @FragmentArg
+    @InstanceState
+    String searchQuery;
+
+    @FragmentArg
+    @InstanceState
+    SortOrder sortOrder;
 
     private FileAdapter mAdapter;
 
@@ -133,7 +132,7 @@ public class SavedItemsFragment extends RoboFragment
         mAdapter.setFileInteractionListener(this);
         listView.setAdapter(mAdapter);
 
-        getActivity().getSupportLoaderManager().initLoader(0, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }
 
     @Override
@@ -156,6 +155,16 @@ public class SavedItemsFragment extends RoboFragment
             emptyText.setVisibility(View.VISIBLE);
             emptyText.setText(resId);
         }
+    }
+
+    public void showSavedItemsByFilter(FileAdapter.FileType selectedFilter) {
+        filterType = selectedFilter;
+        getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
+    }
+
+    public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
+        sortOrder = selectedSortOrder;
+        getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }
 
     //---------------------------------------------------------------------
@@ -205,36 +214,58 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String selection =
-                SavedItemsTable.SERVER_PROFILE_ID + " =?  AND " +
-                        SavedItemsTable.USERNAME + " =?  AND ";
+    public Loader<Cursor> onCreateLoader(int code, Bundle bundle) {
+        StringBuilder selection = new StringBuilder("");
+        ArrayList<String> selectionArgs = Lists.newArrayList();
 
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
+
+        //Add server profile id and username to WHERE params
+        selection.append(SavedItemsTable.SERVER_PROFILE_ID + " =?")
+                .append("  AND ")
+                .append(SavedItemsTable.USERNAME + " =?");
+
+        selectionArgs.add(String.valueOf(jsServerProfile.getId()));
+        selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
+
+        //Add organization to WHERE params
         if (noOrganization) {
-            selection += SavedItemsTable.ORGANIZATION + " IS NULL";
+            selection.append("  AND ")
+                    .append(SavedItemsTable.ORGANIZATION + " IS NULL");
         } else {
-            selection += SavedItemsTable.ORGANIZATION + " =?";
-        }
-        String[] selectionArgs;
-        if (noOrganization) {
-            selectionArgs = new String[]{
-                    String.valueOf(jsServerProfile.getId()),
-                    jsServerProfile.getUsername()
-            };
-        } else {
-            selectionArgs = new String[]{
-                    String.valueOf(jsServerProfile.getId()),
-                    jsServerProfile.getUsername(),
-                    jsServerProfile.getOrganization()
-            };
+            selection.append("  AND ")
+                    .append(SavedItemsTable.ORGANIZATION + " =?");
+            selectionArgs.add(String.valueOf(jsServerProfile.getOrganization()));
         }
 
-        String sortOrder = SavedItemsTable.CREATION_TIME + " DESC";
+        //Add filtration to WHERE params
+        boolean withFiltering = filterType != null;
+        if (withFiltering) {
+            selection.append(" AND ")
+                    .append(SavedItemsTable.FILE_FORMAT + " =?");
+            selectionArgs.add(filterType.name());
+        }
+
+        //Add sorting type to WHERE params
+        String sortOrderString;
+        if (sortOrder != null && sortOrder.getValue().equals(SortOrder.CREATION_DATE.getValue())) {
+            sortOrderString = SavedItemsTable.CREATION_TIME + " DESC";
+        } else {
+            sortOrderString = SavedItemsTable.NAME + " ASC";
+        }
+
+        //Add search query to WHERE params
+        boolean inSearchMode = searchQuery != null;
+        if (inSearchMode) {
+            selection.append(" AND ")
+                    .append(SavedItemsTable.NAME + " LIKE ?");
+            selectionArgs.add("%" + searchQuery + "%");
+        }
 
         return new CursorLoader(getActivity(), JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                SavedItemsTable.ALL_COLUMNS, selection, selectionArgs, sortOrder);
+                SavedItemsTable.ALL_COLUMNS, selection.toString(),
+                selectionArgs.toArray(new String[selectionArgs.size()]), sortOrderString);
     }
 
     @Override
@@ -259,7 +290,7 @@ public class SavedItemsFragment extends RoboFragment
     @Override
     public void onRename(File file, String name) {
         RenameDialogFragment.show(getFragmentManager(), file,
-                name ,jsRestClient.getServerProfile().getId(),
+                name, jsRestClient.getServerProfile().getId(),
                 new OnRenamedAction() {
                     @Override
                     public void onRenamed(String newFileName, String newFilePath) {

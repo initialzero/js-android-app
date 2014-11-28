@@ -1,0 +1,91 @@
+/*
+ * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ *  http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ *  Unless you have purchased a commercial license agreement from Jaspersoft,
+ *  the following license terms apply:
+ *
+ *  This program is part of Jaspersoft Mobile for Android.
+ *
+ *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Jaspersoft Mobile is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Jaspersoft Mobile for Android. If not, see
+ *  <http://www.gnu.org/licenses/lgpl>.
+ */
+
+package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
+
+import android.content.Intent;
+import android.support.v4.app.FragmentManager;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.SearchView;
+
+import com.google.common.collect.Lists;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesFragment;
+import com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity;
+import com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_;
+import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
+
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import roboguice.fragment.RoboFragment;
+
+/**
+ * @author Tom Koptel
+ * @since 1.9
+ */
+@EFragment
+@OptionsMenu(R.menu.search_menu)
+public class SavedItemsSearchFragment extends RoboFragment implements SearchView.OnQueryTextListener {
+
+    public static final String TAG = SavedItemsSearchFragment.class.getSimpleName();
+
+    @OptionsMenuItem(R.id.search)
+    public MenuItem searchMenuItem;
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        searchView.setQueryHint(getString(R.string.s_saved_items_hint));
+        searchView.setOnQueryTextListener(this);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        searchMenuItem.collapseActionView();
+        Intent searchIntent = SavedItemsSearchableActivity_
+                .intent(getActivity())
+                .query(query)
+                .get();
+        startActivity(searchIntent);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+
+}

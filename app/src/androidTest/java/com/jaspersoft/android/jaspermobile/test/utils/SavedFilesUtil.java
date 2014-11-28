@@ -27,12 +27,12 @@ public class SavedFilesUtil {
 
     public static boolean contains(Context context, String reportName, String fileFormat, long profileId) {
         File savedReportsDir = getSavedReportsDirectory(context);
-        String[] reportArray = savedReportsDir.list();
-        if (reportArray == null) return false;
+        String[] savedReportsArray = savedReportsDir.list();
+        if (savedReportsArray == null) return false;
 
-        for (String s : reportArray) {
+        for (String savedReport : savedReportsArray) {
             String reportFullName = profileId + "-" + (reportName + "." + fileFormat);
-            if (s.equals(reportFullName))
+            if (savedReport.equals(reportFullName))
                 return true;
         }
         return false;

@@ -223,12 +223,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
         return reportDir;
     }
 
-    private void addSavedItemRecord(File reportFile, OutputFormat fileFormat){
+    private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {
         JsServerProfile profile = jsRestClient.getServerProfile();
         SavedItems savedItemsEntry = new SavedItems();
 
         savedItemsEntry.setName(resource.getLabel());
-        savedItemsEntry.setAlias(reportFile.getParentFile().getPath());
+        savedItemsEntry.setFilePath(reportFile.getParentFile().getPath());
         savedItemsEntry.setFileFormat(fileFormat.toString());
         savedItemsEntry.setDescription(resource.getDescription());
         savedItemsEntry.setWstype(resource.getResourceType().toString());
@@ -280,7 +280,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
             // save report file
             SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient,
                     executionId, exportOutput, reportFile);
-            getSpiceManager().execute(outputRequest, new SaveFileListener(reportFile, outputFormat));
+            getSpiceManager().execute(outputRequest, new ReportFileSaveListener(reportFile, outputFormat));
 
             // save attachments
             if (OutputFormat.HTML == outputFormat) {
@@ -290,23 +290,16 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
                     SaveExportAttachmentRequest attachmentRequest = new SaveExportAttachmentRequest(jsRestClient,
                             executionId, exportOutput, attachmentName, attachmentFile);
-                    getSpiceManager().execute(attachmentRequest, new SaveFileListener(null, null));
+                    getSpiceManager().execute(attachmentRequest, new AttachmentFileSaveListener());
                 }
             }
         }
 
     }
 
-    private class SaveFileListener implements RequestListener<File> {
+    private class AttachmentFileSaveListener implements RequestListener<File> {
 
-        // If file not null that means we are storing report body
-        // otherwise we are processing chunks
-        private File reportFile;
-        private OutputFormat outputFormat;
-
-        private SaveFileListener(File reportFile, OutputFormat outputFormat) {
-            this.reportFile = reportFile;
-            this.outputFormat = outputFormat;
+        private AttachmentFileSaveListener() {
             runningRequests++;
         }
 
@@ -323,16 +316,31 @@ public class SaveItemFragment extends RoboSpiceFragment {
         public void onRequestSuccess(File outputFile) {
             runningRequests--;
 
-            if (reportFile != null){
-                addSavedItemRecord(reportFile, outputFormat);
-            }
-
             if (runningRequests == 0) {
                 // activity is done and should be closed
                 setRefreshActionButtonState(false);
                 Toast.makeText(getActivity(), R.string.sr_t_report_saved, Toast.LENGTH_SHORT).show();
                 getActivity().finish();
             }
+        }
+
+    }
+
+    private class ReportFileSaveListener extends AttachmentFileSaveListener {
+
+        private File reportFile;
+        private OutputFormat outputFormat;
+
+        private ReportFileSaveListener(File reportFile, OutputFormat outputFormat) {
+            super();
+            this.reportFile = reportFile;
+            this.outputFormat = outputFormat;
+        }
+
+        @Override
+        public void onRequestSuccess(File outputFile) {
+            addSavedItemRecord(reportFile, outputFormat);
+            super.onRequestSuccess(outputFile);
         }
 
     }

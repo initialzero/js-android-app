@@ -25,8 +25,6 @@
 package com.jaspersoft.android.jaspermobile.test.support.shadows;
 
 import android.app.Application;
-import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
 
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
@@ -43,7 +41,6 @@ public class CustomShadowApplication extends ShadowApplication {
 
     public static final String ALTERNATIVE_DB_PATH = "build/resources/unit-test.db";
     private File database = new File(ALTERNATIVE_DB_PATH);
-    private static boolean mPragmaSet;
 
     @Override
     @Implementation
@@ -54,16 +51,6 @@ public class CustomShadowApplication extends ShadowApplication {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }
-        return database;
-    }
-
-    @Implementation
-    public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory, DatabaseErrorHandler databaseErrorHandler) {
-        SQLiteDatabase database = super.openOrCreateDatabase(name, mode, factory, databaseErrorHandler);
-        if (!mPragmaSet) {
-            database.execSQL("PRAGMA foreign_keys=ON;");
-            mPragmaSet = true;
         }
         return database;
     }

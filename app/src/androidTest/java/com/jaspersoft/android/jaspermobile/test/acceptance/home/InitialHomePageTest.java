@@ -24,23 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
-import android.app.Application;
 import android.database.Cursor;
 
-import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
-import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.apache.http.fake.FakeHttpLayerManager;
-
-import roboguice.RoboGuice;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -69,7 +63,6 @@ import static org.hamcrest.text.StringContains.containsString;
  * @since 1.9
  */
 public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
-    private JsRestClient jsRestClient;
 
     public InitialHomePageTest() {
         super(HomeActivity_.class);
@@ -78,13 +71,8 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        registerTestModule(new HackedTestModule());
-        createOnlyDefaultProfile(application.getContentResolver());
-
-        Injector injector = RoboGuice.getBaseApplicationInjector(application);
-        jsRestClient = injector.getInstance(JsRestClient.class);
+        createOnlyDefaultProfile(getContentResolver());
+        registerTestModule(new SpiceAwareModule());
     }
 
     @Override
@@ -100,7 +88,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        JsServerProfile serverProfile = getServerProfile();
         assertThat(serverProfile.getAlias(), is(ProfileHelper.DEFAULT_ALIAS));
         assertThat(serverProfile.getOrganization(), is(ProfileHelper.DEFAULT_ORGANIZATION));
         assertThat(serverProfile.getServerUrl(), is(ProfileHelper.DEFAULT_SERVER_URL));
@@ -197,8 +185,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).perform(typeText(PASSWORD));
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
 
-        JsServerProfile profile = jsRestClient.getServerProfile();
-        assertThat(profile.getPassword(), is(PASSWORD));
+        assertThat(getServerProfile().getPassword(), is(PASSWORD));
     }
 
 }

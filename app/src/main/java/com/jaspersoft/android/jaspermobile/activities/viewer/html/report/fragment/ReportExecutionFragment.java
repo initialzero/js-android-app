@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 
 import android.content.DialogInterface;
 import android.os.Handler;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
@@ -54,7 +55,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     private final Handler mHandler = new Handler();
     private PaginationManagerFragment paginationManagerFragment;
 
-    // Stub
     public boolean isResourceLoaded() {
         return getPaginationManagerFragment().isResourceLoaded();
     }
@@ -132,6 +132,10 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         return paginationManagerFragment;
     }
 
+    private boolean isStatusPending(ReportStatus status) {
+        return (status == ReportStatus.QUEUED || status == ReportStatus.EXECUTION);
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -155,10 +159,8 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             }
 
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
-
             final String requestId = response.getRequestId();
             paginationManagerFragment.setRequestId(requestId);
-            paginationManagerFragment.paginateToCurrentSelection();
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.READY) {
@@ -170,12 +172,37 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 if (totalPageCount == 0) {
                     AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
                             .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setNegativeButton(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .setPositiveButton(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    FilterManagerFragment filterManagerFragment =
+                                            (FilterManagerFragment) getFragmentManager()
+                                                    .findFragmentByTag(FilterManagerFragment.TAG);
+                                    if (filterManagerFragment != null) {
+                                        filterManagerFragment.showFilters();
+                                    }
+                                }
+                            })
+                            .setNegativeButtonText(android.R.string.cancel)
+                            .setPositiveButtonText(android.R.string.ok)
                             .setTitle(R.string.warning_msg)
+                            .setCancelableOnTouchOutside(false)
                             .setMessage(R.string.rv_error_empty_report).show();
+                } else {
+                    paginationManagerFragment.paginateToCurrentSelection();
                 }
-            } else {
+            } else if (isStatusPending(status)) {
+                paginationManagerFragment.paginateToCurrentSelection();
                 paginationManagerFragment.setVisible(true);
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            }  else {
+                getPaginationManagerFragment().setVisible(false);
             }
         }
     }
@@ -214,8 +241,10 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.READY) {
                 getPaginationManagerFragment().update();
-            } else {
+            } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            } else {
+                getPaginationManagerFragment().setVisible(false);
             }
         }
     }

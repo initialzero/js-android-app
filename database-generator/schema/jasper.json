@@ -58,7 +58,11 @@
 			"name" : "server_profiles_favorites",
 			"left_table" : "server_profiles",
 			"right_table" : "favorites",
-			"foreign_key" : "server_profile_id", 
+			"foreign_key" : "server_profile_id",
+			"modify_action": {
+                "type": "delete",
+                "action": "cascade"
+            },
 			"type" : "to_many"
 		}
 	]

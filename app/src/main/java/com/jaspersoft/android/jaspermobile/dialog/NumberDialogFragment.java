@@ -121,7 +121,7 @@ public class NumberDialogFragment extends DialogFragment {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     Selection.removeSelection(editText.getText());
-                    return false;
+                    dispatchOnPageSelected();
                 }
                 return false;
             }
@@ -130,9 +130,7 @@ public class NumberDialogFragment extends DialogFragment {
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (onPageSelectedListener != null) {
-                    onPageSelectedListener.onPageSelected(mValue);
-                }
+                dispatchOnPageSelected();
             }
         });
 
@@ -145,6 +143,13 @@ public class NumberDialogFragment extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    private void dispatchOnPageSelected() {
+        if (onPageSelectedListener != null) {
+            onPageSelectedListener.onPageSelected(mValue);
+        }
+        dismiss();
     }
 
     public void setPageSelectedListener(OnPageSelectedListener onPageSelectedListener) {

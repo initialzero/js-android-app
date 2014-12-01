@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.octo.android.robospice.exception.NetworkException;
 
@@ -43,13 +44,16 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.EnumMap;
 
-import roboguice.util.Ln;
-
 /**
  * @author Ivan Gadzhega
  * @since 1.6
  */
 public class RequestExceptionHandler {
+    private static final String TAG = RequestExceptionHandler.class.getSimpleName();
+
+    public RequestExceptionHandler() {
+        throw new AssertionError();
+    }
 
     public static void handle(Exception exception, Activity activity, boolean finishActivity) {
         handle(exception, activity, ExceptionRule.all(), finishActivity);
@@ -68,9 +72,11 @@ public class RequestExceptionHandler {
                               EnumMap<HttpStatus, ExceptionRule> rules,
                               boolean finishActivity) {
         HttpStatus statusCode = extractStatusCode(exception);
+        String message = "No message";
         if (statusCode != null) {
             if (rules.keySet().contains(statusCode)) {
                 ExceptionRule rule = rules.get(statusCode);
+                message = activity.getString(rule.getMessage());
                 if (statusCode == HttpStatus.UNAUTHORIZED) {
                     showAuthErrorDialog(rule.getMessage(), activity, finishActivity);
                 } else {
@@ -78,9 +84,17 @@ public class RequestExceptionHandler {
                 }
             }
         } else {
-            showErrorDialog(exception.getLocalizedMessage(), activity, finishActivity);
+            Throwable cause = exception.getCause();
+            message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
+            showErrorDialog(message, activity, finishActivity);
         }
-        Ln.e(exception);
+        Throwable cause = exception.getCause();
+        if (cause == null) {
+            BugSenseWrapper.logExceptionMessage(activity, TAG, message, exception);
+        } else {
+            BugSenseWrapper.logExceptionMessage(activity, TAG, message,
+                    new Exception(exception.getCause()));
+        }
     }
 
     /**
@@ -106,17 +120,22 @@ public class RequestExceptionHandler {
     }
 
     private static void showErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setNeutralButton(
-                        new View.OnClickListener() {
-                            public void onClick(View view) {
-                                if (finishActivity) activity.finish();
-                            }
+        AlertDialogFragment.AlertDialogBuilder builder = AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
+                .setIcon(android.R.drawable.ic_dialog_alert);
+        if (finishActivity) {
+            builder.setNeutralButton(
+                    new View.OnClickListener() {
+                        public void onClick(View view) {
+                            if (finishActivity) activity.finish();
                         }
-                )
-                .setNeutralButtonText(android.R.string.ok)
+                    }
+            ).setNeutralButtonText(android.R.string.ok);
+        } else {
+            builder.setPositiveButtonText(android.R.string.ok);
+        }
+        builder
                 .setTitle(R.string.error_msg)
+                .setCancelableOnTouchOutside(false)
                 .setMessage(message)
                 .show();
     }
@@ -144,6 +163,7 @@ public class RequestExceptionHandler {
                 .setNegativeButtonText(android.R.string.cancel)
                 .setPositiveButtonText(android.R.string.ok)
                 .setTitle(R.string.error_msg)
+                .setCancelableOnTouchOutside(false)
                 .setMessage(message)
                 .show();
     }

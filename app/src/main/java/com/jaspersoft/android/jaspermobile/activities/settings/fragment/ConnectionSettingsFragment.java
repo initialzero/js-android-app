@@ -101,8 +101,8 @@ public class ConnectionSettingsFragment extends PreferenceFragment
     private void updateDependentObjects(String key) {
         if (key.equals(KEY_PREF_CONNECT_TIMEOUT)) {
             try {
-                int readTimeoutValue = prefHelper.getConnectTimeoutValue();
-                mJsRestClient.setConnectTimeout(readTimeoutValue * 1000);
+                int connectTimeOut = prefHelper.getConnectTimeoutValue();
+                mJsRestClient.setConnectTimeout(connectTimeOut);
             } catch (NumberFormatException ex) {
                 sharedPreferences.edit()
                         .putString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT)
@@ -113,7 +113,7 @@ public class ConnectionSettingsFragment extends PreferenceFragment
         if (key.equals(KEY_PREF_READ_TIMEOUT)) {
             try {
                 int readTimeoutValue = prefHelper.getReadTimeoutValue();
-                mJsRestClient.setReadTimeout(readTimeoutValue * 1000);
+                mJsRestClient.setReadTimeout(readTimeoutValue);
             } catch (NumberFormatException ex) {
                 sharedPreferences.edit()
                         .putString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT)

@@ -30,7 +30,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 public class MobileDbProvider extends JasperMobileDbProvider {
     @Override
     public boolean onCreate() {
-        mDatabase = new JasperMobileDatabase(getContext());
+        mDatabase = new JSDatabaseHelper(getContext());
         return true;
     }
 }

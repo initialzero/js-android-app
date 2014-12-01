@@ -56,10 +56,11 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
@@ -101,6 +102,8 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
 
     @Bean
     ProfileHelper profileHelper;
+    @Bean
+    DefaultPrefHelper prefHelper;
 
     @OptionsMenuItem
     MenuItem addProfile;
@@ -232,17 +235,25 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
         if (isSameCurrentProfileSelected) {
             setResultOk(profileId);
         } else {
-            profileHelper.setCurrentServerProfile(cursor);
+            JsServerProfile newProfile = profileHelper.createProfileFromCursor(cursor);
+            String password = newProfile.getPassword();
 
-            String password = jsRestClient.getServerProfile().getPassword();
             boolean alwaysAskPassword = TextUtils.isEmpty(password);
             if (alwaysAskPassword) {
                 setResultOk(profileId);
             } else {
-                addProfile.setActionView(R.layout.actionbar_indeterminate_progress);
+                JsRestClient tmpRestClient = new JsRestClient();
+                tmpRestClient.setConnectTimeout(prefHelper.getConnectTimeoutValue());
+                tmpRestClient.setReadTimeout(prefHelper.getReadTimeoutValue());
+                tmpRestClient.setServerProfile(newProfile);
 
+                GetServerInfoRequest request = new GetServerInfoRequest(tmpRestClient);
+                request.setRetryPolicy(null);
+
+                setRefreshActionState(true);
                 getSpiceManager().execute(
-                        new GetServerInfoRequest(jsRestClient), new ValidateServerInfoListener(oldProfile));
+                        new GetServerInfoRequest(tmpRestClient),
+                        new ValidateServerInfoListener(newProfile));
             }
         }
     }
@@ -279,25 +290,38 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
     public void onNeutralButtonClicked(int i) {
     }
 
+    private void setRefreshActionState(boolean show) {
+        // Ignore flag if we have another request to launch
+        // This usually happens when user quickly switches between profiles
+        if (getSpiceManager().getRequestToLaunchCount() > 0) {
+            addProfile.setActionView(R.layout.actionbar_indeterminate_progress);
+            return;
+        }
+
+        if (show) {
+            addProfile.setActionView(R.layout.actionbar_indeterminate_progress);
+        } else {
+            addProfile.setActionView(null);
+        }
+    }
+
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
 
     private class ValidateServerInfoListener extends CommonRequestListener<ServerInfo> {
-        private final JsServerProfile mOldProfile;
+        private final JsServerProfile mNewProfile;
 
-        ValidateServerInfoListener(JsServerProfile oldProfile) {
+        ValidateServerInfoListener(JsServerProfile newProfile) {
             super();
             // We will handle this rule manually
             removeRule(ExceptionRule.UNAUTHORIZED);
-            mOldProfile = oldProfile;
+            mNewProfile = newProfile;
         }
 
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
-            // Reset back to old profile
-            jsRestClient.setServerProfile(mOldProfile);
-            addProfile.setActionView(null);
+            setRefreshActionState(false);
 
             HttpStatus statusCode = extractStatusCode(spiceException);
             if (statusCode != null && statusCode == HttpStatus.UNAUTHORIZED) {
@@ -313,25 +337,21 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
 
         @Override
         public void onSemanticSuccess(ServerInfo serverInfo) {
-            addProfile.setActionView(null);
+            setRefreshActionState(false);
 
             Context context = getActivity();
             double currentVersion = serverInfo.getVersionCode();
-            if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                // Reset back to old profile
-                jsRestClient.setServerProfile(mOldProfile);
 
+            if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
                 AlertDialogFragment.createBuilder(context, getFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.error_msg)
                         .setMessage(R.string.r_error_server_not_supported)
                         .show();
             } else {
-                long newProfileId = jsRestClient.getServerProfile().getId();
+                long newProfileId = mNewProfile.getId();
                 // Lets update ServerInfo snapshot for later use
                 profileHelper.updateCurrentInfoSnapshot(newProfileId, serverInfo);
-                // Reset back to old profile
-                jsRestClient.setServerProfile(mOldProfile);
 
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra(EXTRA_SERVER_PROFILE_ID, newProfileId);

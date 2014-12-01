@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.favorites;
 import android.app.ActionBar;
 import android.os.Bundle;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
@@ -42,7 +43,7 @@ import org.androidannotations.annotations.OptionsItem;
  * @author Tom Koptel
  * @since 1.9
  */
-@EActivity
+@EActivity(R.layout.repositories_layout)
 public class FavoritesSearchableActivity extends RoboSpiceFragmentActivity {
 
     @Extra
@@ -64,7 +65,7 @@ public class FavoritesSearchableActivity extends RoboSpiceFragmentActivity {
                             .build();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(favoriteController, FavoritesControllerFragment.TAG)
+                    .add(R.id.controller, favoriteController, FavoritesControllerFragment.TAG)
                     .commit();
         }
 

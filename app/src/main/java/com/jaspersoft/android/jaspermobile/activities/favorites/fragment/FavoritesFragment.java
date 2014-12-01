@@ -132,7 +132,7 @@ public class FavoritesFragment extends RoboFragment
         super.onResume();
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
-            actionBar.setTitle(R.string.f_title);
+            actionBar.setTitle(searchQuery == null ? getString(R.string.f_title) : getString(R.string.search_result_format, searchQuery));
         }
     }
 
@@ -165,6 +165,16 @@ public class FavoritesFragment extends RoboFragment
     public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
         sortOrder = selectedSortOrder;
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    @UiThread
+    protected void setEmptyText(int resId) {
+        if (resId == 0) {
+            emptyText.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.VISIBLE);
+            emptyText.setText(resId);
+        }
     }
 
     //---------------------------------------------------------------------
@@ -259,17 +269,7 @@ public class FavoritesFragment extends RoboFragment
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
-            setEmptyText(R.string.f_empty_list_msg);
-        }
-    }
-
-    @UiThread
-    protected void setEmptyText(int resId) {
-        if (resId == 0) {
-            emptyText.setVisibility(View.GONE);
-        } else {
-            emptyText.setVisibility(View.VISIBLE);
-            emptyText.setText(resId);
+            setEmptyText(searchQuery == null ? R.string.f_empty_list_msg : R.string.r_search_nothing_to_display);
         }
     }
 

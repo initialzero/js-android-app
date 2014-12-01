@@ -61,6 +61,7 @@ public class SavedItemsSearchableActivity extends RoboSpiceFragmentActivity {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(getString(R.string.search_result_format, query));
         }
 
         if (savedInstanceState == null) {

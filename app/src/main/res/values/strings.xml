@@ -177,6 +177,7 @@
 
     <!-- Saved Reports Activity -->
     <string name="sdr_ab_title">Saved Items</string>
+    <string name="sdr_ab_list_msg" translatable="false">No saved items</string>
 
     <!-- Context Menu -->
     <string name="sdr_cm_rename">Rename</string>

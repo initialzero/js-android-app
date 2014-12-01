@@ -30,14 +30,15 @@ import android.database.sqlite.SQLiteDatabase;
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
 
 
-public class JasperMobileDatabase extends JasperMobileDbDatabase {
+public class JSDatabaseHelper extends JasperMobileDbDatabase {
 
-    public JasperMobileDatabase(Context context) {
+    public JSDatabaseHelper(Context context) {
         super(context);
     }
 
     @Override
     public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+        executePragmas(db);
         if (oldVersion == 2 && newVersion == 3) {
             db.execSQL("DROP TABLE IF EXISTS report_options;");
             db.execSQL("ALTER TABLE server_profiles ADD COLUMN edition TEXT;");

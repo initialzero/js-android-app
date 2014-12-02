@@ -49,7 +49,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.api.ViewServer;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -121,24 +120,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
     @OptionsItem(android.R.id.home)
     final void goBack() {
         super.onBackPressed();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        ViewServer.get(this).addWindow(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ViewServer.get(this).removeWindow(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ViewServer.get(this).setFocusedWindow(this);
     }
 
 }

@@ -36,7 +36,6 @@ import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -44,6 +43,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -90,6 +90,8 @@ public class WebViewFragment extends RoboFragment {
     protected JsRestClient jsRestClient;
     @Bean
     ScrollableTitleHelper scrollableTitleHelper;
+    @Bean
+    JSWebViewClient jsWebViewClient;
 
     private OnWebViewCreated onWebViewCreated;
     private JSWebView webView;
@@ -207,7 +209,7 @@ public class WebViewFragment extends RoboFragment {
         // configure additional settings
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(jsWebViewClient);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.getSettings().setLoadWithOverviewMode(true);

@@ -25,12 +25,16 @@
 package com.jaspersoft.android.jaspermobile.util;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterInject;
@@ -76,7 +80,16 @@ public class JSWebViewClient extends WebViewClient {
             return true;
         }
 
-        return false;
+        // Otherwise, the link is not for us, so launch another Activity that handles URLs
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        try {
+            activity.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            // show notification if no app available to open selected format
+            Toast.makeText(activity,
+                    activity.getString(R.string.sdr_t_no_app_available, "view"), Toast.LENGTH_SHORT).show();
+        }
+        return true;
     }
 
 }

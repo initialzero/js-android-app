@@ -54,6 +54,7 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
+import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -118,6 +119,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     @Bean
     ReportExecutionUtil reportExecutionUtil;
+    @Bean
+    JSWebViewClient jsWebViewClient;
 
     private JSWebView webView;
 
@@ -248,7 +251,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         // configure additional settings
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(jsWebViewClient);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.getSettings().setLoadWithOverviewMode(true);

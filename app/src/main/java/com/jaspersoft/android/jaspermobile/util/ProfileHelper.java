@@ -29,6 +29,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -61,6 +62,8 @@ import roboguice.inject.RoboInjector;
  */
 @EBean
 public class ProfileHelper {
+    public static final String TAG = ProfileHelper.class.getSimpleName();
+
     public static final String DEFAULT_ALIAS = "Mobile Demo";
     public static final String DEFAULT_ORGANIZATION = "organization_1";
     public static final String DEFAULT_SERVER_URL = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
@@ -218,6 +221,7 @@ public class ProfileHelper {
                 contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, contentValues);
             }
         } catch (IOException e) {
+            Log.w(TAG, "Ignoring population of data");
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(is);

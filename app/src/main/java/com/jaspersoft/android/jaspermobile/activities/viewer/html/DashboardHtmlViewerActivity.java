@@ -141,7 +141,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         String serverUrl = jsRestClient.getServerProfile().getServerUrl();
 
         dashboardUrl = serverUrl
-                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
+                + "/flow.html?_flowId=dashboardRuntimeFlow&decorate=no&viewAsDashboardFrame=true&dashboardResource="
                 + resource.getUri();
         if (serverInfo.getVersionCode() >= ServerInfo.VERSION_CODES.AMBER) {
             if (resource.getResourceType() == ResourceLookup.ResourceType.dashboard) {

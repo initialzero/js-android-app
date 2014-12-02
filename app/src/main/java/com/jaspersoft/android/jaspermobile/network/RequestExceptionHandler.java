@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.async;
+package com.jaspersoft.android.jaspermobile.network;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -35,8 +35,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
-import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.octo.android.robospice.exception.NetworkException;
 
 import org.springframework.http.HttpStatus;
@@ -49,7 +47,6 @@ import java.util.EnumMap;
  * @since 1.6
  */
 public class RequestExceptionHandler {
-    private static final String TAG = RequestExceptionHandler.class.getSimpleName();
 
     public RequestExceptionHandler() {
         throw new AssertionError();
@@ -88,13 +85,7 @@ public class RequestExceptionHandler {
             message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
             showErrorDialog(message, activity, finishActivity);
         }
-        Throwable cause = exception.getCause();
-        if (cause == null) {
-            BugSenseWrapper.logExceptionMessage(activity, TAG, message, exception);
-        } else {
-            BugSenseWrapper.logExceptionMessage(activity, TAG, message,
-                    new Exception(exception.getCause()));
-        }
+        ExceptionLogStrategy.log(exception, activity, message);
     }
 
     /**

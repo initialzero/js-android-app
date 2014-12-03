@@ -37,7 +37,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -91,8 +90,8 @@ public class ProfileHelper {
 
     public void initJsRestClient() {
         // set timeouts
-        jsRestClient.setConnectTimeout(defaultPrefHelper.getConnectTimeoutValue() * 1000);
-        jsRestClient.setReadTimeout(defaultPrefHelper.getReadTimeoutValue() * 1000);
+        jsRestClient.setConnectTimeout(defaultPrefHelper.getConnectTimeoutValue());
+        jsRestClient.setReadTimeout(defaultPrefHelper.getReadTimeoutValue());
 
         // restore server profile id from preferences
         long profileId = generalPref.currentProfileId().getOr(-1);

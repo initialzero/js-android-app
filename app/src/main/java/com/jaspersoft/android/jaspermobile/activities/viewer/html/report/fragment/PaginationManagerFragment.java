@@ -291,6 +291,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                         .setTitle(R.string.warning_msg)
                         .setCancelableOnTouchOutside(false)
                         .setMessage(R.string.rv_error_empty_report)
+                        .setNegativeButtonText(android.R.string.ok)
                         .show();
             }
         }

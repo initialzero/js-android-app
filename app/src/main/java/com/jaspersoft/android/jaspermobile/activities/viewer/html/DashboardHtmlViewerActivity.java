@@ -124,6 +124,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
+                .setNegativeButtonText(android.R.string.ok)
                 .show();
     }
 

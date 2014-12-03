@@ -186,6 +186,7 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
         SimpleDialogFragment.createBuilder(getContext(), fm)
                 .setTitle(title)
                 .setMessage(description)
+                .setNegativeButtonText(android.R.string.ok)
                 .show();
     }
 

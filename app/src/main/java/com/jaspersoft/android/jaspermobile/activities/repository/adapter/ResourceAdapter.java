@@ -149,6 +149,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
                 SimpleDialogFragment.createBuilder(getContext(), fm)
                         .setTitle(resource.getLabel())
                         .setMessage(resource.getDescription())
+                        .setNegativeButtonText(android.R.string.ok)
                         .show();
                 break;
         }

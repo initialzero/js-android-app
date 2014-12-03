@@ -33,17 +33,13 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ALL_LIBRARY_TYPES;
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ONLY_DASHBOARD;
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ONLY_REPORT;
 
 /**
  * @author Tom Koptel
@@ -56,9 +52,9 @@ public class FilterDialogFragment extends DialogFragment {
     private static final int BY_DASHBOARDS_POSITION = 2;
 
     @Bean
-    FilterOptions filterOptions;
+    FilterManager filterManager;
 
-    private ArrayList<String> mTypes;
+    private ArrayList<String> mFilters;
     private FilterDialogListener filterSelectedListener;
 
     public static void show(FragmentManager fm, FilterDialogListener filterSelectedListener) {
@@ -84,11 +80,11 @@ public class FilterDialogFragment extends DialogFragment {
         };
 
         int position = 0;
-        mTypes = filterOptions.getFilters();
-        if (mTypes.equals(ONLY_REPORT)) {
+        mFilters = filterManager.getFilters();
+        if (filterManager.isOnlyReport(mFilters)) {
             position = BY_REPORTS_POSITION;
         }
-        if (mTypes.equals(ONLY_DASHBOARD)) {
+        if (filterManager.isOnlyDashboard(mFilters)) {
             position = BY_DASHBOARDS_POSITION;
         }
 
@@ -97,18 +93,18 @@ public class FilterDialogFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case BY_REPORTS_POSITION:
-                        mTypes = ONLY_REPORT;
+                        mFilters = filterManager.getFiltersByType(FilterManager.Type.ONLY_REPORT);
                         break;
                     case BY_DASHBOARDS_POSITION:
-                        mTypes = ONLY_DASHBOARD;
+                        mFilters = filterManager.getFiltersByType(FilterManager.Type.ONLY_DASHBOARD);
                         break;
                     default:
-                        mTypes = ALL_LIBRARY_TYPES;
+                        mFilters = filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_LIBRARY);
                         break;
                 }
-                filterOptions.putFilters(mTypes);
+                filterManager.putFilters(mFilters);
                 if (filterSelectedListener != null) {
-                    filterSelectedListener.onDialogPositiveClick(mTypes);
+                    filterSelectedListener.onDialogPositiveClick(mFilters);
                 }
                 dismiss();
             }

@@ -52,6 +52,7 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -94,8 +95,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoHolder;
+    @Bean
+    ServerInfoManager infoManager;
 
     @InstanceState
     int runningRequests;

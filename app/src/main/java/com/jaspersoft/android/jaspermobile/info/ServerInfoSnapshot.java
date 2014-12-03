@@ -10,22 +10,26 @@ package com.jaspersoft.android.jaspermobile.info;
 
 import android.text.TextUtils;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public class ServerInfoSnapshot {
-    private final String edition;
-    private final double versionCode;
+    private String edition;
+    private double versionCode;
 
+    @Inject
     public ServerInfoSnapshot() {
         this.edition = null;
         this.versionCode = 0d;
     }
 
-    public ServerInfoSnapshot(String edition, double versionCode) {
-        this.edition = edition;
-        this.versionCode = versionCode;
+    public boolean isAmberRelease() {
+        return versionCode >= ServerInfo.VERSION_CODES.AMBER;
     }
 
     public String getEdition() {
@@ -36,7 +40,21 @@ public class ServerInfoSnapshot {
         return versionCode;
     }
 
-    public boolean isServerInfoMissing() {
+    public boolean isMissing() {
         return (TextUtils.isEmpty(edition) && versionCode == 0d);
     }
+
+    public void setProfile(ServerProfiles profile) {
+        setEdition(profile.getEdition());
+        setVersionCode(profile.getVersioncode());
+    }
+
+    public void setEdition(String edition) {
+        this.edition = edition;
+    }
+
+    public void setVersionCode(double versionCode) {
+        this.versionCode = versionCode;
+    }
+
 }

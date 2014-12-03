@@ -64,7 +64,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
+    @Bean
     ServerInfoManager infoManager;
 
     @OptionsMenuItem
@@ -141,11 +141,11 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         String serverUrl = jsRestClient.getServerProfile().getServerUrl();
 
         dashboardUrl = serverUrl
-                + "/flow.html?_flowId=dashboardRuntimeFlow&decorate=no&viewAsDashboardFrame=true&dashboardResource="
+                + "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource="
                 + resource.getUri();
         if (serverInfo.getVersionCode() >= ServerInfo.VERSION_CODES.AMBER) {
             if (resource.getResourceType() == ResourceLookup.ResourceType.dashboard) {
-                dashboardUrl = serverUrl + "/dashboard/viewer.html?_opt=false&decorate=no#" + resource.getUri();
+                dashboardUrl = serverUrl + "/dashboard/viewer.html?_opt=false&sessionDecorator=no#" + resource.getUri();
             }
         }
 

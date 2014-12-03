@@ -69,11 +69,11 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
     ResourceLookup resource;
     @Bean
     ScrollableTitleHelper scrollableTitleHelper;
+    @Bean
+    ServerInfoManager infoManager;
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +86,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            infoHolder.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+            infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
                 @Override
                 public void onInfoReceived(ServerInfoSnapshot serverInfo) {
                     commitFragments(serverInfo);

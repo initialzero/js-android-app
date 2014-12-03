@@ -98,8 +98,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoHolder;
+    @Bean
+    ServerInfoManager infoManager;
     @Inject
     ResourceLookupSearchCriteria mSearchCriteria;
 
@@ -200,7 +200,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
 
-        infoHolder.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
             @Override
             public void onInfoReceived(ServerInfoSnapshot serverInfo) {
                 updatePaginationPolicy(serverInfo);

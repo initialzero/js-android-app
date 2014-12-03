@@ -30,7 +30,6 @@ import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
-import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -41,38 +40,43 @@ import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
+
+import roboguice.RoboGuice;
+import roboguice.inject.RoboInjector;
+
 /**
  * @author Tom Koptel
  * @since 1.9
  */
+@EBean
 public class ServerInfoManager {
-
-    @Inject
+    @RootContext
     FragmentActivity activity;
+
     @Inject
     JsRestClient jsRestClient;
-
-    private ServerInfoSnapshot mServerInfo;
-
     @Inject
-    public ServerInfoManager() {
-        mServerInfo = new ServerInfoSnapshot();
+    ServerInfoSnapshot mServerInfo;
+
+    @AfterInject
+    void injectRoboGuiceDependencies() {
+        final RoboInjector injector = RoboGuice.getInjector(activity);
+        injector.injectMembersWithoutViews(this);
     }
 
     public void getServerInfo(final SpiceManager spiceManager, final InfoCallback infoCallback) {
         // This situation possible while user has missing ServerInfo data missing
         // for his profile setup. Accepted situation is when user has migrated from
         // version of app 1.8 to 1.9
-        if (mServerInfo.isServerInfoMissing()) {
+        if (mServerInfo.isMissing()) {
             final GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
             spiceManager.execute(request, new GetServerInfoRequestListener(infoCallback));
         } else {
             infoCallback.onInfoReceived(mServerInfo);
         }
-    }
-
-    public void setServerInfo(ServerProfiles profile) {
-        mServerInfo = new ServerInfoSnapshot(profile.getEdition(), profile.getVersioncode());
     }
 
     private class GetServerInfoRequestListener implements RequestListener<ServerInfo> {
@@ -84,7 +88,9 @@ public class ServerInfoManager {
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
-            RequestExceptionHandler.handle(spiceException, activity);
+            if (activity != null) {
+                RequestExceptionHandler.handle(spiceException, activity);
+            }
         }
 
         @Override
@@ -94,15 +100,18 @@ public class ServerInfoManager {
             // This update only one time, oly for those profile instance which
             // is misses ServerInfo data, because of data being inconsistent
             // during migration of Database
-            Uri uri = Uri.withAppendedPath(
-                    JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                    String.valueOf(profile.getId()));
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(ServerProfilesTable.VERSION_CODE, serverInfo.getVersionCode());
-            contentValues.put(ServerProfilesTable.EDITION, serverInfo.getEdition());
-            activity.getContentResolver().update(uri, contentValues, null, null);
+            if (activity != null) {
+                Uri uri = Uri.withAppendedPath(
+                        JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
+                        String.valueOf(profile.getId()));
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(ServerProfilesTable.VERSION_CODE, serverInfo.getVersionCode());
+                contentValues.put(ServerProfilesTable.EDITION, serverInfo.getEdition());
+                activity.getContentResolver().update(uri, contentValues, null, null);
+            }
 
-            mServerInfo = new ServerInfoSnapshot(serverInfo.getEdition(), serverInfo.getVersionCode());
+            mServerInfo.setEdition(serverInfo.getEdition());
+            mServerInfo.setVersionCode(serverInfo.getVersionCode());
             mCallback.onInfoReceived(mServerInfo);
         }
     }

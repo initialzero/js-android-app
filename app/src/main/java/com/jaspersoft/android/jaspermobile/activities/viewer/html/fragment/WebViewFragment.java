@@ -77,8 +77,6 @@ public class WebViewFragment extends RoboFragment {
     ProgressBar progressBar;
 
     @FragmentArg
-    String resourceUri;
-    @FragmentArg
     String resourceLabel;
 
     @InstanceState
@@ -156,8 +154,16 @@ public class WebViewFragment extends RoboFragment {
         webView.loadUrl(url, map);
     }
 
+    public void loadHtml(String baseUrl, String currentHtml) {
+        webView.loadDataWithBaseURL(baseUrl, currentHtml, "text/html", "utf-8", null);
+    }
+
     public void setOnWebViewCreated(OnWebViewCreated onWebViewCreated) {
         this.onWebViewCreated = onWebViewCreated;
+    }
+
+    public WebView getWebView() {
+        return webView;
     }
 
     public boolean isResourceLoaded() {
@@ -203,7 +209,7 @@ public class WebViewFragment extends RoboFragment {
     @SuppressLint("SetJavaScriptEnabled")
     private void prepareWebView() {
         // disable hardware acceleration
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         // configure additional settings

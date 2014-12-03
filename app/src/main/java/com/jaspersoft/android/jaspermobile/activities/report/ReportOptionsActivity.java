@@ -100,7 +100,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     protected String reportUri;
 
     private DatePickerDialogHelper dialogHelper;
-    private List<InputControl> inputControls;
+    private ArrayList<InputControl> inputControls;
     private LinearLayout baseLayout;
 
     @Override
@@ -227,6 +227,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
         Intent htmlViewer = new Intent();
         htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS, parameters);
+        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS, inputControls);
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();
     }

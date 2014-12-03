@@ -62,9 +62,9 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
 
     // Extras
     public static final String EXTRA_REPORT_PARAMETERS = "ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS";
+    public static final String EXTRA_REPORT_CONTROLS = "ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS";
     // Result Code
     public static final int REQUEST_REPORT_PARAMETERS = 100;
-
     @Extra
     ResourceLookup resource;
     @Bean

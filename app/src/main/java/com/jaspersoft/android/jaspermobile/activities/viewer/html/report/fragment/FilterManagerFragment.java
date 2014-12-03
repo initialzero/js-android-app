@@ -39,6 +39,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
 
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
@@ -146,6 +147,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     final void loadReportParameters(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
+            cachedInputControls = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
             getReportExecutionFragment().executeReport(reportParameters);
         } else {
             // Check if user has experienced report loading. Otherwise remove him from this page.

@@ -25,14 +25,14 @@
 package com.jaspersoft.android.jaspermobile.info;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
@@ -48,7 +48,7 @@ import com.octo.android.robospice.request.listener.RequestListener;
 public class ServerInfoManager {
 
     @Inject
-    Context context;
+    FragmentActivity activity;
     @Inject
     JsRestClient jsRestClient;
 
@@ -59,12 +59,12 @@ public class ServerInfoManager {
         mServerInfo = new ServerInfoSnapshot();
     }
 
-    public void getServerInfo(SpiceManager spiceManager, InfoCallback infoCallback) {
+    public void getServerInfo(final SpiceManager spiceManager, final InfoCallback infoCallback) {
         // This situation possible while user has missing ServerInfo data missing
         // for his profile setup. Accepted situation is when user has migrated from
         // version of app 1.8 to 1.9
         if (mServerInfo.isServerInfoMissing()) {
-            GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
+            final GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
             spiceManager.execute(request, new GetServerInfoRequestListener(infoCallback));
         } else {
             infoCallback.onInfoReceived(mServerInfo);
@@ -84,7 +84,7 @@ public class ServerInfoManager {
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
-            RequestExceptionHandler.extractStatusCode(spiceException);
+            RequestExceptionHandler.handle(spiceException, activity);
         }
 
         @Override
@@ -100,7 +100,7 @@ public class ServerInfoManager {
             ContentValues contentValues = new ContentValues();
             contentValues.put(ServerProfilesTable.VERSION_CODE, serverInfo.getVersionCode());
             contentValues.put(ServerProfilesTable.EDITION, serverInfo.getEdition());
-            context.getContentResolver().update(uri, contentValues, null, null);
+            activity.getContentResolver().update(uri, contentValues, null, null);
 
             mServerInfo = new ServerInfoSnapshot(serverInfo.getEdition(), serverInfo.getVersionCode());
             mCallback.onInfoReceived(mServerInfo);

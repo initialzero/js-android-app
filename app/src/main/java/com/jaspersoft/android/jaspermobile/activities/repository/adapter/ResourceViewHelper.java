@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
+import android.util.Log;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -40,11 +42,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @since 1.9
  */
 public class ResourceViewHelper {
-    private static final String INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private final SimpleDateFormat dateFormat;
+    private static final String TAG = ResourceViewHelper.class.getSimpleName();
+
+    private static final String FIRST_INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String SECOND_INITIAL_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private final SimpleDateFormat[] serverDateFormats;
 
     public ResourceViewHelper(Locale current) {
-        dateFormat = new SimpleDateFormat(INITIAL_DATE_FORMAT, current);
+        serverDateFormats = new SimpleDateFormat[]{new SimpleDateFormat(FIRST_INITIAL_DATE_FORMAT, current),
+                new SimpleDateFormat(SECOND_INITIAL_DATE_FORMAT, current)};
     }
 
     public void populateView(IResourceView resourceView, ResourceLookup item) {
@@ -81,16 +87,26 @@ public class ResourceViewHelper {
         if (updateDate == null) return "";
 
         try {
-            Date dateValue = dateFormat.parse(updateDate);
+            Date dateValue = serverDateFormats[0].parse(updateDate);
             DateFormat dateFormat = DateFormat.getDateInstance();
             return dateFormat.format(dateValue);
         } catch (ParseException ex) {
-            return updateDate;
+            // ignoring
         }
+
+        try {
+            Date dateValue = serverDateFormats[1].parse(updateDate);
+            DateFormat dateFormat = DateFormat.getDateInstance();
+            return dateFormat.format(dateValue);
+        } catch (ParseException ex) {
+            Log.w(TAG, "Wrong date format");
+        }
+
+        return updateDate;
     }
 
     public void setDateFormat(String template) {
         checkNotNull(template, "Trying to set date format with a null String");
-        dateFormat.applyPattern(template);
+        serverDateFormats[0].applyPattern(template);
     }
 }

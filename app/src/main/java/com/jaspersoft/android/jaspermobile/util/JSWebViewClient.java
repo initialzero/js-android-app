@@ -75,7 +75,7 @@ public class JSWebViewClient extends WebViewClient {
             if (parametersList.isEmpty()) {
                 url += "?";
             }
-            url += "&decorate=no";
+            url += "&sessionDecorator=no";
             view.loadUrl(url);
             return true;
         }

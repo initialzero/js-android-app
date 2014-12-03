@@ -89,7 +89,8 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
 
             webViewFragment = WebViewFragment_.builder()
-                    .resourceLabel(resource.getLabel()).resourceUri(resource.getUri()).build();
+                    .resourceLabel(resource.getLabel())
+                    .build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)

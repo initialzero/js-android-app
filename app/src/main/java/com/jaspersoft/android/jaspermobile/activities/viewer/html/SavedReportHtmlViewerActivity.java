@@ -68,7 +68,7 @@ public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
 
         if (savedInstanceState == null) {
             WebViewFragment webViewFragment = WebViewFragment_.builder()
-                    .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
+                    .resourceLabel(resourceLabel).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)

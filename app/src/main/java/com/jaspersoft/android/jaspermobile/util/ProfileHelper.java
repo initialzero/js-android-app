@@ -37,7 +37,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
@@ -76,10 +76,11 @@ public class ProfileHelper {
     GeneralPref_ generalPref;
     @Bean
     DefaultPrefHelper defaultPrefHelper;
+
+    @Inject
+    ServerInfoSnapshot serverInfoSnapshot;
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager serverInfoHolder;
 
     @AfterInject
     void injectRoboGuiceDependencies() {
@@ -89,8 +90,8 @@ public class ProfileHelper {
 
     public void initJsRestClient() {
         // set timeouts
-        jsRestClient.setConnectTimeout(defaultPrefHelper.getConnectTimeoutValue() * 1000);
-        jsRestClient.setReadTimeout(defaultPrefHelper.getReadTimeoutValue() * 1000);
+        jsRestClient.setConnectTimeout(defaultPrefHelper.getConnectTimeoutValue());
+        jsRestClient.setReadTimeout(defaultPrefHelper.getReadTimeoutValue());
 
         // restore server profile id from preferences
         long profileId = generalPref.currentProfileId().getOr(-1);
@@ -109,7 +110,7 @@ public class ProfileHelper {
             try {
                 if (cursor.getCount() > 0) {
                     cursor.moveToPosition(0);
-                    serverInfoHolder.setServerInfo(new ServerProfiles(cursor));
+                    serverInfoSnapshot.setProfile(new ServerProfiles(cursor));
                 }
             } finally {
                 cursor.close();
@@ -130,8 +131,7 @@ public class ProfileHelper {
                     Uri uri = Uri.withAppendedPath(
                             JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(profileId));
                     context.getContentResolver().update(uri, profile.getContentValues(), null, null);
-
-                    serverInfoHolder.setServerInfo(new ServerProfiles(cursor));
+                    serverInfoSnapshot.setProfile(profile);
                 }
             } finally {
                 cursor.close();

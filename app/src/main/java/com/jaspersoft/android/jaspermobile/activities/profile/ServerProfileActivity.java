@@ -65,6 +65,7 @@ import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRe
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
@@ -128,8 +129,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoHolder;
+    @Bean
+    ServerInfoManager infoManager;
 
     private ServerProfiles mServerProfile;
     private int mActionBarSize;

@@ -63,6 +63,7 @@ public class ResourceViewHelper {
         switch (resourceType) {
             case folder:
                 return R.drawable.sample_repo_blue;
+            case legacyDashboard:
             case dashboard:
                 return R.drawable.sample_dashboard_blue;
             case reportUnit:

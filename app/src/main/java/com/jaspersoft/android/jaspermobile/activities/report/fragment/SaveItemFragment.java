@@ -182,7 +182,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     private boolean isReportNameValid() {
         String reportName = reportNameInput.getText().toString();
 
-        if (reportName.isEmpty()) {
+        if (reportName.trim().isEmpty()) {
             reportNameInput.setError(getString(R.string.sr_error_field_is_empty));
             return false;
         }

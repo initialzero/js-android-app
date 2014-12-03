@@ -12,10 +12,11 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebVi
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.network.PrivacyRequest;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.octo.android.robospice.persistence.DurationInMillis;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
 
@@ -30,6 +31,9 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
 
     @Inject
     PrivacyRequest request;
+
+    @Bean
+    DefaultPrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +67,7 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
         webViewFragment.getWebView().setWebViewClient(new WebViewClient());
 
         getSpiceManager().getFromCacheAndLoadFromNetworkIfExpired(request,
-                request.createCacheKey(), DurationInMillis.ALWAYS_RETURNED,
+                request.createCacheKey(), prefHelper.getRepoCacheExpirationValue(),
                 new PrivacyRequestListener());
     }
 

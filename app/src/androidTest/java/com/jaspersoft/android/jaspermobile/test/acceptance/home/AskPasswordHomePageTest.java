@@ -45,6 +45,7 @@ import static com.google.android.apps.common.testing.ui.espresso.action.ViewActi
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
+import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
@@ -53,8 +54,10 @@ import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.delet
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+
 
 /**
  * @author Tom Koptel
@@ -117,6 +120,51 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         rotate();
         onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).check(matches(withText(PASSWORD)));
     }
+
+    public void testA() throws Throwable {
+        setDefaultCurrentProfile();
+        startActivityUnderTest();
+        onView(withId(R.id.home_item_servers)).perform(click());
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+        onView(withId(R.id.askPasswordCheckBox)).perform(click());
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+        onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).perform(typeText(PASSWORD));
+        onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
+
+
+        onView(withId(R.id.home_item_servers)).perform(click());
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+        onView(withId(R.id.askPasswordCheckBox)).perform(click());
+        onView(withId(R.id.passwordEdit)).perform(clearText());
+        onView(withId(R.id.passwordEdit)).perform(typeText(PASSWORD));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        // As soon as we have updated password, no dialog should be
+        // so that test can easily navigate by control on Servers page
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+        onView(withId(R.id.home_item_servers)).perform(click());
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+        onView(withId(R.id.editItem)).perform(click());
+        onView(withId(R.id.passwordEdit)).check(matches(withText(PASSWORD)));
+        onView(withId(R.id.askPasswordCheckBox)).check(matches(not(isChecked())));
+    }
+
 
     private void setAskForPasswordOption() throws Throwable {
         onData(is(instanceOf(Cursor.class)))

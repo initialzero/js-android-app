@@ -133,6 +133,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     ServerInfoManager infoManager;
 
     private ServerProfiles mServerProfile;
+    private ServerProfiles mLoadedProfile;
     private int mActionBarSize;
 
     @Override
@@ -261,7 +262,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             case LOAD_PROFILE:
                 if (cursor.getCount() > 0) {
                     cursor.moveToFirst();
-                    updateProfileFields(new ServerProfiles(cursor));
+                    updateProfileFields(cursor);
                 }
                 break;
             case QUERY_UNIQUENESS:
@@ -335,24 +336,26 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     }
 
     @UiThread
-    protected void updateProfileFields(ServerProfiles serverProfile) {
+    protected void updateProfileFields(Cursor cursor) {
+        mServerProfile = new ServerProfiles(cursor);
+        mLoadedProfile = new ServerProfiles(cursor);
+
         if (getActionBar() != null) {
             getActionBar().setTitle(getString(R.string.sp_bc_edit_profile));
-            getActionBar().setSubtitle(serverProfile.getAlias());
+            getActionBar().setSubtitle(mServerProfile.getAlias());
         }
 
-        mServerProfile = serverProfile;
-        aliasEdit.setText(serverProfile.getAlias());
-        serverUrlEdit.setText(serverProfile.getServerUrl());
-        organizationEdit.setText(serverProfile.getOrganization());
-        usernameEdit.setText(serverProfile.getUsername());
+        aliasEdit.setText(mServerProfile.getAlias());
+        serverUrlEdit.setText(mServerProfile.getServerUrl());
+        organizationEdit.setText(mServerProfile.getOrganization());
+        usernameEdit.setText(mServerProfile.getUsername());
 
-        String password = serverProfile.getPassword();
+        String password = mServerProfile.getPassword();
         boolean hasPassword = !TextUtils.isEmpty(password);
         passwordEdit.setEnabled(hasPassword);
         passwordEdit.setFocusable(hasPassword);
         passwordEdit.setFocusableInTouchMode(hasPassword);
-        passwordEdit.setText(serverProfile.getPassword());
+        passwordEdit.setText(password);
 
         askPasswordCheckBox.setChecked(!hasPassword);
     }
@@ -397,12 +400,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         newProfile.setUsername(username);
         newProfile.setPassword(password);
 
-        if (oldProfile.equals(newProfile)) {
-            // Otherwise close the instance
-            profileId = oldProfile.getId();
-            setOkResult();
-            finish();
-        } else {
+        if (needUpdateProfile()) {
             if (askPasswordCheckBox.isChecked()) {
                 // We can`t validate profile on server side without password
                 // so we are explicitly saving it!
@@ -418,7 +416,18 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                         new GetServerInfoRequest(jsRestClient),
                         new ValidateServerInfoListener(oldProfile));
             }
+        } else {
+            // Otherwise close the instance
+            profileId = oldProfile.getId();
+            setOkResult();
+            finish();
         }
+    }
+
+    private boolean needUpdateProfile() {
+        ServerProfiles newProfile = mServerProfile;
+        ServerProfiles oldProfile = mLoadedProfile;
+        return !oldProfile.getContentValues().equals(newProfile.getContentValues());
     }
 
     private void persistProfileData(Context context) {

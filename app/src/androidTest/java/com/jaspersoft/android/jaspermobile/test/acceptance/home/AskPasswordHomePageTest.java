@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
 import android.database.Cursor;
 
+import com.google.android.apps.common.testing.ui.espresso.action.ViewActions;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -121,7 +122,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).check(matches(withText(PASSWORD)));
     }
 
-    public void testA() throws Throwable {
+    public void testUserProperlyResetsPasswordAfterPasswordDialog() throws Throwable {
         setDefaultCurrentProfile();
         startActivityUnderTest();
         onView(withId(R.id.home_item_servers)).perform(click());
@@ -163,6 +164,8 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onView(withId(R.id.editItem)).perform(click());
         onView(withId(R.id.passwordEdit)).check(matches(withText(PASSWORD)));
         onView(withId(R.id.askPasswordCheckBox)).check(matches(not(isChecked())));
+        ViewActions.pressBack();
+        ViewActions.pressBack();
     }
 
 

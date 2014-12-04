@@ -379,7 +379,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             if (oldProfile != null && oldProfile.getId() == profileId) {
                 updateServerProfile(oldProfile);
             } else {
-                persistProfileData(this);
+                persistProfileData();
                 setOkResult();
                 finish();
             }
@@ -405,7 +405,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                 // We can`t validate profile on server side without password
                 // so we are explicitly saving it!
                 jsRestClient.setServerProfile(newProfile);
-                persistProfileData(this);
+                persistProfileData();
                 setOkResult();
                 finish();
             } else {
@@ -430,17 +430,17 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         return !oldProfile.getContentValues().equals(newProfile.getContentValues());
     }
 
-    private void persistProfileData(Context context) {
+    private void persistProfileData() {
         if (profileId == 0) {
             Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
             profileId = Long.valueOf(uri.getLastPathSegment());
-            Toast.makeText(context, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
         } else {
             String selection = ServerProfilesTable._ID + " =?";
             String[] selectionArgs = {String.valueOf(profileId)};
             getContentResolver().update(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                     mServerProfile.getContentValues(), selection, selectionArgs);
-            Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
         }
         getContentResolver().notifyChange(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, null);
     }
@@ -511,7 +511,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                 mServerProfile.setVersioncode(serverInfo.getVersionCode());
                 mServerProfile.setEdition(serverInfo.getEdition());
 
-                persistProfileData(context);
+                persistProfileData();
                 setOkResult();
                 finish();
             }

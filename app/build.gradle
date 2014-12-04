@@ -107,6 +107,11 @@ android {
         dev {
         }
         production{
+            buildTypes {
+                debug {
+                    signingConfig signingConfigs.release
+                }
+            }
         }
     }
 }

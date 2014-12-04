@@ -198,9 +198,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         // We need refresh request id so that new exports data comes in proper way
         nodeWebViewFragment.setRequestId(requestId);
 
-        getFragmentManager().beginTransaction()
-                .replace(R.id.content, nodeWebViewFragment,
-                        NodeWebViewFragment.TAG + currentPage).commit();
+        if (nodeWebViewFragment.isVisible()) {
+            // This condition happens only in the case of input controls has changed their value
+            nodeWebViewFragment.fetchReport();
+        } else {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.content, nodeWebViewFragment,
+                            NodeWebViewFragment.TAG + currentPage).commit();
+        }
     }
 
     private NodeWebViewFragment createNodeWebViewFragment() {

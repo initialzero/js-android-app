@@ -262,7 +262,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         }
     }
 
-    private void fetchReport() {
+    public void fetchReport() {
         final RunReportExportsRequest request = new RunReportExportsRequest(jsRestClient,
                 prepareExportsData(), requestId);
 

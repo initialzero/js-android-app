@@ -129,8 +129,8 @@
     <string name="s_fd_option_all">All</string>
     <string name="s_fd_option_reports">Reports</string>
     <string name="s_fd_option_dashboards">Dashboards</string>
-    <string name="s_fd_sort_label">By label</string>
-    <string name="s_fd_sort_date">By creation date</string>
+    <string name="s_fd_sort_label">Label</string>
+    <string name="s_fd_sort_date">Creation date</string>
 
     <!-- Filter Saved Items Dialog -->
     <string name="si_fd_option_all" translatable="false">All</string>

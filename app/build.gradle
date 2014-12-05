@@ -106,10 +106,12 @@ android {
         }
         dev {
         }
-        production{
+        production {
             buildTypes {
                 debug {
-                    signingConfig signingConfigs.release
+                    if (project.hasProperty('JMA_STORE_FILE')) {
+                        signingConfig signingConfigs.release
+                    }
                 }
             }
         }

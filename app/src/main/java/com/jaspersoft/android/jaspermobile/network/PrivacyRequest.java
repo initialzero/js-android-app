@@ -9,7 +9,7 @@ import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceReques
  * @since 1.9
  */
 public class PrivacyRequest extends SpringAndroidSpiceRequest<String> {
-    public static final String PRIVACY_URL = "https://www.jaspersoft.com";
+    public static final String PRIVACY_URL = "http://www.tibco.com/company/privacy-cma";
 
     @Inject
     private JsRestClient jsRestClient;

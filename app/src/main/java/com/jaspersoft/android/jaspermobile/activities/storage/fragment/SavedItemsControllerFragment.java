@@ -29,15 +29,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-
-import java.util.ArrayList;
 
 /**
  * @author Tom Koptel

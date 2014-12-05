@@ -30,6 +30,8 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
@@ -71,8 +73,8 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
 
-        // We are storing values in milli seconds
-        assertThat(prefHelper.getReadTimeoutValue(), is(Integer.valueOf(DEFAULT_READ_TIMEOUT) * 1000));
+        int expectedTimeOut = (int) TimeUnit.SECONDS.toMillis(Integer.valueOf(DEFAULT_READ_TIMEOUT));
+        assertThat(prefHelper.getReadTimeoutValue(), is(expectedTimeOut));
     }
 
     public void testConnectionTimeOutShouldNotAcceptIncorrectInteger() {
@@ -83,8 +85,8 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
 
-        // We are storing values in milli seconds
-        assertThat(prefHelper.getConnectTimeoutValue(), is(Integer.valueOf(DEFAULT_CONNECT_TIMEOUT) * 1000));
+        int expectedTimeOut = (int) TimeUnit.SECONDS.toMillis(Integer.valueOf(DEFAULT_CONNECT_TIMEOUT));
+        assertThat(prefHelper.getConnectTimeoutValue(), is(expectedTimeOut));
     }
 
     public void testConnectionCacheExpirationShouldNotAcceptIncorrectInteger() {

@@ -56,7 +56,6 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
@@ -97,8 +96,6 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoHolder;
 
     @Bean
     ProfileHelper profileHelper;

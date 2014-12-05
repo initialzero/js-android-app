@@ -28,10 +28,13 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.negusoft.holoaccent.AccentHelper;
 import com.negusoft.holoaccent.AccentResources;
+
+import org.androidannotations.api.ViewServer;
 
 import java.util.Locale;
 
@@ -47,6 +50,10 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
             getOverrideAccentColorDark(), getOverrideAccentColorActionBar(), new MyInitListener());
     private Locale currentLocale;
 
+    public boolean isDevMode() {
+        return BuildConfig.DEBUG && BuildConfig.FLAVOR.equals("dev");
+    }
+
     @Override
     public Resources getResources() {
         return mAccentHelper.getResources(this, super.getResources());
@@ -54,6 +61,7 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
 
     /**
      * Override this method to set the accent color programmatically.
+     *
      * @return The color to override. If the color is equals to 0, the
      * accent color will be taken from the theme.
      */
@@ -63,6 +71,7 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
 
     /**
      * Override this method to set the dark variant of the accent color programmatically.
+     *
      * @return The color to override. If the color is equals to 0, the dark version will be
      * taken from the theme. If it is specified in the theme either, it will be calculated
      * based on the accent color.
@@ -73,6 +82,7 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
 
     /**
      * Override this method to set the action bar variant of the accent color programmatically.
+     *
      * @return The color to override. If the color is equals to 0, the action bar version will
      * be taken from the theme. If it is specified in the theme either, it will the same as the
      * accent color.
@@ -81,7 +91,9 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
         return 0;
     }
 
-    /** Getter for the AccentHelper instance. */
+    /**
+     * Getter for the AccentHelper instance.
+     */
     public AccentHelper getAccentHelper() {
         return mAccentHelper;
     }
@@ -99,18 +111,32 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
         super.onCreate(savedInstanceState);
         BugSenseWrapper.initAndStartSession(this);
         currentLocale = Locale.getDefault();
+        if (isDevMode()) {
+            ViewServer.get(this).addWindow(this);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         BugSenseWrapper.startSession(this);
+        if (isDevMode()) {
+            ViewServer.get(this).setFocusedWindow(this);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         BugSenseWrapper.closeSession(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (isDevMode()) {
+            ViewServer.get(this).removeWindow(this);
+        }
     }
 
     @Override

@@ -13,11 +13,11 @@ import android.widget.Toast;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -39,6 +39,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
 
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
@@ -128,7 +129,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     }
 
     @OptionsItem
-    final void showFilters() {
+    public void showFilters() {
         showReportOptions(cachedInputControls);
     }
 
@@ -145,6 +146,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     final void loadReportParameters(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
+            cachedInputControls = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
             getReportExecutionFragment().executeReport(reportParameters);
         } else {
             // Check if user has experienced report loading. Otherwise remove him from this page.

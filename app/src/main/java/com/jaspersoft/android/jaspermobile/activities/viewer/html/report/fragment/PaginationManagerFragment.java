@@ -177,6 +177,11 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         }
     }
 
+    public void paginateTo(int page) {
+        currentPage = page;
+        paginateToCurrentSelection();
+    }
+
     public void paginateToCurrentSelection() {
         alterControlStates();
 
@@ -193,9 +198,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         // We need refresh request id so that new exports data comes in proper way
         nodeWebViewFragment.setRequestId(requestId);
 
-        getFragmentManager().beginTransaction()
-                .replace(R.id.content, nodeWebViewFragment,
-                        NodeWebViewFragment.TAG + currentPage).commit();
+        if (nodeWebViewFragment.isVisible()) {
+            // This condition happens only in the case of input controls has changed their value
+            nodeWebViewFragment.fetchReport();
+        } else {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.content, nodeWebViewFragment,
+                            NodeWebViewFragment.TAG + currentPage).commit();
+        }
     }
 
     private NodeWebViewFragment createNodeWebViewFragment() {
@@ -284,7 +294,10 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                 AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.warning_msg)
-                        .setMessage(R.string.rv_error_empty_report).show();
+                        .setCancelableOnTouchOutside(false)
+                        .setMessage(R.string.rv_error_empty_report)
+                        .setNegativeButtonText(android.R.string.ok)
+                        .show();
             }
         }
 

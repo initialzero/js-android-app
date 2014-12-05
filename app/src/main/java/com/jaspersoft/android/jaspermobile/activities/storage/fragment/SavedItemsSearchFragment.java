@@ -25,27 +25,16 @@
 package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
 
 import android.content.Intent;
-import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesFragment;
-import com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_;
-import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import roboguice.fragment.RoboFragment;
 

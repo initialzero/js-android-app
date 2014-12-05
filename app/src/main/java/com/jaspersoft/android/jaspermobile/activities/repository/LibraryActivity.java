@@ -36,7 +36,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
@@ -68,13 +68,13 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoManager;
 
+    @Bean
+    ServerInfoManager infoManager;
     @Pref
     LibraryPref_ pref;
     @Bean
-    FilterOptions filterOptions;
+    FilterManager filterOptions;
     @Bean
     SortOptions sortOptions;
 

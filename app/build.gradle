@@ -103,7 +103,15 @@ android {
 
     productFlavors {
         qa {
-
+        }
+        dev {
+        }
+        production{
+            buildTypes {
+                debug {
+                    signingConfig signingConfigs.release
+                }
+            }
         }
     }
 }

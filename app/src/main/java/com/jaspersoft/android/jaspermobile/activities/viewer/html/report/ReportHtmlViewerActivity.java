@@ -49,7 +49,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.api.ViewServer;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -63,18 +62,18 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
 
     // Extras
     public static final String EXTRA_REPORT_PARAMETERS = "ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS";
+    public static final String EXTRA_REPORT_CONTROLS = "ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS";
     // Result Code
     public static final int REQUEST_REPORT_PARAMETERS = 100;
-
     @Extra
     ResourceLookup resource;
     @Bean
     ScrollableTitleHelper scrollableTitleHelper;
+    @Bean
+    ServerInfoManager infoManager;
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +86,7 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            infoHolder.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+            infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
                 @Override
                 public void onInfoReceived(ServerInfoSnapshot serverInfo) {
                     commitFragments(serverInfo);
@@ -121,24 +120,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
     @OptionsItem(android.R.id.home)
     final void goBack() {
         super.onBackPressed();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        ViewServer.get(this).addWindow(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ViewServer.get(this).removeWindow(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ViewServer.get(this).setFocusedWindow(this);
     }
 
 }

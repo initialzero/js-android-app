@@ -64,7 +64,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
+    @Bean
     ServerInfoManager infoManager;
 
     @OptionsMenuItem
@@ -89,7 +89,8 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
 
             webViewFragment = WebViewFragment_.builder()
-                    .resourceLabel(resource.getLabel()).resourceUri(resource.getUri()).build();
+                    .resourceLabel(resource.getLabel())
+                    .build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
@@ -123,6 +124,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
+                .setNegativeButtonText(android.R.string.ok)
                 .show();
     }
 
@@ -141,11 +143,11 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         String serverUrl = jsRestClient.getServerProfile().getServerUrl();
 
         dashboardUrl = serverUrl
-                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
+                + "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource="
                 + resource.getUri();
         if (serverInfo.getVersionCode() >= ServerInfo.VERSION_CODES.AMBER) {
             if (resource.getResourceType() == ResourceLookup.ResourceType.dashboard) {
-                dashboardUrl = serverUrl + "/dashboard/viewer.html?_opt=false&decorate=no#" + resource.getUri();
+                dashboardUrl = serverUrl + "/dashboard/viewer.html?_opt=false&sessionDecorator=no#" + resource.getUri();
             }
         }
 

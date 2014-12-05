@@ -33,9 +33,10 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
 
@@ -45,6 +46,8 @@ import org.androidannotations.annotations.OptionsItem;
  */
 @EActivity(R.layout.repositories_layout)
 public class RepositoryActivity extends RoboAccentFragmentActivity {
+    @Bean
+    FilterManager filterManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,13 +64,13 @@ public class RepositoryActivity extends RoboAccentFragmentActivity {
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
                             .recursiveLookup(false)
-                            .resourceTypes(FilterOptions.ALL_REPOSITORY_TYPES)
+                            .resourceTypes(filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY))
                             .build();
             transaction.add(R.id.controller, resourcesController, ResourcesControllerFragment.TAG);
 
             SearchControllerFragment searchControllerFragment =
                     SearchControllerFragment_.builder()
-                    .resourceTypes(FilterOptions.ALL_REPOSITORY_TYPES)
+                    .resourceTypes(filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY))
                     .build();
             transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
             transaction.commit();

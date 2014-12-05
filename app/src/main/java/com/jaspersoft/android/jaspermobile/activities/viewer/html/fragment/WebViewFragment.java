@@ -36,7 +36,6 @@ import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -44,6 +43,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -77,8 +77,6 @@ public class WebViewFragment extends RoboFragment {
     ProgressBar progressBar;
 
     @FragmentArg
-    String resourceUri;
-    @FragmentArg
     String resourceLabel;
 
     @InstanceState
@@ -90,6 +88,8 @@ public class WebViewFragment extends RoboFragment {
     protected JsRestClient jsRestClient;
     @Bean
     ScrollableTitleHelper scrollableTitleHelper;
+    @Bean
+    JSWebViewClient jsWebViewClient;
 
     private OnWebViewCreated onWebViewCreated;
     private JSWebView webView;
@@ -154,8 +154,16 @@ public class WebViewFragment extends RoboFragment {
         webView.loadUrl(url, map);
     }
 
+    public void loadHtml(String baseUrl, String currentHtml) {
+        webView.loadDataWithBaseURL(baseUrl, currentHtml, "text/html", "utf-8", null);
+    }
+
     public void setOnWebViewCreated(OnWebViewCreated onWebViewCreated) {
         this.onWebViewCreated = onWebViewCreated;
+    }
+
+    public WebView getWebView() {
+        return webView;
     }
 
     public boolean isResourceLoaded() {
@@ -201,13 +209,13 @@ public class WebViewFragment extends RoboFragment {
     @SuppressLint("SetJavaScriptEnabled")
     private void prepareWebView() {
         // disable hardware acceleration
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         // configure additional settings
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(jsWebViewClient);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.getSettings().setLoadWithOverviewMode(true);

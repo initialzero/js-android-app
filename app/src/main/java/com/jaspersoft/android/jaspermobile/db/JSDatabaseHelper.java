@@ -39,29 +39,32 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
     @Override
     public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         executePragmas(db);
-        if (oldVersion == 2 && newVersion == 3) {
-            db.execSQL("DROP TABLE IF EXISTS report_options;");
+        switch(oldVersion) {
+            case 1:
+            case 2:
+                db.execSQL("DROP TABLE IF EXISTS report_options;");
 
-            db.execSQL("ALTER TABLE server_profiles RENAME TO tmp_server_profiles;");
-            db.execSQL(
-                    "CREATE TABLE server_profiles ( _id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    " alias TEXT, server_url TEXT, organization TEXT, username TEXT," +
-                    " password TEXT, edition TEXT, version_code NUMERIC );"
-            );
-            db.execSQL("INSERT INTO server_profiles(alias, server_url, organization, username, password)" +
-                    " select alias, server_url, organization, username, password from tmp_server_profiles;");
-            db.execSQL("DROP TABLE IF EXISTS tmp_server_profiles;");
+                db.execSQL("ALTER TABLE server_profiles RENAME TO tmp_server_profiles;");
+                db.execSQL(
+                        "CREATE TABLE server_profiles ( _id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                                " alias TEXT, server_url TEXT, organization TEXT, username TEXT," +
+                                " password TEXT, edition TEXT, version_code NUMERIC );"
+                );
+                db.execSQL("INSERT INTO server_profiles(alias, server_url, organization, username, password)" +
+                        " select alias, server_url, organization, username, password from tmp_server_profiles;");
+                db.execSQL("DROP TABLE IF EXISTS tmp_server_profiles;");
 
-            db.execSQL("ALTER TABLE favorites RENAME TO tmp_favorites;");
-            db.execSQL(
-                    "CREATE TABLE favorites ( _id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT," +
-                    " title TEXT, uri TEXT, description TEXT, wstype TEXT, username TEXT, " +
-                    "organization TEXT, server_profile_id INTEGER REFERENCES server_profiles(_id)" +
-                    " ON DELETE CASCADE )"
-            );
-            db.execSQL("INSERT INTO favorites(name, title, uri, description, wstype, username, organization, server_profile_id)" +
-                    " select name, title, uri, description, wstype, username, organization, server_profile_id from tmp_favorites;");
-            db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
+                db.execSQL("ALTER TABLE favorites RENAME TO tmp_favorites;");
+                db.execSQL(
+                        "CREATE TABLE favorites ( _id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT," +
+                                " title TEXT, uri TEXT, description TEXT, wstype TEXT, username TEXT, " +
+                                "organization TEXT, server_profile_id INTEGER REFERENCES server_profiles(_id)" +
+                                " ON DELETE CASCADE )"
+                );
+                db.execSQL("INSERT INTO favorites(name, title, uri, description, wstype, username, organization, server_profile_id)" +
+                        " select name, title, uri, description, wstype, username, organization, server_profile_id from tmp_favorites;");
+                db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
+                break;
         }
     }
 

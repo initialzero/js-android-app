@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
@@ -98,8 +98,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoHolder;
+    @Bean
+    ServerInfoManager infoManager;
     @Inject
     ResourceLookupSearchCriteria mSearchCriteria;
 
@@ -200,11 +200,20 @@ public class ResourcesFragment extends RoboSpiceFragment
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
 
-        infoHolder.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
             @Override
             public void onInfoReceived(ServerInfoSnapshot serverInfo) {
                 updatePaginationPolicy(serverInfo);
-                loadRootFolders(serverInfo);
+
+                String proVersion = ServerInfo.EDITIONS.PRO;
+                boolean isRepository = !recursiveLookup;
+                boolean isRoot = TextUtils.isEmpty(resourceUri);
+                boolean isProJrs = proVersion.equals(serverInfo.getEdition());
+                if (isRepository && isRoot && isProJrs) {
+                    loadRootFolders(serverInfo);
+                } else {
+                    loadFirstPage();
+                }
             }
         });
 
@@ -289,20 +298,14 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     private void loadRootFolders(ServerInfoSnapshot serverInfo) {
-        String proVersion = ServerInfo.EDITIONS.PRO;
-        boolean isRepository = !recursiveLookup;
-        boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = proVersion.equals(serverInfo.getEdition());
-        if (isRepository && isRoot && isProJrs) {
-            // Fetch default URI
-            GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
-            long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
-                    ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-            getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
-                    new GetRootFolderDataRequestListener());
-        } else {
-            loadFirstPage();
-        }
+        setRefreshState(true);
+        showEmptyText(R.string.loading_msg);
+        // Fetch default URI
+        GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
+        long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
+                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
+        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
+                new GetRootFolderDataRequestListener());
     }
 
     private void loadNextPage() {
@@ -342,9 +345,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
-    //---------------------------------------------------------------------
-    // Inner classes
-    //---------------------------------------------------------------------
+//---------------------------------------------------------------------
+// Inner classes
+//---------------------------------------------------------------------
 
     private class GetRootFolderDataRequestListener implements RequestListener<FolderDataResponse> {
         @Override
@@ -368,7 +371,7 @@ public class ResourcesFragment extends RoboSpiceFragment
             showEmptyText(emptyMessage);
         }
     }
-    
+
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
 
         @Override
@@ -406,9 +409,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-    //---------------------------------------------------------------------
-    // Implements AbsListView.OnScrollListener
-    //---------------------------------------------------------------------
+//---------------------------------------------------------------------
+// Implements AbsListView.OnScrollListener
+//---------------------------------------------------------------------
 
     private class ScrollListener extends SimpleScrollListener {
         @Override

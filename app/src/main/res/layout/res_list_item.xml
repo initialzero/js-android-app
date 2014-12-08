@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ImageView
+        android:contentDescription="@string/img_cd_list_item"
+        android:id="@android:id/icon"
+        android:layout_width="@dimen/list_item_image_width"
+        android:layout_height="match_parent"
+
+        android:scaleType="fitXY" />
+
+    <CheckedTextView
+        android:id="@android:id/text1"
+        style="@style/list2.item.title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_toEndOf="@android:id/icon"
+        android:layout_toRightOf="@android:id/icon"
+        android:ellipsize="end"
+        android:textColor="@color/list_label_light_grey"
+        tools:text="Large Text" />
+
+    <CheckedTextView
+        android:id="@android:id/text2"
+        style="@style/list2.item.subTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@android:id/text1"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_toEndOf="@android:id/icon"
+        android:layout_toLeftOf="@+id/miscStub"
+        android:layout_toRightOf="@android:id/icon"
+        android:layout_toStartOf="@+id/miscStub"
+        android:ellipsize="end"
+        android:textColor="@color/list_label_grey"
+        tools:text="Small Text" />
+
+    <ViewStub
+        android:id="@+id/timestampStub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_alignBaseline="@android:id/text1"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:inflatedId="@+id/timestamp"
+        android:layout="@layout/res_metadata" />
+
+    <ViewStub
+        android:id="@+id/miscStub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:inflatedId="@+id/misc"
+        android:layout="@layout/res_metadata" />
+
+</merge>

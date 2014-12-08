@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<resources>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:03</creationDate>
+        <description>Sample HTML5 multi-axis column chart from Domain showing Sales, Units, and Sales/Square Feet by Country and Store Type with various filters</description>
+        <label>01. Geographic Results by Segment Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-08-22 03:42:28</updateDate>
+        <uri>/organizations/organization_1/Reports/1._Geographic_Results_by_Segment_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:10</creationDate>
+        <description>Sample HTML5 multi-axis column chart from Domain showing Sales, Units, and Sales/Square Feet by Country and Store Type with various filters</description>
+        <label>01. Geographic Results by Segment Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-08-22 03:42:28</updateDate>
+        <uri>/public/Samples/Reports/1._Geographic_Results_by_Segment_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:04</creationDate>
+        <description>Sample HTML5 column chart from OLAP source, Created from an Ad Hoc View.</description>
+        <label>02. Sales Mix by Demographic Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-03-31 15:10:32</updateDate>
+        <uri>/organizations/organization_1/Reports/2_Sales_Mix_by_Demographic_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:11</creationDate>
+        <description>Sample HTML5 column chart from OLAP source, Created from an Ad Hoc View.</description>
+        <label>02. Sales Mix by Demographic Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-03-31 15:10:32</updateDate>
+        <uri>/public/Samples/Reports/2_Sales_Mix_by_Demographic_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:04</creationDate>
+        <description>OLAP chart with HTML5 Grouped Bar chart. Created from an Ad Hoc View.</description>
+        <label>03. Store Segment Performance Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-07 21:52:13</updateDate>
+        <uri>/organizations/organization_1/Reports/3_Store_Segment_Performance_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:11</creationDate>
+        <description>OLAP chart with HTML5 Grouped Bar chart. Created from an Ad Hoc View.</description>
+        <label>03. Store Segment Performance Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-07 21:52:13</updateDate>
+        <uri>/public/Samples/Reports/3_Store_Segment_Performance_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:02</creationDate>
+        <description>Multiple Measures in a table with conditional formatting with renamed and re-aligned columns. Created from an Ad Hoc View.</description>
+        <label>04. Product Results by Store Type Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-07 21:55:33</updateDate>
+        <uri>/organizations/organization_1/Reports/04._Product_Results_by_Store_Type_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:10</creationDate>
+        <description>Multiple Measures in a table with conditional formatting with renamed and re-aligned columns. Created from an Ad Hoc View.</description>
+        <label>04. Product Results by Store Type Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-07 21:55:33</updateDate>
+        <uri>/public/Samples/Reports/04._Product_Results_by_Store_Type_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:05</creationDate>
+        <description>Basic interactive Table Component report.</description>
+        <label>05. Accounts Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-16 06:25:53</updateDate>
+        <uri>/organizations/organization_1/Reports/AllAccounts</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:11</creationDate>
+        <description>Basic interactive Table Component report.</description>
+        <label>05. Accounts Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-16 06:25:53</updateDate>
+        <uri>/public/Samples/Reports/AllAccounts</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:05</creationDate>
+        <description>Basic interactive Table Component report with alternate color scheme.</description>
+        <label>05g. Accounts Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:17:06</updateDate>
+        <uri>/organizations/organization_1/Reports/5g.AccountsReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:11</creationDate>
+        <description>Basic interactive Table Component report with alternate color scheme.</description>
+        <label>05g. Accounts Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:17:06</updateDate>
+        <uri>/public/Samples/Reports/5g.AccountsReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:05</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>06. Profit Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-16 06:30:58</updateDate>
+        <uri>/organizations/organization_1/Reports/ProfitDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:11</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>06. Profit Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-16 06:30:58</updateDate>
+        <uri>/public/Samples/Reports/ProfitDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:02</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>06g. Profit Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:18:47</updateDate>
+        <uri>/organizations/organization_1/Reports/06g.ProfitDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:10</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>06g. Profit Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:18:47</updateDate>
+        <uri>/public/Samples/Reports/06g.ProfitDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:06</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>07. Revenue Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-16 06:38:51</updateDate>
+        <uri>/organizations/organization_1/Reports/RevenueDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:12</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>07. Revenue Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-16 06:38:51</updateDate>
+        <uri>/public/Samples/Reports/RevenueDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:02</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>07g. Revenue Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:19:19</updateDate>
+        <uri>/organizations/organization_1/Reports/07g.RevenueDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:10</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>07g. Revenue Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:19:19</updateDate>
+        <uri>/public/Samples/Reports/07g.RevenueDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:02</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>08. Unit Sales Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-17 10:49:43</updateDate>
+        <uri>/organizations/organization_1/Reports/08.UnitSalesDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:10</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>08. Unit Sales Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-17 10:49:43</updateDate>
+        <uri>/public/Samples/Reports/08.UnitSalesDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:02</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>08g. Unit Sales Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:20:14</updateDate>
+        <uri>/organizations/organization_1/Reports/08g.UnitSalesDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:10</creationDate>
+        <description>Sample report containing containing interactive  HTML5 Chart and Table data with input controls. This report is also defined as a drill-down from the SuperMart Dashboard gauge.</description>
+        <label>08g. Unit Sales Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:20:14</updateDate>
+        <uri>/public/Samples/Reports/08g.UnitSalesDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:05</creationDate>
+        <description>Sample report with multiple charts, interactive table, and input controls. Also called as drill-through from the SuperMart and Performance Summary Dashboards.</description>
+        <label>09. Customer Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-25 11:41:05</updateDate>
+        <uri>/organizations/organization_1/Reports/9.CustomerDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:11</creationDate>
+        <description>Sample report with multiple charts, interactive table, and input controls. Also called as drill-through from the SuperMart and Performance Summary Dashboards.</description>
+        <label>09. Customer Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-25 11:41:05</updateDate>
+        <uri>/public/Samples/Reports/9.CustomerDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:05</creationDate>
+        <description>Sample report with multiple charts, interactive table, and input controls. Also called as drill-through from the SuperMart and Performance Summary Dashboards.</description>
+        <label>09g. Customer Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:20:50</updateDate>
+        <uri>/organizations/organization_1/Reports/9g.CustomerDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:11</creationDate>
+        <description>Sample report with multiple charts, interactive table, and input controls. Also called as drill-through from the SuperMart and Performance Summary Dashboards.</description>
+        <label>09g. Customer Detail Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:20:50</updateDate>
+        <uri>/public/Samples/Reports/9g.CustomerDetailReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-10 07:37:18</creationDate>
+        <label>1. Geographic Results by Segment Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2014-09-10 07:37:18</updateDate>
+        <uri>/organizations/organization_1/temp/Report1410334634379</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:01</creationDate>
+        <description>Sample Dashboard with HTML5 charts, and drill-through tables and gauges in blue theme</description>
+        <label>1. Supermart Dashboard</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-07 21:58:28</updateDate>
+        <uri>/organizations/organization_1/Dashboards/Supermart_Dashboard</uri>
+        <version>0</version>
+        <resourceType>dashboard</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:09</creationDate>
+        <description>Sample Dashboard with HTML5 charts, and drill-through tables and gauges in blue theme</description>
+        <label>1. Supermart Dashboard</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-07 21:58:28</updateDate>
+        <uri>/public/Samples/Dashboards/Supermart_Dashboard</uri>
+        <version>0</version>
+        <resourceType>dashboard</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:06</creationDate>
+        <description>Sample report with Pie Chart and crosstab showing sales performance by store type and product category.</description>
+        <label>10. Performance By Store Type</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-08 02:28:12</updateDate>
+        <uri>/organizations/organization_1/Reports/State_Performance</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:12</creationDate>
+        <description>Sample report with Pie Chart and crosstab showing sales performance by store type and product category.</description>
+        <label>10. Performance By Store Type</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-08 02:28:12</updateDate>
+        <uri>/public/Samples/Reports/State_Performance</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:03</creationDate>
+        <description>Sample report with Pie Chart and crosstab showing sales performance by store type and product category.</description>
+        <label>10g. Performance By Store Type</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-08 02:30:58</updateDate>
+        <uri>/organizations/organization_1/Reports/10g.PerformanceByStoreType</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:11</creationDate>
+        <description>Sample report with Pie Chart and crosstab showing sales performance by store type and product category.</description>
+        <label>10g. Performance By Store Type</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-08 02:30:58</updateDate>
+        <uri>/public/Samples/Reports/10g.PerformanceByStoreType</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:00</creationDate>
+        <description>Used in the Supermart dashboard.</description>
+        <label>11. Sales By Month Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-25 11:48:31</updateDate>
+        <uri>/public/Samples/Reports/SalesByMonthReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:06</creationDate>
+        <description>Used in the Supermart dashboard.</description>
+        <label>11. Sales By Month Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-25 11:48:31</updateDate>
+        <uri>/organizations/organization_1/Reports/SalesByMonthReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:00</creationDate>
+        <description>Used in the Supermart alternate color scheme dashboard.</description>
+        <label>11g. Sales By Month Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:22:42</updateDate>
+        <uri>/public/Samples/Reports/11g.SalesByMonthReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:03</creationDate>
+        <description>Used in the Supermart alternate color scheme dashboard.</description>
+        <label>11g. Sales By Month Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-10-03 23:22:42</updateDate>
+        <uri>/organizations/organization_1/Reports/11g.SalesByMonthReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-09 11:02:05</creationDate>
+        <description>Drill-through from the Supermart dashboard.</description>
+        <label>12. Promotion Details Report</label>
+        <permissionMask>1</permissionMask>
+        <updateDate>2013-09-25 11:45:22</updateDate>
+        <uri>/organizations/organization_1/Reports/PromotionDetailsReport</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+</resources>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <!-- Report Name Input Control -->
+        <TextView
+            style="@style/saveReport.reportName.label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sr_report_name" />
+
+        <EditText
+            android:id="@+id/report_name_input"
+            style="@style/saveReport.reportName.input" />
+
+        <!-- Report output formats -->
+        <TextView
+            android:id="@+id/output_format_label"
+            style="@style/saveReport.outputFormat.label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sr_output_format" />
+
+        <Spinner
+            android:id="@+id/output_format_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/sr_output_format" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<reportExecution>
+    <exports>
+        <export>
+            <id>HTML</id>
+            <outputResource>
+                <contentType>text/html</contentType>
+            </outputResource>
+            <status>ready</status>
+        </export>
+    </exports>
+    <reportURI>/Reports/1._Geographic_Results_by_Segment_Report</reportURI>
+    <requestId>1800141459_1411392204119_12</requestId>
+    <status>ready</status>
+    <totalPages>0</totalPages>
+</reportExecution>

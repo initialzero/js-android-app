@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<resources>
+    <resourceLookup>
+        <creationDate>2014-09-03 11:02:00</creationDate>
+        <description>Sample Dashboard with HTML5 charts, and drill-through tables and gauges in blue
+            theme
+        </description>
+        <label>1. Supermart Dashboard</label>
+        <permissionMask>2</permissionMask>
+        <updateDate>2013-10-07 21:58:28</updateDate>
+        <uri>/Dashboards/Supermart_Dashboard</uri>
+        <version>0</version>
+        <resourceType>dashboard</resourceType>
+    </resourceLookup>    <resourceLookup>
+        <creationDate>2014-09-03 11:02:00</creationDate>
+        <description>Sample Dashboard with HTML5 charts, and drill-through tables and gauges in blue
+            theme
+        </description>
+        <label>1. Supermart Dashboard</label>
+        <permissionMask>2</permissionMask>
+        <updateDate>2013-10-07 21:58:28</updateDate>
+        <uri>/Dashboards/Supermart_Dashboard</uri>
+        <version>0</version>
+        <resourceType>dashboard</resourceType>
+    </resourceLookup>    <resourceLookup>
+        <creationDate>2014-09-03 11:02:00</creationDate>
+        <description>Sample Dashboard with HTML5 charts, and drill-through tables and gauges in blue
+            theme
+        </description>
+        <label>1. Supermart Dashboard</label>
+        <permissionMask>2</permissionMask>
+        <updateDate>2013-10-07 21:58:28</updateDate>
+        <uri>/Dashboards/Supermart_Dashboard</uri>
+        <version>0</version>
+        <resourceType>dashboard</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-03 11:02:00</creationDate>
+        <description>Sample Dashboard with HTML5 charts, and drill-through tables and gauges in blue
+            theme
+        </description>
+        <label>1. Supermart Dashboard</label>
+        <permissionMask>2</permissionMask>
+        <updateDate>2013-10-07 21:58:28</updateDate>
+        <uri>/Dashboards/Supermart_Dashboard</uri>
+        <version>0</version>
+        <resourceType>dashboard</resourceType>
+    </resourceLookup>
+</resources>

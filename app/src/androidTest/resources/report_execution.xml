@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<reportExecution>
+    <exports>
+        <export>
+            <id>HTML</id>
+            <outputResource>
+                <contentType>text/html</contentType>
+            </outputResource>
+            <status>ready</status>
+        </export>
+    </exports>
+    <reportURI>/Reports/2_Sales_Mix_by_Demographic_Report</reportURI>
+    <requestId>805973747_1409905900241_149</requestId>
+    <status>ready</status>
+    <totalPages>1</totalPages>
+</reportExecution>

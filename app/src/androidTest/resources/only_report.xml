@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<resources>
+    <resourceLookup>
+        <creationDate>2014-09-03 11:02:02</creationDate>
+        <description>Sample HTML5 multi-axis column chart from Domain showing Sales, Units, and
+            Sales/Square Feet by Country and Store Type with various filters
+        </description>
+        <label>01. Geographic Results by Segment Report</label>
+        <permissionMask>2</permissionMask>
+        <updateDate>2013-08-22 03:42:28</updateDate>
+        <uri>/Reports/1._Geographic_Results_by_Segment_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-03 11:02:02</creationDate>
+        <description>Sample HTML5 multi-axis column chart from Domain showing Sales, Units, and
+            Sales/Square Feet by Country and Store Type with various filters
+        </description>
+        <label>01. Geographic Results by Segment Report</label>
+        <permissionMask>2</permissionMask>
+        <updateDate>2013-08-22 03:42:28</updateDate>
+        <uri>/Reports/1._Geographic_Results_by_Segment_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+    <resourceLookup>
+        <creationDate>2014-09-03 11:02:02</creationDate>
+        <description>Sample HTML5 multi-axis column chart from Domain showing Sales, Units, and
+            Sales/Square Feet by Country and Store Type with various filters
+        </description>
+        <label>01. Geographic Results by Segment Report</label>
+        <permissionMask>2</permissionMask>
+        <updateDate>2013-08-22 03:42:28</updateDate>
+        <uri>/Reports/1._Geographic_Results_by_Segment_Report</uri>
+        <version>0</version>
+        <resourceType>reportUnit</resourceType>
+    </resourceLookup>
+</resources>

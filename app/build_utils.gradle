@@ -1,0 +1,102 @@
+/*
+ * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ *  http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ *  Unless you have purchased a commercial license agreement from Jaspersoft,
+ *  the following license terms apply:
+ *
+ *  This program is part of Jaspersoft Mobile for Android.
+ *
+ *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Jaspersoft Mobile is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Jaspersoft Mobile for Android. If not, see
+ *  <http://www.gnu.org/licenses/lgpl>.
+ */
+
+ext.renameApk = { targetVariant ->
+    // replace output apk name to <product>-<buildType>-<version>-<gitBranch>.apk
+    def versionSuffix = targetVariant.buildType.versionNameSuffix ? targetVariant.buildType.versionNameSuffix : ""
+    def apkName = versionSuffix + targetVariant.mergedFlavor.versionName
+
+    def file = targetVariant.packageApplication.outputFile
+    def fileName = file.name.replace(".apk", "-" + apkName + ".apk")
+
+    if (targetVariant.zipAlign) {
+        targetVariant.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""))
+    }
+}
+
+ext.removeUnaligned = { targetVariant ->
+    def file = targetVariant.packageApplication.outputFile
+
+    if (file.name.contains("unaligned")) {
+        delete file
+    }
+}
+
+ext.generateVersionName = {
+    def version = MAJOR_VERSION + "." + MINOR_VERSION
+    def sanitizedBranch = sanitizeLastSlash(getBranch())
+    def notMaster = !sanitizedBranch.equals('master')
+    def notDevelop = !sanitizedBranch.equals('develop')
+//    def needTimeStamp = true
+    def needTimeStamp = false
+
+    if (notMaster) {
+        if (notDevelop && sanitizedBranch.length() > 0) {
+            version = "${sanitizedBranch}-" + version
+        }
+
+        version += '-SNAPSHOT'
+        if (needTimeStamp) {
+            TimeZone.setDefault(TimeZone.getTimeZone('UTC'))
+            def now = new Date().format("yyyy_MM_dd-HH_mm_ss")
+            version += '-' + now
+        }
+    }
+
+    return version
+}
+
+//---------------------------------------------------------------------
+// Private methods
+//---------------------------------------------------------------------
+
+def sanitizeLastSlash(str) {
+    def lastSlashIndex = str.lastIndexOf("/") + 1
+    return str.substring(lastSlashIndex)
+}
+
+def getBranch() {
+    def gitBranch = getBranchNameFromEnv()
+    if (!gitBranch) {
+        gitBranch = getBranchNameFromGit()
+    }
+    return gitBranch
+}
+
+def getBranchNameFromEnv() { return System.getenv("GIT_BRANCH") }
+
+def getBranchNameFromGit() {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+    catch (ignored) {
+        println ignored
+        return ""
+    }
+}

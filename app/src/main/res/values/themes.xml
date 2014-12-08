@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+
+<resources>
+    <!-- Actionbar -->
+    <style name="Theme.JasperMobile" parent="Theme.HoloAccent.ColoredActionBar">
+        <item name="accentColor">#33B5E5</item>
+        <item name="android:windowBackground">@drawable/ic_resources_background</item>
+        <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+
+        <!--android-styled-dialogs reference style -->
+        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
+
+        <!--App reference styles-->
+        <item name="listLayoutStyle">@style/list2.item.layout</item>
+        <item name="gridLayoutStyle">@style/grid.item.layout</item>
+    </style>
+
+    <style name="Widget.JasperMobile.ActionBar" parent="@android:style/Widget.Holo.ActionBar.Solid">
+        <item name="android:background">@drawable/ab_solid_home</item>
+    </style>
+
+    <style name="Theme.JasperMobile.NoActionBar" parent="@android:style/Theme.Holo.Light.NoActionBar">
+        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
+        <item name="android:windowBackground">@drawable/ic_resources_background</item>
+    </style>
+
+    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
+
+    <style name="Widget.JasperMobileDialog" parent="@style/DialogStyleDark.Custom" />
+
+    <style name="DialogStyleDark.Custom">
+        <item name="titleTextColor">@color/dialog_title_txt_color</item>
+        <item name="dialogBackground">@drawable/ic_resources_background</item>
+    </style>
+
+</resources>

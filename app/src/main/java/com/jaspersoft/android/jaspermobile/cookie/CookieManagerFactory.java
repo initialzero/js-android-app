@@ -45,8 +45,12 @@ public class CookieManagerFactory {
     public static void syncCookies(Context context, JsRestClient jsRestClient) {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(jsRestClient);
-        Preconditions.checkNotNull(jsRestClient.getServerProfile());
-        Preconditions.checkNotNull(jsRestClient.getServerProfile().getServerUrl());
+
+        // As soon as, we utilize server profiles data
+        // we need to be sure that profile exists
+        if (jsRestClient.getServerProfile() == null) {
+            return;
+        }
 
         String serverUrl = jsRestClient.getServerProfile().getServerUrl();
         CookieManagerFactory.createManager(context).setCookieForServerUrl(serverUrl);

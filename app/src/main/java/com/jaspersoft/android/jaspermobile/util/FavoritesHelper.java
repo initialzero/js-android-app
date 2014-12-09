@@ -89,6 +89,7 @@ public class FavoritesHelper {
         favoriteEntry.setUsername(profile.getUsername());
         favoriteEntry.setOrganization(profile.getOrganization());
         favoriteEntry.setServerProfileId(profile.getId());
+        favoriteEntry.setCreationTime(resource.getCreationDate());
 
         return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 favoriteEntry.getContentValues());

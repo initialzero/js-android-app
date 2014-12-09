@@ -79,7 +79,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
     public void testDashboardAndAllFilterOption() throws InterruptedException {
         ResourceLookupsList onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_DASHBOARD);
-        ResourceLookupsList allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ALL_RESOURCES);
+        ResourceLookupsList allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.SMALL_LOOKUP);
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
@@ -95,7 +95,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.ALL_RESOURCES);
+                TestResponses.SMALL_LOOKUP);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(allLookUp.getResourceLookups().size()));

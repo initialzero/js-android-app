@@ -42,7 +42,7 @@ public final class TestResources {
     public static final String ONLY_DASHBOARD = "only_dashboard";
     public static final String ONLY_REPORT = "only_report";
     public static final String ONLY_FOLDER = "level_repositories";
-    public static final String ALL_RESOURCES = "library_reports_small";
+    public static final String ALL_RESOURCES = "all_resources";
     public static final String BIG_LOOKUP = "library_0_40";
     public static final String SMALL_LOOKUP = "library_reports_small";
     public static final String ROOT_FOLDER = "root_folder";

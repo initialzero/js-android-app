@@ -81,7 +81,7 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
         FakeHttpLayerManager.clearHttpResponseRules();
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.ALL_RESOURCES);
+                TestResponses.SMALL_LOOKUP);
     }
 
     public void testSortByDate() {

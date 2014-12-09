@@ -30,6 +30,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
@@ -44,6 +45,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 /**
  * @author Ivan Gadzhega
@@ -62,6 +64,9 @@ public class SavedReportsActivity extends RoboAccentFragmentActivity {
     @InstanceState
     SortOrder sortOrder;
 
+    @Pref
+    LibraryPref_ pref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +77,8 @@ public class SavedReportsActivity extends RoboAccentFragmentActivity {
         }
 
         if (savedInstanceState == null) {
+            // Reset all controls state
+            pref.clear();
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 

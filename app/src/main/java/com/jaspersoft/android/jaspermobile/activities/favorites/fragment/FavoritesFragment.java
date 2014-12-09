@@ -39,9 +39,11 @@ import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -53,8 +55,11 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -70,8 +75,8 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
 @EFragment
 public class FavoritesFragment extends RoboFragment
         implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor> {
-    // Context menu action
-    private static final int ID_CM_FAVORITE = 10;
+
+    private final int FAVORITES_LOADER_ID = 0;
 
     @FragmentArg
     ViewType viewType;
@@ -86,6 +91,16 @@ public class FavoritesFragment extends RoboFragment
 
     @Bean
     ResourceOpener resourceOpener;
+
+    @InstanceState
+    ResourceType filterType;
+
+    @FragmentArg
+    @InstanceState
+    String searchQuery;
+
+    @InstanceState
+    SortOrder sortOrder;
 
     private FavoritesAdapter mAdapter;
 
@@ -107,7 +122,7 @@ public class FavoritesFragment extends RoboFragment
         mAdapter.setViewBinder(this);
         listView.setAdapter(mAdapter);
 
-        getActivity().getSupportLoaderManager().initLoader(0, null, this);
+        getActivity().getSupportLoaderManager().initLoader(FAVORITES_LOADER_ID, null, this);
     }
 
     @Override
@@ -115,7 +130,7 @@ public class FavoritesFragment extends RoboFragment
         super.onResume();
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
-            actionBar.setTitle(R.string.f_title);
+            actionBar.setTitle(searchQuery == null ? getString(R.string.f_title) : getString(R.string.search_result_format, searchQuery));
         }
     }
 
@@ -141,6 +156,26 @@ public class FavoritesFragment extends RoboFragment
         resourceOpener.openResource(resource);
     }
 
+    public void showSavedItemsByFilter(ResourceType selectedFilter) {
+        filterType = selectedFilter;
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
+        sortOrder = selectedSortOrder;
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    @UiThread
+    protected void setEmptyText(int resId) {
+        if (resId == 0) {
+            emptyText.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.VISIBLE);
+            emptyText.setText(resId);
+        }
+    }
+
     //---------------------------------------------------------------------
     // Implements SimpleCursorAdapter.ViewBinder
     //---------------------------------------------------------------------
@@ -163,33 +198,55 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String selection =
-                FavoritesTable.SERVER_PROFILE_ID + " =?  AND " +
-                        FavoritesTable.USERNAME + " =?  AND ";
-
+        StringBuilder selection = new StringBuilder("");
+        ArrayList<String> selectionArgs = Lists.newArrayList();
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
+
+        //Add server profile id and username to WHERE params
+        selection.append(FavoritesTable.SERVER_PROFILE_ID + " =?")
+                .append("  AND ")
+                .append(FavoritesTable.USERNAME + " =?");
+
+        selectionArgs.add(String.valueOf(jsServerProfile.getId()));
+        selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
+
+        //Add organization to WHERE params
         if (noOrganization) {
-            selection += FavoritesTable.ORGANIZATION + " IS NULL";
+            selection.append("  AND ")
+                    .append(FavoritesTable.ORGANIZATION + " IS NULL");
         } else {
-            selection += FavoritesTable.ORGANIZATION + " =?";
-        }
-        String[] selectionArgs;
-        if (noOrganization) {
-            selectionArgs = new String[]{
-                    String.valueOf(jsServerProfile.getId()),
-                    jsServerProfile.getUsername()
-            };
-        } else {
-            selectionArgs = new String[]{
-                    String.valueOf(jsServerProfile.getId()),
-                    jsServerProfile.getUsername(),
-                    jsServerProfile.getOrganization()
-            };
+            selection.append("  AND ")
+                    .append(FavoritesTable.ORGANIZATION + " =?");
+            selectionArgs.add(String.valueOf(jsServerProfile.getOrganization()));
         }
 
-        StringBuilder sortOrder = new StringBuilder("");
-        sortOrder.append("CASE WHEN ")
+        //Add filtration to WHERE params
+        boolean withFiltering = filterType != null;
+        if (withFiltering) {
+            selection.append(" AND ")
+                    .append(FavoritesTable.WSTYPE + " =?");
+            selectionArgs.add(filterType.name());
+        }
+
+        //Add sorting type to WHERE params
+        String sortOrderString;
+        if (sortOrder != null && sortOrder.getValue().equals(SortOrder.CREATION_DATE.getValue())) {
+            sortOrderString = FavoritesTable.CREATION_TIME + " ASC";
+        } else {
+            sortOrderString = FavoritesTable.TITLE + " COLLATE NOCASE ASC";
+        }
+
+        //Add search query to WHERE params
+        boolean inSearchMode = searchQuery != null;
+        if (inSearchMode) {
+            selection.append(" AND ")
+                    .append(FavoritesTable.TITLE + " LIKE ?");
+            selectionArgs.add("%" + searchQuery + "%");
+        }
+
+        StringBuilder sortOrderBuilder = new StringBuilder("");
+        sortOrderBuilder.append("CASE WHEN ")
                 .append(FavoritesTable.WSTYPE)
                 .append(" LIKE ")
                 .append("'%" + ResourceType.folder + "%'")
@@ -197,11 +254,12 @@ public class FavoritesFragment extends RoboFragment
                 .append(", ")
                 .append(FavoritesTable.WSTYPE)
                 .append(" COLLATE NOCASE")
-                .append(", ").append(FavoritesTable.TITLE)
-                .append(" COLLATE NOCASE ASC");
+                .append(", ")
+                .append(sortOrderString);
 
         return new CursorLoader(getActivity(), JasperMobileDbProvider.FAVORITES_CONTENT_URI,
-                FavoritesTable.ALL_COLUMNS, selection, selectionArgs, sortOrder.toString());
+                FavoritesTable.ALL_COLUMNS, selection.toString(),
+                selectionArgs.toArray(new String[selectionArgs.size()]), sortOrderBuilder.toString());
     }
 
     @Override
@@ -210,17 +268,7 @@ public class FavoritesFragment extends RoboFragment
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
-            setEmptyText(R.string.f_empty_list_msg);
-        }
-    }
-
-    @UiThread
-    protected void setEmptyText(int resId) {
-        if (resId == 0) {
-            emptyText.setVisibility(View.GONE);
-        } else {
-            emptyText.setVisibility(View.VISIBLE);
-            emptyText.setText(resId);
+            setEmptyText(searchQuery == null ? R.string.f_empty_list_msg : R.string.r_search_nothing_to_display);
         }
     }
 

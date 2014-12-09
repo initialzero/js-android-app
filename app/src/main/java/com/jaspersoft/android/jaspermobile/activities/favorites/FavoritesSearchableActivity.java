@@ -22,15 +22,15 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.storage;
+package com.jaspersoft.android.jaspermobile.activities.favorites;
 
 import android.app.ActionBar;
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
@@ -40,8 +40,8 @@ import org.androidannotations.annotations.OptionsItem;
  * @author Tom Koptel
  * @since 1.9
  */
-@EActivity
-public class SavedItemsSearchableActivity extends RoboSpiceFragmentActivity {
+@EActivity(R.layout.repositories_layout)
+public class FavoritesSearchableActivity extends RoboSpiceFragmentActivity {
 
     @Extra
     String query;
@@ -53,17 +53,16 @@ public class SavedItemsSearchableActivity extends RoboSpiceFragmentActivity {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getString(R.string.search_result_format, query));
         }
 
         if (savedInstanceState == null) {
-            SavedItemsControllerFragment savedItemsController =
-                    SavedItemsControllerFragment_.builder()
+            FavoritesControllerFragment favoriteController =
+                    FavoritesControllerFragment_.builder()
                             .searchQuery(query)
                             .build();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(savedItemsController, ResourcesControllerFragment.TAG)
+                    .add(R.id.controller, favoriteController, FavoritesControllerFragment.TAG)
                     .commit();
         }
 

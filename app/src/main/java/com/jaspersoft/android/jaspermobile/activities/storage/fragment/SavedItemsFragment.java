@@ -250,7 +250,7 @@ public class SavedItemsFragment extends RoboFragment
         if (sortOrder != null && sortOrder.getValue().equals(SortOrder.CREATION_DATE.getValue())) {
             sortOrderString = SavedItemsTable.CREATION_TIME + " DESC";
         } else {
-            sortOrderString = SavedItemsTable.NAME + " ASC";
+            sortOrderString = SavedItemsTable.NAME + " COLLATE NOCASE ASC";
         }
 
         //Add search query to WHERE params
@@ -272,7 +272,7 @@ public class SavedItemsFragment extends RoboFragment
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
-            setEmptyText(R.string.f_empty_list_msg);
+            setEmptyText(searchQuery == null ? R.string.sdr_ab_list_msg : R.string.r_search_nothing_to_display);
         }
     }
 

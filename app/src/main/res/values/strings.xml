@@ -140,6 +140,9 @@
     <string name="si_fd_sort_label" translatable="false">By label</string>
     <string name="si_fd_sort_date" translatable="false">By creation date</string>
 
+    <!-- Filter Favorites Dialog -->
+    <string name="f_fd_option_folders" translatable="false">Folders</string>
+
     <!-- Search Activity -->
     <string name="sa_show_about">About</string>
     <string name="sa_about_info" translatable="false">TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nFor privacy policy information visit:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2014 TIBCO Software, Inc.</string>
@@ -177,6 +180,7 @@
 
     <!-- Saved Reports Activity -->
     <string name="sdr_ab_title">Saved Items</string>
+    <string name="sdr_ab_list_msg" translatable="false">No saved items</string>
 
     <!-- Context Menu -->
     <string name="sdr_cm_rename">Rename</string>

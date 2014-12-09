@@ -99,27 +99,23 @@ public class ConnectionSettingsFragment extends PreferenceFragment
     }
 
     private void updateDependentObjects(String key) {
-        if (key.equals(KEY_PREF_CONNECT_TIMEOUT)) {
-            try {
-                int readTimeoutValue = prefHelper.getConnectTimeoutValue();
-                mJsRestClient.setConnectTimeout(readTimeoutValue * 1000);
-            } catch (NumberFormatException ex) {
-                sharedPreferences.edit()
-                        .putString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT)
-                        .apply();
-                throw ex;
-            }
+        try {
+            int connectTimeOut = prefHelper.getConnectTimeoutValue();
+            mJsRestClient.setConnectTimeout(connectTimeOut);
+        } catch (NumberFormatException ex) {
+            sharedPreferences.edit()
+                    .putString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT)
+                    .apply();
+            throw ex;
         }
-        if (key.equals(KEY_PREF_READ_TIMEOUT)) {
-            try {
-                int readTimeoutValue = prefHelper.getReadTimeoutValue();
-                mJsRestClient.setReadTimeout(readTimeoutValue * 1000);
-            } catch (NumberFormatException ex) {
-                sharedPreferences.edit()
-                        .putString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT)
-                        .apply();
-                throw ex;
-            }
+        try {
+            int readTimeoutValue = prefHelper.getReadTimeoutValue();
+            mJsRestClient.setReadTimeout(readTimeoutValue);
+        } catch (NumberFormatException ex) {
+            sharedPreferences.edit()
+                    .putString(KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT)
+                    .apply();
+            throw ex;
         }
     }
 

@@ -24,33 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
-import android.app.Application;
 import android.database.Cursor;
 
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.exception.NetworkException;
-import com.octo.android.robospice.request.SpiceRequest;
-import com.octo.android.robospice.request.listener.RequestListener;
 
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
-
-import roboguice.RoboGuice;
+import org.apache.http.fake.FakeHttpLayerManager;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -63,9 +47,7 @@ import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewA
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createOnlyDefaultProfile;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
@@ -81,9 +63,6 @@ import static org.hamcrest.text.StringContains.containsString;
  * @since 1.9
  */
 public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
-    private JsRestClient jsRestClient;
-    final MockedSpiceManager mMockedSpiceManager = new MockedSpiceManager();
-    private ServerInfo serverInfo;
 
     public InitialHomePageTest() {
         super(HomeActivity_.class);
@@ -92,18 +71,8 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-
-        MockitoAnnotations.initMocks(this);
-
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        registerTestModule(new TestModule());
-        Injector injector = RoboGuice.getBaseApplicationInjector(application);
-        jsRestClient = injector.getInstance(JsRestClient.class);
-
-        createOnlyDefaultProfile(application.getContentResolver());
+        createOnlyDefaultProfile(getContentResolver());
+        registerTestModule(new SpiceAwareModule());
     }
 
     @Override
@@ -119,7 +88,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        JsServerProfile serverProfile = getServerProfile();
         assertThat(serverProfile.getAlias(), is(ProfileHelper.DEFAULT_ALIAS));
         assertThat(serverProfile.getOrganization(), is(ProfileHelper.DEFAULT_ORGANIZATION));
         assertThat(serverProfile.getServerUrl(), is(ProfileHelper.DEFAULT_SERVER_URL));
@@ -140,16 +109,6 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(ProfileHelper.DEFAULT_ALIAS)))));
-    }
-
-    public void testSwitchToProfileFromContextMenu() {
-        createTestProfile(getActivity().getContentResolver());
-        startActivityUnderTest();
-
-        onView(withText(TEST_ALIAS)).perform(longClick());
-        onView(withId(R.id.connectItem)).perform(click());
-
-        onView(withId(R.id.profile_name)).check(matches(withText(TEST_ALIAS)));
     }
 
     public void testUsersRotateScreen() {
@@ -176,11 +135,14 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     public void testProfileIncorrectSetup() throws Throwable {
         startActivityUnderTest();
 
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.ROOT_FOLDER_CONTENT, TestResponses.get().notAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
+
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
         onView(withId(getActionBarSubTitleId())).check(matches(withText(ProfileHelper.DEFAULT_ALIAS)));
@@ -191,16 +153,21 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
     public void testProfileIncorrectSetupWithNoPassword() throws Throwable {
         startActivityUnderTest();
 
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.RESOURCES, TestResponses.get().notAuthorized());
         onView(withId(R.id.home_item_library)).perform(click());
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
+
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
         onView(withId(getActionBarSubTitleId())).check(matches(withText(ProfileHelper.DEFAULT_ALIAS)));
 
         onView(withId(R.id.askPasswordCheckBox)).perform(click());
+
+        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         onView(withId(R.id.saveAction)).perform(click());
 
         // Check whether our dialog is shown with Appropriate info
@@ -218,33 +185,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).perform(typeText(PASSWORD));
         onOverflowView(getActivity(), withText(android.R.string.ok)).perform(click());
 
-        JsServerProfile profile = jsRestClient.getServerProfile();
-        assertThat(profile.getPassword(), is(PASSWORD));
+        assertThat(getServerProfile().getPassword(), is(PASSWORD));
     }
 
-    private class MockedSpiceManager extends JsSpiceManager {
-
-        public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey,
-                                final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-            if (request instanceof GetResourceLookupsRequest) {
-                HttpStatusCodeException statusCodeException = new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
-                NetworkException networkException = new NetworkException(statusCodeException);
-                requestListener.onRequestFailure(networkException);
-            }
-        }
-
-        public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-            if (request instanceof GetServerInfoRequest) {
-                requestListener.onRequestSuccess((T) serverInfo);
-            }
-        }
-    }
-
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-            bind(JsRestClient.class).in(Singleton.class);
-        }
-    }
 }

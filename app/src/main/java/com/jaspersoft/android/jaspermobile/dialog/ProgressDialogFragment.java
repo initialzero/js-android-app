@@ -34,6 +34,9 @@ import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
 
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
+
 import fr.castorflex.android.circularprogressbar.CircularProgressDrawable;
 
 import static android.content.DialogInterface.OnCancelListener;
@@ -43,11 +46,14 @@ import static android.content.DialogInterface.OnShowListener;
  * @author Tom Koptel
  * @since 1.9
  */
+@EFragment
 public class ProgressDialogFragment extends DialogFragment {
     private static final String TAG = ProgressDialogFragment.class.getSimpleName();
     private DialogInterface.OnCancelListener onCancelListener;
     private DialogInterface.OnShowListener onShowListener;
 
+    @FragmentArg
+    int loadingMessage;
 
     public void setOnCancelListener(OnCancelListener onCancelListener) {
         this.onCancelListener = onCancelListener;
@@ -61,8 +67,9 @@ public class ProgressDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         ProgressDialog progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(getString(R.string.r_pd_running_report_msg));
+        progressDialog.setMessage(getString(loadingMessage));
         progressDialog.setOnShowListener(onShowListener);
+        progressDialog.setCanceledOnTouchOutside(false);
 
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable
                 .Builder(getActivity())
@@ -71,7 +78,6 @@ public class ProgressDialogFragment extends DialogFragment {
                 .strokeWidth(6)
                 .style(CircularProgressDrawable.Style.ROUNDED).build();
         progressDialog.setIndeterminateDrawable(circularProgressDrawable);
-
         return progressDialog;
     }
 
@@ -81,13 +87,15 @@ public class ProgressDialogFragment extends DialogFragment {
         onCancelListener.onCancel(dialog);
     }
 
+    @Deprecated
     public static void show(FragmentManager fm,
                             OnCancelListener onCancelListener,
                             OnShowListener onShowListener) {
         ProgressDialogFragment dialogFragment = getInstance(fm);
 
         if (dialogFragment == null) {
-            dialogFragment = new ProgressDialogFragment();
+            dialogFragment = ProgressDialogFragment_.builder()
+                    .loadingMessage(R.string.r_pd_running_report_msg).build();
             dialogFragment.setOnCancelListener(onCancelListener);
             dialogFragment.setOnShowListener(onShowListener);
             dialogFragment.show(fm, TAG);
@@ -106,6 +114,49 @@ public class ProgressDialogFragment extends DialogFragment {
     }
 
     public static ProgressDialogFragment getInstance(FragmentManager fm) {
+        if (fm == null) return null;
         return (ProgressDialogFragment) fm.findFragmentByTag(TAG);
+    }
+
+    public static Builder builder(FragmentManager fm) {
+        return new Builder(fm);
+    }
+
+    public static class Builder {
+        private OnCancelListener onCancelListener;
+        private OnShowListener onShowListener;
+        private int loadingMessage;
+        private final FragmentManager fm;
+
+        public Builder(FragmentManager fm) {
+            this.fm = fm;
+            this.loadingMessage = R.string.r_pd_running_report_msg;
+        }
+
+        public Builder setOnCancelListener(OnCancelListener onCancelListener) {
+            this.onCancelListener = onCancelListener;
+            return this;
+        }
+
+        public Builder setOnShowListener(OnShowListener onShowListener) {
+            this.onShowListener = onShowListener;
+            return this;
+        }
+
+        public Builder setLoadingMessage(int loadingMessage) {
+            this.loadingMessage = loadingMessage;
+            return this;
+        }
+
+        public void show() {
+            ProgressDialogFragment dialogFragment = getInstance(fm);
+
+            if (dialogFragment == null) {
+                dialogFragment = ProgressDialogFragment_.builder().loadingMessage(loadingMessage).build();
+                dialogFragment.setOnCancelListener(onCancelListener);
+                dialogFragment.setOnShowListener(onShowListener);
+                dialogFragment.show(fm, TAG);
+            }
+        }
     }
 }

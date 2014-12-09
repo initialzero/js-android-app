@@ -28,18 +28,13 @@ import com.google.common.collect.Queues;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.SpiceManager;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.apache.http.fake.FakeHttpLayerManager;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
@@ -53,26 +48,12 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMa
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<LibraryActivity_> {
-
-    @Mock
-    JsServerProfile mockServerProfile;
-    @Mock
-    JsRestClient mockRestClient;
-    @Mock
-    SpiceManager mockSpiceService;
-
-    private SmartMockedSpiceManager mMockedSpiceManager;
-    private ResourceLookupsList smallLookUp;
-    private ResourceLookupsList bigLookUp;
-    private ResourceLookupsList emptyLookUp;
-    private ServerInfo serverInfo;
 
     public LibraryPageRefreshingTest() {
         super(LibraryActivity_.class);
@@ -81,19 +62,9 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
-
-        smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
-        bigLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_0_40");
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-        emptyLookUp = new ResourceLookupsList();
-
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-
-        registerTestModule(new TestModule());
-        when(mockRestClient.getServerProfile()).thenReturn(mockServerProfile);
-        when(mockServerProfile.getUsernameWithOrgId()).thenReturn(USERNAME);
-        when(mockServerProfile.getPassword()).thenReturn(PASSWORD);
+        registerTestModule(new HackedTestModule());
+        setDefaultCurrentProfile();
+        FakeHttpLayerManager.clearHttpResponseRules();
     }
 
     @Override
@@ -103,23 +74,28 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
     }
 
     public void testPullToRefresh() throws InterruptedException {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(bigLookUp);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(smallLookUp);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.BIG_LOOKUP);
         startActivityUnderTest();
 
         onView(allOf(withId(R.id.refreshLayout), is(not(refreshing()))));
 
+        ResourceLookupsList smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.SMALL_LOOKUP);
         String lastResourceLabel = Queues.newArrayDeque(smallLookUp.getResourceLookups()).getLast().getLabel();
+
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.SMALL_LOOKUP);
         onView(withId(android.R.id.list)).perform(swipeDown());
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(lastResourceLabel)))));
         onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
     }
 
     public void testEmptyTextShouldBeInVisibleWhileContentExist() throws InterruptedException {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(emptyLookUp);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.get().noContent());
         startActivityUnderTest();
 
         onView(allOf(withId(R.id.refreshLayout), is(not(refreshing()))));
@@ -127,11 +103,4 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_browser_nothing_to_display)));
     }
 
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsRestClient.class).toInstance(mockRestClient);
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-        }
-    }
 }

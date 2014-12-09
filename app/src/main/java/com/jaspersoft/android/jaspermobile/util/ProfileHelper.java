@@ -28,6 +28,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -35,8 +37,10 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -58,6 +62,8 @@ import roboguice.inject.RoboInjector;
  */
 @EBean
 public class ProfileHelper {
+    public static final String TAG = ProfileHelper.class.getSimpleName();
+
     public static final String DEFAULT_ALIAS = "Mobile Demo";
     public static final String DEFAULT_ORGANIZATION = "organization_1";
     public static final String DEFAULT_SERVER_URL = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
@@ -70,6 +76,9 @@ public class ProfileHelper {
     GeneralPref_ generalPref;
     @Bean
     DefaultPrefHelper defaultPrefHelper;
+
+    @Inject
+    ServerInfoSnapshot serverInfoSnapshot;
     @Inject
     JsRestClient jsRestClient;
 
@@ -81,8 +90,8 @@ public class ProfileHelper {
 
     public void initJsRestClient() {
         // set timeouts
-        jsRestClient.setConnectTimeout(defaultPrefHelper.getConnectTimeoutValue() * 1000);
-        jsRestClient.setReadTimeout(defaultPrefHelper.getReadTimeoutValue() * 1000);
+        jsRestClient.setConnectTimeout(defaultPrefHelper.getConnectTimeoutValue());
+        jsRestClient.setReadTimeout(defaultPrefHelper.getReadTimeoutValue());
 
         // restore server profile id from preferences
         long profileId = generalPref.currentProfileId().getOr(-1);
@@ -90,28 +99,72 @@ public class ProfileHelper {
         setCurrentServerProfile(profileId);
     }
 
-    public void setCurrentServerProfile(long id) {
-        String where = ServerProfilesTable._ID + " = ?";
-        String[] selectionArgs = {String.valueOf(id)};
-        Cursor cursor = context.getContentResolver()
-                .query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                        ServerProfilesTable.ALL_COLUMNS, where, selectionArgs, null);
+    public void initServerInfoSnapshot() {
+        long profileId = generalPref.currentProfileId().getOr(-1);
+        setCurrentInfoSnapshot(profileId);
+    }
 
+    public void setCurrentInfoSnapshot(long profileId) {
+        Cursor cursor = queryServerProfile(profileId);
         if (cursor != null) {
             try {
                 if (cursor.getCount() > 0) {
                     cursor.moveToPosition(0);
-
-                    ServerProfiles dbProfile = new ServerProfiles(cursor);
-                    JsServerProfile serverProfile = new JsServerProfile(id, dbProfile.getAlias(),
-                            dbProfile.getServerUrl(), dbProfile.getOrganization(),
-                            dbProfile.getUsername(), dbProfile.getPassword());
-                    jsRestClient.setServerProfile(serverProfile);
+                    serverInfoSnapshot.setProfile(new ServerProfiles(cursor));
                 }
             } finally {
                 cursor.close();
             }
         }
+    }
+
+    public void updateCurrentInfoSnapshot(long profileId, ServerInfo serverInfo) {
+        Cursor cursor = queryServerProfile(profileId);
+        if (cursor != null) {
+            try {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToPosition(0);
+                    ServerProfiles profile = new ServerProfiles(cursor);
+                    profile.setVersioncode(serverInfo.getVersionCode());
+                    profile.setEdition(serverInfo.getEdition());
+
+                    Uri uri = Uri.withAppendedPath(
+                            JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, String.valueOf(profileId));
+                    context.getContentResolver().update(uri, profile.getContentValues(), null, null);
+                    serverInfoSnapshot.setProfile(profile);
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+    }
+
+    public void setCurrentServerProfile(long id) {
+        Cursor cursor = queryServerProfile(id);
+
+        if (cursor != null) {
+            try {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToPosition(0);
+                    setCurrentServerProfile(cursor);
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+    }
+
+    public JsServerProfile createProfileFromCursor(Cursor cursor) {
+        long id = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+        ServerProfiles dbProfile = new ServerProfiles(cursor);
+        return new JsServerProfile(id, dbProfile.getAlias(),
+                dbProfile.getServerUrl(), dbProfile.getOrganization(),
+                dbProfile.getUsername(), dbProfile.getPassword());
+    }
+
+    public void setCurrentServerProfile(Cursor cursor) {
+        JsServerProfile serverProfile = createProfileFromCursor(cursor);
+        jsRestClient.setServerProfile(serverProfile);
     }
 
     public void seedProfilesIfNeed() {
@@ -138,6 +191,14 @@ public class ProfileHelper {
         }
     }
 
+    private Cursor queryServerProfile(long id) {
+        String where = ServerProfilesTable._ID + " = ?";
+        String[] selectionArgs = {String.valueOf(id)};
+        return context.getContentResolver()
+                .query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
+                        ServerProfilesTable.ALL_COLUMNS, where, selectionArgs, null);
+    }
+
     /**
      * Remove method when testing needs will be fulfilled
      * @param contentResolver
@@ -160,6 +221,7 @@ public class ProfileHelper {
                 contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, contentValues);
             }
         } catch (IOException e) {
+            Log.w(TAG, "Ignoring population of data");
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(is);

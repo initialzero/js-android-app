@@ -23,23 +23,29 @@
  */
 
 ext.renameApk = { targetVariant ->
-    // replace output apk name to <product>-<buildType>-<version>-<gitBranch>.apk
-    def versionSuffix = targetVariant.buildType.versionNameSuffix ? targetVariant.buildType.versionNameSuffix : ""
-    def apkName = versionSuffix + targetVariant.mergedFlavor.versionName
+    def buildType = targetVariant.buildType
+    def mergedFlavor = targetVariant.mergedFlavor
+    targetVariant.outputs.each { output ->
+        // replace output apk name to <product>-<buildType>-<version>-<gitBranch>.apk
+        def versionSuffix = buildType.versionNameSuffix ? buildType.versionNameSuffix : ""
+        def apkName = versionSuffix + mergedFlavor.versionName
 
-    def file = targetVariant.packageApplication.outputFile
-    def fileName = file.name.replace(".apk", "-" + apkName + ".apk")
+        def file = output.packageApplication.outputFile
+        def fileName = file.name.replace(".apk", "-" + apkName + ".apk")
 
-    if (targetVariant.zipAlign) {
-        targetVariant.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""))
+        if (output.zipAlign) {
+            output.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""))
+        }
     }
 }
 
 ext.removeUnaligned = { targetVariant ->
-    def file = targetVariant.packageApplication.outputFile
+    targetVariant.outputs.each { output ->
+        def file = output.packageApplication.outputFile
 
-    if (file.name.contains("unaligned")) {
-        delete file
+        if (file.name.contains("unaligned")) {
+            delete file
+        }
     }
 }
 

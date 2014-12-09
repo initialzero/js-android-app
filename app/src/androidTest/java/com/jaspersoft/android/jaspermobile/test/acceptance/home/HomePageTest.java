@@ -24,24 +24,20 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
-import com.google.inject.Singleton;
+import com.google.android.apps.common.testing.ui.espresso.Espresso;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
+import org.apache.http.fake.FakeHttpLayerManager;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
@@ -53,16 +49,10 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 2.0
  */
-public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
-
-    private static final String ALIAS = "Mobile Demo";
+    public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
 
     @Mock
     ConnectivityUtil mockConectivityUtil;
-
-    private final ServerInfo mockServerInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-    private final ResourceLookupsList levelRepositories = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
-    private final SmartMockedSpiceManager mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
 
     public HomePageTest() {
         super(HomeActivity_.class);
@@ -76,7 +66,6 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
     }
 
     @Override
@@ -98,7 +87,7 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
 
             onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.h_ad_title_no_connection)));
             onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.h_ad_msg_no_connection)));
-            pressBack();
+            onOverflowView(getActivity(), withId(R.id.sdl__positive_button)).perform(click());
         }
     }
 
@@ -106,32 +95,34 @@ public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
         startActivityUnderTest();
 
         // Check ActionBar server name
-        onView(withId(R.id.profile_name)).check(matches(withText(ALIAS)));
+        onView(withId(R.id.profile_name)).check(matches(withText("Mobile Demo")));
 
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_FOLDER);
         onView(withId(R.id.home_item_library)).perform(click());
-        pressBack();
+        Espresso.pressBack();
 
-        mMockedSpiceManager.addNetworkResponse(mockServerInfo);
-        mMockedSpiceManager.addCachedResponse(levelRepositories);
+        FakeHttpLayerManager.clearHttpResponseRules();
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.GET_ROOT_FOLDER,
+                TestResponses.ROOT_FOLDER);
         onView(withId(R.id.home_item_repository)).perform(click());
-        pressBack();
+        Espresso.pressBack();
 
         onView(withId(R.id.home_item_favorites)).perform(click());
-        pressBack();
+        Espresso.pressBack();
         onView(withId(R.id.home_item_saved_reports)).perform(click());
-        pressBack();
+        Espresso.pressBack();
         onView(withId(R.id.home_item_settings)).perform(click());
-        pressBack();
+        Espresso.pressBack();
         onView(withId(R.id.home_item_servers)).perform(click());
     }
 
-    private class TestModule extends CommonTestModule {
+    private class TestModule extends HackedTestModule {
         @Override
         protected void semanticConfigure() {
-            bind(JsRestClient.class).in(Singleton.class);
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
+           super.semanticConfigure();
             bind(ConnectivityUtil.class).toInstance(mockConectivityUtil);
         }
     }

@@ -31,12 +31,15 @@ import android.view.MenuItem;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -56,11 +59,13 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
+public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         implements WebViewFragment.OnWebViewCreated {
 
     @Inject
     JsRestClient jsRestClient;
+    @Bean
+    ServerInfoManager infoManager;
 
     @OptionsMenuItem
     MenuItem favoriteAction;
@@ -84,11 +89,13 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
 
             webViewFragment = WebViewFragment_.builder()
-                    .resourceLabel(resource.getLabel()).resourceUri(resource.getUri()).build();
+                    .resourceLabel(resource.getLabel())
+                    .build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
+
         }
     }
 
@@ -117,14 +124,33 @@ public class DashboardHtmlViewerActivity extends RoboAccentFragmentActivity
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
+                .setNegativeButtonText(android.R.string.ok)
                 .show();
     }
 
     @Override
-    public void onWebViewCreated(WebViewFragment webViewFragment) {
-        String dashboardUrl = jsRestClient.getServerProfile().getServerUrl()
-                + "/flow.html?_flowId=dashboardRuntimeFlow&viewAsDashboardFrame=true&dashboardResource="
+    public void onWebViewCreated(final WebViewFragment webViewFragment) {
+        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+            @Override
+            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                setDashboardUrl(webViewFragment, serverInfo);
+            }
+        });
+    }
+
+    private void setDashboardUrl(WebViewFragment webViewFragment, ServerInfoSnapshot serverInfo) {
+        String dashboardUrl;
+        String serverUrl = jsRestClient.getServerProfile().getServerUrl();
+
+        dashboardUrl = serverUrl
+                + "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource="
                 + resource.getUri();
+        if (serverInfo.getVersionCode() >= ServerInfo.VERSION_CODES.AMBER) {
+            if (resource.getResourceType() == ResourceLookup.ResourceType.dashboard) {
+                dashboardUrl = serverUrl + "/dashboard/viewer.html?_opt=false&sessionDecorator=no#" + resource.getUri();
+            }
+        }
+
         webViewFragment.loadUrl(dashboardUrl);
     }
 

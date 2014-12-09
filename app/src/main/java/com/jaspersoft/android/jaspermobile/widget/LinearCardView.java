@@ -28,10 +28,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -42,11 +44,12 @@ import com.jaspersoft.android.jaspermobile.R;
  */
 public class LinearCardView extends AutoLayerLinearLayout {
 
-    private final View mViewHeader;
+    private final ImageView mViewHeader;
     private final TextView mTitleTxt;
     private final TextView mSubTitleTxt;
 
     private Drawable mHeaderDrawable;
+    private int mHeaderBackground;
     private String mHeaderTitle;
     private String mHeaderSubTitle;
 
@@ -67,17 +70,19 @@ public class LinearCardView extends AutoLayerLinearLayout {
 
         Resources resources = context.getResources();
         TypedArray typedAttributes = context.obtainStyledAttributes(attrs, R.styleable.LinearCardView, 0, 0);
-        mHeaderDrawable = typedAttributes.getDrawable(R.styleable.LinearCardView_header_background);
+        mHeaderBackground = typedAttributes.getColor(R.styleable.LinearCardView_header_background, android.R.color.transparent);
+        mHeaderDrawable = typedAttributes.getDrawable(R.styleable.LinearCardView_header_icon);
         mHeaderTitle = typedAttributes.getString(R.styleable.LinearCardView_body_title);
         mHeaderSubTitle = typedAttributes.getString(R.styleable.LinearCardView_body_subtitle);
         typedAttributes.recycle();
 
         LayoutInflater.from(context).inflate(R.layout.linear_card_layout, this);
-        mViewHeader = findViewById(R.id.card_header);
+        mViewHeader = (ImageView) findViewById(R.id.card_header);
         mTitleTxt = (TextView) findViewById(R.id.card_title_txt);
         mSubTitleTxt = (TextView) findViewById(R.id.card_subtitle_txt);
 
-        setSupportBackground(mViewHeader, mHeaderDrawable);
+        mViewHeader.setBackgroundColor(mHeaderBackground);
+        mViewHeader.setImageDrawable(mHeaderDrawable);
         mTitleTxt.setText(mHeaderTitle);
 
         if (resources.getBoolean(R.bool.tablet)) {
@@ -107,18 +112,7 @@ public class LinearCardView extends AutoLayerLinearLayout {
 
     public void setHeaderDrawable(Drawable drawable) {
         mHeaderDrawable = drawable;
-        setSupportBackground(mViewHeader, drawable);
-    }
-
-    @SuppressLint("NewApi")
-    @SuppressWarnings("deprecation")
-    public void setSupportBackground(View view, Drawable background) {
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            view.setBackgroundDrawable(background);
-        } else {
-            view.setBackground(background);
-        }
+        mViewHeader.setImageDrawable(drawable);
     }
 
 }

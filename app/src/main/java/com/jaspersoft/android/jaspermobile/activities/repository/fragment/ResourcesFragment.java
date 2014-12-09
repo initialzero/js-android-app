@@ -40,20 +40,21 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
@@ -97,6 +98,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Inject
     JsRestClient jsRestClient;
+    @Bean
+    ServerInfoManager infoManager;
     @Inject
     ResourceLookupSearchCriteria mSearchCriteria;
 
@@ -197,14 +200,23 @@ public class ResourcesFragment extends RoboSpiceFragment
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
 
-        fetchServerInfo();
-    }
+        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+            @Override
+            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                updatePaginationPolicy(serverInfo);
 
-    private void fetchServerInfo() {
-        showEmptyText(R.string.loading_msg);
-        setRefreshState(true);
-        GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-        getSpiceManager().execute(request, new GetServerInfoListener());
+                String proVersion = ServerInfo.EDITIONS.PRO;
+                boolean isRepository = !recursiveLookup;
+                boolean isRoot = TextUtils.isEmpty(resourceUri);
+                boolean isProJrs = proVersion.equals(serverInfo.getEdition());
+                if (isRepository && isRoot && isProJrs) {
+                    loadRootFolders(serverInfo);
+                } else {
+                    loadFirstPage();
+                }
+            }
+        });
+
     }
 
     @Override
@@ -266,6 +278,36 @@ public class ResourcesFragment extends RoboSpiceFragment
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void updatePaginationPolicy(ServerInfoSnapshot serverInfo) {
+        double versionCode = serverInfo.getVersionCode();
+        if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+            mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
+        }
+        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
+            mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
+        }
+
+        if (mPaginationPolicy == null) {
+            throw new UnsupportedOperationException();
+        } else {
+            mPaginationPolicy.setSearchCriteria(mSearchCriteria);
+            getChildFragmentManager().beginTransaction()
+                    .add((Fragment) mPaginationPolicy,
+                            PaginationPolicy.class.getSimpleName()).commit();
+        }
+    }
+
+    private void loadRootFolders(ServerInfoSnapshot serverInfo) {
+        setRefreshState(true);
+        showEmptyText(R.string.loading_msg);
+        // Fetch default URI
+        GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
+        long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
+                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
+        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
+                new GetRootFolderDataRequestListener());
+    }
+
     private void loadNextPage() {
         if (!mLoading && hasNextPage()) {
             mSearchCriteria.setOffset(calculateNextOffset());
@@ -303,57 +345,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
-    //---------------------------------------------------------------------
-    // Inner classes
-    //---------------------------------------------------------------------
-
-    private class GetServerInfoListener implements RequestListener<ServerInfo> {
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, getActivity(), true);
-            setRefreshState(false);
-            showEmptyText(R.string.failed_load_data);
-        }
-
-        @Override
-        public void onRequestSuccess(ServerInfo serverInfo) {
-            setUpPaginationPolicy(serverInfo);
-
-            String proVersion = ServerInfo.EDITIONS.PRO;
-            boolean isRepository = !recursiveLookup;
-            boolean isRoot = TextUtils.isEmpty(resourceUri);
-            boolean isProJrs = proVersion.equals(serverInfo.getEdition());
-            if (isRepository && isRoot && isProJrs) {
-                // Fetch default URI
-                GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
-                long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
-                        ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-                getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
-                        new GetRootFolderDataRequestListener());
-            } else {
-                loadFirstPage();
-            }
-        }
-
-        protected void setUpPaginationPolicy(ServerInfo serverInfo) {
-            double versionCode = serverInfo.getVersionCode();
-            if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
-            }
-            if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
-            }
-
-            if (mPaginationPolicy == null) {
-                throw new UnsupportedOperationException();
-            } else {
-                mPaginationPolicy.setSearchCriteria(mSearchCriteria);
-                getChildFragmentManager().beginTransaction()
-                        .add((Fragment) mPaginationPolicy,
-                                PaginationPolicy.class.getSimpleName()).commit();
-            }
-        }
-    }
+//---------------------------------------------------------------------
+// Inner classes
+//---------------------------------------------------------------------
 
     private class GetRootFolderDataRequestListener implements RequestListener<FolderDataResponse> {
         @Override
@@ -377,7 +371,7 @@ public class ResourcesFragment extends RoboSpiceFragment
             showEmptyText(emptyMessage);
         }
     }
-    
+
     private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
 
         @Override
@@ -415,9 +409,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-    //---------------------------------------------------------------------
-    // Implements AbsListView.OnScrollListener
-    //---------------------------------------------------------------------
+//---------------------------------------------------------------------
+// Implements AbsListView.OnScrollListener
+//---------------------------------------------------------------------
 
     private class ScrollListener extends SimpleScrollListener {
         @Override

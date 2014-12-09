@@ -49,6 +49,7 @@ public class SortDialogFragment extends DialogFragment {
     private static final String TAG = SortDialogFragment.class.getSimpleName();
     private static final int BY_LABEL = 0;
     private static final int BY_CREATION_DATE = 1;
+
     @Bean
     SortOptions sortOptions;
 

@@ -24,7 +24,6 @@
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
@@ -37,15 +36,16 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.Bean;
@@ -54,6 +54,7 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.List;
 
@@ -69,7 +70,11 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
     JsRestClient jsRestClient;
 
     @Bean
-    FilterOptions filterOptions;
+    ServerInfoManager infoManager;
+    @Pref
+    LibraryPref_ pref;
+    @Bean
+    FilterManager filterOptions;
     @Bean
     SortOptions sortOptions;
 
@@ -96,6 +101,9 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
         }
 
         if (savedInstanceState == null) {
+            // Reset all controls state
+            pref.clear();
+
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             resourcesController =
@@ -120,8 +128,19 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
                     .findFragmentByTag(SearchControllerFragment.TAG);
         }
 
-        getSpiceManager().execute(new GetServerInfoRequest(jsRestClient),
-                new GetServerInfoRequestListener());
+        updateOptionsMenu();
+    }
+
+    private void updateOptionsMenu() {
+        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+            @Override
+            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                mShowSortOption = true;
+                String proVersion = ServerInfo.EDITIONS.PRO;
+                mShowFilterOption = (proVersion.equals(serverInfo.getEdition()));
+                invalidateOptionsMenu();
+            }
+        });
     }
 
     @Override
@@ -163,21 +182,6 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
                 }
             }
         });
-    }
-
-    private class GetServerInfoRequestListener extends CommonRequestListener<ServerInfo> {
-        @Override
-        public void onSemanticSuccess(ServerInfo serverInfo) {
-            mShowSortOption = true;
-            String proVersion = ServerInfo.EDITIONS.PRO;
-            mShowFilterOption = (proVersion.equals(serverInfo.getEdition()));
-            invalidateOptionsMenu();
-        }
-
-        @Override
-        public Activity getCurrentActivity() {
-            return LibraryActivity.this;
-        }
     }
 
 }

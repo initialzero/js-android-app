@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.report;
 
 import android.app.ActionBar;
 import android.os.Bundle;
-import android.view.Window;
 
 import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment_;
@@ -36,7 +35,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.WindowFeature;
 
 import java.util.ArrayList;
 
@@ -46,7 +44,6 @@ import java.util.ArrayList;
  * @since 1.8
  */
 @EActivity
-@WindowFeature({Window.FEATURE_INDETERMINATE_PROGRESS})
 public class SaveReportActivity extends RoboSpiceFragmentActivity {
 
     @Extra

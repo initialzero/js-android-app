@@ -28,27 +28,34 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.acceptance.viewer.WebViewInjector;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.DummyResourceUtils;
 import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import org.apache.http.fake.FakeHttpLayerManager;
+
 import java.util.concurrent.TimeUnit;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
+import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
+import static org.hamcrest.Matchers.not;
 
 /**
  * @author Tom Koptel
@@ -99,6 +106,42 @@ public class RealReportViewerPageTest extends ProtoActivityInstrumentation<Repor
 
         rotate();
 
+        onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
+    }
+
+    public void testEmptyReport() {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.INPUT_CONTROLS,
+                TestResponses.INPUT_CONTROLS);
+//        createReportIntent();
+        startActivityUnderTest();
+
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.REPORTS,
+                TestResponses.get().xml("empty_inputcontrol_state"));
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.REPORT_EXECUTIONS,
+                TestResponses.get().xml("empty_report_execution"));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(R.string.warning_msg)));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.rv_error_empty_report)));
+    }
+
+    public void testReportWithNoInputControls() {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.INPUT_CONTROLS,
+                TestResponses.get().noContent());
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.REPORT_EXECUTIONS,
+                TestResponses.REPORT_EXECUTION);
+//        createReportIntent();
+        startActivityUnderTest();
+
+//        onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));
+        onView(not(withId(R.id.showFilters)));
+
+        rotate();
         onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
     }
 

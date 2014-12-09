@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
     Copyright © 2014 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -23,12 +24,11 @@
 -->
 <resources>
 
-    <!--General-->
+    <!-- General -->
     <string name="app_label" translatable="false">TIBCO JasperMobile</string>
     <!-- Images content description -->
     <string name="img_cd_list_item" translatable="false">List item preview</string>
     <string name="img_cd_grid_item" translatable="false">Grid item preview</string>
-
 
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
@@ -139,19 +139,20 @@
 
     <!-- Search Activity -->
     <string name="sa_show_about">About</string>
-    <string name="sa_about_info" translatable="false">
-        TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\nhttp://community.jaspersoft.com/project/jaspermobile-android\n\nCopyright © 2005-2014 TIBCO Software, Inc.
-    </string>
+    <string name="sa_about_info" translatable="false">TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nFor privacy policy information visit:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2014 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy" translatable="false">Privacy Policy</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
-    <string name="ro_page_title">Filter options</string>
+    <string name="ro_page_title" translatable="false">Filter options</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
     <string name="rv_ab_show_filters">Show filters</string>
     <string name="rv_error_empty_report">There is no report data</string>
-    <string name="rv_select_page">Select page</string>
+    <string name="rv_select_page" translatable="false">Select page</string>
+    <string name="rv_out_of_range" translatable="false">Requested page out of range</string>
+    <string name="rv_dialog_reload" translatable="false">Reload</string>
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">The external memory card is not available. Please mount the card and try again.</string>
 
@@ -197,9 +198,9 @@
     <!-- Settings activity -->
     <string name="st_title">Settings</string>
     <string name="st_category_repo_cache">Repository Cache</string>
-    <string name="st_category_repo_cache_summary">Change global connection settings for network calls</string>
+    <string name="st_category_repo_cache_summary" translatable="false">Change repository caching options</string>
     <string name="st_category_connection">Connection</string>
-    <string name="st_category_connection_summary">Change repository caching options</string>
+    <string name="st_category_connection_summary" translatable="false">Change global connection settings for network calls</string>
     <string name="st_title_cache_enable">Enable cache</string>
     <string name="st_title_cache_expiration">Cache expiration</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
@@ -211,7 +212,7 @@
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Invalid number format</string>
-    <string name="st_category_more">More</string>
+    <string name="st_category_more" translatable="false">More</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
@@ -249,7 +250,5 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
-
-
 
 </resources>

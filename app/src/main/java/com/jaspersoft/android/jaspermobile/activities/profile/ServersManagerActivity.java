@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.profile;
 import android.app.ActionBar;
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment_;
@@ -36,14 +35,12 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragme
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EActivity
-@OptionsMenu(R.menu.servers_menu)
 public class ServersManagerActivity extends RoboAccentFragmentActivity {
 
     @Override
@@ -67,11 +64,6 @@ public class ServersManagerActivity extends RoboAccentFragmentActivity {
     @OptionsItem(android.R.id.home)
     final void showHome() {
         HomeActivity.goHome(this);
-    }
-
-    @OptionsItem
-    final void addProfile() {
-        ServerProfileActivity_.intent(this).start();
     }
 
 }

@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?><!--
+    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+<resources>
+    <!-- Home Activity -->
+    <string name="h_repository_label">Repositorio</string>
+    <string name="h_library_label">Biblioteca</string>
+    <string name="h_server_profile_label">"Perfil del servidor: "</string>
+    <string name="h_server_switched_toast">El servidor se ha conmutado a \"%s\"</string>
+
+    <!-- Connection Dialog -->
+    <string name="h_ad_title_no_connection">Sin conexión</string>
+    <string name="h_ad_msg_no_connection">Compruebe la configuración de red del móvil y vuelva a intentarlo.</string>
+
+    <!-- Password Dialog -->
+    <string name="h_ad_title_enter_password">Introduzca una contraseña</string>
+    <string name="h_ad_label_server_profile">Perfil del servidor:</string>
+    <string name="h_ad_label_organization">Organización:</string>
+    <string name="h_ad_label_username">Nombre de usuario:</string>
+
+    <!-- Server Profiles Manager Activity -->
+    <string name="spm_list_title">Perfiles del servidor</string>
+
+    <!-- Toasts -->
+    <string name="spm_profile_created_toast">El nuevo perfil del servidor \'%s\' se ha creado correctamente.</string>
+    <string name="spm_profile_updated_toast">El perfil del servidor \'%s\' se ha actualizado correctamente.</string>
+    <string name="spm_profile_deleted_toast">El perfil del servidor se ha eliminado correctamente.</string>
+    <string name="toast_select_profile">Seleccione su perfil</string>
+
+    <!-- Context Menu -->
+    <string name="spm_cm_switch">Conectar</string>
+    <string name="spm_cm_edit">Editar</string>
+    <string name="spm_cm_delete">Eliminar</string>
+
+    <!-- Action Bar -->
+    <string name="spm_ab_add_profile">Añadir perfil del servidor</string>
+
+    <!-- Delete Dialog -->
+    <string name="spm_ad_delete_profile_msg">¿Está seguro de que desea eliminar este perfil del servidor?</string>
+    <string name="spm_delete_btn">Eliminar</string>
+    <string name="spm_cancel_btn">Cancelar</string>
+
+    <!-- Server Profile Activity -->
+    <string name="sp_bc_add_profile">Nuevo perfil del servidor</string>
+    <string name="sp_bc_edit_profile">Editar perfil del servidor</string>
+    <string name="sp_name_label">Nombre:</string>
+    <string name="sp_name_hint">nombre de mi servidor</string>
+    <string name="sp_url_label">URL del servidor:</string>
+    <string name="sp_url_hint">http://myserver.com</string>
+    <string name="sp_org_label">Organización:</string>
+    <string name="sp_organization_hint">ID de la organización</string>
+    <string name="sp_username_label">Nombre de usuario:</string>
+    <string name="sp_username_hint">mi nombre de usuario</string>
+    <string name="sp_password_label">Contraseña:</string>
+    <string name="sp_password_hint">mi contraseña</string>
+    <string name="sp_ask_password_text">pedir siempre la contraseña</string>
+    <string name="sp_save_btn">Guardar</string>
+    <string name="sp_active_item">Activo: %s</string>
+    <string name="sp_label_general">General</string>
+    <string name="sp_label_auth">Autenticación</string>
+
+    <!-- Error messages -->
+    <string name="sp_error_field_required">Este campo es obligatorio.</string>
+    <string name="sp_error_url_not_valid">La URL no es válida.</string>
+    <string name="sp_error_duplicate_alias">Alias duplicado.</string>
+    <string name="sp_error_unique_alias">Ya existe un servidor con ese alias \'%s\'. </string>
+
+    <!-- Repository Activity -->
+    <string name="r_browser_nothing_to_display">No hay recursos en esta carpeta.</string>
+    <string name="r_search_nothing_to_display">La búsqueda no ha producido resultados.</string>
+
+    <!-- Action Bar -->
+    <string name="r_ab_switch">Conmutar vista</string>
+    <string name="r_ab_search">Buscar</string>
+    <string name="r_ab_refresh">Actualizar</string>
+    <!-- Context Menu -->
+    <string name="r_cm_view_details">Ver detalles</string>
+    <string name="r_cm_add_to_favorites_failed">No se ha podido añadir a favoritos.</string>
+    <string name="r_cm_add_to_favorites">Añadir a favoritos</string>
+    <string name="r_cm_remove_from_favorites">Eliminar desde favoritos</string>
+    <string name="r_cm_remove_from_favorites_failed">No se ha podido eliminar de favoritos.</string>
+
+    <!-- Progress Dialog -->
+    <string name="r_pd_running_report_msg">Ejecutando informe...</string>
+
+    <!-- Error messages -->
+    <string name="r_error_server_not_supported">La versión del servidor es anterior a la 5.5 (no admitida) o la URL es incorrecta.</string>
+
+    <!-- Search Activity -->
+    <string name="s_hint">Recursos de la búsqueda</string>
+
+    <!-- Action Bar -->
+    <string name="s_ab_filter_by">Filtrar por</string>
+    <string name="s_ab_sort_by">Ordenar por</string>
+
+    <!-- Filter Dialog -->
+    <string name="s_fd_option_all">Todo</string>
+    <string name="s_fd_option_reports">Informes</string>
+    <string name="s_fd_option_dashboards">Paneles</string>
+    <string name="s_fd_sort_label">Por etiqueta</string>
+    <string name="s_fd_sort_date">Por fecha de creación</string>
+
+    <!-- Search Activity -->
+    <string name="sa_show_about">Acerca de</string>
+
+    <!-- Report Options Activity -->
+    <string name="ro_run_report_btn">Ejecutar informe</string>
+
+    <!-- Report Viewer Activity -->
+    <string name="rv_ab_save_report">Guardar informe</string>
+    <string name="rv_ab_show_filters">Mostrar filtros</string>
+    <string name="rv_error_empty_report">No hay ningún dato de informe.</string>
+    <!-- Toasts -->
+    <string name="rv_t_external_storage_not_available">La tarjeta de memoria externa no está disponible. Monte la tarjeta e inténtelo de nuevo.</string>
+
+    <!-- Save Report Activity -->
+    <string name="sr_ab_title">Guardar informe</string>
+    <string name="sr_report_name">Nombre de informe</string>
+    <string name="sr_output_format">Formato de salida</string>
+    <!-- Toasts -->
+    <string name="sr_t_report_saved">El informe se ha guardado correctamente.</string>
+    <!-- Error messages -->
+    <string name="sr_error_field_is_empty">No puede estar vacío.</string>
+    <string name="sr_error_characters_not_allowed">No puede contener ninguno de los siguientes caracteres: * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sr_error_report_exists">Ya existe un informe con ese nombre.</string>
+
+    <!-- Favorites activity -->
+    <string name="f_title">Favoritos</string>
+    <string name="f_empty_list_msg">No hay entradas de favoritos.</string>
+
+    <!-- Saved Reports Activity -->
+    <string name="sdr_ab_title">Elementos guardados</string>
+
+    <!-- Context Menu -->
+    <string name="sdr_cm_rename">Cambiar nombre</string>
+    <string name="sdr_cm_delete">Eliminar</string>
+
+    <!-- Rename Report Dialog -->
+    <string name="sdr_rrd_title">Cambiar nombre del informe</string>
+    <string name="sdr_rrd_msg">Introduzca un nombre nuevo:</string>
+    <string name="sdr_rrd_hint">Nombre del informe</string>
+    <string name="sdr_rrd_error_name_is_empty">No puede estar vacío.</string>
+    <string name="sdr_rrd_error_characters_not_allowed">No puede contener ninguno de los siguientes caracteres: * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sdr_rrd_error_report_exists">Ya existe un informe con ese nombre.</string>
+
+    <!-- Delete Report Dialog -->
+    <string name="sdr_drd_title">Eliminar informe</string>
+    <string name="sdr_drd_msg">¿Desea eliminar realmente \"%s\"?</string>
+
+    <!-- Toasts -->
+    <string name="sdr_t_no_app_available">No se ha instalado ningún visor de \"%s\".</string>
+    <string name="sdr_t_report_renaming_error">No se puede cambiar el nombre del informe.</string>
+    <string name="sdr_t_report_deletion_error">No se puede eliminar el informe.</string>
+
+    <!-- Settings activity -->
+    <string name="st_title">Configuración</string>
+    <string name="st_category_repo_cache">Caché del repositorio</string>
+    <string name="st_category_connection">Con conexión</string>
+    <string name="st_title_cache_enable">Activar caché</string>
+    <string name="st_title_cache_expiration">Caducidad de la caché</string>
+    <string name="st_title_connect_timeout">Tiempo de espera de la conexión</string>
+    <string name="st_title_read_timeout">Tiempo de espera de lectura de datos</string>
+    <string name="st_title_animations">Animaciones de la aplicación</string>
+    <string name="st_send_crashes">Enviar informes de errores</string>
+    <string name="st_send_crashes_summary">ADVERTENCIA: Esta opción reinicia la aplicación.</string>
+    <string name="st_summary_cache_enable">Solicitudes de repositorio de la caché para el periodo especificado</string>
+    <string name="st_summary_sec">%s s</string>
+    <string name="st_summary_h">%s h</string>
+    <string name="st_invalid_number_format">Formato de número no válido</string>
+
+    <!-- Error messages -->
+    <string name="error_http_400">400 - Solicitud errónea. La solicitud no es válida.</string>
+    <string name="error_http_401">401 -Sin autorización.
+                                  \nFaltan las credenciales de autenticación o no son correctas.
+                                  \n\n¿Desea editar el perfil del servidor?</string>
+    <string name="error_http_403">403 - Permiso denegado. Se ha entendido la solicitud, pero se ha rechazado.</string>
+    <string name="error_http_404">404 - No encontrado. La solicitud de URI no es válida o la solicitud de recurso no existe.</string>
+    <string name="error_http_500">500 - Error interno del servidor.</string>
+    <string name="error_http_502">502 - Puerta de enlace errónea.</string>
+    <string name="error_http_503">503 - Servicio no disponible.</string>
+    <string name="error_http_504">504 - Tiempo de espera de puerta de enlace agotado.</string>
+
+    <!-- Others -->
+    <string name="loading_msg">Cargando...</string>
+    <string name="error_msg">Error</string>
+    <string name="warning_msg">Advertencia</string>
+    <string name="cancelled_msg">Cancelado</string>
+
+    <!-- New Home Page Labels -->
+    <string name="library_card_label">Biblioteca</string>
+    <string name="library_card_desc">Examine la biblioteca de JR Server.</string>
+    <string name="saved_items_card_desc">Vea los elementos guardados en este dispositivo.</string>
+    <string name="repository_card_label">Repositorio</string>
+    <string name="repository_card_desc">Examine el repositorio de JR Server.</string>
+    <string name="favorites_card_label">Favoritos</string>
+    <string name="favorites_card_desc">Vea favoritos en el dispositivo.</string>
+    <string name="servers_card_label">Servidores</string>
+    <string name="servers_card_desc">Seleccione el perfil de JR Server.</string>
+    <string name="settings_card_label">Configuración</string>
+    <string name="settings_card_desc">Configure la aplicación para dispositivos móviles de TIBCO Jaspersoft.</string>
+    <string name="search_result_format">Buscar resultados para \'%s\'</string>
+    <string name="failed_load_data">Error al cargar los datos.</string>
+
+    <!-- Pagination controll -->
+    <string name="of"><![CDATA[de %d]]></string>
+    <string name="dialog_current_page">Establecer página actual</string>
+
+
+
+</resources>

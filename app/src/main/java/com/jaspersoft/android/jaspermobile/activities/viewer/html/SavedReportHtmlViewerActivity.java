@@ -29,8 +29,8 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.emerald2.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
@@ -68,7 +68,7 @@ public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
 
         if (savedInstanceState == null) {
             WebViewFragment webViewFragment = WebViewFragment_.builder()
-                    .resourceLabel(resourceLabel).resourceUri(resourceUri).build();
+                    .resourceLabel(resourceLabel).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)

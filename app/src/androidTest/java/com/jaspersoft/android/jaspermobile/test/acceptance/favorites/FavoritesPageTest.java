@@ -28,27 +28,19 @@ import android.app.Application;
 import android.content.Intent;
 import android.database.Cursor;
 
-import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.SmartMockedSpiceManager;
+import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
+import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.apache.http.fake.FakeHttpLayerManager;
 
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
 import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
@@ -72,19 +64,8 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  */
 public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesActivity_> {
 
-    @Mock
-    JsRestClient mockJsRestClient;
-    @Mock
-    JsServerProfile jsServerProfile;
-
     private Application mApplication;
-    private SmartMockedSpiceManager mMockedSpiceManager;
-    private ResourceLookupsList onlyDashboard;
-    private ResourceLookupsList onlyReport;
-    private ResourceLookupsList onlyFolder;
     private FavoritesHelper_ favoritesHelper;
-    private ReportExecutionResponse reportExecution;
-    private ServerInfo serverInfo;
 
     public FavoritesPageTest() {
         super(FavoritesActivity_.class);
@@ -93,25 +74,14 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        MockitoAnnotations.initMocks(this);
-
-        onlyDashboard = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
-        onlyReport = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
-        onlyFolder = TestResources.get().fromXML(ResourceLookupsList.class, "level_repositories");
-        reportExecution = TestResources.get().fromXML(ReportExecutionResponse.class, "report_execution_geographic_result");
-        serverInfo = TestResources.get().fromXML(ServerInfo.class, "server_info");
-
         mApplication = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
-        DefaultPrefHelper_ defaultPrefHelper = DefaultPrefHelper_.getInstance_(mApplication);
-        defaultPrefHelper.setAnimationEnabled(false);
-        mMockedSpiceManager = SmartMockedSpiceManager.getInstance();
-
-        registerTestModule(new TestModule());
+        registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
+
         favoritesHelper = FavoritesHelper_.getInstance_(mApplication);
         deleteAllFavorites(mApplication.getContentResolver());
+        FakeHttpLayerManager.clearHttpResponseRules();
     }
 
     @Override
@@ -121,9 +91,55 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         super.tearDown();
     }
 
+    public void testActionModeAboutIcon() {
+        ResourceLookupsList onlyReport = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_REPORT);
+        ResourceLookup resource = onlyReport.getResourceLookups().get(0);
+        favoritesHelper.addToFavorites(resource);
+        startActivityUnderTest();
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(longClick());
+
+        onView(withId(R.id.showAction)).perform(click());
+        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(resource.getLabel())));
+        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(resource.getDescription())));
+    }
+
+    public void testAddDashboardToFavoriteFromContextMenu() throws Throwable {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_DASHBOARD);
+
+        deleteAllFavorites(mApplication.getContentResolver());
+        startActivityUnderTest();
+        startContextMenuInteractionTest();
+    }
+
+    public void testAddFolderToFavoriteFromContextMenu() throws Throwable {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_FOLDER);
+
+        deleteAllFavorites(mApplication.getContentResolver());
+        startActivityUnderTest();
+        startContextMenuInteractionTest();
+    }
+
+    public void testAddReportToFavoriteFromContextMenu() throws Throwable {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_REPORT);
+
+        deleteAllFavorites(mApplication.getContentResolver());
+        startActivityUnderTest();
+        startContextMenuInteractionTest();
+    }
+
     public void testAddToFavoriteFromDashboardView() {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyDashboard);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_DASHBOARD);
         startActivityUnderTest();
 
         // Force only dashboards
@@ -155,13 +171,9 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     }
 
     public void testAddToFavoriteFromReportView() {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyReport);
-        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
-        mMockedSpiceManager.addNetworkResponse(reportExecution);
-
-        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
-        mMockedSpiceManager.addNetworkResponse(reportExecution);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_REPORT);
         startActivityUnderTest();
 
         // Force only reports
@@ -172,6 +184,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         getInstrumentation().waitForIdleSync();
 
         // Select report
+        FakeHttpLayerManager.setDefaultHttpResponse(TestResponses.get().noContent());
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
@@ -193,60 +206,38 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
     }
 
-    public void testAddReportToFavoriteFromContextMenu() throws Throwable {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyReport);
-        mMockedSpiceManager.addNetworkResponse(new InputControlsList());
-        mMockedSpiceManager.addNetworkResponse(reportExecution);
+    public void testPageShouldPreserveOriginalLabel() {
+        ResourceLookupsList onlyFolder = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_FOLDER);
+        ResourceLookup resourceLookup = onlyFolder.getResourceLookups().get(0);
+        favoritesHelper.addToFavorites(resourceLookup);
 
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyReport);
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.RESOURCES,
+                TestResponses.ONLY_FOLDER);
 
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyReport);
-
-        deleteAllFavorites(mApplication.getContentResolver());
         startActivityUnderTest();
-        startContextMenuInteractionTest();
+
+        onData(is(instanceOf(Cursor.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+
+        onView(withId(getActionBarTitleId())).check(matches(withText(resourceLookup.getLabel())));
+        pressBack();
+        onView(withId(getActionBarTitleId())).check(matches(withText(R.string.f_title)));
     }
 
-    public void testAddDashboardToFavoriteFromContextMenu() throws Throwable {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyDashboard);
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyDashboard);
+    private void startContextMenuInteractionTest() throws InterruptedException {
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.INPUT_CONTROLS,
+                TestResponses.get().noContent());
+        FakeHttpLayerManager.addHttpResponseRule(
+                ApiMatcher.REPORT_EXECUTIONS,
+                TestResponses.get().noContent());
 
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyDashboard);
-
-        deleteAllFavorites(mApplication.getContentResolver());
-        startActivityUnderTest();
-        startContextMenuInteractionTest();
-    }
-
-    public void testAddFolderToFavoriteFromContextMenu() throws Throwable {
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyFolder);
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyFolder);
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyFolder);
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyFolder);
-
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyFolder);
-
-        deleteAllFavorites(mApplication.getContentResolver());
-        startActivityUnderTest();
-        startContextMenuInteractionTest();
-    }
-
-    private void startContextMenuInteractionTest() {
         Intent intent = LibraryActivity_.intent(mApplication)
                 .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .get();
@@ -278,6 +269,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         pressBack();
         pressBack();
 
+        Thread.sleep(200);
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
 
@@ -301,44 +293,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
-    }
-
-    public void testPageShouldPreserveOriginalLabel() {
-        ResourceLookup resourceLookup = onlyFolder.getResourceLookups().get(0);
-        mMockedSpiceManager.addNetworkResponse(serverInfo);
-        mMockedSpiceManager.addCachedResponse(onlyFolder);
-        favoritesHelper.addToFavorites(resourceLookup);
-        startActivityUnderTest();
-
-        onData(is(instanceOf(Cursor.class)))
-                .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
-
-        onView(withId(getActionBarTitleId())).check(matches(withText(resourceLookup.getLabel())));
-        pressBack();
-        onView(withId(getActionBarTitleId())).check(matches(withText(R.string.f_title)));
-    }
-
-    public void testActionModeAboutIcon() {
-        ResourceLookup resource = onlyReport.getResourceLookups().get(0);
-        favoritesHelper.addToFavorites(resource);
-        startActivityUnderTest();
-
-        onData(is(instanceOf(Cursor.class)))
-                .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(longClick());
-
-        onView(withId(R.id.showAction)).perform(click());
-        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(resource.getLabel())));
-        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(resource.getDescription())));
-    }
-
-    private class TestModule extends CommonTestModule {
-        @Override
-        protected void semanticConfigure() {
-            bind(JsRestClient.class).in(Singleton.class);
-            bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
-        }
     }
 
 }

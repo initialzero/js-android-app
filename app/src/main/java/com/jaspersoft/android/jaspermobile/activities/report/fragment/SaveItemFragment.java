@@ -35,13 +35,15 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportAttachmentRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportOutputRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
@@ -50,6 +52,7 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -92,6 +95,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @Inject
     JsRestClient jsRestClient;
+    @Bean
+    ServerInfoManager infoManager;
 
     @InstanceState
     int runningRequests;
@@ -116,9 +121,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @OptionsItem
     final void saveAction() {
         if (isReportNameValid()) {
-            OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
+            final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
             String reportName = reportNameInput.getText() + "." + outputFormat;
-            File reportFile = new File(getReportDir(reportName), reportName);
+            final File reportFile = new File(getReportDir(reportName), reportName);
 
             if (reportFile.exists()) {
                 // show validation message
@@ -127,10 +132,20 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 // save report
                 // run new report execution
                 setRefreshActionButtonState(true);
+
+                final ReportExecutionRequest executionRequest = new ReportExecutionRequest();
+                executionRequest.setReportUnitUri(resourceUri);
+                executionRequest.setInteractive(false);
+                executionRequest.setOutputFormat(outputFormat.toString());
+                executionRequest.setEscapedAttachmentsPrefix("./");
+                if (reportParameters != null && !reportParameters.isEmpty()) {
+                    executionRequest.setParameters(reportParameters);
+                }
+
                 RunReportExecutionRequest request =
-                        new RunReportExecutionRequest(jsRestClient, resourceUri,
-                                outputFormat.toString(), reportParameters, false, "./");
-                getSpiceManager().execute(request, new RunReportExecutionListener(reportFile, outputFormat));
+                        new RunReportExecutionRequest(jsRestClient, executionRequest);
+                getSpiceManager().execute(request,
+                        new RunReportExecutionListener(reportFile, outputFormat));
             }
         }
     }
@@ -167,7 +182,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     private boolean isReportNameValid() {
         String reportName = reportNameInput.getText().toString();
 
-        if (reportName.isEmpty()) {
+        if (reportName.trim().isEmpty()) {
             reportNameInput.setError(getString(R.string.sr_error_field_is_empty));
             return false;
         }
@@ -186,7 +201,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
         File reportDir = new File(savedReportsDir, reportName);
 
-        if (!reportDir.exists() && !reportDir.mkdirs()){
+        if (!reportDir.exists() && !reportDir.mkdirs()) {
             Ln.e("Unable to create %s", savedReportsDir);
         }
 
@@ -223,7 +238,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
         @Override
         public void onRequestSuccess(ReportExecutionResponse response) {
-
             ExportExecution execution = response.getExports().get(0);
             String exportOutput = execution.getId();
             String executionId = response.getRequestId();
@@ -257,7 +271,10 @@ public class SaveItemFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), false);
-            setRefreshActionButtonState(false);
+            runningRequests--;
+            if (runningRequests == 0) {
+                setRefreshActionButtonState(false);
+            }
         }
 
         @Override

@@ -32,11 +32,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
+import android.text.Selection;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.negusoft.holoaccent.dialog.AccentAlertDialog;
@@ -87,7 +91,7 @@ public class NumberDialogFragment extends DialogFragment {
         mValue = numberPicker.getValue();
 
         int inputId = getActivity().getResources().getIdentifier("numberpicker_input", "id", "android");
-        EditText editText = (EditText) numberPicker.findViewById(inputId);
+        final EditText editText = (EditText) numberPicker.findViewById(inputId);
         editText.addTextChangedListener(new AbstractTextWatcher() {
             @Override
             public void onTextChanged(CharSequence sequence, int start, int before, int count) {
@@ -112,13 +116,21 @@ public class NumberDialogFragment extends DialogFragment {
         builder.setCancelable(true);
         builder.setNegativeButton(android.R.string.cancel, null);
 
+        editText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    Selection.removeSelection(editText.getText());
+                    dispatchOnPageSelected();
+                }
+                return false;
+            }
+        });
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (onPageSelectedListener != null) {
-                    onPageSelectedListener.onPageSelected(mValue);
-                }
+                dispatchOnPageSelected();
             }
         });
 
@@ -131,6 +143,13 @@ public class NumberDialogFragment extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    private void dispatchOnPageSelected() {
+        if (onPageSelectedListener != null) {
+            onPageSelectedListener.onPageSelected(mValue);
+        }
+        dismiss();
     }
 
     public void setPageSelectedListener(OnPageSelectedListener onPageSelectedListener) {

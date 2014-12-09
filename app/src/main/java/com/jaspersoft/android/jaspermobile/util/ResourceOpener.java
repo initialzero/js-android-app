@@ -31,13 +31,14 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.retrofit.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
@@ -52,21 +53,20 @@ import roboguice.inject.RoboInjector;
  */
 @EBean
 public class ResourceOpener {
+    @Bean
+    FilterManager filterManager;
     @RootContext
     FragmentActivity activity;
     @Inject
     JsRestClient jsRestClient;
 
+    private ArrayList<String> resourceTypes;
+
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(activity);
         injector.injectMembersWithoutViews(this);
-    }
-
-    private ArrayList<String> resourceTypes;
-
-    public ResourceOpener() {
-        resourceTypes = FilterOptions.ALL_REPOSITORY_TYPES;
+        resourceTypes = filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY);
     }
 
     public void setResourceTypes(ArrayList<String> resourceTypes) {
@@ -74,14 +74,15 @@ public class ResourceOpener {
     }
 
     public void openResource(ResourceLookup resource) {
-        JasperMobileApplication.removeAllCookies();
         switch (resource.getResourceType()) {
             case folder:
                 openFolder(resource);
                 break;
             case reportUnit:
+                JasperMobileApplication.removeAllCookies();
                 runReport(resource);
                 break;
+            case legacyDashboard:
             case dashboard:
                 runDashboard(resource);
                 break;

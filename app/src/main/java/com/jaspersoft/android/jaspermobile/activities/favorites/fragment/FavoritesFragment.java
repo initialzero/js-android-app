@@ -134,6 +134,7 @@ public class FavoritesFragment extends RoboFragment
 
         ResourceLookup resource = new ResourceLookup();
         resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
+        resource.setDescription(cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION)));
         resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
         resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
 

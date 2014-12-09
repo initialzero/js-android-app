@@ -31,7 +31,6 @@ import android.widget.SearchView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesSearchableActivity_;
-import com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsMenu;

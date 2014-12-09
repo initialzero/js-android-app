@@ -31,7 +31,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,9 +48,9 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
@@ -80,7 +79,6 @@ import roboguice.util.Ln;
 
 import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DATE_DIALOG_ID;
 import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DEFAULT_DATE_FORMAT;
-import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DEFAULT_TIME_FORMAT;
 import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.TIME_DIALOG_ID;
 
 /**
@@ -102,7 +100,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     protected String reportUri;
 
     private DatePickerDialogHelper dialogHelper;
-    private List<InputControl> inputControls;
+    private ArrayList<InputControl> inputControls;
     private LinearLayout baseLayout;
 
     @Override
@@ -229,6 +227,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
         Intent htmlViewer = new Intent();
         htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS, parameters);
+        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS, inputControls);
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();
     }

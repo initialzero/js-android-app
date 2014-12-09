@@ -33,17 +33,10 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
-import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment;
-import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.FilterSavedItemsDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 

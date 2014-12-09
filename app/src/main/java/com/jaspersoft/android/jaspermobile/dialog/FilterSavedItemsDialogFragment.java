@@ -33,20 +33,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions;
-import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ALL_LIBRARY_TYPES;
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ONLY_DASHBOARD;
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.FilterOptions.ONLY_REPORT;
 
 /**
  * @author Tom Koptel

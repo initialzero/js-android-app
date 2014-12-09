@@ -34,6 +34,8 @@ import com.octo.android.robospice.persistence.DurationInMillis;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -47,14 +49,14 @@ public class DefaultPrefHelper {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String value = preferences.getString(
                 SettingsActivity.KEY_PREF_CONNECT_TIMEOUT, SettingsActivity.DEFAULT_CONNECT_TIMEOUT);
-        return Integer.parseInt(value) * 1000;
+        return (int) TimeUnit.SECONDS.toMillis(Integer.parseInt(value));
     }
 
     public int getReadTimeoutValue() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String value = preferences.getString(
                 SettingsActivity.KEY_PREF_READ_TIMEOUT, SettingsActivity.DEFAULT_READ_TIMEOUT);
-        return Integer.parseInt(value) * 1000;
+        return (int) TimeUnit.SECONDS.toMillis(Integer.parseInt(value));
     }
 
     public boolean isAnimationEnabled() {

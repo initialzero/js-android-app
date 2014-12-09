@@ -56,15 +56,16 @@ import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
@@ -130,10 +131,11 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
     @Inject
     JsRestClient jsRestClient;
-    @Inject
-    ServerInfoManager infoHolder;
+    @Bean
+    ServerInfoManager infoManager;
 
     private ServerProfiles mServerProfile;
+    private ServerProfiles mLoadedProfile;
     private int mActionBarSize;
 
     @Override
@@ -262,7 +264,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             case LOAD_PROFILE:
                 if (cursor.getCount() > 0) {
                     cursor.moveToFirst();
-                    updateProfileFields(new ServerProfiles(cursor));
+                    updateProfileFields(cursor);
                 }
                 break;
             case QUERY_UNIQUENESS:
@@ -336,24 +338,27 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     }
 
     @UiThread
-    protected void updateProfileFields(ServerProfiles serverProfile) {
+    protected void updateProfileFields(Cursor cursor) {
+        mServerProfile = new ServerProfiles(cursor);
+        mLoadedProfile = new ServerProfiles(cursor);
+
         if (getActionBar() != null) {
             getActionBar().setTitle(getString(R.string.sp_bc_edit_profile));
-            getActionBar().setSubtitle(serverProfile.getAlias());
+            getActionBar().setSubtitle(mServerProfile.getAlias());
         }
 
-        mServerProfile = serverProfile;
-        aliasEdit.setText(serverProfile.getAlias() + (inEditMode ? "" : getString(R.string.sp_label_alias_clone)));
-        serverUrlEdit.setText(serverProfile.getServerUrl());
-        organizationEdit.setText(serverProfile.getOrganization());
-        usernameEdit.setText(serverProfile.getUsername());
+        String aliasSuffix = (inEditMode ? "" : getString(R.string.sp_label_alias_clone));
+        aliasEdit.setText(mServerProfile.getAlias() + aliasSuffix);
+        serverUrlEdit.setText(mServerProfile.getServerUrl());
+        organizationEdit.setText(mServerProfile.getOrganization());
+        usernameEdit.setText(mServerProfile.getUsername());
 
-        String password = serverProfile.getPassword();
+        String password = mServerProfile.getPassword();
         boolean hasPassword = !TextUtils.isEmpty(password);
         passwordEdit.setEnabled(hasPassword);
         passwordEdit.setFocusable(hasPassword);
         passwordEdit.setFocusableInTouchMode(hasPassword);
-        passwordEdit.setText(serverProfile.getPassword());
+        passwordEdit.setText(password);
 
         askPasswordCheckBox.setChecked(!hasPassword);
     }
@@ -377,7 +382,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             if (oldProfile != null && oldProfile.getId() == profileId && inEditMode) {
                 updateServerProfile(oldProfile);
             } else {
-                persistProfileData(this);
+                persistProfileData();
                 setOkResult();
                 finish();
             }
@@ -398,17 +403,12 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         newProfile.setUsername(username);
         newProfile.setPassword(password);
 
-        if (oldProfile.equals(newProfile)) {
-            // Otherwise close the instance
-            profileId = oldProfile.getId();
-            setOkResult();
-            finish();
-        } else {
+        if (needUpdateProfile()) {
             if (askPasswordCheckBox.isChecked()) {
                 // We can`t validate profile on server side without password
                 // so we are explicitly saving it!
                 jsRestClient.setServerProfile(newProfile);
-                persistProfileData(this);
+                persistProfileData();
                 setOkResult();
                 finish();
             } else {
@@ -419,23 +419,34 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                         new GetServerInfoRequest(jsRestClient),
                         new ValidateServerInfoListener(oldProfile));
             }
+        } else {
+            // Otherwise close the instance
+            profileId = oldProfile.getId();
+            setOkResult();
+            finish();
         }
     }
 
-    private void persistProfileData(Context context) {
+    private boolean needUpdateProfile() {
+        ServerProfiles newProfile = mServerProfile;
+        ServerProfiles oldProfile = mLoadedProfile;
+        return !oldProfile.getContentValues().equals(newProfile.getContentValues());
+    }
+
+    private void persistProfileData() {
         if (inEditMode) {
             String selection = ServerProfilesTable._ID + " =?";
             String[] selectionArgs = {String.valueOf(profileId)};
             getContentResolver().update(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                     mServerProfile.getContentValues(), selection, selectionArgs);
-            Toast.makeText(context, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
         } else {
             boolean isNewProfile = (profileId == 0);
             int toastMessage = isNewProfile ? R.string.spm_profile_created_toast : R.string.spm_profile_cloned_toast;
 
             Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
             profileId = Long.valueOf(uri.getLastPathSegment());
-            Toast.makeText(context, getString(toastMessage, alias), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(toastMessage, alias), Toast.LENGTH_LONG).show();
         }
         getContentResolver().notifyChange(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, null);
     }
@@ -506,7 +517,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
                 mServerProfile.setVersioncode(serverInfo.getVersionCode());
                 mServerProfile.setEdition(serverInfo.getEdition());
 
-                persistProfileData(context);
+                persistProfileData();
                 setOkResult();
                 finish();
             }

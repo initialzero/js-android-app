@@ -52,6 +52,10 @@ public class JasperMobileApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
+        System.setProperty("http.keepAlive", "false");
+
         forceOverFlowMenu();
         profileHelper.initJsRestClient();
         profileHelper.initServerInfoSnapshot();

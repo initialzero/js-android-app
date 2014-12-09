@@ -45,9 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.Favorite
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
-import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
-import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -151,6 +149,7 @@ public class FavoritesFragment extends RoboFragment
 
         ResourceLookup resource = new ResourceLookup();
         resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
+        resource.setDescription(cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION)));
         resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
         resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
 

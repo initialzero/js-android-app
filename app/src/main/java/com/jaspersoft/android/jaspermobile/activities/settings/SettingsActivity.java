@@ -32,7 +32,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.util.Linkify;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
@@ -161,7 +161,7 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
                     if (decorView != null) {
                         TextView messageText = (TextView) decorView.findViewById(android.R.id.message);
                         if (messageText != null) {
-                            Linkify.addLinks(messageText, Linkify.ALL);
+                            messageText.setMovementMethod(LinkMovementMethod.getInstance());
                         }
                     }
                 }

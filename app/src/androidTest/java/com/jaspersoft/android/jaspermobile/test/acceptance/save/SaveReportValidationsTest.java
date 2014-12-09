@@ -99,6 +99,17 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         }
     }
 
+    public void testValidateFieldShouldNotAcceptOnlySpaces() {
+        prepareIntent();
+        startActivityUnderTest();
+
+        onView(withId(R.id.report_name_input)).perform(clearText());
+        onView(withId(R.id.report_name_input)).perform(typeText("      "));
+        onView(withId(R.id.saveAction)).perform(click());
+
+        onView(withId(R.id.report_name_input)).check(matches(hasErrorText(getActivity().getString(R.string.sr_error_field_is_empty))));
+    }
+
     public void testValidateFieldShouldNotBeEmpty() throws IOException {
         prepareIntent();
         startActivityUnderTest();

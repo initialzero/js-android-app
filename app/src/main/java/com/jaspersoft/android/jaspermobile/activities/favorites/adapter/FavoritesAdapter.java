@@ -101,6 +101,7 @@ public class FavoritesAdapter extends SingleChoiceSimpleCursorAdapter {
                     SimpleDialogFragment.createBuilder(getContext(), fm)
                             .setTitle(title)
                             .setMessage(description)
+                            .setNegativeButtonText(android.R.string.ok)
                             .show();
                 }
             } finally {

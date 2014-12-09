@@ -154,6 +154,19 @@
             android:launchMode="singleTop" >
         </activity>
 
+        <!-- Activity that shows Privacy Policy -->
+        <activity
+            android:name="com.jaspersoft.android.jaspermobile.activities.PrivacyPolicyActivity_"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" >
+
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="com.jaspersoft.android.privacy_policy" />
+            </intent-filter>
+
+            </activity>
+
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
             android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"

@@ -2,7 +2,6 @@ package com.jaspersoft.android.jaspermobile.network;
 
 import android.app.Activity;
 
-import com.jaspersoft.android.jaspermobile.activities.async.RequestExceptionHandler;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.springframework.http.HttpStatus;

@@ -29,10 +29,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
@@ -41,19 +38,14 @@ import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItem
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment_;
-import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.FilterSavedItemsDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Ivan Gadzhega

@@ -42,7 +42,14 @@ android {
         testApplicationId TEST_PACKAGE_NAME
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
-        versionCode 15020000
+//        Pattern for versionCode:
+//        android:versionCode="vvxxyyzz"
+//        where:
+//        vv - min android sdk version
+//        xx - major version number
+//        yy - minor version number
+//        zz - revision number
+        versionCode 15010900
         versionName generateVersionName()
         testInstrumentationRunner INSTRUMENTATION_RUNNER
     }
@@ -106,10 +113,15 @@ android {
         }
         dev {
         }
-        production{
+        production {
+            defaultConfig {
+                versionName "1.9"
+            }
             buildTypes {
                 debug {
-                    signingConfig signingConfigs.release
+                    if (project.hasProperty('JMA_STORE_FILE')) {
+                        signingConfig signingConfigs.release
+                    }
                 }
             }
         }
@@ -128,8 +140,8 @@ dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
 
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:2.0-SNAPSHOT'
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:2.0-SNAPSHOT'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'
     compile('com.android.support:support-v4:20.0.0') {

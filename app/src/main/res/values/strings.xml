@@ -69,13 +69,13 @@
     <string name="spm_cancel_btn">Cancel</string>
 
     <!-- Intro Page Activity -->
-    <string name="ip_skip_btn">Skip Intro</string>
-    <string name="ip_next_btn">Next</string>
-    <string name="ip_start_btn">Start using JasperMobile</string>
-    <string name="ip_first_text">Copyright \u00A9 2014 TIBCO Software, Inc.</string>
-    <string name="ip_second_text">JasperMobile keeps you connected to your business wherever you are</string>
-    <string name="ip_third_text">Get access to live interactive reports driven from your operational applications.</string>
-    <string name="ip_fourth_text">View and interact with your JasperReport Server v5.0 or greater environment</string>
+    <string name="ip_skip_btn" translatable="false">Skip Intro</string>
+    <string name="ip_next_btn" translatable="false">Next</string>
+    <string name="ip_start_btn" translatable="false">Start using JasperMobile</string>
+    <string name="ip_first_text" translatable="false">Copyright \u00A9 2014 TIBCO Software, Inc.</string>
+    <string name="ip_second_text" translatable="false">JasperMobile keeps you connected to your business wherever you are</string>
+    <string name="ip_third_text" translatable="false">Get access to live interactive reports driven from your operational applications.</string>
+    <string name="ip_fourth_text" translatable="false">View and interact with your JasperReport Server v5.0 or greater environment</string>
 
     <!-- Server Profile Activity -->
     <string name="sp_bc_add_profile">New Server Profile</string>
@@ -213,6 +213,7 @@
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Invalid number format</string>
     <string name="st_category_more" translatable="false">More</string>
+    <string name="st_show_intro" translatable="false">Show Intro</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>

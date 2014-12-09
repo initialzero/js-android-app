@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.intro.adapter.IntroPagerAdapter;
@@ -17,9 +16,9 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
 /**
- * Created by AndrewTivodar on 06.11.2014.
+ * @author Andrew Tivodar
+ * @since 1.9
  */
-
 @EActivity(R.layout.intro_page_layout)
 public class IntroPageActivity extends Activity implements ViewPager.OnPageChangeListener{
 

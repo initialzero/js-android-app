@@ -133,7 +133,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     }
 
     private boolean isStatusPending(ReportStatus status) {
-        return (status == ReportStatus.QUEUED || status == ReportStatus.EXECUTION);
+        return (status == ReportStatus.queued || status == ReportStatus.execution);
     }
 
     //---------------------------------------------------------------------
@@ -163,7 +163,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             paginationManagerFragment.setRequestId(requestId);
 
             ReportStatus status = response.getReportStatus();
-            if (status == ReportStatus.READY) {
+            if (status == ReportStatus.ready) {
                 int totalPageCount = response.getTotalPages();
                 boolean needToBeShown = (totalPageCount > 1);
                 paginationManagerFragment.setVisible(needToBeShown);
@@ -239,7 +239,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         @Override
         public void onRequestSuccess(ReportStatusResponse response) {
             ReportStatus status = response.getReportStatus();
-            if (status == ReportStatus.READY) {
+            if (status == ReportStatus.ready) {
                 getPaginationManagerFragment().update();
             } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));

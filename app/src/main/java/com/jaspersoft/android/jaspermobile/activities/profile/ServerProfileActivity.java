@@ -125,6 +125,10 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     String username;
     @InstanceState
     String password;
+    @InstanceState
+    ServerProfiles mServerProfile;
+    @InstanceState
+    ServerProfiles mLoadedProfile;
 
     @SystemService
     InputMethodManager inputMethodManager;
@@ -134,8 +138,6 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     @Bean
     ServerInfoManager infoManager;
 
-    private ServerProfiles mServerProfile;
-    private ServerProfiles mLoadedProfile;
     private int mActionBarSize;
 
     @Override

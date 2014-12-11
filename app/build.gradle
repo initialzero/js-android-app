@@ -91,13 +91,6 @@ android {
         lintConfig file("lint.xml")
     }
 
-    applicationVariants.all { variant ->
-        renameApk(variant)
-        variant.assemble.doLast {
-            removeUnaligned(variant)
-        }
-    }
-
     sourceSets.main {
         // src/gen is the target for generated content like json model
         java.srcDirs += 'build/generated/source/db'
@@ -114,9 +107,9 @@ android {
         dev {
         }
         production {
-            defaultConfig {
-                versionName "1.9"
-            }
+            versionCode 15010901
+            versionName "1.9"
+
             buildTypes {
                 debug {
                     if (project.hasProperty('JMA_STORE_FILE')) {
@@ -140,7 +133,7 @@ dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
 
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'

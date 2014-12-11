@@ -26,7 +26,7 @@ buildscript {
     dependencies {
         classpath 'com.google.code.gson:gson:2.3'
         classpath 'org.apache.velocity:velocity:1.7'
-        classpath files('libs/robocop-library-0.6-20141201.124749-9.jar')
+        classpath files('libs/robocop-library-0.6-20141210.124525-1.jar')
     }
 }
 apply plugin: "java"

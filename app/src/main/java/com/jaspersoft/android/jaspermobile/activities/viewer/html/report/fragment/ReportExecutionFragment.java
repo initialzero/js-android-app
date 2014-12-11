@@ -7,10 +7,10 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.CheckReportStatusRequest;
@@ -98,6 +98,33 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         mHandler.removeCallbacksAndMessages(null);
     }
 
+    public void showEmptyReportOptionsDialog() {
+        AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getActivity().finish();
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FilterManagerFragment filterManagerFragment =
+                                (FilterManagerFragment) getFragmentManager()
+                                        .findFragmentByTag(FilterManagerFragment.TAG);
+                        if (filterManagerFragment != null) {
+                            filterManagerFragment.showPreviousFilters();
+                        }
+                    }
+                })
+                .setNegativeButtonText(android.R.string.cancel)
+                .setPositiveButtonText(android.R.string.ok)
+                .setTitle(R.string.warning_msg)
+                .setCancelableOnTouchOutside(false)
+                .setMessage(R.string.rv_error_empty_report).show();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -170,30 +197,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 paginationManagerFragment.showTotalPageCount(totalPageCount);
 
                 if (totalPageCount == 0) {
-                    AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setNegativeButton(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    getActivity().finish();
-                                }
-                            })
-                            .setPositiveButton(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    FilterManagerFragment filterManagerFragment =
-                                            (FilterManagerFragment) getFragmentManager()
-                                                    .findFragmentByTag(FilterManagerFragment.TAG);
-                                    if (filterManagerFragment != null) {
-                                        filterManagerFragment.showFilters();
-                                    }
-                                }
-                            })
-                            .setNegativeButtonText(android.R.string.cancel)
-                            .setPositiveButtonText(android.R.string.ok)
-                            .setTitle(R.string.warning_msg)
-                            .setCancelableOnTouchOutside(false)
-                            .setMessage(R.string.rv_error_empty_report).show();
+                    showEmptyReportOptionsDialog();
                 } else {
                     paginationManagerFragment.paginateToCurrentSelection();
                 }

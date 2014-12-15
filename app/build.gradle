@@ -66,7 +66,7 @@ android {
 
         buildTypes {
             release {
-                runProguard true
+                minifyEnabled true
                 proguardFile "proguard.cfg"
                 proguardFile getDefaultProguardFile('proguard-android.txt')
                 signingConfig signingConfigs.release
@@ -115,6 +115,7 @@ android {
         }
         production {
             defaultConfig {
+                versionCode 15010901
                 versionName "1.9"
             }
             buildTypes {
@@ -130,7 +131,7 @@ android {
 
 apt {
     arguments {
-        androidManifestFile variant.processResources.manifestFile
+        androidManifestFile variant.outputs[0].processResources.manifestFile
         resourcePackageName PACKAGE_NAME
     }
 }
@@ -140,7 +141,7 @@ dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
 
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'

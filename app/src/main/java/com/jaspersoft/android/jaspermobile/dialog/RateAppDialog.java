@@ -34,7 +34,7 @@ public class RateAppDialog extends DialogFragment {
     public static final String KEY_PREF_APP_LAUNCH_COUNT_WITHOUT_RATE = "pref_app_launch_without_rate";
 
     public static final int PASSED_TIME_UNTIL_SHOW = 1729800000; // 2 days * 24 * 60 * 60 * 1000 (ms);
-    public static final int LAUNCHES_UNTIL_SHOW = 2;
+    public static final int LAUNCHES_UNTIL_SHOW = 5;
 
     public void show(Context context, FragmentManager fm) {
         DefaultPrefHelper prefHelper = DefaultPrefHelper_.getInstance_(context);

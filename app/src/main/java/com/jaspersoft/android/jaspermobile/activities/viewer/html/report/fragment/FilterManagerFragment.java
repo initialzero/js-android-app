@@ -64,6 +64,8 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     MenuItem showFilters;
 
     @InstanceState
+    ArrayList<InputControl> previousInputControls;
+    @InstanceState
     ArrayList<InputControl> cachedInputControls;
     @InstanceState
     ArrayList<ReportParameter> reportParameters;
@@ -133,6 +135,10 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         showReportOptions(cachedInputControls);
     }
 
+    public void showPreviousFilters() {
+        showReportOptions(previousInputControls);
+    }
+
     private void showReportOptions(ArrayList<InputControl> inputControls) {
         // Run Report Options activity
         Intent intent = new Intent(getActivity(), ReportOptionsActivity.class);
@@ -146,6 +152,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     final void loadReportParameters(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
+            previousInputControls = cachedInputControls;
             cachedInputControls = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
             getReportExecutionFragment().executeReport(reportParameters);
         } else {

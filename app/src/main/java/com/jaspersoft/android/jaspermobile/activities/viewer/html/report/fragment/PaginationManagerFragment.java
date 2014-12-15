@@ -34,7 +34,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
@@ -67,6 +66,8 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     @Inject
     JsRestClient jsRestClient;
+    @InstanceState
+    boolean mReportIsEmpty;
 
     @ViewById
     TextView firstPage;
@@ -262,7 +263,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     public boolean isResourceLoaded() {
         NodeWebViewFragment currentWebView = getCurrentNodeWebViewFragment();
         if (currentWebView == null) return false;
-        return currentWebView.isResourceLoaded();
+        return currentWebView.isResourceLoaded() && !mReportIsEmpty;
     }
 
     //---------------------------------------------------------------------
@@ -275,10 +276,15 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                 getFragmentManager().findFragmentByTag(NodeWebViewFragment.TAG + currentPage);
     }
 
+    @Nullable
+    private ReportExecutionFragment getReportExecutionFragment() {
+        return (ReportExecutionFragment)
+                getFragmentManager().findFragmentByTag(ReportExecutionFragment.TAG);
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
-
     private class ReportDetailsRequestListener extends CommonRequestListener<ReportExecutionResponse> {
         @Override
         public final void onSemanticSuccess(ReportExecutionResponse response) {
@@ -291,13 +297,10 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             }
 
             if (totalPageCount == 0) {
-                AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle(R.string.warning_msg)
-                        .setCancelableOnTouchOutside(false)
-                        .setMessage(R.string.rv_error_empty_report)
-                        .setNegativeButtonText(android.R.string.ok)
-                        .show();
+                if (getReportExecutionFragment() != null) {
+                    mReportIsEmpty = true;
+                    getReportExecutionFragment().showEmptyReportOptionsDialog();
+                }
             }
         }
 

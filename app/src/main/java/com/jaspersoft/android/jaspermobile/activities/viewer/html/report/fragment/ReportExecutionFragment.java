@@ -98,6 +98,33 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         mHandler.removeCallbacksAndMessages(null);
     }
 
+    public void showEmptyReportOptionsDialog() {
+        AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setNegativeButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getActivity().finish();
+                    }
+                })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FilterManagerFragment filterManagerFragment =
+                                (FilterManagerFragment) getFragmentManager()
+                                        .findFragmentByTag(FilterManagerFragment.TAG);
+                        if (filterManagerFragment != null) {
+                            filterManagerFragment.showPreviousFilters();
+                        }
+                    }
+                })
+                .setNegativeButtonText(android.R.string.cancel)
+                .setPositiveButtonText(android.R.string.ok)
+                .setTitle(R.string.warning_msg)
+                .setCancelableOnTouchOutside(false)
+                .setMessage(R.string.rv_error_empty_report).show();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -133,7 +160,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     }
 
     private boolean isStatusPending(ReportStatus status) {
-        return (status == ReportStatus.QUEUED || status == ReportStatus.EXECUTION);
+        return (status == ReportStatus.queued || status == ReportStatus.execution);
     }
 
     //---------------------------------------------------------------------
@@ -163,37 +190,14 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             paginationManagerFragment.setRequestId(requestId);
 
             ReportStatus status = response.getReportStatus();
-            if (status == ReportStatus.READY) {
+            if (status == ReportStatus.ready) {
                 int totalPageCount = response.getTotalPages();
                 boolean needToBeShown = (totalPageCount > 1);
                 paginationManagerFragment.setVisible(needToBeShown);
                 paginationManagerFragment.showTotalPageCount(totalPageCount);
 
                 if (totalPageCount == 0) {
-                    AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setNegativeButton(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    getActivity().finish();
-                                }
-                            })
-                            .setPositiveButton(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    FilterManagerFragment filterManagerFragment =
-                                            (FilterManagerFragment) getFragmentManager()
-                                                    .findFragmentByTag(FilterManagerFragment.TAG);
-                                    if (filterManagerFragment != null) {
-                                        filterManagerFragment.showFilters();
-                                    }
-                                }
-                            })
-                            .setNegativeButtonText(android.R.string.cancel)
-                            .setPositiveButtonText(android.R.string.ok)
-                            .setTitle(R.string.warning_msg)
-                            .setCancelableOnTouchOutside(false)
-                            .setMessage(R.string.rv_error_empty_report).show();
+                    showEmptyReportOptionsDialog();
                 } else {
                     paginationManagerFragment.paginateToCurrentSelection();
                 }
@@ -239,7 +243,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         @Override
         public void onRequestSuccess(ReportStatusResponse response) {
             ReportStatus status = response.getReportStatus();
-            if (status == ReportStatus.READY) {
+            if (status == ReportStatus.ready) {
                 getPaginationManagerFragment().update();
             } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));

@@ -224,10 +224,11 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[di %d]]></string>
     <string name="dialog_current_page">Imposta pagina corrente</string>
+
+    <!-- Rate Dialog -->
     <string name="h_rd_description">Se ti piace TIBCO JasperMobile, perché non dedichi qualche istante a darne una valutazione sull\'App Store? Non richiederà più di un minuto. Grazie per il supporto!</string>
     <string name="h_rd_later">Ricordamelo più tardi</string>
     <string name="h_rd_never">No, grazie</string>
     <string name="h_rd_rate">Valuta TIBCO JasperMobile</string>
-
 
 </resources>

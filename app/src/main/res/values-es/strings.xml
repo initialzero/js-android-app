@@ -224,6 +224,8 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[de %d]]></string>
     <string name="dialog_current_page">Establecer página actual</string>
+
+    <!-- Rate Dialog -->
     <string name="h_rd_description">Si le gusta utilizar TIBCO JasperMobile, ¿le importaría valorarlo? No le llevará más de un minuto. ¡Gracias por su colaboración!</string>
     <string name="h_rd_rate">Valorar TIBCO JasperMobile</string>
     <string name="h_rd_never">No, gracias</string>

@@ -224,6 +224,8 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[/%d]]></string>
     <string name="dialog_current_page">現在のページを設定</string>
+
+    <!-- Rate Dialog -->
     <string name="h_rd_description">楽しんでいただけたならば簡単なご意見をお願いします。TIBCO JasperMobileを評価しますか？</string>
     <string name="h_rd_later">後で見る</string>
     <string name="h_rd_never">いいえ</string>

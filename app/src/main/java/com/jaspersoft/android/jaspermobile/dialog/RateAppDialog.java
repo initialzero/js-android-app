@@ -33,7 +33,7 @@ public class RateAppDialog extends DialogFragment {
     public static final String KEY_PREF_LAST_RATE_TIME = "pref_last_rate_time";
     public static final String KEY_PREF_APP_LAUNCH_COUNT_WITHOUT_RATE = "pref_app_launch_without_rate";
 
-    public static final int PASSED_TIME_UNTIL_SHOW = 1729800000; // 2 days * 24 * 60 * 60 * 1000 (ms) ;
+    public static final int PASSED_TIME_UNTIL_SHOW = 1729800000; // 2 days * 24 * 60 * 60 * 1000 (ms);
     public static final int LAUNCHES_UNTIL_SHOW = 2;
 
     public void show(Context context, FragmentManager fm) {

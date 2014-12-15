@@ -55,6 +55,7 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
@@ -162,6 +163,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         if (mAnimateStartup) {
             mAnimateStartup = false;
             animateLayout();
+            new RateAppDialog().show(getApplicationContext(), getSupportFragmentManager());
         }
     }
 

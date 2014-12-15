@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
+import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
 import org.androidannotations.annotations.EBean;
@@ -97,5 +98,46 @@ public class DefaultPrefHelper {
         } else {
             return -1;
         }
+    }
+
+    public boolean isRateDialogEnabled(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(RateAppDialog.KEY_PREF_NEED_TO_RATE, true);
+    }
+
+    public void setRateDialogEnabled(boolean value){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(
+                RateAppDialog.KEY_PREF_NEED_TO_RATE, value).apply();
+    }
+
+    public long getLastRateTime(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getLong(RateAppDialog.KEY_PREF_LAST_RATE_TIME, 0);
+    }
+
+    public void setLastRateTime(long value){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putLong(
+                RateAppDialog.KEY_PREF_LAST_RATE_TIME, value).apply();
+    }
+
+    public long getNonRateLaunchCount(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getLong(RateAppDialog.KEY_PREF_APP_LAUNCH_COUNT_WITHOUT_RATE, 0);
+    }
+
+    public void increaseNonRateLaunchCount(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        long nonRateLaunchCount = getNonRateLaunchCount();
+        nonRateLaunchCount = nonRateLaunchCount == RateAppDialog.LAUNCHES_UNTIL_SHOW ? nonRateLaunchCount : nonRateLaunchCount + 1;
+        preferences.edit().putLong(
+                RateAppDialog.KEY_PREF_APP_LAUNCH_COUNT_WITHOUT_RATE, nonRateLaunchCount).apply();
+    }
+
+    public void resetNonRateLaunchCount(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putLong(
+                RateAppDialog.KEY_PREF_APP_LAUNCH_COUNT_WITHOUT_RATE, 0).apply();
     }
 }

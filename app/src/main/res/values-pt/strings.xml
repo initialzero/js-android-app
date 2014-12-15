@@ -224,7 +224,10 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[de %d]]></string>
     <string name="dialog_current_page">Definir página atual</string>
-
+    <string name="h_rd_description">Se você gosta de usar o TIBCO JasperMobile, que tal avaliá-lo? Não levará mais de um minuto. Agradecemos o seu apoio!</string>
+    <string name="h_rd_later">Mais tarde</string>
+    <string name="h_rd_never">Não, obrigado</string>
+    <string name="h_rd_rate">Avaliar o TIBCO JasperMobile</string>
 
 
 </resources>

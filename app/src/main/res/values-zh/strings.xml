@@ -224,7 +224,10 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[/%d]]></string>
     <string name="dialog_current_page">设置当前页</string>
-
+    <string name="h_rd_description">如果你喜欢使用TIBCO JasperMobile，你介意花一点时间给它评分吗？不会超过一分钟。感谢您的支持！</string>
+    <string name="h_rd_later">稍后提醒我</string>
+    <string name="h_rd_never">不，谢谢</string>
+    <string name="h_rd_rate">给TIBCO JasperMobile评分</string>
 
 
 </resources>

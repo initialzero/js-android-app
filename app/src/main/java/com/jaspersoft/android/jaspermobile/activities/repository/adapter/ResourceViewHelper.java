@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -42,7 +41,6 @@ import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
@@ -121,7 +119,7 @@ public class ResourceViewHelper {
             String path = jsRestClient.generateThumbNailUri(item.getUri());
             ImageLoader.getInstance().displayImage(
                     path, imageView, getDisplayImageOptions(),
-                    new ImageLoadingListener(resource)
+                    new ImageLoadingListener()
             );
         } else {
             imageView.setImageResource(resource);
@@ -143,7 +141,10 @@ public class ResourceViewHelper {
                     android.R.integer.config_mediumAnimTime);
 
             displayImageOptions = new DisplayImageOptions.Builder()
-                    .imageScaleType(ImageScaleType.NONE_SAFE)
+                    .showImageOnLoading(R.drawable.sample_report_grey)
+                    .showImageForEmptyUri(R.drawable.sample_report_grey)
+                    .showImageOnFail(R.drawable.sample_report_grey)
+                    .considerExifParams(true)
                     .cacheInMemory(true)
                     .cacheOnDisk(true)
                     .extraForDownloader(headers)
@@ -178,29 +179,26 @@ public class ResourceViewHelper {
     }
 
     private static class ImageLoadingListener extends SimpleImageLoadingListener {
-        private final int mResource;
-
-        private ImageLoadingListener(int mResource) {
-            this.mResource = mResource;
-        }
 
         @Override
         public void onLoadingStarted(String imageUri, View view) {
-            showPlaceHolder(view);
+            setScaleType(view, ImageView.ScaleType.FIT_XY);
         }
 
         @Override
         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-            showPlaceHolder(view);
+            setScaleType(view, ImageView.ScaleType.FIT_XY);
         }
 
-        private void showPlaceHolder(View view) {
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            setScaleType(view, ImageView.ScaleType.CENTER_CROP);
+        }
+
+        private void setScaleType(View view, ImageView.ScaleType type) {
             ImageView imageView = (ImageView) view;
             if (imageView != null) {
-                Drawable drawable = imageView.getDrawable();
-                if (drawable == null) {
-                    imageView.setImageResource(mResource);
-                }
+                imageView.setScaleType(type);
             }
         }
     }

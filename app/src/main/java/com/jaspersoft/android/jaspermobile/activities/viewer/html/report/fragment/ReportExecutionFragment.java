@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 
 import android.content.DialogInterface;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Toast;
 
@@ -104,15 +105,16 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 .setNegativeButton(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        getActivity().finish();
+                        FilterManagerFragment filterManagerFragment = getFilterManager();
+                        if (filterManagerFragment != null) {
+                            filterManagerFragment.showFilters();
+                        }
                     }
                 })
                 .setPositiveButton(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        FilterManagerFragment filterManagerFragment =
-                                (FilterManagerFragment) getFragmentManager()
-                                        .findFragmentByTag(FilterManagerFragment.TAG);
+                        FilterManagerFragment filterManagerFragment = getFilterManager();
                         if (filterManagerFragment != null) {
                             filterManagerFragment.showPreviousFilters();
                         }
@@ -123,6 +125,12 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 .setTitle(R.string.warning_msg)
                 .setCancelableOnTouchOutside(false)
                 .setMessage(R.string.rv_error_empty_report).show();
+    }
+
+    @Nullable
+    private FilterManagerFragment getFilterManager() {
+        return (FilterManagerFragment) getFragmentManager()
+                .findFragmentByTag(FilterManagerFragment.TAG);
     }
 
     //---------------------------------------------------------------------

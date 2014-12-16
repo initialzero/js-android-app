@@ -60,11 +60,10 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.PicassoTools;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -159,6 +158,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         resourceOpener.setResourceTypes(resourceTypes);
 
         mSearchCriteria.setForceFullPage(true);
+        mSearchCriteria.setLimit(mLimit);
         mSearchCriteria.setRecursive(recursiveLookup);
         mSearchCriteria.setTypes(resourceTypes);
         mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
@@ -241,7 +241,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void onRefresh() {
-        PicassoTools.clearCache(Picasso.with(getActivity()));
+        ImageLoader.getInstance().clearDiskCache();
+        ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
         loadFirstPage();
     }

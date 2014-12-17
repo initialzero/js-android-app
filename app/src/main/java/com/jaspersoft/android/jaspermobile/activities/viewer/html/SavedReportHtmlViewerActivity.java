@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
@@ -57,8 +59,10 @@ public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
 
     @Extra
     File reportFile;
+
     @Extra
-    String resourceUri;
+    long reportId;
+
     @Extra
     String resourceLabel;
 
@@ -78,7 +82,8 @@ public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
 
     @Override
     public void onWebViewCreated(WebViewFragment webViewFragment) {
-        webViewFragment.loadUrl(resourceUri);
+        Uri reportOutputPath = Uri.fromFile(reportFile);
+        webViewFragment.loadUrl(reportOutputPath.toString());
     }
 
     @OptionsItem
@@ -98,13 +103,19 @@ public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
 
     @Override
     public void onPositiveButtonClicked(int i) {
-        if (reportFile.isDirectory()) {
-            FileUtils.deleteFilesInDirectory(reportFile);
+        File reportFolderFile = reportFile.getParentFile();
+        if (reportFolderFile.isDirectory()) {
+            FileUtils.deleteFilesInDirectory(reportFolderFile);
         }
 
-        if (!reportFile.delete()) {
+        if (reportFolderFile.delete() || !reportFolderFile.exists()) {
+            Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                    String.valueOf(reportId));
+           getContentResolver().delete(uri, null, null);
+        } else {
             Toast.makeText(this, R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
         }
+
         finish();
     }
 

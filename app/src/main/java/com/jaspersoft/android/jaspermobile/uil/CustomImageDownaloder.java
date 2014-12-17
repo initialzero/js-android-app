@@ -22,37 +22,39 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
+package com.jaspersoft.android.jaspermobile.uil;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Base64;
 
-import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.squareup.picasso.OkHttpDownloader;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.Map;
 
-class AuthOkHttpDownloader extends OkHttpDownloader {
+/**
+ * @author Tom Koptel
+ * @since 2.0
+ */
+public class CustomImageDownaloder extends BaseImageDownloader {
 
-    private final JsServerProfile mProfile;
-
-    public AuthOkHttpDownloader(Context context, JsServerProfile profile) {
+    public CustomImageDownaloder(Context context) {
         super(context);
-        mProfile = profile;
+    }
+
+    public CustomImageDownaloder(Context context, int connectTimeout, int readTimeout) {
+        super(context, connectTimeout, readTimeout);
     }
 
     @Override
-    protected HttpURLConnection openConnection(Uri uri) throws IOException {
-        HttpURLConnection connection = super.openConnection(uri);
-
-        String authorisation = mProfile.getUsernameWithOrgId() + ":" + mProfile.getPassword();
-        String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
-        connection.addRequestProperty("Authorization", encodedAuthorisation);
-        connection.addRequestProperty("Accept", "image/jpeg");
-
-        return connection;
+    protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
+        HttpURLConnection conn = super.createConnection(url, extra);
+        Map<String, String> headers = (Map<String, String>) extra;
+        if (headers != null) {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                conn.setRequestProperty(header.getKey(), header.getValue());
+            }
+        }
+        return conn;
     }
-
 }

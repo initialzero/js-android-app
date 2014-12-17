@@ -25,26 +25,33 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.squareup.picasso.Picasso;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 import roboguice.RoboGuice;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Tom Koptel
@@ -58,7 +65,9 @@ public class ResourceViewHelper {
     private final SimpleDateFormat[] serverDateFormats;
     private final double mServerVersion;
     private final Context mContext;
-    
+
+    private DisplayImageOptions displayImageOptions;
+
     @Inject
     JsRestClient jsRestClient;
 
@@ -68,7 +77,7 @@ public class ResourceViewHelper {
         mContext = context;
         mServerVersion = serverVersion;
 
-        Locale current = context.getResources().getConfiguration().locale;
+        Locale current = mContext.getResources().getConfiguration().locale;
         serverDateFormats = new SimpleDateFormat[]{new SimpleDateFormat(FIRST_INITIAL_DATE_FORMAT, current),
                 new SimpleDateFormat(SECOND_INITIAL_DATE_FORMAT, current)};
     }
@@ -106,18 +115,45 @@ public class ResourceViewHelper {
         boolean isAmberOrHigher = mServerVersion >= ServerInfo.VERSION_CODES.AMBER;
         boolean isReport = item.getResourceType().equals(ResourceLookup.ResourceType.reportUnit);
 
-        JsServerProfile profile = jsRestClient.getServerProfile();
         if (isAmberOrHigher && isReport) {
-            new Picasso.Builder(mContext)
-                    .downloader(new AuthOkHttpDownloader(mContext, profile))
-                    .build()
-                    .load(jsRestClient.generateThumbNailUri(item.getUri(), true))
-                    .placeholder(resource)
-                    .error(resource)
-                    .into(imageView);
+            String path = jsRestClient.generateThumbNailUri(item.getUri());
+            ImageLoader.getInstance().displayImage(
+                    path, imageView, getDisplayImageOptions(),
+                    new ImageLoadingListener()
+            );
         } else {
             imageView.setImageResource(resource);
         }
+    }
+
+    public DisplayImageOptions getDisplayImageOptions() {
+        if (displayImageOptions == null) {
+            Map<String, String> headers = Maps.newHashMap();
+
+            JsServerProfile profile = jsRestClient.getServerProfile();
+            String authorisation = profile.getUsernameWithOrgId() + ":" + profile.getPassword();
+            String encodedAuthorisation = "Basic " + Base64.encodeToString(
+                    authorisation.getBytes(), Base64.NO_WRAP);
+            headers.put("Authorization", encodedAuthorisation);
+            headers.put("Accept", "image/jpeg");
+
+            int animationSpeed = mContext.getResources().getInteger(
+                    android.R.integer.config_mediumAnimTime);
+
+            displayImageOptions = new DisplayImageOptions.Builder()
+                    .showImageOnLoading(R.drawable.sample_report_grey)
+                    .showImageForEmptyUri(R.drawable.sample_report_grey)
+                    .showImageOnFail(R.drawable.sample_report_grey)
+                    .considerExifParams(true)
+                    .cacheInMemory(true)
+                    .cacheOnDisk(true)
+                    .extraForDownloader(headers)
+                    .bitmapConfig(Bitmap.Config.RGB_565)
+                    .displayer(new FadeInBitmapDisplayer(animationSpeed))
+                    .build();
+        }
+
+        return displayImageOptions;
     }
 
     private String formatDateString(String updateDate) {
@@ -142,8 +178,28 @@ public class ResourceViewHelper {
         return updateDate;
     }
 
-    public void setDateFormat(String template) {
-        checkNotNull(template, "Trying to set date format with a null String");
-        serverDateFormats[0].applyPattern(template);
+    private static class ImageLoadingListener extends SimpleImageLoadingListener {
+
+        @Override
+        public void onLoadingStarted(String imageUri, View view) {
+            setScaleType(view, ImageView.ScaleType.FIT_XY);
+        }
+
+        @Override
+        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+            setScaleType(view, ImageView.ScaleType.FIT_XY);
+        }
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            setScaleType(view, ImageView.ScaleType.CENTER_INSIDE);
+        }
+
+        private void setScaleType(View view, ImageView.ScaleType type) {
+            ImageView imageView = (ImageView) view;
+            if (imageView != null) {
+                imageView.setScaleType(type);
+            }
+        }
     }
 }

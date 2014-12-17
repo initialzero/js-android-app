@@ -84,7 +84,7 @@ public class AlertDialogFragment extends SimpleDialogFragment {
                 builder.setPositiveButton(positiveButtonText, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mPositiveButtonListener.onPositiveClick(context);
+                        mPositiveButtonListener.onClick(context);
                         dismiss();
                     }
                 });
@@ -109,7 +109,7 @@ public class AlertDialogFragment extends SimpleDialogFragment {
                 builder.setNegativeButton(negativeButtonText, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mNegativeButtonListener.onNegativeClick(context);
+                        mNegativeButtonListener.onClick(context);
                         dismiss();
                     }
                 });
@@ -134,7 +134,7 @@ public class AlertDialogFragment extends SimpleDialogFragment {
                 builder.setNeutralButton(neutralButtonText, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mNeutralButtonListener.onNeutralClick(context);
+                        mNeutralButtonListener.onClick(context);
                         dismiss();
                     }
                 });
@@ -219,15 +219,13 @@ public class AlertDialogFragment extends SimpleDialogFragment {
         }
     }
 
-    public static interface PositiveClickListener {
-        void onPositiveClick(DialogFragment fragment);
-    }
+    public static interface PositiveClickListener extends DialogClickListener {}
 
-    public static interface NegativeClickListener {
-        void onNegativeClick(DialogFragment fragment);
-    }
+    public static interface NegativeClickListener extends DialogClickListener {}
 
-    public static interface NeutralClickListener {
-        void onNeutralClick(DialogFragment fragment);
+    public static interface NeutralClickListener extends DialogClickListener {}
+
+    private static interface DialogClickListener {
+        void onClick(DialogFragment fragment);
     }
 }

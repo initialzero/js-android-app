@@ -51,9 +51,9 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
@@ -88,7 +88,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class NodeWebViewFragment extends RoboSpiceFragment {
 
     public static final String TAG = NodeWebViewFragment.class.getSimpleName();
-    private static final String COOKIE_STORE = "cookieStore";
 
     @ViewById
     FrameLayout webViewPlaceholder;
@@ -310,7 +309,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
             if (exception instanceof RequestCancelledException) {
                 Toast.makeText(activity, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
             } else {
-                RequestExceptionHandler.handle(exception, activity, false);
+                RequestExceptionHandler.handle(exception, activity, true);
             }
             ProgressDialogFragment.dismiss(getFragmentManager());
         }
@@ -352,7 +351,13 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
             DialogInterface.OnShowListener showListener = new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
-                    getSpiceManager().execute(request, new RunReportExportOutputRequestListener());
+                    UniversalRequestListener<ReportDataResponse> listener =
+                            UniversalRequestListener.builder(getActivity())
+                            .semanticListener(new RunReportExportOutputRequestListener())
+                            .removeRule(ExceptionRule.FORBIDDEN)
+                            .closeActivityMode()
+                            .create();
+                    getSpiceManager().execute(request, listener);
                 }
             };
 
@@ -360,20 +365,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         }
     }
 
-    private class RunReportExportOutputRequestListener
-            extends CommonRequestListener<ReportDataResponse> {
-        private RunReportExportOutputRequestListener() {
-            super();
-            removeRule(ExceptionRule.FORBIDDEN);
-        }
-
+    private class RunReportExportOutputRequestListener implements UniversalRequestListener.SemanticListener<ReportDataResponse> {
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
             ProgressDialogFragment.dismiss(getFragmentManager());
             mResourceLoaded = true;
             mOutputFinal = true;
 
-            HttpStatus httpStatus = extractStatusCode(spiceException);
+            HttpStatus httpStatus = RequestExceptionHandler.extractStatusCode(spiceException);
             if (httpStatus == HttpStatus.FORBIDDEN) {
                 HttpStatusCodeException exception = (HttpStatusCodeException)
                         spiceException.getCause();
@@ -385,13 +384,13 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
                                 @Override
-                                public void onNegativeClick(DialogFragment fragment) {
+                                public void onClick(DialogFragment fragment) {
                                     fragment.getActivity().finish();
                                 }
                             })
                             .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
                                 @Override
-                                public void onPositiveClick(DialogFragment fragment) {
+                                public void onClick(DialogFragment fragment) {
                                     PaginationManagerFragment paginationManagerFragment =
                                             (PaginationManagerFragment) fragment.getFragmentManager()
                                                     .findFragmentByTag(PaginationManagerFragment.TAG);
@@ -406,6 +405,12 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                             .show();
                 } else {
                     AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                            .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
+                                @Override
+                                public void onClick(DialogFragment fragment) {
+                                    fragment.getActivity().finish();
+                                }
+                            })
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .setTitle(errorDescriptor.getErrorCode())
                             .setMessage(errorDescriptor.getMessage())
@@ -423,11 +428,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
             loadHtml(response.getData());
             mResourceLoaded = true;
             mOutputFinal = response.isFinal();
-        }
-
-        @Override
-        public Activity getCurrentActivity() {
-            return getActivity();
         }
     }
 

@@ -2,19 +2,15 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 
 import android.content.DialogInterface;
 import android.os.Handler;
-
 import android.support.v4.app.DialogFragment;
-
-import android.support.annotation.Nullable;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.CheckReportStatusRequest;
@@ -150,7 +146,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             if (exception instanceof RequestCancelledException) {
                 Toast.makeText(getActivity(), R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
             } else {
-                RequestExceptionHandler.handle(exception, getActivity(), false);
+                RequestExceptionHandler.handle(exception, getActivity(), true);
             }
             ProgressDialogFragment.dismiss(getFragmentManager());
         }
@@ -178,13 +174,13 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
                                 @Override
-                                public void onNegativeClick(DialogFragment fragment) {
+                                public void onClick(DialogFragment fragment) {
                                     fragment.getActivity().finish();
                                 }
                             })
                             .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
                                 @Override
-                                public void onPositiveClick(DialogFragment fragment) {
+                                public void onClick(DialogFragment fragment) {
                                     FilterManagerFragment filterManagerFragment =
                                             (FilterManagerFragment) fragment.getFragmentManager()
                                                     .findFragmentByTag(FilterManagerFragment.TAG);
@@ -237,7 +233,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, getActivity(), false);
+            RequestExceptionHandler.handle(exception, getActivity(), true);
         }
 
         @Override

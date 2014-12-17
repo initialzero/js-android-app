@@ -117,7 +117,7 @@ public class RequestExceptionHandler {
             builder.setNeutralButton(
                     new AlertDialogFragment.NeutralClickListener() {
                         @Override
-                        public void onNeutralClick(DialogFragment fragment) {
+                        public void onClick(DialogFragment fragment) {
                             if (finishActivity) activity.finish();
                         }
                     }
@@ -141,7 +141,7 @@ public class RequestExceptionHandler {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
                     @Override
-                    public void onPositiveClick(DialogFragment fragment) {
+                    public void onClick(DialogFragment fragment) {
                         HomeActivity_.intent(activity)
                                 .action(HomeActivity.EDIT_SERVER_PROFILE_ACTION)
                                 .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -150,7 +150,7 @@ public class RequestExceptionHandler {
                 })
                 .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
                     @Override
-                    public void onNegativeClick(DialogFragment fragment) {
+                    public void onClick(DialogFragment fragment) {
                         if (finishActivity) activity.finish();
                     }
                 })

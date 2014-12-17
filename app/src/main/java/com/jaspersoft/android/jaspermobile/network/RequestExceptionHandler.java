@@ -27,9 +27,9 @@ package com.jaspersoft.android.jaspermobile.network;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
@@ -115,8 +115,9 @@ public class RequestExceptionHandler {
                 .setIcon(android.R.drawable.ic_dialog_alert);
         if (finishActivity) {
             builder.setNeutralButton(
-                    new View.OnClickListener() {
-                        public void onClick(View view) {
+                    new AlertDialogFragment.NeutralClickListener() {
+                        @Override
+                        public void onNeutralClick(DialogFragment fragment) {
                             if (finishActivity) activity.finish();
                         }
                     }
@@ -138,16 +139,18 @@ public class RequestExceptionHandler {
     private static void showAuthErrorDialog(String message, final Activity activity, final boolean finishActivity) {
         AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(new View.OnClickListener() {
-                    public void onClick(View view) {
+                .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
+                    @Override
+                    public void onPositiveClick(DialogFragment fragment) {
                         HomeActivity_.intent(activity)
                                 .action(HomeActivity.EDIT_SERVER_PROFILE_ACTION)
                                 .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                                 .start();
                     }
                 })
-                .setNegativeButton(new View.OnClickListener() {
-                    public void onClick(View v) {
+                .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
+                    @Override
+                    public void onNegativeClick(DialogFragment fragment) {
                         if (finishActivity) activity.finish();
                     }
                 })

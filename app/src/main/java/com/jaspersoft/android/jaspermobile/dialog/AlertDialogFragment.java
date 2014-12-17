@@ -41,9 +41,9 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 public class AlertDialogFragment extends SimpleDialogFragment {
     protected final static String ARG_ICON = "icon";
 
-    private View.OnClickListener mNeutralButtonListener;
-    private View.OnClickListener mPositiveButtonListener;
-    private View.OnClickListener mNegativeButtonListener;
+    private NeutralClickListener mNeutralButtonListener;
+    private PositiveClickListener mPositiveButtonListener;
+    private NegativeClickListener mNegativeButtonListener;
 
     //---------------------------------------------------------------------
     // Static methods
@@ -80,10 +80,11 @@ public class AlertDialogFragment extends SimpleDialogFragment {
                     }
                 });
             } else {
+                final DialogFragment context = this;
                 builder.setPositiveButton(positiveButtonText, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mPositiveButtonListener.onClick(view);
+                        mPositiveButtonListener.onPositiveClick(context);
                         dismiss();
                     }
                 });
@@ -104,10 +105,11 @@ public class AlertDialogFragment extends SimpleDialogFragment {
                     }
                 });
             } else {
+                final DialogFragment context = this;
                 builder.setNegativeButton(negativeButtonText, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mNegativeButtonListener.onClick(view);
+                        mNegativeButtonListener.onNegativeClick(context);
                         dismiss();
                     }
                 });
@@ -128,10 +130,11 @@ public class AlertDialogFragment extends SimpleDialogFragment {
                     }
                 });
             } else {
+                final DialogFragment context = this;
                 builder.setNeutralButton(neutralButtonText, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mNeutralButtonListener.onClick(view);
+                        mNeutralButtonListener.onNeutralClick(context);
                         dismiss();
                     }
                 });
@@ -153,15 +156,15 @@ public class AlertDialogFragment extends SimpleDialogFragment {
     // Setters & Getters
     //---------------------------------------------------------------------
 
-    public void setNeutralButtonListener(View.OnClickListener neutralButtonListener) {
+    public void setNeutralButtonListener(NeutralClickListener neutralButtonListener) {
         mNeutralButtonListener = neutralButtonListener;
     }
 
-    public void setPositiveButtonListener(View.OnClickListener positiveButtonListener) {
+    public void setPositiveButtonListener(PositiveClickListener positiveButtonListener) {
         mPositiveButtonListener = positiveButtonListener;
     }
 
-    public void setNegativeButtonListener(View.OnClickListener negativeButtonListener) {
+    public void setNegativeButtonListener(NegativeClickListener negativeButtonListener) {
         mNegativeButtonListener = negativeButtonListener;
     }
 
@@ -171,9 +174,9 @@ public class AlertDialogFragment extends SimpleDialogFragment {
 
     public static class AlertDialogBuilder extends SimpleDialogBuilder {
         private int mIcon;
-        private View.OnClickListener mNeutralButtonListener;
-        private View.OnClickListener mPositiveButtonListener;
-        private View.OnClickListener mNegativeButtonListener;
+        private NeutralClickListener mNeutralButtonListener;
+        private PositiveClickListener mPositiveButtonListener;
+        private NegativeClickListener mNegativeButtonListener;
 
         protected AlertDialogBuilder(Context context, FragmentManager fragmentManager, Class<? extends AlertDialogFragment> clazz) {
             super(context, fragmentManager, clazz);
@@ -184,17 +187,17 @@ public class AlertDialogFragment extends SimpleDialogFragment {
             return this;
         }
 
-        public AlertDialogBuilder setNeutralButton(View.OnClickListener neutralButtonListener) {
+        public AlertDialogBuilder setNeutralButton(NeutralClickListener neutralButtonListener) {
             mNeutralButtonListener = neutralButtonListener;
             return this;
         }
 
-        public AlertDialogBuilder setPositiveButton(View.OnClickListener positiveButtonListener) {
+        public AlertDialogBuilder setPositiveButton(PositiveClickListener positiveButtonListener) {
             mPositiveButtonListener = positiveButtonListener;
             return this;
         }
 
-        public AlertDialogBuilder setNegativeButton(View.OnClickListener negativeButtonListener) {
+        public AlertDialogBuilder setNegativeButton(NegativeClickListener negativeButtonListener) {
             mNegativeButtonListener = negativeButtonListener;
             return this;
         }
@@ -216,4 +219,15 @@ public class AlertDialogFragment extends SimpleDialogFragment {
         }
     }
 
+    public static interface PositiveClickListener {
+        void onPositiveClick(DialogFragment fragment);
+    }
+
+    public static interface NegativeClickListener {
+        void onNegativeClick(DialogFragment fragment);
+    }
+
+    public static interface NeutralClickListener {
+        void onNeutralClick(DialogFragment fragment);
+    }
 }

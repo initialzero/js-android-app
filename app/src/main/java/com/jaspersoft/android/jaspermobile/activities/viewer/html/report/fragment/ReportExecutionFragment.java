@@ -2,6 +2,10 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 
 import android.content.DialogInterface;
 import android.os.Handler;
+
+import android.support.v4.app.DialogFragment;
+
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Toast;
 
@@ -172,17 +176,17 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 if (totalPageCount == 0) {
                     AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
                             .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setNegativeButton(new View.OnClickListener() {
+                            .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
                                 @Override
-                                public void onClick(View v) {
-                                    getActivity().finish();
+                                public void onNegativeClick(DialogFragment fragment) {
+                                    fragment.getActivity().finish();
                                 }
                             })
-                            .setPositiveButton(new View.OnClickListener() {
+                            .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
                                 @Override
-                                public void onClick(View v) {
+                                public void onPositiveClick(DialogFragment fragment) {
                                     FilterManagerFragment filterManagerFragment =
-                                            (FilterManagerFragment) getFragmentManager()
+                                            (FilterManagerFragment) fragment.getFragmentManager()
                                                     .findFragmentByTag(FilterManagerFragment.TAG);
                                     if (filterManagerFragment != null) {
                                         filterManagerFragment.showFilters();

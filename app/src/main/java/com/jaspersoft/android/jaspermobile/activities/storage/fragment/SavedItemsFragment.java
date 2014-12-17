@@ -334,7 +334,7 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public void onPositiveButtonClicked(int position) {
-        File selectedFile = getFileByPosition(position);
+        File selectedFile = getFileByPosition(position).getParentFile();
         if (selectedFile.isDirectory()) {
             FileUtils.deleteFilesInDirectory(selectedFile);
         }

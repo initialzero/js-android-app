@@ -178,11 +178,10 @@ public class SavedItemsFragment extends RoboFragment
 
     private void openReportFile(File reportFile) {
         Locale current = getResources().getConfiguration().locale;
-        File reportOutputFile = new File(reportFile, reportFile.getName());
-        String fileName = reportOutputFile.getName();
+        String fileName = reportFile.getName();
         String baseName = FileUtils.getBaseName(fileName);
         String extension = FileUtils.getExtension(fileName).toLowerCase(current);
-        Uri reportOutputPath = Uri.fromFile(reportOutputFile);
+        Uri reportOutputPath = Uri.fromFile(reportFile);
 
         if ("HTML".equalsIgnoreCase(extension)) {
             // run the html report viewer
@@ -286,10 +285,9 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onRename(File file, String name) {
+    public void onRename(File file, String extension) {
         RenameDialogFragment.show(getFragmentManager(), file,
-                name, jsRestClient.getServerProfile().getId(),
-                new OnRenamedAction() {
+                extension, new OnRenamedAction() {
                     @Override
                     public void onRenamed(String newFileName, String newFilePath) {
                         long id = Lists.newArrayList(mAdapter.getCheckedItems()).get(0);
@@ -315,7 +313,7 @@ public class SavedItemsFragment extends RoboFragment
                 .setTargetFragment(this, currentPosition)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getActivity().getString(R.string.sdr_drd_msg,
-                        FileUtils.getBaseName(file.getName())))
+                        file.getName()))
                 .setPositiveButtonText(R.string.spm_delete_btn)
                 .setNegativeButtonText(android.R.string.cancel)
                 .show();

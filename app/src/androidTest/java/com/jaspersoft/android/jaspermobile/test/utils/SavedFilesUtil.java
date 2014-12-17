@@ -25,15 +25,21 @@ public class SavedFilesUtil {
         }
     }
 
-    public static boolean contains(Context context, String reportName, String fileFormat, long profileId) {
+    public static boolean contains(Context context, String reportFolderName, String fileFormat, long profileId) {
         File savedReportsDir = getSavedReportsDirectory(context);
-        String[] savedReportsArray = savedReportsDir.list();
-        if (savedReportsArray == null) return false;
+        File savedByProfileDir = new File(savedReportsDir, String.valueOf(profileId));
+        File[] savedReportsFoldersArray = savedByProfileDir.listFiles();
+        if (savedReportsFoldersArray == null) return false;
 
-        for (String savedReport : savedReportsArray) {
-            String reportFullName = profileId + "-" + (reportName + "." + fileFormat);
-            if (savedReport.equals(reportFullName))
-                return true;
+        String reportFullName = reportFolderName + "." + fileFormat;
+
+        for (File savedReport : savedReportsFoldersArray) {
+            if (savedReport.getName().equals(reportFolderName)) {
+                for (File savedFilesInReport : savedReport.listFiles()) {
+                    if (savedFilesInReport.getName().equals(reportFullName))
+                        return true;
+                }
+            }
         }
         return false;
     }

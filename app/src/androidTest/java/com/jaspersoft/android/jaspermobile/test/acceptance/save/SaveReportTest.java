@@ -1,7 +1,5 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.save;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 
@@ -36,7 +34,6 @@ import static com.google.android.apps.common.testing.ui.espresso.action.ViewActi
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.pressImeActionButton;
 import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
 import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
 import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
@@ -370,7 +367,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if list by date is correct
         clickSortMenuItem();
-        onOverflowView(getActivity(), withText(R.string.si_fd_sort_date)).perform(click());
+        onOverflowView(getActivity(), withText(R.string.s_fd_sort_date)).perform(click());
 
         for (int i = 0; i < reportFullNames.length; i++) {
             onData(Matchers.is(instanceOf(Cursor.class)))
@@ -382,7 +379,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         // Check if list by label is correct
         clickSortMenuItem();
         Arrays.sort(reportFullNames);
-        onOverflowView(getActivity(), withText(R.string.si_fd_sort_label)).perform(click());
+        onOverflowView(getActivity(), withText(R.string.s_fd_sort_label)).perform(click());
 
         for (int i = 0; i < reportFullNames.length; i++) {
             onData(Matchers.is(instanceOf(Cursor.class)))
@@ -406,7 +403,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if list by date is correct
         clickSortMenuItem();
-        onOverflowView(getActivity(), withText(R.string.si_fd_sort_date)).perform(click());
+        onOverflowView(getActivity(), withText(R.string.s_fd_sort_date)).perform(click());
 
         for (int i = 0; i < reportFullNames.length; i++) {
             onData(Matchers.is(instanceOf(Cursor.class)))
@@ -441,7 +438,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if list by date is correct
         clickSortMenuItem();
-        onOverflowView(getActivity(), withText(R.string.si_fd_sort_date)).perform(click());
+        onOverflowView(getActivity(), withText(R.string.s_fd_sort_date)).perform(click());
 
         for (int i = 0; i < reportFullNames.length; i++) {
             onData(Matchers.is(instanceOf(Cursor.class)))

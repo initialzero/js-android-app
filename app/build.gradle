@@ -107,7 +107,7 @@ android {
         dev {
         }
         production {
-            versionCode 15010901
+            versionCode 15010902
             versionName "1.9"
 
             buildTypes {

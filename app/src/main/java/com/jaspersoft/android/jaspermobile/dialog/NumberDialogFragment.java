@@ -58,6 +58,8 @@ public class NumberDialogFragment extends DialogFragment {
     private static final String TAG = NumberDialogFragment.class.getSimpleName();
 
     @FragmentArg
+    int startPage;
+    @FragmentArg
     int totalPages;
     @FragmentArg
     int currentPage;
@@ -73,7 +75,26 @@ public class NumberDialogFragment extends DialogFragment {
 
         if (dialogFragment == null) {
             dialogFragment = NumberDialogFragment_.builder()
-                    .totalPages(totalPages).currentPage(currentPage).build();
+                    .totalPages(totalPages)
+                    .startPage(1)
+                    .currentPage(currentPage)
+                    .build();
+            dialogFragment.setPageSelectedListener(onPageSelectedListener);
+            dialogFragment.show(fm, TAG);
+        }
+    }
+
+    public static void show(FragmentManager fm, int currentPage, int startPage, int totalPages,
+                            OnPageSelectedListener onPageSelectedListener) {
+        NumberDialogFragment dialogFragment = (NumberDialogFragment)
+                fm.findFragmentByTag(TAG);
+
+        if (dialogFragment == null) {
+            dialogFragment = NumberDialogFragment_.builder()
+                    .totalPages(totalPages)
+                    .startPage(startPage)
+                    .currentPage(currentPage)
+                    .build();
             dialogFragment.setPageSelectedListener(onPageSelectedListener);
             dialogFragment.show(fm, TAG);
         }
@@ -108,7 +129,7 @@ public class NumberDialogFragment extends DialogFragment {
                 mValue = newVal;
             }
         });
-        numberPicker.setMinValue(1);
+        numberPicker.setMinValue(startPage);
         numberPicker.setMaxValue(totalPages);
 
         builder.setTitle(R.string.dialog_current_page);

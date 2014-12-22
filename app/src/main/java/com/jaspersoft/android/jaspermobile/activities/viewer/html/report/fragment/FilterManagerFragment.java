@@ -120,9 +120,12 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @OptionsItem
     final void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
+            PaginationManagerFragment manager = (PaginationManagerFragment) getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
+
             SaveReportActivity_.intent(this)
                     .reportParameters(reportParameters)
                     .resource(resource)
+                    .pageCount(manager.mTotalPage)
                     .start();
         } else {
             Toast.makeText(getActivity(),

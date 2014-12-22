@@ -27,9 +27,12 @@ package com.jaspersoft.android.jaspermobile.activities.report.fragment;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
@@ -38,6 +41,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -57,6 +62,7 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -88,10 +94,19 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @ViewById(R.id.report_name_input)
     EditText reportNameInput;
 
+    @ViewById (R.id.llSaveInParts)
+    LinearLayout llSaveInParts;
+    @ViewById(R.id.tvFromPage)
+    TextView tvFromPage;
+    @ViewById(R.id.tvToPage)
+    TextView tvToPage;
+
     @FragmentArg
     ResourceLookup resource;
     @FragmentArg
     ArrayList<ReportParameter> reportParameters;
+    @FragmentArg
+    int pageCount;
 
     @OptionsMenuItem
     MenuItem saveAction;
@@ -103,6 +118,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @InstanceState
     int runningRequests;
+
+    private int mFromPage;
+    private int mToPage;
 
     public static enum OutputFormat {
         HTML,
@@ -141,6 +159,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 executionRequest.setInteractive(false);
                 executionRequest.setOutputFormat(outputFormat.toString());
                 executionRequest.setEscapedAttachmentsPrefix("./");
+                if (pageCount > 1) executionRequest.setPages(mFromPage + "-" + mToPage);
                 if (reportParameters != null && !reportParameters.isEmpty()) {
                     executionRequest.setParameters(reportParameters);
                 }
@@ -162,6 +181,30 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 android.R.layout.simple_spinner_item, OutputFormat.values());
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         formatSpinner.setAdapter(arrayAdapter);
+
+        // hide save parts views if report have only 1 page
+        if (pageCount < 2) llSaveInParts.setVisibility(View.GONE);
+        else {
+            mFromPage = 1;
+            mToPage = pageCount;
+
+//            btnFromPage.setPaintFlags(btnFromPage.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+//            btnToPage.setPaintFlags(btnToPage.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+            tvFromPage.setText("" + mFromPage);
+            tvToPage.setText("" + mToPage);
+        }
+    }
+
+    @Click(R.id.tvFromPage)
+    void clickOnFromPage() {
+        NumberDialogFragment.show(getFragmentManager(),
+                mFromPage, mToPage, onFromPageSelectedListener);
+    }
+
+    @Click(R.id.tvToPage)
+    void clickOnToPage() {
+        NumberDialogFragment.show(getFragmentManager(),
+                mToPage, mFromPage, pageCount, onToPageSelectedListener);
     }
 
     @ItemSelect(R.id.output_format_spinner)
@@ -239,6 +282,30 @@ public class SaveItemFragment extends RoboSpiceFragment {
             saveAction.setActionView(null);
         }
     }
+
+    //---------------------------------------------------------------------
+    // Page Select Listeners
+    //---------------------------------------------------------------------
+
+    private final OnPageSelectedListener onFromPageSelectedListener =
+            new OnPageSelectedListener() {
+                @Override
+                public void onPageSelected(int page) {
+                    if(page < 1) return;
+
+                    mFromPage = page;
+                    tvFromPage.setText("" + mFromPage);
+                }
+            };
+
+    private final OnPageSelectedListener onToPageSelectedListener =
+            new OnPageSelectedListener() {
+                @Override
+                public void onPageSelected(int page) {
+                    mToPage = page;
+                    tvToPage.setText("" + mToPage);
+                }
+            };
 
     //---------------------------------------------------------------------
     // Nested Classes

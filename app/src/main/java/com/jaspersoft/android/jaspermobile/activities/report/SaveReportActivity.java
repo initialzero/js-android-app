@@ -51,6 +51,8 @@ public class SaveReportActivity extends RoboSpiceFragmentActivity {
     ResourceLookup resource;
     @Extra
     ArrayList<ReportParameter> reportParameters;
+    @Extra
+    int pageCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class SaveReportActivity extends RoboSpiceFragmentActivity {
             SaveItemFragment saveItemFragment = SaveItemFragment_.builder()
                     .resource(resource)
                     .reportParameters(reportParameters)
+                    .pageCount(pageCount)
                     .build();
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, saveItemFragment, SaveItemFragment.TAG)

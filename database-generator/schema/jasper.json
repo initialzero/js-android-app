@@ -81,10 +81,7 @@
                 }, {
   				    "type" : "long",
   				    "name" : "creation_time"
-                }, {
-   				    "type" : "long",
-   				    "name" : "file_size"
-   				}
+                }
  			]
  		}
 	],

@@ -124,10 +124,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @OptionsItem
     final void saveAction() {
         if (isReportNameValid()) {
-            long profileId = jsRestClient.getServerProfile().getId();
             final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
-            String reportName = profileId + "-" + (reportNameInput.getText() + "." + outputFormat);
-            final File reportFile = new File(getReportDir(reportName), reportName);
+            String reportName = reportNameInput.getText() + "." + outputFormat;
+            final File reportFile = new File(getReportDir(reportNameInput.getText().toString()), reportName);
 
             if (reportFile.exists()) {
                 // show validation message
@@ -203,7 +202,10 @@ public class SaveItemFragment extends RoboSpiceFragment {
     private File getReportDir(String reportName) {
         File appFilesDir = getActivity().getExternalFilesDir(null);
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
-        File reportDir = new File(savedReportsDir, reportName);
+
+        long profileId = jsRestClient.getServerProfile().getId();
+        File profileDir = new File(savedReportsDir, String.valueOf(profileId));
+        File reportDir = new File(profileDir, reportName);
 
         if (!reportDir.exists() && !reportDir.mkdirs()) {
             Ln.e("Unable to create %s", savedReportsDir);
@@ -217,13 +219,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
         SavedItems savedItemsEntry = new SavedItems();
 
         savedItemsEntry.setName(reportNameInput.getText().toString());
-        savedItemsEntry.setFilePath(reportFile.getParentFile().getPath());
+        savedItemsEntry.setFilePath(reportFile.getPath());
         savedItemsEntry.setFileFormat(fileFormat.toString());
         savedItemsEntry.setDescription(resource.getDescription());
         savedItemsEntry.setWstype(resource.getResourceType().toString());
         savedItemsEntry.setUsername(profile.getUsername());
         savedItemsEntry.setOrganization(profile.getOrganization());
-        savedItemsEntry.setFileSize(reportFile.length());
         savedItemsEntry.setCreationTime(new Date().getTime());
         savedItemsEntry.setServerProfileId(profile.getId());
 

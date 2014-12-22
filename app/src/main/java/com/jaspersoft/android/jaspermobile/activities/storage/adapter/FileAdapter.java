@@ -54,8 +54,8 @@ import java.util.Map;
  */
 public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
 
-    private static final String[] FROM = {SavedItemsTable.NAME, SavedItemsTable.CREATION_TIME, SavedItemsTable.FILE_SIZE, SavedItemsTable.FILE_FORMAT};
-    private static final int[] TO = {android.R.id.text1, android.R.id.text2, R.id.timestampStub, android.R.id.icon};
+    private static final String[] FROM = {SavedItemsTable.NAME, SavedItemsTable.CREATION_TIME, SavedItemsTable.FILE_FORMAT};
+    private static final int[] TO = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
 
     public static enum FileType {
         HTML,
@@ -101,14 +101,14 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         Cursor cursor = getCursor();
         cursor.moveToPosition(position);
 
-        long fileSize = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.FILE_SIZE));
+        File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
         long creationTime = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.CREATION_TIME));
         String fileFormat = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
         String fileName = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
 
         itemView.getImageView().setImageResource(getFileIconByExtension(fileFormat));
         itemView.setTitle(fileName);
-        itemView.setTimeStamp(getHumanReadableFileSize(fileSize));
+        itemView.setTimeStamp(getHumanReadableFileSize(file));
         itemView.setSubTitle(getFormattedDateModified(creationTime));
 
         return (View) itemView;
@@ -131,27 +131,25 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         Cursor cursor = getCursor();
         cursor.moveToPosition(getCurrentPosition());
 
+        File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
         switch (item.getItemId()) {
             case R.id.renameItem:
                 if (fileInteractionListener != null) {
-                    File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
-                    String title = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
-                    fileInteractionListener.onRename(file, title);
+                    String extension = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
+                    fileInteractionListener.onRename(file.getParentFile(), extension);
                 }
                 break;
             case R.id.deleteItem:
                 if (fileInteractionListener != null) {
-                    File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
-                    fileInteractionListener.onDelete(file);
+                    fileInteractionListener.onDelete(file.getParentFile());
                 }
                 break;
             case R.id.showAction:
                 if (fileInteractionListener != null) {
                     String title = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
-                    long fileSize = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.FILE_SIZE));
                     long creationTime = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.CREATION_TIME));
                     String description = String.format("%s \n %s", getFormattedDateModified(creationTime),
-                            getHumanReadableFileSize(fileSize));
+                            getHumanReadableFileSize(file));
 
                     fileInteractionListener.onInfo(title, description);
                 }
@@ -189,7 +187,8 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         );
     }
 
-    private String getHumanReadableFileSize(long byteSize) {
+    private String getHumanReadableFileSize(File file) {
+        long byteSize = FileUtils.calculateFileSize(file.getParentFile());
         return FileUtils.getHumanReadableByteCount(byteSize);
     }
 
@@ -198,7 +197,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     //---------------------------------------------------------------------
 
     public static interface FileInteractionListener {
-        void onRename(File file, String name);
+        void onRename(File file, String extention);
 
         void onDelete(File file);
 

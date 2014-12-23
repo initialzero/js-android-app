@@ -167,9 +167,9 @@
     <string name="sr_report_name">Report Name</string>
     <string name="sr_output_format">Output Format</string>
     <string name="sr_visible_for_all" translatable="false">Visible for all users</string>
-    <string name="sr_part">Save report in parts</string>
-    <string name="sr_from">"From page"</string>
-    <string name="sr_to">"To page"</string>
+    <string name="sr_part" translatable="false">Save report in parts</string>
+    <string name="sr_from" translatable="false">"From page"</string>
+    <string name="sr_to" translatable="false">"To page"</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report saved successfully</string>
     <!-- Error messages -->

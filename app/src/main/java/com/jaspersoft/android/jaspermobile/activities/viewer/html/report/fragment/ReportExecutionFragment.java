@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 
 import android.content.DialogInterface;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.widget.Toast;
 
@@ -53,7 +54,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     ReportExecutionUtil reportExecutionUtil;
 
     private final Handler mHandler = new Handler();
-    private PaginationManagerFragment paginationManagerFragment;
 
     public boolean isResourceLoaded() {
         return getPaginationManagerFragment().isResourceLoaded();
@@ -98,6 +98,51 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         mHandler.removeCallbacksAndMessages(null);
     }
 
+    public void showEmptyReportOptionsDialog() {
+        FilterManagerFragment filterManagerFragment = getFilterMangerFragment();
+        if (!filterManagerFragment.hasSnapshot()) {
+            AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.warning_msg)
+                    .setCancelableOnTouchOutside(false)
+                    .setMessage(R.string.rv_error_empty_report)
+                    .setNegativeButtonText(android.R.string.ok)
+                    .show();
+            return;
+        }
+
+        AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
+                    @Override
+                    public void onClick(DialogFragment fragment) {
+                        FilterManagerFragment filterManagerFragment =
+                                (FilterManagerFragment) fragment.getFragmentManager()
+                                        .findFragmentByTag(FilterManagerFragment.TAG);
+                        if (filterManagerFragment != null) {
+                            filterManagerFragment.showPreviousReport();
+                        }
+                    }
+                })
+                .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
+                    @Override
+                    public void onClick(DialogFragment fragment) {
+                        FilterManagerFragment filterManagerFragment =
+                                (FilterManagerFragment) fragment.getFragmentManager()
+                                        .findFragmentByTag(FilterManagerFragment.TAG);
+                        if (filterManagerFragment != null) {
+                            filterManagerFragment.showFilters();
+                        }
+                    }
+                })
+                .setNegativeButtonText(android.R.string.cancel)
+                .setPositiveButtonText(android.R.string.ok)
+                .setCancelableOnTouchOutside(false)
+                .setTitle(R.string.rv_error_empty_report_title)
+                .setMessage(R.string.rv_error_empty_report_message)
+                .show();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -124,12 +169,16 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         return executionData;
     }
 
+    @NonNull
+    private FilterManagerFragment getFilterMangerFragment() {
+        return (FilterManagerFragment)
+                getFragmentManager().findFragmentByTag(FilterManagerFragment.TAG);
+    }
+
+    @NonNull
     private PaginationManagerFragment getPaginationManagerFragment() {
-        if (paginationManagerFragment == null) {
-            paginationManagerFragment = (PaginationManagerFragment)
+        return (PaginationManagerFragment)
                     getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
-        }
-        return paginationManagerFragment;
     }
 
     private boolean isStatusPending(ReportStatus status) {
@@ -160,7 +209,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             final String requestId = response.getRequestId();
-            paginationManagerFragment.setRequestId(requestId);
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
@@ -170,38 +218,18 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 paginationManagerFragment.showTotalPageCount(totalPageCount);
 
                 if (totalPageCount == 0) {
-                    AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                                @Override
-                                public void onClick(DialogFragment fragment) {
-                                    fragment.getActivity().finish();
-                                }
-                            })
-                            .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                                @Override
-                                public void onClick(DialogFragment fragment) {
-                                    FilterManagerFragment filterManagerFragment =
-                                            (FilterManagerFragment) fragment.getFragmentManager()
-                                                    .findFragmentByTag(FilterManagerFragment.TAG);
-                                    if (filterManagerFragment != null) {
-                                        filterManagerFragment.showFilters();
-                                    }
-                                }
-                            })
-                            .setNegativeButtonText(android.R.string.cancel)
-                            .setPositiveButtonText(android.R.string.ok)
-                            .setTitle(R.string.warning_msg)
-                            .setCancelableOnTouchOutside(false)
-                            .setMessage(R.string.rv_error_empty_report).show();
+                    showEmptyReportOptionsDialog();
                 } else {
+                    getFilterMangerFragment().makeSnapshot();
+                    paginationManagerFragment.setRequestId(requestId);
                     paginationManagerFragment.paginateToCurrentSelection();
                 }
             } else if (isStatusPending(status)) {
+                paginationManagerFragment.setRequestId(requestId);
                 paginationManagerFragment.paginateToCurrentSelection();
                 paginationManagerFragment.setVisible(true);
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
-            }  else {
+            } else {
                 getPaginationManagerFragment().setVisible(false);
             }
         }

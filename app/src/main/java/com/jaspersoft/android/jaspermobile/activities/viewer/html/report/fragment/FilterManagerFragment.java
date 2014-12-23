@@ -68,6 +68,10 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @InstanceState
     ArrayList<ReportParameter> reportParameters;
     @InstanceState
+    ArrayList<InputControl> validInputControls;
+    @InstanceState
+    ArrayList<ReportParameter> validReportParameters;
+    @InstanceState
     boolean mShowFilterOption;
     @InstanceState
     boolean mShowSaveOption;
@@ -134,6 +138,21 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         showReportOptions(cachedInputControls);
     }
 
+    public void showPreviousReport() {
+        reportParameters = validReportParameters;
+        cachedInputControls = validInputControls;
+        getReportExecutionFragment().executeReport(reportParameters);
+    }
+
+    public boolean hasSnapshot() {
+        return validInputControls != null && validReportParameters != null;
+    }
+
+    public void makeSnapshot() {
+        validReportParameters = reportParameters;
+        validInputControls = cachedInputControls;
+    }
+
     private void showReportOptions(ArrayList<InputControl> inputControls) {
         // Run Report Options activity
         Intent intent = new Intent(getActivity(), ReportOptionsActivity.class);
@@ -148,11 +167,14 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         if (resultCode == Activity.RESULT_OK) {
             reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
             cachedInputControls = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
+
             getReportExecutionFragment().executeReport(reportParameters);
         } else {
             // Check if user has experienced report loading. Otherwise remove him from this page.
-            if (!getReportExecutionFragment().isResourceLoaded()) {
+            if (!hasSnapshot() && !getReportExecutionFragment().isResourceLoaded()) {
                 getActivity().finish();
+            } else {
+                showPreviousReport();
             }
         }
     }
@@ -173,7 +195,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             if (exception instanceof RequestCancelledException) {
-                Toast.makeText(getActivity(),R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
             } else {
                 RequestExceptionHandler.handle(exception, getActivity(), false);
             }

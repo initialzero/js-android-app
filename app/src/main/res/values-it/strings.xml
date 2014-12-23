@@ -224,7 +224,8 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[di %d]]></string>
     <string name="dialog_current_page">Imposta pagina corrente</string>
-
+    <string name="rv_error_empty_report_title">Report è vuoto</string>
+    <string name="rv_error_empty_report_message">Toccare \"Ok\" se si desidera modificare le opzioni di filtro oppure \"Annulla\" per ritornare al report precedente.</string>
 
 
 </resources>

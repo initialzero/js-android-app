@@ -26,14 +26,11 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.DialogInterface;
+import android.annotation.TargetApi;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
@@ -41,33 +38,19 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ExportOutputData;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportExportOutputLoader;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
-import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequest;
-import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
-import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
-import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.exception.RequestCancelledException;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -76,8 +59,6 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 
 /**
  * @author Tom Koptel
@@ -86,7 +67,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 @EFragment(R.layout.html_viewer_layout)
 @OptionsMenu(R.menu.webview_menu)
 public class NodeWebViewFragment extends RoboSpiceFragment {
-
     public static final String TAG = NodeWebViewFragment.class.getSimpleName();
 
     @ViewById
@@ -103,25 +83,28 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     @InstanceState
     @FragmentArg
     String requestId;
-
-    @InstanceState
-    boolean mResourceLoaded;
-    @InstanceState
-    boolean mOutputFinal;
+    @FragmentArg
     @InstanceState
     String executionId;
+    @FragmentArg
     @InstanceState
     String currentHtml;
+    @FragmentArg
+    @InstanceState
+    boolean outputFinal;
 
     @Inject
     protected JsRestClient jsRestClient;
 
     @Bean
-    ReportExecutionUtil reportExecutionUtil;
-    @Bean
     JSWebViewClient jsWebViewClient;
 
     private JSWebView webView;
+
+    public static int getPage(NodeWebViewFragment fragment) {
+        Bundle args = fragment.getArguments();
+        return args.getInt(NodeWebViewFragment_.PAGE_ARG);
+    }
 
     @Override
     public void onStart() {
@@ -171,12 +154,22 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         webView = null;
     }
 
-    public boolean isResourceLoaded() {
-        return mResourceLoaded;
+    public boolean needUpdate() {
+        PaginationManagerFragment paginationManagerFragment = (PaginationManagerFragment)
+                getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
+        String currentRequestId = paginationManagerFragment.getRequestId();
+        return (!getRequestId().equals(currentRequestId));
     }
 
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
+    public void refreshForNewRequestId() {
+        PaginationManagerFragment paginationManagerFragment = (PaginationManagerFragment)
+                getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
+        requestId = paginationManagerFragment.getRequestId();
+        fetchReport();
+    }
+
+    public void loadFinalOutput() {
+        if (!outputFinal) fetchReport();
     }
 
     //---------------------------------------------------------------------
@@ -191,18 +184,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
             ((ViewGroup) webView.getParent()).removeView(webView);
         }
         webViewPlaceholder.addView(webView);
-
-        if (TextUtils.isEmpty(currentHtml)) {
-            fetchReport();
-        } else {
-            loadHtml(currentHtml);
-        }
+        loadHtml(currentHtml);
     }
 
     private void loadHtml(String html) {
         Preconditions.checkNotNull(html);
         Preconditions.checkNotNull(webView);
         Preconditions.checkNotNull(jsRestClient);
+
         if (!html.equals(currentHtml)) {
             currentHtml = html;
         }
@@ -233,7 +222,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 progressBar.setProgress((maxProgress / 100) * progress);
                 // fade out
                 if (progress == maxProgress) {
-                    mResourceLoaded = true;
                     ObjectAnimator.ofFloat(progressBar, "alpha", 1f, 0f)
                             .setDuration(1000).start();
                 }
@@ -241,6 +229,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         });
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
     private void prepareWebView() {
         // disable hardware acceleration
@@ -261,173 +250,40 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         }
     }
 
-    public void fetchReport() {
-        final RunReportExportsRequest request = new RunReportExportsRequest(jsRestClient,
-                prepareExportsData(), requestId);
-
-        DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (!request.isCancelled()) {
-                    getSpiceManager().cancel(request);
-                }
-            }
-        };
-        DialogInterface.OnShowListener showListener = new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                getSpiceManager().execute(request, new RunReportExportsRequestListener());
-            }
-        };
-
-        showDialog(cancelListener, showListener);
+    private void fetchReport() {
+        ReportExportOutputLoader.builder()
+                .setControlFragment(this)
+                .setExecutionMode(RequestExecutor.Mode.VISIBLE)
+                .setJSRestClient(jsRestClient)
+                .setRequestId(requestId)
+                .setVersionCode(versionCode)
+                .setResultListener(new ExportResultListener())
+                .create()
+                .loadByPage(page);
     }
 
-    private void showDialog(DialogInterface.OnCancelListener cancelListener, DialogInterface.OnShowListener showListener) {
-        if (ProgressDialogFragment.isVisible(getFragmentManager())) {
-            ProgressDialogFragment.getInstance(getFragmentManager())
-                    .setOnCancelListener(cancelListener);
-            // Send request
-            showListener.onShow(null);
-        } else {
-            ProgressDialogFragment.show(getFragmentManager(), cancelListener, showListener);
+    private String getRequestId() {
+        if (requestId == null) {
+            Bundle args = getArguments();
+            requestId = args.getString(NodeWebViewFragment_.REQUEST_ID_ARG);
         }
-    }
-
-    private ExportsRequest prepareExportsData() {
-        ExportsRequest executionData = new ExportsRequest();
-        reportExecutionUtil.setupAttachmentPrefix(executionData, versionCode);
-        reportExecutionUtil.setupBaseUrl(executionData);
-        executionData.setOutputFormat("html");
-        executionData.setPages(String.valueOf(page));
-        return executionData;
-    }
-
-    private void handleFailure(SpiceException exception) {
-        Activity activity = getActivity();
-        if (isVisible() && activity != null) {
-            if (exception instanceof RequestCancelledException) {
-                Toast.makeText(activity, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-            } else {
-                RequestExceptionHandler.handle(exception, activity, true);
-            }
-            ProgressDialogFragment.dismiss(getFragmentManager());
-        }
-    }
-
-    public void loadFinalOutput() {
-        if (!mOutputFinal) fetchReport();
+        return requestId;
     }
 
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class RunReportExportsRequestListener implements RequestListener<ExportExecution> {
+    private class ExportResultListener implements ReportExportOutputLoader.ResultListener {
         @Override
-        public void onRequestFailure(SpiceException exception) {
-            handleFailure(exception);
-            mResourceLoaded = true;
+        public void onFailure() {
         }
 
         @Override
-        public void onRequestSuccess(ExportExecution response) {
-            executionId = response.getId();
-            if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                executionId = ("html;pages=" + page);
-            }
-
-            final RunReportExportOutputRequest request = new RunReportExportOutputRequest(jsRestClient,
-                    requestId, executionId);
-
-            DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    if (!request.isCancelled()) {
-                        getSpiceManager().cancel(request);
-                    }
-                }
-            };
-            DialogInterface.OnShowListener showListener = new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    UniversalRequestListener<ReportDataResponse> listener =
-                            UniversalRequestListener.builder(getActivity())
-                            .semanticListener(new RunReportExportOutputRequestListener())
-                            .removeRule(ExceptionRule.FORBIDDEN)
-                            .closeActivityMode()
-                            .create();
-                    getSpiceManager().execute(request, listener);
-                }
-            };
-
-            showDialog(cancelListener, showListener);
-        }
-    }
-
-    private class RunReportExportOutputRequestListener implements UniversalRequestListener.SemanticListener<ReportDataResponse> {
-        @Override
-        public void onSemanticFailure(SpiceException spiceException) {
-            ProgressDialogFragment.dismiss(getFragmentManager());
-            mResourceLoaded = true;
-            mOutputFinal = true;
-
-            HttpStatus httpStatus = RequestExceptionHandler.extractStatusCode(spiceException);
-            if (httpStatus == HttpStatus.FORBIDDEN) {
-                HttpStatusCodeException exception = (HttpStatusCodeException)
-                        spiceException.getCause();
-                ErrorDescriptor errorDescriptor = ErrorDescriptor.valueOf(exception);
-
-                boolean outOfRange = errorDescriptor.getErrorCode().equals("export.pages.out.of.range");
-                if (outOfRange) {
-                    AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                                @Override
-                                public void onClick(DialogFragment fragment) {
-                                    fragment.getActivity().finish();
-                                }
-                            })
-                            .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                                @Override
-                                public void onClick(DialogFragment fragment) {
-                                    PaginationManagerFragment paginationManagerFragment =
-                                            (PaginationManagerFragment) fragment.getFragmentManager()
-                                                    .findFragmentByTag(PaginationManagerFragment.TAG);
-                                    paginationManagerFragment.paginateTo(1);
-                                }
-                            })
-                            .setTitle(R.string.rv_out_of_range)
-                            .setMessage(errorDescriptor.getMessage())
-                            .setCancelableOnTouchOutside(false)
-                            .setNegativeButtonText(android.R.string.cancel)
-                            .setPositiveButtonText(R.string.rv_dialog_reload)
-                            .show();
-                } else {
-                    AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                            .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                                @Override
-                                public void onClick(DialogFragment fragment) {
-                                    fragment.getActivity().finish();
-                                }
-                            })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setTitle(errorDescriptor.getErrorCode())
-                            .setMessage(errorDescriptor.getMessage())
-                            .setCancelableOnTouchOutside(false)
-                            .show();
-                }
-            } else {
-                handleFailure(spiceException);
-            }
-        }
-
-        @Override
-        public void onSemanticSuccess(ReportDataResponse response) {
-            ProgressDialogFragment.dismiss(getFragmentManager());
-            loadHtml(response.getData());
-            mResourceLoaded = true;
-            mOutputFinal = response.isFinal();
+        public void onSuccess(ExportOutputData output) {
+            executionId = output.getExecutionId();
+            outputFinal = output.isFinal();
+            loadHtml(output.getData());
         }
     }
 

@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,11 +12,12 @@ import android.widget.Toast;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -77,39 +77,22 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     boolean mShowSaveOption;
 
     private ReportExecutionFragment reportExecutionFragment;
+    private RequestExecutor requestExecutor;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        requestExecutor = RequestExecutor.builder()
+                .setExecutionMode(RequestExecutor.Mode.VISIBLE)
+                .setFragmentManager(getFragmentManager())
+                .setSpiceManager(getSpiceManager())
+                .create();
+
         if (savedInstanceState == null) {
             final GetInputControlsRequest request =
                     new GetInputControlsRequest(jsRestClient, resource.getUri());
-
-            DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    if (!request.isCancelled()) {
-                        getSpiceManager().cancel(request);
-                        getActivity().finish();
-                    }
-                }
-            };
-            DialogInterface.OnShowListener showListener = new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    getSpiceManager().execute(request, new GetInputControlsListener());
-                }
-            };
-
-            if (ProgressDialogFragment.isVisible(getFragmentManager())) {
-                ProgressDialogFragment.getInstance(getFragmentManager())
-                        .setOnCancelListener(cancelListener);
-                // Send request
-                showListener.onShow(null);
-            } else {
-                ProgressDialogFragment.show(getFragmentManager(), cancelListener, showListener);
-            }
+            requestExecutor.execute(request, new GetInputControlsListener());
         }
     }
 
@@ -171,7 +154,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
             getReportExecutionFragment().executeReport(reportParameters);
         } else {
             // Check if user has experienced report loading. Otherwise remove him from this page.
-            if (!hasSnapshot() && !getReportExecutionFragment().isResourceLoaded()) {
+            if (!hasSnapshot()) {
                 getActivity().finish();
             } else {
                 showPreviousReport();

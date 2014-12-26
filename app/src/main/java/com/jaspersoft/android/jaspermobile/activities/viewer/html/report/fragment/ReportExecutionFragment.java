@@ -1,14 +1,16 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
-import android.content.DialogInterface;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
@@ -54,38 +56,23 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     ReportExecutionUtil reportExecutionUtil;
 
     private final Handler mHandler = new Handler();
+    private RequestExecutor requestExecutor;
 
-    public boolean isResourceLoaded() {
-        return getPaginationManagerFragment().isResourceLoaded();
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        requestExecutor = RequestExecutor.builder()
+                .setExecutionMode(RequestExecutor.Mode.VISIBLE)
+                .setFragmentManager(getFragmentManager())
+                .setSpiceManager(getSpiceManager())
+                .create();
     }
+
 
     public void executeReport(ArrayList<ReportParameter> reportParameters) {
         ReportExecutionRequest executionData = prepareExecutionData(reportParameters);
         final RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient, executionData);
-        DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (!request.isCancelled()) {
-                    getSpiceManager().cancel(request);
-                    getActivity().finish();
-                }
-            }
-        };
-        DialogInterface.OnShowListener showListener = new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                getSpiceManager().execute(request, new RunReportExecutionListener());
-            }
-        };
-
-        if (ProgressDialogFragment.isVisible(getFragmentManager())) {
-            ProgressDialogFragment.getInstance(getFragmentManager())
-                    .setOnCancelListener(cancelListener);
-            // Send request
-            showListener.onShow(null);
-        } else {
-            ProgressDialogFragment.show(getFragmentManager(), cancelListener, showListener);
-        }
+        requestExecutor.execute(request, new RunReportExecutionListener());
     }
 
     public void executeReport() {
@@ -103,6 +90,17 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         if (!filterManagerFragment.hasSnapshot()) {
             AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
                     .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
+                        @Override
+                        public void onClick(DialogFragment fragment) {
+                            FilterManagerFragment filterManagerFragment =
+                                    (FilterManagerFragment) fragment.getFragmentManager()
+                                            .findFragmentByTag(FilterManagerFragment.TAG);
+                            if (filterManagerFragment != null) {
+                                filterManagerFragment.showFilters();
+                            }
+                        }
+                    })
                     .setTitle(R.string.warning_msg)
                     .setCancelableOnTouchOutside(false)
                     .setMessage(R.string.rv_error_empty_report)
@@ -156,7 +154,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         executionData.setReportUnitUri(resource.getUri());
         executionData.setOutputFormat("html");
         executionData.setAsync(true);
-        executionData.setInteractive(true);
         executionData.setFreshData(true);
         executionData.setIgnorePagination(false);
         if (!reportParameters.isEmpty()) {
@@ -209,28 +206,24 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             final String requestId = response.getRequestId();
+            paginationManagerFragment.setRequestId(requestId);
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
                 int totalPageCount = response.getTotalPages();
-                boolean needToBeShown = (totalPageCount > 1);
-                paginationManagerFragment.setVisible(needToBeShown);
                 paginationManagerFragment.showTotalPageCount(totalPageCount);
 
                 if (totalPageCount == 0) {
+                    getFilterMangerFragment().makeSnapshot();
                     showEmptyReportOptionsDialog();
                 } else {
-                    getFilterMangerFragment().makeSnapshot();
-                    paginationManagerFragment.setRequestId(requestId);
                     paginationManagerFragment.paginateToCurrentSelection();
+                    paginationManagerFragment.loadNextPageInBackground();
                 }
             } else if (isStatusPending(status)) {
-                paginationManagerFragment.setRequestId(requestId);
                 paginationManagerFragment.paginateToCurrentSelection();
-                paginationManagerFragment.setVisible(true);
+                paginationManagerFragment.loadNextPageInBackground();
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
-            } else {
-                getPaginationManagerFragment().setVisible(false);
             }
         }
     }
@@ -271,8 +264,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 getPaginationManagerFragment().update();
             } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
-            } else {
-                getPaginationManagerFragment().setVisible(false);
             }
         }
     }

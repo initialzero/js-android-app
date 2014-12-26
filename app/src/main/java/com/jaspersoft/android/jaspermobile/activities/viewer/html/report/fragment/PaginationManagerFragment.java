@@ -48,6 +48,7 @@ import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.ReportDetailsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
+import com.octo.android.robospice.persistence.DurationInMillis;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -233,7 +234,8 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                     UniversalRequestListener.builder(getActivity())
                             .semanticListener(new ReportDetailsRequestListener())
                             .create();
-            getSpiceManager().execute(reportDetailsRequest, universalRequestListener);
+            getSpiceManager().execute(reportDetailsRequest, ReportDetailsRequest.class.getSimpleName() + currentPage,
+                    DurationInMillis.ALWAYS_RETURNED, universalRequestListener);
         }
 
         Optional<NodeWebViewFragment> optional = getCurrentNodeWebViewFragment();

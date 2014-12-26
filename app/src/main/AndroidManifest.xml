@@ -107,7 +107,7 @@
         <!-- Activity that performs report viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+            android:configChanges="keyboard|keyboardHidden|locale" />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity

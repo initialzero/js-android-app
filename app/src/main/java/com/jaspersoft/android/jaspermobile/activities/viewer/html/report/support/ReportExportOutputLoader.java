@@ -25,6 +25,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.exception.RequestCancelledException;
+import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -81,7 +82,8 @@ public class ReportExportOutputLoader {
 
         final RunReportExportsRequest request = new RunReportExportsRequest(jsRestClient,
                 executionData, requestId);
-        requestExecutor.execute(request, new RunReportExportsRequestListener(page));
+        requestExecutor.execute(request, RunReportExportsRequestListener.class.getSimpleName() + page,
+                DurationInMillis.ALWAYS_RETURNED, new RunReportExportsRequestListener(page));
     }
 
     private void handleFailure(SpiceException exception) {
@@ -128,7 +130,9 @@ public class ReportExportOutputLoader {
 
             RunReportExportOutputRequest request = new RunReportExportOutputRequest(jsRestClient,
                     requestId, executionId);
-            requestExecutor.execute(request, listener);
+            requestExecutor.execute(request,
+                    RunReportExportOutputRequest.class.getSimpleName() + mPage,
+                    DurationInMillis.ALWAYS_RETURNED, listener);
         }
     }
 

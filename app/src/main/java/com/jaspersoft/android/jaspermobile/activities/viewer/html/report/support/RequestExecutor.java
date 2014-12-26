@@ -30,6 +30,8 @@ import android.support.v4.app.FragmentManager;
 import com.google.common.base.Preconditions;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.DurationInMillis;
+import com.octo.android.robospice.request.CachedSpiceRequest;
 import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -54,7 +56,17 @@ public class RequestExecutor {
         this.executionMode = executionMode;
     }
 
-    public <T> void execute(SpiceRequest<T> request, RequestListener<T> requestListener) {
+    public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
+        final CachedSpiceRequest<T> cachedSpiceRequest = new CachedSpiceRequest<T>(request, null, DurationInMillis.ALWAYS_RETURNED);
+        execute(cachedSpiceRequest, requestListener);
+    }
+
+    public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey, final long cacheExpiryDuration, final RequestListener<T> requestListener) {
+        final CachedSpiceRequest<T> cachedSpiceRequest = new CachedSpiceRequest<T>(request, requestCacheKey, cacheExpiryDuration);
+        execute(cachedSpiceRequest, requestListener);
+    }
+
+    public <T> void execute(CachedSpiceRequest<T> request, RequestListener<T> requestListener) {
         boolean isVisibleExecutionInProgress = ProgressDialogFragment.isVisible(fragmentManager);
         if (isVisibleExecutionInProgress) {
             makeSilentExecution(request, requestListener);

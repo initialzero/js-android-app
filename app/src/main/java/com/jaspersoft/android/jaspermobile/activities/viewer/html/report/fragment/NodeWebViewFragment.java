@@ -27,16 +27,13 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.google.common.base.Preconditions;
@@ -64,15 +61,18 @@ import org.androidannotations.annotations.ViewById;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment(R.layout.html_viewer_layout)
+@EFragment(R.layout.report_html_viewer)
 @OptionsMenu(R.menu.webview_menu)
 public class NodeWebViewFragment extends RoboSpiceFragment {
     public static final String TAG = NodeWebViewFragment.class.getSimpleName();
 
     @ViewById
-    FrameLayout webViewPlaceholder;
+    protected JSWebView webView;
     @ViewById(R.id.htmlViewer_webView_progressBar)
-    ProgressBar progressBar;
+    protected ProgressBar progressBar;
+
+    @FragmentArg
+    String currentHtml;
 
     @InstanceState
     @FragmentArg
@@ -86,9 +86,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     @FragmentArg
     @InstanceState
     String executionId;
-    @FragmentArg
-    @InstanceState
-    String currentHtml;
+
     @FragmentArg
     @InstanceState
     boolean outputFinal;
@@ -98,8 +96,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     @Bean
     JSWebViewClient jsWebViewClient;
-
-    private JSWebView webView;
 
     public static int getPage(NodeWebViewFragment fragment) {
         Bundle args = fragment.getArguments();
@@ -124,32 +120,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        if (webView != null) webViewPlaceholder.removeView(webView);
-        super.onConfigurationChanged(newConfig);
-        initWebView();
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (webView != null) {
-            webView.restoreState(savedInstanceState);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (webView != null) {
-            webView.saveState(outState);
-        }
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        webViewPlaceholder.removeAllViews();
         webView.destroy();
         webView = null;
     }
@@ -177,13 +149,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
 
     private void initWebView() {
-        // create new if necessary
-        if (webView == null) createWebView();
-        // attach to placeholder
-        if (webView.getParent() != null) {
-            ((ViewGroup) webView.getParent()).removeView(webView);
-        }
-        webViewPlaceholder.addView(webView);
+        CookieManagerFactory.syncCookies(getActivity(), jsRestClient);
+        prepareWebView();
+        setWebViewClient();
         loadHtml(currentHtml);
     }
 
@@ -200,13 +168,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         webView.loadDataWithBaseURL(
                 jsRestClient.getServerProfile().getServerUrl(),
                 currentHtml, mime, encoding, null);
-    }
-
-    private void createWebView() {
-        webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
-        CookieManagerFactory.syncCookies(getActivity(), jsRestClient);
-        prepareWebView();
-        setWebViewClient();
     }
 
     private void setWebViewClient() {

@@ -26,7 +26,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.exception.RequestCancelledException;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -92,8 +91,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
         final GetInputControlsRequest request =
                 new GetInputControlsRequest(jsRestClient, resource.getUri());
-        requestExecutor.execute(request, request.createCacheKey(),
-                DurationInMillis.ALWAYS_RETURNED, new GetInputControlsListener());
+        requestExecutor.execute(request, new GetInputControlsListener());
     }
 
     @Override

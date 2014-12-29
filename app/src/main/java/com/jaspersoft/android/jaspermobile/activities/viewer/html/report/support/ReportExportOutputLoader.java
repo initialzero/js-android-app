@@ -82,8 +82,7 @@ public class ReportExportOutputLoader {
 
         final RunReportExportsRequest request = new RunReportExportsRequest(jsRestClient,
                 executionData, requestId);
-        requestExecutor.execute(request, RunReportExportsRequestListener.class.getSimpleName() + page,
-                DurationInMillis.ALWAYS_RETURNED, new RunReportExportsRequestListener(page));
+        requestExecutor.execute(request, new RunReportExportsRequestListener(page));
     }
 
     private void handleFailure(SpiceException exception) {
@@ -130,9 +129,7 @@ public class ReportExportOutputLoader {
 
             RunReportExportOutputRequest request = new RunReportExportOutputRequest(jsRestClient,
                     requestId, executionId);
-            requestExecutor.execute(request,
-                    RunReportExportOutputRequest.class.getSimpleName() + mPage,
-                    DurationInMillis.ALWAYS_RETURNED, listener);
+            requestExecutor.execute(request, listener);
         }
     }
 

@@ -26,7 +26,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportStatusResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.exception.RequestCancelledException;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -73,8 +72,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     public void executeReport(ArrayList<ReportParameter> reportParameters) {
         ReportExecutionRequest executionData = prepareExecutionData(reportParameters);
         final RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient, executionData);
-        requestExecutor.execute(request, ReportExecutionResponse.class.getSimpleName(),
-                DurationInMillis.ALWAYS_RETURNED, new RunReportExecutionListener());
+        requestExecutor.execute(request, new RunReportExecutionListener());
     }
 
     public void executeReport() {

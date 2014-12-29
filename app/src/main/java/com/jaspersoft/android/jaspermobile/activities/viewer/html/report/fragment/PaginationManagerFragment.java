@@ -59,8 +59,8 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Tom Koptel
@@ -128,7 +128,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             };
 
     private final List<NodeWebViewFragment> fragments = Lists.newArrayList();
-    private final Set<Integer> pages = Sets.newHashSet();
+    private final LinkedHashSet<Integer> pages = Sets.newLinkedHashSet();
 
     @AfterViews
     final void init() {
@@ -364,6 +364,13 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                             .versionCode(versionCode)
                             .page(outputPage)
                             .build();
+            if (fragments.size() > 10) {
+                Integer[] array = new Integer[pages.size()];
+                pages.toArray(array);
+                int pageToDelete = array[pages.size() - 2];
+                fragments.remove(findFragmentByPage(pageToDelete).get());
+                pages.remove(pageToDelete);
+            }
 
             fragments.add(nodeWebViewFragment);
             Collections.sort(fragments, pageComparator);

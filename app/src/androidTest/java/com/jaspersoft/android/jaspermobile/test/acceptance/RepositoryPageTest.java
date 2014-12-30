@@ -24,10 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance;
 
+import android.support.test.espresso.NoMatchingViewException;
 import android.widget.GridView;
 import android.widget.ListView;
 
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
@@ -44,19 +44,22 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.apache.http.hacked.HackedJsRestClient;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.pressImeActionButton;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static android.support.test.espresso.Espresso.pressBack;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
@@ -77,8 +80,8 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         super(RepositoryActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         registerTestModule(new TestModule());
@@ -87,19 +90,21 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.GET_ROOT_FOLDER, TestResponses.ROOT_FOLDER);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         getActivity().finish();
         super.tearDown();
     }
 
+    @Test
     public void testInitialLoadOfGrid() {
         forcePreview(ViewType.GRID);
         startActivityUnderTest();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
+    @Test
     public void testSwitcher() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
@@ -115,12 +120,14 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
+    @Test
     public void testInitialLoadOfList() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
+    @Test
     public void testRepoClickCase() throws InterruptedException {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.ROOT_FOLDER_CONTENT,
@@ -142,6 +149,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.h_repository_label)));
     }
 
+    @Test
     public void testRepoBackstackPersistance() throws InterruptedException {
         FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, TestResources.ROOT_FOLDER);
         String rootLevelRepoLabel = rootFolder.getLabel();
@@ -170,6 +178,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(rootLevelRepoLabel)))));
     }
 
+    @Test
     public void testSearchInRepository() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
@@ -189,10 +198,18 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
                 .check(matches(isDisplayed()));
     }
 
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void forcePreview(ViewType viewType) {
         ControllerPref controllerPref = new ControllerPref(getInstrumentation().getContext(), CLASS_NAME);
         controllerPref.viewType().put(viewType.toString());
     }
+
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
 
     public class TestModule extends CommonTestModule {
         @Override

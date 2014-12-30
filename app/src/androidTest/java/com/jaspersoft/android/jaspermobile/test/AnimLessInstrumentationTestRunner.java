@@ -27,9 +27,8 @@ package com.jaspersoft.android.jaspermobile.test;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.test.runner.AndroidJUnitRunner;
 import android.util.Log;
-
-import com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,7 +37,7 @@ import java.lang.reflect.Method;
  * @author Tom Koptel
  * @since 1.9
  */
-public class AnimLessInstrumentationTestRunner extends GoogleInstrumentationTestRunner {
+public class AnimLessInstrumentationTestRunner extends AndroidJUnitRunner {
     private static final String TAG = "Primer";
     private static final String ANIMATION_PERMISSION = "android.permission.SET_ANIMATION_SCALE";
 

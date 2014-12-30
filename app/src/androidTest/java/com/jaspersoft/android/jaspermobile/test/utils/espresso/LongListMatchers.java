@@ -28,7 +28,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 
-import com.google.android.apps.common.testing.ui.espresso.matcher.BoundedMatcher;
+import android.support.test.espresso.matcher.BoundedMatcher;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -46,7 +46,7 @@ import static org.hamcrest.Matchers.hasEntry;
  * objects created by.
  * <p>
  * These matchers are used by the
- * {@link com.google.android.apps.common.testing.ui.espresso.Espresso#onData(org.hamcrest.Matcher)} API and are
+ * {@link android.support.test.espresso.Espresso#onData(org.hamcrest.Matcher)} API and are
  * applied against the data exposed by @{link android.widget.ListView#getAdapter()}.
  * </p>
  * <p>

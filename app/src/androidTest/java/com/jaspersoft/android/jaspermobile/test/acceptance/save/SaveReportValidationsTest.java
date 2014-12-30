@@ -25,25 +25,33 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.save;
 
 import android.content.Intent;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.clearText;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class SaveReportValidationsTest extends ProtoActivityInstrumentation<SaveReportActivity_> {
 
     protected static final String RESOURCE_URI = "/Reports/2_Sales_Mix_by_Demographic_Report";
@@ -53,19 +61,22 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         super(SaveReportActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testValidateFieldShouldNotAcceptReservedSymbols() {
         prepareIntent();
         startActivityUnderTest();
@@ -80,6 +91,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         }
     }
 
+    @Test
     public void testValidateFieldShouldNotAcceptOnlySpaces() {
         prepareIntent();
         startActivityUnderTest();
@@ -91,6 +103,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         onView(withId(R.id.report_name_input)).check(matches(hasErrorText(getActivity().getString(R.string.sr_error_field_is_empty))));
     }
 
+    @Test
     public void testValidateFieldShouldNotBeEmpty() {
         prepareIntent();
         startActivityUnderTest();
@@ -101,6 +114,10 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
 
         onView(withId(R.id.report_name_input)).check(matches(hasErrorText(getActivity().getString(R.string.sr_error_field_is_empty))));
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void prepareIntent() {
         Intent metaIntent = new Intent();

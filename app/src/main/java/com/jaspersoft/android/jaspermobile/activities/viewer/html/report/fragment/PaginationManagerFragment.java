@@ -36,6 +36,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ExportOutputData;
@@ -59,8 +60,9 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Tom Koptel
@@ -75,6 +77,9 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     @FragmentArg
     double versionCode;
 
+    @Inject
+    @Named("MAX_PAGE_ALLOWED")
+    private int maxPageAllowed;
     @Inject
     JsRestClient jsRestClient;
     @InstanceState
@@ -128,7 +133,8 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             };
 
     private final List<NodeWebViewFragment> fragments = Lists.newArrayList();
-    private final LinkedHashSet<Integer> pages = Sets.newLinkedHashSet();
+    private final Set<Integer> pages = Sets.newHashSet();
+    private final LinkedList<Integer> stack = Lists.newLinkedList();
 
     @AfterViews
     final void init() {
@@ -209,6 +215,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     }
 
     public void paginateToCurrentSelection() {
+        stack.addFirst(currentPage);
         alterControlStates();
 
         boolean noPagesLoaded = fragments.isEmpty();
@@ -335,6 +342,19 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                 getFragmentManager().findFragmentByTag(FilterManagerFragment.TAG);
     }
 
+    /**
+     * This dirty way to fix memory issue on report viewer section.
+     * We are basically keeping only 10 instances of Fragments in memory
+     */
+    private void removeCachedPage() {
+        int pageToDelete = stack.getLast();
+        fragments.remove(findFragmentByPage(pageToDelete).get());
+        pages.remove(pageToDelete);
+
+        stack.clear();
+        stack.addFirst(currentPage);
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -364,12 +384,8 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                             .versionCode(versionCode)
                             .page(outputPage)
                             .build();
-            if (fragments.size() > 10) {
-                Integer[] array = new Integer[pages.size()];
-                pages.toArray(array);
-                int pageToDelete = array[pages.size() - 2];
-                fragments.remove(findFragmentByPage(pageToDelete).get());
-                pages.remove(pageToDelete);
+            if (stack.size() > maxPageAllowed) {
+                removeCachedPage();
             }
 
             fragments.add(nodeWebViewFragment);

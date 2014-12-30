@@ -76,9 +76,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
     @Bean
     ServerInfoManager infoManager;
 
-    @Inject
-    JsRestClient jsRestClient;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

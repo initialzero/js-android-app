@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
 import android.database.Cursor;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.google.inject.Injector;
@@ -78,6 +79,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 /**
  * @author Tom Koptel
@@ -187,6 +189,18 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(1));
+    }
+
+    // Bug related: User can`t delete the only one profile
+    // he will not simply found button to do that
+    @Test(expected = NoMatchingViewException.class)
+    public void testUserCantDeleteSingleProfile() {
+        DatabaseUtils.deleteAllProfiles(getApplication().getContentResolver());
+        DatabaseUtils.createTestProfile(getApplication().getContentResolver());
+        startActivityUnderTest();
+
+        onView(withText(TEST_ALIAS)).perform(longClick());
+        onView(withId(R.id.deleteItem)).check(matches(not(isDisplayed())));
     }
 
     @Test

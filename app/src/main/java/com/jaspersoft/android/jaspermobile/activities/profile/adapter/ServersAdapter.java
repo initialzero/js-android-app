@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.profile.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -33,6 +34,7 @@ import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceSimpleCursorAdapter;
+import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 
 /**
@@ -62,7 +64,12 @@ public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
 
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        return false;
+        Cursor cursor = getContext().getContentResolver()
+                .query(MobileDbProvider.SERVER_PROFILES_CONTENT_URI,
+                        new String[]{ServerProfilesTable._ID}, null, null, null);
+        boolean hideDeleteControlCondition = cursor.getCount() > 1;
+        menu.findItem(R.id.deleteItem).setVisible(hideDeleteControlCondition);
+        return true;
     }
 
     @Override

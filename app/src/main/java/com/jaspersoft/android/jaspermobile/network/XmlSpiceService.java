@@ -15,7 +15,7 @@ import com.octo.android.robospice.persistence.string.InFileStringObjectPersister
  * @author Ivan Gadzhega
  * @since 1.6
  */
-public class JsXmlSpiceService extends SpiceService {
+public class XmlSpiceService extends SpiceService {
 
     @Override
     public CacheManager createCacheManager(Application application) throws CacheCreationException {

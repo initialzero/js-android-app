@@ -23,8 +23,7 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jaspersoft.android.jaspermobile"
-    android:installLocation="auto" >
+    package="com.jaspersoft.android.jaspermobile" >
 
     <!-- Allows applications to access information about networks -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -43,7 +42,6 @@
 
     <application
         android:name=".JasperMobileApplication_"
-        android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
         android:theme="@style/Theme.JasperMobile" >
@@ -156,7 +154,7 @@
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
-            android:name=".network.JsXmlSpiceService"
+            android:name=".network.XmlSpiceService"
             android:exported="false" />
 
         <provider

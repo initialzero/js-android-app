@@ -102,18 +102,6 @@ public class RoboAccentPreferenceActivity extends RoboPreferenceActivity {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        BugSenseWrapper.startSession(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        BugSenseWrapper.closeSession(this);
-    }
-
-    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 

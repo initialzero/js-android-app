@@ -156,7 +156,7 @@
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
-            android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"
+            android:name=".network.JsXmlSpiceService"
             android:exported="false" />
 
         <provider

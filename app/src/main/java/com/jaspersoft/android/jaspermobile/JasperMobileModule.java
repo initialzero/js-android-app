@@ -59,6 +59,7 @@ public class JasperMobileModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("animationSpeed"))
                 .to(animationSpeed);
         bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
+        bindConstant().annotatedWith(Names.named("MAX_PAGE_ALLOWED")).to(10);
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
     }
 

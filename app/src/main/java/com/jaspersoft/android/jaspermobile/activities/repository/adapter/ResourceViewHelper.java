@@ -192,7 +192,7 @@ public class ResourceViewHelper {
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            setScaleType(view, ImageView.ScaleType.CENTER_CROP);
+            setScaleType(view, ImageView.ScaleType.CENTER_INSIDE);
         }
 
         private void setScaleType(View view, ImageView.ScaleType type) {

@@ -142,7 +142,7 @@ public class SavedItemsFragment extends RoboFragment
     @ItemClick(android.R.id.list)
     public void onItemClick(int position) {
         mAdapter.finishActionMode();
-        openReportFile(getFileByPosition(position));
+        openReportFile(position);
     }
 
     @UiThread
@@ -176,24 +176,32 @@ public class SavedItemsFragment extends RoboFragment
         return new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
     }
 
-    private void openReportFile(File reportFile) {
+    private long getIndexByPosition(int position) {
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(position);
+
+        return cursor.getLong(cursor.getColumnIndex(SavedItemsTable._ID));
+    }
+
+    private void openReportFile(int position) {
+        File reportFile = getFileByPosition(position);
+
         Locale current = getResources().getConfiguration().locale;
-        File reportOutputFile = new File(reportFile, reportFile.getName());
-        String fileName = reportOutputFile.getName();
+        String fileName = reportFile.getName();
         String baseName = FileUtils.getBaseName(fileName);
         String extension = FileUtils.getExtension(fileName).toLowerCase(current);
-        Uri reportOutputPath = Uri.fromFile(reportOutputFile);
 
         if ("HTML".equalsIgnoreCase(extension)) {
             // run the html report viewer
             SavedReportHtmlViewerActivity_.intent(this)
                     .reportFile(reportFile)
                     .resourceLabel(baseName)
-                    .resourceUri(reportOutputPath.toString())
+                    .reportId(getIndexByPosition(position))
                     .start();
         } else {
             // run external viewer according to the file format
             String contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            Uri reportOutputPath = Uri.fromFile(reportFile);
             Intent externalViewer = new Intent(Intent.ACTION_VIEW);
             externalViewer.setDataAndType(reportOutputPath, contentType);
             externalViewer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -286,10 +294,9 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onRename(File file, String name) {
+    public void onRename(File file, String extension) {
         RenameDialogFragment.show(getFragmentManager(), file,
-                name, jsRestClient.getServerProfile().getId(),
-                new OnRenamedAction() {
+                extension, new OnRenamedAction() {
                     @Override
                     public void onRenamed(String newFileName, String newFilePath) {
                         long id = Lists.newArrayList(mAdapter.getCheckedItems()).get(0);
@@ -315,7 +322,7 @@ public class SavedItemsFragment extends RoboFragment
                 .setTargetFragment(this, currentPosition)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getActivity().getString(R.string.sdr_drd_msg,
-                        FileUtils.getBaseName(file.getName())))
+                        file.getName()))
                 .setPositiveButtonText(R.string.spm_delete_btn)
                 .setNegativeButtonText(android.R.string.cancel)
                 .show();
@@ -336,7 +343,7 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public void onPositiveButtonClicked(int position) {
-        File selectedFile = getFileByPosition(position);
+        File selectedFile = getFileByPosition(position).getParentFile();
         if (selectedFile.isDirectory()) {
             FileUtils.deleteFilesInDirectory(selectedFile);
         }

@@ -59,7 +59,8 @@
             android:prompt="@string/sr_output_format" />
 
         <LinearLayout
-            android:id="@+id/llSaveInParts"
+            android:id="@+id/rangeControls"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -77,7 +78,7 @@
                     android:text="@string/sr_from" />
 
                 <TextView
-                    android:id="@+id/tvFromPage"
+                    android:id="@+id/fromPageControl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="13dp"
@@ -99,7 +100,7 @@
                     android:text="@string/sr_to" />
 
                 <TextView
-                    android:id="@+id/tvToPage"
+                    android:id="@+id/toPageControl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="13dp"

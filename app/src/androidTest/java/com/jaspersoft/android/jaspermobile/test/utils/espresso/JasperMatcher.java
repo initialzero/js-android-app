@@ -30,9 +30,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.TimePicker;
 
 import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.google.android.apps.common.testing.ui.espresso.Root;
+import com.google.android.apps.common.testing.ui.espresso.UiController;
 import com.google.android.apps.common.testing.ui.espresso.ViewAction;
 import com.google.android.apps.common.testing.ui.espresso.ViewAssertion;
 import com.google.android.apps.common.testing.ui.espresso.ViewInteraction;
@@ -40,6 +43,7 @@ import com.google.android.apps.common.testing.ui.espresso.action.GeneralLocation
 import com.google.android.apps.common.testing.ui.espresso.action.GeneralSwipeAction;
 import com.google.android.apps.common.testing.ui.espresso.action.Press;
 import com.google.android.apps.common.testing.ui.espresso.action.Swipe;
+import com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers;
 import com.google.common.base.Optional;
 
 import org.hamcrest.Description;
@@ -169,6 +173,66 @@ public final class JasperMatcher {
                 if ((view instanceof SwipeRefreshLayout)) return false;
                 SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view;
                 return swipeRefreshLayout.isRefreshing();
+            }
+        };
+    }
+
+    public static ViewAction setTime(final int hour, final int minute) {
+        return new ViewAction() {
+            @Override
+            public void perform(UiController uiController, View view) {
+                TimePicker tp = (TimePicker) view;
+                tp.setCurrentHour(hour);
+                tp.setCurrentMinute(minute);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Set the passed time into the TimePicker";
+            }
+
+            @Override
+            public Matcher<View> getConstraints() {
+                return ViewMatchers.isAssignableFrom(TimePicker.class);
+            }
+        };
+    }
+
+    public static ViewAction selectCurrentNumber(final int number) {
+        return new ViewAction() {
+            @Override
+            public void perform(UiController uiController, View view) {
+                NumberPicker numberPicker = (NumberPicker) view;
+                numberPicker.setValue(number);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Set the passed value into the NumberPicker";
+            }
+
+            @Override
+            public Matcher<View> getConstraints() {
+                return ViewMatchers.isAssignableFrom(NumberPicker.class);
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasMinValue(final int minValue) {
+        return new TypeSafeMatcher<View>() {
+            public int assertedMinValue = Integer.MIN_VALUE;
+
+            @Override
+            public boolean matchesSafely(View view) {
+                NumberPicker numberPicker = (NumberPicker) view;
+                assertedMinValue = numberPicker.getMinValue();
+                return numberPicker.getMinValue() == minValue;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("expected minValue: "
+                        + minValue + " but it was: " + assertedMinValue);
             }
         };
     }

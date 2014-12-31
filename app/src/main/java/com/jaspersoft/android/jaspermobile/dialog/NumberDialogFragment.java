@@ -58,46 +58,18 @@ public class NumberDialogFragment extends DialogFragment {
     private static final String TAG = NumberDialogFragment.class.getSimpleName();
 
     @FragmentArg
-    int startPage;
+    int minValue;
     @FragmentArg
-    int totalPages;
+    int maxValue;
     @FragmentArg
-    int currentPage;
+    int value;
 
     public int mValue;
 
     private OnPageSelectedListener onPageSelectedListener;
 
-    public static void show(FragmentManager fm, int currentPage, int totalPages,
-                            OnPageSelectedListener onPageSelectedListener) {
-        NumberDialogFragment dialogFragment = (NumberDialogFragment)
-                fm.findFragmentByTag(TAG);
-
-        if (dialogFragment == null) {
-            dialogFragment = NumberDialogFragment_.builder()
-                    .totalPages(totalPages)
-                    .startPage(1)
-                    .currentPage(currentPage)
-                    .build();
-            dialogFragment.setPageSelectedListener(onPageSelectedListener);
-            dialogFragment.show(fm, TAG);
-        }
-    }
-
-    public static void show(FragmentManager fm, int currentPage, int startPage, int totalPages,
-                            OnPageSelectedListener onPageSelectedListener) {
-        NumberDialogFragment dialogFragment = (NumberDialogFragment)
-                fm.findFragmentByTag(TAG);
-
-        if (dialogFragment == null) {
-            dialogFragment = NumberDialogFragment_.builder()
-                    .totalPages(totalPages)
-                    .startPage(startPage)
-                    .currentPage(currentPage)
-                    .build();
-            dialogFragment.setPageSelectedListener(onPageSelectedListener);
-            dialogFragment.show(fm, TAG);
-        }
+    public static Builder builder(FragmentManager fragmentManager) {
+        return new Builder(fragmentManager);
     }
 
     @NonNull
@@ -129,8 +101,8 @@ public class NumberDialogFragment extends DialogFragment {
                 mValue = newVal;
             }
         });
-        numberPicker.setMinValue(startPage);
-        numberPicker.setMaxValue(totalPages);
+        numberPicker.setMinValue(minValue);
+        numberPicker.setMaxValue(maxValue);
 
         builder.setTitle(R.string.dialog_current_page);
         builder.setView(customView);
@@ -159,7 +131,7 @@ public class NumberDialogFragment extends DialogFragment {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                numberPicker.setValue(currentPage);
+                numberPicker.setValue(value);
             }
         });
 
@@ -175,6 +147,57 @@ public class NumberDialogFragment extends DialogFragment {
 
     public void setPageSelectedListener(OnPageSelectedListener onPageSelectedListener) {
         this.onPageSelectedListener = onPageSelectedListener;
+    }
+
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
+
+    public static class Builder {
+        private int value;
+        private int minValue;
+        private int maxValue;
+        private OnPageSelectedListener onPageSelectedListener;
+        private final FragmentManager fragmentManager;
+
+        public Builder(FragmentManager fragmentManager) {
+            this.fragmentManager = fragmentManager;
+        }
+
+        public Builder value(int value) {
+            this.value = value;
+            return this;
+        }
+
+        public Builder minValue(int minValue) {
+            this.minValue = minValue;
+            return this;
+        }
+
+        public Builder maxValue(int maxValue) {
+            this.maxValue = maxValue;
+            return this;
+        }
+
+        public Builder selectListener(OnPageSelectedListener onPageSelectedListener) {
+            this.onPageSelectedListener = onPageSelectedListener;
+            return this;
+        }
+
+        public void show() {
+            NumberDialogFragment dialogFragment = (NumberDialogFragment)
+                    fragmentManager.findFragmentByTag(TAG);
+
+            if (dialogFragment == null) {
+                dialogFragment = NumberDialogFragment_.builder()
+                        .minValue(minValue)
+                        .maxValue(maxValue)
+                        .value(value)
+                        .build();
+                dialogFragment.setPageSelectedListener(onPageSelectedListener);
+                dialogFragment.show(fragmentManager, TAG);
+            }
+        }
     }
 
     private static class AbstractTextWatcher implements TextWatcher {

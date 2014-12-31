@@ -94,12 +94,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @ViewById(R.id.report_name_input)
     EditText reportNameInput;
 
-    @ViewById (R.id.llSaveInParts)
-    LinearLayout llSaveInParts;
-    @ViewById(R.id.tvFromPage)
-    TextView tvFromPage;
-    @ViewById(R.id.tvToPage)
-    TextView tvToPage;
+    @ViewById
+    LinearLayout rangeControls;
+    @ViewById
+    TextView fromPageControl;
+    @ViewById
+    TextView toPageControl;
 
     @FragmentArg
     ResourceLookup resource;
@@ -159,7 +159,19 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 executionRequest.setInteractive(false);
                 executionRequest.setOutputFormat(outputFormat.toString());
                 executionRequest.setEscapedAttachmentsPrefix("./");
-                if (pageCount > 1) executionRequest.setPages(mFromPage + "-" + mToPage);
+
+                boolean hasPagination = (pageCount > 1);
+                if (hasPagination) {
+                    boolean rangeIsValid = mFromPage < mToPage;
+                    if (rangeIsValid) {
+                        executionRequest.setPages(mFromPage + "-" + mToPage);
+                    }
+                    boolean exactPage = (mFromPage == mToPage);
+                    if (exactPage) {
+                        executionRequest.setPages(String.valueOf(mFromPage));
+                    }
+                }
+
                 if (reportParameters != null && !reportParameters.isEmpty()) {
                     executionRequest.setParameters(reportParameters);
                 }
@@ -183,28 +195,35 @@ public class SaveItemFragment extends RoboSpiceFragment {
         formatSpinner.setAdapter(arrayAdapter);
 
         // hide save parts views if report have only 1 page
-        if (pageCount < 2) llSaveInParts.setVisibility(View.GONE);
-        else {
+        if (pageCount > 1) {
+            rangeControls.setVisibility(View.VISIBLE);
+
             mFromPage = 1;
             mToPage = pageCount;
 
-//            btnFromPage.setPaintFlags(btnFromPage.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-//            btnToPage.setPaintFlags(btnToPage.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-            tvFromPage.setText("" + mFromPage);
-            tvToPage.setText("" + mToPage);
+            fromPageControl.setText(String.valueOf(mFromPage));
+            toPageControl.setText(String.valueOf(mToPage));
         }
     }
 
-    @Click(R.id.tvFromPage)
+    @Click(R.id.fromPageControl)
     void clickOnFromPage() {
-        NumberDialogFragment.show(getFragmentManager(),
-                mFromPage, mToPage, onFromPageSelectedListener);
+        NumberDialogFragment.builder(getFragmentManager())
+                .selectListener(onFromPageSelectedListener)
+                .minValue(1)
+                .maxValue(pageCount)
+                .value(mFromPage)
+                .show();
     }
 
-    @Click(R.id.tvToPage)
+    @Click(R.id.toPageControl)
     void clickOnToPage() {
-        NumberDialogFragment.show(getFragmentManager(),
-                mToPage, mFromPage, pageCount, onToPageSelectedListener);
+        NumberDialogFragment.builder(getFragmentManager())
+                .selectListener(onToPageSelectedListener)
+                .minValue(mFromPage)
+                .maxValue(pageCount)
+                .value(mToPage)
+                .show();
     }
 
     @ItemSelect(R.id.output_format_spinner)
@@ -293,8 +312,11 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 public void onPageSelected(int page) {
                     if(page < 1) return;
 
+                    boolean enableComponent = (page != pageCount);
+                    toPageControl.setEnabled(enableComponent);
+
                     mFromPage = page;
-                    tvFromPage.setText("" + mFromPage);
+                    fromPageControl.setText(String.valueOf(mFromPage));
                 }
             };
 
@@ -303,7 +325,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 @Override
                 public void onPageSelected(int page) {
                     mToPage = page;
-                    tvToPage.setText("" + mToPage);
+                    toPageControl.setText(String.valueOf(mToPage));
                 }
             };
 

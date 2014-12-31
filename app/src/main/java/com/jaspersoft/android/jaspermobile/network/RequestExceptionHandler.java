@@ -69,11 +69,9 @@ public class RequestExceptionHandler {
                               EnumMap<HttpStatus, ExceptionRule> rules,
                               boolean finishActivity) {
         HttpStatus statusCode = extractStatusCode(exception);
-        String message = "No message";
         if (statusCode != null) {
             if (rules.keySet().contains(statusCode)) {
                 ExceptionRule rule = rules.get(statusCode);
-                message = activity.getString(rule.getMessage());
                 if (statusCode == HttpStatus.UNAUTHORIZED) {
                     showAuthErrorDialog(rule.getMessage(), activity, finishActivity);
                 } else {
@@ -82,10 +80,9 @@ public class RequestExceptionHandler {
             }
         } else {
             Throwable cause = exception.getCause();
-            message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
+            String message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
             showErrorDialog(message, activity, finishActivity);
         }
-        ExceptionLogStrategy.log(exception, activity, message);
     }
 
     /**

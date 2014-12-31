@@ -25,7 +25,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.exception.RequestCancelledException;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 

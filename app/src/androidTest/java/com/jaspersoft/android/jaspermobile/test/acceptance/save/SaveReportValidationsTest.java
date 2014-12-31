@@ -136,6 +136,23 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         onView(withId(R.id.toPageControl)).check(matches(not(isEnabled())));
     }
 
+    public void testNumberpickerEditDoesntViolateRangeState() {
+        int numberPickerInputId = getActivity().getResources().getIdentifier("numberpicker_input", "id", "android");
+
+        // Select 43
+        onView(withId(R.id.fromPageControl)).perform(click());
+        onView(withClassName(equalTo(NumberPicker.class.getName()))).perform(selectCurrentNumber(43));
+        onView(withText(android.R.string.ok)).perform(click());
+
+        // Enter in number picker edit field incorrect value
+        onView(withId(R.id.toPageControl)).perform(click());
+        onView(withId(numberPickerInputId)).perform(clearText());
+        onView(withId(numberPickerInputId)).perform(typeText("15"));
+        onView(withText(android.R.string.ok)).perform(click());
+
+        onView(withId(R.id.toPageControl)).check(matches(withText("45")));
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------

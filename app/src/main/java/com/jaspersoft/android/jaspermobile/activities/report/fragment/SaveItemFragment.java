@@ -310,13 +310,14 @@ public class SaveItemFragment extends RoboSpiceFragment {
             new OnPageSelectedListener() {
                 @Override
                 public void onPageSelected(int page) {
-                    if(page < 1) return;
+                    boolean isPageCorrect = (page > 1);
+                    if (isPageCorrect) {
+                        boolean enableComponent = (page != pageCount);
+                        toPageControl.setEnabled(enableComponent);
 
-                    boolean enableComponent = (page != pageCount);
-                    toPageControl.setEnabled(enableComponent);
-
-                    mFromPage = page;
-                    fromPageControl.setText(String.valueOf(mFromPage));
+                        mFromPage = page;
+                        fromPageControl.setText(String.valueOf(mFromPage));
+                    }
                 }
             };
 
@@ -324,8 +325,11 @@ public class SaveItemFragment extends RoboSpiceFragment {
             new OnPageSelectedListener() {
                 @Override
                 public void onPageSelected(int page) {
-                    mToPage = page;
-                    toPageControl.setText(String.valueOf(mToPage));
+                    boolean isRangeCorrect = (page >= mFromPage);
+                    if (isRangeCorrect) {
+                        mToPage = page;
+                        toPageControl.setText(String.valueOf(mToPage));
+                    }
                 }
             };
 

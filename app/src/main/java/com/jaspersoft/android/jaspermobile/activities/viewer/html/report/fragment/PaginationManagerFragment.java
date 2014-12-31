@@ -33,6 +33,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.google.inject.Inject;
@@ -60,7 +61,7 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
@@ -134,7 +135,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     private final List<NodeWebViewFragment> fragments = Lists.newArrayList();
     private final Set<Integer> pages = Sets.newHashSet();
-    private final LinkedList<Integer> stack = Lists.newLinkedList();
+    private final Deque<Integer> stack = Queues.newArrayDeque();
 
     @AfterViews
     final void init() {
@@ -215,7 +216,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     }
 
     public void paginateToCurrentSelection() {
-        stack.addFirst(currentPage);
+        updateStack();
         alterControlStates();
 
         boolean noPagesLoaded = fragments.isEmpty();
@@ -344,15 +345,44 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     /**
      * This dirty way to fix memory issue on report viewer section.
-     * We are basically keeping only 10 instances of Fragments in memory
+     * We are basically keeping only few instances of Fragments in memory.
+     * This is also respects bidirectional behavior pagination has.
      */
+    private void removeOutdatedPageOnDemand() {
+        if (fragments.size() > maxPageAllowed) {
+            removeCachedPage();
+        }
+    }
+
     private void removeCachedPage() {
-        int pageToDelete = stack.getLast();
+        int max = Collections.max(stack);
+        // User can navigate back/forward this involves appropriate 'poll' events to be invoked.
+        // If user has in cache [3, 2, 1] pages and loads 4 then result will be [4, 3, 2].
+        // If user has in cache [4, 3, 2] pages and loads 1 then result will be [3, 2, 1].
+        // This makes bidirectional removal experience.
+        int pageToDelete = (currentPage >= max) ? stack.pollLast() : stack.pollFirst();
         fragments.remove(findFragmentByPage(pageToDelete).get());
         pages.remove(pageToDelete);
+    }
 
-        stack.clear();
-        stack.addFirst(currentPage);
+    private void updateStack() {
+        if (stack.contains(currentPage)) {
+            return;
+        }
+        if (stack.isEmpty()) {
+            stack.addFirst(currentPage);
+        } else {
+            int max = Collections.max(stack);
+            // User can navigate back/forward this involves appropriate 'push' events to be invoked.
+            // If user has in cache [3, 2, 1] pages and loads 4 then result will be [4, 3, 2, 1].
+            // If user has in cache [4, 3, 2] pages and loads 1 then result will be [3, 2, 1].
+            // This makes bidirectional insertion experience.
+            if (currentPage > max)  {
+                stack.addFirst(currentPage);
+            } else {
+                stack.addLast(currentPage);
+            }
+        }
     }
 
     //---------------------------------------------------------------------
@@ -384,10 +414,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                             .versionCode(versionCode)
                             .page(outputPage)
                             .build();
-            if (stack.size() > maxPageAllowed) {
-                removeCachedPage();
-            }
-
             fragments.add(nodeWebViewFragment);
             Collections.sort(fragments, pageComparator);
 
@@ -401,6 +427,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                         .replace(R.id.content, nodeWebViewFragment,
                                 NodeWebViewFragment.TAG + currentPage).commit();
             }
+            removeOutdatedPageOnDemand();
         }
     }
 

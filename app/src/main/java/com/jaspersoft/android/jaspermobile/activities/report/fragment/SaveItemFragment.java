@@ -310,8 +310,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
             new OnPageSelectedListener() {
                 @Override
                 public void onPageSelected(int page) {
-                    boolean isPageCorrect = (page > 1);
-                    if (isPageCorrect) {
+                    boolean isPagePositive = (page > 1);
+                    boolean isRangeCorrect = (page <= mToPage);
+                    if (isPagePositive && isRangeCorrect) {
                         boolean enableComponent = (page != pageCount);
                         toPageControl.setEnabled(enableComponent);
 

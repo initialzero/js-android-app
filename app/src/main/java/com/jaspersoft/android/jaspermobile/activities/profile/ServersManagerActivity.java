@@ -30,10 +30,10 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
 
 /**
@@ -42,6 +42,9 @@ import org.androidannotations.annotations.OptionsItem;
  */
 @EActivity
 public class ServersManagerActivity extends RoboAccentFragmentActivity {
+
+    @Extra
+    long serverId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +57,9 @@ public class ServersManagerActivity extends RoboAccentFragmentActivity {
 
         if (savedInstanceState == null) {
             ServersFragment serversFragment = ServersFragment_.builder()
-                    .viewType(ViewType.LIST).build();
+                    .whileLogin(false)
+                    .selectedServerId(serverId)
+                    .build();
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, serversFragment, ServersFragment.TAG)
                     .commit();

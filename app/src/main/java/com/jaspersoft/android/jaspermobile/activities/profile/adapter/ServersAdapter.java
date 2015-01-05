@@ -25,28 +25,38 @@
 package com.jaspersoft.android.jaspermobile.activities.profile.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceSimpleCursorAdapter;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
+public class ServersAdapter extends SingleChoiceSimpleCursorAdapter
+        implements AdapterView.OnItemClickListener {
     private static final String[] FROM = {ServerProfilesTable.ALIAS, ServerProfilesTable.SERVER_URL, ServerProfilesTable._ID};
     private static final int[] TO = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
 
     private ServersInteractionListener serversInteractionListener;
+    private long mServerProfileId;
 
-    public ServersAdapter(Context context, Bundle savedInstanceState, int layout) {
-        super(savedInstanceState, context, layout, null, FROM, TO, 0);
+    public ServersAdapter(Context context, Bundle savedInstanceState, long serverProfileId) {
+        super(savedInstanceState, context, R.layout.common_list_item, null, FROM, TO, 0);
+        mServerProfileId = serverProfileId;
+        setOnItemClickListener(this);
     }
 
     @Override
@@ -61,26 +71,63 @@ public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
     }
 
     @Override
+    public View getViewImpl(int position, View convertView, ViewGroup parent) {
+        IResourceView itemView = (IResourceView) convertView;
+
+        if (itemView == null) {
+            itemView = ListItemView_.build(getContext());
+        }
+
+        Cursor cursor = getCursor();
+        cursor.moveToPosition(position);
+
+        String alias = cursor.getString(cursor.getColumnIndex(ServerProfilesTable.ALIAS));
+        String serverUrl = cursor.getString(cursor.getColumnIndex(ServerProfilesTable.SERVER_URL));
+
+        boolean activeProfileExist = mServerProfileId != -1;
+        int serverImageResource = R.drawable.ic_composed_server;
+
+        if (activeProfileExist) {
+            long entryId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+            boolean isItemActive = (mServerProfileId == entryId);
+
+            alias = isItemActive ? getContext().getString(R.string.sp_active_item, alias) : alias;
+            serverImageResource = isItemActive ? R.drawable.ic_composed_active_server : R.drawable.ic_composed_server;
+        }
+
+        itemView.getImageView().setImageResource(serverImageResource);
+        itemView.setTitle(alias);
+        itemView.setSubTitle(serverUrl);
+
+        return (View) itemView;
+    }
+
+    @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
         return false;
     }
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        Cursor cursor = getCursor();
+        cursor.moveToPosition(getCurrentPosition());
+        long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+
         switch (item.getItemId()) {
             case R.id.editItem:
                 if (serversInteractionListener != null) {
-                    serversInteractionListener.onEdit(getCurrentPosition());
+                    serversInteractionListener.onEdit(profileId);
                 }
                 break;
             case R.id.deleteItem:
                 if (serversInteractionListener != null) {
-                    serversInteractionListener.onDelete(getCurrentPosition());
+                    if(profileId == mServerProfileId) profileId = -1;
+                    serversInteractionListener.onDelete(profileId);
                 }
                 break;
             case R.id.cloneItem:
                 if (serversInteractionListener != null) {
-                    serversInteractionListener.onClone(getCurrentPosition());
+                    serversInteractionListener.onClone(profileId);
                 }
                 break;
             default:
@@ -89,11 +136,20 @@ public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
         return false;
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (serversInteractionListener != null) {
+            serversInteractionListener.onSelect(position);
+        }
+    }
+
     public static interface ServersInteractionListener {
-        void onEdit(int position);
+        void onSelect(int position);
 
-        void onDelete(int position);
+        void onEdit(long profileId);
 
-        void onClone(int position);
+        void onDelete(long profileId);
+
+        void onClone(long profileId);
     }
 }

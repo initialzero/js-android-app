@@ -143,10 +143,12 @@
     <!-- Filter Favorites Dialog -->
     <string name="f_fd_option_folders" translatable="false">Folders</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">About</string>
     <string name="sa_about_info" translatable="false">TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nFor privacy policy information visit:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2014 TIBCO Software, Inc.</string>
     <string name="sa_about_privacy" translatable="false">Privacy Policy</string>
+    <string name="sa_show_feedback" translatable="false">Feedback</string>
+    <string name="sa_feedback_info" translatable="false">Leave feedback with mail</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>

@@ -146,7 +146,11 @@ public class FavoritesHelper {
             }
         }
 
-        if (favoriteAction != null) favoriteAction.setIcon(iconId);
+        if (favoriteAction != null) {
+            favoriteAction.setIcon(iconId);
+            favoriteAction.setTitle(iconId == R.drawable.ic_rating_not_favorite
+                    ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        }
 
         getToast().setText(messageId);
         getToast().show();

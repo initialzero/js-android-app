@@ -180,6 +180,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
     @Test
     public void testSearchInRepository() {
+        forcePreview(ViewType.LIST);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
                 TestResponses.ONLY_FOLDER);
@@ -196,6 +197,10 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
 
         onView(withText(getActivity().getString(R.string.search_result_format, REPORTS_QUERY)))
                 .check(matches(isDisplayed()));
+
+        onView(withId(R.id.switchLayout)).perform(click());
+        pressBack();
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
     //---------------------------------------------------------------------

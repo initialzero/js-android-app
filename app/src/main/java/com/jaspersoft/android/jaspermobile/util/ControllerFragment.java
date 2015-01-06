@@ -27,11 +27,13 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
@@ -50,13 +52,13 @@ public abstract class ControllerFragment extends RoboFragment {
     public static final String CONTENT_TAG = "CONTENT_TAG";
 
     private MenuItem switchLayoutMenuItem;
-    private ControllerPref controllerPref;
+    protected ControllerPref controllerPref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        controllerPref = new ControllerPref(getActivity(), getActivity().getLocalClassName());
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        initControllerPref();
     }
 
     @Override
@@ -86,7 +88,7 @@ public abstract class ControllerFragment extends RoboFragment {
         return false;
     }
 
-    private void switchLayout() {
+    protected void switchLayout() {
         controllerPref.viewType()
                 .put(getViewType() == LIST ? GRID.toString() : LIST.toString());
         toggleSwitcher();
@@ -115,9 +117,23 @@ public abstract class ControllerFragment extends RoboFragment {
 
     protected ViewType getViewType() {
         if (controllerPref == null) {
-            controllerPref = new ControllerPref(getActivity(), getActivity().getLocalClassName());
+            initControllerPref();
         }
         return ViewType.valueOf(controllerPref);
+    }
+
+
+    private void initControllerPref() {
+        String controllerTag = null;
+        Bundle args = getArguments();
+        if (args != null && args.containsKey(ResourcesControllerFragment_.CONTROLLER_TAG_ARG)) {
+            controllerTag = args.getString(ResourcesControllerFragment_.CONTROLLER_TAG_ARG);
+            if (!TextUtils.isEmpty(controllerTag)) {
+                controllerPref = new ControllerPref(getActivity(), controllerTag);
+            }
+        }
+        String prefTag = TextUtils.isEmpty(controllerTag) ? getActivity().getLocalClassName() : controllerTag;
+        controllerPref = new ControllerPref(getActivity(), prefTag);
     }
 
     public abstract Fragment getContentFragment();

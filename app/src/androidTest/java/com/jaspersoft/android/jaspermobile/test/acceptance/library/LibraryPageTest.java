@@ -25,11 +25,11 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.runner.AndroidJUnit4;
 import android.widget.GridView;
 import android.widget.ListView;
 
-import android.support.test.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
@@ -172,6 +172,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
     @Test
     public void testSearchInRepository() {
+        forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
         try {
@@ -185,6 +186,10 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
         onView(withText(getActivity().getString(R.string.search_result_format, GEO_QUERY)))
                 .check(matches(isDisplayed()));
+
+        onView(withId(R.id.switchLayout)).perform(click());
+        pressBack();
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
     //---------------------------------------------------------------------

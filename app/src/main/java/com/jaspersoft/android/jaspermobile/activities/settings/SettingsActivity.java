@@ -195,7 +195,7 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent = new Intent(Intent.ACTION_SEND);
-                            intent.setType("text/html");
+                            intent.setType("message/rfc822");
                             intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"js.testdevice@gmail.com"});
                             intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
                             try {

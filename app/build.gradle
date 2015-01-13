@@ -49,7 +49,7 @@ android {
 //        xx - major version number
 //        yy - minor version number
 //        zz - revision number
-        versionCode 15010900
+        versionCode 15020000
         versionName generateVersionName()
         testInstrumentationRunner INSTRUMENTATION_RUNNER
     }
@@ -107,8 +107,8 @@ android {
         dev {
         }
         production {
-            versionCode 15010901
-            versionName "1.9"
+            versionCode 15020000
+            versionName "2.0"
 
             buildTypes {
                 debug {

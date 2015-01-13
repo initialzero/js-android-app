@@ -64,6 +64,9 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 db.execSQL("INSERT INTO favorites(name, title, uri, description, wstype, username, organization, server_profile_id)" +
                         " select name, title, uri, description, wstype, username, organization, server_profile_id from tmp_favorites;");
                 db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
+            case 3:
+            case 4:
+                db.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
                 break;
         }
     }

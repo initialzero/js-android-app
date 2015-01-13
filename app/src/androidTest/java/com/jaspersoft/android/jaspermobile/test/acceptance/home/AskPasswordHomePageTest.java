@@ -25,9 +25,9 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
 import android.database.Cursor;
+import android.support.test.espresso.action.ViewActions;
 import android.test.suitebuilder.annotation.Suppress;
 
-import com.google.android.apps.common.testing.ui.espresso.action.ViewActions;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -37,20 +37,22 @@ import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
-import org.mockito.MockitoAnnotations;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.pressBack;
+import static android.support.test.espresso.action.ViewActions.clearText;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isChecked;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createOnlyDefaultProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
@@ -71,21 +73,21 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         super(HomeActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
         registerTestModule(new SpiceAwareModule());
         createOnlyDefaultProfile(getContentResolver());
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         deleteAllProfiles(getContentResolver());
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testCorrectPasswordSetup() throws Throwable {
         startActivityUnderTest();
         setAskForPasswordOption();
@@ -102,6 +104,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         assertThat(getServerProfile().getPassword(), is(PASSWORD));
     }
 
+    @Test
     public void testPasswordValidationCase() throws Throwable {
         startActivityUnderTest();
         setAskForPasswordOption();
@@ -113,6 +116,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
                 .check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
     }
 
+    @Test
     public void testPasswordPersistedAfterRotation() throws Throwable {
         startActivityUnderTest();
         setAskForPasswordOption();
@@ -123,6 +127,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onOverflowView(getActivity(), withId(R.id.dialogPasswordEdit)).check(matches(withText(PASSWORD)));
     }
 
+    @Test
     public void testUserProperlyResetsPasswordAfterPasswordDialog() throws Throwable {
         setDefaultCurrentProfile();
         startActivityUnderTest();
@@ -170,6 +175,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
     }
 
 
+    @Test
     public void testAlwaysAskForPasswordShouldBeActiveOnActivityCancelState() {
         setDefaultCurrentProfile();
         startActivityUnderTest();
@@ -229,6 +235,9 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onView(withId(R.id.passwordEdit)).check(matches(withText(ProfileHelper.DEFAULT_PASS)));
     }
 
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void setAskForPasswordOption() throws Throwable {
         onData(is(instanceOf(Cursor.class)))

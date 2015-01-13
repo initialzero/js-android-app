@@ -28,8 +28,10 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.runner.AndroidJUnit4;
 
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -41,14 +43,18 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllFavorites;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.getAllFavorites;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
@@ -59,6 +65,7 @@ import static org.hamcrest.Matchers.not;
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity_> {
     protected static final String RESOURCE_URI = "/Reports/2_Sales_Mix_by_Demographic_Report";
     protected static final String RESOURCE_LABEL = "02. Sales Mix by Demographic Report";
@@ -70,9 +77,10 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         super(ReportHtmlViewerActivity_.class);
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
         Application application = (Application) this.getInstrumentation()
                 .getTargetContext().getApplicationContext();
@@ -89,12 +97,13 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         FakeHttpLayerManager.setDefaultHttpResponse(TestResponses.get().noContent());
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testAboutAction() {
         createReportIntent();
         startActivityUnderTest();
@@ -105,6 +114,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(mResource.getDescription())));
     }
 
+    @Test
     public void testRemoveFromFavorites() {
         ContentResolver contentResolver = getInstrumentation().getContext().getContentResolver();
         deleteAllFavorites(contentResolver);
@@ -121,6 +131,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     }
 
 
+    @Test
     public void testToggleFavoritesState() {
         ContentResolver contentResolver = getInstrumentation().getContext().getContentResolver();
         deleteAllFavorites(contentResolver);
@@ -139,6 +150,10 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
             cursor.close();
         }
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void clickAboutMenuItem() {
         try {

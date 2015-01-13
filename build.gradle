@@ -41,12 +41,12 @@ subprojects {
 
     ext.androidToolsBuildGradle = '1.0.0'
     ext.androidApt = '1.4'
-    ext.androidBuildToolsVersion = '21.1.1';
+    ext.androidBuildToolsVersion = '21.1.2';
     ext.androidMinSdkVersion = 15;
     ext.androidCompileSdkVersion = 21;
     ext.androidTargetSdkVersion = 21;
 
-    ext.androidAnnotationsVersion = '3.1';
+    ext.androidAnnotationsVersion = '3.2';
 
     repositories {
         jcenter()

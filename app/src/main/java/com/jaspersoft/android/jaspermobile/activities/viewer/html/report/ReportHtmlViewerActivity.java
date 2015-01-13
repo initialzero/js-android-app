@@ -28,7 +28,6 @@ import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.FilterManagerFragment;
@@ -42,7 +41,10 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragmen
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -71,9 +73,6 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
     ScrollableTitleHelper scrollableTitleHelper;
     @Bean
     ServerInfoManager infoManager;
-
-    @Inject
-    JsRestClient jsRestClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +118,15 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
 
     @OptionsItem(android.R.id.home)
     final void goBack() {
-        super.onBackPressed();
+        onBackPressed();
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        getSpiceManager().removeDataFromCache(InputControlsList.class);
+        getSpiceManager().removeDataFromCache(ReportExecutionResponse.class);
+        getSpiceManager().removeDataFromCache(ExportExecution.class);
+        getSpiceManager().removeDataFromCache(ReportDataResponse.class);
+    }
 }

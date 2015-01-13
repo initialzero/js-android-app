@@ -29,12 +29,14 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.internal.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.test.runner.lifecycle.Stage;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
-import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
@@ -45,19 +47,26 @@ import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.Collection;
 
 import roboguice.RoboGuice;
 
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static com.google.common.collect.Iterables.getOnlyElement;
+import static org.hamcrest.Matchers.notNullValue;
 
+@RunWith(AndroidJUnit4.class)
 public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
-    protected static final String USERNAME = "phoneuser|organization_1";
     protected static final String PASSWORD = "phoneuser";
 
     protected T mActivity;
-    private String pageName = "UNSPECIFIED";
+    protected JsRestClient jsRestClient;
     private ProfileHelper_ profileHelper;
     private Application mApplication;
 
@@ -65,33 +74,36 @@ public class ProtoActivityInstrumentation<T extends Activity>
         super(activityClass);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
-        mApplication = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+
         DefaultPrefHelper helper = DefaultPrefHelper_
                 .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
         helper.setAnimationEnabled(false);
         helper.setRepoCacheEnabled(false);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        RoboGuice.util.reset();
         mApplication = null;
         mActivity = null;
         profileHelper = null;
-        super.tearDown();
+    }
+
+    @Test
+    public void checkPreconditions() {
+        // Check that Instrumentation was correctly injected in setUp()
+        assertThat(getInstrumentation(), notNullValue());
     }
 
     protected void setDefaultCurrentProfile() {
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        profileHelper = ProfileHelper_.getInstance_(application);
-
-        ContentResolver cr = application.getContentResolver();
-        DatabaseUtils.deleteAllProfiles(cr);
-        long id = DatabaseUtils.createDefaultProfile(cr);
+        profileHelper = ProfileHelper_.getInstance_(getApplication());
+        DatabaseUtils.deleteAllProfiles(getContentResolver());
+        long id = DatabaseUtils.createDefaultProfile(getContentResolver());
         profileHelper.setCurrentServerProfile(id);
         profileHelper.setCurrentInfoSnapshot(id);
     }
@@ -181,8 +193,11 @@ public class ProtoActivityInstrumentation<T extends Activity>
     }
 
     protected JsRestClient getJsRestClient() {
-        Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
-        return injector.getInstance(JsRestClient.class);
+        if (jsRestClient == null) {
+            Injector injector = RoboGuice.getBaseApplicationInjector(getApplication());
+            jsRestClient = injector.getInstance(JsRestClient.class);
+        }
+        return jsRestClient;
     }
 
     protected JsServerProfile getServerProfile() {
@@ -190,10 +205,14 @@ public class ProtoActivityInstrumentation<T extends Activity>
     }
 
     protected Application getApplication() {
+        if (mApplication == null) {
+            mApplication = (Application) this.getInstrumentation()
+                    .getTargetContext().getApplicationContext();
+        }
         return mApplication;
     }
 
     protected ContentResolver getContentResolver() {
-        return mApplication.getContentResolver();
+        return getApplication().getContentResolver();
     }
 }

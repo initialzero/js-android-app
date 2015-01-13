@@ -24,28 +24,30 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
-import android.content.ContentResolver;
 import android.content.Intent;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 
-import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isEnabled;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isFocusable;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.clearText;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isChecked;
+import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
+import static android.support.test.espresso.matcher.ViewMatchers.isFocusable;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ORGANIZATION;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_PASS;
@@ -60,26 +62,30 @@ import static org.hamcrest.Matchers.not;
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class ServerProfileGenearalTest extends ProtoActivityInstrumentation<ServerProfileActivity_> {
 
     public ServerProfileGenearalTest() {
         super(ServerProfileActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.tearDown();
     }
 
+    @Test
     public void testFormIsPersistentWhileRotation() {
         startActivityUnderTest();
 
@@ -104,10 +110,11 @@ public class ServerProfileGenearalTest extends ProtoActivityInstrumentation<Serv
         onView(withId(R.id.passwordEdit)).check(matches(withText(TEST_PASS)));
     }
 
+    @Test
     public void testFormPopulatedWithDataForExactServerProfile() {
         Intent launchIntent = new Intent();
         launchIntent.putExtra(ServerProfileActivity_.PROFILE_ID_EXTRA,
-                createTestProfile(getInstrumentation().getContext().getContentResolver()));
+        createTestProfile(getContentResolver()));
         launchIntent.putExtra(ServerProfileActivity_.IN_EDIT_MODE_EXTRA, true);
         setActivityIntent(launchIntent);
         startActivityUnderTest();
@@ -134,12 +141,12 @@ public class ServerProfileGenearalTest extends ProtoActivityInstrumentation<Serv
         }
     }
 
+    @Test
     public void testAskForPasswordCheckedForProfileWithoutPassword() {
         Intent launchIntent = new Intent();
-        ContentResolver contentResolver = getInstrumentation().getContext().getContentResolver();
-        long profileId = createTestProfile(contentResolver);
+        long profileId = createTestProfile(getContentResolver());
         launchIntent.putExtra(ServerProfileActivity_.PROFILE_ID_EXTRA, profileId);
-        updateProfile(contentResolver, profileId, ServerProfilesTable.PASSWORD, "");
+        updateProfile(getContentResolver(), profileId, ServerProfilesTable.PASSWORD, "");
         setActivityIntent(launchIntent);
         startActivityUnderTest();
 

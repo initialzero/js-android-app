@@ -64,19 +64,14 @@ public class DefaultPrefHelper {
         return preferences.getBoolean(SettingsActivity.KEY_PREF_ANIMATION_ENABLED, true);
     }
 
-    public boolean setAnimationEnabled(boolean value) {
+    public void setAnimationEnabled(boolean value) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(SettingsActivity.KEY_PREF_ANIMATION_ENABLED, value);
+        preferences.edit().putBoolean(SettingsActivity.KEY_PREF_ANIMATION_ENABLED, value).apply();
     }
 
     public boolean sendCrashReports() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(SettingsActivity.KEY_PREF_SEND_CRASHES, true);
-    }
-
-    public boolean setSendCrashReports(boolean value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(SettingsActivity.KEY_PREF_SEND_CRASHES, value);
     }
 
     public void setRepoCacheEnabled(boolean value) {

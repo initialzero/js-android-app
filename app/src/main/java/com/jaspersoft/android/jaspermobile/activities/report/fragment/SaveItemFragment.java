@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.report.fragment;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -35,6 +36,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
@@ -58,6 +60,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
@@ -74,8 +77,10 @@ import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import roboguice.util.Ln;
 
@@ -119,6 +124,9 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @InstanceState
     int runningRequests;
 
+    private List<SpiceRequest<?>> requests = Lists.newArrayList();
+    private File reportFile;
+
     private int mFromPage;
     private int mToPage;
 
@@ -144,7 +152,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         if (isReportNameValid()) {
             final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
             String reportName = reportNameInput.getText() + "." + outputFormat;
-            final File reportFile = new File(getReportDir(reportNameInput.getText().toString()), reportName);
+            reportFile = new File(getReportDir(reportNameInput.getText().toString()), reportName);
 
             if (reportFile.exists()) {
                 // show validation message
@@ -179,7 +187,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 RunReportExecutionRequest request =
                         new RunReportExecutionRequest(jsRestClient, executionRequest);
                 getSpiceManager().execute(request,
-                        new RunReportExecutionListener(reportFile, outputFormat));
+                        new RunReportExecutionListener(outputFormat));
             }
         }
     }
@@ -302,6 +310,25 @@ public class SaveItemFragment extends RoboSpiceFragment {
         }
     }
 
+    private void removeTemplate() {
+        if (reportFile == null) return;
+
+        File dir = reportFile.getParentFile();
+        try {
+            org.apache.commons.io.FileUtils.deleteDirectory(dir);
+        } catch (IOException e) {
+            Log.w(TAG, "Failed to remove template file", e);
+        }
+        Toast.makeText(getActivity(), "Failed to execute report", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (runningRequests > 0) {
+            removeTemplate();
+        }
+    }
     //---------------------------------------------------------------------
     // Page Select Listeners
     //---------------------------------------------------------------------
@@ -339,12 +366,10 @@ public class SaveItemFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
 
     private class RunReportExecutionListener implements RequestListener<ReportExecutionResponse> {
-
-        private File reportFile;
         private OutputFormat outputFormat;
 
-        private RunReportExecutionListener(File reportFile, OutputFormat outputFormat) {
-            this.reportFile = reportFile;
+        private RunReportExecutionListener(OutputFormat outputFormat) {
+            runningRequests++;
             this.outputFormat = outputFormat;
         }
 
@@ -352,6 +377,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), false);
             setRefreshActionButtonState(false);
+            runningRequests--;
+            removeTemplate();
         }
 
         @Override
@@ -363,7 +390,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
             // save report file
             SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient,
                     executionId, exportOutput, reportFile);
-            getSpiceManager().execute(outputRequest, new ReportFileSaveListener(reportFile, outputFormat));
+            getSpiceManager().execute(outputRequest, new ReportFileSaveListener(outputFormat));
 
             // save attachments
             if (OutputFormat.HTML == outputFormat) {
@@ -373,9 +400,11 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
                     SaveExportAttachmentRequest attachmentRequest = new SaveExportAttachmentRequest(jsRestClient,
                             executionId, exportOutput, attachmentName, attachmentFile);
+                    requests.add(attachmentRequest);
                     getSpiceManager().execute(attachmentRequest, new AttachmentFileSaveListener());
                 }
             }
+            runningRequests--;
         }
 
     }
@@ -389,10 +418,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             RequestExceptionHandler.handle(exception, getActivity(), false);
-            runningRequests--;
-            if (runningRequests == 0) {
-                setRefreshActionButtonState(false);
+            for (SpiceRequest<?> request : requests) {
+                runningRequests--;
+                request.cancel();
             }
+            removeTemplate();
+            setRefreshActionButtonState(false);
         }
 
         @Override
@@ -411,12 +442,10 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     private class ReportFileSaveListener extends AttachmentFileSaveListener {
 
-        private File reportFile;
         private OutputFormat outputFormat;
 
-        private ReportFileSaveListener(File reportFile, OutputFormat outputFormat) {
+        private ReportFileSaveListener(OutputFormat outputFormat) {
             super();
-            this.reportFile = reportFile;
             this.outputFormat = outputFormat;
         }
 

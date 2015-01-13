@@ -25,6 +25,8 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.save;
 
 import android.content.Intent;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.widget.NumberPicker;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -36,28 +38,33 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isEnabled;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withClassName;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.clearText;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasMinValue;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.selectCurrentNumber;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class SaveReportValidationsTest extends ProtoActivityInstrumentation<SaveReportActivity_> {
 
     private ResourceLookup report;
@@ -66,9 +73,11 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         super(SaveReportActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+
 
         ResourceLookupsList reports = TestResources.get()
                 .fromXML(ResourceLookupsList.class, TestResources.ONLY_REPORT);
@@ -80,13 +89,14 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         startActivityUnderTest();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         FakeHttpLayerManager.clearHttpResponseRules();
         super.tearDown();
     }
 
+    @Test
     public void testValidateFieldShouldNotAcceptReservedSymbols() {
         char[] chars = {'*', '\\', '/', '"', '\'', ':', '?', '|', '<', '>', '+', '[', ']'};
 
@@ -98,6 +108,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         }
     }
 
+    @Test
     public void testValidateFieldShouldNotAcceptOnlySpaces() {
         onView(withId(R.id.report_name_input)).perform(clearText());
         onView(withId(R.id.report_name_input)).perform(typeText("      "));
@@ -106,6 +117,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         onView(withId(R.id.report_name_input)).check(matches(hasErrorText(getActivity().getString(R.string.sr_error_field_is_empty))));
     }
 
+    @Test
     public void testValidateFieldShouldNotBeEmpty() throws IOException {
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sr_ab_title)));
 
@@ -119,6 +131,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
     // Range control
     //---------------------------------------------------------------------
 
+    @Test
     public void testToRangeDependentOnFromPageControl() {
         onView(withId(R.id.fromPageControl)).perform(click());
         onView(withClassName(equalTo(NumberPicker.class.getName()))).perform(selectCurrentNumber(30));
@@ -128,6 +141,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         onView(withClassName(equalTo(NumberPicker.class.getName()))).check(matches(hasMinValue(30)));
     }
 
+    @Test
     public void testToRangeDisabledWhileFromPageHasMaxValue() {
         onView(withId(R.id.fromPageControl)).perform(click());
         onView(withClassName(equalTo(NumberPicker.class.getName()))).perform(selectCurrentNumber(45));
@@ -136,6 +150,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         onView(withId(R.id.toPageControl)).check(matches(not(isEnabled())));
     }
 
+    @Test
     public void testRightMarginAlwaysBiggerOrEqaualThanLeftOne() {
         int numberPickerInputId = getActivity().getResources().getIdentifier("numberpicker_input", "id", "android");
 
@@ -153,6 +168,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         onView(withId(R.id.toPageControl)).check(matches(withText("45")));
     }
 
+    @Test
     public void testLeftMarginAlwaysLowerOrEqualThanRightOne() {
         // Select 10
         onView(withId(R.id.toPageControl)).perform(click());
@@ -167,6 +183,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         onView(withId(R.id.fromPageControl)).check(matches(withText("1")));
     }
 
+    @Test
     public void testRangeControlsDoesntAcceptZero() {
         int numberPickerInputId = getActivity().getResources().getIdentifier("numberpicker_input", "id", "android");
 

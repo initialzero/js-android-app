@@ -38,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragme
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 
 /**
@@ -48,6 +49,7 @@ import org.androidannotations.annotations.OptionsItem;
 public class RepositoryActivity extends RoboAccentFragmentActivity {
     @Bean
     FilterManager filterManager;
+    private ResourcesControllerFragment resourcesController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,7 @@ public class RepositoryActivity extends RoboAccentFragmentActivity {
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            ResourcesControllerFragment resourcesController =
+            resourcesController =
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
                             .recursiveLookup(false)
@@ -74,6 +76,9 @@ public class RepositoryActivity extends RoboAccentFragmentActivity {
                     .build();
             transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
             transaction.commit();
+        } else {
+            resourcesController = (ResourcesControllerFragment)
+                    getSupportFragmentManager().findFragmentByTag(ResourcesControllerFragment.TAG);
         }
     }
 
@@ -82,4 +87,9 @@ public class RepositoryActivity extends RoboAccentFragmentActivity {
         super.onBackPressed();
     }
 
+
+    @OnActivityResult(SearchControllerFragment.SEARCH_ACTION)
+    public void searchAction() {
+        resourcesController.replacePreviewOnDemand();
+    }
 }

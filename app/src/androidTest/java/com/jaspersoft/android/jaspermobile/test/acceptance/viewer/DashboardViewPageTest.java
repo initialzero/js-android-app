@@ -25,6 +25,8 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
 import android.content.Intent;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
@@ -36,13 +38,17 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 
@@ -50,6 +56,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class DashboardViewPageTest extends ProtoActivityInstrumentation<DashboardHtmlViewerActivity_> {
     private static final String RESOURCE_URI = "/Dashboards/Supermart_Dashboard";
     private static final String RESOURCE_LABEL = "1. Supermart Dashboard";
@@ -60,9 +67,11 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         super(DashboardHtmlViewerActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
         idleInjector = WebViewInjector.registerFor(DashboardHtmlViewerActivity_.class);
@@ -75,13 +84,14 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         FakeHttpLayerManager.clearHttpResponseRules();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         idleInjector.unregister();
         super.tearDown();
     }
 
+    @Test
     public void testInitialLoad() {
         createReportIntent();
         startActivityUnderTest();
@@ -90,6 +100,7 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
     }
 
+    @Test
     public void testAboutAction() {
         createReportIntent();
         startActivityUnderTest();
@@ -99,6 +110,10 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
         onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(mResource.getLabel())));
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(mResource.getDescription())));
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void createReportIntent() {
         Intent htmlViewer = new Intent();

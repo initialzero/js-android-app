@@ -24,16 +24,24 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ORGANIZATION;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_PASS;
@@ -46,27 +54,31 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class ServerProfileValidationTest extends ProtoActivityInstrumentation<ServerProfileActivity_> {
 
     public ServerProfileValidationTest() {
         super(ServerProfileActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+
         deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.tearDown();
     }
 
+    @Test
     public void testEmptyAliasNotAcceptable() {
         startActivityUnderTest();
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
@@ -78,6 +90,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
     }
 
+    @Test
     public void testEmptyPasswordNotAcceptable() {
         startActivityUnderTest();
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
@@ -89,6 +102,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
     }
 
+    @Test
     public void testEmptyServerUrlNotAcceptable() {
         startActivityUnderTest();
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
@@ -100,6 +114,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
     }
 
+    @Test
     public void testEmptyUsernameNotAcceptable() {
         startActivityUnderTest();
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
@@ -111,6 +126,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
     }
 
+    @Test
     public void testServerUrlShouldBeValidUrl() {
         startActivityUnderTest();
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));

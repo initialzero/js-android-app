@@ -22,4 +22,12 @@
  *  <http://www.gnu.org/licenses/lgpl>.
  */
 
-include ':app', ':database-generator', ':library-circular', ':unit-tests'
+include ':app'
+include ':unit-tests'
+// Retrofit SDK modules. We are going to keep our ideas here before
+// we decide them being ready to be bundled as part of SDK
+include ':pojo'
+include ':sdk'
+// Dummy dependencies. We are planning to ged rid of.
+include ':database-generator'
+include ':library-circular'

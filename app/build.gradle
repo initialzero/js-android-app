@@ -131,6 +131,7 @@ apt {
 dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
+    compile project(':sdk')
 
     compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'

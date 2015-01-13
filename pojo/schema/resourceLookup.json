@@ -1,0 +1,14 @@
+{
+    "description": "Entity which resource lookup.",
+    "type": "object",
+    "properties": {
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "uri": { "type": "string" },
+        "resourceType": { "type": "string" },
+        "creationDate": { "type": "string" },
+        "updateDate": { "type": "string" },
+        "version": { "type": "integer" },
+        "permissionMask": { "type": "integer" }
+    }
+}

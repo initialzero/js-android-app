@@ -124,6 +124,7 @@ apt {
     arguments {
         androidManifestFile variant.outputs[0].processResources.manifestFile
         resourcePackageName PACKAGE_NAME
+        logLevel "WARN"
     }
 }
 

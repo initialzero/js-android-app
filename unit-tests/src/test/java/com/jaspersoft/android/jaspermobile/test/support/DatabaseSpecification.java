@@ -26,10 +26,7 @@ package com.jaspersoft.android.jaspermobile.test.support;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
-import com.jaspersoft.android.jaspermobile.test.support.shadows.CustomShadowApplication;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,35 +35,29 @@ import org.robolectric.Robolectric;
 import java.io.File;
 
 public class DatabaseSpecification extends UnitTestSpecification {
-
-    private Context context;
+    private Context mContext;
 
     @Before
     public void initContext() {
-        context = Robolectric.application;
+        mContext = Robolectric.application;
         resetDatabase();
     }
 
     @After
     public void clearDatabase() {
-        File dbFile = context.getDatabasePath(null);
-        dbFile.delete();
+        resetDatabase();
     }
 
     public void resetDatabase() {
-        File dbFile = new File(CustomShadowApplication.ALTERNATIVE_DB_PATH);
+        File dbFile = mContext.getDatabasePath(null);
         SQLiteDatabase.deleteDatabase(dbFile);
     }
 
     public Context getContext() {
-        return context;
+        return mContext;
     }
 
     public ContentResolver getContentResolver() {
-        return context.getContentResolver();
-    }
-
-    protected int columnIndex(Cursor cursor, String column) {
-        return cursor.getColumnIndex(column);
+        return mContext.getContentResolver();
     }
 }

@@ -73,7 +73,6 @@
     <string name="sp_username_hint">我的用户名</string>
     <string name="sp_password_label">密码:</string>
     <string name="sp_password_hint">我的密码</string>
-    <string name="sp_ask_password_text">总是要求输入密码</string>
     <string name="sp_save_btn">保存</string>
     <string name="sp_active_item">活动: %s</string>
     <string name="sp_label_general">常规</string>

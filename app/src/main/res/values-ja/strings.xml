@@ -73,7 +73,6 @@
     <string name="sp_username_hint">私のユーザー名</string>
     <string name="sp_password_label">パスワード:</string>
     <string name="sp_password_hint">私のパスワード</string>
-    <string name="sp_ask_password_text">常にパスワードを要求</string>
     <string name="sp_save_btn">保存</string>
     <string name="sp_active_item">アクティブ：%s</string>
     <string name="sp_label_general">全般</string>

@@ -91,43 +91,6 @@
             android:hint="@string/sp_organization_hint"
             android:inputType="textPersonName" />
 
-        <TextView
-            style="@style/label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sp_username_label"
-            />
 
-        <EditText
-            android:id="@+id/usernameEdit"
-            style="@style/editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/sp_username_hint"
-            android:inputType="textPersonName" />
-
-        <TextView
-            style="@style/label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sp_password_label"
-            />
-
-        <EditText
-            android:id="@+id/passwordEdit"
-            style="@style/editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/sp_password_hint"
-            android:inputType="textPassword" />
-
-        <CheckBox
-            android:id="@+id/askPasswordCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:text="@string/sp_ask_password_text" />
     </LinearLayout>
 </ScrollView>

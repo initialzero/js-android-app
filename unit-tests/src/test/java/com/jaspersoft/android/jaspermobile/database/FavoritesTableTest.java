@@ -36,8 +36,10 @@ import com.jaspersoft.android.jaspermobile.test.support.DatabaseSpecification;
 
 import org.junit.Test;
 
+import java.util.Random;
+
+import static com.jaspersoft.android.jaspermobile.util.JsAssertions.assertNewUri;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 
 /**
@@ -85,11 +87,8 @@ public class FavoritesTableTest extends DatabaseSpecification {
     }
 
     private void populateProfile(ServerProfiles profile) {
-        profile.setVersioncode(5.0);
-        profile.setEdition("PRO");
         profile.setServerUrl("http://some.url.com");
-        profile.setOrganization("");
-        profile.setPassword("1234");
+        profile.setAlias("Alias " + new Random().nextInt());
     }
 
     private void createFavoriteInstances(long profileId) {
@@ -103,13 +102,11 @@ public class FavoritesTableTest extends DatabaseSpecification {
         }
     }
 
-    private void assertNewUri(Uri uri) {
-        Preconditions.checkNotNull(uri);
-        assertThat(Integer.valueOf(uri.getLastPathSegment()), greaterThan(0));
-    }
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
-    private long getIdFromUri(Uri uri) {
+    private static long getIdFromUri(Uri uri) {
         return Long.valueOf(uri.getLastPathSegment());
     }
-
 }

@@ -73,7 +73,6 @@
     <string name="sp_username_hint">nome utente personale</string>
     <string name="sp_password_label">Password:</string>
     <string name="sp_password_hint">password personale</string>
-    <string name="sp_ask_password_text">chiedi sempre password</string>
     <string name="sp_save_btn">Salva</string>
     <string name="sp_active_item">Attiva: %s</string>
     <string name="sp_label_general">Generale</string>

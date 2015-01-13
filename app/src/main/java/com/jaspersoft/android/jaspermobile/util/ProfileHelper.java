@@ -153,13 +153,13 @@ public class ProfileHelper {
             }
         }
     }
-
+    // TODO replace with new SDK calls
     public JsServerProfile createProfileFromCursor(Cursor cursor) {
         long id = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
         ServerProfiles dbProfile = new ServerProfiles(cursor);
         return new JsServerProfile(id, dbProfile.getAlias(),
                 dbProfile.getServerUrl(), dbProfile.getOrganization(),
-                dbProfile.getUsername(), dbProfile.getPassword());
+                null, null);
     }
 
     public void setCurrentServerProfile(Cursor cursor) {
@@ -179,8 +179,6 @@ public class ProfileHelper {
                     testProfile.setAlias(DEFAULT_ALIAS);
                     testProfile.setServerUrl(DEFAULT_SERVER_URL);
                     testProfile.setOrganization(DEFAULT_ORGANIZATION);
-                    testProfile.setUsername(DEFAULT_USERNAME);
-                    testProfile.setPassword(DEFAULT_PASS);
 
                     contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, testProfile.getContentValues());
                     populateTestInstances(contentResolver);
@@ -214,8 +212,6 @@ public class ProfileHelper {
                 profile.setAlias(profile.getAlias());
                 profile.setServerUrl(profile.getServerUrl());
                 profile.setOrganization(profile.getOrganization());
-                profile.setUsername(profile.getUsername());
-                profile.setPassword(profile.getPassword());
 
                 ContentValues contentValues = profile.getContentValues();
                 contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, contentValues);

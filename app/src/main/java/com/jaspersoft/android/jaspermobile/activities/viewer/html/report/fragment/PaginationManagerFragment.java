@@ -161,8 +161,12 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     final void selectCurrentPage() {
         boolean totalPagesLoaded = mTotalPage != 0;
         if (totalPagesLoaded) {
-            NumberDialogFragment.show(getFragmentManager(),
-                    currentPage, mTotalPage, onPageSelectedListener);
+            NumberDialogFragment.builder(getFragmentManager())
+                    .selectListener(onPageSelectedListener)
+                    .value(currentPage)
+                    .minValue(1)
+                    .maxValue(mTotalPage)
+                    .show();
         } else {
             PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
         }

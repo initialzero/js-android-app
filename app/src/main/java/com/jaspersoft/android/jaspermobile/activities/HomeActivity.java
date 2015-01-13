@@ -43,7 +43,6 @@ import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
@@ -165,9 +164,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_library)
     final void showLibrary() {
-        if (hasNetwork()) {
-            LibraryActivity_.intent(this).start();
-        }
+        com.jaspersoft.android.jaspermobile.activities.login.LoginActivity_.intent(this).start();
     }
 
     @Click(R.id.home_item_favorites)

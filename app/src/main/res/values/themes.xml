@@ -42,9 +42,9 @@
         <item name="android:background">@drawable/ab_solid_home</item>
     </style>
 
-    <style name="Theme.JasperMobile.NoActionBar" parent="@android:style/Theme.Holo.Light.NoActionBar">
-        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
-        <item name="android:windowBackground">@drawable/ic_resources_background</item>
+    <style name="Theme.JasperMobile.NoActionBar" parent="Theme.JasperMobile">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />

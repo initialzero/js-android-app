@@ -168,6 +168,7 @@
         <activity
             android:name=".activities.login.LoginActivity_"
             android:configChanges="locale"
+            android:theme="@style/Theme.JasperMobile.NoActionBar"
             android:label="Login" />
 
 

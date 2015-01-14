@@ -24,18 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils;
 
-import org.apache.commons.io.IOUtils;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-
 /**
  * @author Tom Koptel
  * @since 1.9
  */
+@Deprecated
 public final class TestResources {
     public static final String SERVER_INFO = "server_info";
     public static final String EMERALD_MR1_SERVER_INFO = "emerald_mr1_server_info";
@@ -50,54 +43,7 @@ public final class TestResources {
     public static final String REPORT_EXECUTION = "report_execution";
     public static final String INPUT_CONTROLS = "input_contols_list";
 
-    private TestResources() {
-    }
-
-    private static class Holder {
-        private static final TestResources INSTANCE = new TestResources();
-    }
-
-    public <T> T fromXML(Class<T> clazz, String fileName) {
-        InputStream stream = getStream(fileName);
-
-        Serializer serializer = new Persister();
-        try {
-            return serializer.read(clazz, stream);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(stream);
-        }
-    }
-
-    public String rawData(String fileName) {
-        InputStream inputStream = getStream(fileName);
-
-        StringWriter writer = new StringWriter();
-        try {
-            IOUtils.copy(inputStream, writer, "UTF-8");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
-        }
-        return writer.toString();
-    }
-
-    public InputStream getStream(String fileName) {
-        return getClass().getClassLoader().getResourceAsStream(fileName + ".xml");
-    }
-
-    public byte[] getBytes(String fileName) throws IOException {
-        InputStream stream = getStream(fileName);
-        try {
-            return IOUtils.toByteArray(stream);
-        } finally {
-            IOUtils.closeQuietly(stream);
-        }
-    }
-
-    public static TestResources get() {
-        return Holder.INSTANCE;
+    public static TestResource get() {
+        return TestResource.get(TestResource.DataFormat.XML);
     }
 }

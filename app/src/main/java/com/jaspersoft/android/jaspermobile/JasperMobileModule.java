@@ -35,6 +35,10 @@ import com.jaspersoft.android.jaspermobile.network.endpoint.DemoEndpoint;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
+import retrofit.ErrorHandler;
+import retrofit.RetrofitError;
+import timber.log.Timber;
+
 /**
  * @author Ivan Gadzhega
  * @version $Id$
@@ -67,6 +71,14 @@ public class JasperMobileModule extends AbstractModule {
 
         JsRestClient2 jsRestClient = JsRestClient2.configure(mContext)
                 .setEndpoint(new DemoEndpoint())
+                .setErrorHandler(new ErrorHandler() {
+                    @Override
+                    public Throwable handleError(RetrofitError cause) {
+                        Timber.tag("JASPER_DEMO");
+                        Timber.e("Rest client received exception", cause);
+                        return cause;
+                    }
+                })
                 .build();
 
         bind(JsRestClient2.class)

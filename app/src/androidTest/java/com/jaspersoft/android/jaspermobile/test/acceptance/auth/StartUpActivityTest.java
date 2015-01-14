@@ -26,16 +26,27 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.auth;
 
 import android.support.test.runner.AndroidJUnit4;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.StartUpActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
+import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.TimeUnit;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -63,5 +74,23 @@ public class StartUpActivityTest {
         assertThat(webMockRule.get(), notNullValue());
         assertThat(activityRule.get(), notNullValue());
         assertThat(activityRule.instrumentation(), notNullValue());
+    }
+
+    @Test
+    public void testIdealTryDemoAction() throws InterruptedException {
+        MockResponse response1 = new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Set-Cookie", "JSESSIONID=4202A2DF42507EDEC7A66A1348C62195; Path=/jasperserver-pro/; HttpOnly")
+                .addHeader("Set-Cookie", "userLocale=en_US;Expires=Thu, 15-Jan-2015 12:15:36 GMT;HttpOnly")
+                .throttleBody(Integer.MAX_VALUE, 1, TimeUnit.MILLISECONDS)
+                .setBody("{}");
+        MockResponse response2 = response1.clone()
+                .setBody(TestResource.getJson().rawData("mobile_demo"));
+
+        webMockRule.get().enqueue(response1);
+        webMockRule.get().enqueue(response2);
+
+        onView(withId(R.id.tryDemo)).perform(click());
+        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }
 }

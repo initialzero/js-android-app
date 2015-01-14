@@ -87,4 +87,23 @@ public class BasicAccountDataStorageTest extends UnitTestSpecification {
         storage.setServerEdition(null);
     }
 
+    @Test
+    public void testServerAliasPropertyMethods() {
+        storage.putServerAlias("ALIAS");
+        assertThat(storage.getServerAlias(), is("ALIAS"));
+
+        storage.setServerAlias("ALIAS1");
+        assertThat(storage.getServerAlias(), is("ALIAS1"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutServerAliasShouldNotAcceptNullValues() {
+        storage.putServerAlias(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetServerAliasShouldNotAcceptNullValues() {
+        storage.setServerAlias(null);
+    }
+
 }

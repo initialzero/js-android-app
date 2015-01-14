@@ -90,7 +90,6 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                         " select name, title, uri, description, wstype, username, organization, server_profile_id from tmp_favorites;");
                 db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
             case 3:
-            case 4:
                 db.execSQL("ALTER TABLE server_profiles RENAME TO tmp_server_profiles;");
                 db.execSQL(
                         "CREATE TABLE server_profiles ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +

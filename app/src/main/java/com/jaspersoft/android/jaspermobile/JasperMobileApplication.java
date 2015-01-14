@@ -41,6 +41,8 @@ import org.androidannotations.annotations.EApplication;
 
 import java.lang.reflect.Field;
 
+import timber.log.Timber;
+
 /**
  * @author Ivan Gadzhega
  * @since 1.0
@@ -58,6 +60,12 @@ public class JasperMobileApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new Timber.HollowTree());
+        }
 
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");

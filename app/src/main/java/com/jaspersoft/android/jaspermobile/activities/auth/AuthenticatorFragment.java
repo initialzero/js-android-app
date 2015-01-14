@@ -53,6 +53,8 @@ import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -67,6 +69,7 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
+import timber.log.Timber;
 
 import static rx.android.app.AppObservable.bindFragment;
 
@@ -87,6 +90,8 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
     @Inject
     @Named("JASPER_DEMO")
     protected JsRestClient2 demoRestClient;
+    @Inject
+    protected JsRestClient legacyRestClient;
 
     private SimpleCursorAdapter cursorAdapter;
     private Observable<LoginResponse> tryDemoTask;
@@ -96,6 +101,7 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Timber.tag(AuthenticatorFragment.class.getSimpleName());
         setRetainInstance(true);
 
         setProgressEnabled(mFetching);
@@ -177,6 +183,7 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
+                        Timber.e("Login failed", throwable);
                         Toast.makeText(context, "Login failed because of: " + throwable.getMessage(),
                                 Toast.LENGTH_LONG).show();
                         setProgressEnabled(false);
@@ -196,13 +203,34 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         String cookie = response.getCookie();
         ServerInfo serverInfo = response.getServerInfo();
         BasicAccountDataStorage.get(getActivity())
+                .putServerAlias(JSDatabaseHelper.DEFAULT_ALIAS)
                 .putCookie(cookie)
                 .putEdition(serverInfo.getEdition())
                 .putVersionName(serverInfo.getVersion());
 
-        Account account = new Account(DemoEndpoint.DEFAULT_USERNAME, JasperSettings.JASPER_ACCOUNT_TYPE);
+        Account account = new Account(JSDatabaseHelper.DEFAULT_ALIAS, JasperSettings.JASPER_ACCOUNT_TYPE);
         AccountManager accountManager = AccountManager.get(getActivity());
-        accountManager.addAccountExplicitly(account, DemoEndpoint.DEFAULT_PASSWORD, null);
+
+        String username = DemoEndpoint.DEFAULT_USERNAME;
+        String serverUrl = JSDatabaseHelper.DEFAULT_SERVER_URL;
+        String alias = JSDatabaseHelper.DEFAULT_ALIAS;
+        String organization = JSDatabaseHelper.DEFAULT_ORGANIZATION;
+
+        Bundle userData = new Bundle();
+        userData.putString("NAME", username);
+        userData.putString("SERVER_URL", serverUrl);
+        userData.putString("ALIAS", alias);
+        userData.putString("ORGANIZATION", organization);
+
+        JsServerProfile profile = new JsServerProfile();
+        profile.setUsername(username);
+        profile.setPassword(DemoEndpoint.DEFAULT_PASSWORD);
+        profile.setServerUrl(serverUrl);
+        profile.setAlias(alias);
+        profile.setOrganization(organization);
+        legacyRestClient.setServerProfile(profile);
+
+        accountManager.addAccountExplicitly(account, DemoEndpoint.DEFAULT_PASSWORD, userData);
         accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, cookie);
 
         Bundle data = new Bundle();

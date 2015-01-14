@@ -40,7 +40,10 @@ import org.junit.rules.ExternalResource;
 
 import java.io.IOException;
 
+import retrofit.ErrorHandler;
+import retrofit.RetrofitError;
 import roboguice.RoboGuice;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -103,7 +106,16 @@ public class WebMockRule extends ExternalResource {
 
         @Override
         protected void semanticConfigure() {
+            Timber.plant(new Timber.DebugTree());
             JsRestClient2 restClient = JsRestClient2.configure(mContext)
+                    .setErrorHandler(new ErrorHandler() {
+                        @Override
+                        public Throwable handleError(RetrofitError cause) {
+                            Timber.tag("WEB_MOCK_RULE");
+                            Timber.e("Rest client received exception", cause);
+                            return cause;
+                        }
+                    })
                     .setEndpoint("http://localhost:" + mPort)
                     .build();
             bind(JsRestClient2.class)

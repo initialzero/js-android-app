@@ -22,6 +22,7 @@ public class BasicAccountDataStorage implements AccountDataStorage {
     private static final String SERVER_COOKIE_KEY = "SERVER_COOKIE_KEY";
     private static final String SERVER_VERSION_KEY = "SERVER_VERSION_KEY";
     private static final String SERVER_EDITION_KEY = "SERVER_EDITION_KEY";
+    private static final String SERVER_ALIAS_KEY = "SERVER_ALIAS_KEY";
 
     private final SharedPreferences mPreference;
 
@@ -76,6 +77,19 @@ public class BasicAccountDataStorage implements AccountDataStorage {
     @Override
     public String getServerEdition() {
         return mPreference.getString(SERVER_EDITION_KEY, "");
+    }
+
+    public void setServerAlias(String alias) {
+        putString(SERVER_ALIAS_KEY, alias);
+    }
+
+    public BasicAccountDataStorage putServerAlias(String alias) {
+        setServerAlias(alias);
+        return this;
+    }
+
+    public String getServerAlias() {
+        return mPreference.getString(SERVER_ALIAS_KEY, "");
     }
 
     private void putString(String key, String value) {

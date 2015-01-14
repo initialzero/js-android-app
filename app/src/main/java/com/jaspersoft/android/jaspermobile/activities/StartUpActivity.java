@@ -25,21 +25,25 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountDataStorage;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OnActivityResult;
+
+import java.util.NoSuchElementException;
+
+import rx.Subscription;
+import rx.android.app.AppObservable;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author Tom Koptel
@@ -48,46 +52,65 @@ import org.androidannotations.annotations.OnActivityResult;
 @EActivity
 public class StartUpActivity extends Activity {
     private static final int AUTHORIZE = 10;
-    private final Handler mHandler = new Handler();
+
+    private final CompositeSubscription compositeSubscription = new CompositeSubscription();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         signInOrCreateAnAccount();
     }
 
     private void signInOrCreateAnAccount() {
-        //Get list of accounts on device.
-        AccountManager am = AccountManager.get(this);
-        Account[] accountArray = am.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
-        if (accountArray.length == 0) {
-            addAccount();
-        } else {
-            reauthorize(accountArray[0]);
-
-//            finish();
-//            HomeActivity_.intent(this).start();
-        }
+        compose(
+                AppObservable.bindActivity(this,
+                        AccountManagerUtil.get(this)
+                                .listAccounts()
+                                .first()
+                ).subscribe(
+                        new Action1<Account>() {
+                            @Override
+                            public void call(Account account) {
+                                reauthorize(account);
+                                //            finish();
+                                //            HomeActivity_.intent(this).start();
+                            }
+                        }, new Action1<Throwable>() {
+                            @Override
+                            public void call(Throwable throwable) {
+                                if (throwable instanceof NoSuchElementException) {
+                                    addAccount();
+                                }
+                            }
+                        })
+        );
     }
 
     private void reauthorize(Account account) {
-        AccountManager am = AccountManager.get(this);
-        String authtoken = BasicAccountDataStorage.get(this).getServerCookie();
-        am.invalidateAuthToken(account.type, authtoken);
-        am.removeAccount(account, new AccountManagerCallback<Boolean>() {
-            @Override
-            public void run(AccountManagerFuture<Boolean> future) {
-                try {
-                    Boolean result = future.getResult();
-                    if (result) {
-                        addAccount();
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }, mHandler);
+        final Context context = this;
+        compose(
+                AppObservable.bindActivity(this,
+                        AccountManagerUtil.get(this)
+                                .removeAccount(account)
+                                .subscribeOn(Schedulers.io())
+                )
+                        .subscribe(
+                                new Action1<Boolean>() {
+                                    @Override
+                                    public void call(Boolean result) {
+                                        addAccount();
+                                    }
+                                }, new Action1<Throwable>() {
+                                    @Override
+                                    public void call(Throwable throwable) {
+                                        Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                })
+        );
+    }
+
+    private void compose(Subscription subscription) {
+        compositeSubscription.add(subscription);
     }
 
     private void addAccount() {
@@ -99,9 +122,14 @@ public class StartUpActivity extends Activity {
     @OnActivityResult(AUTHORIZE)
     protected void onAuthorize(int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
-            // do something
-        } else {
-            finish();
+            HomeActivity_.intent(this).start();
         }
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        compositeSubscription.unsubscribe();
+        super.onDestroy();
     }
 }

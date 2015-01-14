@@ -29,7 +29,9 @@ import android.support.test.runner.AndroidJUnit4;
 import com.jaspersoft.android.jaspermobile.activities.StartUpActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +50,13 @@ public class StartUpActivityTest {
     @Rule
     public final ActivityRule<StartUpActivity_> activityRule =
             ActivityRule.create(StartUpActivity_.class);
+
+    @Before
+    public void before() {
+        AccountManagerUtil.get(activityRule.getApplicationContext())
+                .removeAccounts()
+                .subscribe();
+    }
 
     @Test
     public void testPreconditions() {

@@ -17,6 +17,7 @@ package com.jaspersoft.android.jaspermobile.test.junit;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 
@@ -91,6 +92,10 @@ public class ActivityRule<T extends Activity> implements TestRule {
     public final Instrumentation instrumentation() {
         launchActivity();
         return instrumentation;
+    }
+
+    public final Context getApplicationContext() {
+        return fetchInstrumentation().getTargetContext().getApplicationContext();
     }
 
     @Override

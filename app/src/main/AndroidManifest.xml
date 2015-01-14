@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright © 2014 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -23,7 +22,7 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jaspersoft.android.jaspermobile" >
+    package="com.jaspersoft.android.jaspermobile">
 
     <!-- Allows applications to access information about networks -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -31,6 +30,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Allows an application to write to external storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Allows an application to create accounts using Android infrastructure -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <!--
      No need for project and is ignored at runtime. This is useful for Android Studio exclusively.
@@ -44,18 +49,27 @@
         android:name=".JasperMobileApplication_"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
-        android:theme="@style/Theme.JasperMobile" >
+        android:theme="@style/Theme.JasperMobile">
+
+        <activity
+            android:name=".activities.StartUpActivity_"
+            android:theme="@style/Theme.JasperMobileHeadless">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <!-- Main activity -->
         <activity
             android:name=".activities.HomeActivity_"
-            android:configChanges="locale" >
+            android:configChanges="locale">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
                 <action android:name="com.jaspersoft.android.samples.jaspermobile.action.CLOSE_APPLICATION" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -133,7 +147,7 @@
         <activity
             android:name=".activities.SearchableActivity_"
             android:configChanges="locale"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -143,20 +157,18 @@
         <activity
             android:name="com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_"
             android:configChanges="locale"
-            android:launchMode="singleTop" >
-        </activity>
+            android:launchMode="singleTop"></activity>
 
         <!-- Activity that allows to make search in Favorites activity -->
         <activity
             android:name="com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesSearchableActivity_"
             android:configChanges="locale"
-            android:launchMode="singleTop" >
-        </activity>
+            android:launchMode="singleTop"></activity>
 
         <!-- Activity that shows Privacy Policy -->
         <activity
             android:name=".activities.PrivacyPolicyActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" >
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale">
 
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -164,7 +176,16 @@
                 <data android:scheme="com.jaspersoft.android.privacy_policy" />
             </intent-filter>
 
-            </activity>
+        </activity>
+
+        <activity
+            android:name=".activities.auth.AuthenticatorActivity"
+            android:theme="@style/Theme.JasperMobileHeadless">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="jaspersoft.intent.action.AUTHORIZE" />
+            </intent-filter>
+        </activity>
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
@@ -175,6 +196,16 @@
             android:name=".db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
             android:exported="false" />
+
+        <!-- SDK external components -->
+        <service android:name="com.jaspersoft.android.retrofit.sdk.auth.JasperAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/default_authenticator" />
+        </service>
 
     </application>
 

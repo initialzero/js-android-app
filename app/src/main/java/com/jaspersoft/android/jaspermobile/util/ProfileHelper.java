@@ -25,15 +25,12 @@
 package com.jaspersoft.android.jaspermobile.util;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
-import com.google.gson.Gson;
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -47,11 +44,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-import org.apache.commons.io.IOUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
@@ -63,12 +55,6 @@ import roboguice.inject.RoboInjector;
 @EBean
 public class ProfileHelper {
     public static final String TAG = ProfileHelper.class.getSimpleName();
-
-    public static final String DEFAULT_ALIAS = "Mobile Demo";
-    public static final String DEFAULT_ORGANIZATION = "organization_1";
-    public static final String DEFAULT_SERVER_URL = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
-    public static final String DEFAULT_USERNAME = "phoneuser";
-    public static final String DEFAULT_PASS = "phoneuser";
 
     @RootContext
     Context context;
@@ -125,7 +111,7 @@ public class ProfileHelper {
                 if (cursor.getCount() > 0) {
                     cursor.moveToPosition(0);
                     ServerProfiles profile = new ServerProfiles(cursor);
-                    profile.setVersioncode(serverInfo.getVersionCode());
+                    profile.setVersionCode(serverInfo.getVersionCode());
                     profile.setEdition(serverInfo.getEdition());
 
                     Uri uri = Uri.withAppendedPath(
@@ -176,12 +162,11 @@ public class ProfileHelper {
                 if (cursor.getCount() == 0) {
                     ServerProfiles testProfile = new ServerProfiles();
 
-                    testProfile.setAlias(DEFAULT_ALIAS);
-                    testProfile.setServerUrl(DEFAULT_SERVER_URL);
-                    testProfile.setOrganization(DEFAULT_ORGANIZATION);
+                    testProfile.setAlias(JSDatabaseHelper.DEFAULT_ALIAS);
+                    testProfile.setServerUrl(JSDatabaseHelper.DEFAULT_SERVER_URL);
+                    testProfile.setOrganization(JSDatabaseHelper.DEFAULT_ORGANIZATION);
 
                     contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, testProfile.getContentValues());
-                    populateTestInstances(contentResolver);
                 }
             } finally {
                 cursor.close();
@@ -197,38 +182,4 @@ public class ProfileHelper {
                         ServerProfilesTable.ALL_COLUMNS, where, selectionArgs, null);
     }
 
-    /**
-     * Remove method when testing needs will be fulfilled
-     * @param contentResolver
-     */
-    private void populateTestInstances(ContentResolver contentResolver) {
-        InputStream is = context.getResources().openRawResource(R.raw.profiles);
-        try {
-            String json = IOUtils.toString(is);
-            Gson gson = new Gson();
-            Profiles profiles = gson.fromJson(json, Profiles.class);
-            for (ServerProfiles profile : profiles.getData()) {
-                // We need populate content values manually ;(
-                profile.setAlias(profile.getAlias());
-                profile.setServerUrl(profile.getServerUrl());
-                profile.setOrganization(profile.getOrganization());
-
-                ContentValues contentValues = profile.getContentValues();
-                contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, contentValues);
-            }
-        } catch (IOException e) {
-            Log.w(TAG, "Ignoring population of data");
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
-    }
-
-    private static class Profiles {
-        private List<ServerProfiles> profiles;
-
-        public List<ServerProfiles> getData() {
-            return profiles;
-        }
-    }
 }

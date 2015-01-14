@@ -44,22 +44,26 @@ import rx.schedulers.Schedulers;
  * @author Tom Koptel
  * @since 2.0
  */
-public class JsRestClient {
+public class JsRestClient2 {
     private final RestAdapter mAdapter;
     private final AccountDataStorage mPreferences;
     private AccessTokenEncoder mAccessTokenEncoder;
 
-    public static SimpleBuilder simpleBuilder(Context context) {
+    public static SimpleBuilder configure(Context context) {
         return new SimpleBuilder(context);
     }
 
-    public static BasicBuilder basicBuilder(Context context) {
+    public static BasicBuilder builder(Context context) {
         return new BasicBuilder(context);
     }
 
-    public JsRestClient(RestAdapter adapter,
-                        AccessTokenEncoder accessTokenEncoder,
-                        AccountDataStorage accountPreferencesStorage) {
+    public static JsRestClient2 forEndpoint(Context context, String enpoint) {
+        return configure(context).setEndpoint(enpoint).build();
+    }
+
+    public JsRestClient2(RestAdapter adapter,
+                         AccessTokenEncoder accessTokenEncoder,
+                         AccountDataStorage accountPreferencesStorage) {
         mAdapter = adapter;
         mPreferences = accountPreferencesStorage;
         mAccessTokenEncoder = accessTokenEncoder;
@@ -208,9 +212,9 @@ public class JsRestClient {
             return this;
         }
 
-        public JsRestClient build() {
+        public JsRestClient2 build() {
             ensureSaneDefaults();
-            return new JsRestClient(restAdapter, accessTokenEncoder, accountDataStorage);
+            return new JsRestClient2(restAdapter, accessTokenEncoder, accountDataStorage);
         }
 
         private void ensureSaneDefaults() {
@@ -299,9 +303,9 @@ public class JsRestClient {
             return this;
         }
 
-        public JsRestClient build() {
+        public JsRestClient2 build() {
             ensureSaneDefaults();
-            return new JsRestClient(adapterBuilder.build(), accessTokenEncoder, accountDataStorage);
+            return new JsRestClient2(adapterBuilder.build(), accessTokenEncoder, accountDataStorage);
         }
 
         private void ensureSaneDefaults() {

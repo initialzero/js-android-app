@@ -31,6 +31,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.jaspermobile.network.endpoint.DemoEndpoint;
+import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 /**
@@ -61,6 +63,15 @@ public class JasperMobileModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
         bindConstant().annotatedWith(Names.named("MAX_PAGE_ALLOWED")).to(10);
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
+
+
+        JsRestClient2 jsRestClient = JsRestClient2.configure(mContext)
+                .setEndpoint(new DemoEndpoint())
+                .build();
+
+        bind(JsRestClient2.class)
+                .annotatedWith(Names.named("JASPER_DEMO"))
+                .toInstance(jsRestClient);
     }
 
 }

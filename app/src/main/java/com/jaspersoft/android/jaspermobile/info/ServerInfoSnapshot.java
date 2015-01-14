@@ -46,7 +46,7 @@ public class ServerInfoSnapshot {
 
     public void setProfile(ServerProfiles profile) {
         setEdition(profile.getEdition());
-        setVersionCode(profile.getVersioncode());
+        setVersionCode(profile.getVersionCode());
     }
 
     public void setEdition(String edition) {

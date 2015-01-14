@@ -83,8 +83,6 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         startActivityUnderTest();
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
-        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
-        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
 
         onView(withId(R.id.saveAction)).perform(click());
         onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
@@ -96,10 +94,8 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
-        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
 
         onView(withId(R.id.saveAction)).perform(click());
-        onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
     }
 
     @Test
@@ -107,8 +103,6 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         startActivityUnderTest();
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
-        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
-        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
 
         onView(withId(R.id.saveAction)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
@@ -120,10 +114,8 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
-        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
 
         onView(withId(R.id.saveAction)).perform(click());
-        onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
     }
 
     @Test
@@ -132,8 +124,6 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText("invalid url"));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
-        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
-        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
 
         onView(withId(R.id.saveAction)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_url_not_valid))));

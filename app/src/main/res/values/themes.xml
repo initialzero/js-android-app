@@ -24,6 +24,10 @@
 -->
 
 <resources>
+    <style name="Theme.JasperMobileHeadless" parent="Theme.HoloAccent.NoActionBar">
+
+    </style>
+
     <!-- Actionbar -->
     <style name="Theme.JasperMobile" parent="Theme.HoloAccent.ColoredActionBar">
         <item name="accentColor">#33B5E5</item>

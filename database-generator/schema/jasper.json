@@ -22,6 +22,10 @@
 					"name" : "edition"
 				}, {
 					"type" : "double",
+					"name" : "created_at",
+					"default": "CURRENT_TIMESTAMP"
+				}, {
+					"type" : "double",
 					"name" : "versionCode"
 				}
 			]

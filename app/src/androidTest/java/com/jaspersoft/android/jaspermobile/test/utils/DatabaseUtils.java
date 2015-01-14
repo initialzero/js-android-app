@@ -30,11 +30,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 
 /**
  * @author Tom Koptel
@@ -56,8 +56,6 @@ public class DatabaseUtils {
         serverProfile.setAlias(TEST_ALIAS);
         serverProfile.setServerUrl(TEST_SERVER_URL);
         serverProfile.setOrganization(TEST_ORGANIZATION);
-        serverProfile.setUsername(TEST_USERNAME);
-        serverProfile.setPassword(TEST_PASS);
 
         Uri uri = contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
         return Long.valueOf(uri.getLastPathSegment());
@@ -72,13 +70,11 @@ public class DatabaseUtils {
 
     public static long createDefaultProfile(ContentResolver contentResolver) {
         ServerProfiles serverProfile = new ServerProfiles();
-        serverProfile.setAlias(ProfileHelper.DEFAULT_ALIAS);
-        serverProfile.setServerUrl(ProfileHelper.DEFAULT_SERVER_URL);
-        serverProfile.setOrganization(ProfileHelper.DEFAULT_ORGANIZATION);
-        serverProfile.setUsername(ProfileHelper.DEFAULT_USERNAME);
-        serverProfile.setPassword(ProfileHelper.DEFAULT_PASS);
+        serverProfile.setAlias(JSDatabaseHelper.DEFAULT_ALIAS);
+        serverProfile.setServerUrl(JSDatabaseHelper.DEFAULT_SERVER_URL);
+        serverProfile.setOrganization(JSDatabaseHelper.DEFAULT_ORGANIZATION);
         serverProfile.setEdition("PRO");
-        serverProfile.setVersioncode(5.5d);
+        serverProfile.setVersionCode(5.5d);
 
         Uri uri = contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
         return Long.valueOf(uri.getLastPathSegment());

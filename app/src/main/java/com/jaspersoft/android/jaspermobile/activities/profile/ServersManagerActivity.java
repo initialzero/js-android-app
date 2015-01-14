@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.profile;
 import android.app.ActionBar;
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -63,7 +62,7 @@ public class ServersManagerActivity extends RoboAccentFragmentActivity {
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
-        HomeActivity.goHome(this);
+        super.onBackPressed();
     }
 
 }

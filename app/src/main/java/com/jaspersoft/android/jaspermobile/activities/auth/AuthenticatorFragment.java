@@ -65,6 +65,7 @@ import roboguice.fragment.RoboFragment;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import static rx.android.app.AppObservable.bindFragment;
@@ -90,6 +91,7 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
     private SimpleCursorAdapter cursorAdapter;
     private Observable<LoginResponse> tryDemoTask;
     private Subscription loginSubscription = Subscriptions.empty();
+    private Observable<LoginResponse> demoLoginObservable;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,13 +99,11 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         setRetainInstance(true);
 
         setProgressEnabled(mFetching);
-
-        Observable<LoginResponse> demoLoginObservable =
-                demoRestClient.login(
-                        JSDatabaseHelper.DEFAULT_ORGANIZATION,
-                        DemoEndpoint.DEFAULT_USERNAME,
-                        DemoEndpoint.DEFAULT_PASSWORD);
-        tryDemoTask = bindFragment(this, demoLoginObservable.cache());
+        demoLoginObservable = demoRestClient.login(
+                JSDatabaseHelper.DEFAULT_ORGANIZATION,
+                DemoEndpoint.DEFAULT_USERNAME,
+                DemoEndpoint.DEFAULT_PASSWORD
+        ).subscribeOn(Schedulers.io());
     }
 
     @AfterViews
@@ -163,6 +163,11 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         final Context context = getActivity();
         setProgressEnabled(true);
 
+        if (loginSubscription != null) {
+            loginSubscription.unsubscribe();
+        }
+
+        tryDemoTask = bindFragment(this, demoLoginObservable.cache());
         loginSubscription = tryDemoTask
                 .subscribe(new Action1<LoginResponse>() {
                     @Override
@@ -172,14 +177,16 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        Toast.makeText(context, "Login failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Login failed because of: " + throwable.getMessage(),
+                                Toast.LENGTH_LONG).show();
                         setProgressEnabled(false);
                     }
                 });
     }
 
     @OnActivityResult(CHOOSE_SERVER)
-    final void chooseServer(int resultCode) {}
+    final void chooseServer(int resultCode) {
+    }
 
     //---------------------------------------------------------------------
     // Helper methods

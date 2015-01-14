@@ -33,12 +33,10 @@ import retrofit.client.Response;
 import retrofit.converter.Converter;
 import rx.Observable;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action2;
 import rx.functions.Func0;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
@@ -124,7 +122,6 @@ public class JsRestClient2 {
     public Observable<LoginResponse> login(Observable<String> tokenObservable) {
         final AccountService accountService = getAccountService();
         return tokenObservable
-                .subscribeOn(Schedulers.io())
                 .flatMap(new Func1<String, Observable<Response>>() {
                     @Override
                     public Observable<Response> call(String authorizationToken) {
@@ -178,8 +175,7 @@ public class JsRestClient2 {
                                     }
                                 });
                     }
-                })
-                .observeOn(AndroidSchedulers.mainThread());
+                });
     }
 
     public AccountService getAccountService() {

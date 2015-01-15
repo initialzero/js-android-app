@@ -33,6 +33,7 @@ import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
@@ -52,9 +53,6 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper.DEFAULT_ALIAS;
-import static com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper.DEFAULT_ORGANIZATION;
-import static com.jaspersoft.android.jaspermobile.network.endpoint.DemoEndpoint.DEFAULT_USERNAME;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createOnlyDefaultProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
@@ -95,8 +93,8 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         setAskForPasswordOption();
 
         // Check whether our dialog is shown with Appropriate info
-        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(DEFAULT_USERNAME)));
-        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(DEFAULT_ORGANIZATION)));
+        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(AccountServerData.Demo.USERNAME)));
+        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(AccountServerData.Demo.ORGANIZATION)));
         onOverflowView(getActivity(), withId(R.id.dialogOrganizationTableRow)).check(matches(isDisplayed()));
 
         // Lets type some password and check if it set
@@ -191,8 +189,8 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         pressBack();
 
         // Check whether our dialog is shown with Appropriate info
-        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(DEFAULT_USERNAME)));
-        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(DEFAULT_ORGANIZATION)));
+        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(AccountServerData.Demo.USERNAME)));
+        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(AccountServerData.Demo.ORGANIZATION)));
         onOverflowView(getActivity(), withId(R.id.dialogOrganizationTableRow)).check(matches(isDisplayed()));
     }
 
@@ -213,7 +211,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
 
         // Check password has been properly loaded from DB. This is the key assert of test.
-        onView(withId(R.id.aliasEdit)).check(matches(withText(DEFAULT_ALIAS)));
+        onView(withId(R.id.aliasEdit)).check(matches(withText(AccountServerData.Demo.ALIAS)));
 
         // Disable ask password and reset password
 //        onView(withId(R.id.askPasswordCheckBox)).perform(click());
@@ -249,7 +247,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
 
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
-        onView(withId(getActionBarSubTitleId())).check(matches(withText(DEFAULT_ALIAS)));
+        onView(withId(getActionBarSubTitleId())).check(matches(withText(AccountServerData.Demo.ALIAS)));
 
 //        onView(withId(R.id.askPasswordCheckBox)).perform(click());
         onView(withId(R.id.saveAction)).perform(click());

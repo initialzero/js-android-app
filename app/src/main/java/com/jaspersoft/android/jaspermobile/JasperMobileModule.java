@@ -69,7 +69,7 @@ public class JasperMobileModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
 
 
-        JsRestClient2 jsRestClient = JsRestClient2.configure(mContext)
+        JsRestClient2 jsRestClient = JsRestClient2.configure()
                 .setEndpoint(new DemoEndpoint())
                 .setErrorHandler(new ErrorHandler() {
                     @Override

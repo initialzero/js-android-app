@@ -30,11 +30,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
-import com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 /**
  * @author Tom Koptel
@@ -70,9 +70,9 @@ public class DatabaseUtils {
 
     public static long createDefaultProfile(ContentResolver contentResolver) {
         ServerProfiles serverProfile = new ServerProfiles();
-        serverProfile.setAlias(JSDatabaseHelper.DEFAULT_ALIAS);
-        serverProfile.setServerUrl(JSDatabaseHelper.DEFAULT_SERVER_URL);
-        serverProfile.setOrganization(JSDatabaseHelper.DEFAULT_ORGANIZATION);
+        serverProfile.setAlias(AccountServerData.Demo.ALIAS);
+        serverProfile.setServerUrl(AccountServerData.Demo.SERVER_URL);
+        serverProfile.setOrganization(AccountServerData.Demo.ORGANIZATION);
         serverProfile.setEdition("PRO");
         serverProfile.setVersionCode(5.5d);
 

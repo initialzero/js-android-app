@@ -107,7 +107,7 @@ public class WebMockRule extends ExternalResource {
         @Override
         protected void semanticConfigure() {
             Timber.plant(new Timber.DebugTree());
-            JsRestClient2 restClient = JsRestClient2.configure(mContext)
+            JsRestClient2 restClient = JsRestClient2.configure()
                     .setErrorHandler(new ErrorHandler() {
                         @Override
                         public Throwable handleError(RetrofitError cause) {

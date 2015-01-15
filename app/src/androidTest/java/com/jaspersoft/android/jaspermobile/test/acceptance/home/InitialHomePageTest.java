@@ -31,6 +31,7 @@ import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.apache.http.fake.FakeHttpLayerManager;
@@ -50,11 +51,6 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper.DEFAULT_ALIAS;
-import static com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper.DEFAULT_ORGANIZATION;
-import static com.jaspersoft.android.jaspermobile.network.endpoint.DemoEndpoint.DEFAULT_ENDPOINT;
-import static com.jaspersoft.android.jaspermobile.network.endpoint.DemoEndpoint.DEFAULT_PASSWORD;
-import static com.jaspersoft.android.jaspermobile.network.endpoint.DemoEndpoint.DEFAULT_USERNAME;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createOnlyDefaultProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
@@ -100,11 +96,11 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
                 .atPosition(0).perform(click());
 
         JsServerProfile serverProfile = getServerProfile();
-        assertThat(serverProfile.getAlias(), is(DEFAULT_ALIAS));
-        assertThat(serverProfile.getOrganization(), is(DEFAULT_ORGANIZATION));
-        assertThat(serverProfile.getServerUrl(), is(DEFAULT_ENDPOINT));
-        assertThat(serverProfile.getUsername(), is(DEFAULT_USERNAME));
-        assertThat(serverProfile.getPassword(), is(DEFAULT_PASSWORD));
+        assertThat(serverProfile.getAlias(), is(AccountServerData.Demo.ALIAS));
+        assertThat(serverProfile.getOrganization(), is(AccountServerData.Demo.ORGANIZATION));
+        assertThat(serverProfile.getServerUrl(), is(AccountServerData.Demo.SERVER_URL));
+        assertThat(serverProfile.getUsername(), is(AccountServerData.Demo.USERNAME));
+        assertThat(serverProfile.getPassword(), is(AccountServerData.Demo.PASSWORD));
     }
 
     @Test
@@ -117,11 +113,11 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
                 .atPosition(0).perform(click());
         onView(withId(R.id.home_item_servers)).perform(click());
 
-        onView(withText(containsString(DEFAULT_ALIAS))).perform(longClick());
+        onView(withText(containsString(AccountServerData.Demo.ALIAS))).perform(longClick());
         onView(withId(R.id.deleteItem)).perform(click());
         onOverflowView(getActivity(), withText(R.string.spm_delete_btn)).perform(click());
 
-        onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(DEFAULT_ALIAS)))));
+        onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(AccountServerData.Demo.ALIAS)))));
     }
 
     @Test
@@ -161,7 +157,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
 
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
-        onView(withId(getActionBarSubTitleId())).check(matches(withText(DEFAULT_ALIAS)));
+        onView(withId(getActionBarSubTitleId())).check(matches(withText(AccountServerData.Demo.ALIAS)));
 
         onView(withId(R.id.saveAction)).perform(click());
     }
@@ -180,7 +176,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onOverflowView(getCurrentActivity(), withText(android.R.string.ok)).perform(click());
 
         onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sp_bc_edit_profile)));
-        onView(withId(getActionBarSubTitleId())).check(matches(withText(DEFAULT_ALIAS)));
+        onView(withId(getActionBarSubTitleId())).check(matches(withText(AccountServerData.Demo.ALIAS)));
 
 //        onView(withId(R.id.askPasswordCheckBox)).perform(click());
 
@@ -188,8 +184,8 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onView(withId(R.id.saveAction)).perform(click());
 
         // Check whether our dialog is shown with Appropriate info
-        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(DEFAULT_USERNAME)));
-        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(DEFAULT_ORGANIZATION)));
+        onOverflowView(getActivity(), withId(R.id.dialogUsernameText)).check(matches(withText(AccountServerData.Demo.USERNAME)));
+        onOverflowView(getActivity(), withId(R.id.dialogOrganizationText)).check(matches(withText(AccountServerData.Demo.ORGANIZATION)));
         onOverflowView(getActivity(), withId(R.id.dialogOrganizationTableRow)).check(matches(isDisplayed()));
 
         // Lets type some invalid password and check validation

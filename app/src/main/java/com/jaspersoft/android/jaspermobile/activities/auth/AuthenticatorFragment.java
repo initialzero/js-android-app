@@ -44,17 +44,16 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
-import com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
-import com.jaspersoft.android.jaspermobile.network.endpoint.DemoEndpoint;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountDataStorage;
+import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -106,9 +105,9 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
 
         setProgressEnabled(mFetching);
         demoLoginObservable = demoRestClient.login(
-                JSDatabaseHelper.DEFAULT_ORGANIZATION,
-                DemoEndpoint.DEFAULT_USERNAME,
-                DemoEndpoint.DEFAULT_PASSWORD
+                AccountServerData.Demo.ORGANIZATION,
+                AccountServerData.Demo.USERNAME,
+                AccountServerData.Demo.PASSWORD
         ).subscribeOn(Schedulers.io());
     }
 
@@ -178,7 +177,9 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
                 .subscribe(new Action1<LoginResponse>() {
                     @Override
                     public void call(LoginResponse response) {
-                        applyAccountData(response);
+                        Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+                        setProgressEnabled(false);
+                        applyDemoAccountData(response);
                     }
                 }, new Action1<Throwable>() {
                     @Override
@@ -191,6 +192,7 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
                 });
     }
 
+
     @OnActivityResult(CHOOSE_SERVER)
     final void chooseServer(int resultCode) {
     }
@@ -199,48 +201,38 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void applyAccountData(LoginResponse response) {
+    private void applyDemoAccountData(LoginResponse response) {
         String cookie = response.getCookie();
         ServerInfo serverInfo = response.getServerInfo();
-        BasicAccountDataStorage.get(getActivity())
-                .putServerAlias(JSDatabaseHelper.DEFAULT_ALIAS)
-                .putCookie(cookie)
-                .putEdition(serverInfo.getEdition())
-                .putVersionName(serverInfo.getVersion());
 
-        Account account = new Account(JSDatabaseHelper.DEFAULT_ALIAS, JasperSettings.JASPER_ACCOUNT_TYPE);
+        AccountServerData serverData = new AccountServerData()
+                .setAlias(AccountServerData.Demo.ALIAS)
+                .setServerUrl(AccountServerData.Demo.SERVER_URL)
+                .setOrganization(AccountServerData.Demo.ORGANIZATION)
+                .setUsername(AccountServerData.Demo.USERNAME)
+                .setPassword(AccountServerData.Demo.PASSWORD)
+                .setEdition(serverInfo.getEdition())
+                .setVersionName(serverInfo.getVersion());
+
+        applyAccountData(cookie, serverData);
+    }
+
+    private void applyAccountData(String authToken, AccountServerData serverData) {
+        legacyRestClient.setServerProfile(ProfileManager.getServerProfile(serverData));
+
+        Account account = BasicAccountProvider.get(getActivity())
+                .putAccountName(serverData.getAlias())
+                .getAccount();
+
         AccountManager accountManager = AccountManager.get(getActivity());
-
-        String username = DemoEndpoint.DEFAULT_USERNAME;
-        String serverUrl = JSDatabaseHelper.DEFAULT_SERVER_URL;
-        String alias = JSDatabaseHelper.DEFAULT_ALIAS;
-        String organization = JSDatabaseHelper.DEFAULT_ORGANIZATION;
-
-        Bundle userData = new Bundle();
-        userData.putString("NAME", username);
-        userData.putString("SERVER_URL", serverUrl);
-        userData.putString("ALIAS", alias);
-        userData.putString("ORGANIZATION", organization);
-
-        JsServerProfile profile = new JsServerProfile();
-        profile.setUsername(username);
-        profile.setPassword(DemoEndpoint.DEFAULT_PASSWORD);
-        profile.setServerUrl(serverUrl);
-        profile.setAlias(alias);
-        profile.setOrganization(organization);
-        legacyRestClient.setServerProfile(profile);
-
-        accountManager.addAccountExplicitly(account, DemoEndpoint.DEFAULT_PASSWORD, userData);
-        accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, cookie);
+        accountManager.addAccountExplicitly(account, serverData.getPassword(), serverData.toBundle());
+        accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
 
         Bundle data = new Bundle();
-        data.putString(AccountManager.KEY_ACCOUNT_NAME, DemoEndpoint.DEFAULT_USERNAME);
+        data.putString(AccountManager.KEY_ACCOUNT_NAME, serverData.getAlias());
         data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
-        data.putString(AccountManager.KEY_AUTHTOKEN, cookie);
+        data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
         getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
-
-        Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
-        setProgressEnabled(false);
 
         Intent resultIntent = new Intent();
         resultIntent.putExtras(data);

@@ -34,6 +34,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 import org.apache.commons.io.IOUtils;
 
@@ -43,10 +44,6 @@ import java.util.List;
 
 
 public class JSDatabaseHelper extends JasperMobileDbDatabase {
-    public static final String DEFAULT_ALIAS = "Mobile Demo";
-    public static final String DEFAULT_ORGANIZATION = "organization_1";
-    public static final String DEFAULT_SERVER_URL = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
-
     private static final String TAG = JSDatabaseHelper.class.getSimpleName();
     private final Context mContext;
 
@@ -112,9 +109,9 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
 
     private void populateDefaultServer(SQLiteDatabase db) {
         ServerProfiles defaultProfile = new ServerProfiles()
-                .withAlias(DEFAULT_ALIAS)
-                .withServerUrl(DEFAULT_SERVER_URL)
-                .withOrganization(DEFAULT_ORGANIZATION);
+                .withAlias(AccountServerData.Demo.ALIAS)
+                .withServerUrl(AccountServerData.Demo.SERVER_URL)
+                .withOrganization(AccountServerData.Demo.ORGANIZATION);
         db.insert(ServerProfilesTable.TABLE_NAME, null, defaultProfile.getContentValues());
     }
 

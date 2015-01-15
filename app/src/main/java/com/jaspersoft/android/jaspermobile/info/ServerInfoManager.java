@@ -27,7 +27,8 @@ package com.jaspersoft.android.jaspermobile.info;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountDataStorage;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.server.DefaultVersionParser;
 import com.octo.android.robospice.SpiceManager;
 
@@ -47,7 +48,6 @@ public class ServerInfoManager {
     @RootContext
     FragmentActivity activity;
 
-
     @Inject
     ServerInfoSnapshot mServerInfo;
 
@@ -62,9 +62,12 @@ public class ServerInfoManager {
         // for his profile setup. Accepted situation is when user has migrated from
         // version of app 1.8 to 1.9
         if (mServerInfo.isMissing()) {
-            BasicAccountDataStorage storage = BasicAccountDataStorage.get(activity);
-            mServerInfo.setEdition(storage.getServerEdition());
-            mServerInfo.setVersionCode(DefaultVersionParser.getVersionCode(storage.getServerVersion()));
+            BasicAccountProvider accountProvider = BasicAccountProvider.get(activity);
+            AccountServerData serverData = AccountServerData.get(activity, accountProvider.getAccount());
+            String edition = serverData.getEdition();
+            double versionCode = DefaultVersionParser.getVersionCode(serverData.getVersionName());
+            mServerInfo.setEdition(edition);
+            mServerInfo.setVersionCode(versionCode);
         } else {
             infoCallback.onInfoReceived(mServerInfo);
         }

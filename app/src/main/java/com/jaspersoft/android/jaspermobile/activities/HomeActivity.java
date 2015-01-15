@@ -49,10 +49,10 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountDataStorage;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -135,7 +135,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
         View actionView = serverProfileMenuItem.getActionView();
-        String alias = BasicAccountDataStorage.get(this).getServerAlias();
+        String alias = ProfileManager.getAlias(this);
         ((TextView) actionView.findViewById(R.id.profile_name)).setText(alias);
         return result;
     }

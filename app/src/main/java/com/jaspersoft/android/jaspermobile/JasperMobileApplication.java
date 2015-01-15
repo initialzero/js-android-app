@@ -28,9 +28,15 @@ import android.app.Application;
 import android.content.Context;
 import android.view.ViewConfiguration;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -41,6 +47,8 @@ import org.androidannotations.annotations.EApplication;
 
 import java.lang.reflect.Field;
 
+import roboguice.RoboGuice;
+import roboguice.inject.RoboInjector;
 import timber.log.Timber;
 
 /**
@@ -50,8 +58,11 @@ import timber.log.Timber;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+
     @Bean
-    ProfileHelper profileHelper;
+    protected ProfileHelper profileHelper;
+    @Inject
+    protected JsRestClient jsRestClient;
 
     public static void removeAllCookies() {
         JsRestClient.flushCookies();
@@ -60,6 +71,8 @@ public class JasperMobileApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        RoboInjector injector = RoboGuice.getInjector(this);
+        injector.injectMembersWithoutViews(this);
 
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
@@ -71,11 +84,15 @@ public class JasperMobileApplication extends Application {
         System.setProperty("http.keepAlive", "false");
 
         forceOverFlowMenu();
-        profileHelper.initJsRestClient();
-        profileHelper.initServerInfoSnapshot();
-        profileHelper.seedProfilesIfNeed();
-
+        initLegacyJsRestClient();
         initImageLoader(getApplicationContext());
+    }
+
+    private void initLegacyJsRestClient() {
+        AccountProvider accountProvider = BasicAccountProvider.get(this);
+        if (accountProvider.hasAccount()) {
+            jsRestClient.setServerProfile(ProfileManager.getServerProfile(this));
+        }
     }
 
     private void initImageLoader(Context context) {

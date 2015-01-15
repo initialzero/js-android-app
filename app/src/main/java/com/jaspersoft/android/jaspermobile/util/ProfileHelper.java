@@ -24,13 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -151,27 +149,6 @@ public class ProfileHelper {
     public void setCurrentServerProfile(Cursor cursor) {
         JsServerProfile serverProfile = createProfileFromCursor(cursor);
         jsRestClient.setServerProfile(serverProfile);
-    }
-
-    public void seedProfilesIfNeed() {
-        ContentResolver contentResolver = context.getContentResolver();
-        Cursor cursor = contentResolver.query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                new String[]{ServerProfilesTable._ID}, null, null, null);
-        if (cursor != null) {
-            try {
-                if (cursor.getCount() == 0) {
-                    ServerProfiles testProfile = new ServerProfiles();
-
-                    testProfile.setAlias(JSDatabaseHelper.DEFAULT_ALIAS);
-                    testProfile.setServerUrl(JSDatabaseHelper.DEFAULT_SERVER_URL);
-                    testProfile.setOrganization(JSDatabaseHelper.DEFAULT_ORGANIZATION);
-
-                    contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, testProfile.getContentValues());
-                }
-            } finally {
-                cursor.close();
-            }
-        }
     }
 
     private Cursor queryServerProfile(long id) {

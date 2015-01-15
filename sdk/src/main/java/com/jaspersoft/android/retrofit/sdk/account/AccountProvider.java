@@ -21,26 +21,15 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
+package com.jaspersoft.android.retrofit.sdk.account;
 
-package com.jaspersoft.android.jaspermobile.network.endpoint;
-
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-
-import retrofit.Endpoint;
+import android.accounts.Account;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class DemoEndpoint implements Endpoint {
-    @Override
-    public String getUrl() {
-        return AccountServerData.Demo.SERVER_URL + JasperSettings.DEFAULT_REST_VERSION;
-    }
-
-    @Override
-    public String getName() {
-        return "Mobile demo endpoint";
-    }
+public interface AccountProvider {
+    Account getAccount();
+    boolean hasAccount();
 }

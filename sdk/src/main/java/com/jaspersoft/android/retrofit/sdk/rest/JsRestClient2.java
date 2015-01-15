@@ -1,9 +1,25 @@
 /*
- * Copyright (c) 2015. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
- * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
- * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
- * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
- * Vestibulum commodo. Ut rhoncus gravida arcu.
+ * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * the following license terms apply:
+ *
+ * This program is part of Jaspersoft Mobile for Android.
+ *
+ * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.retrofit.sdk.rest;
@@ -11,8 +27,6 @@ package com.jaspersoft.android.retrofit.sdk.rest;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountDataStorage;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountDataStorage;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
@@ -44,26 +58,23 @@ import rx.functions.Func2;
  */
 public class JsRestClient2 {
     private final RestAdapter mAdapter;
-    private final AccountDataStorage mPreferences;
     private AccessTokenEncoder mAccessTokenEncoder;
 
-    public static SimpleBuilder configure(Context context) {
-        return new SimpleBuilder(context);
+    public static SimpleBuilder configure() {
+        return new SimpleBuilder();
     }
 
-    public static BasicBuilder builder(Context context) {
-        return new BasicBuilder(context);
+    public static BasicBuilder builder() {
+        return new BasicBuilder();
     }
 
     public static JsRestClient2 forEndpoint(Context context, String enpoint) {
-        return configure(context).setEndpoint(enpoint).build();
+        return configure().setEndpoint(enpoint).build();
     }
 
     public JsRestClient2(RestAdapter adapter,
-                         AccessTokenEncoder accessTokenEncoder,
-                         AccountDataStorage accountPreferencesStorage) {
+                         AccessTokenEncoder accessTokenEncoder) {
         mAdapter = adapter;
-        mPreferences = accountPreferencesStorage;
         mAccessTokenEncoder = accessTokenEncoder;
     }
 
@@ -71,9 +82,6 @@ public class JsRestClient2 {
         return mAdapter;
     }
 
-    public AccountDataStorage getAccountPreferences() {
-        return mPreferences;
-    }
 
     public void setAccessTokenEncoder(AccessTokenEncoder accessTokenEncoder) {
         mAccessTokenEncoder = accessTokenEncoder;
@@ -183,23 +191,14 @@ public class JsRestClient2 {
     }
 
     public static class BasicBuilder {
-        private final Context context;
-
         private RestAdapter restAdapter;
         private AccessTokenEncoder accessTokenEncoder;
-        private AccountDataStorage accountDataStorage;
 
-        public BasicBuilder(Context context) {
-            this.context = context;
+        public BasicBuilder() {
         }
 
         public BasicBuilder setAccessTokenEncoder(AccessTokenEncoder accessTokenEncoder) {
             this.accessTokenEncoder = accessTokenEncoder;
-            return this;
-        }
-
-        public BasicBuilder setAccountDataStorage(AccountDataStorage accountDataStorage) {
-            this.accountDataStorage = accountDataStorage;
             return this;
         }
 
@@ -209,27 +208,17 @@ public class JsRestClient2 {
         }
 
         public JsRestClient2 build() {
-            ensureSaneDefaults();
-            return new JsRestClient2(restAdapter, accessTokenEncoder, accountDataStorage);
-        }
-
-        private void ensureSaneDefaults() {
-            if (accountDataStorage == null) {
-                setAccountDataStorage(BasicAccountDataStorage.get(context));
-            }
+            return new JsRestClient2(restAdapter, accessTokenEncoder);
         }
     }
 
     public static class SimpleBuilder {
-        private final Context context;
         private final RestAdapter.Builder adapterBuilder;
 
         private AccessTokenEncoder accessTokenEncoder;
-        private AccountDataStorage accountDataStorage;
         private RequestInterceptor requestInterceptor;
 
-        public SimpleBuilder(Context context) {
-            this.context = context;
+        public SimpleBuilder() {
             this.adapterBuilder = new RestAdapter.Builder();
         }
 
@@ -294,20 +283,12 @@ public class JsRestClient2 {
             return this;
         }
 
-        public SimpleBuilder setAccountDataStorage(AccountDataStorage accountDataStorage) {
-            this.accountDataStorage = accountDataStorage;
-            return this;
-        }
-
         public JsRestClient2 build() {
             ensureSaneDefaults();
-            return new JsRestClient2(adapterBuilder.build(), accessTokenEncoder, accountDataStorage);
+            return new JsRestClient2(adapterBuilder.build(), accessTokenEncoder);
         }
 
         private void ensureSaneDefaults() {
-            if (accountDataStorage == null) {
-                setAccountDataStorage(BasicAccountDataStorage.get(context));
-            }
             if (requestInterceptor == null) {
                 setRequestInterceptor(new BasicRequestInterceptor());
             }

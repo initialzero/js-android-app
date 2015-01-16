@@ -29,9 +29,12 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
@@ -48,6 +51,8 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
+
+import java.util.Map;
 
 import roboguice.fragment.RoboFragment;
 import rx.Observable;
@@ -149,13 +154,16 @@ public class AuthenticatorFragment extends RoboFragment {
 
     @Click
     public void logIn() {
+        if (!isFormValid()) return;
+
         setProgressEnabled(true);
 
         if (loginSubscription != null) {
             loginSubscription.unsubscribe();
         }
 
-        String endpoint = serverUrlEdit.getText() + JasperSettings.DEFAULT_REST_VERSION;
+        String endpoint = trimUrl(serverUrlEdit.getText().toString())
+                + JasperSettings.DEFAULT_REST_VERSION;
         JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
         Observable<LoginResponse> loginObservable = restClient.login(
                 organizationEdit.getText().toString(),
@@ -184,7 +192,7 @@ public class AuthenticatorFragment extends RoboFragment {
         ServerInfo serverInfo = response.getServerInfo();
 
         AccountServerData serverData = new AccountServerData()
-                .setServerUrl(serverUrlEdit.getText().toString())
+                .setServerUrl(trimUrl(serverUrlEdit.getText().toString()))
                 .setOrganization(organizationEdit.getText().toString())
                 .setUsername(usernameEdit.getText().toString())
                 .setPassword(passwordEdit.getText().toString())
@@ -246,5 +254,43 @@ public class AuthenticatorFragment extends RoboFragment {
             throw new IllegalStateException("Fragment can only be consumed " +
                     "within com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity");
         }
+    }
+
+    private boolean isFormValid() {
+        String serverUrl = serverUrlEdit.getText().toString();
+
+        Map<EditText, String> valueMap = Maps.newHashMap();
+        valueMap.put(serverUrlEdit, serverUrl);
+        valueMap.put(usernameEdit, usernameEdit.getText().toString());
+        valueMap.put(passwordEdit, passwordEdit.getText().toString());
+
+        boolean isFieldValid;
+        boolean formValid = true;
+        for (Map.Entry<EditText, String> entry : valueMap.entrySet()) {
+            isFieldValid = !TextUtils.isEmpty(entry.getValue().trim());
+            if (!isFieldValid) {
+                entry.getKey().setError(getString(R.string.sp_error_field_required));
+                entry.getKey().requestFocus();
+            }
+            formValid &= isFieldValid;
+        }
+
+        if (!TextUtils.isEmpty(serverUrl)) {
+            String url = trimUrl(serverUrl);
+            if (!URLUtil.isNetworkUrl(url)) {
+                serverUrlEdit.setError(getString(R.string.sp_error_url_not_valid));
+                serverUrlEdit.requestFocus();
+                formValid &= false;
+            }
+        }
+
+        return formValid;
+    }
+
+    private String trimUrl(String url) {
+        if (!TextUtils.isEmpty(url) && url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 }

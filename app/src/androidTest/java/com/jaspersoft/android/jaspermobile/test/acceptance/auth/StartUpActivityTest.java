@@ -50,6 +50,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -116,5 +117,71 @@ public class StartUpActivityTest {
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
         onView(withId(R.id.logIn)).perform(click());
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testEmptyUsernameNotAcceptable() {
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
+
+        onView(withId(R.id.logIn)).perform(click());
+    }
+
+    @Test
+    public void testSpacesForUsernameNotAcceptable() {
+        onView(withId(R.id.usernameEdit)).perform(typeText("  "));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
+
+        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
+    }
+
+    @Test
+    public void testEmptyPasswordNotAcceptable() {
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+
+        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
+    }
+
+    @Test
+    public void testSpacesForPasswordNotAcceptable() {
+        onView(withId(R.id.passwordEdit)).perform(typeText("  "));
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+
+        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
+    }
+
+    @Test
+    public void testEmptyServerUrlNotAcceptable() {
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
+
+        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
+    }
+
+    @Test
+    public void testSpacesForServerUrlNotAcceptable() {
+        onView(withId(R.id.serverUrlEdit)).perform(typeText("  "));
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
+
+        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
+    }
+
+    @Test
+    public void testServerUrlShouldBeValidUrl() {
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText("invalid url"));
+
+        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
     }
 }

@@ -38,12 +38,6 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
  */
 public class ProfileManager {
 
-    public static String getAlias(Context context) {
-        BasicAccountProvider accountProvider = BasicAccountProvider.get(context);
-        AccountServerData serverData = AccountServerData.get(context, accountProvider.getAccount());
-        return serverData.getAlias();
-    }
-
     public static JsServerProfile getServerProfile(Context context) {
         BasicAccountProvider accountProvider = BasicAccountProvider.get(context);
         AccountServerData serverData = AccountServerData.get(context, accountProvider.getAccount());
@@ -52,7 +46,6 @@ public class ProfileManager {
 
     public static JsServerProfile getServerProfile(AccountServerData serverData) {
         JsServerProfile profile = new JsServerProfile();
-        profile.setAlias(serverData.getAlias());
         profile.setServerUrl(serverData.getServerUrl());
         profile.setOrganization(serverData.getOrganization());
         profile.setUsername(serverData.getUsername());

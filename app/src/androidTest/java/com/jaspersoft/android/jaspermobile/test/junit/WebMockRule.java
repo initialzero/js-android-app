@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.test.junit;
 
 import android.app.Application;
 import android.app.Instrumentation;
-import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 
 import com.google.inject.name.Names;
@@ -52,6 +51,7 @@ import timber.log.Timber;
 public class WebMockRule extends ExternalResource {
     private Instrumentation instrumentation;
     private MockWebServer server;
+    private String endpoint;
 
     @Before
     public void before() throws Throwable {
@@ -69,7 +69,7 @@ public class WebMockRule extends ExternalResource {
         RoboGuice.setBaseApplicationInjector(application,
                 RoboGuice.DEFAULT_STAGE,
                 Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(new MyTestModule(application, server.getPort())));
+                        .with(new MyTestModule(server.getPort())));
     }
 
     @Override
@@ -95,28 +95,31 @@ public class WebMockRule extends ExternalResource {
         return instrumentation;
     }
 
-    private static class MyTestModule extends CommonTestModule {
-        private final int mPort;
-        private final Context mContext;
+    public String getEndpoint() {
+        return endpoint;
+    }
 
-        public MyTestModule(Context context, int port) {
+    private class MyTestModule extends CommonTestModule {
+        private final int mPort;
+
+        public MyTestModule(int port) {
             mPort = port;
-            mContext = context;
         }
 
         @Override
         protected void semanticConfigure() {
             Timber.plant(new Timber.DebugTree());
+            endpoint = "http://localhost:" + mPort;
             JsRestClient2 restClient = JsRestClient2.configure()
                     .setErrorHandler(new ErrorHandler() {
                         @Override
                         public Throwable handleError(RetrofitError cause) {
                             Timber.tag("WEB_MOCK_RULE");
-                            Timber.e("Rest client received exception", cause);
+                            Timber.e(cause, "Rest client received exception");
                             return cause;
                         }
                     })
-                    .setEndpoint("http://localhost:" + mPort)
+                    .setEndpoint(endpoint)
                     .build();
             bind(JsRestClient2.class)
                     .annotatedWith(Names.named("JASPER_DEMO"))

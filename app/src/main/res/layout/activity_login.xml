@@ -19,6 +19,22 @@
         android:inputType="textPersonName" />
 
     <EditText
+        android:id="@+id/organizationEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Organization name"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/serverUrlEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Server url"
+        android:inputType="textUri" />
+
+    <EditText
         android:id="@+id/passwordEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,13 +42,6 @@
         android:hint="Account password"
         android:inputType="textPassword" />
 
-    <Spinner
-        android:id="@+id/profiles"
-        android:gravity="bottom"
-        android:layout_toLeftOf="@+id/addServer"
-        android:spinnerMode="dialog"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"

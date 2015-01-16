@@ -30,12 +30,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -49,7 +47,6 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
-import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
@@ -59,7 +56,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -70,7 +66,6 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
  * @since 1.0
  */
 @EActivity(R.layout.home_layout)
-@OptionsMenu(R.menu.home_menu)
 public class HomeActivity extends RoboSpiceFragmentActivity {
     private static final int PENDING_INTENT_ID = 123456;
 
@@ -125,19 +120,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         HomeActivity_.intent(context)
                 .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .start();
-    }
-
-    //---------------------------------------------------------------------
-    // Public methods
-    //---------------------------------------------------------------------
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
-        View actionView = serverProfileMenuItem.getActionView();
-        String alias = ProfileManager.getAlias(this);
-        ((TextView) actionView.findViewById(R.id.profile_name)).setText(alias);
-        return result;
     }
 
     //---------------------------------------------------------------------

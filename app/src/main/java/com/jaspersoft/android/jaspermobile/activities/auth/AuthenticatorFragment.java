@@ -28,25 +28,13 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.SimpleCursorAdapter;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
-import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
-import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
-import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
@@ -56,11 +44,9 @@ import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 
 import roboguice.fragment.RoboFragment;
@@ -78,17 +64,15 @@ import static rx.android.app.AppObservable.bindFragment;
  * @since 2.0
  */
 @EFragment(R.layout.activity_login)
-public class AuthenticatorFragment extends RoboFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final int CHOOSE_SERVER = 15;
-    private static final String[] FROM = {ServerProfilesTable.ALIAS};
-    private static final int[] TO = {android.R.id.text1};
-
+public class AuthenticatorFragment extends RoboFragment {
     @ViewById
     protected EditText usernameEdit;
     @ViewById
-    protected EditText passwordEdit;
+    protected EditText organizationEdit;
     @ViewById
-    protected Spinner profiles;
+    protected EditText serverUrlEdit;
+    @ViewById
+    protected EditText passwordEdit;
     @InstanceState
     protected boolean mFetching;
     @Inject
@@ -97,7 +81,6 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
     @Inject
     protected JsRestClient legacyRestClient;
 
-    private SimpleCursorAdapter cursorAdapter;
     private Observable<LoginResponse> tryDemoTask;
     private Observable<LoginResponse> loginDemoTask;
     private Subscription loginSubscription = Subscriptions.empty();
@@ -119,45 +102,6 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         setRetainInstance(true);
 
         setProgressEnabled(mFetching);
-    }
-
-    @AfterViews
-    final void init() {
-        profiles.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View view, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ServersManagerActivity_.intent(getActivity()).startForResult(CHOOSE_SERVER);
-                }
-                return true;
-            }
-        });
-
-        cursorAdapter = new SimpleCursorAdapter(getActivity(),
-                android.R.layout.simple_list_item_1, null, FROM, TO, 0);
-        profiles.setAdapter(cursorAdapter);
-
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), MobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                ServerProfilesTable.ALL_COLUMNS, null, null, ServerProfilesTable.CREATED_AT + " ASC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (cursorAdapter != null) {
-            cursorAdapter.swapCursor(data);
-
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        if (cursorAdapter != null) {
-            cursorAdapter.swapCursor(null);
-        }
     }
 
     @Override
@@ -211,15 +155,10 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
             loginSubscription.unsubscribe();
         }
 
-        int position = profiles.getSelectedItemPosition();
-        Cursor cursor = cursorAdapter.getCursor();
-        cursor.moveToPosition(position);
-        ServerProfiles profile = new ServerProfiles(cursor);
-
-        String endpoint = profile.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION;
+        String endpoint = serverUrlEdit.getText() + JasperSettings.DEFAULT_REST_VERSION;
         JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
         Observable<LoginResponse> loginObservable = restClient.login(
-                profile.getOrganization(),
+                organizationEdit.getText().toString(),
                 usernameEdit.getText().toString(),
                 passwordEdit.getText().toString()
         ).subscribeOn(Schedulers.io());
@@ -236,10 +175,6 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
                 }, onError);
     }
 
-    @OnActivityResult(CHOOSE_SERVER)
-    final void chooseServer(int resultCode) {
-    }
-
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -249,9 +184,8 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         ServerInfo serverInfo = response.getServerInfo();
 
         AccountServerData serverData = new AccountServerData()
-                .setAlias(AccountServerData.Demo.ALIAS)
-                .setServerUrl(AccountServerData.Demo.SERVER_URL)
-                .setOrganization(AccountServerData.Demo.ORGANIZATION)
+                .setServerUrl(serverUrlEdit.getText().toString())
+                .setOrganization(organizationEdit.getText().toString())
                 .setUsername(usernameEdit.getText().toString())
                 .setPassword(passwordEdit.getText().toString())
                 .setEdition(serverInfo.getEdition())
@@ -265,7 +199,6 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         ServerInfo serverInfo = response.getServerInfo();
 
         AccountServerData serverData = new AccountServerData()
-                .setAlias(AccountServerData.Demo.ALIAS)
                 .setServerUrl(AccountServerData.Demo.SERVER_URL)
                 .setOrganization(AccountServerData.Demo.ORGANIZATION)
                 .setUsername(AccountServerData.Demo.USERNAME)
@@ -280,7 +213,7 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         legacyRestClient.setServerProfile(ProfileManager.getServerProfile(serverData));
 
         Account account = BasicAccountProvider.get(getActivity())
-                .putAccountName(serverData.getAlias())
+                .putAccountName(serverData.getUsername())
                 .getAccount();
 
         AccountManager accountManager = AccountManager.get(getActivity());
@@ -289,7 +222,7 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
             accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
 
             Bundle data = new Bundle();
-            data.putString(AccountManager.KEY_ACCOUNT_NAME, serverData.getAlias());
+            data.putString(AccountManager.KEY_ACCOUNT_NAME, serverData.getUsername());
             data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
             data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
             getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);

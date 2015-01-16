@@ -35,6 +35,7 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -83,6 +84,11 @@ public class StartUpActivityTest {
                 .setBody(TestResource.getJson().rawData("mobile_demo"));
     }
 
+    @After
+    public void after() {
+        activityRule.get().finish();
+    }
+
     @Test
     public void testPreconditions() {
         assertThat(webMockRule.get(), notNullValue());
@@ -101,8 +107,13 @@ public class StartUpActivityTest {
 
     @Test
     public void testIdealLoginAction() {
-        onView(withId(R.id.username)).perform(typeText(AccountServerData.Demo.USERNAME));
-        onView(withId(R.id.password)).perform(typeText(AccountServerData.Demo.PASSWORD));
+        webMockRule.get().enqueue(authResponse);
+        webMockRule.get().enqueue(mobileDemoServerRespone);
+
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.organizationEdit)).perform(typeText(AccountServerData.Demo.ORGANIZATION));
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
         onView(withId(R.id.logIn)).perform(click());
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }

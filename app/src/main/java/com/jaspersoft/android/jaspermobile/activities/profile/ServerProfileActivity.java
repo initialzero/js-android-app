@@ -66,7 +66,7 @@ import java.util.Map;
  * @author Ivan Gadzhega
  * @since 1.0
  */
-@EActivity(R.layout.server_create_form)
+@EActivity(R.layout.add_account_form)
 @OptionsMenu(R.menu.profile_menu)
 public class ServerProfileActivity extends RoboSpiceFragmentActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -77,8 +77,6 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     @Extra
     boolean inEditMode;
 
-    @ViewById
-    EditText aliasEdit;
     @ViewById
     EditText serverUrlEdit;
     @ViewById
@@ -125,13 +123,6 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             mServerProfile.setOrganization(organization);
             persistProfileData();
         }
-    }
-
-    @TextChange(R.id.aliasEdit)
-    void onAliasTextChanges(CharSequence text) {
-        alias = text.toString();
-        aliasEdit.setError(null);
-        setSubmitActionState();
     }
 
     @TextChange(R.id.serverUrlEdit)
@@ -191,7 +182,6 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         }
 
         String aliasSuffix = (inEditMode ? "" : getString(R.string.sp_label_alias_clone));
-        aliasEdit.setText(mServerProfile.getAlias() + aliasSuffix);
         serverUrlEdit.setText(mServerProfile.getServerUrl());
         organizationEdit.setText(mServerProfile.getOrganization());
     }
@@ -202,7 +192,6 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
     private boolean isFormValid() {
         Map<EditText, String> valueMap = Maps.newHashMap();
-        valueMap.put(aliasEdit, alias);
         valueMap.put(serverUrlEdit, serverUrl);
 
         boolean isFieldValid;

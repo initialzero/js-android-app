@@ -42,11 +42,8 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ORGANIZATION;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_PASS;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_SERVER_URL;
-import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_USERNAME;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteTestProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 
@@ -85,13 +82,13 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
 
         onView(withId(R.id.saveAction)).perform(click());
-        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
+//        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_field_required))));
     }
 
     @Test
     public void testEmptyPasswordNotAcceptable() {
         startActivityUnderTest();
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
 
@@ -101,7 +98,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
     @Test
     public void testEmptyServerUrlNotAcceptable() {
         startActivityUnderTest();
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
 
         onView(withId(R.id.saveAction)).perform(click());
@@ -111,7 +108,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
     @Test
     public void testEmptyUsernameNotAcceptable() {
         startActivityUnderTest();
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
 
@@ -121,7 +118,7 @@ public class ServerProfileValidationTest extends ProtoActivityInstrumentation<Se
     @Test
     public void testServerUrlShouldBeValidUrl() {
         startActivityUnderTest();
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText("invalid url"));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
 

@@ -63,8 +63,6 @@
     <!-- Server Profile Activity -->
     <string name="sp_bc_add_profile">Neues Serverprofil</string>
     <string name="sp_bc_edit_profile">Serverprofil bearbeiten</string>
-    <string name="sp_name_label">Name:</string>
-    <string name="sp_name_hint">mein Servername</string>
     <string name="sp_url_label">Server-URL:</string>
     <string name="sp_url_hint">http://meinserver.com</string>
     <string name="sp_org_label">Organisation:</string>

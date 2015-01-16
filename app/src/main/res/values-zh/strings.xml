@@ -63,8 +63,6 @@
     <!-- Server Profile Activity -->
     <string name="sp_bc_add_profile">新建服务器配置文件</string>
     <string name="sp_bc_edit_profile">编辑服务器配置文件</string>
-    <string name="sp_name_label">名称:</string>
-    <string name="sp_name_hint">我的服务器名称</string>
     <string name="sp_url_label">服务器 URL:</string>
     <string name="sp_url_hint">http://myserver.com</string>
     <string name="sp_org_label">组织:</string>

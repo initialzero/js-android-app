@@ -58,6 +58,7 @@ import roboguice.fragment.RoboFragment;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 import timber.log.Timber;
@@ -68,7 +69,7 @@ import static rx.android.app.AppObservable.bindFragment;
  * @author Tom Koptel
  * @since 2.0
  */
-@EFragment(R.layout.activity_login)
+@EFragment(R.layout.add_account_form)
 public class AuthenticatorFragment extends RoboFragment {
     @ViewById
     protected EditText usernameEdit;
@@ -97,6 +98,13 @@ public class AuthenticatorFragment extends RoboFragment {
             Toast.makeText(getActivity(), "Login failed because of: " + throwable.getMessage(),
                     Toast.LENGTH_LONG).show();
             setProgressEnabled(false);
+        }
+    };
+    private final Action1<JsAccount> onSuccess = new Action1<JsAccount>() {
+        @Override
+        public void call(JsAccount jsAccount) {
+            setProgressEnabled(false);
+            addAccount(jsAccount);
         }
     };
 
@@ -142,14 +150,13 @@ public class AuthenticatorFragment extends RoboFragment {
 
         tryDemoTask = bindFragment(this, demoLoginObservable.cache());
         loginSubscription = tryDemoTask
-                .subscribe(new Action1<LoginResponse>() {
+                .flatMap(new Func1<LoginResponse, Observable<JsAccount>>() {
                     @Override
-                    public void call(LoginResponse response) {
-                        Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
-                        setProgressEnabled(false);
-                        applyDemoAccountData(response);
+                    public Observable<JsAccount> call(LoginResponse response) {
+                        return createDemoAccountData(response);
                     }
-                }, onError);
+                })
+                .subscribe(onSuccess, onError);
     }
 
     @Click
@@ -173,21 +180,20 @@ public class AuthenticatorFragment extends RoboFragment {
 
         loginDemoTask = bindFragment(this, loginObservable.cache());
         loginSubscription = loginDemoTask
-                .subscribe(new Action1<LoginResponse>() {
+                .flatMap(new Func1<LoginResponse, Observable<JsAccount>>() {
                     @Override
-                    public void call(LoginResponse loginResponse) {
-                        Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
-                        setProgressEnabled(false);
-                        applyUserAccountData(loginResponse);
+                    public Observable<JsAccount> call(LoginResponse response) {
+                        return createUserAccountData(response);
                     }
-                }, onError);
+                })
+                .subscribe(onSuccess, onError);
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void applyUserAccountData(LoginResponse response) {
+    private Observable<JsAccount> createUserAccountData(LoginResponse response) {
         String cookie = response.getCookie();
         ServerInfo serverInfo = response.getServerInfo();
 
@@ -199,10 +205,10 @@ public class AuthenticatorFragment extends RoboFragment {
                 .setEdition(serverInfo.getEdition())
                 .setVersionName(serverInfo.getVersion());
 
-        applyAccountData(cookie, serverData);
+        return Observable.just(new JsAccount(cookie, serverData));
     }
 
-    private void applyDemoAccountData(LoginResponse response) {
+    private Observable<JsAccount> createDemoAccountData(LoginResponse response) {
         String cookie = response.getCookie();
         ServerInfo serverInfo = response.getServerInfo();
 
@@ -214,10 +220,12 @@ public class AuthenticatorFragment extends RoboFragment {
                 .setEdition(serverInfo.getEdition())
                 .setVersionName(serverInfo.getVersion());
 
-        applyAccountData(cookie, serverData);
+        return Observable.just(new JsAccount(cookie, serverData));
     }
 
-    private void applyAccountData(String authToken, AccountServerData serverData) {
+    private void addAccount(JsAccount jsAccount) {
+        AccountServerData serverData = jsAccount.serverData;
+        String authToken = jsAccount.cookie;
         legacyRestClient.setServerProfile(ProfileManager.getServerProfile(serverData));
 
         Account account = BasicAccountProvider.get(getActivity())
@@ -234,6 +242,8 @@ public class AuthenticatorFragment extends RoboFragment {
             data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
             data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
             getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
+
+            Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
 
             Intent resultIntent = new Intent();
             resultIntent.putExtras(data);
@@ -292,5 +302,15 @@ public class AuthenticatorFragment extends RoboFragment {
             url = url.substring(0, url.length() - 1);
         }
         return url;
+    }
+
+    private static class JsAccount {
+        final String cookie;
+        final AccountServerData serverData;
+
+        private JsAccount(String cookie, AccountServerData serverData) {
+            this.cookie = cookie;
+            this.serverData = serverData;
+        }
     }
 }

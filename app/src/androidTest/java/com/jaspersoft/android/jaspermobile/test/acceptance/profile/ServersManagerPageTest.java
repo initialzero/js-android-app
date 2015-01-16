@@ -55,7 +55,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.action.ViewActions.typeText;
@@ -70,7 +69,6 @@ import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteTestProfiles;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.queryTestProfile;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
@@ -112,7 +110,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withId(R.id.addProfile)).perform(click());
         onView(withText(R.string.sp_bc_add_profile)).check(matches(isDisplayed()));
 
-        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(DatabaseUtils.TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(DatabaseUtils.TEST_ORGANIZATION));
 //        onView(withId(R.id.usernameEdit)).perform(typeText(DatabaseUtils.TEST_USERNAME));
@@ -134,17 +132,17 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         startActivityUnderTest();
 
         onView(withId(R.id.addProfile)).perform(click());
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
 //        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
 //        onView(withId(R.id.passwordEdit)).perform(typeText(TEST_PASS));
 
         onView(withId(R.id.saveAction)).perform(click());
-        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
+//        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
 
-        onView(withId(R.id.aliasEdit)).perform(clearText());
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS + "_suffix"));
+//        onView(withId(R.id.aliasEdit)).perform(clearText());
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS + "_suffix"));
         onView(withId(R.id.saveAction)).perform(click());
 
         onView(withText(TEST_ALIAS + "_suffix")).check(matches(isDisplayed()));
@@ -156,7 +154,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         startActivityUnderTest();
 
         onView(withId(R.id.addProfile)).perform(click());
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS + "_suffix"));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS + "_suffix"));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
 //        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
@@ -166,11 +164,11 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withText(TEST_ALIAS + "_suffix")).perform(longClick());
         onView(withId(R.id.editItem)).perform(click());
 
-        onView(withId(R.id.aliasEdit)).perform(clearText());
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(clearText());
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
 
         onView(withId(R.id.saveAction)).perform(click());
-        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
+//        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
     }
 
     @Test
@@ -207,7 +205,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         onView(withId(R.id.addProfile)).perform(click());
 
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
 //        onView(withId(R.id.usernameEdit)).perform(typeText(TEST_USERNAME));
@@ -239,7 +237,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         onView(withId(R.id.addProfile)).perform(click());
 
-        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText("some invalid organization"));
 //        onView(withId(R.id.usernameEdit)).perform(typeText("some invalid username"));
@@ -272,7 +270,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         startActivityUnderTest();
         onView(withId(R.id.addProfile)).perform(click());
 
-        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
+//        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(DatabaseUtils.TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(DatabaseUtils.TEST_ORGANIZATION));
 //        onView(withId(R.id.usernameEdit)).perform(typeText(DatabaseUtils.TEST_USERNAME));
@@ -295,7 +293,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withText(TEST_ALIAS)).perform(longClick());
         onView(withId(R.id.cloneItem)).perform(click());
 
-        onView(withId(R.id.aliasEdit)).check(matches(withText(TEST_ALIAS + " - Clone")));
+//        onView(withId(R.id.aliasEdit)).check(matches(withText(TEST_ALIAS + " - Clone")));
         onView(withId(R.id.saveAction)).perform(click());
 
         onView(withText(TEST_ALIAS + " - Clone")).check(matches(isDisplayed()));
@@ -313,7 +311,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
             onView(withId(R.id.saveAction)).perform(click());
         }
 
-        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
+//        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
     }
 
 }

@@ -24,8 +24,7 @@
   ~  <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -34,7 +33,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
 
         <TextView
             style="?android:listSeparatorTextViewStyle"
@@ -46,29 +44,15 @@
             style="@style/label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sp_name_label"
-            />
-
-        <EditText
-            android:id="@+id/aliasEdit"
-            style="@style/editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/sp_name_hint"/>
-
-        <TextView
-            style="@style/label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sp_url_label"
-            />
+            android:text="@string/sp_url_label" />
 
         <EditText
             android:id="@+id/serverUrlEdit"
             style="@style/editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/sp_url_hint"/>
+            android:hint="@string/sp_url_hint"
+            android:inputType="textUri" />
 
         <TextView
             style="?android:listSeparatorTextViewStyle"
@@ -80,8 +64,7 @@
             style="@style/label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sp_org_label"
-            />
+            android:text="@string/sp_org_label" />
 
         <EditText
             android:id="@+id/organizationEdit"
@@ -91,6 +74,55 @@
             android:hint="@string/sp_organization_hint"
             android:inputType="textPersonName" />
 
+        <TextView
+            style="@style/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sp_username_label"
+            />
+
+        <EditText
+            android:id="@+id/usernameEdit"
+            style="@style/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/sp_username_hint"
+            android:inputType="textPersonName" />
+
+        <TextView
+            style="@style/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sp_password_label"
+            />
+
+        <EditText
+            android:id="@+id/passwordEdit"
+            style="@style/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/sp_password_hint"
+            android:inputType="textPassword" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/logIn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Log in" />
+
+            <Button
+                android:id="@+id/tryDemo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Try demo" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -111,10 +112,14 @@ public class StartUpActivityTest {
         webMockRule.get().enqueue(authResponse);
         webMockRule.get().enqueue(mobileDemoServerRespone);
 
-        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
-        onView(withId(R.id.organizationEdit)).perform(typeText(AccountServerData.Demo.ORGANIZATION));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.organizationEdit)).perform(typeText(AccountServerData.Demo.ORGANIZATION));
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
+
+        onView(withId(R.id.logIn)).perform(scrollTo());
         onView(withId(R.id.logIn)).perform(click());
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }
@@ -122,36 +127,43 @@ public class StartUpActivityTest {
     @Test
     public void testEmptyUsernameNotAcceptable() {
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
+        onView(withId(R.id.logIn)).perform(scrollTo());
         onView(withId(R.id.logIn)).perform(click());
     }
 
     @Test
     public void testSpacesForUsernameNotAcceptable() {
-        onView(withId(R.id.usernameEdit)).perform(typeText("  "));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.usernameEdit)).perform(typeText("  "));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
+        onView(withId(R.id.logIn)).perform(scrollTo());
         onView(withId(R.id.logIn)).perform(click());
         onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
     @Test
     public void testEmptyPasswordNotAcceptable() {
-        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
 
+        onView(withId(R.id.logIn)).perform(scrollTo());
         onView(withId(R.id.logIn)).perform(click());
         onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
     @Test
     public void testSpacesForPasswordNotAcceptable() {
-        onView(withId(R.id.passwordEdit)).perform(typeText("  "));
-        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(typeText("  "));
 
+        onView(withId(R.id.logIn)).perform(scrollTo());
         onView(withId(R.id.logIn)).perform(click());
         onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
@@ -159,8 +171,10 @@ public class StartUpActivityTest {
     @Test
     public void testEmptyServerUrlNotAcceptable() {
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
+        onView(withId(R.id.logIn)).perform(scrollTo());
         onView(withId(R.id.logIn)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
@@ -169,18 +183,22 @@ public class StartUpActivityTest {
     public void testSpacesForServerUrlNotAcceptable() {
         onView(withId(R.id.serverUrlEdit)).perform(typeText("  "));
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
+        onView(withId(R.id.logIn)).perform(scrollTo());
         onView(withId(R.id.logIn)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
     }
 
     @Test
     public void testServerUrlShouldBeValidUrl() {
-        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
-        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
         onView(withId(R.id.serverUrlEdit)).perform(typeText("invalid url"));
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
+        onView(withId(R.id.logIn)).perform(scrollTo());
         onView(withId(R.id.logIn)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
     }

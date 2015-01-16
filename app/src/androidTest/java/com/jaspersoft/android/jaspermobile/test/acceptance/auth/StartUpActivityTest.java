@@ -99,6 +99,9 @@ public class StartUpActivityTest {
         webMockRule.get().enqueue(authResponse);
         webMockRule.get().enqueue(mobileDemoServerRespone);
 
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
+        onView(withId(R.id.tryDemo)).perform(scrollTo());
         onView(withId(R.id.tryDemo)).perform(click());
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }

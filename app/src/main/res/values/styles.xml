@@ -283,4 +283,12 @@
         <item name="android:maxLines">2</item>
     </style>
 
+    <!--Add account page-->
+
+    <style name="editTextAccount">
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/bg_login_edit</item>
+        <item name="android:ems">10</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
 </resources>

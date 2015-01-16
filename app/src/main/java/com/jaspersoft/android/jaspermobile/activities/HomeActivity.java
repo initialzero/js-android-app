@@ -72,9 +72,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     // Special intent actions
     public static final String EDIT_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.EDIT_SERVER_PROFILE";
     public static final String CLOSE_APPLICATION_ACTION = "com.jaspersoft.android.samples.jaspermobile.action.CLOSE_APPLICATION";
-    // Request Codes
-    public static final int RC_UPDATE_SERVER_PROFILE = 20;
-    public static final int RC_SWITCH_SERVER_PROFILE = 21;
 
     @Inject
     private ConnectivityUtil mConnectivityUtil;

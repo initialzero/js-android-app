@@ -25,6 +25,7 @@
 
 <resources>
     <style name="Theme.JasperMobileHeadless" parent="Theme.HoloAccent.NoActionBar">
+        <item name="android:windowBackground">@drawable/ic_resources_background</item>
 
     </style>
 

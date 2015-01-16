@@ -84,18 +84,15 @@ public class StartUpActivityTest {
                 .setBody("{}");
         mobileDemoServerRespone = authResponse.clone()
                 .setBody(TestResource.getJson().rawData("mobile_demo"));
+
+        assertThat(webMockRule.get(), notNullValue());
+        assertThat(activityRule.instrumentation(), notNullValue());
+        assertThat(activityRule.get(), notNullValue());
     }
 
     @After
     public void after() {
         activityRule.get().finish();
-    }
-
-    @Test
-    public void testPreconditions() {
-        assertThat(webMockRule.get(), notNullValue());
-        assertThat(activityRule.get(), notNullValue());
-        assertThat(activityRule.instrumentation(), notNullValue());
     }
 
     @Test

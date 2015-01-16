@@ -38,8 +38,8 @@ import android.view.animation.DecelerateInterpolator;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
-import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
@@ -167,7 +167,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_servers)
     final void showServerProfiles() {
-        ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
+        AccountsActivity_.intent(this).start();
     }
 
     //---------------------------------------------------------------------

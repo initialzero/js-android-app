@@ -79,6 +79,10 @@
             android:configChanges="locale"
             android:label="@string/sp_bc_add_profile" />
 
+        <activity
+            android:name=".activities.account.AccountsActivity_"
+            android:label="@string/accounts_activity_label" />
+
         <!-- Activity that provides the server profiles management -->
         <activity
             android:name=".activities.profile.ServersManagerActivity_"

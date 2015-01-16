@@ -103,8 +103,6 @@ public class ActivityRule<T extends Activity> implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                launchActivity();
-
                 base.evaluate();
 
                 if (!activity.isFinishing()) {

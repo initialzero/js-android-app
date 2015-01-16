@@ -75,19 +75,9 @@ public class ServersAdapter extends SingleChoiceSimpleCursorAdapter {
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.editItem:
-                if (serversInteractionListener != null) {
-                    serversInteractionListener.onEdit(getCurrentPosition());
-                }
-                break;
             case R.id.deleteItem:
                 if (serversInteractionListener != null) {
                     serversInteractionListener.onDelete(getCurrentPosition());
-                }
-                break;
-            case R.id.cloneItem:
-                if (serversInteractionListener != null) {
-                    serversInteractionListener.onClone(getCurrentPosition());
                 }
                 break;
             default:

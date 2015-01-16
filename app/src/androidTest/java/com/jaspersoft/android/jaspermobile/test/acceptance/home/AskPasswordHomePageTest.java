@@ -136,7 +136,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
         onView(withId(R.id.saveAction)).perform(click());
 
         onData(is(instanceOf(Cursor.class)))
@@ -150,7 +150,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
         onView(withId(R.id.saveAction)).perform(click());
 
         // As soon as we have updated password, no dialog should be
@@ -163,7 +163,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 //        onView(withId(R.id.passwordEdit)).check(matches(withText(PASSWORD)));
 //        onView(withId(R.id.askPasswordCheckBox)).check(matches(not(isChecked())));
         ViewActions.pressBack();
@@ -181,7 +181,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 
 //        onView(withId(R.id.askPasswordCheckBox)).perform(click());
         onView(withId(R.id.saveAction)).perform(click());
@@ -226,7 +226,7 @@ public class AskPasswordHomePageTest extends ProtoActivityInstrumentation<HomeAc
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 
 //        onView(withId(R.id.passwordEdit)).check(matches(withText(ProfileHelper.DEFAULT_PASS)));
     }

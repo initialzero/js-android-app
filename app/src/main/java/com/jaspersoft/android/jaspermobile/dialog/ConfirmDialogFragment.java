@@ -38,6 +38,11 @@ import com.jaspersoft.android.jaspermobile.R;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
+import rx.Observable;
+import rx.Subscription;
+import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
+
 /**
  * @author Tom Koptel
  * @since 2.0
@@ -51,7 +56,8 @@ public class ConfirmDialogFragment extends DialogFragment {
     @FragmentArg
     protected int messageId;
 
-    private DialogInterface.OnClickListener positiveClickListener;
+    private Observable<DialogInterface.OnClickListener> positiveClickListenerObservable;
+    private final CompositeSubscription compositeSubscription = new CompositeSubscription();
 
     public static Builder builder(FragmentManager fragmentManager) {
         return new Builder(fragmentManager);
@@ -65,11 +71,19 @@ public class ConfirmDialogFragment extends DialogFragment {
                 .setTitle(titleId)
                 .setMessage(messageId)
                 .setIcon(android.R.drawable.alert_light_frame)
+                .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.spm_delete_btn,
                         new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
+                    public void onClick(final DialogInterface dialog, final int which) {
+                        Subscription subscription = positiveClickListenerObservable
+                                .subscribe(new Action1<DialogInterface.OnClickListener>() {
+                            @Override
+                            public void call(DialogInterface.OnClickListener onClickListener) {
+                                onClickListener.onClick(dialog, which);
+                            }
+                        });
+                        compositeSubscription.add(subscription);
                     }
                 });
 
@@ -77,7 +91,13 @@ public class ConfirmDialogFragment extends DialogFragment {
     }
 
     public void setPositiveClickListener(DialogInterface.OnClickListener positiveClickListener) {
-        this.positiveClickListener = positiveClickListener;
+        this.positiveClickListenerObservable = Observable.just(positiveClickListener);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        compositeSubscription.unsubscribe();
     }
 
     public static class Builder {

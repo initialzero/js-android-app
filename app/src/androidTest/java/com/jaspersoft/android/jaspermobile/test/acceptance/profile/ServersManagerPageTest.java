@@ -162,7 +162,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withId(R.id.saveAction)).perform(click());
 
         onView(withText(TEST_ALIAS + "_suffix")).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 
 //        onView(withId(R.id.aliasEdit)).perform(clearText());
 //        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
@@ -291,7 +291,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         startActivityUnderTest();
 
         onView(withText(TEST_ALIAS)).perform(longClick());
-        onView(withId(R.id.cloneItem)).perform(click());
+//        onView(withId(R.id.cloneItem)).perform(click());
 
 //        onView(withId(R.id.aliasEdit)).check(matches(withText(TEST_ALIAS + " - Clone")));
         onView(withId(R.id.saveAction)).perform(click());
@@ -306,7 +306,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         for (int i = 0; i < 2; i++) {
             onView(withText(TEST_ALIAS)).perform(longClick());
-            onView(withId(R.id.cloneItem)).perform(click());
+//            onView(withId(R.id.cloneItem)).perform(click());
 
             onView(withId(R.id.saveAction)).perform(click());
         }

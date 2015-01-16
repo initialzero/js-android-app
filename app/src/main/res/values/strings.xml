@@ -259,4 +259,8 @@
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
 
+    <!--Accounts activity-->
+    <string name="accounts_activity_label">Jasper Accounts</string>
+    <string name="no_accounts">There is no Jasper accounts registered</string>
+
 </resources>

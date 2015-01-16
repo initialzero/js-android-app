@@ -97,7 +97,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 
         onView(withId(R.id.organizationEdit)).perform(clearText());
 //        onView(withId(R.id.usernameEdit)).perform(clearText());
@@ -120,7 +120,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 
         onView(withId(R.id.organizationEdit)).perform(clearText());
 //        onView(withId(R.id.usernameEdit)).perform(clearText());
@@ -150,7 +150,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 
         onView(withId(R.id.organizationEdit)).perform(clearText());
 //        onView(withId(R.id.usernameEdit)).perform(clearText());
@@ -189,7 +189,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 
         onView(withId(R.id.organizationEdit)).perform(clearText());
 //        onView(withId(R.id.usernameEdit)).perform(clearText());
@@ -214,7 +214,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 
         onView(withId(R.id.organizationEdit)).perform(clearText());
 //        onView(withId(R.id.askPasswordCheckBox)).perform(click());
@@ -223,7 +223,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 //        onView(withId(R.id.askPasswordCheckBox)).perform(click());
 //        onView(withId(R.id.passwordEdit)).perform(typeText("1234"));
         onView(withId(R.id.saveAction)).perform(click());
@@ -232,7 +232,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
-        onView(withId(R.id.editItem)).perform(click());
+//        onView(withId(R.id.editItem)).perform(click());
 //        onView(withId(R.id.passwordEdit)).check(matches(isEnabled()));
 //        onView(withId(R.id.passwordEdit)).check(matches(hasText("1234")));
     }

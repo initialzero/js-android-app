@@ -73,7 +73,7 @@ public class StartUpActivity extends RoboActivity {
         compose(
                 AppObservable.bindActivity(this,
                         AccountManagerUtil.get(this)
-                                .listAccounts()
+                                .listFlatAccounts()
                                 .first()
                 ).subscribe(
                         new Action1<Account>() {

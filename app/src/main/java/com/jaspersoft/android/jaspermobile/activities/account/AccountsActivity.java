@@ -25,124 +25,88 @@
 package com.jaspersoft.android.jaspermobile.activities.account;
 
 import android.accounts.Account;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.database.DataSetObserver;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.SingleChoiceArrayAdapter;
-import com.jaspersoft.android.jaspermobile.dialog.ConfirmDialogFragment;
+import com.jaspersoft.android.jaspermobile.activities.account.adapter.AccountsAdapter;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.util.rx.RxActions;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import roboguice.activity.RoboFragmentActivity;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 @EActivity(R.layout.common_list_layout)
-public class AccountsActivity extends RoboFragmentActivity {
+public class AccountsActivity extends RoboAccentFragmentActivity {
+    private static final String TAG = AccountsActivity.class.getSimpleName();
 
-    @ViewById
+    @ViewById(android.R.id.list)
     protected ListView mListView;
+    @ViewById(android.R.id.empty)
+    protected TextView mEmptyText;
+
+    private final CompositeSubscription compositeSubscription = new CompositeSubscription();
+    private Bundle mSavedInstanceState;
     private AccountsAdapter mAdapter;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        AccountManagerUtil.get(this)
-                .listAccounts().subscribe(new Action1<Account>() {
-            @Override
-            public void call(Account account) {
+    private final Action1<Throwable> errorLogAction = RxActions.createLogErrorAction(TAG);
+    private final Action1<List<Account>> listAllAccounts = new Action1<List<Account>>() {
+        @Override
+        public void call(List<Account> accounts) {
+            Timber.d("Accounts are: " + accounts.toString());
+            mAdapter = new AccountsAdapter(AccountsActivity.this, mSavedInstanceState, accounts);
+            mAdapter.registerDataSetObserver(new SimpleDataSetObserver());
+            mListView.setAdapter(mAdapter);
+            mAdapter.setAdapterView(mListView);
+        }
+    };
 
-            }
-        });
-        mAdapter = new AccountsAdapter(savedInstanceState, this, new ArrayList<Account>());
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Timber.tag(TAG);
+        mSavedInstanceState = savedInstanceState;
     }
 
-    private static class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
+    @AfterViews
+    final void init() {
+        compositeSubscription.add(
+                AccountManagerUtil.get(this)
+                        .listAccounts()
+                        .subscribe(listAllAccounts, errorLogAction)
+        );
+    }
 
-        private final String activeAccountName;
+    @Override
+    protected void onDestroy() {
+        compositeSubscription.unsubscribe();
+        super.onDestroy();
+    }
 
-        public AccountsAdapter(Bundle savedInstanceState, Context context, List<Account> accounts) {
-            super(savedInstanceState, context, 0, 0, accounts);
-            activeAccountName = BasicAccountProvider.get(context).getAccountName();
-        }
-
+    private class SimpleDataSetObserver extends DataSetObserver {
         @Override
-        protected View getViewImpl(int position, View convertView, ViewGroup parent) {
-            ListItemView itemView = (ListItemView) convertView;
-            if (itemView == null) {
-                itemView = ListItemView_.build(getContext());
+        public void onChanged() {
+            if (mAdapter.getCount() == 0) {
+                mEmptyText.setVisibility(View.VISIBLE);
+                mEmptyText.setText(R.string.no_accounts);
+                return;
             }
-
-            Account account = getItem(position);
-            AccountServerData serverData = AccountServerData.get(getContext(), account);
-            itemView.setTitle(serverData.getUsername());
-            itemView.setSubTitle(serverData.getServerUrl());
-
-            boolean isActive = (activeAccountName.equals(serverData.getUsername()));
-            itemView.getImageView().setImageResource(isActive ?
-                    R.drawable.ic_composed_active_server : R.drawable.ic_composed_server);
-
-            return itemView;
-        }
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.am_servers_menu, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            if (item.getItemId() == R.id.deleteItem) {
-                FragmentActivity activity = (FragmentActivity) getContext();
-                ConfirmDialogFragment.builder(activity.getSupportFragmentManager())
-                        .title(R.string.warning_msg)
-                        .message(R.string.spm_ad_delete_profile_msg)
-                        .positiveClick(new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Account account = getItem(getCurrentPosition());
-                                AccountManagerUtil
-                                        .get(getContext()).removeAccount(account)
-                                        .subscribe(new Action1<Boolean>() {
-                                            @Override
-                                            public void call(Boolean aBoolean) {
-                                                notifyDataSetChanged();
-                                            }
-                                        });
-                            }
-                        });
-                return true;
-            }
-            return false;
+            mEmptyText.setVisibility(View.GONE);
         }
     }
 }

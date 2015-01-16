@@ -32,6 +32,10 @@ import android.os.Handler;
 
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
@@ -59,14 +63,29 @@ public class AccountManagerUtil {
         mAccountProvider = accountProvider;
     }
 
-    public Observable<Account> listAccounts() {
-        AccountManager am = AccountManager.get(mContext);
-        Account[] accountArray = am.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
-        return Observable.from(accountArray);
+    public Account[] getAccounts() {
+       return AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+    }
+
+    public Observable<List<Account>> listAccounts() {
+        List<Account> accounts = new ArrayList<Account>();
+        Collections.addAll(accounts, getAccounts());
+        return Observable.just(accounts);
+    }
+
+    public Observable<Account> listFlatAccounts() {
+        return listAccounts()
+                .flatMap(
+                        new Func1<List<Account>, Observable<Account>>() {
+                            @Override
+                            public Observable<Account> call(List<Account> accounts) {
+                                return Observable.from(accounts);
+                            }
+                        });
     }
 
     public Observable<Boolean> removeAccounts() {
-        return listAccounts()
+        return listFlatAccounts()
                 .flatMap(new Func1<Account, Observable<Boolean>>() {
                     @Override
                     public Observable<Boolean> call(Account account) {

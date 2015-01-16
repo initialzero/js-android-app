@@ -296,7 +296,7 @@ public final class JasperMatcher {
         };
     }
 
-    public static Matcher<? super View> hasText(String expectedError) {
+    public static Matcher<? super View> hasTextError(String expectedError) {
         return new HasTextMatcher(expectedError);
     }
 

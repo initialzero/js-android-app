@@ -234,7 +234,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
                 .atPosition(0).perform(longClick());
 //        onView(withId(R.id.editItem)).perform(click());
 //        onView(withId(R.id.passwordEdit)).check(matches(isEnabled()));
-//        onView(withId(R.id.passwordEdit)).check(matches(hasText("1234")));
+//        onView(withId(R.id.passwordEdit)).check(matches(hasTextError("1234")));
     }
 
 }

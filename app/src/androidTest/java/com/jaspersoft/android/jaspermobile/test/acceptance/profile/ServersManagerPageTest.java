@@ -107,7 +107,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
     public void testValidFormCreation() {
         startActivityUnderTest();
 
-        onView(withId(R.id.addProfile)).perform(click());
+        onView(withId(R.id.addAccount)).perform(click());
         onView(withText(R.string.sp_bc_add_profile)).check(matches(isDisplayed()));
 
 //        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
@@ -131,7 +131,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         createTestProfile(getApplication().getContentResolver());
         startActivityUnderTest();
 
-        onView(withId(R.id.addProfile)).perform(click());
+        onView(withId(R.id.addAccount)).perform(click());
 //        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
@@ -153,7 +153,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         createTestProfile(getApplication().getContentResolver());
         startActivityUnderTest();
 
-        onView(withId(R.id.addProfile)).perform(click());
+        onView(withId(R.id.addAccount)).perform(click());
 //        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS + "_suffix"));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
         onView(withId(R.id.organizationEdit)).perform(typeText(TEST_ORGANIZATION));
@@ -203,7 +203,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         startActivityUnderTest();
 
-        onView(withId(R.id.addProfile)).perform(click());
+        onView(withId(R.id.addAccount)).perform(click());
 
 //        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
@@ -235,7 +235,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         });
         startActivityUnderTest();
 
-        onView(withId(R.id.addProfile)).perform(click());
+        onView(withId(R.id.addAccount)).perform(click());
 
 //        onView(withId(R.id.aliasEdit)).perform(typeText(TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(TEST_SERVER_URL));
@@ -268,7 +268,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
             }
         });
         startActivityUnderTest();
-        onView(withId(R.id.addProfile)).perform(click());
+        onView(withId(R.id.addAccount)).perform(click());
 
 //        onView(withId(R.id.aliasEdit)).perform(typeText(DatabaseUtils.TEST_ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(DatabaseUtils.TEST_SERVER_URL));

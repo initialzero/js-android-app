@@ -69,9 +69,7 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
 import org.springframework.http.HttpStatus;
 
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
@@ -82,7 +80,7 @@ import roboguice.inject.InjectView;
  * @since 1.9
  */
 @EFragment
-@OptionsMenu(R.menu.servers_menu)
+@OptionsMenu(R.menu.accounts_page_menu)
 public class ServersFragment extends RoboSpiceFragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SimpleCursorAdapter.ViewBinder, AdapterView.OnItemClickListener, ISimpleDialogListener, ServersAdapter.ServersInteractionListener {
     public static final String EXTRA_SERVER_PROFILE_ID = "ServersFragment.EXTRA_SERVER_PROFILE_ID";
@@ -102,17 +100,16 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
     @Bean
     DefaultPrefHelper prefHelper;
 
-    @OptionsMenuItem
     MenuItem addProfile;
 
     private ServersAdapter mAdapter;
     private JsServerProfile mServerProfile;
     private long mServerProfileId;
 
-    @OptionsItem
-    final void addProfile() {
-        ServerProfileActivity_.intent(this).start();
-    }
+//    @OptionsItem
+//    final void addProfile() {
+//        ServerProfileActivity_.intent(this).start();
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

@@ -86,8 +86,7 @@ public class StartUpActivityTest {
                 .setBody(TestResource.getJson().rawData("mobile_demo"));
 
         assertThat(webMockRule.get(), notNullValue());
-        assertThat(activityRule.instrumentation(), notNullValue());
-        assertThat(activityRule.get(), notNullValue());
+        activityRule.saveStart();
     }
 
     @After

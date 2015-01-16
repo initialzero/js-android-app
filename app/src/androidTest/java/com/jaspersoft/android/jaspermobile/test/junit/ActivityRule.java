@@ -27,6 +27,9 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 /**
  * A JUnit {@link Rule @Rule} which launches an activity when your test starts. Stop extending
  * gross {@code ActivityInstrumentationBarfCase2}!
@@ -83,6 +86,12 @@ public class ActivityRule<T extends Activity> implements TestRule {
      */
     public final T get() {
         launchActivity();
+        return activity;
+    }
+
+    public final T saveStart() {
+        assertThat(instrumentation(), notNullValue());
+        assertThat(get(), notNullValue());
         return activity;
     }
 

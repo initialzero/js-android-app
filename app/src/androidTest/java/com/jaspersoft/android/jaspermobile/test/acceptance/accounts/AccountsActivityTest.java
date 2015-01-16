@@ -14,7 +14,6 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,12 +23,11 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 /**
@@ -45,15 +43,6 @@ public class AccountsActivityTest {
     public final ActivityRule<AccountsActivity_> activityRule =
             ActivityRule.create(AccountsActivity_.class);
 
-    @Before
-    public void before() {
-        removeAccountOnDemand();
-        createTestAccount();
-
-        assertThat(activityRule.instrumentation(), notNullValue());
-        assertThat(activityRule.get(), notNullValue());
-    }
-
     @After
     public void after() {
         activityRule.get().finish();
@@ -62,6 +51,9 @@ public class AccountsActivityTest {
 
     @Test
     public void testInitialLoad() {
+        createTestAccount();
+        activityRule.saveStart();
+
         DataInteraction firsItem = onData(Matchers.is(instanceOf(Account.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0);
@@ -71,6 +63,9 @@ public class AccountsActivityTest {
 
     @Test
     public void testDeleteActionShouldRemoveAccount() {
+        createTestAccount();
+        activityRule.saveStart();
+
         onData(Matchers.is(instanceOf(Account.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
@@ -81,11 +76,19 @@ public class AccountsActivityTest {
         onView(withId(android.R.id.empty)).check(matches(withText(R.string.no_accounts)));
     }
 
+    @Test
+    public void testHomeAsUpDisplayHomePage() {
+        activityRule.saveStart();
+        onView(withId(android.R.id.home)).perform(click());
+        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
     private void createTestAccount() {
+        removeAccountOnDemand();
         AccountManager accountManager = AccountManager.get(activityRule.getApplicationContext());
         AccountServerData serverData = new AccountServerData()
                 .setUsername(TEST_NAME)

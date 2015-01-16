@@ -29,7 +29,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
@@ -44,10 +43,10 @@ import org.androidannotations.annotations.OnActivityResult;
 
 import java.util.NoSuchElementException;
 
+import roboguice.activity.RoboActivity;
 import rx.Subscription;
 import rx.android.app.AppObservable;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -55,7 +54,7 @@ import rx.subscriptions.CompositeSubscription;
  * @since 2.0
  */
 @EActivity
-public class StartUpActivity extends Activity {
+public class StartUpActivity extends RoboActivity {
     private static final int AUTHORIZE = 10;
 
     private final CompositeSubscription compositeSubscription = new CompositeSubscription();
@@ -70,6 +69,7 @@ public class StartUpActivity extends Activity {
     }
 
     private void signInOrCreateAnAccount() {
+        final Context context = this;
         compose(
                 AppObservable.bindActivity(this,
                         AccountManagerUtil.get(this)
@@ -79,10 +79,9 @@ public class StartUpActivity extends Activity {
                         new Action1<Account>() {
                             @Override
                             public void call(Account account) {
-                                reauthorize(account);
-                                // initLegacyJsRestClient();
-                                // finish();
-                                // HomeActivity_.intent(this).start();
+                                initLegacyJsRestClient();
+                                HomeActivity_.intent(context).start();
+                                finish();
                             }
                         }, new Action1<Throwable>() {
                             @Override
@@ -100,29 +99,6 @@ public class StartUpActivity extends Activity {
         if (accountProvider.hasAccount()) {
             jsRestClient.setServerProfile(ProfileManager.getServerProfile(this));
         }
-    }
-
-    private void reauthorize(Account account) {
-        final Context context = this;
-        compose(
-                AppObservable.bindActivity(this,
-                        AccountManagerUtil.get(this)
-                                .removeAccount(account)
-                                .subscribeOn(Schedulers.io())
-                )
-                        .subscribe(
-                                new Action1<Boolean>() {
-                                    @Override
-                                    public void call(Boolean result) {
-                                        addAccount();
-                                    }
-                                }, new Action1<Throwable>() {
-                                    @Override
-                                    public void call(Throwable throwable) {
-                                        Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show();
-                                    }
-                                })
-        );
     }
 
     private void compose(Subscription subscription) {

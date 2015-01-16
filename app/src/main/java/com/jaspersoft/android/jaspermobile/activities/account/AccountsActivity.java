@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.account;
 
 import android.accounts.Account;
+import android.app.ActionBar;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.view.View;
@@ -32,6 +33,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.account.adapter.AccountsAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 import com.jaspersoft.android.jaspermobile.util.rx.RxActions;
@@ -39,6 +41,7 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
@@ -77,6 +80,11 @@ public class AccountsActivity extends RoboAccentFragmentActivity {
         super.onCreate(savedInstanceState);
         Timber.tag(TAG);
 
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         mAdapter = new AccountsAdapter(AccountsActivity.this, savedInstanceState);
         mAdapter.registerDataSetObserver(new SimpleDataSetObserver());
     }
@@ -102,6 +110,11 @@ public class AccountsActivity extends RoboAccentFragmentActivity {
     protected void onDestroy() {
         compositeSubscription.unsubscribe();
         super.onDestroy();
+    }
+
+    @OptionsItem(android.R.id.home)
+    final void showHome() {
+        HomeActivity.goHome(this);
     }
 
     private class SimpleDataSetObserver extends DataSetObserver {

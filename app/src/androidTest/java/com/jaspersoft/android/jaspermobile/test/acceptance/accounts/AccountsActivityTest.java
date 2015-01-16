@@ -47,11 +47,7 @@ public class AccountsActivityTest {
 
     @Before
     public void before() {
-        AccountManagerUtil managerUtil = AccountManagerUtil
-                .get(activityRule.getApplicationContext());
-        if (managerUtil.getAccounts().length > 0) {
-            managerUtil.removeAccounts().toBlocking().first();
-        }
+        removeAccountOnDemand();
         createTestAccount();
 
         assertThat(activityRule.instrumentation(), notNullValue());
@@ -61,6 +57,7 @@ public class AccountsActivityTest {
     @After
     public void after() {
         activityRule.get().finish();
+        removeAccountOnDemand();
     }
 
     @Test
@@ -95,6 +92,14 @@ public class AccountsActivityTest {
                 .setServerUrl(TEST_URL);
         Account account = new Account("test", JasperSettings.JASPER_ACCOUNT_TYPE);
         assertTrue(accountManager.addAccountExplicitly(account, "1234", serverData.toBundle()));
+    }
+
+    private void removeAccountOnDemand() {
+        AccountManagerUtil managerUtil = AccountManagerUtil
+                .get(activityRule.getApplicationContext());
+        if (managerUtil.getAccounts().length > 0) {
+            managerUtil.removeAccounts().toBlocking().first();
+        }
     }
 
 }

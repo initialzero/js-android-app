@@ -61,7 +61,6 @@ public class AccountsActivity extends RoboAccentFragmentActivity {
     protected TextView mEmptyText;
 
     private final CompositeSubscription compositeSubscription = new CompositeSubscription();
-    private Bundle mSavedInstanceState;
     private AccountsAdapter mAdapter;
 
     private final Action1<Throwable> errorLogAction = RxActions.createLogErrorAction(TAG);
@@ -69,10 +68,7 @@ public class AccountsActivity extends RoboAccentFragmentActivity {
         @Override
         public void call(List<Account> accounts) {
             Timber.d("Accounts are: " + accounts.toString());
-            mAdapter = new AccountsAdapter(AccountsActivity.this, mSavedInstanceState, accounts);
-            mAdapter.registerDataSetObserver(new SimpleDataSetObserver());
-            mListView.setAdapter(mAdapter);
-            mAdapter.setAdapterView(mListView);
+            mAdapter.addAll(accounts);
         }
     };
 
@@ -80,11 +76,21 @@ public class AccountsActivity extends RoboAccentFragmentActivity {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Timber.tag(TAG);
-        mSavedInstanceState = savedInstanceState;
+
+        mAdapter = new AccountsAdapter(AccountsActivity.this, savedInstanceState);
+        mAdapter.registerDataSetObserver(new SimpleDataSetObserver());
     }
 
     @AfterViews
     final void init() {
+        mListView.setAdapter(mAdapter);
+        mAdapter.setAdapterView(mListView);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
         compositeSubscription.add(
                 AccountManagerUtil.get(this)
                         .listAccounts()
@@ -99,11 +105,20 @@ public class AccountsActivity extends RoboAccentFragmentActivity {
     }
 
     private class SimpleDataSetObserver extends DataSetObserver {
+        private boolean mFirstRun;
+
+        private SimpleDataSetObserver() {
+            mFirstRun = true;
+        }
+
         @Override
         public void onChanged() {
+            if (mFirstRun) {
+                mFirstRun = false;
+            }
             if (mAdapter.getCount() == 0) {
                 mEmptyText.setVisibility(View.VISIBLE);
-                mEmptyText.setText(R.string.no_accounts);
+                mEmptyText.setText(mFirstRun ? R.string.loading_msg : R.string.no_accounts);
                 return;
             }
             mEmptyText.setVisibility(View.GONE);

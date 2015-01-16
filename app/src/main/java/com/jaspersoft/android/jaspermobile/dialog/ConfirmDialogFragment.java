@@ -70,7 +70,7 @@ public class ConfirmDialogFragment extends DialogFragment {
         builder
                 .setTitle(titleId)
                 .setMessage(messageId)
-                .setIcon(android.R.drawable.alert_light_frame)
+                .setIcon(android.R.drawable.ic_dialog_alert)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.spm_delete_btn,
                         new DialogInterface.OnClickListener() {

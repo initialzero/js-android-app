@@ -21,9 +21,6 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 
-import java.util.List;
-
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 /**
@@ -34,8 +31,8 @@ public class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
 
     private final String activeAccountName;
 
-    public AccountsAdapter(Context context, Bundle savedInstanceState, List<Account> accounts) {
-        super(savedInstanceState, context, 0, accounts);
+    public AccountsAdapter(Context context, Bundle savedInstanceState) {
+        super(savedInstanceState, context, 0);
         activeAccountName = BasicAccountProvider.get(context).getAccountName();
     }
 
@@ -81,9 +78,8 @@ public class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             final Account account = getItem(getCurrentPosition());
-                            AccountManagerUtil
-                                    .get(getContext()).removeAccount(account)
-                                    .observeOn(AndroidSchedulers.mainThread())
+                            AccountManagerUtil.get(getContext())
+                                    .removeAccount(account)
                                     .subscribe(new Action1<Boolean>() {
                                         @Override
                                         public void call(Boolean aBoolean) {

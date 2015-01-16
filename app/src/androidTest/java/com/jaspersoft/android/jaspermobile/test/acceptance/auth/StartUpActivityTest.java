@@ -32,6 +32,7 @@ import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.junit.Before;
@@ -43,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -62,11 +64,23 @@ public class StartUpActivityTest {
     public final ActivityRule<StartUpActivity_> activityRule =
             ActivityRule.create(StartUpActivity_.class);
 
+    private MockResponse authResponse;
+    private MockResponse mobileDemoServerRespone;
+
     @Before
     public void before() {
         AccountManagerUtil.get(activityRule.getApplicationContext())
                 .removeAccounts()
                 .subscribe();
+
+        authResponse = new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Set-Cookie", "JSESSIONID=4202A2DF42507EDEC7A66A1348C62195; Path=/jasperserver-pro/; HttpOnly")
+                .addHeader("Set-Cookie", "userLocale=en_US;Expires=Thu, 15-Jan-2015 12:15:36 GMT;HttpOnly")
+                .throttleBody(Integer.MAX_VALUE, 1, TimeUnit.MILLISECONDS)
+                .setBody("{}");
+        mobileDemoServerRespone = authResponse.clone()
+                .setBody(TestResource.getJson().rawData("mobile_demo"));
     }
 
     @Test
@@ -77,20 +91,19 @@ public class StartUpActivityTest {
     }
 
     @Test
-    public void testIdealTryDemoAction() throws InterruptedException {
-        MockResponse response1 = new MockResponse()
-                .addHeader("Content-Type", "application/json; charset=utf-8")
-                .addHeader("Set-Cookie", "JSESSIONID=4202A2DF42507EDEC7A66A1348C62195; Path=/jasperserver-pro/; HttpOnly")
-                .addHeader("Set-Cookie", "userLocale=en_US;Expires=Thu, 15-Jan-2015 12:15:36 GMT;HttpOnly")
-                .throttleBody(Integer.MAX_VALUE, 1, TimeUnit.MILLISECONDS)
-                .setBody("{}");
-        MockResponse response2 = response1.clone()
-                .setBody(TestResource.getJson().rawData("mobile_demo"));
-
-        webMockRule.get().enqueue(response1);
-        webMockRule.get().enqueue(response2);
+    public void testIdealTryDemoAction() {
+        webMockRule.get().enqueue(authResponse);
+        webMockRule.get().enqueue(mobileDemoServerRespone);
 
         onView(withId(R.id.tryDemo)).perform(click());
+        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testIdealLoginAction() {
+        onView(withId(R.id.username)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.password)).perform(typeText(AccountServerData.Demo.PASSWORD));
+        onView(withId(R.id.logIn)).perform(click());
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }
 }

@@ -198,7 +198,7 @@
             android:exported="false" />
 
         <!-- SDK external components -->
-        <service android:name="com.jaspersoft.android.retrofit.sdk.auth.JasperAuthenticatorService">
+        <service android:name=".auth.JasperAuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

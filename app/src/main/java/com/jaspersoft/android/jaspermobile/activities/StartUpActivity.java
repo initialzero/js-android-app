@@ -31,8 +31,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OnActivityResult;
@@ -55,6 +60,9 @@ public class StartUpActivity extends Activity {
 
     private final CompositeSubscription compositeSubscription = new CompositeSubscription();
 
+    @Inject
+    protected JsRestClient jsRestClient;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,8 +80,9 @@ public class StartUpActivity extends Activity {
                             @Override
                             public void call(Account account) {
                                 reauthorize(account);
-                                //            finish();
-                                //            HomeActivity_.intent(this).start();
+                                // initLegacyJsRestClient();
+                                // finish();
+                                // HomeActivity_.intent(this).start();
                             }
                         }, new Action1<Throwable>() {
                             @Override
@@ -84,6 +93,13 @@ public class StartUpActivity extends Activity {
                             }
                         })
         );
+    }
+
+    private void initLegacyJsRestClient() {
+        AccountProvider accountProvider = BasicAccountProvider.get(this);
+        if (accountProvider.hasAccount()) {
+            jsRestClient.setServerProfile(ProfileManager.getServerProfile(this));
+        }
     }
 
     private void reauthorize(Account account) {

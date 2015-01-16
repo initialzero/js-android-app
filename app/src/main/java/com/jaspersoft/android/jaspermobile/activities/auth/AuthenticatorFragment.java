@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.auth;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -36,6 +35,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -46,6 +46,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
+import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
@@ -83,6 +84,10 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
     private static final int[] TO = {android.R.id.text1};
 
     @ViewById
+    protected EditText usernameEdit;
+    @ViewById
+    protected EditText passwordEdit;
+    @ViewById
     protected Spinner profiles;
     @InstanceState
     protected boolean mFetching;
@@ -94,8 +99,18 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
 
     private SimpleCursorAdapter cursorAdapter;
     private Observable<LoginResponse> tryDemoTask;
+    private Observable<LoginResponse> loginDemoTask;
     private Subscription loginSubscription = Subscriptions.empty();
-    private Observable<LoginResponse> demoLoginObservable;
+
+    private final Action1<Throwable> onError = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable throwable) {
+            Timber.e(throwable, "Login failed");
+            Toast.makeText(getActivity(), "Login failed because of: " + throwable.getMessage(),
+                    Toast.LENGTH_LONG).show();
+            setProgressEnabled(false);
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,11 +119,6 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         setRetainInstance(true);
 
         setProgressEnabled(mFetching);
-        demoLoginObservable = demoRestClient.login(
-                AccountServerData.Demo.ORGANIZATION,
-                AccountServerData.Demo.USERNAME,
-                AccountServerData.Demo.PASSWORD
-        ).subscribeOn(Schedulers.io());
     }
 
     @AfterViews
@@ -139,6 +149,7 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (cursorAdapter != null) {
             cursorAdapter.swapCursor(data);
+
         }
     }
 
@@ -155,6 +166,9 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
         if (tryDemoTask != null && mFetching) {
             tryDemo();
         }
+        if (loginDemoTask != null && mFetching) {
+            logIn();
+        }
     }
 
     @Override
@@ -165,12 +179,17 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
 
     @Click
     public void tryDemo() {
-        final Context context = getActivity();
         setProgressEnabled(true);
 
         if (loginSubscription != null) {
             loginSubscription.unsubscribe();
         }
+
+        Observable<LoginResponse> demoLoginObservable = demoRestClient.login(
+                AccountServerData.Demo.ORGANIZATION,
+                AccountServerData.Demo.USERNAME,
+                AccountServerData.Demo.PASSWORD
+        ).subscribeOn(Schedulers.io());
 
         tryDemoTask = bindFragment(this, demoLoginObservable.cache());
         loginSubscription = tryDemoTask
@@ -181,17 +200,41 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
                         setProgressEnabled(false);
                         applyDemoAccountData(response);
                     }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Timber.e("Login failed", throwable);
-                        Toast.makeText(context, "Login failed because of: " + throwable.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                        setProgressEnabled(false);
-                    }
-                });
+                }, onError);
     }
 
+    @Click
+    public void logIn() {
+        setProgressEnabled(true);
+
+        if (loginSubscription != null) {
+            loginSubscription.unsubscribe();
+        }
+
+        int position = profiles.getSelectedItemPosition();
+        Cursor cursor = cursorAdapter.getCursor();
+        cursor.moveToPosition(position);
+        ServerProfiles profile = new ServerProfiles(cursor);
+
+        String endpoint = profile.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION;
+        JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
+        Observable<LoginResponse> loginObservable = restClient.login(
+                profile.getOrganization(),
+                usernameEdit.getText().toString(),
+                passwordEdit.getText().toString()
+        ).subscribeOn(Schedulers.io());
+
+        loginDemoTask = bindFragment(this, loginObservable.cache());
+        loginSubscription = loginDemoTask
+                .subscribe(new Action1<LoginResponse>() {
+                    @Override
+                    public void call(LoginResponse loginResponse) {
+                        Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+                        setProgressEnabled(false);
+                        applyUserAccountData(loginResponse);
+                    }
+                }, onError);
+    }
 
     @OnActivityResult(CHOOSE_SERVER)
     final void chooseServer(int resultCode) {
@@ -200,6 +243,22 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void applyUserAccountData(LoginResponse response) {
+        String cookie = response.getCookie();
+        ServerInfo serverInfo = response.getServerInfo();
+
+        AccountServerData serverData = new AccountServerData()
+                .setAlias(AccountServerData.Demo.ALIAS)
+                .setServerUrl(AccountServerData.Demo.SERVER_URL)
+                .setOrganization(AccountServerData.Demo.ORGANIZATION)
+                .setUsername(usernameEdit.getText().toString())
+                .setPassword(passwordEdit.getText().toString())
+                .setEdition(serverInfo.getEdition())
+                .setVersionName(serverInfo.getVersion());
+
+        applyAccountData(cookie, serverData);
+    }
 
     private void applyDemoAccountData(LoginResponse response) {
         String cookie = response.getCookie();
@@ -225,19 +284,21 @@ public class AuthenticatorFragment extends RoboFragment implements LoaderManager
                 .getAccount();
 
         AccountManager accountManager = AccountManager.get(getActivity());
-        accountManager.addAccountExplicitly(account, serverData.getPassword(), serverData.toBundle());
-        accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
+        boolean result = accountManager.addAccountExplicitly(account, serverData.getPassword(), serverData.toBundle());
+        if (result) {
+            accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
 
-        Bundle data = new Bundle();
-        data.putString(AccountManager.KEY_ACCOUNT_NAME, serverData.getAlias());
-        data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
-        data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-        getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
+            Bundle data = new Bundle();
+            data.putString(AccountManager.KEY_ACCOUNT_NAME, serverData.getAlias());
+            data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
+            data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+            getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
 
-        Intent resultIntent = new Intent();
-        resultIntent.putExtras(data);
-        getActivity().setResult(Activity.RESULT_OK, resultIntent);
-        getActivity().finish();
+            Intent resultIntent = new Intent();
+            resultIntent.putExtras(data);
+            getActivity().setResult(Activity.RESULT_OK, resultIntent);
+            getActivity().finish();
+        }
     }
 
     private void setProgressEnabled(boolean enabled) {

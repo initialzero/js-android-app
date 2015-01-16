@@ -11,7 +11,7 @@
 
 
     <EditText
-        android:id="@+id/username"
+        android:id="@+id/usernameEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -19,7 +19,7 @@
         android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/password"
+        android:id="@+id/passwordEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -40,6 +40,7 @@
         android:orientation="horizontal">
         <Button
             android:text="Log in"
+            android:id="@+id/logIn"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content" />

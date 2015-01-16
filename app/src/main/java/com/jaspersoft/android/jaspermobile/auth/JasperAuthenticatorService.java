@@ -6,7 +6,7 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package com.jaspersoft.android.retrofit.sdk.auth;
+package com.jaspersoft.android.jaspermobile.auth;
 
 import android.app.Service;
 import android.content.Intent;

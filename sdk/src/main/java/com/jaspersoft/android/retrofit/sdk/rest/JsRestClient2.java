@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.retrofit.sdk.rest;
 
-import android.content.Context;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
@@ -68,7 +67,11 @@ public class JsRestClient2 {
         return new BasicBuilder();
     }
 
-    public static JsRestClient2 forEndpoint(Context context, String enpoint) {
+    public static JsRestClient2 forEndpoint(Endpoint enpoint) {
+        return configure().setEndpoint(enpoint).build();
+    }
+
+    public static JsRestClient2 forEndpoint(String enpoint) {
         return configure().setEndpoint(enpoint).build();
     }
 

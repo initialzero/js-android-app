@@ -36,8 +36,12 @@ android {
 }
 
 dependencies {
-    compile project(":pojo")
+    compile(project(":pojo")) {
+        exclude group: 'com.google.code.gson'
+    }
+    compile('com.squareup.retrofit:retrofit:1.8.0') {
+        exclude group: 'com.google.code.gson'
+    }
     compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
     compile 'io.reactivex:rxandroid:0.24.0'
-    compile 'com.squareup.retrofit:retrofit:1.8.0'
 }

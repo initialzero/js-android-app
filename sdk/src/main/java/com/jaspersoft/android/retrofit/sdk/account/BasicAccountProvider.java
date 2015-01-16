@@ -66,6 +66,7 @@ public class BasicAccountProvider implements AccountProvider {
         return !TextUtils.isEmpty(getAccountName());
     }
 
+    @Override
     public BasicAccountProvider putAccountName(String accountName) {
         putString(ACCOUNT_NAME_KEY, accountName);
         return this;

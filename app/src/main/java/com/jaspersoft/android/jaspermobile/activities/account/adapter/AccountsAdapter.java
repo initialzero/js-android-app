@@ -45,10 +45,10 @@ public class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
 
         Account account = getItem(position);
         AccountServerData serverData = AccountServerData.get(getContext(), account);
-        itemView.setTitle(serverData.getUsername());
+        itemView.setTitle(account.name);
         itemView.setSubTitle(serverData.getServerUrl());
 
-        boolean isActive = (activeAccountName.equals(serverData.getUsername()));
+        boolean isActive = (activeAccountName.equals(account.name));
         itemView.getImageView().setImageResource(isActive ?
                 R.drawable.ic_composed_active_server : R.drawable.ic_composed_server);
 

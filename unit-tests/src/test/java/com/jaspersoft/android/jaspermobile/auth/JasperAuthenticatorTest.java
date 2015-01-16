@@ -21,16 +21,11 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
-package com.jaspersoft.android.retrofit.sdk.account;
-
-import android.accounts.Account;
+package com.jaspersoft.android.jaspermobile.auth;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public interface AccountProvider {
-    Account getAccount();
-    AccountProvider putAccountName(String accountName);
-    boolean hasAccount();
+public class JasperAuthenticatorTest {
 }

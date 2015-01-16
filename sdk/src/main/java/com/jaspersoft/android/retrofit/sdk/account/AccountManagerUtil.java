@@ -123,6 +123,27 @@ public class AccountManagerUtil {
         });
     }
 
+    public Observable<Boolean> addAccountExplicitly(final AccountServerData serverData) {
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                try {
+                    AccountManager accountManager = AccountManager.get(mContext);
+                    Account account = mAccountProvider
+                            .putAccountName(serverData.getUsername())
+                            .getAccount();
+
+                    boolean result = accountManager.addAccountExplicitly(account,
+                            serverData.getPassword(), serverData.toBundle());
+                    subscriber.onNext(result);
+                    subscriber.onCompleted();
+                } catch (Exception e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
+    }
+
     public static class Builder {
         private final Context mContext;
         private AccountProvider accountProvider;

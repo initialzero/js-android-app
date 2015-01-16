@@ -47,6 +47,7 @@ public class AccountServerData {
     private String password;
     private String edition;
     private String versionName;
+    private String serverCookie;
 
     public static AccountServerData get(Context context, Account account) {
         AccountManager accountManager = AccountManager.get(context);
@@ -124,6 +125,15 @@ public class AccountServerData {
 
     public AccountServerData setVersionName(String versionName) {
         this.versionName = versionName;
+        return this;
+    }
+
+    public String getServerCookie() {
+        return serverCookie;
+    }
+
+    public AccountServerData setServerCookie(String serverCookie) {
+        this.serverCookie = serverCookie;
         return this;
     }
 

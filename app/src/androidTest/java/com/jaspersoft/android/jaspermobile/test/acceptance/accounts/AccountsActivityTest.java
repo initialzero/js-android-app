@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.accounts;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.support.test.espresso.DataInteraction;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -12,7 +11,6 @@ import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.junit.After;
@@ -22,6 +20,7 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
 
+import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static android.support.test.espresso.Espresso.onData;
@@ -129,12 +128,23 @@ public class AccountsActivityTest {
 
     private void createTestAccount() {
         removeAccountOnDemand();
-        AccountManager accountManager = AccountManager.get(activityRule.getApplicationContext());
+
         AccountServerData serverData = new AccountServerData()
                 .setUsername(TEST_NAME)
                 .setServerUrl(TEST_URL);
-        Account account = new Account("test", JasperSettings.JASPER_ACCOUNT_TYPE);
-        assertTrue(accountManager.addAccountExplicitly(account, "1234", serverData.toBundle()));
+
+        AccountManagerUtil accountManager = AccountManagerUtil.get(activityRule.getApplicationContext());
+        accountManager.addAccountExplicitly(serverData).subscribe(new Action1<Boolean>() {
+            @Override
+            public void call(Boolean aBoolean) {
+                assertTrue(aBoolean);
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        });
     }
 
 

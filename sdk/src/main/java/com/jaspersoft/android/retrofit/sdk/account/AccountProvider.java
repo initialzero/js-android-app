@@ -21,6 +21,7 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
+
 package com.jaspersoft.android.retrofit.sdk.account;
 
 import android.accounts.Account;

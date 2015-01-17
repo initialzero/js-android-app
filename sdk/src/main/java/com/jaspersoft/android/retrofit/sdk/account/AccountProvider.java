@@ -27,11 +27,23 @@ package com.jaspersoft.android.retrofit.sdk.account;
 import android.accounts.Account;
 
 /**
+ * Represents strategy of fetching/saving {@link android.accounts.Account} object.
+ *
  * @author Tom Koptel
  * @since 2.0
  */
 public interface AccountProvider {
+    /**
+     * Returns account object on the basis of previously saved properties.
+     *
+     * @return an instance of {@link android.accounts.Account} for later use
+     */
     Account getAccount();
-    AccountProvider putAccountName(String accountName);
-    boolean hasAccount();
+
+    /**
+     * Represents logic which persists account properties.
+     *
+     * @param account Account instance we intent to persist.
+     */
+    void putAccount(Account account);
 }

@@ -130,9 +130,9 @@ public class AccountManagerUtil {
             public void call(Subscriber<? super Boolean> subscriber) {
                 try {
                     AccountManager accountManager = AccountManager.get(mContext);
-                    Account account = mAccountProvider
-                            .putAccountName(serverData.getUsername())
-                            .getAccount();
+                    Account account = new Account(serverData.getUsername(),
+                            JasperSettings.JASPER_ACCOUNT_TYPE);
+                    mAccountProvider.putAccount(account);
 
                     boolean result = accountManager.addAccountExplicitly(account,
                             serverData.getPassword(), serverData.toBundle());

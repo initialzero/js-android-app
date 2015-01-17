@@ -33,7 +33,7 @@ public class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
 
     public AccountsAdapter(Context context, Bundle savedInstanceState) {
         super(savedInstanceState, context, 0);
-        activeAccountName = BasicAccountProvider.get(context).getAccountName();
+        activeAccountName = BasicAccountProvider.get(context).getAccount().name;
     }
 
     @Override

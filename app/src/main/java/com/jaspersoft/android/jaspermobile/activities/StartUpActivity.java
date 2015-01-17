@@ -96,7 +96,7 @@ public class StartUpActivity extends RoboActivity {
 
     private void initLegacyJsRestClient() {
         AccountProvider accountProvider = BasicAccountProvider.get(this);
-        if (accountProvider.hasAccount()) {
+        if (accountProvider.getAccount() != null) {
             jsRestClient.setServerProfile(ProfileManager.getServerProfile(this));
         }
     }

@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.sdk;
 
+import android.accounts.Account;
+
 import com.jaspersoft.android.jaspermobile.test.support.UnitTestSpecification;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 
@@ -38,8 +40,7 @@ import static org.hamcrest.Matchers.notNullValue;
  * @author Tom Koptel
  * @since 2.0
  */
-public class BasicAccountDataStorageTest extends UnitTestSpecification {
-
+public class BasicAccountProviderTest extends UnitTestSpecification {
     private BasicAccountProvider storage;
 
     @Before
@@ -48,9 +49,20 @@ public class BasicAccountDataStorageTest extends UnitTestSpecification {
     }
 
     @Test
-    public void testPutAccountNameMethod() {
-        storage.putAccountName("cookie");
-        assertThat(storage.getAccountName(), is("cookie"));
-        assertThat(storage.getAccount(), notNullValue());
+    public void testBasicMethods() {
+        storage.putAccount(new Account("cookie", "any"));
+        Account account = storage.getAccount();
+        assertThat(account, notNullValue());
+        assertThat(account.name, is("cookie"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFactoryShouldNotAcceptNullContext() {
+        BasicAccountProvider.get(null);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetMethodShouldFollowContract() {
+        BasicAccountProvider.get(getContext()).getAccount();
     }
 }

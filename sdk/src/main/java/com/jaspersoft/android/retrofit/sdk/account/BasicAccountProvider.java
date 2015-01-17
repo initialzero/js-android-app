@@ -33,8 +33,10 @@ import android.text.TextUtils;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 /**
- * TODO provide unit tests
-
+ * Basic implementation of {@link com.jaspersoft.android.retrofit.sdk.account.AccountProvider} interface.
+ * Mostly util class which stores {@link android.accounts.Account} object name property using
+ * {@link android.content.SharedPreferences}.
+ *
  * @author Tom Koptel
  * @since 2.0
  */
@@ -51,35 +53,21 @@ public class BasicAccountProvider implements AccountProvider {
         return new BasicAccountProvider(context);
     }
 
-
     private BasicAccountProvider(Context context) {
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
     }
 
     @Override
     public Account getAccount() {
-        return new Account(getAccountName(), JasperSettings.JASPER_ACCOUNT_TYPE);
-    }
-
-    @Override
-    public boolean hasAccount() {
-        return !TextUtils.isEmpty(getAccountName());
-    }
-
-    @Override
-    public BasicAccountProvider putAccountName(String accountName) {
-        putString(ACCOUNT_NAME_KEY, accountName);
-        return this;
-    }
-
-    public String getAccountName() {
-        return mPreference.getString(ACCOUNT_NAME_KEY, "");
-    }
-
-    private void putString(String key, String value) {
-        if (TextUtils.isEmpty(value)) {
-            throw new IllegalArgumentException(key + " value should not be empty");
+        String accountName = mPreference.getString(ACCOUNT_NAME_KEY, "");
+        if (TextUtils.isEmpty(accountName)) {
+            throw new IllegalStateException("You need call 'putAccount()' before calling this.");
         }
-        mPreference.edit().putString(key, value).apply();
+        return new Account(accountName, JasperSettings.JASPER_ACCOUNT_TYPE);
+    }
+
+    @Override
+    public void putAccount(Account account) {
+        mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
     }
 }

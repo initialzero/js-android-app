@@ -11,6 +11,7 @@ import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.junit.After;
@@ -27,6 +28,7 @@ import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -116,6 +118,23 @@ public class AccountsActivityTest {
                 .atPosition(1);
         firsItem.onChildView(withId(android.R.id.text1)).check(matches(withText(AccountServerData.Demo.USERNAME)));
         firsItem.onChildView(withId(android.R.id.text2)).check(matches(withText(containsString(webMockRule.getEndpoint()))));
+    }
+
+    @Test
+    public void testClickOnItemListActivatesAccount() {
+        AccountUtil.get(activityRule.getApplicationContext())
+                .removeAllAccounts()
+                .addAccount(new AccountServerData().setUsername("name1"))
+                .addAccount(new AccountServerData().setUsername("name2"));
+        activityRule.saveStart();
+        onData(is(instanceOf(Account.class)))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0).perform(click());
+
+        Account account = BasicAccountProvider
+                .get(activityRule.getApplicationContext())
+                .getAccount();
+        assertThat(account.name, is("name1"));
     }
 
     //---------------------------------------------------------------------

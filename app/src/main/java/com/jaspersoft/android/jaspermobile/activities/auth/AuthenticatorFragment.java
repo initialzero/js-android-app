@@ -183,12 +183,11 @@ public class AuthenticatorFragment extends RoboFragment {
 
         addAccountSubscription = AccountManagerUtil.get(getActivity())
                 .addAccountExplicitly(serverData)
-                .subscribe(new Action1<Boolean>() {
+                .subscribe(new Action1<Account>() {
                     @Override
-                    public void call(Boolean accountAdded) {
-                        if (accountAdded) {
-                            activateAccount(serverData.getServerCookie());
-                        }
+                    public void call(Account account) {
+                        BasicAccountProvider.get(getActivity()).putAccount(account);
+                        activateAccount(serverData.getServerCookie());
                     }
                 }, onError);
     }

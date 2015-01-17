@@ -124,19 +124,22 @@ public class AccountManagerUtil {
         });
     }
 
-    public Observable<Boolean> addAccountExplicitly(final AccountServerData serverData) {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+    public Observable<Account> addAccountExplicitly(final AccountServerData serverData) {
+        return Observable.create(new Observable.OnSubscribe<Account>() {
             @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
+            public void call(Subscriber<? super Account> subscriber) {
                 try {
                     AccountManager accountManager = AccountManager.get(mContext);
                     Account account = new Account(serverData.getUsername(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
-                    mAccountProvider.putAccount(account);
 
                     boolean result = accountManager.addAccountExplicitly(account,
                             serverData.getPassword(), serverData.toBundle());
-                    subscriber.onNext(result);
+                    if (result) {
+                        subscriber.onNext(account);
+                    } else {
+                        subscriber.onError(new RuntimeException("Failed to add Account"));
+                    }
                     subscriber.onCompleted();
                 } catch (Exception e) {
                     subscriber.onError(e);

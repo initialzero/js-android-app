@@ -32,8 +32,6 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import rx.functions.Action1;
 import rx.functions.Actions;
 
-import static junit.framework.Assert.assertTrue;
-
 /**
  * @author Tom Koptel
  * @since 2.0
@@ -60,12 +58,8 @@ public final class AccountUtil {
 
     public AccountUtil addAccount(AccountServerData serverData) {
         AccountManagerUtil accountManager = AccountManagerUtil.get(mContext);
-        accountManager.addAccountExplicitly(serverData).subscribe(new Action1<Boolean>() {
-            @Override
-            public void call(Boolean aBoolean) {
-                assertTrue(aBoolean);
-            }
-        }, new Action1<Throwable>() {
+        accountManager.addAccountExplicitly(serverData).subscribe(Actions.empty(),
+                new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
                 throw new RuntimeException(throwable);

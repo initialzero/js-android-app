@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.account;
 import android.accounts.Account;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -41,9 +42,11 @@ import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
 import com.jaspersoft.android.jaspermobile.util.rx.RxActions;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
@@ -103,31 +106,13 @@ public class AccountsActivity extends RoboAccentFragmentActivity {
 
     @AfterViews
     final void init() {
-        mListView.setAdapter(mAdapter);
         mAdapter.setAdapterView(mListView);
+        mListView.setAdapter(mAdapter);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        if (!mLoaded) {
-            loadAccounts();
-        }
-    }
-
-    private void loadAccounts() {
-        compositeSubscription.add(
-                AccountManagerUtil.get(this)
-                        .listAccounts()
-                        .subscribe(listAllAccounts, errorLogAction)
-        );
-    }
-
-    @Override
-    protected void onDestroy() {
-        compositeSubscription.unsubscribe();
-        super.onDestroy();
+    @ItemClick(android.R.id.list)
+    final void onAccountSelection(Account account) {
+        BasicAccountProvider.get(this).putAccount(account);
     }
 
     @OptionsItem(android.R.id.home)
@@ -143,11 +128,46 @@ public class AccountsActivity extends RoboAccentFragmentActivity {
     }
 
     @OnActivityResult(ADD_ACCOUNT)
-    protected void onAuthorize(int resultCode) {
+    final void onAuthorize(int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
             loadAccounts();
         }
     }
+
+    //---------------------------------------------------------------------
+    // Protected methods
+    //---------------------------------------------------------------------
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (!mLoaded) {
+            loadAccounts();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        compositeSubscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void loadAccounts() {
+        compositeSubscription.add(
+                AccountManagerUtil.get(this)
+                        .listAccounts()
+                        .subscribe(listAllAccounts, errorLogAction)
+        );
+    }
+
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
 
     private class SimpleDataSetObserver extends DataSetObserver {
         private boolean mFirstRun;

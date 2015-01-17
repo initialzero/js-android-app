@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 

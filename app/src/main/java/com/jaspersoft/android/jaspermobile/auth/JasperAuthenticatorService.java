@@ -17,8 +17,20 @@ import android.os.IBinder;
  * @since 2.0
  */
 public class JasperAuthenticatorService extends Service {
+    private JasperAuthenticator mAuthenticator;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mAuthenticator = new JasperAuthenticator(this);
+    }
+
+    public JasperAuthenticator getAuthenticator() {
+        return mAuthenticator;
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        return new JasperAuthenticator(this).getIBinder();
+        return mAuthenticator.getIBinder();
     }
 }

@@ -110,20 +110,6 @@ public class WebMockRule extends ExternalResource {
         protected void semanticConfigure() {
             Timber.plant(new Timber.DebugTree());
             endpoint = "http://localhost:" + mPort;
-            JsRestClient2 restClient = JsRestClient2.configure()
-                    .setErrorHandler(new ErrorHandler() {
-                        @Override
-                        public Throwable handleError(RetrofitError cause) {
-                            Timber.tag("WEB_MOCK_RULE");
-                            Timber.e(cause, "Rest client received exception");
-                            return cause;
-                        }
-                    })
-                    .setEndpoint(endpoint)
-                    .build();
-            bind(JsRestClient2.class)
-                    .annotatedWith(Names.named("JASPER_DEMO"))
-                    .toInstance(restClient);
         }
     }
 }

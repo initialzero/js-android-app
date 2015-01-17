@@ -58,7 +58,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Server url"
+                        android:hint="@string/hint_server_url"
                         android:inputType="textUri" />
 
                     <EditText
@@ -67,7 +67,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Organization"
+                        android:hint="@string/hint_organization"
                         android:inputType="textPersonName" />
 
                     <EditText
@@ -76,7 +76,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Username"
+                        android:hint="@string/hint_username"
                         android:inputType="textPersonName" />
 
                     <EditText
@@ -85,56 +85,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Password"
+                        android:hint="@string/hint_password"
                         android:inputType="textPassword" />
 
-                    <LinearLayout
+                    <android.support.v7.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:orientation="horizontal">
+                        style="@style/addAccountCard"
+                        >
 
-                        <android.support.v7.widget.CardView
+                        <Button
+                            android:id="@+id/addAccount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="10dp"
-                            android:layout_weight="1"
-                            card_view:cardBackgroundColor="@null"
-                            card_view:cardCornerRadius="0dp"
-                            card_view:cardElevation="5dp"
-                            card_view:cardUseCompatPadding="true">
-
-                            <Button
-                                android:id="@+id/logIn"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_login_btn_grey"
-                                android:fontFamily="sans-serif-light"
-                                android:text="Sign In"
-                                android:textColor="@color/text_login_bg" />
-                        </android.support.v7.widget.CardView>
-
-
-                        <android.support.v7.widget.CardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:layout_weight="1"
-                            card_view:cardBackgroundColor="@null"
-                            card_view:cardCornerRadius="0dp"
-                            card_view:cardElevation="5dp"
-                            card_view:cardUseCompatPadding="true">
-
-                            <Button
-                                android:id="@+id/tryDemo"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_login_btn_blue"
-                                android:fontFamily="sans-serif-light"
-                                android:text="Try Demo"
-                                android:textColor="@color/text_login_bg" />
-                        </android.support.v7.widget.CardView>
-                    </LinearLayout>
+                            android:background="@drawable/bg_login_btn_grey"
+                            android:fontFamily="sans-serif-light"
+                            android:text="@string/add_account"
+                            android:textColor="@color/text_login_bg" />
+                    </android.support.v7.widget.CardView>
 
                 </LinearLayout>
 

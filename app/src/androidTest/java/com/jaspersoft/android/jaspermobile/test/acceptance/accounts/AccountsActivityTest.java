@@ -8,8 +8,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
+import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
@@ -19,9 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
-
-import rx.functions.Action1;
-import rx.functions.Actions;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -34,7 +31,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.internal.matchers.StringContains.containsString;
@@ -111,8 +107,8 @@ public class AccountsActivityTest {
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
 
         // Then he should see new account
         DataInteraction firsItem = onData(is(instanceOf(Account.class)))
@@ -127,33 +123,16 @@ public class AccountsActivityTest {
     // ---------------------------------------------------------------------
 
     private void createTestAccount() {
-        removeAccountOnDemand();
-
         AccountServerData serverData = new AccountServerData()
                 .setUsername(TEST_NAME)
                 .setServerUrl(TEST_URL);
-
-        AccountManagerUtil accountManager = AccountManagerUtil.get(activityRule.getApplicationContext());
-        accountManager.addAccountExplicitly(serverData).subscribe(new Action1<Boolean>() {
-            @Override
-            public void call(Boolean aBoolean) {
-                assertTrue(aBoolean);
-            }
-        }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        });
+        AccountUtil.get(activityRule.getApplicationContext())
+                .removeAllAccounts()
+                .addAccount(serverData);
     }
 
-
     private void removeAccountOnDemand() {
-        AccountManagerUtil managerUtil = AccountManagerUtil
-                .get(activityRule.getApplicationContext());
-        if (managerUtil.getAccounts().length > 0) {
-            managerUtil.removeAccounts().toBlocking().forEach(Actions.empty());
-        }
+        AccountUtil.get(activityRule.getApplicationContext()).removeAllAccounts();
     }
 
     private void mockLoginAction() {

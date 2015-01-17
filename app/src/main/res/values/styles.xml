@@ -291,4 +291,11 @@
         <item name="android:ems">10</item>
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
+
+    <style name="addAccountCard">
+        <item name="cardBackgroundColor">@null</item>
+        <item name="cardCornerRadius">0dp</item>
+        <item name="cardElevation">5dp</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
 </resources>

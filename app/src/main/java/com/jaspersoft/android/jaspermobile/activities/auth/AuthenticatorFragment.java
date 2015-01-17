@@ -36,7 +36,6 @@ import android.widget.Toast;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
@@ -83,12 +82,8 @@ public class AuthenticatorFragment extends RoboFragment {
     @InstanceState
     protected boolean mFetching;
     @Inject
-    @Named("JASPER_DEMO")
-    protected JsRestClient2 demoRestClient;
-    @Inject
     protected JsRestClient legacyRestClient;
 
-    private Observable<LoginResponse> tryDemoTask;
     private Observable<LoginResponse> loginDemoTask;
     private Subscription loginSubscription = Subscriptions.empty();
     private Subscription addAccountSubscription = Subscriptions.empty();
@@ -97,7 +92,8 @@ public class AuthenticatorFragment extends RoboFragment {
         @Override
         public void call(Throwable throwable) {
             Timber.e(throwable, "Login failed");
-            Toast.makeText(getActivity(), "Login failed because of: " + throwable.getMessage(),
+            Toast.makeText(getActivity(),
+                    getString(R.string.failure_add_account, throwable.getMessage()),
                     Toast.LENGTH_LONG).show();
             setProgressEnabled(false);
         }
@@ -115,18 +111,14 @@ public class AuthenticatorFragment extends RoboFragment {
         super.onCreate(savedInstanceState);
         Timber.tag(AuthenticatorFragment.class.getSimpleName());
         setRetainInstance(true);
-
-        setProgressEnabled(mFetching);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (tryDemoTask != null && mFetching) {
-            tryDemo();
-        }
+        setProgressEnabled(mFetching);
         if (loginDemoTask != null && mFetching) {
-            logIn();
+            addAccount();
         }
     }
 
@@ -138,32 +130,7 @@ public class AuthenticatorFragment extends RoboFragment {
     }
 
     @Click
-    public void tryDemo() {
-        setProgressEnabled(true);
-
-        if (loginSubscription != null) {
-            loginSubscription.unsubscribe();
-        }
-
-        Observable<LoginResponse> demoLoginObservable = demoRestClient.login(
-                AccountServerData.Demo.ORGANIZATION,
-                AccountServerData.Demo.USERNAME,
-                AccountServerData.Demo.PASSWORD
-        ).subscribeOn(Schedulers.io());
-
-        tryDemoTask = bindFragment(this, demoLoginObservable.cache());
-        loginSubscription = tryDemoTask
-                .flatMap(new Func1<LoginResponse, Observable<AccountServerData>>() {
-                    @Override
-                    public Observable<AccountServerData> call(LoginResponse response) {
-                        return createDemoAccountData(response);
-                    }
-                })
-                .subscribe(onSuccess, onError);
-    }
-
-    @Click
-    public void logIn() {
+    public void addAccount() {
         if (!isFormValid()) return;
 
         setProgressEnabled(true);
@@ -211,22 +178,6 @@ public class AuthenticatorFragment extends RoboFragment {
         return Observable.just(serverData);
     }
 
-    private Observable<AccountServerData> createDemoAccountData(LoginResponse response) {
-        String cookie = response.getCookie();
-        ServerInfo serverInfo = response.getServerInfo();
-
-        AccountServerData serverData = new AccountServerData()
-                .setServerCookie(cookie)
-                .setServerUrl(AccountServerData.Demo.SERVER_URL)
-                .setOrganization(AccountServerData.Demo.ORGANIZATION)
-                .setUsername(AccountServerData.Demo.USERNAME)
-                .setPassword(AccountServerData.Demo.PASSWORD)
-                .setEdition(serverInfo.getEdition())
-                .setVersionName(serverInfo.getVersion());
-
-        return Observable.just(serverData);
-    }
-
     private void addAccount(final AccountServerData serverData) {
         legacyRestClient.setServerProfile(ProfileManager.getServerProfile(serverData));
 
@@ -253,7 +204,9 @@ public class AuthenticatorFragment extends RoboFragment {
         data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
         getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
 
-        Toast.makeText(getActivity(), "Login successful", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(),
+                getString(R.string.success_add_account, account.name),
+                Toast.LENGTH_SHORT).show();
 
         Intent resultIntent = new Intent();
         resultIntent.putExtras(data);

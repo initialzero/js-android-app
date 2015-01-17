@@ -30,8 +30,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.StartUpActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
+import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
@@ -67,24 +67,9 @@ public class StartUpActivityTest {
     public final ActivityRule<StartUpActivity_> activityRule =
             ActivityRule.create(StartUpActivity_.class);
 
-    private MockResponse authResponse;
-    private MockResponse mobileDemoServerRespone;
-
     @Before
     public void before() {
-        AccountManagerUtil.get(activityRule.getApplicationContext())
-                .removeAccounts()
-                .subscribe();
-
-        authResponse = new MockResponse()
-                .addHeader("Content-Type", "application/json; charset=utf-8")
-                .addHeader("Set-Cookie", "JSESSIONID=4202A2DF42507EDEC7A66A1348C62195; Path=/jasperserver-pro/; HttpOnly")
-                .addHeader("Set-Cookie", "userLocale=en_US;Expires=Thu, 15-Jan-2015 12:15:36 GMT;HttpOnly")
-                .throttleBody(Integer.MAX_VALUE, 1, TimeUnit.MILLISECONDS)
-                .setBody("{}");
-        mobileDemoServerRespone = authResponse.clone()
-                .setBody(TestResource.getJson().rawData("mobile_demo"));
-
+        AccountUtil.get(activityRule.getApplicationContext()).removeAllAccounts();
         assertThat(webMockRule.get(), notNullValue());
         activityRule.saveStart();
     }
@@ -95,19 +80,16 @@ public class StartUpActivityTest {
     }
 
     @Test
-    public void testIdealTryDemoAction() {
-        webMockRule.get().enqueue(authResponse);
-        webMockRule.get().enqueue(mobileDemoServerRespone);
+    public void testAddAccountAction() {
+        MockResponse authResponse = new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Set-Cookie", "JSESSIONID=4202A2DF42507EDEC7A66A1348C62195; Path=/jasperserver-pro/; HttpOnly")
+                .addHeader("Set-Cookie", "userLocale=en_US;Expires=Thu, 15-Jan-2015 12:15:36 GMT;HttpOnly")
+                .throttleBody(Integer.MAX_VALUE, 1, TimeUnit.MILLISECONDS)
+                .setBody("{}");
+        MockResponse mobileDemoServerRespone = authResponse.clone()
+                .setBody(TestResource.getJson().rawData("mobile_demo"));
 
-        onView(withId(R.id.usernameEdit)).perform(scrollTo());
-        onView(withId(R.id.passwordEdit)).perform(scrollTo());
-        onView(withId(R.id.tryDemo)).perform(scrollTo());
-        onView(withId(R.id.tryDemo)).perform(click());
-        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void testIdealLoginAction() {
         webMockRule.get().enqueue(authResponse);
         webMockRule.get().enqueue(mobileDemoServerRespone);
 
@@ -118,8 +100,8 @@ public class StartUpActivityTest {
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }
 
@@ -129,8 +111,8 @@ public class StartUpActivityTest {
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
     }
 
     @Test
@@ -140,8 +122,8 @@ public class StartUpActivityTest {
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
@@ -150,8 +132,8 @@ public class StartUpActivityTest {
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
 
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
@@ -162,8 +144,8 @@ public class StartUpActivityTest {
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText("  "));
 
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
@@ -173,8 +155,8 @@ public class StartUpActivityTest {
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
@@ -185,8 +167,8 @@ public class StartUpActivityTest {
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
     }
 
@@ -197,8 +179,8 @@ public class StartUpActivityTest {
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
-        onView(withId(R.id.logIn)).perform(scrollTo());
-        onView(withId(R.id.logIn)).perform(click());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
     }
 }

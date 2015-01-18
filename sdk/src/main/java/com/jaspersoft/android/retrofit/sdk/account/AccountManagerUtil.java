@@ -183,7 +183,7 @@ public class AccountManagerUtil {
             public void call(Subscriber<? super Account> subscriber) {
                 try {
                     AccountManager accountManager = AccountManager.get(mContext);
-                    Account account = new Account(serverData.getUsername(),
+                    Account account = new Account(serverData.getAlias(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
 
                     boolean result = accountManager.addAccountExplicitly(account,

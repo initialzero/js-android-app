@@ -263,6 +263,7 @@
     <string name="accounts_activity_label" translatable="false">Jasper Accounts</string>
     <string name="no_accounts" translatable="false">There is no Jasper accounts registered</string>
     <string name="add_account" translatable="false">Add account</string>
+    <string name="hint_alias" translatable="false">Alias</string>
     <string name="hint_server_url" translatable="false">Server url</string>
     <string name="hint_organization" translatable="false">Organization</string>
     <string name="hint_username" translatable="false">Username</string>

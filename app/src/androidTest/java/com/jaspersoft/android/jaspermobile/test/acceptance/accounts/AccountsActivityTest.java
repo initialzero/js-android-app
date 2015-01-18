@@ -32,6 +32,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -91,6 +92,35 @@ public class AccountsActivityTest {
         activityRule.saveStart();
         onView(withId(android.R.id.home)).perform(click());
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testAliasShouldBeUnique() {
+        AccountServerData data = new AccountServerData()
+                .setAlias(AccountServerData.Demo.ALIAS)
+                .setUsername(AccountServerData.Demo.USERNAME)
+                .setPassword(AccountServerData.Demo.PASSWORD)
+                .setServerUrl(AccountServerData.Demo.SERVER_URL);
+        AccountUtil.get(activityRule.getApplicationContext())
+                .removeAllAccounts()
+                .addAccount(data)
+                .setAuthToken()
+                .activate();
+        activityRule.saveStart();
+
+        onView(withId(R.id.addAccount)).perform(click());
+
+        onView(withId(R.id.aliasEdit)).perform(typeText(AccountServerData.Demo.ALIAS));
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.serverUrlEdit)).perform(scrollTo());
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
+
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
+        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(R.string.sp_error_duplicate_alias)));
     }
 
     @Test

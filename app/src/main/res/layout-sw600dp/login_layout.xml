@@ -46,6 +46,15 @@
                     android:src="@drawable/im_full_name" />
 
                 <EditText
+                    android:id="@+id/aliasEdit"
+                    style="@style/editTextAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/hint_server_url"
+                    android:inputType="textUri" />
+
+                <EditText
                     android:id="@+id/serverUrlEdit"
                     style="@style/editTextAccount"
                     android:layout_width="match_parent"

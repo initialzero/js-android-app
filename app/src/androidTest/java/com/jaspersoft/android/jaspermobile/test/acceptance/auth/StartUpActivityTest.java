@@ -44,6 +44,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
@@ -71,7 +72,6 @@ public class StartUpActivityTest {
     public void before() {
         AccountUtil.get(activityRule.getApplicationContext()).removeAllAccounts();
         assertThat(webMockRule.get(), notNullValue());
-        activityRule.saveStart();
     }
 
     @After
@@ -92,6 +92,7 @@ public class StartUpActivityTest {
 
         webMockRule.get().enqueue(authResponse);
         webMockRule.get().enqueue(mobileDemoServerRespone);
+        activityRule.saveStart();
 
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.organizationEdit)).perform(typeText(AccountServerData.Demo.ORGANIZATION));
@@ -106,17 +107,27 @@ public class StartUpActivityTest {
     }
 
     @Test
-    public void testEmptyUsernameNotAcceptable() {
+    public void testEmptyAliasNotAcceptable() {
+        activityRule.saveStart();
+        onView(withId(R.id.aliasEdit)).perform(typeText("  "));
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
         onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
+        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
+
+        onView(withId(R.id.aliasEdit)).perform(clearText());
+        onView(withId(R.id.addAccount)).perform(click());
+        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
     @Test
-    public void testSpacesForUsernameNotAcceptable() {
+    public void testEmptyUsernameNotAcceptable() {
+        activityRule.saveStart();
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.usernameEdit)).perform(typeText("  "));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
@@ -125,20 +136,15 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
+
+        onView(withId(R.id.usernameEdit)).perform(clearText());
+        onView(withId(R.id.addAccount)).perform(click());
+        onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
     @Test
     public void testEmptyPasswordNotAcceptable() {
-        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
-        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
-
-        onView(withId(R.id.addAccount)).perform(scrollTo());
-        onView(withId(R.id.addAccount)).perform(click());
-        onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
-    }
-
-    @Test
-    public void testSpacesForPasswordNotAcceptable() {
+        activityRule.saveStart();
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
@@ -147,21 +153,15 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
-    }
 
-    @Test
-    public void testEmptyServerUrlNotAcceptable() {
-        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
-        onView(withId(R.id.passwordEdit)).perform(scrollTo());
-        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
-
-        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(clearText());
         onView(withId(R.id.addAccount)).perform(click());
-        onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
+        onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
     @Test
-    public void testSpacesForServerUrlNotAcceptable() {
+    public void testEmptyForServerUrlNotAcceptable() {
+        activityRule.saveStart();
         onView(withId(R.id.serverUrlEdit)).perform(typeText("  "));
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
@@ -170,10 +170,15 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
+
+        onView(withId(R.id.serverUrlEdit)).perform(clearText());
+        onView(withId(R.id.addAccount)).perform(click());
+        onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
 
     @Test
     public void testServerUrlShouldBeValidUrl() {
+        activityRule.saveStart();
         onView(withId(R.id.serverUrlEdit)).perform(typeText("invalid url"));
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());

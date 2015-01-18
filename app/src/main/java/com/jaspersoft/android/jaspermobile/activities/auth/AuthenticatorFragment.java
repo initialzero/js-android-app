@@ -53,6 +53,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.List;
 import java.util.Map;
 
 import roboguice.fragment.RoboFragment;
@@ -72,6 +73,8 @@ import static rx.android.app.AppObservable.bindFragment;
  */
 @EFragment(R.layout.login_layout)
 public class AuthenticatorFragment extends RoboFragment {
+    @ViewById
+    protected EditText aliasEdit;
     @ViewById
     protected EditText usernameEdit;
     @ViewById
@@ -237,8 +240,10 @@ public class AuthenticatorFragment extends RoboFragment {
 
     private boolean isFormValid() {
         String serverUrl = serverUrlEdit.getText().toString();
+        String alias = aliasEdit.getText().toString();
 
         Map<EditText, String> valueMap = Maps.newHashMap();
+        valueMap.put(aliasEdit, alias);
         valueMap.put(serverUrlEdit, serverUrl);
         valueMap.put(usernameEdit, usernameEdit.getText().toString());
         valueMap.put(passwordEdit, passwordEdit.getText().toString());
@@ -259,6 +264,17 @@ public class AuthenticatorFragment extends RoboFragment {
             if (!URLUtil.isNetworkUrl(url)) {
                 serverUrlEdit.setError(getString(R.string.sp_error_url_not_valid));
                 serverUrlEdit.requestFocus();
+                formValid &= false;
+            }
+        }
+
+        if (!TextUtils.isEmpty(alias)) {
+            Account account = new Account(alias, JasperSettings.JASPER_ACCOUNT_TYPE);
+            List<Account> accountList = AccountManagerUtil.get(getActivity())
+                    .listAccounts().toBlocking().first();
+            if (accountList.contains(account)) {
+                aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
+                aliasEdit.requestFocus();
                 formValid &= false;
             }
         }

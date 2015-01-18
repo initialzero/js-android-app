@@ -18,6 +18,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListIte
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.SingleChoiceArrayAdapter;
 import com.jaspersoft.android.jaspermobile.dialog.ConfirmDialogFragment;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 
@@ -29,11 +30,11 @@ import rx.functions.Action1;
  */
 public class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
 
-    private final String activeAccountName;
+    private final AccountProvider accountProvider;
 
     public AccountsAdapter(Context context, Bundle savedInstanceState) {
         super(savedInstanceState, context, 0);
-        activeAccountName = BasicAccountProvider.get(context).getAccount().name;
+        accountProvider = BasicAccountProvider.get(getContext());
     }
 
     @Override
@@ -48,7 +49,8 @@ public class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
         itemView.setTitle(account.name);
         itemView.setSubTitle(serverData.getServerUrl());
 
-        boolean isActive = (activeAccountName.equals(account.name));
+        Account activeAccount = accountProvider.getAccount();
+        boolean isActive = (activeAccount.name.equals(account.name));
         itemView.getImageView().setImageResource(isActive ?
                 R.drawable.ic_composed_active_server : R.drawable.ic_composed_server);
 

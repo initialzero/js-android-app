@@ -70,4 +70,8 @@ public class BasicAccountProvider implements AccountProvider {
     public void putAccount(Account account) {
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
     }
+
+    public void clear() {
+        mPreference.edit().putString(ACCOUNT_NAME_KEY, "").apply();
+    }
 }

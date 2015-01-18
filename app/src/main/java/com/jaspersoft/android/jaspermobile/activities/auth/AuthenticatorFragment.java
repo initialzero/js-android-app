@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -188,6 +189,7 @@ public class AuthenticatorFragment extends RoboFragment {
                     public void call(Account account) {
                         BasicAccountProvider.get(getActivity()).putAccount(account);
                         activateAccount(serverData.getServerCookie());
+                        setProgressEnabled(false);
                     }
                 }, onError);
     }
@@ -215,7 +217,13 @@ public class AuthenticatorFragment extends RoboFragment {
 
     private void setProgressEnabled(boolean enabled) {
         mFetching = enabled;
-        getActivity().setProgressBarIndeterminateVisibility(mFetching);
+        if (mFetching) {
+            ProgressDialogFragment.builder(getFragmentManager())
+                    .setLoadingMessage(R.string.adding_account)
+                    .show();
+        } else {
+            ProgressDialogFragment.dismiss(getFragmentManager());
+        }
     }
 
     private AuthenticatorActivity getAccountAuthenticatorActivity() {

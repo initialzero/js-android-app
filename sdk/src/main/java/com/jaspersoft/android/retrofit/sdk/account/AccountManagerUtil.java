@@ -29,6 +29,7 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
@@ -64,8 +65,60 @@ public class AccountManagerUtil {
         mAccountProvider = accountProvider;
     }
 
+    public Observable<String> getAuthToken(final Account account) {
+        final AccountManager accountManager = AccountManager.get(mContext);
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                try {
+                    AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
+                            JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, true, null, null);
+                    Bundle bundle = future.getResult();
+                    String token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    subscriber.onNext(token);
+                    subscriber.onCompleted();
+                } catch (Exception ex) {
+                    subscriber.onError(ex);
+                }
+            }
+        });
+    }
+
+    public Observable<Account> invalidateAuthToken(final Account account, final String authToken) {
+        final AccountManager accountManager = AccountManager.get(mContext);
+        return Observable.create(new Observable.OnSubscribe<Account>() {
+            @Override
+            public void call(Subscriber<? super Account> subscriber) {
+                try {
+                    accountManager.invalidateAuthToken(account.type, authToken);
+                    subscriber.onNext(account);
+                    subscriber.onCompleted();
+                } catch (Exception ex) {
+                    subscriber.onError(ex);
+                }
+            }
+        });
+    }
+
+    public Observable<String> activateAccount(final Account newAccount) {
+        final Account currentAccount = mAccountProvider.getAccount();
+        return getAuthToken(currentAccount)
+                .flatMap(new Func1<String, Observable<Account>>() {
+                    @Override
+                    public Observable<Account> call(String token) {
+                        return invalidateAuthToken(currentAccount, token);
+                    }
+                })
+                .flatMap(new Func1<Account, Observable<String>>() {
+                    @Override
+                    public Observable<String> call(Account account) {
+                        return getAuthToken(newAccount);
+                    }
+                });
+    }
+
     public Account[] getAccounts() {
-       return AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        return AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
     }
 
     public Observable<List<Account>> listAccounts() {

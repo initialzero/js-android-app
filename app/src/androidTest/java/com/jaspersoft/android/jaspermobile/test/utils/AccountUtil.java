@@ -24,12 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import rx.functions.Action1;
 import rx.functions.Actions;
 
 /**
@@ -53,18 +56,36 @@ public final class AccountUtil {
         if (managerUtil.getAccounts().length > 0) {
             managerUtil.removeAccounts().toBlocking().forEach(Actions.empty());
         }
+        BasicAccountProvider.get(mContext).clear();
         return this;
     }
 
-    public AccountUtil addAccount(AccountServerData serverData) {
+    public AccountUnit addAccount(AccountServerData serverData) {
         AccountManagerUtil accountManager = AccountManagerUtil.get(mContext);
-        accountManager.addAccountExplicitly(serverData).subscribe(Actions.empty(),
-                new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        });
-        return this;
+        Account account = accountManager.addAccountExplicitly(serverData).toBlocking().first();
+        return new AccountUnit(account);
+    }
+
+    public class AccountUnit {
+        private final Account mAccount;
+
+        public AccountUnit(Account account) {
+            mAccount = account;
+        }
+
+        public AccountUnit setAuthToken() {
+            AccountManager accountManager = AccountManager.get(mContext);
+            accountManager.setAuthToken(mAccount, JasperSettings.JASPER_AUTH_TOKEN_TYPE, "token");
+            return this;
+        }
+
+        public AccountUnit activate() {
+            BasicAccountProvider.get(mContext).putAccount(mAccount);
+            return this;
+        }
+
+        public AccountUtil getUtil() {
+            return AccountUtil.this;
+        }
     }
 }

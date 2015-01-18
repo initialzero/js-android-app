@@ -81,7 +81,9 @@ public abstract class SingleChoiceArrayAdapter<T> extends ArrayAdapter<T> implem
     }
 
     public void setAdapterView(AdapterView<? super BaseAdapter> adapterView) {
-        setOnItemClickListener(adapterView.getOnItemClickListener());
+        if (adapterView != null) {
+            setOnItemClickListener(adapterView.getOnItemClickListener());
+        }
         helper.setAdapterView(adapterView);
     }
 

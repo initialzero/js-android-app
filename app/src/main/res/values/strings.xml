@@ -269,5 +269,7 @@
     <string name="hint_password" translatable="false">Password</string>
     <string name="success_add_account" translatable="false"><![CDATA[Add account with name %s]]></string>
     <string name="failure_add_account" translatable="false"><![CDATA[Failed to add account. Reason: %s]]></string>
+    <string name="adding_account" translatable="false">Adding account</string>
+    <string name="activating_account" translatable="false">Activating account</string>
 
 </resources>

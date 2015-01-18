@@ -122,11 +122,25 @@ public class AccountsActivityTest {
 
     @Test
     public void testClickOnItemListActivatesAccount() {
+        mockLoginAction();
+        AccountServerData data = new AccountServerData()
+                .setUsername("name1")
+                .setPassword("password")
+                .setServerUrl(webMockRule.getEndpoint());
+        AccountServerData data1 = new AccountServerData()
+                .setUsername("name2")
+                .setPassword("password")
+                .setServerUrl(webMockRule.getEndpoint());
         AccountUtil.get(activityRule.getApplicationContext())
                 .removeAllAccounts()
-                .addAccount(new AccountServerData().setUsername("name1"))
-                .addAccount(new AccountServerData().setUsername("name2"));
+                .addAccount(data)
+                .setAuthToken()
+                .getUtil()
+                .addAccount(data1)
+                .setAuthToken()
+                .activate();
         activityRule.saveStart();
+
         onData(is(instanceOf(Account.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
@@ -147,7 +161,9 @@ public class AccountsActivityTest {
                 .setServerUrl(TEST_URL);
         AccountUtil.get(activityRule.getApplicationContext())
                 .removeAllAccounts()
-                .addAccount(serverData);
+                .addAccount(serverData)
+                .setAuthToken()
+                .activate();
     }
 
     private void removeAccountOnDemand() {

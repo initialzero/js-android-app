@@ -4,26 +4,24 @@
 	"databaseVersion" : 4,
 	"tables" : [{
 			"name" : "server_profiles",
-			"buildable": true,
 			"members" : [{
 					"type" : "string",
-					"name" : "alias",
-					"not_null": true,
-					"unique": true
+					"name" : "alias"
 				}, {
 					"type" : "string",
-					"not_null": true,
 					"name" : "server_url"
 				}, {
 					"type" : "string",
 					"name" : "organization"
-				},{
+				}, {
+					"type" : "string",
+					"name" : "username"
+				}, {
+					"type" : "string",
+					"name" : "password"
+				}, {
 					"type" : "string",
 					"name" : "edition"
-				}, {
-					"type" : "double",
-					"name" : "created_at",
-					"default": "CURRENT_TIMESTAMP"
 				}, {
 					"type" : "double",
 					"name" : "versionCode"

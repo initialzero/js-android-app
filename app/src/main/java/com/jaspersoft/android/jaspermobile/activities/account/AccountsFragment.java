@@ -33,15 +33,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.account.adapter.AccountsAdapter;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.rx.RxActions;
+import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
@@ -57,9 +60,9 @@ import java.util.List;
 import roboguice.fragment.RoboFragment;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 import timber.log.Timber;
 
@@ -75,6 +78,9 @@ public class AccountsFragment extends RoboFragment {
     private static final String TAG = AccountsActivity.class.getSimpleName();
     private static final int ADD_ACCOUNT = 10;
 
+    @Inject
+    protected JsRestClient jsRestClient;
+
     @ViewById(android.R.id.list)
     protected ListView mListView;
     @ViewById(android.R.id.empty)
@@ -85,13 +91,20 @@ public class AccountsFragment extends RoboFragment {
     @InstanceState
     protected Account selectedAccount;
 
-    private final CompositeSubscription compositeSubscription = new CompositeSubscription();
     private Subscription addAccountSubscription = Subscriptions.empty();
+    private Subscription loadAccountSubscription = Subscriptions.empty();
     private Observable<String> updateTokenTask;
     private Bundle mSavedInstanceState;
     private AccountsAdapter mAdapter;
 
-    private final Action1<Throwable> errorLogAction = RxActions.createLogErrorAction(TAG);
+    private final Action1<Throwable> errorLogAction = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable throwable) {
+            Timber.e(throwable, "Failed to load subscriptions");
+            Toast.makeText(getActivity(), "Failed to activate account", Toast.LENGTH_SHORT).show();
+            setProgressEnabled(false);
+        }
+    };
     private final Action1<List<Account>> listAllAccounts = new Action1<List<Account>>() {
         @Override
         public void call(List<Account> accounts) {
@@ -144,7 +157,7 @@ public class AccountsFragment extends RoboFragment {
     @Override
     public void onDestroyView() {
         addAccountSubscription.unsubscribe();
-        compositeSubscription.unsubscribe();
+        loadAccountSubscription.unsubscribe();
         super.onDestroy();
     }
 
@@ -162,9 +175,8 @@ public class AccountsFragment extends RoboFragment {
                     @Override
                     public void call(String s) {
                         mAdapter.notifyDataSetChanged();
-                        BasicAccountProvider
-                                .get(getActivity())
-                                .putAccount(account);
+                        BasicAccountProvider.get(getActivity()).putAccount(selectedAccount);
+                        ProfileManager.initLegacyJsRestClient(getActivity(), jsRestClient);
                         setProgressEnabled(false);
                     }
                 }, errorLogAction);
@@ -194,11 +206,11 @@ public class AccountsFragment extends RoboFragment {
     //---------------------------------------------------------------------
 
     private void loadAccounts() {
-        compositeSubscription.add(
-                AccountManagerUtil.get(getActivity())
-                        .listAccounts()
-                        .subscribe(listAllAccounts, errorLogAction)
-        );
+        loadAccountSubscription = AccountManagerUtil.get(getActivity())
+                .listAccounts()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(listAllAccounts, errorLogAction);
     }
 
     private void setProgressEnabled(boolean enabled) {

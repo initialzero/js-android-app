@@ -28,6 +28,7 @@ import android.app.Application;
 import android.content.Context;
 import android.view.ViewConfiguration;
 
+import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -68,6 +69,10 @@ public class JasperMobileApplication extends Application {
 
         forceOverFlowMenu();
         initImageLoader(getApplicationContext());
+
+        // Force database update
+        getContentResolver().query(MobileDbProvider.SERVER_PROFILES_CONTENT_URI,
+                new String[] {"_ID"}, null, null, null);
     }
 
     private void initImageLoader(Context context) {

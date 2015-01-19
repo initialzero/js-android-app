@@ -59,6 +59,7 @@ public class AccountSeed implements Seed {
     }
 
     private void populateDefaultServer() {
+        Timber.d("Populating default server");
         AccountServerData serverData = new AccountServerData()
                 .setAlias(AccountServerData.Demo.ALIAS)
                 .setServerUrl(AccountServerData.Demo.SERVER_URL)

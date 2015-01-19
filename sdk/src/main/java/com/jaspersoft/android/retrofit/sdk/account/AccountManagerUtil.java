@@ -35,12 +35,14 @@ import android.os.Handler;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
+import timber.log.Timber;
 
 /**
  * TODO provide unit tests
@@ -49,6 +51,8 @@ import rx.functions.Func1;
  * @since 2.0
  */
 public class AccountManagerUtil {
+    private static final String TAG = AccountManagerUtil.class.getSimpleName();
+
     private final Context mContext;
     private final AccountProvider mAccountProvider;
 
@@ -63,14 +67,23 @@ public class AccountManagerUtil {
     private AccountManagerUtil(Context context, AccountProvider accountProvider) {
         mContext = context;
         mAccountProvider = accountProvider;
+        Timber.tag(TAG);
+    }
+
+    public Observable<Account> getActiveAccount() {
+        Account account = BasicAccountProvider.get(mContext).getAccount();
+        if (account == null) {
+            return Observable.error(new AccountNotFoundException("There is no active account"));
+        }
+        return Observable.just(account);
     }
 
     public Observable<String> getAuthToken(final Account account) {
-        final AccountManager accountManager = AccountManager.get(mContext);
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(Subscriber<? super String> subscriber) {
                 try {
+                    AccountManager accountManager = AccountManager.get(mContext);
                     AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
                             JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, true, null, null);
                     Bundle bundle = future.getResult();
@@ -84,41 +97,49 @@ public class AccountManagerUtil {
         });
     }
 
-    public Observable<Account> invalidateAuthToken(final Account account, final String authToken) {
+    /**
+     * Activates account by requesting auth token for new account and invalidating, if exists, old one.
+     * If for instance app loose reference to active account we are invalidating token for new account.
+     *
+     * @param newAccount Account we are requesting token for. As soon as, token received we are
+     *                   persisting within {@link com.jaspersoft.android.retrofit.sdk.account.AccountProvider}
+     * @return observable which wraps account for activating
+     */
+    public Observable<Account> activateAccount(final Account newAccount) {
         final AccountManager accountManager = AccountManager.get(mContext);
-        return Observable.create(new Observable.OnSubscribe<Account>() {
-            @Override
-            public void call(Subscriber<? super Account> subscriber) {
-                try {
-                    accountManager.invalidateAuthToken(account.type, authToken);
-                    subscriber.onNext(account);
-                    subscriber.onCompleted();
-                } catch (Exception ex) {
-                    subscriber.onError(ex);
-                }
-            }
-        });
-    }
-
-    public Observable<String> activateAccount(final Account newAccount) {
-        final Account currentAccount = mAccountProvider.getAccount();
-        return getAuthToken(currentAccount)
+        return getActiveAccount()
+                .flatMap(new Func1<Account, Observable<String>>() {
+                    @Override
+                    public Observable<String> call(Account activeAccount) {
+                        return getAuthToken(activeAccount);
+                    }
+                })
+                .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
+                    @Override
+                    public Observable<? extends String> call(Throwable throwable) {
+                        return getAuthToken(newAccount);
+                    }
+                })
+                .flatMap(new Func1<String, Observable<String>>() {
+                    @Override
+                    public Observable<String> call(String token) {
+                        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
+                        return getAuthToken(newAccount);
+                    }
+                })
                 .flatMap(new Func1<String, Observable<Account>>() {
                     @Override
                     public Observable<Account> call(String token) {
-                        return invalidateAuthToken(currentAccount, token);
-                    }
-                })
-                .flatMap(new Func1<Account, Observable<String>>() {
-                    @Override
-                    public Observable<String> call(Account account) {
-                        return getAuthToken(newAccount);
+                        BasicAccountProvider.get(mContext).putAccount(newAccount);
+                        return Observable.just(newAccount);
                     }
                 });
     }
 
     public Account[] getAccounts() {
-        return AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        Account[] accounts = AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        Timber.d(Arrays.toString(accounts));
+        return accounts;
     }
 
     public Observable<List<Account>> listAccounts() {
@@ -157,15 +178,20 @@ public class AccountManagerUtil {
     }
 
     public Observable<Boolean> removeAccount(final Account account, final Handler handler) {
-        final AccountManager am = AccountManager.get(mContext);
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(final Subscriber<? super Boolean> subscriber) {
-                am.removeAccount(account, new AccountManagerCallback<Boolean>() {
+                AccountManager.get(mContext).removeAccount(account, new AccountManagerCallback<Boolean>() {
                     @Override
                     public void run(AccountManagerFuture<Boolean> future) {
                         try {
+                            Account currentAccount = mAccountProvider.getAccount();
+                            if (currentAccount != null && currentAccount.name.equals(account.name)) {
+                                Timber.d("Account removed from AccountProvider");
+                                mAccountProvider.removeAccount();
+                            }
                             Boolean result = future.getResult();
+                            Timber.d("Remove status for Account[" + account.name + "]: " + result);
                             subscriber.onNext(result);
                             subscriber.onCompleted();
                         } catch (Exception e) {
@@ -185,14 +211,9 @@ public class AccountManagerUtil {
                     AccountManager accountManager = AccountManager.get(mContext);
                     Account account = new Account(serverData.getAlias(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
-
-                    boolean result = accountManager.addAccountExplicitly(account,
+                    accountManager.addAccountExplicitly(account,
                             serverData.getPassword(), serverData.toBundle());
-                    if (result) {
-                        subscriber.onNext(account);
-                    } else {
-                        subscriber.onError(new RuntimeException("Failed to add Account"));
-                    }
+                    subscriber.onNext(account);
                     subscriber.onCompleted();
                 } catch (Exception e) {
                     subscriber.onError(e);
@@ -226,6 +247,15 @@ public class AccountManagerUtil {
             if (accountProvider == null) {
                 accountProvider = BasicAccountProvider.get(mContext);
             }
+        }
+    }
+
+    public static class AccountNotFoundException extends Throwable {
+        public AccountNotFoundException() {
+        }
+
+        public AccountNotFoundException(String detailMessage) {
+            super(detailMessage);
         }
     }
 }

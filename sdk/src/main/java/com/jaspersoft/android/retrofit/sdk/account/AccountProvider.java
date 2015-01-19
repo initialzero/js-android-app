@@ -36,7 +36,8 @@ public interface AccountProvider {
     /**
      * Returns account object on the basis of previously saved properties.
      *
-     * @return an instance of {@link android.accounts.Account} for later use
+     * @return an instance of {@link android.accounts.Account} for later use. If no Account found
+     * will return null.
      */
     Account getAccount();
 
@@ -46,4 +47,9 @@ public interface AccountProvider {
      * @param account Account instance we intent to persist.
      */
     void putAccount(Account account);
+
+    /**
+     * Removes account from previously defined storage.
+     */
+    void removeAccount();
 }

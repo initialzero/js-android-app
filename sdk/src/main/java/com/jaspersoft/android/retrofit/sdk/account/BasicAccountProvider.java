@@ -61,7 +61,7 @@ public class BasicAccountProvider implements AccountProvider {
     public Account getAccount() {
         String accountName = mPreference.getString(ACCOUNT_NAME_KEY, "");
         if (TextUtils.isEmpty(accountName)) {
-            throw new IllegalStateException("You need call 'putAccount()' before calling this.");
+            return null;
         }
         return new Account(accountName, JasperSettings.JASPER_ACCOUNT_TYPE);
     }
@@ -71,7 +71,9 @@ public class BasicAccountProvider implements AccountProvider {
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
     }
 
-    public void clear() {
+    @Override
+    public void removeAccount() {
         mPreference.edit().putString(ACCOUNT_NAME_KEY, "").apply();
     }
+
 }

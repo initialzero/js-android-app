@@ -94,6 +94,7 @@ public class StartUpActivityTest {
         webMockRule.get().enqueue(mobileDemoServerRespone);
         activityRule.saveStart();
 
+        onView(withId(R.id.aliasEdit)).perform(typeText(AccountServerData.Demo.ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.organizationEdit)).perform(typeText(AccountServerData.Demo.ORGANIZATION));
         onView(withId(R.id.usernameEdit)).perform(scrollTo());

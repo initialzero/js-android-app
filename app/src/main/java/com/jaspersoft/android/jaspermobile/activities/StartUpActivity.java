@@ -29,17 +29,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.TaskStackBuilder;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OnActivityResult;
-
-import java.util.NoSuchElementException;
 
 import roboguice.activity.RoboActivity;
 import rx.Subscription;
@@ -64,6 +65,10 @@ public class StartUpActivity extends RoboActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         signInOrCreateAnAccount();
+
+        // Force database update
+        getContentResolver().query(MobileDbProvider.SERVER_PROFILES_CONTENT_URI,
+                new String[]{"_ID"}, null, null, null);
     }
 
     private void signInOrCreateAnAccount() {
@@ -71,25 +76,35 @@ public class StartUpActivity extends RoboActivity {
         compose(
                 AppObservable.bindActivity(this,
                         AccountManagerUtil.get(this)
-                                .listFlatAccounts()
-                                .first()
+                                .getActiveAccount()
                 ).subscribe(
                         new Action1<Account>() {
                             @Override
                             public void call(Account account) {
-                                ProfileManager.initLegacyJsRestClient(context, jsRestClient);
+                                ProfileManager.initLegacyJsRestClient(context, account, jsRestClient);
                                 HomeActivity_.intent(context).start();
                                 finish();
                             }
                         }, new Action1<Throwable>() {
                             @Override
                             public void call(Throwable throwable) {
-                                if (throwable instanceof NoSuchElementException) {
-                                    addAccount();
-                                }
+                                recoverMissingAccountState();
                             }
                         })
         );
+    }
+
+    private void recoverMissingAccountState() {
+        Account[] accounts = AccountManagerUtil.get(this).getAccounts();
+        if (accounts.length == 0) {
+            addAccount();
+        } else {
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            stackBuilder.addParentStack(AccountsActivity_.class);
+            stackBuilder.addNextIntent(AccountsActivity_.intent(this).get());
+            stackBuilder.startActivities();
+            finish();
+        }
     }
 
     private void compose(Subscription subscription) {

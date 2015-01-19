@@ -81,7 +81,12 @@
 
         <activity
             android:name=".activities.account.AccountsActivity_"
-            android:label="@string/accounts_activity_label" />
+            android:label="@string/accounts_activity_label"
+            android:parentActivityName=".activities.HomeActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.HomeActivity_" />
+        </activity>
 
         <!-- Activity that provides the server profiles management -->
         <activity

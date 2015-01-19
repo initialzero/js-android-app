@@ -24,11 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.legacy;
 
+import android.accounts.Account;
 import android.content.Context;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
@@ -40,17 +39,8 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
  */
 public class ProfileManager {
 
-    public static void initLegacyJsRestClient(Context context, JsRestClient jsRestClient) {
-        AccountProvider accountProvider = BasicAccountProvider.get(context);
-        if (accountProvider.getAccount() != null) {
-            jsRestClient.setServerProfile(getServerProfile(context));
-        }
-    }
-
-    public static JsServerProfile getServerProfile(Context context) {
-        BasicAccountProvider accountProvider = BasicAccountProvider.get(context);
-        AccountServerData serverData = AccountServerData.get(context, accountProvider.getAccount());
-        return getServerProfile(serverData);
+    public static void initLegacyJsRestClient(Context context, Account account, JsRestClient jsRestClient) {
+        jsRestClient.setServerProfile(getServerProfile(AccountServerData.get(context, account)));
     }
 
     public static JsServerProfile getServerProfile(AccountServerData serverData) {

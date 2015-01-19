@@ -39,15 +39,19 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public class ProfileAccountMigration implements Migration {
+    private static final String TAG = AccountManagerUtil.class.getSimpleName();
     private final Context mContext;
 
     public ProfileAccountMigration(Context context) {
-        this.mContext = context;
+        mContext = context;
+        Timber.tag(TAG);
     }
 
     @Override
@@ -63,6 +67,7 @@ public class ProfileAccountMigration implements Migration {
                 ServerProfilesTable.ALL_COLUMNS, null, null, null, null, null);
         try {
             List<ServerProfiles> profiles = ServerProfiles.listFromCursor(cursor);
+            Timber.d("The number of previously saved accounts are: " + profiles.size());
             for (ServerProfiles profile : profiles) {
                 data = new AccountServerData()
                         .setAlias(profile.getAlias())
@@ -97,6 +102,7 @@ public class ProfileAccountMigration implements Migration {
                         JasperSettings.JASPER_ACCOUNT_TYPE);
             }
             BasicAccountProvider.get(mContext).putAccount(account);
+            Timber.d("Account[" + account + "] was activated");
         } finally {
             cursor.close();
         }

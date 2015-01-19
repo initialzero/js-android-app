@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -50,6 +51,9 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -73,6 +77,8 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     public static final String EDIT_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.EDIT_SERVER_PROFILE";
     public static final String CLOSE_APPLICATION_ACTION = "com.jaspersoft.android.samples.jaspermobile.action.CLOSE_APPLICATION";
 
+    @Inject
+    private JsRestClient jsRestClient;
     @Inject
     private ConnectivityUtil mConnectivityUtil;
     @Inject
@@ -133,28 +139,30 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_repository)
     final void showRepository() {
-        if (hasNetwork()) {
+        if (hasNetwork() && hasActiveAccount()) {
             RepositoryActivity_.intent(this).start();
         }
     }
 
     @Click(R.id.home_item_library)
     final void showLibrary() {
-        if (hasNetwork()) {
+        if (hasNetwork() && hasActiveAccount()) {
             LibraryActivity_.intent(this).start();
         }
     }
 
     @Click(R.id.home_item_favorites)
     final void showFavorites() {
-        if (hasNetwork()) {
+        if (hasNetwork() && hasActiveAccount()) {
             FavoritesActivity_.intent(this).start();
         }
     }
 
     @Click(R.id.home_item_saved_reports)
     final void showSavedItems() {
-        SavedReportsActivity_.intent(this).start();
+        if (hasActiveAccount()) {
+            SavedReportsActivity_.intent(this).start();
+        }
     }
 
     @Click(R.id.home_item_settings)
@@ -183,6 +191,16 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private boolean hasActiveAccount() {
+        Account account = BasicAccountProvider.get(this).getAccount();
+        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        if (account == null || serverProfile == null) {
+            AccountsActivity_.intent(this).start();
+            return false;
+        }
+        return true;
+    }
 
     private void animateLayout() {
         boolean animationEnabled = SettingsActivity.isAnimationEnabled(this);

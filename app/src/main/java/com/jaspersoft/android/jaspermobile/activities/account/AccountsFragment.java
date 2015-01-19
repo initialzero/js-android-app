@@ -42,7 +42,6 @@ import com.jaspersoft.android.jaspermobile.activities.account.adapter.AccountsAd
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
@@ -93,7 +92,7 @@ public class AccountsFragment extends RoboFragment {
 
     private Subscription addAccountSubscription = Subscriptions.empty();
     private Subscription loadAccountSubscription = Subscriptions.empty();
-    private Observable<String> updateTokenTask;
+    private Observable<Account> updateTokenTask;
     private Bundle mSavedInstanceState;
     private AccountsAdapter mAdapter;
 
@@ -171,12 +170,11 @@ public class AccountsFragment extends RoboFragment {
                 .activateAccount(account);
         addAccountSubscription = bindActivity(getActivity(), updateTokenTask.cache())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Action1<String>() {
+                .subscribe(new Action1<Account>() {
                     @Override
-                    public void call(String s) {
+                    public void call(Account newAccount) {
                         mAdapter.notifyDataSetChanged();
-                        BasicAccountProvider.get(getActivity()).putAccount(selectedAccount);
-                        ProfileManager.initLegacyJsRestClient(getActivity(), jsRestClient);
+                        ProfileManager.initLegacyJsRestClient(getActivity(), newAccount, jsRestClient);
                         setProgressEnabled(false);
                     }
                 }, errorLogAction);
@@ -185,6 +183,7 @@ public class AccountsFragment extends RoboFragment {
     @OptionsItem(android.R.id.home)
     final void showHome() {
         HomeActivity.goHome(getActivity());
+        getActivity().finish();
     }
 
     @OptionsItem

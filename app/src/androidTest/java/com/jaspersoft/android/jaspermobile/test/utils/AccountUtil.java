@@ -56,7 +56,7 @@ public final class AccountUtil {
         if (managerUtil.getAccounts().length > 0) {
             managerUtil.removeAccounts().toBlocking().forEach(Actions.empty());
         }
-        BasicAccountProvider.get(mContext).clear();
+        BasicAccountProvider.get(mContext).removeAccount();
         return this;
     }
 

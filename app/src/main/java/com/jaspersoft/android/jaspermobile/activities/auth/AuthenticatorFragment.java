@@ -172,6 +172,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
         AccountServerData serverData = new AccountServerData()
                 .setServerCookie(response.getCookie())
+                .setAlias(aliasEdit.getText().toString())
                 .setServerUrl(trimUrl(serverUrlEdit.getText().toString()))
                 .setOrganization(organizationEdit.getText().toString())
                 .setUsername(usernameEdit.getText().toString())

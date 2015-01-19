@@ -81,7 +81,7 @@ public class ResourcesControllerFragment extends ControllerFragment
     boolean hideMenu;
     @InstanceState
     @FragmentArg
-    String controllerTag;
+    public String controllerTag;
 
     private ResourcesFragment contentFragment;
 

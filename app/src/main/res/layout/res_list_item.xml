@@ -33,7 +33,7 @@
         android:layout_height="match_parent"
 
         android:scaleType="fitXY"
-        android:background="#fff" />
+        android:background="@android:color/white" />
 
     <CheckedTextView
         android:id="@android:id/text1"

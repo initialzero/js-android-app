@@ -37,7 +37,8 @@
             android:layout_height="match_parent"
             android:scaleType="fitXY"
             tools:background="@drawable/js_grey_gradient"
-            android:layout_above="@android:id/text1" />
+            android:layout_above="@android:id/text1"
+            android:background="@android:color/white" />
 
 
         <CheckedTextView

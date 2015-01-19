@@ -68,6 +68,7 @@ public class ServerInfoManager {
             double versionCode = DefaultVersionParser.getVersionCode(serverData.getVersionName());
             mServerInfo.setEdition(edition);
             mServerInfo.setVersionCode(versionCode);
+            infoCallback.onInfoReceived(mServerInfo);
         } else {
             infoCallback.onInfoReceived(mServerInfo);
         }

@@ -51,16 +51,13 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collection;
 
 import roboguice.RoboGuice;
 
-import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(AndroidJUnit4.class)
 public class ProtoActivityInstrumentation<T extends Activity>
@@ -92,12 +89,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
         RoboGuice.util.reset();
         mApplication = null;
         mActivity = null;
-    }
-
-    @Test
-    public void checkPreconditions() {
-        // Check that Instrumentation was correctly injected in setUp()
-        assertThat(getInstrumentation(), notNullValue());
     }
 
     protected void setDefaultCurrentProfile() {

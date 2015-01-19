@@ -84,6 +84,10 @@ public final class AccountUtil {
             return this;
         }
 
+        public Account getAccount() {
+            return mAccount;
+        }
+
         public AccountUtil getUtil() {
             return AccountUtil.this;
         }

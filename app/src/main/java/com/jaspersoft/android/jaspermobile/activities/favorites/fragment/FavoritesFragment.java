@@ -48,6 +48,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewTyp
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -204,12 +205,8 @@ public class FavoritesFragment extends RoboFragment
         boolean noOrganization = jsServerProfile.getOrganization() == null;
 
         //Add server profile id and username to WHERE params
-        selection.append(FavoritesTable.SERVER_PROFILE_ID + " =?")
-                .append("  AND ")
-                .append(FavoritesTable.USERNAME + " =?");
-
-        selectionArgs.add(String.valueOf(jsServerProfile.getId()));
-        selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
+        selection.append(FavoritesTable.ACCOUNT_NAME + " =?");
+        selectionArgs.add(BasicAccountProvider.get(getActivity()).getAccount().name);
 
         //Add organization to WHERE params
         if (noOrganization) {

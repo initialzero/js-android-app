@@ -28,7 +28,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
+import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesRemoveColumnMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
 
 /**
@@ -36,7 +39,6 @@ import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
  * @since 1.9
  */
 public class JSDatabaseHelper extends JasperMobileDbDatabase {
-    private static final String TAG = JSDatabaseHelper.class.getSimpleName();
     private final Context mContext;
 
     public JSDatabaseHelper(Context context) {
@@ -80,7 +82,9 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
             case 3:
                 new ProfileAccountMigration(mContext).migrate(db);
-                db.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
+                new ProfileFavoritesMigration().migrate(db);
+                new SavedItemsMigration().migrate(db);
+                new FavoritesRemoveColumnMigration().migrate(db);
                 break;
         }
     }

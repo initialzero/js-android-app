@@ -45,6 +45,7 @@ public class ProfileManager {
 
     public static JsServerProfile getServerProfile(AccountServerData serverData) {
         JsServerProfile profile = new JsServerProfile();
+        profile.setAlias(serverData.getAlias());
         profile.setServerUrl(serverData.getServerUrl());
         profile.setOrganization(serverData.getOrganization());
         profile.setUsername(serverData.getUsername());

@@ -32,9 +32,6 @@
 			"buildable": true,
 			"members" : [{
 					"type" : "string",
-					"name" : "name"
-				}, {
-					"type" : "string",
 					"name" : "title"
 				}, {
 					"type" : "string",
@@ -51,6 +48,11 @@
 				}, {
 					"type" : "string",
 					"name" : "organization"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "account_name",
+ 					"not_null": true,
+ 					"default": "\'\'"
                 }, {
  					"type" : "string",
  					"name" : "creation_time"
@@ -80,29 +82,17 @@
  				}, {
  					"type" : "string",
  					"name" : "organization"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "account_name",
+                    "not_null": true,
+                    "default": "\'\'"
                 }, {
   				    "type" : "long",
   				    "name" : "creation_time"
-                }
+ 				}
  			]
  		}
 	],
-	"relationships" : [{
-			"name" : "server_profiles_favorites",
-			"left_table" : "server_profiles",
-			"right_table" : "favorites",
-			"foreign_key" : "server_profile_id",
-			"modify_action": {
-                "type": "delete",
-                "action": "cascade"
-            },
-			"type" : "to_many"
-        }, {
-   			"name" : "server_profiles_saved_items",
-   			"left_table" : "server_profiles",
-   			"right_table" : "saved_items",
-   			"foreign_key" : "server_profile_id",
-   			"type" : "to_many"
-   		}
-	]
+	"relationships" : []
 }

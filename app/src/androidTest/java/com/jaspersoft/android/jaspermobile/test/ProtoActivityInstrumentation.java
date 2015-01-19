@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.test;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
@@ -40,10 +41,11 @@ import android.view.WindowManager;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
+import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
+import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
@@ -67,7 +69,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     protected T mActivity;
     protected JsRestClient jsRestClient;
-    private ProfileHelper_ profileHelper;
     private Application mApplication;
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
@@ -91,7 +92,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
         RoboGuice.util.reset();
         mApplication = null;
         mActivity = null;
-        profileHelper = null;
     }
 
     @Test
@@ -101,11 +101,20 @@ public class ProtoActivityInstrumentation<T extends Activity>
     }
 
     protected void setDefaultCurrentProfile() {
-        profileHelper = ProfileHelper_.getInstance_(getApplication());
-        DatabaseUtils.deleteAllProfiles(getContentResolver());
-        long id = DatabaseUtils.createDefaultProfile(getContentResolver());
-        profileHelper.setCurrentServerProfile(id);
-        profileHelper.setCurrentInfoSnapshot(id);
+        AccountServerData serverData = new AccountServerData()
+                .setAlias(AccountServerData.Demo.ALIAS)
+                .setServerUrl(AccountServerData.Demo.SERVER_URL)
+                .setOrganization(AccountServerData.Demo.ORGANIZATION)
+                .setUsername(AccountServerData.Demo.USERNAME)
+                .setPassword(AccountServerData.Demo.PASSWORD)
+                .setEdition("PRO")
+                .setVersionName("5.5");
+        Account account = AccountUtil.get(getApplication())
+                .removeAllAccounts()
+                .addAccount(serverData)
+                .setAuthToken()
+                .activate().getAccount();
+        ProfileManager.initLegacyJsRestClient(getApplication(), account, getJsRestClient());
     }
 
     public void startActivityUnderTest() {

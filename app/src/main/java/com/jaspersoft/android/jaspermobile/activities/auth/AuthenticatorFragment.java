@@ -71,7 +71,7 @@ import static rx.android.app.AppObservable.bindFragment;
  * @author Tom Koptel
  * @since 2.0
  */
-@EFragment(R.layout.login_layout)
+@EFragment(R.layout.add_account_layout)
 public class AuthenticatorFragment extends RoboFragment {
     @ViewById
     protected EditText aliasEdit;

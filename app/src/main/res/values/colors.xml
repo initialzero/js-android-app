@@ -38,8 +38,6 @@
     <color name="card_header_config">#484a4f</color>
 
     <color name="card_login_bg">#2e3136</color>
-    <color name="edit_login_bg">#1c1d21</color>
-    <color name="edit_login_border">#16171a</color>
     <color name="btn_demo_bg">#124f78</color>
     <color name="btn_demo_bg_pressed">#ff08456e</color>
     <color name="btn_login_bg">#33373d</color>

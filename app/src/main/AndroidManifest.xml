@@ -73,12 +73,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Activity that provides functionality for creating and modifying server profiles -->
-        <activity
-            android:name=".activities.profile.ServerProfileActivity_"
-            android:configChanges="locale"
-            android:label="@string/sp_bc_add_profile" />
-
         <activity
             android:name=".activities.account.AccountsActivity_"
             android:label="@string/accounts_activity_label"
@@ -87,12 +81,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.HomeActivity_" />
         </activity>
-
-        <!-- Activity that provides the server profiles management -->
-        <activity
-            android:name=".activities.profile.ServersManagerActivity_"
-            android:configChanges="locale"
-            android:label="@string/spm_list_title" />
 
         <!-- Activity that performs library view -->
         <activity
@@ -166,13 +154,13 @@
         <activity
             android:name="com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_"
             android:configChanges="locale"
-            android:launchMode="singleTop"></activity>
+            android:launchMode="singleTop" />
 
         <!-- Activity that allows to make search in Favorites activity -->
         <activity
             android:name="com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesSearchableActivity_"
             android:configChanges="locale"
-            android:launchMode="singleTop"></activity>
+            android:launchMode="singleTop" />
 
         <!-- Activity that shows Privacy Policy -->
         <activity
@@ -207,7 +195,9 @@
             android:exported="false" />
 
         <!-- SDK external components -->
-        <service android:name=".auth.JasperAuthenticatorService">
+        <service
+            android:name=".auth.JasperAuthenticatorService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

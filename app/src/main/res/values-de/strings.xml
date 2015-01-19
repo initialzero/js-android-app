@@ -98,7 +98,7 @@
     <string name="r_cm_remove_from_favorites_failed">Der Eintrag konnte nicht aus den Favoriten entfernt werden.</string>
 
     <!-- Progress Dialog -->
-    <string name="r_pd_running_report_msg">Bericht ausführen...</string>
+    <string name="r_pd_running_report_msg">Bericht ausführen&#8230;</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_supported">Entweder ist die Serverversion älter als 5.5 (nicht unterstützt), oder die URL ist falsch.</string>
@@ -198,7 +198,7 @@
     <string name="error_http_504">504 - Timeout beim Gateway.</string>
 
     <!-- Others -->
-    <string name="loading_msg">Laden...</string>
+    <string name="loading_msg">Laden&#8230;</string>
     <string name="error_msg">Fehler</string>
     <string name="warning_msg">Warnung</string>
     <string name="cancelled_msg">Abgebrochen</string>

@@ -67,7 +67,6 @@ public class FavoritesHelper {
     JsRestClient jsRestClient;
     private Toast mToast;
 
-    @SuppressWarnings("ShowToast")
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
@@ -175,6 +174,7 @@ public class FavoritesHelper {
         return favoriteEntryUri;
     }
 
+    @SuppressWarnings("ShowToast")
     private Toast getToast() {
         if (mToast == null) {
             mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);

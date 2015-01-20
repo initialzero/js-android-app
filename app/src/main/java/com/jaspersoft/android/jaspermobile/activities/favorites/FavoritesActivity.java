@@ -26,21 +26,44 @@ package com.jaspersoft.android.jaspermobile.activities.favorites;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
+import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EActivity(R.layout.repositories_layout)
+@OptionsMenu(R.menu.saved_items_menu)
 public class FavoritesActivity extends RoboAccentFragmentActivity {
+
+    private FavoritesControllerFragment favoriteController;
+
+    @InstanceState
+    ResourceLookup.ResourceType filterType;
+
+    @InstanceState
+    SortOrder sortOrder;
+
+    @Pref
+    LibraryPref_ pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +75,57 @@ public class FavoritesActivity extends RoboAccentFragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            FavoritesControllerFragment controllerFragment = FavoritesControllerFragment_.builder().build();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.controller, controllerFragment, FavoritesControllerFragment.TAG)
-                    .commit();
+            // Reset all controls state
+            pref.clear();
+
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            favoriteController = FavoritesControllerFragment_.builder()
+                    .build();
+
+            transaction.add(R.id.controller, favoriteController, FavoritesControllerFragment.TAG);
+
+            FavoritesSearchFragment searchFragment = FavoritesSearchFragment_.builder().build();
+            transaction.add(searchFragment, FavoritesSearchFragment.TAG);
+
+            transaction.commit();
+        }
+        else {
+            favoriteController = (FavoritesControllerFragment) getSupportFragmentManager()
+                    .findFragmentByTag(FavoritesControllerFragment.TAG);
         }
     }
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
         super.onBackPressed();
+    }
+
+    @OptionsItem(R.id.filter)
+    final void startFiltering() {
+        FilterFavoritesDialogFragment.show(getSupportFragmentManager(), filterType,
+                new FilterFavoritesDialogFragment.FilterFavoritesDialogListener() {
+                    @Override
+                    public void onDialogPositiveClick(ResourceLookup.ResourceType newFilterType) {
+                        if (favoriteController != null) {
+                            favoriteController.loadItemsByTypes(newFilterType);
+                            filterType = newFilterType;
+                        }
+                    }
+                });
+    }
+
+    @OptionsItem(R.id.sort)
+    final void startSorting() {
+        SortDialogFragment.show(getSupportFragmentManager(), new SortDialogFragment.SortDialogListener() {
+            @Override
+            public void onOptionSelected(SortOrder _sortOrder) {
+                if (favoriteController != null) {
+                    favoriteController.loadItemsBySortOrder(_sortOrder);
+                    sortOrder = _sortOrder;
+                }
+            }
+        });
     }
 
 }

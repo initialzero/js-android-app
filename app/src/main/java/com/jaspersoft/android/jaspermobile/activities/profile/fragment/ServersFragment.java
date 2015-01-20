@@ -155,7 +155,10 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
 
         long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
 
-        ServerProfileActivity_.intent(getActivity()).profileId(profileId).start();
+        ServerProfileActivity_.intent(getActivity())
+                .profileId(profileId)
+                .inEditMode(true)
+                .start();
         mAdapter.finishActionMode();
     }
 
@@ -169,6 +172,20 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
                 .setPositiveButtonText(R.string.spm_delete_btn)
                 .setNegativeButtonText(R.string.spm_cancel_btn)
                 .show();
+    }
+
+    @Override
+    public void onClone(int position) {
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(position);
+
+        long profileId = cursor.getLong(cursor.getColumnIndex(ServerProfilesTable._ID));
+
+        ServerProfileActivity_.intent(getActivity())
+                .profileId(profileId)
+                .inEditMode(false)
+                .start();
+        mAdapter.finishActionMode();
     }
 
     @Override

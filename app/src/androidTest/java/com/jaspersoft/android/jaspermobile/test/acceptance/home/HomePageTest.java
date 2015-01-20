@@ -24,7 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.home;
 
-import com.google.android.apps.common.testing.ui.espresso.Espresso;
+import android.support.test.espresso.Espresso;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -34,22 +35,25 @@ import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 1.9
  */
-    public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
+public class HomePageTest extends ProtoActivityInstrumentation<HomeActivity_> {
 
     @Mock
     ConnectivityUtil mockConectivityUtil;
@@ -58,7 +62,7 @@ import static org.mockito.Mockito.when;
         super(HomeActivity_.class);
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
@@ -68,12 +72,13 @@ import static org.mockito.Mockito.when;
         setDefaultCurrentProfile();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testMissingNetworkConnectionCase() {
         // Given simulation of connection loss
         when(mockConectivityUtil.isConnected()).thenReturn(false);
@@ -91,6 +96,7 @@ import static org.mockito.Mockito.when;
         }
     }
 
+    @Test
     public void testOverAllNavigationForDashboard() {
         startActivityUnderTest();
 
@@ -118,6 +124,10 @@ import static org.mockito.Mockito.when;
         Espresso.pressBack();
         onView(withId(R.id.home_item_servers)).perform(click());
     }
+
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
 
     private class TestModule extends HackedTestModule {
         @Override

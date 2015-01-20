@@ -49,7 +49,7 @@ android {
 //        xx - major version number
 //        yy - minor version number
 //        zz - revision number
-        versionCode 15010900
+        versionCode 15020000
         versionName generateVersionName()
         testInstrumentationRunner INSTRUMENTATION_RUNNER
     }
@@ -67,8 +67,7 @@ android {
         buildTypes {
             release {
                 minifyEnabled true
-                proguardFile "proguard.cfg"
-                proguardFile getDefaultProguardFile('proguard-android.txt')
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard.cfg"
                 signingConfig signingConfigs.release
             }
         }
@@ -91,13 +90,6 @@ android {
         lintConfig file("lint.xml")
     }
 
-    applicationVariants.all { variant ->
-        renameApk(variant)
-        variant.assemble.doLast {
-            removeUnaligned(variant)
-        }
-    }
-
     sourceSets.main {
         // src/gen is the target for generated content like json model
         java.srcDirs += 'build/generated/source/db'
@@ -114,9 +106,9 @@ android {
         dev {
         }
         production {
-            defaultConfig {
-                versionName "1.9"
-            }
+            versionCode 15020000
+            versionName "2.0"
+
             buildTypes {
                 debug {
                     if (project.hasProperty('JMA_STORE_FILE')) {
@@ -140,7 +132,7 @@ dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
 
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'
@@ -167,10 +159,13 @@ dependencies {
 
     // Remove gradle dependency
     // When all required testing for JRS will be completed
-    compile 'com.google.code.gson:gson:1.7.2'
+    compile 'com.google.code.gson:gson:2.3'
 
-    androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
-        exclude group: 'com.google.guava'
+    // Dependency for image loading management
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+
+    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {
+        exclude group: 'com.android.support'
     }
     androidTestCompile('org.mockito:mockito-core:1.9.5') {
         exclude group: "org.hamcrest"

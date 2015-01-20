@@ -224,7 +224,8 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[/%d]]></string>
     <string name="dialog_current_page">设置当前页</string>
-
+    <string name="rv_error_empty_report_message">如果您要更改过滤器选项则敲击“确定”，或者敲击“取消”返回至原报告。</string>
+    <string name="rv_error_empty_report_title">报告为空</string>
 
 
 </resources>

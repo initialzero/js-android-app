@@ -1,7 +1,7 @@
 {
 	"packageName" : "com.jaspersoft.android.jaspermobile.db",
 	"providerName" : "jasper_mobile_db",
-	"databaseVersion" : 3,
+	"databaseVersion" : 4,
 	"tables" : [{
 			"name" : "server_profiles",
 			"members" : [{
@@ -50,9 +50,40 @@
 				}, {
 					"type" : "string",
 					"name" : "organization"
-				}
+                }, {
+ 					"type" : "string",
+ 					"name" : "creation_time"
+ 				}
 			]
-		}
+		}, {
+ 			"name" : "saved_items",
+ 			"members" : [{
+                    "type" : "string",
+                    "name" : "file_path"
+                }, {
+ 					"type" : "string",
+ 					"name" : "name"
+                }, {
+  					"type" : "string",
+  					"name" : "file_format"
+  				}, {
+ 					"type" : "string",
+ 					"name" : "description"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "wstype"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "username"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "organization"
+                }, {
+  				    "type" : "long",
+  				    "name" : "creation_time"
+                }
+ 			]
+ 		}
 	],
 	"relationships" : [{
 			"name" : "server_profiles_favorites",
@@ -64,6 +95,12 @@
                 "action": "cascade"
             },
 			"type" : "to_many"
-		}
+        }, {
+   			"name" : "server_profiles_saved_items",
+   			"left_table" : "server_profiles",
+   			"right_table" : "saved_items",
+   			"foreign_key" : "server_profile_id",
+   			"type" : "to_many"
+   		}
 	]
 }

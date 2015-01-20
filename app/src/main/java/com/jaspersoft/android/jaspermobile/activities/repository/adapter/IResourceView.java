@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
+import android.widget.ImageView;
+
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -38,5 +40,5 @@ public interface IResourceView {
 
     void setMisc(CharSequence misc);
 
-    void setImageIcon(int image);
+    ImageView getImageView();
 }

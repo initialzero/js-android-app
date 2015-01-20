@@ -42,7 +42,7 @@ public final class TestResources {
     public static final String ONLY_DASHBOARD = "only_dashboard";
     public static final String ONLY_REPORT = "only_report";
     public static final String ONLY_FOLDER = "level_repositories";
-    public static final String ALL_RESOURCES = "library_reports_small";
+    public static final String ALL_RESOURCES = "all_resources";
     public static final String BIG_LOOKUP = "library_0_40";
     public static final String SMALL_LOOKUP = "library_reports_small";
     public static final String ROOT_FOLDER = "root_folder";
@@ -58,17 +58,21 @@ public final class TestResources {
     }
 
     public <T> T fromXML(Class<T> clazz, String fileName) {
-        InputStream stream = getClass().getClassLoader().getResourceAsStream(fileName + ".xml");
+        InputStream stream = getStream(fileName);
 
         Serializer serializer = new Persister();
         try {
             return serializer.read(clazz, stream);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(stream);
         }
     }
+
     public String rawData(String fileName) {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName + ".xml");
+        InputStream inputStream = getStream(fileName);
+
         StringWriter writer = new StringWriter();
         try {
             IOUtils.copy(inputStream, writer, "UTF-8");
@@ -78,6 +82,19 @@ public final class TestResources {
             IOUtils.closeQuietly(inputStream);
         }
         return writer.toString();
+    }
+
+    public InputStream getStream(String fileName) {
+        return getClass().getClassLoader().getResourceAsStream(fileName + ".xml");
+    }
+
+    public byte[] getBytes(String fileName) throws IOException {
+        InputStream stream = getStream(fileName);
+        try {
+            return IOUtils.toByteArray(stream);
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
     }
 
     public static TestResources get() {

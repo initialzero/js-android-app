@@ -40,17 +40,17 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
@@ -60,6 +60,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -157,6 +158,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         resourceOpener.setResourceTypes(resourceTypes);
 
         mSearchCriteria.setForceFullPage(true);
+        mSearchCriteria.setLimit(mLimit);
         mSearchCriteria.setRecursive(recursiveLookup);
         mSearchCriteria.setTypes(resourceTypes);
         mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
@@ -182,7 +184,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -194,15 +196,10 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         listView.setOnScrollListener(new ScrollListener());
 
-        mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
-                .setViewType(viewType)
-                .create();
-        mAdapter.setAdapterView(listView);
-        listView.setAdapter(mAdapter);
-
         infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
             @Override
             public void onInfoReceived(ServerInfoSnapshot serverInfo) {
+                setDataAdapter(serverInfo, savedInstanceState);
                 updatePaginationPolicy(serverInfo);
 
                 String proVersion = ServerInfo.EDITIONS.PRO;
@@ -216,7 +213,6 @@ public class ResourcesFragment extends RoboSpiceFragment
                 }
             }
         });
-
     }
 
     @Override
@@ -245,6 +241,8 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void onRefresh() {
+        ImageLoader.getInstance().clearDiskCache();
+        ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
         loadFirstPage();
     }
@@ -277,6 +275,15 @@ public class ResourcesFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void setDataAdapter(ServerInfoSnapshot serverInfo, Bundle savedInstanceState) {
+        mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
+                .viewType(viewType)
+                .serverVersion(serverInfo.getVersionCode())
+                .create();
+        mAdapter.setAdapterView(listView);
+        listView.setAdapter(mAdapter);
+    }
 
     private void updatePaginationPolicy(ServerInfoSnapshot serverInfo) {
         double versionCode = serverInfo.getVersionCode();
@@ -345,9 +352,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
-//---------------------------------------------------------------------
-// Inner classes
-//---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
 
     private class GetRootFolderDataRequestListener implements RequestListener<FolderDataResponse> {
         @Override
@@ -409,9 +416,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-//---------------------------------------------------------------------
-// Implements AbsListView.OnScrollListener
-//---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    // Implements AbsListView.OnScrollListener
+    //---------------------------------------------------------------------
 
     private class ScrollListener extends SimpleScrollListener {
         @Override

@@ -56,9 +56,9 @@ import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
@@ -96,6 +96,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
 
     @Extra
     long profileId;
+    @Extra
+    boolean inEditMode;
 
     @ViewById
     EditText aliasEdit;
@@ -123,6 +125,10 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     String username;
     @InstanceState
     String password;
+    @InstanceState
+    ServerProfiles mServerProfile;
+    @InstanceState
+    ServerProfiles mLoadedProfile;
 
     @SystemService
     InputMethodManager inputMethodManager;
@@ -132,8 +138,6 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     @Bean
     ServerInfoManager infoManager;
 
-    private ServerProfiles mServerProfile;
-    private ServerProfiles mLoadedProfile;
     private int mActionBarSize;
 
     @Override
@@ -167,7 +171,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     @OptionsItem
     final void saveAction() {
         if (isFormValid()) {
-            if (mServerProfile == null) {
+            if (mServerProfile == null || !inEditMode) {
                 mServerProfile = new ServerProfiles();
             }
             mServerProfile.setAlias(alias);
@@ -345,7 +349,8 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             getActionBar().setSubtitle(mServerProfile.getAlias());
         }
 
-        aliasEdit.setText(mServerProfile.getAlias());
+        String aliasSuffix = (inEditMode ? "" : getString(R.string.sp_label_alias_clone));
+        aliasEdit.setText(mServerProfile.getAlias() + aliasSuffix);
         serverUrlEdit.setText(mServerProfile.getServerUrl());
         organizationEdit.setText(mServerProfile.getOrganization());
         usernameEdit.setText(mServerProfile.getUsername());
@@ -376,7 +381,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             toast.show();
         } else {
             JsServerProfile oldProfile = jsRestClient.getServerProfile();
-            if (oldProfile != null && oldProfile.getId() == profileId) {
+            if (oldProfile != null && oldProfile.getId() == profileId && inEditMode) {
                 updateServerProfile(oldProfile);
             } else {
                 persistProfileData();
@@ -431,16 +436,19 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
     }
 
     private void persistProfileData() {
-        if (profileId == 0) {
-            Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
-            profileId = Long.valueOf(uri.getLastPathSegment());
-            Toast.makeText(this, getString(R.string.spm_profile_created_toast, alias), Toast.LENGTH_LONG).show();
-        } else {
+        if (inEditMode) {
             String selection = ServerProfilesTable._ID + " =?";
             String[] selectionArgs = {String.valueOf(profileId)};
             getContentResolver().update(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                     mServerProfile.getContentValues(), selection, selectionArgs);
             Toast.makeText(this, getString(R.string.spm_profile_updated_toast, alias), Toast.LENGTH_LONG).show();
+        } else {
+            boolean isNewProfile = (profileId == 0);
+            int toastMessage = isNewProfile ? R.string.spm_profile_created_toast : R.string.spm_profile_cloned_toast;
+
+            Uri uri = getContentResolver().insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, mServerProfile.getContentValues());
+            profileId = Long.valueOf(uri.getLastPathSegment());
+            Toast.makeText(this, getString(toastMessage, alias), Toast.LENGTH_LONG).show();
         }
         getContentResolver().notifyChange(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, null);
     }

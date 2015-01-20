@@ -24,7 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.runner.AndroidJUnit4;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
@@ -44,14 +47,18 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.apache.http.hacked.HackedJsRestClient;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.atLeastOnce;
@@ -62,6 +69,7 @@ import static org.mockito.Mockito.verify;
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryActivity_> {
 
     private final SpiceManagerRequestAssert mMockedSpiceManager = spy(new SpiceManagerRequestAssert());
@@ -70,9 +78,10 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
         super(LibraryActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
@@ -81,13 +90,21 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
         FakeHttpLayerManager.clearHttpResponseRules();
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.ALL_RESOURCES);
+                TestResponses.SMALL_LOOKUP);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        unregisterTestModule();
+        super.tearDown();
+    }
+
+    @Test
     public void testSortByDate() {
         verifySortBy(SortOrder.CREATION_DATE, R.string.s_fd_sort_date);
     }
 
+    @Test
     public void testSortByLabel() {
         verifySortBy(SortOrder.LABEL, R.string.s_fd_sort_label);
     }
@@ -123,6 +140,10 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
                 argument3.capture(), argument4.capture());
     }
 
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void clickSortMenuItem() {
         try {
             onView(withId(R.id.sort)).perform(click());
@@ -135,6 +156,10 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
             }
         }
     }
+
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
 
     private class TestModule extends CommonTestModule {
         @Override

@@ -35,19 +35,23 @@ import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.pressBack;
+import static android.support.test.espresso.action.ViewActions.clearText;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createOnlyDefaultProfile;
+import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.createTestProfile;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
@@ -68,19 +72,20 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         super(HomeActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         createOnlyDefaultProfile(getContentResolver());
         registerTestModule(new SpiceAwareModule());
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testUserSelectsDefaultProfile() {
         startActivityUnderTest();
 
@@ -96,7 +101,9 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         assertThat(serverProfile.getPassword(), is(ProfileHelper.DEFAULT_PASS));
     }
 
+    @Test
     public void testUserCantDeleteActiveProfile() {
+        createTestProfile(getContentResolver());
         startActivityUnderTest();
 
         onData(is(instanceOf(Cursor.class)))
@@ -111,6 +118,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(ProfileHelper.DEFAULT_ALIAS)))));
     }
 
+    @Test
     public void testUsersRotateScreen() {
         startActivityUnderTest();
 
@@ -121,6 +129,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
                 .atPosition(0).perform(click());
     }
 
+    @Test
     public void testUserIgnoresProfileCreation() {
         startActivityUnderTest();
 
@@ -132,6 +141,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         }
     }
 
+    @Test
     public void testProfileIncorrectSetup() throws Throwable {
         startActivityUnderTest();
 
@@ -150,6 +160,7 @@ public class InitialHomePageTest extends ProtoActivityInstrumentation<HomeActivi
         onView(withId(R.id.saveAction)).perform(click());
     }
 
+    @Test
     public void testProfileIncorrectSetupWithNoPassword() throws Throwable {
         startActivityUnderTest();
 

@@ -24,10 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.runner.AndroidJUnit4;
 import android.widget.GridView;
 import android.widget.ListView;
 
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
@@ -41,20 +43,24 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.pressImeActionButton;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static android.support.test.espresso.Espresso.pressBack;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -63,6 +69,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivity_> {
     private static final int DASHBOARD_ITEM_POSITION = 1;
 
@@ -76,9 +83,10 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         super(LibraryActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
         dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
@@ -92,12 +100,13 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
                 TestResponses.SMALL_LOOKUP);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testDashboardItemClick() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
@@ -109,18 +118,21 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         pressBack();
     }
 
+    @Test
     public void testInitialLoadOfGrid() {
         forcePreview(ViewType.GRID);
         startActivityUnderTest();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
+    @Test
     public void testInitialLoadOfList() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
+    @Test
     public void testSwitcher() {
         forcePreview(ViewType.LIST);
         startActivityUnderTest();
@@ -136,12 +148,14 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
+    @Test
     public void testHomeAsUp() {
         startActivityUnderTest();
         onView(withId(android.R.id.home)).perform(click());
         onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }
 
+    @Test
     public void testActionModeAboutIcon() {
         ResourceLookup resource = smallLookUp.getResourceLookups().get(0);
         startActivityUnderTest();
@@ -156,7 +170,9 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(resource.getDescription())));
     }
 
+    @Test
     public void testSearchInRepository() {
+        forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
         try {
@@ -170,7 +186,15 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
 
         onView(withText(getActivity().getString(R.string.search_result_format, GEO_QUERY)))
                 .check(matches(isDisplayed()));
+
+        onView(withId(R.id.switchLayout)).perform(click());
+        pressBack();
+        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void forcePreview(ViewType viewType) {
         ControllerPref controllerPref = new ControllerPref(getInstrumentation().getContext(), CLASS_NAME);

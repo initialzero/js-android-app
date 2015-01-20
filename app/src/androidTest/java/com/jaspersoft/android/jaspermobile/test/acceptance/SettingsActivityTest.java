@@ -24,22 +24,30 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.concurrent.TimeUnit;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_REPO_CACHE_EXPIRATION;
@@ -50,6 +58,7 @@ import static org.hamcrest.core.Is.is;
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsActivity_> {
 
     private DefaultPrefHelper_ prefHelper;
@@ -58,13 +67,21 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         super(SettingsActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+
         prefHelper = DefaultPrefHelper_.getInstance_(getInstrumentation().getContext());
         startActivityUnderTest();
     }
 
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    @Test
     public void testReadTimeOutShouldNotAcceptIncorrectInteger() {
         startActivityUnderTest();
         onView(withText(R.string.st_category_connection)).perform(click());
@@ -77,6 +94,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         assertThat(prefHelper.getReadTimeoutValue(), is(expectedTimeOut));
     }
 
+    @Test
     public void testConnectionTimeOutShouldNotAcceptIncorrectInteger() {
         startActivityUnderTest();
         onView(withText(R.string.st_category_connection)).perform(click());
@@ -89,6 +107,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         assertThat(prefHelper.getConnectTimeoutValue(), is(expectedTimeOut));
     }
 
+    @Test
     public void testConnectionCacheExpirationShouldNotAcceptIncorrectInteger() {
         prefHelper.setRepoCacheEnabled(true);
         startActivityUnderTest();
@@ -103,6 +122,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         assertThat(prefHelper.getRepoCacheExpirationValue(), is(defaultValue));
     }
 
+    @Test
     public void testShowAboutInfo() {
         startActivityUnderTest();
         onView(withId(R.id.showAbout)).perform(click());

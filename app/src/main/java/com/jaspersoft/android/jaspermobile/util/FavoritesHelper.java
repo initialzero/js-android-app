@@ -72,7 +72,6 @@ public class FavoritesHelper {
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);
-        mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
     }
 
     public Uri addToFavorites(ResourceLookup resource) {
@@ -89,6 +88,7 @@ public class FavoritesHelper {
         favoriteEntry.setUsername(profile.getUsername());
         favoriteEntry.setOrganization(profile.getOrganization());
         favoriteEntry.setServerProfileId(profile.getId());
+        favoriteEntry.setCreationTime(resource.getCreationDate());
 
         return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 favoriteEntry.getContentValues());
@@ -147,9 +147,14 @@ public class FavoritesHelper {
             }
         }
 
-        if (favoriteAction != null) favoriteAction.setIcon(iconId);
-        mToast.setText(messageId);
-        mToast.show();
+        if (favoriteAction != null) {
+            favoriteAction.setIcon(iconId);
+            favoriteAction.setTitle(iconId == R.drawable.ic_rating_not_favorite
+                    ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        }
+
+        getToast().setText(messageId);
+        getToast().show();
 
         return favoriteEntryUri;
     }
@@ -168,5 +173,12 @@ public class FavoritesHelper {
         }
 
         return favoriteEntryUri;
+    }
+
+    private Toast getToast() {
+        if (mToast == null) {
+            mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+        }
+        return mToast;
     }
 }

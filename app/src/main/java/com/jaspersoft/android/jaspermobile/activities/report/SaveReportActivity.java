@@ -31,6 +31,7 @@ import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFr
 import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
@@ -47,11 +48,11 @@ import java.util.ArrayList;
 public class SaveReportActivity extends RoboSpiceFragmentActivity {
 
     @Extra
-    String resourceLabel;
-    @Extra
-    String resourceUri;
+    ResourceLookup resource;
     @Extra
     ArrayList<ReportParameter> reportParameters;
+    @Extra
+    int pageCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +65,9 @@ public class SaveReportActivity extends RoboSpiceFragmentActivity {
 
         if (savedInstanceState == null) {
             SaveItemFragment saveItemFragment = SaveItemFragment_.builder()
-                    .resourceLabel(resourceLabel)
-                    .resourceUri(resourceUri)
+                    .resource(resource)
                     .reportParameters(reportParameters)
+                    .pageCount(pageCount)
                     .build();
             getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, saveItemFragment, SaveItemFragment.TAG)

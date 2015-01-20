@@ -47,6 +47,10 @@ public class DatabaseUtils {
     public static final String TEST_USERNAME = "testuser";
     public static final String TEST_PASS = "testuser";
 
+    private DatabaseUtils() {
+        throw new AssertionError();
+    }
+
     public static long createTestProfile(ContentResolver contentResolver) {
         ServerProfiles serverProfile = new ServerProfiles();
         serverProfile.setAlias(TEST_ALIAS);
@@ -87,6 +91,7 @@ public class DatabaseUtils {
     public static void deleteAllFavorites(ContentResolver contentResolver) {
         contentResolver.delete(JasperMobileDbProvider.FAVORITES_CONTENT_URI, null, null);
     }
+
     public static Cursor getAllFavorites(ContentResolver contentResolver) {
         return contentResolver.query(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 FavoritesTable.ALL_COLUMNS, null, null, null);
@@ -106,6 +111,10 @@ public class DatabaseUtils {
         String[] selectionArgs = {DatabaseUtils.TEST_ALIAS};
         return contentResolver.query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                 ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
+    }
+
+    public static void deleteAllSavedItems(ContentResolver contentResolver) {
+        contentResolver.delete(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI, null, null);
     }
 
     @Nullable

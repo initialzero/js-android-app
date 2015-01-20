@@ -63,8 +63,6 @@
     <!-- Server Profile Activity -->
     <string name="sp_bc_add_profile">Neues Serverprofil</string>
     <string name="sp_bc_edit_profile">Serverprofil bearbeiten</string>
-    <string name="sp_name_label">Name:</string>
-    <string name="sp_name_hint">mein Servername</string>
     <string name="sp_url_label">Server-URL:</string>
     <string name="sp_url_hint">http://meinserver.com</string>
     <string name="sp_org_label">Organisation:</string>
@@ -73,7 +71,6 @@
     <string name="sp_username_hint">mein Benutzername</string>
     <string name="sp_password_label">Passwort:</string>
     <string name="sp_password_hint">mein Passwort</string>
-    <string name="sp_ask_password_text">Immer nach Passwort fragen</string>
     <string name="sp_save_btn">Speichern</string>
     <string name="sp_active_item">Aktiv: %s</string>
     <string name="sp_label_general">Allgemein</string>
@@ -101,7 +98,7 @@
     <string name="r_cm_remove_from_favorites_failed">Der Eintrag konnte nicht aus den Favoriten entfernt werden.</string>
 
     <!-- Progress Dialog -->
-    <string name="r_pd_running_report_msg">Bericht ausführen...</string>
+    <string name="r_pd_running_report_msg">Bericht ausführen&#8230;</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_supported">Entweder ist die Serverversion älter als 5.5 (nicht unterstützt), oder die URL ist falsch.</string>
@@ -201,7 +198,7 @@
     <string name="error_http_504">504 - Timeout beim Gateway.</string>
 
     <!-- Others -->
-    <string name="loading_msg">Laden...</string>
+    <string name="loading_msg">Laden&#8230;</string>
     <string name="error_msg">Fehler</string>
     <string name="warning_msg">Warnung</string>
     <string name="cancelled_msg">Abgebrochen</string>

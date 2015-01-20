@@ -63,8 +63,6 @@
     <!-- Server Profile Activity -->
     <string name="sp_bc_add_profile">新建服务器配置文件</string>
     <string name="sp_bc_edit_profile">编辑服务器配置文件</string>
-    <string name="sp_name_label">名称:</string>
-    <string name="sp_name_hint">我的服务器名称</string>
     <string name="sp_url_label">服务器 URL:</string>
     <string name="sp_url_hint">http://myserver.com</string>
     <string name="sp_org_label">组织:</string>
@@ -73,7 +71,6 @@
     <string name="sp_username_hint">我的用户名</string>
     <string name="sp_password_label">密码:</string>
     <string name="sp_password_hint">我的密码</string>
-    <string name="sp_ask_password_text">总是要求输入密码</string>
     <string name="sp_save_btn">保存</string>
     <string name="sp_active_item">活动: %s</string>
     <string name="sp_label_general">常规</string>

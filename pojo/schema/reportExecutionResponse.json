@@ -1,0 +1,18 @@
+{
+    "description": "Request execution data.",
+    "type": "object",
+    "properties": {
+        "status": { "type": "string" },
+        "reportURI": { "type": "string" },
+        "requestId": { "type": "string" },
+        "totalPages": { "type": "integer" },
+        "currentPage": { "type": "integer" },
+        "exports": {
+            "type": "array",
+            "items" : {
+                "type" : "object",
+                "$ref": "export.json"
+            }
+        }
+    }
+}

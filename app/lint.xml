@@ -41,4 +41,14 @@
     <issue id="InvalidPackage">
         <ignore regexp="okio-2.0.0.jar" />
     </issue>
+    <issue id="NewApi">
+        <ignore path="src/main/res/values/styles.xml" />
+    </issue>
+    <issue id="UnusedAttribute">
+        <ignore path="src/main/AndroidManifest.xml" />
+        <ignore path="src/main/res/layout/login_layout.xml" />
+        <ignore path="src/main/res/layout-sw600dp/login_layout.xml" />
+        <ignore path="src/main/res/layout-sw600dp-land/login_layout.xml" />
+        <ignore path="src/main/res/layout-land/login_layout.xml" />
+    </issue>
 </lint>

@@ -1,0 +1,13 @@
+{
+    "description": "Represents server general info.",
+    "type": "object",
+    "properties": {
+        "build": { "type": "string" },
+        "edition": { "type": "string" },
+        "edition": { "type": "string" },
+        "expiration": { "type": "string" },
+        "features": { "type": "string" },
+        "licenseType": { "type": "string" },
+        "version": { "type": "string" }
+    }
+}

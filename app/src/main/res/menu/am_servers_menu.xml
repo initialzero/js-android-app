@@ -30,15 +30,4 @@
         android:icon="@drawable/ic_resource_delete"
         android:title="@string/spm_cm_delete" />
 
-    <item
-        android:id="@+id/editItem"
-        android:showAsAction="ifRoom"
-        android:icon="@drawable/ic_content_edit"
-        android:title="@string/spm_cm_edit" />
-
-    <item
-        android:id="@+id/cloneItem"
-        android:showAsAction="ifRoom"
-        android:icon="@drawable/ic_clone_action"
-        android:title="@string/spm_cm_clone" />
 </menu>

@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report.fragment;
 
+import android.accounts.Account;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,6 +48,7 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
@@ -285,6 +287,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     }
 
     private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {
+        Account currentAccount = BasicAccountProvider.get(getActivity()).getAccount();
         JsServerProfile profile = jsRestClient.getServerProfile();
         SavedItems savedItemsEntry = new SavedItems();
 
@@ -296,7 +299,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         savedItemsEntry.setUsername(profile.getUsername());
         savedItemsEntry.setOrganization(profile.getOrganization());
         savedItemsEntry.setCreationTime(new Date().getTime());
-        savedItemsEntry.setServerProfileId(profile.getId());
+        savedItemsEntry.setAccountName(currentAccount.name);
 
         getActivity().getContentResolver().insert(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
                 savedItemsEntry.getContentValues());

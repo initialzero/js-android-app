@@ -74,6 +74,7 @@ android {
     }
 
     packagingOptions {
+        exclude 'META-INF/ASL2.0'
         exclude 'asm-license.txt'
         exclude 'NOTICE'
         exclude 'LICENSE'
@@ -124,6 +125,7 @@ apt {
     arguments {
         androidManifestFile variant.outputs[0].processResources.manifestFile
         resourcePackageName PACKAGE_NAME
+        logLevel "WARN"
     }
 }
 
@@ -131,14 +133,17 @@ apt {
 dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
+    compile project(':sdk')
 
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'
-    compile('com.android.support:support-v4:20.0.0') {
+    compile('com.android.support:support-v4:21.0.3') {
         exclude group: 'com.android.support'
     }
+
+    compile'com.android.support:cardview-v7:21.0.3'
+
     // This is required for @Nullable @NonNull annotations
     compile 'com.android.support:support-annotations:20.0.0'
     // For sugar instantiate of dialogs
@@ -163,6 +168,10 @@ dependencies {
 
     // Dependency for image loading management
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+
+    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
+    androidTestCompile 'com.squareup.okhttp:okhttp:2.1.0'
+    androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
 
     androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {
         exclude group: 'com.android.support'

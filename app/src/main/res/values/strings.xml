@@ -88,8 +88,6 @@
     <!-- Server Profile Activity -->
     <string name="sp_bc_add_profile">New Server Profile</string>
     <string name="sp_bc_edit_profile">Edit Server Profile</string>
-    <string name="sp_name_label">Name:</string>
-    <string name="sp_name_hint">my server name</string>
     <string name="sp_url_label">Server URL:</string>
     <string name="sp_url_hint">http://myserver.com</string>
     <string name="sp_org_label">Organization:</string>
@@ -98,7 +96,6 @@
     <string name="sp_username_hint">my user name</string>
     <string name="sp_password_label">Password:</string>
     <string name="sp_password_hint">my password</string>
-    <string name="sp_ask_password_text">always ask for password</string>
     <string name="sp_save_btn">Save</string>
     <string name="sp_active_item">Active: %s</string>
     <string name="sp_label_general">General</string>
@@ -279,5 +276,19 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
+
+    <!--Accounts activity-->
+    <string name="accounts_activity_label" translatable="false">Jasper Accounts</string>
+    <string name="no_accounts" translatable="false">There is no Jasper accounts registered</string>
+    <string name="add_account" translatable="false">Add account</string>
+    <string name="hint_alias" translatable="false">Alias</string>
+    <string name="hint_server_url" translatable="false">Server url</string>
+    <string name="hint_organization" translatable="false">Organization</string>
+    <string name="hint_username" translatable="false">Username</string>
+    <string name="hint_password" translatable="false">Password</string>
+    <string name="success_add_account" translatable="false"><![CDATA[Add account with name %s]]></string>
+    <string name="failure_add_account" translatable="false"><![CDATA[Failed to add account. Reason: %s]]></string>
+    <string name="adding_account" translatable="false">Adding account</string>
+    <string name="activating_account" translatable="false">Activating account</string>
 
 </resources>

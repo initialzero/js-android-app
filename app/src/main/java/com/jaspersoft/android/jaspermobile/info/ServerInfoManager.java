@@ -24,21 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.info;
 
-import android.content.ContentValues;
-import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetServerInfoRequest;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.server.DefaultVersionParser;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -57,8 +49,6 @@ public class ServerInfoManager {
     FragmentActivity activity;
 
     @Inject
-    JsRestClient jsRestClient;
-    @Inject
     ServerInfoSnapshot mServerInfo;
 
     @AfterInject
@@ -72,47 +62,15 @@ public class ServerInfoManager {
         // for his profile setup. Accepted situation is when user has migrated from
         // version of app 1.8 to 1.9
         if (mServerInfo.isMissing()) {
-            final GetServerInfoRequest request = new GetServerInfoRequest(jsRestClient);
-            spiceManager.execute(request, new GetServerInfoRequestListener(infoCallback));
+            BasicAccountProvider accountProvider = BasicAccountProvider.get(activity);
+            AccountServerData serverData = AccountServerData.get(activity, accountProvider.getAccount());
+            String edition = serverData.getEdition();
+            double versionCode = DefaultVersionParser.getVersionCode(serverData.getVersionName());
+            mServerInfo.setEdition(edition);
+            mServerInfo.setVersionCode(versionCode);
+            infoCallback.onInfoReceived(mServerInfo);
         } else {
             infoCallback.onInfoReceived(mServerInfo);
-        }
-    }
-
-    private class GetServerInfoRequestListener implements RequestListener<ServerInfo> {
-        private final InfoCallback mCallback;
-
-        public GetServerInfoRequestListener(InfoCallback infoCallback) {
-            mCallback = infoCallback;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            if (activity != null) {
-                RequestExceptionHandler.handle(spiceException, activity);
-            }
-        }
-
-        @Override
-        public void onRequestSuccess(ServerInfo serverInfo) {
-            JsServerProfile profile = jsRestClient.getServerProfile();
-
-            // This update only one time, oly for those profile instance which
-            // is misses ServerInfo data, because of data being inconsistent
-            // during migration of Database
-            if (activity != null) {
-                Uri uri = Uri.withAppendedPath(
-                        JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                        String.valueOf(profile.getId()));
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(ServerProfilesTable.VERSION_CODE, serverInfo.getVersionCode());
-                contentValues.put(ServerProfilesTable.EDITION, serverInfo.getEdition());
-                activity.getContentResolver().update(uri, contentValues, null, null);
-            }
-
-            mServerInfo.setEdition(serverInfo.getEdition());
-            mServerInfo.setVersionCode(serverInfo.getVersionCode());
-            mCallback.onInfoReceived(mServerInfo);
         }
     }
 

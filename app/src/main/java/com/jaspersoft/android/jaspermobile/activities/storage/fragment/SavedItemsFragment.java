@@ -53,6 +53,7 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.util.FileUtils;
@@ -235,11 +236,11 @@ public class SavedItemsFragment extends RoboFragment
         selectionArgs.add("-1");
 
         //Add server profile id and username to WHERE params
-        selection.append(SavedItemsTable.SERVER_PROFILE_ID + " =?")
+        selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
                 .append("  AND ")
                 .append(SavedItemsTable.USERNAME + " =?") ;
 
-        selectionArgs.add(String.valueOf(jsServerProfile.getId()));
+        selectionArgs.add(BasicAccountProvider.get(getActivity()).getAccount().name);
         selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
 
         //Add organization to WHERE params

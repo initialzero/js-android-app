@@ -44,9 +44,13 @@ public class ServerInfoSnapshot {
         return (TextUtils.isEmpty(edition) && versionCode == 0d);
     }
 
+    public boolean isPro() {
+        return edition.equals(ServerInfo.EDITIONS.PRO);
+    }
+
     public void setProfile(ServerProfiles profile) {
         setEdition(profile.getEdition());
-        setVersionCode(profile.getVersioncode());
+        setVersionCode(profile.getVersionCode());
     }
 
     public void setEdition(String edition) {

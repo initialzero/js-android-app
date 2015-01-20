@@ -46,7 +46,6 @@ import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -137,8 +136,7 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
             @Override
             public void onInfoReceived(ServerInfoSnapshot serverInfo) {
                 mShowSortOption = true;
-                String proVersion = ServerInfo.EDITIONS.PRO;
-                mShowFilterOption = (proVersion.equals(serverInfo.getEdition()));
+                mShowFilterOption = serverInfo.isPro();
                 invalidateOptionsMenu();
             }
         });

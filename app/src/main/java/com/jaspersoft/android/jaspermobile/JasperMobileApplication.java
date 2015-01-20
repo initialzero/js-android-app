@@ -29,17 +29,17 @@ import android.content.Context;
 import android.view.ViewConfiguration;
 
 import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
 import java.lang.reflect.Field;
+
+import timber.log.Timber;
 
 /**
  * @author Ivan Gadzhega
@@ -48,8 +48,6 @@ import java.lang.reflect.Field;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
-    @Bean
-    ProfileHelper profileHelper;
 
     public static void removeAllCookies() {
         JsRestClient.flushCookies();
@@ -59,14 +57,16 @@ public class JasperMobileApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new Timber.HollowTree());
+        }
+
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
         forceOverFlowMenu();
-        profileHelper.initJsRestClient();
-        profileHelper.initServerInfoSnapshot();
-        profileHelper.seedProfilesIfNeed();
-
         initImageLoader(getApplicationContext());
     }
 

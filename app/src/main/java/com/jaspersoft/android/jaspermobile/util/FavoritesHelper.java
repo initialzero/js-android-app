@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -67,7 +68,6 @@ public class FavoritesHelper {
     JsRestClient jsRestClient;
     private Toast mToast;
 
-    @SuppressWarnings("ShowToast")
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
@@ -78,16 +78,13 @@ public class FavoritesHelper {
         JsServerProfile profile = jsRestClient.getServerProfile();
         Favorites favoriteEntry = new Favorites();
 
-        // TODO: Migrated from old schema scheduled for the deletion in future
-        favoriteEntry.setName("");
-
         favoriteEntry.setUri(resource.getUri());
         favoriteEntry.setTitle(resource.getLabel());
         favoriteEntry.setDescription(resource.getDescription());
         favoriteEntry.setWstype(resource.getResourceType().toString());
         favoriteEntry.setUsername(profile.getUsername());
         favoriteEntry.setOrganization(profile.getOrganization());
-        favoriteEntry.setServerProfileId(profile.getId());
+        favoriteEntry.setAccountName(BasicAccountProvider.get(context).getAccount().name);
         favoriteEntry.setCreationTime(resource.getCreationDate());
 
         return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
@@ -95,12 +92,11 @@ public class FavoritesHelper {
     }
 
     public Cursor queryFavoriteByResource(ResourceLookup resource) {
-        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         Map<String, String> mapValues = Maps.newHashMap();
         mapValues.put(FavoritesTable.TITLE, resource.getLabel());
         mapValues.put(FavoritesTable.URI, resource.getUri());
         mapValues.put(FavoritesTable.WSTYPE, resource.getResourceType().toString());
-        mapValues.put(FavoritesTable.SERVER_PROFILE_ID, jsServerProfile.getId() + "");
+        mapValues.put(FavoritesTable.ACCOUNT_NAME, BasicAccountProvider.get(context).getAccount().name);
 
         List<String> conditions = Lists.newArrayList();
         for (Map.Entry<String, String> entry : mapValues.entrySet()) {
@@ -175,6 +171,7 @@ public class FavoritesHelper {
         return favoriteEntryUri;
     }
 
+    @SuppressWarnings("ShowToast")
     private Toast getToast() {
         if (mToast == null) {
             mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);

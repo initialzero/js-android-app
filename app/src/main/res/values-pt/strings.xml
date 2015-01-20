@@ -63,8 +63,6 @@
     <!-- Server Profile Activity -->
     <string name="sp_bc_add_profile">Novo perfil do servidor</string>
     <string name="sp_bc_edit_profile">Editar perfil do servidor</string>
-    <string name="sp_name_label">Nome:</string>
-    <string name="sp_name_hint">nome do meu servidor</string>
     <string name="sp_url_label">URL do servidor:</string>
     <string name="sp_url_hint">http://myserver.com</string>
     <string name="sp_org_label">Organização:</string>
@@ -73,7 +71,6 @@
     <string name="sp_username_hint">meu nome de usuário</string>
     <string name="sp_password_label">Senha:</string>
     <string name="sp_password_hint">minha senha</string>
-    <string name="sp_ask_password_text">sempre solicitar a senha</string>
     <string name="sp_save_btn">Salvar</string>
     <string name="sp_active_item">Ativo: %s</string>
     <string name="sp_label_general">Geral</string>

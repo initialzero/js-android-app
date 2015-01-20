@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -31,23 +32,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
 import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
-import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
-import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
@@ -55,11 +50,10 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
@@ -68,8 +62,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OnActivityResult;
-import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -80,19 +72,15 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
  * @since 1.0
  */
 @EActivity(R.layout.home_layout)
-@OptionsMenu(R.menu.home_menu)
 public class HomeActivity extends RoboSpiceFragmentActivity {
     private static final int PENDING_INTENT_ID = 123456;
 
     // Special intent actions
     public static final String EDIT_SERVER_PROFILE_ACTION = "com.jaspersoft.android.jaspermobile.action.EDIT_SERVER_PROFILE";
     public static final String CLOSE_APPLICATION_ACTION = "com.jaspersoft.android.samples.jaspermobile.action.CLOSE_APPLICATION";
-    // Request Codes
-    public static final int RC_UPDATE_SERVER_PROFILE = 20;
-    public static final int RC_SWITCH_SERVER_PROFILE = 21;
 
     @Inject
-    private JsRestClient mJsRestClient;
+    private JsRestClient jsRestClient;
     @Inject
     private ConnectivityUtil mConnectivityUtil;
     @Inject
@@ -112,9 +100,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     GeneralPref_ generalPref;
     @Bean
     ProfileHelper profileHelper;
-
-    private TextView mProfileNameText;
-    private Bundle mSavedInstanceState;
 
     private final Handler mHandler = new Handler();
     private final Runnable restartAppTask = new Runnable() {
@@ -143,19 +128,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     }
 
     //---------------------------------------------------------------------
-    // Public methods
-    //---------------------------------------------------------------------
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
-        View actionView = serverProfileMenuItem.getActionView();
-        mProfileNameText = (TextView) actionView.findViewById(R.id.profile_name);
-        reloadProfileNameView();
-        return result;
-    }
-
-    //---------------------------------------------------------------------
     // Annotated methods
     //---------------------------------------------------------------------
 
@@ -170,28 +142,30 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_repository)
     final void showRepository() {
-        if (hasNetwork() && hasServerProfileSetup()) {
+        if (hasNetwork() && hasActiveAccount()) {
             RepositoryActivity_.intent(this).start();
         }
     }
 
     @Click(R.id.home_item_library)
     final void showLibrary() {
-        if (hasNetwork() && hasServerProfileSetup()) {
+        if (hasNetwork() && hasActiveAccount()) {
             LibraryActivity_.intent(this).start();
         }
     }
 
     @Click(R.id.home_item_favorites)
     final void showFavorites() {
-        if (hasNetwork() && hasServerProfileSetup()) {
+        if (hasNetwork() && hasActiveAccount()) {
             FavoritesActivity_.intent(this).start();
         }
     }
 
     @Click(R.id.home_item_saved_reports)
     final void showSavedItems() {
-        SavedReportsActivity_.intent(this).start();
+        if (hasActiveAccount()) {
+            SavedReportsActivity_.intent(this).start();
+        }
     }
 
     @Click(R.id.home_item_settings)
@@ -201,53 +175,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_servers)
     final void showServerProfiles() {
-        ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
-    }
-
-    @OnActivityResult(RC_UPDATE_SERVER_PROFILE)
-    final void updateSeverProfile(int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            // get updated server profile id from result data
-            Bundle extras = data.getExtras();
-            long profileId = extras.getLong(ServersFragment.EXTRA_SERVER_PROFILE_ID);
-
-            // update current profile
-            profileHelper.setCurrentServerProfile(profileId);
-            JsServerProfile profile = mJsRestClient.getServerProfile();
-            // check if the password is not specified
-            if (profile.getPassword().length() == 0) {
-                PasswordDialogFragment.show(getSupportFragmentManager());
-            }
-        }
-    }
-
-    @OnActivityResult(RC_SWITCH_SERVER_PROFILE)
-    final void switchServerProfile(int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            // get selected server profile id from result data
-            Bundle extras = data.getExtras();
-            long profileId = extras.getLong(ServersFragment.EXTRA_SERVER_PROFILE_ID);
-
-            generalPref.currentProfileId().put(profileId);
-            profileHelper.setCurrentServerProfile(profileId);
-        }
-
-        // This inconsistent state possible for the situation when user ignores profile
-        // either selection(or creation and selection) step
-        boolean profileSelected = mJsRestClient.getServerProfile() != null;
-        if (profileSelected) {
-            // check if the password is not specified
-            if (mJsRestClient.getServerProfile().getPassword().length() == 0) {
-                PasswordDialogFragment.show(getSupportFragmentManager());
-            }
-
-            invalidateOptionsMenu();
-
-            // the feedback about an operation
-            String profileName = mJsRestClient.getServerProfile().getAlias();
-            String toastMsg = getString(R.string.h_server_switched_toast, profileName);
-            Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
-        }
+        AccountsActivity_.intent(this).start();
     }
 
     //---------------------------------------------------------------------
@@ -257,22 +185,12 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSavedInstanceState = savedInstanceState;
         IntroPageActivity_.intent(this).start();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
-        if (EDIT_SERVER_PROFILE_ACTION.equals(intent.getAction())) {
-            // Launch activity to edit current server profile
-            ServerProfileActivity_.intent(this)
-                    .inEditMode(true)
-                    .profileId(mJsRestClient.getServerProfile().getId())
-                    .startForResult(RC_UPDATE_SERVER_PROFILE);
-            return;
-        }
 
         if (CLOSE_APPLICATION_ACTION.equals(intent.getAction())) {
             mHandler.postDelayed(restartAppTask, 100);
@@ -282,6 +200,16 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private boolean hasActiveAccount() {
+        Account account = BasicAccountProvider.get(this).getAccount();
+        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+        if (account == null || serverProfile == null) {
+            AccountsActivity_.intent(this).start();
+            return false;
+        }
+        return true;
+    }
 
     private void animateLayout() {
         boolean animationEnabled = SettingsActivity.isAnimationEnabled(this);
@@ -314,16 +242,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
                 .start();
     }
 
-    private boolean hasServerProfileSetup() {
-        JsServerProfile serverProfile = mJsRestClient.getServerProfile();
-        boolean hasServerProfile = (serverProfile != null);
-        if (!hasServerProfile) {
-            ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
-            Toast.makeText(this, R.string.toast_select_profile, Toast.LENGTH_LONG).show();
-        }
-        return hasServerProfile;
-    }
-
     private boolean hasNetwork() {
         boolean hasNetwork = mConnectivityUtil.isConnected();
         if (!hasNetwork) {
@@ -334,23 +252,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
                     .show();
         }
         return hasNetwork;
-    }
-
-    private void reloadProfileNameView() {
-        JsServerProfile serverProfile = mJsRestClient.getServerProfile();
-        if (serverProfile == null) {
-            ServersManagerActivity_.intent(this).startForResult(RC_SWITCH_SERVER_PROFILE);
-        } else {
-            mProfileNameText.setText(serverProfile.getAlias());
-
-            // savedInstanceState is null on first start, non-null on restart
-            boolean isPasswordMissingOnFirstLaunch =
-                    (mSavedInstanceState == null && TextUtils.isEmpty(serverProfile.getPassword()));
-
-            if (isPasswordMissingOnFirstLaunch) {
-                PasswordDialogFragment.show(getSupportFragmentManager());
-            }
-        }
     }
 
 }

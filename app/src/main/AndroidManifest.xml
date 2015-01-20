@@ -51,6 +51,9 @@
         android:label="@string/app_label"
         android:theme="@style/Theme.JasperMobile">
 
+        <meta-data android:name="roboguice.modules" android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule"/>
+        <meta-data android:name="roboguice.annotations.packages" android:value="com.jaspersoft.android.jaspermobile"/>
+
         <!-- Main activity -->
         <activity
             android:name=".activities.NavigationActivity_"

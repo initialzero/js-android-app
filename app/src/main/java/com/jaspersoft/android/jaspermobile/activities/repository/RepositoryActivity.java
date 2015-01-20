@@ -34,7 +34,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboActionBarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -46,7 +46,7 @@ import org.androidannotations.annotations.OptionsItem;
  * @since 1.9
  */
 @EActivity(R.layout.repositories_layout)
-public class RepositoryActivity extends RoboActionBarActivity {
+public class RepositoryActivity extends BaseActionBarActivity {
     @Bean
     FilterManager filterManager;
     private ResourcesControllerFragment resourcesController;

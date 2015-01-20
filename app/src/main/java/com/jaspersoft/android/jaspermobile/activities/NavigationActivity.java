@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboActionBarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -23,7 +23,7 @@ import org.androidannotations.annotations.ViewById;
 
 @OptionsMenu(R.menu.home_menu)
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends RoboActionBarActivity {
+public class NavigationActivity extends BaseActionBarActivity {
 
     @ViewById(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;

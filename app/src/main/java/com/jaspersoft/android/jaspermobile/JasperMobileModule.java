@@ -24,10 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile;
 
+import android.app.Application;
 import android.content.Context;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
@@ -39,13 +39,11 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
  * @since 1.0
  */
 public class JasperMobileModule extends AbstractModule {
-
     private final Context mContext;
 
-    @Inject
-    public JasperMobileModule(final Context context) {
+    public JasperMobileModule(Application application) {
         super();
-        mContext = context;
+        mContext = application;
     }
 
     @Override

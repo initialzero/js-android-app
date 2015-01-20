@@ -33,7 +33,7 @@ import com.octo.android.robospice.SpiceManager;
  * @author Tom Koptel
  * @since 1.9
  */
-public class RoboSpiceFragmentActivity extends RoboActionBarActivity {
+public class RoboSpiceFragmentActivity extends BaseActionBarActivity {
 
     @Inject
     private JsSpiceManager jsSpiceManager;

@@ -35,7 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboActionBarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -52,7 +52,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
  */
 @EActivity(R.layout.repositories_layout)
 @OptionsMenu(R.menu.saved_items_menu)
-public class FavoritesActivity extends RoboActionBarActivity {
+public class FavoritesActivity extends BaseActionBarActivity {
 
     private FavoritesControllerFragment favoriteController;
 

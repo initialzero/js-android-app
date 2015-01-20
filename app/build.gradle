@@ -135,8 +135,10 @@ dependencies {
     compile project(':library-circular')
     compile project(':sdk')
 
+    compile 'org.roboguice:roboguice:3.0.1'
+    provided 'org.roboguice:roboblender:3.0.1'
+
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
-    compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'
     compile('com.android.support:support-v4:21.0.3')
     compile('com.android.support:appcompat-v7:21.0.3')
@@ -147,8 +149,9 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-    compile("org.androidannotations:androidannotations-api:${androidAnnotationsVersion}")
-    apt "org.androidannotations:androidannotations:${androidAnnotationsVersion}"
+    compile("org.androidannotations:androidannotations-api:3.2")
+    apt "org.androidannotations:androidannotations:3.2"
+    apt 'org.roboguice:roboblender:3.0.1'
 
     // For action mode support within list views
     compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'

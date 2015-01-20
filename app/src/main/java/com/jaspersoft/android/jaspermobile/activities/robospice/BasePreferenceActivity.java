@@ -38,7 +38,7 @@ import roboguice.activity.RoboPreferenceActivity;
  * @author Tom Koptel
  * @since 1.9
  */
-public class RoboAccentPreferenceActivity extends RoboPreferenceActivity {
+public class BasePreferenceActivity extends RoboPreferenceActivity {
 
     private Locale currentLocale;
 

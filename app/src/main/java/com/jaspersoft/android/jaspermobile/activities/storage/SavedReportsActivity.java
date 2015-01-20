@@ -32,7 +32,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboActionBarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
@@ -54,7 +54,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
  */
 @EActivity
 @OptionsMenu(R.menu.saved_items_menu)
-public class SavedReportsActivity extends RoboAccentFragmentActivity {
+public class SavedReportsActivity extends RoboActionBarActivity {
 
     private SavedItemsControllerFragment savedItemsController;
 

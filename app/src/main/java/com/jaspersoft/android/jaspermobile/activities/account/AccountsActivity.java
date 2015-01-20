@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.account;
 
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboActionBarActivity;
 
 import org.androidannotations.annotations.EActivity;
 
@@ -35,7 +35,7 @@ import org.androidannotations.annotations.EActivity;
  * @since 2.0
  */
 @EActivity
-public class AccountsActivity extends RoboAccentFragmentActivity {
+public class AccountsActivity extends RoboActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

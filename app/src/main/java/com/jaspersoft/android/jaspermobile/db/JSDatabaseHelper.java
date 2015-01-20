@@ -49,7 +49,6 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
     @Override
     public void onCreate(SQLiteDatabase db) {
         super.onCreate(db);
-        new AccountSeed(mContext).seed(db);
     }
 
     @Override

@@ -138,14 +138,10 @@ dependencies {
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'
-    compile('com.android.support:support-v4:21.0.3') {
-        exclude group: 'com.android.support'
-    }
+    compile('com.android.support:support-v4:21.0.3')
+    compile('com.android.support:appcompat-v7:21.0.3')
+    compile('com.android.support:cardview-v7:21.0.3')
 
-    compile'com.android.support:cardview-v7:21.0.3'
-
-    // This is required for @Nullable @NonNull annotations
-    compile 'com.android.support:support-annotations:20.0.0'
     // For sugar instantiate of dialogs
     compile('eu.inmite.android.lib:android-styled-dialogs:1.2.0:') {
         exclude group: 'com.android.support'
@@ -156,8 +152,6 @@ dependencies {
 
     // For action mode support within list views
     compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'
-    // For homogeneous design on all platforms
-    compile 'com.negusoft.holoaccent:library:1.1'
 
     // Splunk Mint(Bugsense)
     compile "com.splunk.mint:mint:4.0.3"

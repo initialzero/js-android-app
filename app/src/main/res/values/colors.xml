@@ -44,6 +44,11 @@
     <color name="btn_login_bg_pressed">#ff2e3238</color>
     <color name="text_login_bg">#f0f0f0</color>
 
+
+    <!-- Navigation Drawer -->
+    <color name="primaryColor">#2196F3</color>
+    <color name="primaryColorDark">#0D47A1</color>
+
     <!--Dialog-->
     <color name="dialog_title_txt_color">#0185c3</color>
 

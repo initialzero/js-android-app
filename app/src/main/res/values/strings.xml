@@ -30,6 +30,11 @@
     <string name="img_cd_list_item" translatable="false">List item preview</string>
     <string name="img_cd_grid_item" translatable="false">Grid item preview</string>
 
+    <!-- Navigation Drawer -->
+    <string name="nd_action_settings">Settings</string>
+    <string name="nd_drawer_open">open</string>
+    <string name="nd_drawer_close">close</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
     <string name="h_library_label">Library</string>

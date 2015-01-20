@@ -29,7 +29,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboActionBarActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -54,7 +54,7 @@ import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 @EActivity
 @OptionsMenu(R.menu.saved_report)
-public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
+public class SavedReportHtmlViewerActivity extends RoboActionBarActivity
         implements WebViewFragment.OnWebViewCreated, ISimpleDialogListener {
 
     @Extra

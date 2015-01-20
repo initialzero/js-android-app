@@ -46,6 +46,12 @@
     <string name="h_ad_label_organization">Organization:</string>
     <string name="h_ad_label_username">Username:</string>
 
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">If you enjoy using TIBCO JasperMobile, would you mind taking a moment to rate it? It won\'t take more than a minute. Thanks for your support!</string>
+    <string name="h_rd_rate">Rate</string>
+    <string name="h_rd_never">No, thanks</string>
+    <string name="h_rd_later">Remind me later</string>
+
     <!-- Server Profiles Manager Activity -->
     <string name="spm_list_title">Server Profiles</string>
 
@@ -69,6 +75,15 @@
     <string name="spm_ad_delete_profile_msg">Are you sure you want to delete this server profile?</string>
     <string name="spm_delete_btn">Delete</string>
     <string name="spm_cancel_btn">Cancel</string>
+
+    <!-- Intro Page Activity -->
+    <string name="ip_skip_btn" translatable="false">Skip Intro</string>
+    <string name="ip_next_btn" translatable="false">Next</string>
+    <string name="ip_start_btn" translatable="false">Start using JasperMobile</string>
+    <string name="ip_first_text" translatable="false">Copyright \u00A9 2014 TIBCO Software, Inc.</string>
+    <string name="ip_second_text" translatable="false">JasperMobile keeps you connected to your business wherever you are</string>
+    <string name="ip_third_text" translatable="false">Get access to live interactive reports driven from your operational applications.</string>
+    <string name="ip_fourth_text" translatable="false">View and interact with your JasperReport Server v5.0 or greater environment</string>
 
     <!-- Server Profile Activity -->
     <string name="sp_bc_add_profile">New Server Profile</string>
@@ -138,10 +153,12 @@
     <!-- Filter Favorites Dialog -->
     <string name="f_fd_option_folders" translatable="false">Folders</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">About</string>
     <string name="sa_about_info" translatable="false">TIBCO JasperMobile™ v1.9\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nFor privacy policy information visit:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2014 TIBCO Software, Inc.</string>
     <string name="sa_about_privacy" translatable="false">Privacy Policy</string>
+    <string name="sa_show_feedback" translatable="false">Feedback</string>
+    <string name="sa_feedback_info" translatable="false">Leave feedback with mail</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
@@ -221,6 +238,7 @@
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Invalid number format</string>
     <string name="st_category_more" translatable="false">More</string>
+    <string name="st_show_intro" translatable="false">Show Intro</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>

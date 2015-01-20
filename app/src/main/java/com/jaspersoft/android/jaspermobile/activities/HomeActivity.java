@@ -30,6 +30,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +42,7 @@ import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
+import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
@@ -134,6 +136,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         if (mAnimateStartup) {
             mAnimateStartup = false;
             animateLayout();
+            new RateAppDialog().show(getApplicationContext(), getSupportFragmentManager());
         }
     }
 
@@ -178,6 +181,12 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     //---------------------------------------------------------------------
     // Protected methods
     //---------------------------------------------------------------------
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        IntroPageActivity_.intent(this).start();
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {

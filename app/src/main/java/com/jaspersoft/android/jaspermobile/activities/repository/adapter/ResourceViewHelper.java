@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -108,12 +109,38 @@ public class ResourceViewHelper {
         }
     }
 
+    public static int getResourceBackground(ResourceLookup.ResourceType resourceType) {
+        switch (resourceType) {
+            case folder:
+                return R.color.dashboard_item_bg;
+            case legacyDashboard:
+            case dashboard:
+                return R.drawable.js_blue_gradient;
+            case reportUnit:
+                return R.drawable.js_grey_gradient;
+            default:
+                return R.drawable.js_blue_gradient;
+        }
+    }
+
     private void setIcon(IResourceView resourceView, ResourceLookup item) {
         ImageView imageView = resourceView.getImageView();
         int resource = getResourceIcon(item.getResourceType());
+        int background = getResourceBackground(item.getResourceType());
 
         boolean isAmberOrHigher = mServerVersion >= ServerInfo.VERSION_CODES.AMBER;
         boolean isReport = item.getResourceType().equals(ResourceLookup.ResourceType.reportUnit);
+        boolean isDashboard = item.getResourceType().equals(ResourceLookup.ResourceType.dashboard) ||
+                item.getResourceType().equals(ResourceLookup.ResourceType.legacyDashboard);
+
+        if(isReport || isDashboard) {
+            imageView.setBackgroundResource(background);
+            setScaleType(imageView, TopCropImageView.ScaleType.FIT_CENTER);
+        }
+        else {
+            imageView.setBackgroundResource(background);
+            setScaleType(imageView, TopCropImageView.ScaleType.FIT_XY);
+        }
 
         if (isAmberOrHigher && isReport) {
             String path = jsRestClient.generateThumbNailUri(item.getUri());
@@ -178,28 +205,29 @@ public class ResourceViewHelper {
         return updateDate;
     }
 
+    private static void setScaleType(View view, TopCropImageView.ScaleType type) {
+        TopCropImageView imageView = (TopCropImageView) view;
+        if (imageView != null) {
+            imageView.setScaleType(type);
+        }
+    }
+
     private static class ImageLoadingListener extends SimpleImageLoadingListener {
 
         @Override
         public void onLoadingStarted(String imageUri, View view) {
-            setScaleType(view, ImageView.ScaleType.FIT_XY);
+            setScaleType(view, TopCropImageView.ScaleType.FIT_CENTER);
         }
 
         @Override
         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-            setScaleType(view, ImageView.ScaleType.FIT_XY);
+
         }
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            setScaleType(view, ImageView.ScaleType.CENTER_INSIDE);
-        }
-
-        private void setScaleType(View view, ImageView.ScaleType type) {
-            ImageView imageView = (ImageView) view;
-            if (imageView != null) {
-                imageView.setScaleType(type);
-            }
+            setScaleType(view, TopCropImageView.ScaleType.TOP_CROP);
+            view.setBackgroundResource(android.R.color.white);
         }
     }
 }

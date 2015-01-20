@@ -83,7 +83,7 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
             case 3:
                 new ProfileAccountMigration(mContext).migrate(db);
                 new ProfileFavoritesMigration().migrate(db);
-                new SavedItemsMigration().migrate(db);
+                new SavedItemsMigration(mContext).migrate(db);
                 new FavoritesRemoveColumnMigration().migrate(db);
                 break;
         }

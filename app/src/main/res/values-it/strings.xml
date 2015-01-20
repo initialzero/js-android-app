@@ -225,4 +225,10 @@
     <string name="rv_error_empty_report_message">Toccare \"Ok\" se si desidera modificare le opzioni di filtro oppure \"Annulla\" per ritornare al report precedente.</string>
 
 
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">Se ti piace TIBCO JasperMobile, perché non dedichi qualche istante a darne una valutazione sull\'App Store? Non richiederà più di un minuto. Grazie per il supporto!</string>
+    <string name="h_rd_later">Ricordamelo più tardi</string>
+    <string name="h_rd_never">No, grazie</string>
+    <string name="h_rd_rate">Valuta TIBCO JasperMobile</string>
+
 </resources>

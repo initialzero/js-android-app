@@ -224,5 +224,11 @@
     <string name="rv_error_empty_report_title">Le rapport est vide</string>
     <string name="rv_error_empty_report_message">Appuyez sur \"OK\" si vous souhaitez modifier les options de filtre ou sur Annuler pour revenir à l\'ancien rapport.</string>
 
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">Si vous aimez TIBCO JasperMobile, voulez-vous prendre un moment pour l\'évaluer? Cela ne vous prendra pas plus d\'une minute. Merci de votre soutien!</string>
+    <string name="h_rd_later">Me rappeler plus tard</string>
+    <string name="h_rd_never">Non, merci</string>
+    <string name="h_rd_rate">Évaluer TIBCO JasperMobile</string>
+
 
 </resources>

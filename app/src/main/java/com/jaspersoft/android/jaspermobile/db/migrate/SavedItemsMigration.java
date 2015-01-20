@@ -23,7 +23,15 @@
  */
 package com.jaspersoft.android.jaspermobile.db.migrate;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.sdk.util.FileUtils;
+
+import java.io.File;
+
+import timber.log.Timber;
 
 /**
  * Populating 'account_name' field with data from server profiles.
@@ -32,10 +40,55 @@ import android.database.sqlite.SQLiteDatabase;
  * @since 2.0
  */
 public class SavedItemsMigration implements Migration {
+    private static final String TAG = AccountManagerUtil.class.getSimpleName();
+    private final Context mContext;
+
+    public SavedItemsMigration(Context context) {
+        mContext = context;
+        Timber.tag(TAG);
+    }
+
     @Override
     public void migrate(SQLiteDatabase database) {
         database.execSQL("CREATE TABLE saved_items ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "file_path TEXT, name TEXT, file_format TEXT, description TEXT, wstype TEXT, " +
                 "username TEXT, organization TEXT, account_name TEXT NOT NULL DEFAULT '', creation_time NUMERIC );");
+        migrateSavedItems(database);
+    }
+
+    private void migrateSavedItems(SQLiteDatabase db){
+        File savedItemsDir = getSavedItemsDir();
+        File sharedDir = new File(savedItemsDir, "-1");
+        if(!sharedDir.exists() && !sharedDir.mkdir()) return;
+        for (File savedItemDir : savedItemsDir.listFiles()) {
+
+            String fileName = FileUtils.getBaseName(savedItemDir.getName());
+            String fileFormat = FileUtils.getExtension(savedItemDir.getName()).toUpperCase();
+            long creationTime = savedItemDir.lastModified();
+            File newFilePath = new File(sharedDir, fileName);
+
+            boolean movedSuccess = savedItemDir.renameTo(newFilePath);
+            File saveditemFile = new File(newFilePath, fileName + "." + fileFormat);
+            if(movedSuccess && saveditemFile.exists()) {
+                db.execSQL("INSERT INTO saved_items ( file_path, name, file_format, creation_time, server_profile_id ) VALUES ( "
+                        + "'" + saveditemFile.getPath() + "', "
+                        + "'" + fileName + "', "
+                        + "'" + fileFormat + "', "
+                        + creationTime + ", "
+                        + "-1)");
+            }
+        }
+    }
+
+    private File getSavedItemsDir(){
+        File appFilesDir = mContext.getExternalFilesDir(null);
+        File savedReportsDir = new File(appFilesDir, "saved.reports");
+
+        if (!savedReportsDir.exists()) {
+            Timber.e("Unable to create %s", savedReportsDir);
+            return null;
+        }
+
+        return savedReportsDir;
     }
 }

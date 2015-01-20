@@ -33,6 +33,7 @@ import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.junit.After;
@@ -189,4 +190,22 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
     }
+
+
+    @Test
+    public void testAliasHasReservedValue() {
+        activityRule.saveStart();
+        onView(withId(R.id.aliasEdit)).perform(typeText(JasperSettings.RESERVED_ACCOUNT_NAME));
+        onView(withId(R.id.serverUrlEdit)).perform(scrollTo());
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(AccountServerData.Demo.SERVER_URL));
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
+        onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
+
+        onView(withId(R.id.addAccount)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(click());
+        onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(R.string.sp_error_reserved_alias)));
+    }
+
 }

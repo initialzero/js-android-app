@@ -35,6 +35,7 @@ public class JasperSettings {
     public static final String ACTION_AUTHORIZE = "jaspersoft.intent.action.AUTHORIZE";
 
     // Auth constants
+    public static final String RESERVED_ACCOUNT_NAME = "com.jaspersoft.account.none";
     public static final String JASPER_ACCOUNT_TYPE = "com.jaspersoft";
     public static final String JASPER_AUTH_TOKEN_TYPE = "FULL ACCESS";
 

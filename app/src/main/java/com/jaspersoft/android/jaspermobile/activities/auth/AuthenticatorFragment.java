@@ -278,7 +278,14 @@ public class AuthenticatorFragment extends RoboFragment {
                 aliasEdit.requestFocus();
                 formValid &= false;
             }
+
+            if (alias.equals(JasperSettings.RESERVED_ACCOUNT_NAME)) {
+                aliasEdit.setError(getString(R.string.sp_error_reserved_alias));
+                aliasEdit.requestFocus();
+                formValid &= false;
+            }
         }
+
 
         return formValid;
     }

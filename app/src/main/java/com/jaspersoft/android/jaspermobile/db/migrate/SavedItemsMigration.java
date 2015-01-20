@@ -52,13 +52,13 @@ public class SavedItemsMigration implements Migration {
     public void migrate(SQLiteDatabase database) {
         database.execSQL("CREATE TABLE saved_items ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "file_path TEXT, name TEXT, file_format TEXT, description TEXT, wstype TEXT, " +
-                "username TEXT, organization TEXT, account_name TEXT NOT NULL DEFAULT '', creation_time NUMERIC );");
+                "username TEXT, organization TEXT, account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none', creation_time NUMERIC );");
         migrateSavedItems(database);
     }
 
     private void migrateSavedItems(SQLiteDatabase db){
         File savedItemsDir = getSavedItemsDir();
-        File sharedDir = new File(savedItemsDir, "-1");
+        File sharedDir = new File(savedItemsDir, "com.jaspersoft.account.none");
         if(!sharedDir.exists() && !sharedDir.mkdir()) return;
         for (File savedItemDir : savedItemsDir.listFiles()) {
 
@@ -70,12 +70,12 @@ public class SavedItemsMigration implements Migration {
             boolean movedSuccess = savedItemDir.renameTo(newFilePath);
             File saveditemFile = new File(newFilePath, fileName + "." + fileFormat);
             if(movedSuccess && saveditemFile.exists()) {
-                db.execSQL("INSERT INTO saved_items ( file_path, name, file_format, creation_time, server_profile_id ) VALUES ( "
+                db.execSQL("INSERT INTO saved_items ( file_path, name, file_format, creation_time, account_name ) VALUES ( "
                         + "'" + saveditemFile.getPath() + "', "
                         + "'" + fileName + "', "
                         + "'" + fileFormat + "', "
                         + creationTime + ", "
-                        + "-1)");
+                        + "com.jaspersoft.account.none");
             }
         }
     }
@@ -85,7 +85,7 @@ public class SavedItemsMigration implements Migration {
         File savedReportsDir = new File(appFilesDir, "saved.reports");
 
         if (!savedReportsDir.exists()) {
-            Timber.e("Unable to create %s", savedReportsDir);
+            Timber.w("Unable to create %s", savedReportsDir);
             return null;
         }
 

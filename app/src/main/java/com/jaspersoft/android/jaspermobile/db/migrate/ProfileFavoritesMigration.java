@@ -39,7 +39,7 @@ public class ProfileFavoritesMigration implements Migration {
     @Override
     public void migrate(SQLiteDatabase database) {
         database.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
-        database.execSQL("ALTER TABLE favorites ADD COLUMN account_name TEXT NOT NULL DEFAULT '';");
+        database.execSQL("ALTER TABLE favorites ADD COLUMN account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none';");
 
         Cursor profilesCursor = database.rawQuery("SELECT _id, alias FROM server_profiles", null);
         try {

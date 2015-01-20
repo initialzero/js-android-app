@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
 
+import android.accounts.Account;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
@@ -54,6 +55,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.util.FileUtils;
@@ -222,6 +224,7 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int code, Bundle bundle) {
+        Account account = BasicAccountProvider.get(getActivity()).getAccount();
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = Lists.newArrayList();
 
@@ -229,18 +232,18 @@ public class SavedItemsFragment extends RoboFragment
         boolean noOrganization = jsServerProfile.getOrganization() == null;
 
         //Add general items (server id = -1)
-        selection.append(SavedItemsTable.SERVER_PROFILE_ID + " =?")
+        selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
                 .append("  OR ")
                 .append("(");
 
-        selectionArgs.add("-1");
+        selectionArgs.add(JasperSettings.RESERVED_ACCOUNT_NAME);
 
         //Add server profile id and username to WHERE params
         selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
                 .append("  AND ")
                 .append(SavedItemsTable.USERNAME + " =?") ;
 
-        selectionArgs.add(BasicAccountProvider.get(getActivity()).getAccount().name);
+        selectionArgs.add(account.name);
         selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
 
         //Add organization to WHERE params

@@ -227,5 +227,11 @@
     <string name="rv_error_empty_report_title">レポートが空です</string>
     <string name="rv_error_empty_report_message">フィルタオプションを変更する場合は、[Ok] を、古いレポートに戻る場合は [キャンセル] をタップします。</string>
 
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">楽しんでいただけたならば簡単なご意見をお願いします。TIBCO JasperMobileを評価しますか？</string>
+    <string name="h_rd_later">後で見る</string>
+    <string name="h_rd_never">いいえ</string>
+    <string name="h_rd_rate">TIBCO JasperMobileの評価</string>
+
 
 </resources>

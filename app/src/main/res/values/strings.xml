@@ -46,6 +46,12 @@
     <string name="h_ad_label_organization">Organization:</string>
     <string name="h_ad_label_username">Username:</string>
 
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">If you enjoy using TIBCO JasperMobile, would you mind taking a moment to rate it? It won\'t take more than a minute. Thanks for your support!</string>
+    <string name="h_rd_rate">Rate</string>
+    <string name="h_rd_never">No, thanks</string>
+    <string name="h_rd_later">Remind me later</string>
+
     <!-- Server Profiles Manager Activity -->
     <string name="spm_list_title">Server Profiles</string>
 

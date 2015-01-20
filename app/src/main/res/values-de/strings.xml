@@ -22,6 +22,10 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <resources>
+    <!-- Images content description -->
+    <string name="img_cd_list_item">Vorschau Listenelement</string>
+    <string name="img_cd_grid_item">Vorschau Rasterelement</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
     <string name="h_library_label">Bibliothek</string>
@@ -120,16 +124,23 @@
     <string name="s_fd_sort_label">Nach Bezeichnung</string>
     <string name="s_fd_sort_date">Nach Erstellungsdatum</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">Info</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v1.9\n\nManagement-Tool und Report-Viewer für JasperReports Server 5.5 oder höher.\n\nFür weitere Informationen besuchen Sie:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a>\n\nInformationen zu Datenschutzbestimmungen finden Sie unter:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2014 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy">Datenschutzerklärung</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Bericht ausführen</string>
+    <string name="ro_page_title">Filteroptionen</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Bericht speichern</string>
     <string name="rv_ab_show_filters">Filter anzeigen</string>
     <string name="rv_error_empty_report">Es sind keine Berichtsdaten vorhanden.</string>
+    <string name="rv_select_page">Seite auswählen</string>
+    <string name="rv_out_of_range">Aufgerufene Seite außerhalb des Bereichs</string>
+    <string name="rv_dialog_reload">Neu laden</string>
+
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">Die externe Speicherkarte ist nicht verfügbar. Aktivieren Sie die Karte, und versuchen Sie es erneut.</string>
 
@@ -175,7 +186,9 @@
     <!-- Settings activity -->
     <string name="st_title">Einstellungen</string>
     <string name="st_category_repo_cache">Repository-Cache</string>
+    <string name="st_category_repo_cache_summary">Caching-Optionen des Repository ändern</string>
     <string name="st_category_connection">Verbindung</string>
+    <string name="st_category_connection_summary">Globale Verbindungseinstellungen für Netzwerkanrufe ändern</string>
     <string name="st_title_cache_enable">Cache aktivieren</string>
     <string name="st_title_cache_expiration">Cache-Ablauf</string>
     <string name="st_title_connect_timeout">Verbindungstimeout</string>
@@ -187,6 +200,7 @@
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Ungültiges Zahlenformat</string>
+    <string name="st_category_more">Mehr</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Unzulässige Anforderung. Die Anforderung war ungültig.</string>

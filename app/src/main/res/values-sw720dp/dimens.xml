@@ -34,4 +34,9 @@
     <dimen name="list_item_height">120dp</dimen>
     <dimen name="list_item_image_width">192dp</dimen>
 
+    <dimen name="intro_page_bottom_copyright_margin">100dp</dimen>
+    <dimen name="intro_page_bottom_name_margin">60dp</dimen>
+    <dimen name="intro_page_logo_padding">50dp</dimen>
+    <dimen name="intro_page_logo_size">600dp</dimen>
+
 </resources>

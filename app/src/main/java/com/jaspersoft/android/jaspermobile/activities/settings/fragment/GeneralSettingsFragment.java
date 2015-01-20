@@ -4,12 +4,14 @@ import android.app.AlarmManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
+import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 
 import org.androidannotations.annotations.EFragment;
@@ -19,6 +21,7 @@ import roboguice.RoboGuice;
 
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_ANIMATION_ENABLED;
 import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_SEND_CRASHES;
+import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.KEY_PREF_SHOW_INTRO;
 
 /**
  * @author Tom Koptel
@@ -45,7 +48,14 @@ public class GeneralSettingsFragment extends PreferenceFragment
 
         animEnabledPref = (SwitchPreference) getPreferenceScreen().findPreference(KEY_PREF_ANIMATION_ENABLED);
         sendCrashesPref = (SwitchPreference) getPreferenceScreen().findPreference(KEY_PREF_SEND_CRASHES);
-
+        Preference showIntro = getPreferenceScreen().findPreference(KEY_PREF_SHOW_INTRO);
+        showIntro.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                IntroPageActivity_.intent(getActivity()).start();
+                return true;
+            }
+        });
         boolean animationsEnabled = sharedPreferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
         animEnabledPref.setChecked(animationsEnabled);
         boolean sendCrashReports = sharedPreferences.getBoolean(KEY_PREF_SEND_CRASHES, true);

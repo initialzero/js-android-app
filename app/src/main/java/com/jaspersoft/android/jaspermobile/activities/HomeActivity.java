@@ -44,6 +44,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
+import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.profile.fragment.ServersFragment;
@@ -257,6 +258,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSavedInstanceState = savedInstanceState;
+        IntroPageActivity_.intent(this).start();
     }
 
     @Override

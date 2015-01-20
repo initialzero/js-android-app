@@ -224,6 +224,8 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[/%d]]></string>
     <string name="dialog_current_page">设置当前页</string>
+    <string name="rv_error_empty_report_message">如果您要更改过滤器选项则敲击“确定”，或者敲击“取消”返回至原报告。</string>
+    <string name="rv_error_empty_report_title">报告为空</string>
     <string name="h_rd_description">如果你喜欢使用TIBCO JasperMobile，你介意花一点时间给它评分吗？不会超过一分钟。感谢您的支持！</string>
     <string name="h_rd_later">稍后提醒我</string>
     <string name="h_rd_never">不，谢谢</string>

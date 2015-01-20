@@ -29,4 +29,9 @@
         android:showAsAction="always"
         android:icon="@drawable/ic_action_about"
         android:title="@string/sa_show_about" />
+    <item
+        android:id="@+id/showFeedback"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_bug_report"
+        android:title="@string/sa_show_feedback" />
 </menu>

@@ -132,7 +132,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
         // settings
         MenuItem applyMenuItem = menu.add(Menu.NONE, R.id.saveAction, Menu.NONE, R.string.ro_run_report_btn)
-                .setIcon(R.drawable.ic_action_submit);
+                .setIcon(R.drawable.ic_run_report);
         applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);

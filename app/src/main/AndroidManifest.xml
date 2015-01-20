@@ -23,8 +23,7 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jaspersoft.android.jaspermobile"
-    android:installLocation="auto" >
+    package="com.jaspersoft.android.jaspermobile" >
 
     <!-- Allows applications to access information about networks -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -42,15 +41,14 @@
         android:targetPackage="com.jaspersoft.android.jaspermobile.test.acceptance" />
 
     <application
-        android:name="com.jaspersoft.android.jaspermobile.JasperMobileApplication_"
-        android:hardwareAccelerated="true"
+        android:name=".JasperMobileApplication_"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
         android:theme="@style/Theme.JasperMobile" >
 
         <!-- Main activity -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.HomeActivity_"
+            android:name=".activities.HomeActivity_"
             android:configChanges="locale" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,78 +59,86 @@
             </intent-filter>
         </activity>
 
+        <!--Activity that shows intro page -->
+        <activity
+            android:name=".activities.intro.IntroPageActivity_"
+            android:configChanges="locale"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.JasperMobile.NoActionBar" />
+
         <!-- Activity that provides functionality for creating and modifying server profiles -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.profile.ServerProfileActivity_"
+            android:name=".activities.profile.ServerProfileActivity_"
             android:configChanges="locale"
             android:label="@string/sp_bc_add_profile" />
 
         <!-- Activity that provides the server profiles management -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_"
+            android:name=".activities.profile.ServersManagerActivity_"
             android:configChanges="locale"
             android:label="@string/spm_list_title" />
 
         <!-- Activity that performs library view -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_"
+            android:name=".activities.repository.LibraryActivity_"
             android:configChanges="locale"
             android:label="@string/h_library_label" />
 
         <!-- Activity that performs repository view -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_"
+            android:name=".activities.repository.RepositoryActivity_"
             android:configChanges="locale"
             android:label="@string/h_repository_label" />
 
         <!-- Activity that performs viewing of the favorite items -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_"
+            android:name=".activities.favorites.FavoritesActivity_"
             android:configChanges="locale"
             android:label="@string/f_title" />
 
         <!-- Activity that performs viewing of the saved reports -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_"
+            android:name=".activities.storage.SavedReportsActivity_"
             android:configChanges="locale"
             android:label="@string/sdr_ab_title" />
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity"
+            android:name=".activities.report.ReportOptionsActivity"
             android:configChanges="screenSize|orientation|locale"
             android:label="@string/ro_page_title"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_"
+            android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_"
+            android:name=".activities.viewer.html.SavedReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_"
+            android:name=".activities.viewer.html.DashboardHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <!-- Activity that performs report saving to the local storage -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_"
+            android:name=".activities.report.SaveReportActivity_"
             android:configChanges="screenSize|orientation|locale"
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- Activity that allows to specify the application settings -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_"
+            android:name=".activities.settings.SettingsActivity_"
             android:configChanges="locale"
             android:label="@string/st_title" />
+
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.SearchableActivity_"
+            android:name=".activities.SearchableActivity_"
             android:configChanges="locale"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -156,7 +162,7 @@
 
         <!-- Activity that shows Privacy Policy -->
         <activity
-            android:name="com.jaspersoft.android.jaspermobile.activities.PrivacyPolicyActivity_"
+            android:name=".activities.PrivacyPolicyActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" >
 
             <intent-filter>
@@ -169,11 +175,11 @@
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
-            android:name="com.jaspersoft.android.sdk.client.async.JsXmlSpiceService"
+            android:name=".network.XmlSpiceService"
             android:exported="false" />
 
         <provider
-            android:name="com.jaspersoft.android.jaspermobile.db.MobileDbProvider"
+            android:name=".db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
             android:exported="false" />
 

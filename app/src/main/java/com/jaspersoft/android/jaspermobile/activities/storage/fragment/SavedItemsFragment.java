@@ -227,10 +227,17 @@ public class SavedItemsFragment extends RoboFragment
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
 
+        //Add general items (server id = -1)
+        selection.append(SavedItemsTable.SERVER_PROFILE_ID + " =?")
+                .append("  OR ")
+                .append("(");
+
+        selectionArgs.add("-1");
+
         //Add server profile id and username to WHERE params
         selection.append(SavedItemsTable.SERVER_PROFILE_ID + " =?")
                 .append("  AND ")
-                .append(SavedItemsTable.USERNAME + " =?");
+                .append(SavedItemsTable.USERNAME + " =?") ;
 
         selectionArgs.add(String.valueOf(jsServerProfile.getId()));
         selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
@@ -244,6 +251,9 @@ public class SavedItemsFragment extends RoboFragment
                     .append(SavedItemsTable.ORGANIZATION + " =?");
             selectionArgs.add(String.valueOf(jsServerProfile.getOrganization()));
         }
+
+        // Close select brackets
+        selection .append(")");
 
         //Add filtration to WHERE params
         boolean withFiltering = filterType != null;

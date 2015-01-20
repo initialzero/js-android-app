@@ -49,7 +49,7 @@ android {
 //        xx - major version number
 //        yy - minor version number
 //        zz - revision number
-        versionCode 15010900
+        versionCode 15020000
         versionName generateVersionName()
         testInstrumentationRunner INSTRUMENTATION_RUNNER
     }
@@ -67,8 +67,7 @@ android {
         buildTypes {
             release {
                 minifyEnabled true
-                proguardFile "proguard.cfg"
-                proguardFile getDefaultProguardFile('proguard-android.txt')
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard.cfg"
                 signingConfig signingConfigs.release
             }
         }
@@ -107,8 +106,8 @@ android {
         dev {
         }
         production {
-            versionCode 15010901
-            versionName "1.9"
+            versionCode 15020000
+            versionName "2.0"
 
             buildTypes {
                 debug {
@@ -165,8 +164,8 @@ dependencies {
     // Dependency for image loading management
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
 
-    androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
-        exclude group: 'com.google.guava'
+    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {
+        exclude group: 'com.android.support'
     }
     androidTestCompile('org.mockito:mockito-core:1.9.5') {
         exclude group: "org.hamcrest"

@@ -41,7 +41,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
@@ -53,6 +52,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import roboguice.RoboGuice;
+
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
 /**
  * @author Tom Koptel
@@ -90,12 +91,12 @@ public class ResourceViewHelper {
 
         resourceView.setSubTitle(item.getDescription());
 
-        if (item.getResourceType() == ResourceLookup.ResourceType.folder) {
+        if (item.getResourceType() == ResourceType.folder) {
             resourceView.setTimeStamp(formatDateString(item.getCreationDate()));
         }
     }
 
-    public static int getResourceIcon(ResourceLookup.ResourceType resourceType) {
+    public static int getResourceIcon(ResourceType resourceType) {
         switch (resourceType) {
             case folder:
                 return R.drawable.sample_repo_blue;
@@ -109,7 +110,7 @@ public class ResourceViewHelper {
         }
     }
 
-    public static int getResourceBackground(ResourceLookup.ResourceType resourceType) {
+    public static int getResourceBackground(ResourceType resourceType) {
         switch (resourceType) {
             case folder:
                 return R.color.dashboard_item_bg;
@@ -128,16 +129,16 @@ public class ResourceViewHelper {
         int resource = getResourceIcon(item.getResourceType());
         int background = getResourceBackground(item.getResourceType());
 
+        ResourceType currentType = item.getResourceType();
         boolean isAmberOrHigher = mServerVersion >= ServerInfo.VERSION_CODES.AMBER;
-        boolean isReport = item.getResourceType().equals(ResourceLookup.ResourceType.reportUnit);
-        boolean isDashboard = item.getResourceType().equals(ResourceLookup.ResourceType.dashboard) ||
-                item.getResourceType().equals(ResourceLookup.ResourceType.legacyDashboard);
+        boolean isReport = currentType.equals(ResourceType.reportUnit);
+        boolean isDashboard = currentType.equals(ResourceType.dashboard) ||
+                currentType.equals(ResourceType.legacyDashboard);
 
-        if(isReport || isDashboard) {
+        if (isReport || isDashboard) {
             imageView.setBackgroundResource(background);
             setScaleType(imageView, TopCropImageView.ScaleType.FIT_CENTER);
-        }
-        else {
+        } else {
             imageView.setBackgroundResource(background);
             setScaleType(imageView, TopCropImageView.ScaleType.FIT_XY);
         }
@@ -213,21 +214,14 @@ public class ResourceViewHelper {
     }
 
     private static class ImageLoadingListener extends SimpleImageLoadingListener {
-
         @Override
         public void onLoadingStarted(String imageUri, View view) {
             setScaleType(view, TopCropImageView.ScaleType.FIT_CENTER);
         }
 
         @Override
-        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
-        }
-
-        @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
             setScaleType(view, TopCropImageView.ScaleType.TOP_CROP);
-            view.setBackgroundResource(android.R.color.white);
         }
     }
 }

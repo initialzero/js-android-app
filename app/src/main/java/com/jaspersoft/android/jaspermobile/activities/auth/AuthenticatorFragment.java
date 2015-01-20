@@ -73,6 +73,9 @@ import static rx.android.app.AppObservable.bindFragment;
  */
 @EFragment(R.layout.add_account_layout)
 public class AuthenticatorFragment extends RoboFragment {
+    @Inject
+    protected JsRestClient jsRestClient;
+
     @ViewById
     protected EditText aliasEdit;
     @ViewById
@@ -208,6 +211,10 @@ public class AuthenticatorFragment extends RoboFragment {
         data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
         data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
         getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
+
+        // Sync with legacy sdk
+        ProfileManager.initLegacyJsRestClient(getActivity(), account, jsRestClient);
+        JsRestClient.flushCookies();
 
         Toast.makeText(getActivity(),
                 getString(R.string.success_add_account, account.name),

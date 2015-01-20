@@ -174,6 +174,8 @@ public class AccountsFragment extends RoboFragment {
                     @Override
                     public void call(Account newAccount) {
                         mAdapter.notifyDataSetChanged();
+                        // Sync legacy component
+                        JsRestClient.flushCookies();
                         ProfileManager.initLegacyJsRestClient(getActivity(), newAccount, jsRestClient);
                         setProgressEnabled(false);
                     }

@@ -143,6 +143,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_repository)
     final void showRepository() {
+        JsRestClient.flushCookies();
         if (hasNetwork() && hasActiveAccount()) {
             RepositoryActivity_.intent(this).start();
         }
@@ -150,6 +151,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Click(R.id.home_item_library)
     final void showLibrary() {
+        JsRestClient.flushCookies();
         if (hasNetwork() && hasActiveAccount()) {
             LibraryActivity_.intent(this).start();
         }

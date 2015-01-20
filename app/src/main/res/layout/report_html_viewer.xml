@@ -23,24 +23,20 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/htmlViewer_layout"
+    style="@style/htmlViewer.layout">
 
-    <item
-        android:id="@+id/favoriteAction"
-        android:icon="@drawable/ic_rating_not_favorite"
-        android:title="@string/r_cm_add_to_favorites"
-        android:showAsAction="always" />
+    <com.jaspersoft.android.jaspermobile.widget.JSWebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+    />
 
-    <item
-        android:id="@+id/aboutAction"
-        android:icon="@drawable/ic_action_about"
-        android:title="@string/r_cm_view_details"
-        android:showAsAction="ifRoom" />
+    <ProgressBar
+        android:id="@+id/htmlViewer_webView_progressBar"
+        android:alpha="0"
+        style="@style/htmlViewer.progressBar"
+    />
 
-    <item
-        android:id="@+id/refreshAction"
-        android:icon="@drawable/ic_action_refresh"
-        android:title="@string/r_ab_refresh"
-        android:showAsAction="ifRoom" />
-
-</menu>
+</RelativeLayout>

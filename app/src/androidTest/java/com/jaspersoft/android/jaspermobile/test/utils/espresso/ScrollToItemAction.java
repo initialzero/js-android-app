@@ -25,22 +25,21 @@
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
 import android.graphics.Rect;
+import android.support.test.espresso.PerformException;
+import android.support.test.espresso.UiController;
+import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.matcher.ViewMatchers;
+import android.support.test.espresso.util.HumanReadables;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 
-import com.google.android.apps.common.testing.ui.espresso.PerformException;
-import com.google.android.apps.common.testing.ui.espresso.UiController;
-import com.google.android.apps.common.testing.ui.espresso.ViewAction;
-import com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers;
-import com.google.android.apps.common.testing.ui.espresso.util.HumanReadables;
-
 import org.hamcrest.Matcher;
 
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDescendantOfA;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withEffectiveVisibility;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
+import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static org.hamcrest.Matchers.allOf;
 
 /**

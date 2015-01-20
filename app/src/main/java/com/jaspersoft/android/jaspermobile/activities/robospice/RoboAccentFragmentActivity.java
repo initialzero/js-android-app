@@ -119,16 +119,9 @@ public class RoboAccentFragmentActivity extends RoboFragmentActivity {
     @Override
     public void onResume() {
         super.onResume();
-        BugSenseWrapper.startSession(this);
         if (isDevMode()) {
             ViewServer.get(this).setFocusedWindow(this);
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        BugSenseWrapper.closeSession(this);
     }
 
     @Override

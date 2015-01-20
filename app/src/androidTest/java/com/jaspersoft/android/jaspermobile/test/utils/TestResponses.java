@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.test.utils;
 
 import org.apache.http.fake.TestHttpResponse;
-
 import org.apache.http.message.BasicHeader;
 
 /**

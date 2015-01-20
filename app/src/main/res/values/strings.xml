@@ -137,8 +137,6 @@
     <string name="si_fd_option_html" translatable="false">HTML</string>
     <string name="si_fd_option_pdf" translatable="false">PDF</string>
     <string name="si_fd_option_xls" translatable="false">XLS</string>
-    <string name="si_fd_sort_label" translatable="false">By label</string>
-    <string name="si_fd_sort_date" translatable="false">By creation date</string>
 
     <!-- Filter Favorites Dialog -->
     <string name="f_fd_option_folders" translatable="false">Folders</string>
@@ -158,6 +156,8 @@
     <string name="rv_ab_save_report">Save Report</string>
     <string name="rv_ab_show_filters">Show filters</string>
     <string name="rv_error_empty_report">There is no report data</string>
+    <string name="rv_error_empty_report_title">Report is empty</string>
+    <string name="rv_error_empty_report_message">Tap \"Ok\" if you want to change filter options or tap \"Cancel\" for returning to old report.</string>
     <string name="rv_select_page" translatable="false">Select page</string>
     <string name="rv_out_of_range" translatable="false">Requested page out of range</string>
     <string name="rv_dialog_reload" translatable="false">Reload</string>
@@ -169,6 +169,9 @@
     <string name="sr_report_name">Report Name</string>
     <string name="sr_output_format">Output Format</string>
     <string name="sr_visible_for_all" translatable="false">Visible for all users</string>
+    <string name="sr_part" translatable="false">Save report in parts</string>
+    <string name="sr_from" translatable="false">"From page"</string>
+    <string name="sr_to" translatable="false">"To page"</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report saved successfully</string>
     <!-- Error messages -->

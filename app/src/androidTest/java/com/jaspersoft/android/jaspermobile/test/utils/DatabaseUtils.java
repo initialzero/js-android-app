@@ -31,9 +31,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
-import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
-import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;

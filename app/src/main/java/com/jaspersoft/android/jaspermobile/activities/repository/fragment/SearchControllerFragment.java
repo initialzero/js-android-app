@@ -54,6 +54,7 @@ import roboguice.fragment.RoboFragment;
 public class SearchControllerFragment extends RoboFragment implements SearchView.OnQueryTextListener {
 
     public static final String TAG = SearchControllerFragment.class.getSimpleName();
+    public static final int SEARCH_ACTION = 100;
 
     @OptionsMenuItem(R.id.search)
     public MenuItem searchMenuItem;
@@ -80,9 +81,10 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
                 .query(query)
                 .resourceUri(resourceUri)
                 .resourceTypes(resourceTypes)
+                .controllerTag(getActivity().getLocalClassName())
                 .get();
         searchIntent.setAction(Intent.ACTION_SEARCH);
-        startActivity(searchIntent);
+        getActivity().startActivityForResult(searchIntent, SEARCH_ACTION);
         return true;
     }
 

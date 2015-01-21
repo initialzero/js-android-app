@@ -26,10 +26,8 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
@@ -42,9 +40,6 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 
-import java.util.Arrays;
-import java.util.List;
-
 import roboguice.fragment.RoboFragment;
 import timber.log.Timber;
 
@@ -52,14 +47,12 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment(R.layout.content_layout)
+@EFragment
 public class RepositoryFragment extends RoboFragment {
     public static final String TAG = RepositoryFragment.class.getSimpleName();
 
-    private final StackListener stackListener = new StackListener();
-
     @Bean
-    FilterManager filterManager;
+    protected FilterManager filterManager;
 
     private ResourcesControllerFragment resourcesController;
 
@@ -73,27 +66,26 @@ public class RepositoryFragment extends RoboFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getChildFragmentManager().addOnBackStackChangedListener(stackListener);
 
         if (savedInstanceState == null) {
-            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
             resourcesController =
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
                             .recursiveLookup(false)
                             .resourceTypes(filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY))
                             .build();
-            transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG);
+            transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG + TAG);
 
             SearchControllerFragment searchControllerFragment =
                     SearchControllerFragment_.builder()
                     .resourceTypes(filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY))
                     .build();
-            transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG);
+            transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
             transaction.commit();
         } else {
             resourcesController = (ResourcesControllerFragment)
-                    getChildFragmentManager().findFragmentByTag(ResourcesControllerFragment.TAG);
+                    getFragmentManager().findFragmentByTag(ResourcesControllerFragment.TAG + TAG);
         }
     }
 
@@ -108,26 +100,4 @@ public class RepositoryFragment extends RoboFragment {
         resourcesController.replacePreviewOnDemand();
     }
 
-    @Override
-    public void onDestroyView() {
-        getChildFragmentManager().removeOnBackStackChangedListener(stackListener);
-        super.onDestroyView();
-    }
-
-    private class StackListener implements FragmentManager.OnBackStackChangedListener {
-        @Override
-        public void onBackStackChanged() {
-            int stackCount = getChildFragmentManager().getBackStackEntryCount();
-            Timber.d("Back stack count: " + stackCount);
-
-            List<FragmentManager.BackStackEntry> entries = Lists.newArrayList();
-            for (int i = 0; i < stackCount; i++) {
-                FragmentManager.BackStackEntry entry = getChildFragmentManager().getBackStackEntryAt(i);
-                entries.add(entry);
-            }
-            FragmentManager.BackStackEntry[] array = new FragmentManager.BackStackEntry[stackCount];
-            entries.toArray(array);
-            Timber.d("Entries: \n" + Arrays.toString(array));
-        }
-    }
 }

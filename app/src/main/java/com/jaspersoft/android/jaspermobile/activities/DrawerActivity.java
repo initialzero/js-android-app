@@ -3,7 +3,6 @@ package com.jaspersoft.android.jaspermobile.activities;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
@@ -146,24 +145,5 @@ public class DrawerActivity extends RoboSpiceFragmentActivity {
                     .replace(R.id.main_frame, directFragment, DIRECT_TAG)
                     .commit();
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Because of official issue in Andorid SDK https://code.google.com/p/android/issues/detail?id=40323
-        // We need manage backstack artificially
-        // if there is a fragment and the back stack of this fragment is not empty,
-        // then emulate 'onBackPressed' behaviour, because in default, it is not working
-        FragmentManager fm = getSupportFragmentManager();
-        for (Fragment frag : fm.getFragments()) {
-            if (frag.isVisible()) {
-                FragmentManager childFm = frag.getChildFragmentManager();
-                if (childFm.getBackStackEntryCount() > 0) {
-                    childFm.popBackStack();
-                    return;
-                }
-            }
-        }
-        super.onBackPressed();
     }
 }

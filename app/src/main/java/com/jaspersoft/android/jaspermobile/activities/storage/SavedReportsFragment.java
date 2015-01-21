@@ -53,7 +53,7 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 1.8
  */
-@EFragment(R.layout.content_layout)
+@EFragment
 @OptionsMenu(R.menu.saved_items_menu)
 public class SavedReportsFragment extends RoboFragment {
     public static final String TAG = SavedReportsFragment.class.getSimpleName();
@@ -84,24 +84,22 @@ public class SavedReportsFragment extends RoboFragment {
             // Reset all controls state
             pref.clear();
 
-            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             savedItemsController = SavedItemsControllerFragment_.builder()
                     .filterType(filterType)
                     .sortOrder(sortOrder)
                     .build();
-
             transaction.replace(R.id.resource_controller, savedItemsController, SavedItemsControllerFragment.TAG);
 
             SavedItemsSearchFragment searchFragment = SavedItemsSearchFragment_.builder().build();
-            transaction.replace(R.id.search_controller, searchFragment, SearchControllerFragment.TAG);
+            transaction.replace(R.id.search_controller, searchFragment, SearchControllerFragment.TAG + TAG);
 
             transaction.commit();
         } else {
-            savedItemsController = (SavedItemsControllerFragment) getChildFragmentManager()
-                    .findFragmentByTag(SavedItemsControllerFragment.TAG);
+            savedItemsController = (SavedItemsControllerFragment) getFragmentManager()
+                    .findFragmentByTag(SavedItemsControllerFragment.TAG + TAG);
         }
-
     }
 
     @OptionsItem(android.R.id.home)

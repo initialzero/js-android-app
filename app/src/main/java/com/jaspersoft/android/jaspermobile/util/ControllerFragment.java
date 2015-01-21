@@ -48,9 +48,6 @@ import static com.jaspersoft.android.jaspermobile.activities.repository.support.
  * @since 1.9
  */
 public abstract class ControllerFragment extends RoboFragment {
-
-    public static final String CONTENT_TAG = "CONTENT_TAG";
-
     private MenuItem switchLayoutMenuItem;
     protected ControllerPref controllerPref;
 
@@ -111,7 +108,7 @@ public abstract class ControllerFragment extends RoboFragment {
             transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
         }
         transaction
-                .replace(R.id.content_frame, getContentFragment(), CONTENT_TAG)
+                .replace(R.id.content_frame, getContentFragment(), getContentFragmentTag())
                 .commit();
     }
 
@@ -136,6 +133,7 @@ public abstract class ControllerFragment extends RoboFragment {
         controllerPref = new ControllerPref(getActivity(), prefTag);
     }
 
-    public abstract Fragment getContentFragment();
+    protected abstract Fragment getContentFragment();
+    protected abstract String getContentFragmentTag();
 
 }

@@ -65,7 +65,7 @@ import roboguice.fragment.RoboFragment;
  * @since 1.9
  */
 @OptionsMenu(R.menu.libraries_menu)
-@EFragment(R.layout.content_layout)
+@EFragment
 public class LibraryFragment extends RoboFragment {
     public static final String TAG = LibraryFragment.class.getSimpleName();
 
@@ -108,7 +108,7 @@ public class LibraryFragment extends RoboFragment {
             // Reset all controls state
             pref.clear();
 
-            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             resourcesController =
                     ResourcesControllerFragment_.builder()
@@ -117,19 +117,19 @@ public class LibraryFragment extends RoboFragment {
                             .sortOrder(sortOptions.getOrder())
                             .recursiveLookup(true)
                             .build();
-            transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG);
+            transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG + TAG);
 
             searchControllerFragment =
                     SearchControllerFragment_.builder()
                             .resourceTypes(filterOptions.getFilters())
                             .build();
-            transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG);
+            transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
             transaction.commit();
         } else {
-            resourcesController = (ResourcesControllerFragment) getChildFragmentManager()
-                    .findFragmentByTag(ResourcesControllerFragment.TAG);
-            searchControllerFragment = (SearchControllerFragment) getChildFragmentManager()
-                    .findFragmentByTag(SearchControllerFragment.TAG);
+            resourcesController = (ResourcesControllerFragment) getFragmentManager()
+                    .findFragmentByTag(ResourcesControllerFragment.TAG + TAG);
+            searchControllerFragment = (SearchControllerFragment) getFragmentManager()
+                    .findFragmentByTag(SearchControllerFragment.TAG + TAG);
         }
 
         updateOptionsMenu();

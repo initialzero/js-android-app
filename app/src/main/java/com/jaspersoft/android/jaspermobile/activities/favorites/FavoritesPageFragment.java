@@ -51,7 +51,7 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment(R.layout.content_layout)
+@EFragment
 @OptionsMenu(R.menu.saved_items_menu)
 public class FavoritesPageFragment extends RoboFragment {
     public static final String TAG = FavoritesPageFragment.class.getSimpleName();
@@ -82,7 +82,7 @@ public class FavoritesPageFragment extends RoboFragment {
             // Reset all controls state
             pref.clear();
 
-            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             favoriteController = FavoritesControllerFragment_.builder()
                     .build();
@@ -95,7 +95,7 @@ public class FavoritesPageFragment extends RoboFragment {
             transaction.commit();
         }
         else {
-            favoriteController = (FavoritesControllerFragment) getChildFragmentManager()
+            favoriteController = (FavoritesControllerFragment) getFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
         }
     }

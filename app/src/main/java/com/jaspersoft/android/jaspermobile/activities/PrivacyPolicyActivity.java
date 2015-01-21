@@ -52,7 +52,7 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
             webViewFragment.setOnWebViewCreated(this);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, webViewFragment, ResourcesControllerFragment.TAG)
+                    .add(R.id.content_frame, webViewFragment, ResourcesControllerFragment.TAG)
                     .commit();
         }
     }

@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,6 +63,12 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {

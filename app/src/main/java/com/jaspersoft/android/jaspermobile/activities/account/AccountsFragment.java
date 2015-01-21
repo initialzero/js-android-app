@@ -37,7 +37,6 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.account.adapter.AccountsAdapter;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
@@ -74,7 +73,7 @@ import static rx.android.app.AppObservable.bindActivity;
 @OptionsMenu(R.menu.accounts_page_menu)
 @EFragment(R.layout.common_list_layout)
 public class AccountsFragment extends RoboFragment {
-    private static final String TAG = AccountsActivity.class.getSimpleName();
+    public static final String TAG = AccountsActivity.class.getSimpleName();
     private static final int ADD_ACCOUNT = 10;
 
     @Inject
@@ -184,7 +183,9 @@ public class AccountsFragment extends RoboFragment {
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
-        HomeActivity.goHome(getActivity());
+        AccountsActivity_.intent(getActivity())
+                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .start();
         getActivity().finish();
     }
 

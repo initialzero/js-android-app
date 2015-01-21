@@ -75,7 +75,7 @@ public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
                     .resourceLabel(resourceLabel).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
+                    .add(R.id.content_frame, webViewFragment, WebViewFragment.TAG)
                     .commit();
         }
     }

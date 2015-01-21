@@ -109,18 +109,6 @@ public class ResourcesControllerFragment extends ControllerFragment
     }
 
     @Override
-    protected void commitContentFragment() {
-        boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (animationEnabled) {
-            transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        }
-        transaction
-                .replace(android.R.id.content, getContentFragment(), getContentTag())
-                .commit();
-    }
-
-    @Override
     public Fragment getContentFragment() {
         contentFragment = ResourcesFragment_.builder()
                 .query(query)

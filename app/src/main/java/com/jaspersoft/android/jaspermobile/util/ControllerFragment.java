@@ -111,7 +111,7 @@ public abstract class ControllerFragment extends RoboFragment {
             transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
         }
         transaction
-                .replace(android.R.id.content, getContentFragment(), CONTENT_TAG)
+                .replace(R.id.content_frame, getContentFragment(), CONTENT_TAG)
                 .commit();
     }
 

@@ -51,6 +51,8 @@
         android:label="@string/app_label"
         android:theme="@style/Theme.JasperMobile">
 
+        <activity android:name=".activities.DrawerActivity_"/>
+
         <activity
             android:name=".activities.StartUpActivity_"
             android:theme="@style/Theme.JasperMobileHeadless">

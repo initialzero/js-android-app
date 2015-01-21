@@ -82,7 +82,7 @@ public class StartUpActivity extends RoboActivity {
                             @Override
                             public void call(Account account) {
                                 ProfileManager.initLegacyJsRestClient(context, account, jsRestClient);
-                                HomeActivity_.intent(context).start();
+                                DrawerActivity_.intent(context).start();
                                 finish();
                             }
                         }, new Action1<Throwable>() {

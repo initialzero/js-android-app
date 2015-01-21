@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
@@ -73,10 +74,10 @@ public class ResourceOpener {
         this.resourceTypes = resourceTypes;
     }
 
-    public void openResource(ResourceLookup resource) {
+    public void openResource(Fragment fragment, ResourceLookup resource) {
         switch (resource.getResourceType()) {
             case folder:
-                openFolder(resource);
+                openFolder(fragment, resource);
                 break;
             case reportUnit:
                 JasperMobileApplication.removeAllCookies();
@@ -91,7 +92,7 @@ public class ResourceOpener {
         }
     }
 
-    private void openFolder(ResourceLookup resource) {
+    private void openFolder(Fragment fragment, ResourceLookup resource) {
         ResourcesControllerFragment newControllerFragment =
                 ResourcesControllerFragment_.builder()
                         .emptyMessage(R.string.r_browser_nothing_to_display)
@@ -99,9 +100,10 @@ public class ResourceOpener {
                         .resourceLabel(resource.getLabel())
                         .resourceUri(resource.getUri())
                         .build();
-        activity.getSupportFragmentManager().beginTransaction()
+        fragment.getFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())
-                .replace(R.id.controller, newControllerFragment, ResourcesControllerFragment.TAG + resource.getUri())
+                .replace(R.id.resource_controller, newControllerFragment,
+                        ResourcesControllerFragment.TAG + resource.getUri())
                 .commit();
     }
 

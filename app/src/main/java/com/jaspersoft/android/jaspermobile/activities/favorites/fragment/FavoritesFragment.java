@@ -77,7 +77,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
 public class FavoritesFragment extends RoboFragment
         implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private final int FAVORITES_LOADER_ID = 0;
+    private final int FAVORITES_LOADER_ID = 20;
 
     @FragmentArg
     ViewType viewType;
@@ -154,7 +154,7 @@ public class FavoritesFragment extends RoboFragment
         resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
         resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
 
-        resourceOpener.openResource(resource);
+        resourceOpener.openResource(this, resource);
     }
 
     public void showSavedItemsByFilter(ResourceType selectedFilter) {
@@ -271,6 +271,6 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        mAdapter.swapCursor(null);
     }
-
 }

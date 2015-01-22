@@ -28,10 +28,10 @@ import android.app.Application;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 
-import com.google.inject.name.Names;
+import com.google.inject.Singleton;
 import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 
 import org.junit.Before;
@@ -39,8 +39,6 @@ import org.junit.rules.ExternalResource;
 
 import java.io.IOException;
 
-import retrofit.ErrorHandler;
-import retrofit.RetrofitError;
 import roboguice.RoboGuice;
 import timber.log.Timber;
 
@@ -108,6 +106,7 @@ public class WebMockRule extends ExternalResource {
 
         @Override
         protected void semanticConfigure() {
+            bind(JsRestClient.class).in(Singleton.class);
             Timber.plant(new Timber.DebugTree());
             endpoint = "http://localhost:" + mPort;
         }

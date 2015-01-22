@@ -24,6 +24,7 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
@@ -45,11 +46,23 @@ public class DrawerActivity extends RoboSpiceFragmentActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private ArrayAdapter<String> mAdapter;
 
+    @Extra
     @InstanceState
-    protected int position = 0;
+    protected int position = Position.LIBRARY.ordinal();
 
     private float mPreviousOffset = 0;
     private boolean shouldGoInvisible;
+    private Bundle mSavedInstanceState;
+
+    public static enum Position {
+        LIBRARY, REPOSITORY, SAVED_ITEMS, FAVORITES, SETTINGS, ACCOUNTS;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mSavedInstanceState = savedInstanceState;
+    }
 
     @AfterViews
     final void init() {
@@ -69,7 +82,10 @@ public class DrawerActivity extends RoboSpiceFragmentActivity {
 
         JsRestClient.flushCookies();
         setupNavigation();
-        onNavItemSelected(position);
+
+        if (mSavedInstanceState == null) {
+            onNavItemSelected(position);
+        }
     }
 
     private void setupNavigation() {

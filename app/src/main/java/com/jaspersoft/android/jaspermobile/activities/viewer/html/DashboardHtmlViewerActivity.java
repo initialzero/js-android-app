@@ -93,7 +93,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
                     .build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content_frame, webViewFragment, WebViewFragment.TAG)
+                    .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
 
         }

@@ -190,14 +190,6 @@ public class AccountsFragment extends RoboFragment {
                 }, errorLogAction);
     }
 
-    @OptionsItem(android.R.id.home)
-    final void showHome() {
-        AccountsActivity_.intent(getActivity())
-                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .start();
-        getActivity().finish();
-    }
-
     @OptionsItem
     final void addAccount() {
         Intent intent = new Intent(JasperSettings.ACTION_AUTHORIZE);

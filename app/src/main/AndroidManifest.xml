@@ -86,10 +86,10 @@
         <activity
             android:name=".activities.account.AccountsActivity_"
             android:label="@string/accounts_activity_label"
-            android:parentActivityName=".activities.HomeActivity_">
+            android:parentActivityName=".activities.StartUpActivity_">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.HomeActivity_" />
+                android:value=".activities.StartUpActivity_" />
         </activity>
 
         <!-- Activity that allows to specify the report options before running it -->

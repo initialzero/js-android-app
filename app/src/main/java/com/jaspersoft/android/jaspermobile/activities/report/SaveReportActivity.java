@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.report;
 import android.app.ActionBar;
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
@@ -71,7 +70,7 @@ public class SaveReportActivity extends RoboSpiceFragmentActivity {
                     .pageCount(pageCount)
                     .build();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content_frame, saveItemFragment, SaveItemFragment.TAG)
+                    .add(android.R.id.content, saveItemFragment, SaveItemFragment.TAG)
                     .commit();
         }
     }

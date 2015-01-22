@@ -29,7 +29,8 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -60,7 +61,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFro
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static org.hamcrest.Matchers.is;
@@ -71,18 +71,20 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryActivity_> {
+public class RepositoryPageTest extends ProtoActivityInstrumentation<DrawerActivity_> {
 
     private static final String REPORTS_QUERY = "Reports";
-    private static final String CLASS_NAME = "activities.repository.RepositoryActivity_";
+    private static final String CLASS_NAME = "activities.DrawerActivity_";
 
     public RepositoryPageTest() {
-        super(RepositoryActivity_.class);
+        super(DrawerActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        setActivityIntent(DrawerActivity_.intent(getApplication())
+                .position(DrawerActivity.Position.REPOSITORY.ordinal()).get());
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
@@ -190,17 +192,13 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<RepositoryA
             onView(withId(R.id.search)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            onOverflowView(getActivity(), withText(android.R.string.search_go)).perform(click());
+            onView(withText(android.R.string.search_go)).perform(click());
         }
         onView(withId(getSearcFieldId())).perform(typeText(REPORTS_QUERY));
         onView(withId(getSearcFieldId())).perform(pressImeActionButton());
 
         onView(withText(getActivity().getString(R.string.search_result_format, REPORTS_QUERY)))
                 .check(matches(isDisplayed()));
-
-        onView(withId(R.id.switchLayout)).perform(click());
-        pressBack();
-        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
     //---------------------------------------------------------------------

@@ -29,8 +29,6 @@ import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
 
-import com.jaspersoft.android.jaspermobile.R;
-
 import roboguice.activity.RoboFragmentActivity;
 
 /**
@@ -72,7 +70,7 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content_frame, AuthenticatorFragment_.builder().build())
+                    .add(android.R.id.content, AuthenticatorFragment_.builder().build())
                     .commit();
         }
     }

@@ -386,6 +386,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
         @Override
         public void onRequestSuccess(ReportExecutionResponse response) {
+            runningRequests--;
+
             ExportExecution execution = response.getExports().get(0);
             String exportOutput = execution.getId();
             String executionId = response.getRequestId();
@@ -407,7 +409,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
                     getSpiceManager().execute(attachmentRequest, new AttachmentFileSaveListener());
                 }
             }
-            runningRequests--;
         }
 
     }
@@ -444,7 +445,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
     }
 
     private class ReportFileSaveListener extends AttachmentFileSaveListener {
-
         private OutputFormat outputFormat;
 
         private ReportFileSaveListener(OutputFormat outputFormat) {

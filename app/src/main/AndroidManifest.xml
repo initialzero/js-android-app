@@ -92,30 +92,6 @@
                 android:value=".activities.HomeActivity_" />
         </activity>
 
-        <!-- Activity that performs library view -->
-        <activity
-            android:name=".activities.repository.LibraryActivity_"
-            android:configChanges="locale"
-            android:label="@string/h_library_label" />
-
-        <!-- Activity that performs repository view -->
-        <activity
-            android:name=".activities.repository.RepositoryActivity_"
-            android:configChanges="locale"
-            android:label="@string/h_repository_label" />
-
-        <!-- Activity that performs viewing of the favorite items -->
-        <activity
-            android:name=".activities.favorites.FavoritesActivity_"
-            android:configChanges="locale"
-            android:label="@string/f_title" />
-
-        <!-- Activity that performs viewing of the saved reports -->
-        <activity
-            android:name=".activities.storage.SavedReportsActivity_"
-            android:configChanges="locale"
-            android:label="@string/sdr_ab_title" />
-
         <!-- Activity that allows to specify the report options before running it -->
         <activity
             android:name=".activities.report.ReportOptionsActivity"

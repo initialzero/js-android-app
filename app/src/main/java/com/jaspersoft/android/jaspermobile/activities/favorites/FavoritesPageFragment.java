@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.favorites;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
@@ -97,6 +98,15 @@ public class FavoritesPageFragment extends RoboFragment {
         else {
             favoriteController = (FavoritesControllerFragment) getFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.f_title);
         }
     }
 

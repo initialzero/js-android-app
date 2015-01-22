@@ -168,12 +168,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         if (sortOrder != null) {
             mSearchCriteria.setSortBy(sortOrder.getValue());
         }
-
-        ActionBar actionBar = getActivity().getActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(TextUtils.isEmpty(resourceLabel) ?
-                    getActivity().getTitle() : resourceLabel);
-        }
     }
 
     @Override
@@ -213,6 +207,22 @@ public class ResourcesFragment extends RoboSpiceFragment
                 }
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            if (TextUtils.isEmpty(resourceLabel)) {
+                boolean isRepository = !recursiveLookup;
+                actionBar.setTitle(isRepository ?
+                        getString(R.string.h_repository_label) : getString(R.string.h_library_label));
+            } else {
+                actionBar.setTitle(resourceLabel);
+            }
+        }
     }
 
     @Override

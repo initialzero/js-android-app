@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.storage;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
@@ -99,6 +100,15 @@ public class SavedReportsFragment extends RoboFragment {
         } else {
             savedItemsController = (SavedItemsControllerFragment) getFragmentManager()
                     .findFragmentByTag(SavedItemsControllerFragment.TAG + TAG);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.sdr_ab_title);
         }
     }
 

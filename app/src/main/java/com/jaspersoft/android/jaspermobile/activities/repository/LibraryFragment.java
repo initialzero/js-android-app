@@ -23,6 +23,7 @@
  */
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
@@ -62,7 +63,7 @@ import roboguice.fragment.RoboFragment;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
 @OptionsMenu(R.menu.libraries_menu)
 @EFragment
@@ -133,6 +134,15 @@ public class LibraryFragment extends RoboFragment {
         }
 
         updateOptionsMenu();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.h_library_label);
+        }
     }
 
     private void updateOptionsMenu() {

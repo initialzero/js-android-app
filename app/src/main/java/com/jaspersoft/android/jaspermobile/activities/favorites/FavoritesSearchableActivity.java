@@ -37,10 +37,10 @@ import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
 
 /**
- * @author Tom Koptel
+ * @author Andrew Tivodar
  * @since 1.9
  */
-@EActivity(R.layout.repositories_layout)
+@EActivity(R.layout.content_layout)
 public class FavoritesSearchableActivity extends RoboSpiceFragmentActivity {
 
     @Extra
@@ -62,7 +62,7 @@ public class FavoritesSearchableActivity extends RoboSpiceFragmentActivity {
                             .build();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.controller, favoriteController, FavoritesControllerFragment.TAG)
+                    .add(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG)
                     .commit();
         }
 

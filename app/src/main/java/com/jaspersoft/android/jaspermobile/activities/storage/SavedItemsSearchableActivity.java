@@ -38,10 +38,10 @@ import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
 
 /**
- * @author Tom Koptel
+ * @author Andrew Tivodar
  * @since 1.9
  */
-@EActivity
+@EActivity(R.layout.content_layout)
 public class SavedItemsSearchableActivity extends RoboSpiceFragmentActivity {
 
     @Extra

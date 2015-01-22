@@ -153,6 +153,15 @@ public class AccountsFragment extends RoboFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.accounts_activity_label);
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         addAccountSubscription.unsubscribe();
         loadAccountSubscription.unsubscribe();

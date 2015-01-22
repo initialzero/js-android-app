@@ -5,6 +5,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -47,6 +48,9 @@ public class DrawerActivity extends RoboSpiceFragmentActivity {
     @InstanceState
     protected int position = 0;
 
+    private float mPreviousOffset = 0;
+    private boolean shouldGoInvisible;
+
     @AfterViews
     final void init() {
         items = new String[]{
@@ -81,10 +85,31 @@ public class DrawerActivity extends RoboSpiceFragmentActivity {
 
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.ic_drawer,
                 R.string.dummy_drawer_open, R.string.dummy_drawer_close) {
+            @Override
             public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                shouldGoInvisible = false;
+                invalidateOptionsMenu();
             }
 
+            @Override
             public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                shouldGoInvisible = true;
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onDrawerSlide(View arg0, float slideOffset) {
+                super.onDrawerSlide(arg0, slideOffset);
+                if(slideOffset > mPreviousOffset && !shouldGoInvisible){
+                    shouldGoInvisible = true;
+                    invalidateOptionsMenu();
+                }else if(mPreviousOffset > slideOffset && slideOffset < 0.5f && shouldGoInvisible){
+                    shouldGoInvisible = false;
+                    invalidateOptionsMenu();
+                }
+                mPreviousOffset = slideOffset;
             }
         };
 
@@ -98,6 +123,12 @@ public class DrawerActivity extends RoboSpiceFragmentActivity {
         mDrawerToggle.syncState();
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean drawerOpen = shouldGoInvisible;
+        hideMenuItems(menu, !drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -110,7 +141,6 @@ public class DrawerActivity extends RoboSpiceFragmentActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     private void onNavItemSelected(int newPosition) {
         position = newPosition;
@@ -152,6 +182,12 @@ public class DrawerActivity extends RoboSpiceFragmentActivity {
             transaction
                     .replace(R.id.main_frame, directFragment, DIRECT_TAG)
                     .commit();
+        }
+    }
+
+    private void hideMenuItems(Menu menu, boolean visible) {
+        for (int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setVisible(visible);
         }
     }
 }

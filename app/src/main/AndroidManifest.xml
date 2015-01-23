@@ -56,7 +56,7 @@
 
         <!-- Main activity -->
         <activity
-            android:name=".activities.NavigationActivity_"
+            android:name=".activities.navigation.NavigationActivity_"
             android:theme="@style/Theme.JasperMobile.NoActionBar"
             android:configChanges="locale" >
             <intent-filter>

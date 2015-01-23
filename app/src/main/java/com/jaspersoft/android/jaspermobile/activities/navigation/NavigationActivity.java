@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities;
+package com.jaspersoft.android.jaspermobile.activities.navigation;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -25,9 +25,9 @@ import org.androidannotations.annotations.ViewById;
 @EActivity(R.layout.activity_navigation)
 public class NavigationActivity extends BaseActionBarActivity {
 
-    @ViewById(R.id.drawer_layout)
+    @ViewById(R.id.dlNavigationAN)
     DrawerLayout mDrawerLayout;
-    @ViewById(R.id.navigation_toolbar)
+    @ViewById(R.id.tbNavigationVNT)
     Toolbar mDrawerToolbar;
     private ActionBarDrawerToggle mDrawerToggle;
 

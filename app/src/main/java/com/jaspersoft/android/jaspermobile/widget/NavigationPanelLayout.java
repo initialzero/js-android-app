@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -17,9 +16,11 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 
+import timber.log.Timber;
+
 /**
  * @author Andrew Tivodar
- * @since 1.9
+ * @since 2.0
  */
 @EViewGroup(R.layout.view_navigation_panel)
 public class NavigationPanelLayout extends RelativeLayout {
@@ -53,8 +54,9 @@ public class NavigationPanelLayout extends RelativeLayout {
     }
 
     @AfterViews()
-    final void initNavigationLayout(){
+    final void initNavigationLayout() {
         isShowingMenu = true;
+        Timber.tag(TAG);
     }
 
     @Click(R.id.vg_profile)
@@ -65,42 +67,42 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items, R.id.vg_settings})
     final void navigationMenuItemSelect(View newSelectItem) {
-        if(selectedItemView != null) {
-            if(selectedItemView == newSelectItem)
+        setItemSelected(newSelectItem, true);
+        if (selectedItemView != null) {
+            if (selectedItemView == newSelectItem) {
                 return;
+            }
             setItemSelected(selectedItemView, false);
         }
 
-        setItemSelected(newSelectItem, true);
         selectedItemView = newSelectItem;
 
-        if(mListener != null)
+        if (mListener != null) {
             mListener.onNavigate(newSelectItem.getId());
+        }
     }
 
-    private void showActivatedPanel(boolean isShowingMenu){
+    private void showActivatedPanel(boolean isShowingMenu) {
         if (!isShowingMenu) {
             navigationMenu.setVisibility(GONE);
             accountsMenu.setVisibility(VISIBLE);
-        }
-        else {
+        } else {
             navigationMenu.setVisibility(VISIBLE);
             accountsMenu.setVisibility(GONE);
         }
     }
 
     private void setItemSelected(View item, boolean selected) {
+        item.setSelected(selected);
         try {
             ViewGroup itemGroup = ((ViewGroup) item);
 
-            for( int i = 0; i < itemGroup.getChildCount();  i++ ){
+            for (int i = 0; i < itemGroup.getChildCount(); i++) {
                 View view = itemGroup.getChildAt(i);
                 view.setSelected(selected);
             }
         } catch (ClassCastException e) {
-            Log.w(TAG, "Selected navigation item is not a layout.");
-        } finally {
-            item.setSelected(selected);
+            Timber.w(TAG, "Selected navigation item is not a layout.");
         }
     }
 
@@ -127,7 +129,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         super.onRestoreInstanceState(state);
     }
 
-    public interface NavigationListener{
+    public interface NavigationListener {
         public void onNavigate(int viewId);
         public void onProfileChange();
     }

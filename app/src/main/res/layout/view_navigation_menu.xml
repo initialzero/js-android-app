@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <LinearLayout
@@ -147,6 +148,8 @@
 
         <TextView
             android:id="@+id/tv_privacy"
+            android:clickable="true"
+            android:background="@drawable/bg_navigation_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -155,6 +158,8 @@
 
         <TextView
             android:id="@+id/tv_about"
+            android:clickable="true"
+            android:background="@drawable/bg_navigation_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp"

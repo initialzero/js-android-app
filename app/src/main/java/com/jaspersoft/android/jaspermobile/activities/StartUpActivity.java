@@ -34,7 +34,6 @@ import android.support.v4.app.TaskStackBuilder;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -65,11 +64,25 @@ public class StartUpActivity extends RoboActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         signInOrCreateAnAccount();
-
-        // Force database update
-        getContentResolver().query(MobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                new String[]{"_ID"}, null, null, null);
     }
+
+    @OnActivityResult(AUTHORIZE)
+    protected void onAuthorize(int resultCode) {
+        if (resultCode == Activity.RESULT_OK) {
+            HomeActivity_.intent(this).start();
+        }
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        compositeSubscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void signInOrCreateAnAccount() {
         Account[] accounts = AccountManagerUtil.get(this).getAccounts();
@@ -119,19 +132,5 @@ public class StartUpActivity extends RoboActivity {
         Intent intent = new Intent(this, AuthenticatorActivity.class);
         intent.putExtra("account_types", new String[]{"com.jaspersoft"});
         startActivityForResult(intent, AUTHORIZE);
-    }
-
-    @OnActivityResult(AUTHORIZE)
-    protected void onAuthorize(int resultCode) {
-        if (resultCode == Activity.RESULT_OK) {
-            DrawerActivity_.intent(this).start();
-        }
-        finish();
-    }
-
-    @Override
-    protected void onDestroy() {
-        compositeSubscription.unsubscribe();
-        super.onDestroy();
     }
 }

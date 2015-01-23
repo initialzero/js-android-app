@@ -53,13 +53,27 @@
 
         <activity android:name=".activities.DrawerActivity_"/>
 
+        <meta-data android:name="roboguice.modules" android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule"/>
+        <meta-data android:name="roboguice.annotations.packages" android:value="com.jaspersoft.android.jaspermobile"/>
+
+        <!-- Main activity -->
         <activity
-            android:name=".activities.StartUpActivity_"
-            android:theme="@style/Theme.JasperMobileHeadless">
+            android:name=".activities.navigation.NavigationActivity_"
+            android:theme="@style/Theme.JasperMobile.NoActionBar"
+            android:configChanges="locale" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        
+        <activity
+            android:name=".activities.StartUpActivity_"
+            android:theme="@style/Theme.JasperMobile.NoActionBar">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
 
         <!-- Main activity -->
@@ -163,7 +177,7 @@
 
         <activity
             android:name=".activities.auth.AuthenticatorActivity"
-            android:theme="@style/Theme.JasperMobileHeadless">
+            android:theme="@style/Theme.JasperMobile.NoActionBar">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="jaspersoft.intent.action.AUTHORIZE" />

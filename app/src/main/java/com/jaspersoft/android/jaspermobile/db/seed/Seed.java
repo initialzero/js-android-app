@@ -24,12 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.db.seed;
 
-import android.database.sqlite.SQLiteDatabase;
-
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public interface Seed {
-    public void seed(SQLiteDatabase database);
+    public void seed();
 }

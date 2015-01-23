@@ -44,6 +44,17 @@
     <color name="btn_login_bg_pressed">#ff2e3238</color>
     <color name="text_login_bg">#f0f0f0</color>
 
+    <!-- Navigation Drawer -->
+    <color name="primaryColor">#f0f</color>
+    <color name="primaryColorDark">#ff0</color>
+    <color name="ab_background">#363942</color>
+    <color name="shadow_light">#55000000</color>
+    <color name="shadow_dark">#cc000000</color>
+    <color name="profile_bg">#2d85b4</color>
+    <color name="navigation_profile_shadow">#aa000000</color>
+    <color name="navigation_menu_bg">#292b30</color>
+    <color name="navigation_item_bg">#373b42</color>
+
     <!--Dialog-->
     <color name="dialog_title_txt_color">#0185c3</color>
 

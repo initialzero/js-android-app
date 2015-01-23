@@ -24,7 +24,24 @@
 -->
 
 <resources>
-    <string-array name="roboguice_modules">
-        <item>com.jaspersoft.android.jaspermobile.JasperMobileModule</item>
-    </string-array>
+    <style name="Theme.JasperMobile" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/ic_resources_background</item>
+        <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+        <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
+        <item name="colorPrimary">@android:color/darker_gray</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+
+        <!--android-styled-dialogs reference style -->
+        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
+
+        <!--App reference styles-->
+        <item name="listLayoutStyle">@style/list2.item.layout</item>
+        <item name="gridLayoutStyle">@style/grid.item.layout</item>
+    </style>
+
+    <style name="Theme.JasperMobile.NoActionBar" parent="Theme.JasperMobile">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
 </resources>

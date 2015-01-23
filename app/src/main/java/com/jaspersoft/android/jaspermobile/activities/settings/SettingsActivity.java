@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.settings;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.ActivityNotFoundException;
@@ -43,11 +44,10 @@ import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentPreferenceActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.BasePreferenceActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.fragment.CacheSettingsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.settings.fragment.ConnectionSettingsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.settings.fragment.GeneralSettingsFragment_;
-import com.negusoft.holoaccent.dialog.AccentAlertDialog;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
@@ -62,7 +62,7 @@ import java.util.List;
  */
 @EActivity
 @OptionsMenu(R.menu.settings_menu)
-public class SettingsActivity extends RoboAccentPreferenceActivity {
+public class SettingsActivity extends BasePreferenceActivity {
     public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
@@ -158,7 +158,7 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
     public static class AboutDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AccentAlertDialog.Builder builder = new AccentAlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.sa_show_about);
             builder.setMessage(R.string.sa_about_info);
             builder.setCancelable(true);
@@ -186,7 +186,7 @@ public class SettingsActivity extends RoboAccentPreferenceActivity {
     public static class FeedBackDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AccentAlertDialog.Builder builder = new AccentAlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.sa_show_feedback);
             builder.setMessage(R.string.sa_feedback_info);
             builder.setCancelable(true);

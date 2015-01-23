@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/view_navigation_toolbar" />
+
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/dlNavigationAN"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize">
+
+        <FrameLayout
+            android:id="@+id/flContentAN"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout_
+            android:id="@+id/nplNavigationMenuAN"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="#111" />
+
+    </android.support.v4.widget.DrawerLayout>
+
+</RelativeLayout>
+
+

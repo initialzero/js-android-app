@@ -24,16 +24,12 @@
 -->
 
 <resources>
-    <style name="Theme.JasperMobileHeadless" parent="Theme.HoloAccent.NoActionBar">
-        <item name="android:windowBackground">@drawable/ic_resources_background</item>
-
-    </style>
-
-    <!-- Actionbar -->
-    <style name="Theme.JasperMobile" parent="Theme.HoloAccent.ColoredActionBar">
-        <item name="accentColor">#33B5E5</item>
+    <style name="Theme.JasperMobile" parent="Theme.AppCompat">
         <item name="android:windowBackground">@drawable/ic_resources_background</item>
         <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+        <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
+        <item name="colorPrimary">@drawable/ab_solid_home</item>
+        <item name="colorPrimaryDark">@color/primaryColorDark</item>
 
         <!--android-styled-dialogs reference style -->
         <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
@@ -43,22 +39,9 @@
         <item name="gridLayoutStyle">@style/grid.item.layout</item>
     </style>
 
-    <style name="Widget.JasperMobile.ActionBar" parent="@android:style/Widget.Holo.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_solid_home</item>
-    </style>
-
-    <style name="Theme.JasperMobile.NoActionBar" parent="@android:style/Theme.Holo.Light.NoActionBar">
-        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
-        <item name="android:windowBackground">@drawable/ic_resources_background</item>
-    </style>
-
-    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
-
-    <style name="Widget.JasperMobileDialog" parent="@style/DialogStyleDark.Custom" />
-
-    <style name="DialogStyleDark.Custom">
-        <item name="titleTextColor">@color/dialog_title_txt_color</item>
-        <item name="dialogBackground">@drawable/ic_resources_background</item>
+    <style name="Theme.JasperMobile.NoActionBar" parent="Theme.JasperMobile">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>

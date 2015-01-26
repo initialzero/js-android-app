@@ -31,8 +31,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:singleLine="true"
-                android:text="@string/library_card_label"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:fontFamily="sans-serif-light"
+                android:text="@string/library_card_label" />
 
         </LinearLayout>
 
@@ -57,8 +57,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:singleLine="true"
-                android:text="@string/repository_card_label"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:fontFamily="sans-serif-light"
+                android:text="@string/repository_card_label" />
 
         </LinearLayout>
 
@@ -83,8 +83,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:singleLine="true"
-                android:text="@string/favorites_card_label"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:fontFamily="sans-serif-light"
+                android:text="@string/favorites_card_label" />
 
         </LinearLayout>
 
@@ -109,34 +109,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:singleLine="true"
-                android:text="@string/sdr_ab_title"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/vg_settings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_navigation_item"
-            android:orientation="horizontal"
-            android:padding="15dp">
-
-            <ImageView
-                android:id="@+id/iv_settings"
-                android:layout_width="25dp"
-                android:layout_height="wrap_content"
-                android:src="@drawable/bg_navigation_icon_settings" />
-
-            <TextView
-                android:id="@+id/tv_settings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
-                android:singleLine="true"
-                android:text="@string/settings_card_label"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:fontFamily="sans-serif-light"
+                android:text="@string/sdr_ab_title" />
 
         </LinearLayout>
 
@@ -147,22 +121,35 @@
             android:background="@color/ab_background" />
 
         <TextView
-            android:id="@+id/tv_privacy"
-            android:clickable="true"
-            android:background="@drawable/bg_navigation_item"
+            android:id="@+id/tv_settings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            android:background="@drawable/bg_navigation_item"
+            android:clickable="true"
             android:padding="15dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/settings_card_label" />
+
+        <TextView
+            android:id="@+id/tv_privacy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_navigation_item"
+            android:clickable="true"
+            android:padding="15dp"
+            android:fontFamily="sans-serif-light"
             android:text="@string/sa_about_privacy" />
 
         <TextView
             android:id="@+id/tv_about"
-            android:clickable="true"
-            android:background="@drawable/bg_navigation_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_navigation_item"
+            android:clickable="true"
             android:padding="15dp"
+            android:fontFamily="sans-serif-light"
             android:text="@string/sa_show_about" />
 
     </LinearLayout>

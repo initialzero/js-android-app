@@ -155,7 +155,7 @@ public class NavigationActivity extends BaseActionBarActivity {
             case R.id.vg_favorites:
                 directFragment = FavoritesPageFragment_.builder().build();
                 break;
-            case R.id.vg_settings:
+            case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
                 break;
             default:

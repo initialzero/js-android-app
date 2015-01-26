@@ -112,7 +112,14 @@ public class NavigationPanelLayout extends RelativeLayout {
         showActivatedPanel(isShowingMenu);
     }
 
-    @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items, R.id.vg_settings})
+    @Click({R.id.tv_settings, R.id.tv_profile, R.id.tv_about})
+    final void navigationSubItemClick(View view) {
+        if (mListener != null) {
+            mListener.onNavigate(view.getId());
+        }
+    }
+
+    @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items})
     final void navigationMenuItemSelect(View newSelectItem) {
         setItemSelected(newSelectItem, true);
         if (selectedItemView != null) {

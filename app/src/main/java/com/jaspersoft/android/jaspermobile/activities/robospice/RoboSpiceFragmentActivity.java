@@ -40,16 +40,18 @@ public class RoboSpiceFragmentActivity extends BaseActionBarActivity {
 
     @Override
     protected void onStart() {
-        if (!jsSpiceManager.isStarted())
-        jsSpiceManager.start(this);
+        if (!jsSpiceManager.isStarted()) {
+            jsSpiceManager.start(this);
+        }
         super.onStart();
     }
 
 
     @Override
     protected void onStop() {
-        if (jsSpiceManager.isStarted())
+        if (jsSpiceManager.isStarted()) {
             jsSpiceManager.shouldStop();
+        }
         super.onStop();
     }
 

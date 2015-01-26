@@ -1,18 +1,33 @@
 package com.jaspersoft.android.jaspermobile.activities.navigation;
 
 import android.accounts.Account;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.PrivacyPolicyActivity_;
+import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment_;
@@ -66,6 +81,7 @@ public class NavigationActivity extends BaseActionBarActivity {
             setSupportActionBar(drawerToolbar);
             getSupportActionBar().setTitle(R.string.app_label);
         }
+
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, drawerToolbar, R.string.nd_drawer_open, R.string.nd_drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
@@ -84,10 +100,10 @@ public class NavigationActivity extends BaseActionBarActivity {
             @Override
             public void onDrawerSlide(View arg0, float slideOffset) {
                 super.onDrawerSlide(arg0, slideOffset);
-                if(slideOffset > mPreviousOffset && !shouldGoInvisible){
+                if (slideOffset > mPreviousOffset && !shouldGoInvisible) {
                     shouldGoInvisible = true;
                     invalidateOptionsMenu();
-                }else if(mPreviousOffset > slideOffset && slideOffset < 0.5f && shouldGoInvisible){
+                } else if (mPreviousOffset > slideOffset && slideOffset < 0.5f && shouldGoInvisible) {
                     shouldGoInvisible = false;
                     invalidateOptionsMenu();
                 }
@@ -99,18 +115,17 @@ public class NavigationActivity extends BaseActionBarActivity {
         navigationPanelLayout.setListener(new NavigationPanelLayout.NavigationListener() {
             @Override
             public void onNavigate(int viewId) {
-                replaceContent(viewId);
+                handleNavigationAction(viewId);
                 drawerLayout.closeDrawer(navigationPanelLayout);
             }
 
             @Override
             public void onProfileChange(Account account) {
-
             }
         });
 
         if (mSavedInstanceState == null) {
-            replaceContent(defaultSelection);
+            handleNavigationAction(defaultSelection);
             navigationPanelLayout.setItemSelected(defaultSelection);
         }
     }
@@ -139,48 +154,130 @@ public class NavigationActivity extends BaseActionBarActivity {
         return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
-    private void replaceContent(int viewId) {
-        Fragment directFragment = null;
-
+    private void handleNavigationAction(int viewId) {
         switch (viewId) {
             case R.id.vg_library:
-                directFragment = LibraryFragment_.builder().build();
+                commitContent(LibraryFragment_.builder().build());
                 break;
             case R.id.vg_repository:
-                directFragment = RepositoryFragment_.builder().build();
+                commitContent(RepositoryFragment_.builder().build());
                 break;
             case R.id.vg_saved_items:
-                directFragment = SavedReportsFragment_.builder().build();
+                commitContent(SavedReportsFragment_.builder().build());
                 break;
             case R.id.vg_favorites:
-                directFragment = FavoritesPageFragment_.builder().build();
+                commitContent(FavoritesPageFragment_.builder().build());
+                break;
+            case R.id.vg_manage_accounts:
+                AccountsActivity_.intent(this).start();
                 break;
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
                 break;
-            default:
-                return;
+            case R.id.tv_privacy_policy:
+                PrivacyPolicyActivity_.intent(this).start();
+                break;
+            case R.id.tv_feedback:
+                new FeedBackDialog().show(getSupportFragmentManager(), FeedBackDialog.class.getSimpleName());
+                break;
+            case R.id.tv_about:
+                new AboutDialog().show(getSupportFragmentManager(), AboutDialog.class.getSimpleName());
         }
+    }
 
-        if (directFragment != null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            List<Fragment> fragments = getSupportFragmentManager().getFragments();
-            if (fragments != null) {
-                for (Fragment fragment : fragments) {
-                    if (fragment != null) {
-                        transaction.remove(fragment);
-                    }
+    private void commitContent(@NonNull Fragment directFragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                if (fragment != null) {
+                    transaction.remove(fragment);
                 }
             }
-            transaction
-                    .replace(R.id.main_frame, directFragment, DIRECT_TAG)
-                    .commit();
         }
+        transaction
+                .replace(R.id.main_frame, directFragment, DIRECT_TAG)
+                .commit();
     }
 
     private void hideMenuItems(Menu menu, boolean visible) {
         for (int i = 0; i < menu.size(); i++) {
             menu.getItem(i).setVisible(visible);
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
+
+    public static class AboutDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.sa_show_about);
+            builder.setMessage(R.string.sa_about_info);
+            builder.setCancelable(true);
+            builder.setNeutralButton(android.R.string.ok, null);
+
+            Dialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(true);
+
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    View decorView = getDialog().getWindow().getDecorView();
+                    if (decorView != null) {
+                        TextView messageText = (TextView) decorView.findViewById(android.R.id.message);
+                        if (messageText != null) {
+                            messageText.setMovementMethod(LinkMovementMethod.getInstance());
+                        }
+                    }
+                }
+            });
+            return dialog;
+        }
+    }
+
+    public static class FeedBackDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.sa_show_feedback);
+            builder.setMessage(R.string.sa_feedback_info);
+            builder.setCancelable(true);
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.setPositiveButton(android.R.string.ok,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Intent.ACTION_SEND);
+                            intent.setType("message/rfc822");
+                            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"js.testdevice@gmail.com"});
+                            intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
+                            try {
+                                PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
+                                String versionName = pInfo.versionName;
+                                String versionCode = String.valueOf(pInfo.versionCode);
+                                intent.putExtra(Intent.EXTRA_TEXT, String.format("Version name: %s \nVersion code: %s", versionName, versionCode));
+                            } catch (PackageManager.NameNotFoundException e) {
+                            }
+                            try {
+                                getActivity().startActivity(intent);
+                            } catch (ActivityNotFoundException e) {
+                                Toast.makeText(getActivity(),
+                                        getString(R.string.sdr_t_no_app_available, "email"),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+            );
+
+            Dialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(true);
+
+            return dialog;
         }
     }
 }

@@ -132,7 +132,7 @@
             android:text="@string/settings_card_label" />
 
         <TextView
-            android:id="@+id/tv_privacy"
+            android:id="@+id/tv_privacy_policy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -141,6 +141,17 @@
             android:padding="15dp"
             android:fontFamily="sans-serif-light"
             android:text="@string/sa_about_privacy" />
+
+        <TextView
+            android:id="@+id/tv_feedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_navigation_item"
+            android:clickable="true"
+            android:padding="15dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/sa_show_feedback" />
 
         <TextView
             android:id="@+id/tv_about"

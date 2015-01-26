@@ -140,9 +140,9 @@
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
-            android:theme="@style/Theme.JasperMobile.Settings"
             android:configChanges="locale"
-            android:label="@string/st_title" >
+            android:label="@string/st_title"
+            android:theme="@style/Theme.JasperMobile.Settings">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.StartUpActivity_" />
@@ -174,12 +174,15 @@
             android:name=".activities.PrivacyPolicyActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale">
 
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.StartUpActivity_" />
+
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.intent.action.VIEW" />
                 <data android:scheme="com.jaspersoft.android.privacy_policy" />
             </intent-filter>
-
         </activity>
 
         <activity

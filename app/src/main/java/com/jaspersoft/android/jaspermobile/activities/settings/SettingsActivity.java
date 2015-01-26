@@ -157,16 +157,6 @@ public class SettingsActivity extends BasePreferenceActivity {
         super.onBackPressed();
     }
 
-    final void showAbout() {
-        AboutDialog aboutDialog = new AboutDialog();
-        aboutDialog.show(getFragmentManager(), AboutDialog.class.getSimpleName());
-    }
-
-    final void showFeedback() {
-        FeedBackDialog aboutDialog = new FeedBackDialog();
-        aboutDialog.show(getFragmentManager(), FeedBackDialog.class.getSimpleName());
-    }
-
     //---------------------------------------------------------------------
     // Static methods
     //---------------------------------------------------------------------
@@ -175,75 +165,5 @@ public class SettingsActivity extends BasePreferenceActivity {
     public static boolean isAnimationEnabled(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
-    }
-
-    public static class AboutDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.sa_show_about);
-            builder.setMessage(R.string.sa_about_info);
-            builder.setCancelable(true);
-            builder.setNeutralButton(android.R.string.ok, null);
-
-            Dialog dialog = builder.create();
-            dialog.setCanceledOnTouchOutside(true);
-
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialogInterface) {
-                    View decorView = getDialog().getWindow().getDecorView();
-                    if (decorView != null) {
-                        TextView messageText = (TextView) decorView.findViewById(android.R.id.message);
-                        if (messageText != null) {
-                            messageText.setMovementMethod(LinkMovementMethod.getInstance());
-                        }
-                    }
-                }
-            });
-            return dialog;
-        }
-    }
-
-    public static class FeedBackDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.sa_show_feedback);
-            builder.setMessage(R.string.sa_feedback_info);
-            builder.setCancelable(true);
-            builder.setNegativeButton(android.R.string.cancel, null);
-            builder.setPositiveButton(android.R.string.ok,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Intent.ACTION_SEND);
-                            intent.setType("message/rfc822");
-                            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"js.testdevice@gmail.com"});
-                            intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
-                            try {
-                                PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
-                                String versionName = pInfo.versionName;
-                                String versionCode = String.valueOf(pInfo.versionCode);
-                                intent.putExtra(Intent.EXTRA_TEXT, String.format("Version name: %s \nVersion code: %s", versionName, versionCode));
-                            } catch (PackageManager.NameNotFoundException e) {
-                            }
-                            try {
-                                getActivity().startActivity(intent);
-                            } catch (ActivityNotFoundException e) {
-                                Toast.makeText(getActivity(),
-                                        getString(R.string.sdr_t_no_app_available, "email"),
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-            );
-
-            Dialog dialog = builder.create();
-            dialog.setCanceledOnTouchOutside(true);
-
-
-            return dialog;
-        }
     }
 }

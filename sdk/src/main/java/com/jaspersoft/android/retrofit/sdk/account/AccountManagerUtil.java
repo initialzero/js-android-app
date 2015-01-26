@@ -78,6 +78,17 @@ public class AccountManagerUtil {
         return Observable.just(account);
     }
 
+    public List<AccountServerData> getAccountServers(boolean withoutActive) {
+        List<AccountServerData> mJasperAccounts = new ArrayList<AccountServerData>();
+        Account activeAccount = BasicAccountProvider.get(mContext).getAccount();
+        Account[] accounts = getAccounts();
+        for (Account jasperAccount : accounts) {
+            if(!withoutActive || !(activeAccount != null && activeAccount.equals(jasperAccount)))
+                mJasperAccounts.add(AccountServerData.get(mContext, jasperAccount));
+        }
+        return mJasperAccounts;
+    }
+
     public Observable<String> getAuthToken(final Account account) {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override

@@ -1,20 +1,31 @@
 package com.jaspersoft.android.jaspermobile.widget;
 
+import android.accounts.Account;
 import android.content.Context;
-import android.os.Bundle;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.ViewById;
+
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -37,6 +48,16 @@ public class NavigationPanelLayout extends RelativeLayout {
     @ViewById(R.id.lv_accounts_menu)
     ListView accountsMenu;
 
+    @ViewById(R.id.tv_profile)
+    TextView tvProfile;
+
+    @ViewById(R.id.iv_profile_arrow)
+    ImageView ivProfileArrow;
+
+    //---------------------------------------------------------------------
+    // Public methods
+    //---------------------------------------------------------------------
+
     public NavigationPanelLayout(Context context) {
         super(context);
     }
@@ -56,11 +77,33 @@ public class NavigationPanelLayout extends RelativeLayout {
     @AfterViews()
     final void initNavigationLayout() {
         isShowingMenu = true;
+        AccountsAdapter accountsAdapter = new AccountsAdapter(getContext());
+        View accountsFooter = LayoutInflater.from(getContext()).inflate(R.layout.view_accounts_footer, null, false);
+        accountsFooter.findViewById(R.id.vg_add_account).setOnClickListener(onAddProfileClickListener);
+        accountsFooter.findViewById(R.id.vg_manage_accounts).setOnClickListener(onManageProfileClickListener);
+        accountsMenu.addFooterView(accountsFooter);
+        accountsMenu.setAdapter(accountsAdapter);
+        Account currentAccount = BasicAccountProvider.get(getContext()).getAccount();
+        tvProfile.setText(currentAccount != null ? currentAccount.name : "Select Account");
         Timber.tag(TAG);
     }
 
+    private OnClickListener onAddProfileClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(mListener != null) mListener.onNavigate(R.id.vg_add_account);
+        }
+    };
+
+    private OnClickListener onManageProfileClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(mListener != null) mListener.onNavigate(R.id.vg_manage_accounts);
+        }
+    };
+
     @Click(R.id.vg_profile)
-    final void profilePanelCkicked() {
+    final void profilePanelClicked() {
         isShowingMenu = !isShowingMenu;
         showActivatedPanel(isShowingMenu);
     }
@@ -82,11 +125,55 @@ public class NavigationPanelLayout extends RelativeLayout {
         }
     }
 
+    @ItemClick(R.id.lv_accounts_menu)
+    public void onAccountSelect(AccountServerData accountsData) {
+        Account[] accounts = AccountManagerUtil.get(getContext()).getAccounts();
+        for (Account account : accounts) {
+            if(accountsData.getAlias().equals(account.name))
+                if (mListener != null) mListener.onProfileChange(account);
+        }
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        NavigationPanelSavedState savedState = new NavigationPanelSavedState(superState);
+        savedState.isShowingMenu = this.isShowingMenu;
+        savedState.selectedViewId = selectedItemView != null ? selectedItemView.getId() : -1;
+
+        return savedState;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof NavigationPanelSavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        NavigationPanelSavedState savedState = (NavigationPanelSavedState) state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+
+        this.isShowingMenu = savedState.isShowingMenu;
+        showActivatedPanel(isShowingMenu);
+
+        if(savedState.selectedViewId != -1) {
+            this.selectedItemView = findViewById(savedState.selectedViewId);
+            setItemSelected(selectedItemView, true);
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void showActivatedPanel(boolean isShowingMenu) {
         if (!isShowingMenu) {
+            ivProfileArrow.setImageResource(R.drawable.ic_arrow_up);
             navigationMenu.setVisibility(GONE);
             accountsMenu.setVisibility(VISIBLE);
         } else {
+            ivProfileArrow.setImageResource(R.drawable.ic_arrow_down);
             navigationMenu.setVisibility(VISIBLE);
             accountsMenu.setVisibility(GONE);
         }
@@ -106,32 +193,100 @@ public class NavigationPanelLayout extends RelativeLayout {
         }
     }
 
-    @Override
-    public Parcelable onSaveInstanceState() {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("instanceState", super.onSaveInstanceState());
-        bundle.putBoolean("isShowingMenu", isShowingMenu);
-        bundle.putInt("selectedViewId", selectedItemView.getId());
-        return bundle;
+    //---------------------------------------------------------------------
+    // Nested classes
+    //---------------------------------------------------------------------
+
+    private class AccountsAdapter extends BaseAdapter {
+
+        private List<AccountServerData> mJasperAccounts;
+        LayoutInflater mInflater;
+
+        private AccountsAdapter(Context context) {
+            mJasperAccounts = AccountManagerUtil.get(context).getAccountServers(true);
+            mInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public int getCount() {
+            return mJasperAccounts.size();
+        }
+
+        @Override
+        public AccountServerData getItem(int position) {
+            return mJasperAccounts.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            AccountsViewHolder mViewHolder;
+
+            if(convertView == null) {
+                convertView = mInflater.inflate(R.layout.item_account, null);
+                mViewHolder = new AccountsViewHolder();
+                mViewHolder.tvAccountName = (TextView) convertView.findViewById(R.id.tv_account_name);
+                mViewHolder.tvAccountVersion = (TextView) convertView.findViewById(R.id.tv_account_version);
+                convertView.setTag(mViewHolder);
+            } else {
+                mViewHolder = (AccountsViewHolder) convertView.getTag();
+            }
+
+            mViewHolder.tvAccountName.setText(getItem(position).getAlias());
+
+            AccountServerData serverData = getItem(position);
+            String userName = serverData.getUsername();
+            mViewHolder.tvAccountVersion.setText(userName == null ? "?" : userName.substring(0 ,1));
+
+            return convertView;
+        }
+
+        private class AccountsViewHolder {
+            TextView tvAccountName;
+            TextView tvAccountVersion;
+        }
     }
 
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        if (state instanceof Bundle) {
-            Bundle bundle = (Bundle) state;
-            isShowingMenu = bundle.getBoolean("isShowingMenu");
-            selectedItemView = findViewById(bundle.getInt("selectedViewId"));
-            state = bundle.getParcelable("instanceState");
+    static class NavigationPanelSavedState extends BaseSavedState {
+        int selectedViewId;
+        boolean isShowingMenu;
 
-            showActivatedPanel(isShowingMenu);
-            setItemSelected(selectedItemView, true);
+        NavigationPanelSavedState(Parcelable superState) {
+            super(superState);
         }
-        super.onRestoreInstanceState(state);
+
+        private NavigationPanelSavedState(Parcel in) {
+            super(in);
+            selectedViewId = in.readInt();
+            isShowingMenu = in.readInt() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(selectedViewId);
+            out.writeInt(isShowingMenu ? 1 : 0);
+        }
+
+        public static final Parcelable.Creator<NavigationPanelSavedState> CREATOR =
+                new Parcelable.Creator<NavigationPanelSavedState>() {
+                    public NavigationPanelSavedState createFromParcel(Parcel in) {
+                        return new NavigationPanelSavedState(in);
+                    }
+
+                    public NavigationPanelSavedState[] newArray(int size) {
+                        return new NavigationPanelSavedState[size];
+                    }
+                };
     }
 
     public interface NavigationListener {
         public void onNavigate(int viewId);
-        public void onProfileChange();
+        public void onProfileChange(Account account);
     }
 
 }

@@ -24,7 +24,7 @@
 -->
 
 <resources>
-    <style name="Theme.JasperMobile" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.JasperMobile" parent="Theme.AppCompat">
         <item name="android:windowBackground">@drawable/ic_resources_background</item>
         <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
         <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>

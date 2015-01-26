@@ -54,7 +54,6 @@ import com.jaspersoft.android.jaspermobile.activities.settings.fragment.GeneralS
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
 
 import java.util.List;
 
@@ -64,7 +63,6 @@ import java.util.List;
  * @since 1.5
  */
 @EActivity
-@OptionsMenu(R.menu.settings_menu)
 public class SettingsActivity extends BasePreferenceActivity {
     public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
@@ -90,6 +88,15 @@ public class SettingsActivity extends BasePreferenceActivity {
     // Public methods
     //---------------------------------------------------------------------
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getActionBar() != null) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
     /**
      * There is currently no way to achieve with AppCompat.
      * http://stackoverflow.com/questions/17849193/how-to-add-action-bar-from-support-library-into-preferenceactivity
@@ -100,6 +107,7 @@ public class SettingsActivity extends BasePreferenceActivity {
                 R.layout.settings_activity, new LinearLayout(this), false);
 
         mActionBar = (Toolbar) contentView.findViewById(R.id.tb_navigation);
+        mActionBar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white));
         mActionBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,13 +157,11 @@ public class SettingsActivity extends BasePreferenceActivity {
         super.onBackPressed();
     }
 
-    @OptionsItem
     final void showAbout() {
         AboutDialog aboutDialog = new AboutDialog();
         aboutDialog.show(getFragmentManager(), AboutDialog.class.getSimpleName());
     }
 
-    @OptionsItem
     final void showFeedback() {
         FeedBackDialog aboutDialog = new FeedBackDialog();
         aboutDialog.show(getFragmentManager(), FeedBackDialog.class.getSimpleName());

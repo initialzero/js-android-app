@@ -122,13 +122,13 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         assertThat(prefHelper.getRepoCacheExpirationValue(), is(defaultValue));
     }
 
-    @Test
-    public void testShowAboutInfo() {
-        startActivityUnderTest();
-        onView(withId(R.id.showAbout)).perform(click());
-
-        onOverflowView(getActivity(), withText(R.string.sa_show_about)).check(matches(isDisplayed()));
-        onOverflowView(getActivity(), withId(android.R.id.message)).check(matches(isDisplayed()));
-    }
+//    @Test
+//    public void testShowAboutInfo() {
+//        startActivityUnderTest();
+//        onView(withId(R.id.showAbout)).perform(click());
+//
+//        onOverflowView(getActivity(), withText(R.string.sa_show_about)).check(matches(isDisplayed()));
+//        onOverflowView(getActivity(), withId(android.R.id.message)).check(matches(isDisplayed()));
+//    }
 
 }

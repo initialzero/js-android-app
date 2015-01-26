@@ -29,7 +29,6 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -84,7 +83,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
     public void setUp() throws Exception {
         super.setUp();
         setActivityIntent(NavigationActivity_.intent(getApplication())
-                .position(DrawerActivity2.Position.REPOSITORY.ordinal()).get());
+                .defaultSelection(R.id.vg_repository).get());
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();

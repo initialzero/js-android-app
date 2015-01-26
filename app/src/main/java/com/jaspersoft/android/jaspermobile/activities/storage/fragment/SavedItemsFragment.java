@@ -54,6 +54,7 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -228,6 +229,7 @@ public class SavedItemsFragment extends RoboFragment
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = Lists.newArrayList();
 
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
 

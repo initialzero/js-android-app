@@ -47,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -201,6 +202,7 @@ public class FavoritesFragment extends RoboFragment
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = Lists.newArrayList();
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
 

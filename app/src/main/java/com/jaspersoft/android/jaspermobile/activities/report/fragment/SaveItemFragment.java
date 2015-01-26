@@ -47,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -275,6 +276,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         File appFilesDir = getActivity().getExternalFilesDir(null);
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
 
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         long profileId = jsRestClient.getServerProfile().getId();
         File profileDir = new File(savedReportsDir, String.valueOf(profileId));
         File reportDir = new File(profileDir, reportName);
@@ -288,6 +290,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {
         Account currentAccount = BasicAccountProvider.get(getActivity()).getAccount();
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile profile = jsRestClient.getServerProfile();
         SavedItems savedItemsEntry = new SavedItems();
 

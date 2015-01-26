@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
@@ -70,8 +69,6 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<Navigati
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setActivityIntent(NavigationActivity_.intent(getApplication())
-                .position(DrawerActivity2.Position.LIBRARY.ordinal()).get());
 
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();

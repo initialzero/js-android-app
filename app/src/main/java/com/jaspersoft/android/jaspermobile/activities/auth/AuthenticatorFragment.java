@@ -41,7 +41,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
@@ -217,7 +217,7 @@ public class AuthenticatorFragment extends RoboFragment {
         getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
 
         // Sync with legacy sdk
-        ProfileManager.initLegacyJsRestClient(getActivity(), account, legacyRestClient);
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), account, legacyRestClient);
         JsRestClient.flushCookies();
 
         Toast.makeText(getActivity(),

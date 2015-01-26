@@ -43,6 +43,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
@@ -145,6 +146,7 @@ public class WebViewFragment extends RoboFragment {
     public void loadUrl(String url) {
         // basic auth
         HashMap<String, String> map = Maps.newHashMap();
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile serverProfile = jsRestClient.getServerProfile();
         String authorisation = serverProfile.getUsernameWithOrgId() + ":" + serverProfile.getPassword();
         String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);

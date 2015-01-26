@@ -29,7 +29,6 @@ import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 
 import com.google.inject.Singleton;
-import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -64,16 +63,13 @@ public class WebMockRule extends ExternalResource {
         }
 
         Application application = (Application) fetchInstrumentation().getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(new MyTestModule(server.getPort())));
+        RoboGuice.overrideApplicationInjector(application, new MyTestModule(server.getPort()));
     }
 
     @Override
     protected void after() {
         super.after();
-        RoboGuice.util.reset();
+        RoboGuice.Util.reset();
     }
 
     public MockWebServer get() {

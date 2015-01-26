@@ -29,7 +29,6 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -83,8 +82,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setActivityIntent(NavigationActivity_.intent(getApplication())
-                .position(DrawerActivity2.Position.LIBRARY.ordinal()).get());
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
         dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
 

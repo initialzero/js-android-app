@@ -39,7 +39,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.account.adapter.AccountsAdapter;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -184,7 +184,7 @@ public class AccountsFragment extends RoboFragment {
                         mAdapter.notifyDataSetChanged();
                         // Sync legacy component
                         JsRestClient.flushCookies();
-                        ProfileManager.initLegacyJsRestClient(getActivity(), newAccount, jsRestClient);
+                        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), newAccount, jsRestClient);
                         setProgressEnabled(false);
                     }
                 }, errorLogAction);

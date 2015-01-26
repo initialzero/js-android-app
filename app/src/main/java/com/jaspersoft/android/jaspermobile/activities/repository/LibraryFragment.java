@@ -25,8 +25,10 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.inject.Inject;
@@ -40,7 +42,6 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterM
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
@@ -48,7 +49,7 @@ import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
-import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
@@ -58,30 +59,33 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.List;
 
+import roboguice.fragment.RoboFragment;
+
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
-@EActivity
 @OptionsMenu(R.menu.libraries_menu)
-public class LibraryActivity extends RoboSpiceFragmentActivity {
+@EFragment
+public class LibraryFragment extends RoboFragment {
+    public static final String TAG = LibraryFragment.class.getSimpleName();
 
     @Inject
-    JsRestClient jsRestClient;
+    protected JsRestClient jsRestClient;
 
     @Bean
-    ServerInfoManager infoManager;
+    protected ServerInfoManager infoManager;
     @Pref
-    LibraryPref_ pref;
+    protected LibraryPref_ pref;
     @Bean
-    FilterManager filterOptions;
+    protected FilterManager filterOptions;
     @Bean
-    SortOptions sortOptions;
+    protected SortOptions sortOptions;
 
     @OptionsMenuItem
-    MenuItem filter;
+    protected MenuItem filter;
     @OptionsMenuItem
-    MenuItem sort;
+    protected MenuItem sort;
 
     @InstanceState
     boolean mShowFilterOption;
@@ -92,19 +96,20 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
     private SearchControllerFragment searchControllerFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
             // Reset all controls state
             pref.clear();
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             resourcesController =
                     ResourcesControllerFragment_.builder()
@@ -113,51 +118,59 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
                             .sortOrder(sortOptions.getOrder())
                             .recursiveLookup(true)
                             .build();
-            transaction.add(resourcesController, ResourcesControllerFragment.TAG);
+            transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG + TAG);
 
             searchControllerFragment =
                     SearchControllerFragment_.builder()
                             .resourceTypes(filterOptions.getFilters())
                             .build();
-            transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
+            transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
             transaction.commit();
         } else {
-            resourcesController = (ResourcesControllerFragment) getSupportFragmentManager()
-                    .findFragmentByTag(ResourcesControllerFragment.TAG);
-            searchControllerFragment = (SearchControllerFragment) getSupportFragmentManager()
-                    .findFragmentByTag(SearchControllerFragment.TAG);
+            resourcesController = (ResourcesControllerFragment) getFragmentManager()
+                    .findFragmentByTag(ResourcesControllerFragment.TAG + TAG);
+            searchControllerFragment = (SearchControllerFragment) getFragmentManager()
+                    .findFragmentByTag(SearchControllerFragment.TAG + TAG);
         }
 
         updateOptionsMenu();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.h_library_label);
+        }
+    }
+
     private void updateOptionsMenu() {
-        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
+        infoManager.getServerInfo(null, new ServerInfoManager.InfoCallback() {
             @Override
             public void onInfoReceived(ServerInfoSnapshot serverInfo) {
                 mShowSortOption = true;
                 mShowFilterOption = serverInfo.isPro();
-                invalidateOptionsMenu();
+                getActivity().invalidateOptionsMenu();
             }
         });
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         filter.setVisible(mShowFilterOption);
         sort.setVisible(mShowSortOption);
-        return true;
     }
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
-        HomeActivity.goHome(this);
+        HomeActivity.goHome(getActivity());
     }
 
     @OptionsItem(R.id.filter)
     final void startFiltering() {
-        FilterDialogFragment.show(getSupportFragmentManager(),
+        FilterDialogFragment.show(getFragmentManager(),
                 new FilterDialogFragment.FilterDialogListener() {
                     @Override
                     public void onDialogPositiveClick(List<String> types) {
@@ -173,7 +186,7 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
 
     @OptionsItem(R.id.sort)
     final void startSorting() {
-        SortDialogFragment.show(getSupportFragmentManager(), new SortDialogFragment.SortDialogListener() {
+        SortDialogFragment.show(getFragmentManager(), new SortDialogFragment.SortDialogListener() {
             @Override
             public void onOptionSelected(SortOrder sortOrder) {
                 if (resourcesController != null) {

@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.storage;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -41,20 +42,23 @@ import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItem
 import com.jaspersoft.android.jaspermobile.dialog.FilterSavedItemsDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 
-import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
+
+import roboguice.fragment.RoboFragment;
 
 /**
  * @author Ivan Gadzhega
  * @author Tom Koptel
  * @since 1.8
  */
-@EActivity
+@EFragment
 @OptionsMenu(R.menu.saved_items_menu)
-public class SavedReportsActivity extends BaseActionBarActivity {
+public class SavedReportsFragment extends RoboFragment {
+    public static final String TAG = SavedReportsFragment.class.getSimpleName();
 
     private SavedItemsControllerFragment savedItemsController;
 
@@ -67,47 +71,56 @@ public class SavedReportsActivity extends BaseActionBarActivity {
     @Pref
     LibraryPref_ pref;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
             // Reset all controls state
             pref.clear();
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             savedItemsController = SavedItemsControllerFragment_.builder()
                     .filterType(filterType)
                     .sortOrder(sortOrder)
                     .build();
-
-            transaction.add(savedItemsController, SavedItemsControllerFragment.TAG);
+            transaction.replace(R.id.resource_controller, savedItemsController, SavedItemsControllerFragment.TAG);
 
             SavedItemsSearchFragment searchFragment = SavedItemsSearchFragment_.builder().build();
-            transaction.add(searchFragment, SearchControllerFragment.TAG);
+            transaction.replace(R.id.search_controller, searchFragment, SearchControllerFragment.TAG + TAG);
 
             transaction.commit();
         } else {
-            savedItemsController = (SavedItemsControllerFragment) getSupportFragmentManager()
-                    .findFragmentByTag(SavedItemsControllerFragment.TAG);
+            savedItemsController = (SavedItemsControllerFragment) getFragmentManager()
+                    .findFragmentByTag(SavedItemsControllerFragment.TAG + TAG);
         }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.sdr_ab_title);
+        }
     }
 
     @OptionsItem(android.R.id.home)
     final void goHome() {
-        super.onBackPressed();
+        getActivity().onBackPressed();
     }
 
     @OptionsItem(R.id.filter)
     final void startFiltering() {
-        FilterSavedItemsDialogFragment.show(getSupportFragmentManager(), filterType,
+        FilterSavedItemsDialogFragment.show(getFragmentManager(), filterType,
                 new FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener() {
                     @Override
                     public void onDialogPositiveClick(FileAdapter.FileType _filterType) {
@@ -121,7 +134,7 @@ public class SavedReportsActivity extends BaseActionBarActivity {
 
     @OptionsItem(R.id.sort)
     final void startSorting() {
-        SortDialogFragment.show(getSupportFragmentManager(), new SortDialogFragment.SortDialogListener() {
+        SortDialogFragment.show(getFragmentManager(), new SortDialogFragment.SortDialogListener() {
             @Override
             public void onOptionSelected(SortOrder _sortOrder) {
                 if (savedItemsController != null) {

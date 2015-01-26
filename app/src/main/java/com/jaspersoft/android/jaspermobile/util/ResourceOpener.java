@@ -24,9 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
@@ -34,18 +34,13 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
 import java.util.ArrayList;
-
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
 
 /**
  * @author Tom Koptel
@@ -57,26 +52,17 @@ public class ResourceOpener {
     FilterManager filterManager;
     @RootContext
     FragmentActivity activity;
-    @Inject
-    JsRestClient jsRestClient;
 
     private ArrayList<String> resourceTypes;
-
-    @AfterInject
-    void injectRoboGuiceDependencies() {
-        final RoboInjector injector = RoboGuice.getInjector(activity);
-        injector.injectMembersWithoutViews(this);
-        resourceTypes = filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY);
-    }
 
     public void setResourceTypes(ArrayList<String> resourceTypes) {
         this.resourceTypes = resourceTypes;
     }
 
-    public void openResource(ResourceLookup resource) {
+    public void openResource(Fragment fragment, ResourceLookup resource) {
         switch (resource.getResourceType()) {
             case folder:
-                openFolder(resource);
+                openFolder(fragment, resource);
                 break;
             case reportUnit:
                 JasperMobileApplication.removeAllCookies();
@@ -91,7 +77,7 @@ public class ResourceOpener {
         }
     }
 
-    private void openFolder(ResourceLookup resource) {
+    private void openFolder(Fragment fragment, ResourceLookup resource) {
         ResourcesControllerFragment newControllerFragment =
                 ResourcesControllerFragment_.builder()
                         .emptyMessage(R.string.r_browser_nothing_to_display)
@@ -99,9 +85,10 @@ public class ResourceOpener {
                         .resourceLabel(resource.getLabel())
                         .resourceUri(resource.getUri())
                         .build();
-        activity.getSupportFragmentManager().beginTransaction()
+        fragment.getFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())
-                .replace(R.id.controller, newControllerFragment, ResourcesControllerFragment.TAG + resource.getUri())
+                .replace(R.id.resource_controller, newControllerFragment,
+                        ResourcesControllerFragment.TAG + resource.getUri())
                 .commit();
     }
 

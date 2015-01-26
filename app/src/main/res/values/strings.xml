@@ -285,7 +285,7 @@
     <string name="dialog_current_page">Set current page</string>
 
     <!--Accounts activity-->
-    <string name="accounts_activity_label" translatable="false">Jasper Accounts</string>
+    <string name="accounts_activity_label" translatable="false">Accounts</string>
     <string name="no_accounts" translatable="false">There is no Jasper accounts registered</string>
     <string name="add_account" translatable="false">Add account</string>
     <string name="hint_alias" translatable="false">Alias</string>
@@ -297,5 +297,10 @@
     <string name="failure_add_account" translatable="false"><![CDATA[Failed to add account. Reason: %s]]></string>
     <string name="adding_account" translatable="false">Adding account</string>
     <string name="activating_account" translatable="false">Activating account</string>
+
+    <!--Dummy-->
+    <string name="dummy_drawer_open" translatable="false">open drawer</string>
+    <string name="dummy_drawer_close" translatable="false">close drawer</string>
+
 
 </resources>

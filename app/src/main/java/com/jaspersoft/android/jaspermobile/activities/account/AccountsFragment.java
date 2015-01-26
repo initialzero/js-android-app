@@ -37,7 +37,6 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
 import com.jaspersoft.android.jaspermobile.activities.account.adapter.AccountsAdapter;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
@@ -74,7 +73,7 @@ import static rx.android.app.AppObservable.bindActivity;
 @OptionsMenu(R.menu.accounts_page_menu)
 @EFragment(R.layout.common_list_layout)
 public class AccountsFragment extends RoboFragment {
-    private static final String TAG = AccountsActivity.class.getSimpleName();
+    public static final String TAG = AccountsActivity.class.getSimpleName();
     private static final int ADD_ACCOUNT = 10;
 
     @Inject
@@ -154,6 +153,15 @@ public class AccountsFragment extends RoboFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.accounts_activity_label);
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         addAccountSubscription.unsubscribe();
         loadAccountSubscription.unsubscribe();
@@ -174,16 +182,12 @@ public class AccountsFragment extends RoboFragment {
                     @Override
                     public void call(Account newAccount) {
                         mAdapter.notifyDataSetChanged();
+                        // Sync legacy component
+                        JsRestClient.flushCookies();
                         ProfileManager.initLegacyJsRestClient(getActivity(), newAccount, jsRestClient);
                         setProgressEnabled(false);
                     }
                 }, errorLogAction);
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void showHome() {
-        HomeActivity.goHome(getActivity());
-        getActivity().finish();
     }
 
     @OptionsItem

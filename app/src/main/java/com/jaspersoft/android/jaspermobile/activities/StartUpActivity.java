@@ -85,38 +85,43 @@ public class StartUpActivity extends RoboActivity {
     //---------------------------------------------------------------------
 
     private void signInOrCreateAnAccount() {
+        Account[] accounts = AccountManagerUtil.get(this).getAccounts();
+        if (accounts.length == 0) {
+            addAccount();
+        } else {
+            checkActiveAccount();
+        }
+    }
+
+    private void checkActiveAccount() {
         final Context context = this;
         compose(
                 AppObservable.bindActivity(this,
-                        AccountManagerUtil.get(this).getActiveAccount()
+                        AccountManagerUtil.get(this)
+                                .getActiveAccount()
                 ).subscribe(
                         new Action1<Account>() {
                             @Override
                             public void call(Account account) {
                                 ProfileManager.initLegacyJsRestClient(context, account, jsRestClient);
-                                HomeActivity_.intent(context).start();
+                                DrawerActivity_.intent(context).start();
                                 finish();
                             }
                         }, new Action1<Throwable>() {
                             @Override
                             public void call(Throwable throwable) {
-                                recoverMissingAccountState();
+                                pickAccount();
                             }
                         })
         );
     }
 
-    private void recoverMissingAccountState() {
-        Account[] accounts = AccountManagerUtil.get(this).getAccounts();
-        if (accounts.length == 0) {
-            addAccount();
-        } else {
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            stackBuilder.addParentStack(AccountsActivity_.class);
-            stackBuilder.addNextIntent(AccountsActivity_.intent(this).get());
-            stackBuilder.startActivities();
-            finish();
-        }
+    private void pickAccount() {
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(AccountsActivity_.class);
+        stackBuilder.addNextIntent(AccountsActivity_.intent(this).get());
+        stackBuilder.startActivities();
+        finish();
     }
 
     private void compose(Subscription subscription) {

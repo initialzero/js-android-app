@@ -27,7 +27,8 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
@@ -60,15 +61,18 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 2.0
  */
-public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageFilterTest extends ProtoActivityInstrumentation<DrawerActivity_> {
 
     public LibraryPageFilterTest() {
-        super(LibraryActivity_.class);
+        super(DrawerActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        setActivityIntent(DrawerActivity_.intent(getApplication())
+                .position(DrawerActivity.Position.LIBRARY.ordinal()).get());
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
@@ -180,12 +184,8 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         try {
             onView(withId(R.id.filter)).perform(click());
         } catch (NoMatchingViewException ex) {
-            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_filter_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            openActionBarOverflowOrOptionsMenu(getApplication());
+            onView(withText(R.string.s_ab_filter_by)).perform(click());
         }
     }
 

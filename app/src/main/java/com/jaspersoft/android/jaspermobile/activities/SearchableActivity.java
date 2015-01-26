@@ -43,7 +43,7 @@ import java.util.ArrayList;
  * @author Tom Koptel
  * @since 1.9
  */
-@EActivity(R.layout.repositories_layout)
+@EActivity(R.layout.content_layout)
 public class SearchableActivity extends RoboSpiceFragmentActivity {
 
     @Extra
@@ -67,7 +67,6 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
         // Get the intent, verify the action and get the query
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-
             if (savedInstanceState == null) {
                 ResourcesControllerFragment resourcesController =
                         ResourcesControllerFragment_.builder()
@@ -80,7 +79,7 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
                                 .query(query)
                                 .build();
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.controller, resourcesController, ResourcesControllerFragment.TAG)
+                        .add(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG)
                         .commit();
             }
         }

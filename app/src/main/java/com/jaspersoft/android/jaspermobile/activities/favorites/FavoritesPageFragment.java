@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.favorites;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -40,19 +41,22 @@ import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
+import roboguice.fragment.RoboFragment;
+
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-@EActivity(R.layout.repositories_layout)
+@EFragment
 @OptionsMenu(R.menu.saved_items_menu)
-public class FavoritesActivity extends BaseActionBarActivity {
+public class FavoritesPageFragment extends RoboFragment {
+    public static final String TAG = FavoritesPageFragment.class.getSimpleName();
 
     private FavoritesControllerFragment favoriteController;
 
@@ -65,45 +69,56 @@ public class FavoritesActivity extends BaseActionBarActivity {
     @Pref
     LibraryPref_ pref;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
             // Reset all controls state
             pref.clear();
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             favoriteController = FavoritesControllerFragment_.builder()
                     .build();
 
-            transaction.add(R.id.controller, favoriteController, FavoritesControllerFragment.TAG);
+            transaction.replace(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG);
 
             FavoritesSearchFragment searchFragment = FavoritesSearchFragment_.builder().build();
-            transaction.add(searchFragment, FavoritesSearchFragment.TAG);
+            transaction.replace(R.id.search_controller, searchFragment, FavoritesSearchFragment.TAG);
 
             transaction.commit();
         }
         else {
-            favoriteController = (FavoritesControllerFragment) getSupportFragmentManager()
+            favoriteController = (FavoritesControllerFragment) getFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.f_title);
         }
     }
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
-        super.onBackPressed();
+        getActivity().onBackPressed();
     }
 
     @OptionsItem(R.id.filter)
     final void startFiltering() {
-        FilterFavoritesDialogFragment.show(getSupportFragmentManager(), filterType,
+        FilterFavoritesDialogFragment.show(getFragmentManager(), filterType,
                 new FilterFavoritesDialogFragment.FilterFavoritesDialogListener() {
                     @Override
                     public void onDialogPositiveClick(ResourceLookup.ResourceType newFilterType) {
@@ -117,7 +132,7 @@ public class FavoritesActivity extends BaseActionBarActivity {
 
     @OptionsItem(R.id.sort)
     final void startSorting() {
-        SortDialogFragment.show(getSupportFragmentManager(), new SortDialogFragment.SortDialogListener() {
+        SortDialogFragment.show(getFragmentManager(), new SortDialogFragment.SortDialogListener() {
             @Override
             public void onOptionSelected(SortOrder _sortOrder) {
                 if (favoriteController != null) {

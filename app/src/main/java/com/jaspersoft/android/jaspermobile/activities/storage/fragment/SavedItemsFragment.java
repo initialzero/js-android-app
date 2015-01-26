@@ -87,7 +87,7 @@ import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.On
 public class SavedItemsFragment extends RoboFragment
         implements ISimpleDialogListener, FileAdapter.FileInteractionListener, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private final int SAVED_ITEMS_LOADER_ID = 0;
+    private final int SAVED_ITEMS_LOADER_ID = 10;
 
     @FragmentArg
     ViewType viewType;
@@ -300,7 +300,7 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
+        mAdapter.swapCursor(null);
     }
 
     //---------------------------------------------------------------------
@@ -380,5 +380,4 @@ public class SavedItemsFragment extends RoboFragment
     @Override
     public void onNeutralButtonClicked(int i) {
     }
-
 }

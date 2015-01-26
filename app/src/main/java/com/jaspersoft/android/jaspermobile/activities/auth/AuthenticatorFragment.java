@@ -29,7 +29,10 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.TextUtils;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -51,6 +54,7 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
@@ -73,6 +77,9 @@ import static rx.android.app.AppObservable.bindFragment;
  */
 @EFragment(R.layout.add_account_layout)
 public class AuthenticatorFragment extends RoboFragment {
+    @Inject
+    protected JsRestClient legacyRestClient;
+
     @ViewById
     protected EditText aliasEdit;
     @ViewById
@@ -85,8 +92,9 @@ public class AuthenticatorFragment extends RoboFragment {
     protected EditText passwordEdit;
     @InstanceState
     protected boolean mFetching;
-    @Inject
-    protected JsRestClient legacyRestClient;
+
+    @SystemService
+    protected InputMethodManager inputMethodManager;
 
     private Observable<LoginResponse> loginDemoTask;
     private Subscription loginSubscription = Subscriptions.empty();
@@ -135,6 +143,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
     @Click
     public void addAccount() {
+        hideKeyboard();
         if (!isFormValid()) return;
 
         setProgressEnabled(true);
@@ -184,8 +193,6 @@ public class AuthenticatorFragment extends RoboFragment {
     }
 
     private void addAccount(final AccountServerData serverData) {
-        legacyRestClient.setServerProfile(ProfileManager.getServerProfile(serverData));
-
         addAccountSubscription = AccountManagerUtil.get(getActivity())
                 .addAccountExplicitly(serverData)
                 .subscribe(new Action1<Account>() {
@@ -208,6 +215,10 @@ public class AuthenticatorFragment extends RoboFragment {
         data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
         data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
         getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
+
+        // Sync with legacy sdk
+        ProfileManager.initLegacyJsRestClient(getActivity(), account, legacyRestClient);
+        JsRestClient.flushCookies();
 
         Toast.makeText(getActivity(),
                 getString(R.string.success_add_account, account.name),
@@ -295,5 +306,15 @@ public class AuthenticatorFragment extends RoboFragment {
             url = url.substring(0, url.length() - 1);
         }
         return url;
+    }
+
+    private void hideKeyboard() {
+        View focus = getActivity().getCurrentFocus();
+        if (focus != null) {
+            IBinder token = focus.getWindowToken();
+            if (token != null) {
+                inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+            }
+        }
     }
 }

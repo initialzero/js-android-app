@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="-5dp"
         android:layout_marginRight="-5dp"
-        android:layout_gravity="center"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         card_view:cardBackgroundColor="@color/card_login_bg"

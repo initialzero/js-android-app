@@ -24,8 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -34,57 +34,64 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
-import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 
 import org.androidannotations.annotations.Bean;
-import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
+
+import roboguice.fragment.RoboFragment;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-@EActivity(R.layout.repositories_layout)
-public class RepositoryActivity extends BaseActionBarActivity {
+@EFragment
+public class RepositoryFragment extends RoboFragment {
+    public static final String TAG = RepositoryFragment.class.getSimpleName();
+
     @Bean
-    FilterManager filterManager;
+    protected FilterManager filterManager;
+
     private ResourcesControllerFragment resourcesController;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        Timber.tag(TAG);
+    }
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
             resourcesController =
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
                             .recursiveLookup(false)
                             .resourceTypes(filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY))
                             .build();
-            transaction.add(R.id.controller, resourcesController, ResourcesControllerFragment.TAG);
+            transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG + TAG);
 
             SearchControllerFragment searchControllerFragment =
                     SearchControllerFragment_.builder()
                     .resourceTypes(filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY))
                     .build();
-            transaction.add(searchControllerFragment, SearchControllerFragment.TAG);
+            transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
             transaction.commit();
         } else {
             resourcesController = (ResourcesControllerFragment)
-                    getSupportFragmentManager().findFragmentByTag(ResourcesControllerFragment.TAG);
+                    getFragmentManager().findFragmentByTag(ResourcesControllerFragment.TAG + TAG);
         }
     }
 
     @OptionsItem(android.R.id.home)
     final void showHome() {
-        super.onBackPressed();
+        getActivity().onBackPressed();
     }
 
 
@@ -92,4 +99,5 @@ public class RepositoryActivity extends BaseActionBarActivity {
     public void searchAction() {
         resourcesController.replacePreviewOnDemand();
     }
+
 }

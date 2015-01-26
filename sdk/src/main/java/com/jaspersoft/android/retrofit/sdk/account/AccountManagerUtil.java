@@ -102,6 +102,7 @@ public class AccountManagerUtil {
                     subscriber.onNext(token);
                     subscriber.onCompleted();
                 } catch (Exception ex) {
+                    Timber.e(ex, "Failed to getAuthToken()");
                     subscriber.onError(ex);
                 }
             }
@@ -205,8 +206,9 @@ public class AccountManagerUtil {
                             Timber.d("Remove status for Account[" + account.name + "]: " + result);
                             subscriber.onNext(result);
                             subscriber.onCompleted();
-                        } catch (Exception e) {
-                            subscriber.onError(e);
+                        } catch (Exception ex) {
+                            Timber.e(ex, "Failed to removeAccount()");
+                            subscriber.onError(ex);
                         }
                     }
                 }, handler);

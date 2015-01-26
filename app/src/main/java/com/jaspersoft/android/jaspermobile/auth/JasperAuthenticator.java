@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
@@ -93,6 +94,10 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
                         serverData.getOrganization(), serverData.getUsername(), password
                 ).toBlocking().firstOrDefault(null);
                 if (loginResponse != null) {
+                    ServerInfo serverInfo = loginResponse.getServerInfo();
+                    Timber.d("Updating user data with server info: " + serverInfo);
+                    accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
+                    accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
                     authToken = loginResponse.getCookie();
                     Timber.d("New token: " + authToken);
                 }

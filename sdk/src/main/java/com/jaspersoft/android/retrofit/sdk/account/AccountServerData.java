@@ -40,8 +40,8 @@ public class AccountServerData {
     private static final String SERVER_URL_KEY = "SERVER_URL_KEY";
     private static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
     private static final String USERNAME_KEY = "USERNAME_KEY";
-    private static final String EDITION_KEY = "EDITION_KEY";
-    private static final String VERSION_NAME_KEY = "VERSION_NAME_KEY";
+    public static final String EDITION_KEY = "EDITION_KEY";
+    public static final String VERSION_NAME_KEY = "VERSION_NAME_KEY";
 
     private String alias;
     private String serverUrl;

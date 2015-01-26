@@ -24,14 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
-import android.support.test.runner.AndroidJUnit4;
 import android.widget.GridView;
 import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -46,7 +45,6 @@ import org.apache.http.fake.FakeHttpLayerManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -69,25 +67,24 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-@RunWith(AndroidJUnit4.class)
-public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageTest extends ProtoActivityInstrumentation<DrawerActivity_> {
     private static final int DASHBOARD_ITEM_POSITION = 1;
 
     private static final String GEO_QUERY = "Geo";
-    private static final String CLASS_NAME = "activities.repository.LibraryActivity_";
+    private static final String CLASS_NAME = "activities.DrawerActivity_";
 
     private ResourceLookupsList smallLookUp;
     private ResourceLookup dashboardResource;
 
     public LibraryPageTest() {
-        super(LibraryActivity_.class);
+        super(DrawerActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-
+        setActivityIntent(DrawerActivity_.intent(getApplication())
+                .position(DrawerActivity.Position.LIBRARY.ordinal()).get());
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
         dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
 
@@ -149,13 +146,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
     }
 
     @Test
-    public void testHomeAsUp() {
-        startActivityUnderTest();
-        onView(withId(android.R.id.home)).perform(click());
-        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
-    }
-
-    @Test
     public void testActionModeAboutIcon() {
         ResourceLookup resource = smallLookUp.getResourceLookups().get(0);
         startActivityUnderTest();
@@ -179,7 +169,7 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
             onView(withId(R.id.search)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            onOverflowView(getActivity(), withText(android.R.string.search_go)).perform(click());
+            onView(withText(android.R.string.search_go)).perform(click());
         }
         onView(withId(getSearcFieldId())).perform(typeText(GEO_QUERY));
         onView(withId(getSearcFieldId())).perform(pressImeActionButton());
@@ -188,7 +178,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<LibraryActivit
                 .check(matches(isDisplayed()));
 
         onView(withId(R.id.switchLayout)).perform(click());
-        pressBack();
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 

@@ -5,8 +5,8 @@ import android.database.Cursor;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
@@ -534,8 +534,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
     private void openSavePage() {
         getInstrumentation().startActivitySync(
-                DrawerActivity_.intent(getInstrumentation().getTargetContext())
-                        .position(DrawerActivity.Position.SAVED_ITEMS.ordinal())
+                NavigationActivity_.intent(getInstrumentation().getTargetContext())
+                        .position(DrawerActivity2.Position.SAVED_ITEMS.ordinal())
                         .flags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         .get());
         getInstrumentation().waitForIdleSync();

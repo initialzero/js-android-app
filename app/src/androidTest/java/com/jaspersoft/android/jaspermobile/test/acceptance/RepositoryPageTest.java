@@ -29,8 +29,8 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -71,20 +71,20 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-public class RepositoryPageTest extends ProtoActivityInstrumentation<DrawerActivity_> {
+public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private static final String REPORTS_QUERY = "Reports";
     private static final String CLASS_NAME = "activities.DrawerActivity_";
 
     public RepositoryPageTest() {
-        super(DrawerActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setActivityIntent(DrawerActivity_.intent(getApplication())
-                .position(DrawerActivity.Position.REPOSITORY.ordinal()).get());
+        setActivityIntent(NavigationActivity_.intent(getApplication())
+                .position(DrawerActivity2.Position.REPOSITORY.ordinal()).get());
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();

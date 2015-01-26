@@ -74,6 +74,10 @@ public class NavigationPanelLayout extends RelativeLayout {
         this.mListener = listener;
     }
 
+    public void setItemSelected(int viewId) {
+        navigationMenuItemSelect(findViewById(viewId));
+    }
+
     @AfterViews()
     final void initNavigationLayout() {
         isShowingMenu = true;
@@ -91,14 +95,14 @@ public class NavigationPanelLayout extends RelativeLayout {
     private OnClickListener onAddProfileClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(mListener != null) mListener.onNavigate(R.id.vg_add_account);
+            if (mListener != null) mListener.onNavigate(R.id.vg_add_account);
         }
     };
 
     private OnClickListener onManageProfileClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(mListener != null) mListener.onNavigate(R.id.vg_manage_accounts);
+            if (mListener != null) mListener.onNavigate(R.id.vg_manage_accounts);
         }
     };
 
@@ -113,6 +117,9 @@ public class NavigationPanelLayout extends RelativeLayout {
         setItemSelected(newSelectItem, true);
         if (selectedItemView != null) {
             if (selectedItemView == newSelectItem) {
+                if (mListener != null) {
+                    mListener.onNavigate(0);
+                }
                 return;
             }
             setItemSelected(selectedItemView, false);
@@ -129,7 +136,7 @@ public class NavigationPanelLayout extends RelativeLayout {
     public void onAccountSelect(AccountServerData accountsData) {
         Account[] accounts = AccountManagerUtil.get(getContext()).getAccounts();
         for (Account account : accounts) {
-            if(accountsData.getAlias().equals(account.name))
+            if (accountsData.getAlias().equals(account.name))
                 if (mListener != null) mListener.onProfileChange(account);
         }
     }
@@ -157,7 +164,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         this.isShowingMenu = savedState.isShowingMenu;
         showActivatedPanel(isShowingMenu);
 
-        if(savedState.selectedViewId != -1) {
+        if (savedState.selectedViewId != -1) {
             this.selectedItemView = findViewById(savedState.selectedViewId);
             setItemSelected(selectedItemView, true);
         }
@@ -226,7 +233,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         public View getView(int position, View convertView, ViewGroup parent) {
             AccountsViewHolder mViewHolder;
 
-            if(convertView == null) {
+            if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.item_account, null);
                 mViewHolder = new AccountsViewHolder();
                 mViewHolder.tvAccountName = (TextView) convertView.findViewById(R.id.tv_account_name);
@@ -240,7 +247,7 @@ public class NavigationPanelLayout extends RelativeLayout {
 
             AccountServerData serverData = getItem(position);
             String userName = serverData.getUsername();
-            mViewHolder.tvAccountVersion.setText(userName == null ? "?" : userName.substring(0 ,1));
+            mViewHolder.tvAccountVersion.setText(userName == null ? "?" : userName.substring(0, 1));
 
             return convertView;
         }
@@ -285,7 +292,11 @@ public class NavigationPanelLayout extends RelativeLayout {
     }
 
     public interface NavigationListener {
+        /**
+         * @param viewId returns selected view Id or 0 for same view
+         */
         public void onNavigate(int viewId);
+
         public void onProfileChange(Account account);
     }
 

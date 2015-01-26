@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.settings;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -37,8 +36,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,22 +84,35 @@ public class SettingsActivity extends BasePreferenceActivity {
             ConnectionSettingsFragment_.class.getName(),
             GeneralSettingsFragment_.class.getName()
     };
+    private Toolbar mActionBar;
 
     //---------------------------------------------------------------------
     // Public methods
     //---------------------------------------------------------------------
 
+    /**
+     * There is currently no way to achieve with AppCompat.
+     * http://stackoverflow.com/questions/17849193/how-to-add-action-bar-from-support-library-into-preferenceactivity
+     */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void setContentView(int layoutResID) {
+        ViewGroup contentView = (ViewGroup) LayoutInflater.from(this).inflate(
+                R.layout.settings_activity, new LinearLayout(this), false);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        mActionBar = (Toolbar) contentView.findViewById(R.id.tb_navigation);
+        mActionBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        mActionBar.setTitle(getTitle());
+
+        ViewGroup contentWrapper = (ViewGroup) contentView.findViewById(R.id.content_wrapper);
+        LayoutInflater.from(this).inflate(layoutResID, contentWrapper, true);
+
+        getWindow().setContentView(contentView);
     }
-
 
     /**
      * http://stackoverflow.com/questions/19973034/isvalidfragment-android-api-19

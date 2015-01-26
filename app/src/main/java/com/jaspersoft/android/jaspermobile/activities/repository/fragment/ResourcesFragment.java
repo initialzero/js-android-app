@@ -24,11 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.adapter.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
+import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
@@ -213,7 +214,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onResume() {
         super.onResume();
 
-        ActionBar actionBar = getActivity().getActionBar();
+        ActionBar actionBar = ((BaseActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             if (TextUtils.isEmpty(resourceLabel)) {
                 boolean isRepository = !recursiveLookup;

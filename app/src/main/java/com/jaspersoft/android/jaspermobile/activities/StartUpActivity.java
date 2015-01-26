@@ -34,6 +34,7 @@ import android.support.v4.app.TaskStackBuilder;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -104,7 +105,7 @@ public class StartUpActivity extends RoboActivity {
                             @Override
                             public void call(Account account) {
                                 ProfileManager.initLegacyJsRestClient(context, account, jsRestClient);
-                                DrawerActivity_.intent(context).start();
+                                NavigationActivity_.intent(context).start();
                                 finish();
                             }
                         }, new Action1<Throwable>() {

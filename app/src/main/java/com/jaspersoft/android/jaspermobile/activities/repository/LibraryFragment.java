@@ -23,10 +23,10 @@
  */
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterM
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
+import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
@@ -60,6 +61,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import java.util.List;
 
 import roboguice.fragment.RoboFragment;
+
 
 /**
  * @author Tom Koptel
@@ -139,7 +141,7 @@ public class LibraryFragment extends RoboFragment {
     @Override
     public void onResume() {
         super.onResume();
-        ActionBar actionBar = getActivity().getActionBar();
+        ActionBar actionBar = ((BaseActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.h_library_label);
         }

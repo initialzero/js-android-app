@@ -27,8 +27,8 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.acceptance.library.assertion.RequestAssert;
@@ -67,19 +67,19 @@ import static org.mockito.Mockito.verify;
  * @author Tom Koptel
  * @since 1.9
  */
-public class LibraryPageSortTest extends ProtoActivityInstrumentation<DrawerActivity_> {
+public class LibraryPageSortTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private final SpiceManagerRequestAssert mMockedSpiceManager = spy(new SpiceManagerRequestAssert());
 
     public LibraryPageSortTest() {
-        super(DrawerActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setActivityIntent(DrawerActivity_.intent(getApplication())
-                .position(DrawerActivity.Position.LIBRARY.ordinal()).get());
+        setActivityIntent(NavigationActivity_.intent(getApplication())
+                .position(DrawerActivity2.Position.LIBRARY.ordinal()).get());
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();

@@ -28,8 +28,8 @@ import android.database.Cursor;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
@@ -75,19 +75,19 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-public class FavoritesPageTest extends ProtoActivityInstrumentation<DrawerActivity_> {
+public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private FavoritesHelper_ favoritesHelper;
 
     public FavoritesPageTest() {
-        super(DrawerActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setActivityIntent(DrawerActivity_.intent(getApplication())
-                .position(DrawerActivity.Position.FAVORITES.ordinal()).get());
+        setActivityIntent(NavigationActivity_.intent(getApplication())
+                .position(DrawerActivity2.Position.FAVORITES.ordinal()).get());
 
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();

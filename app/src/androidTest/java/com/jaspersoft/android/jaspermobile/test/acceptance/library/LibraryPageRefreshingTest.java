@@ -26,8 +26,8 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
 import com.google.common.collect.Queues;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
@@ -57,17 +57,17 @@ import static org.hamcrest.core.Is.is;
  * @author Tom Koptel
  * @since 1.9
  */
-public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<DrawerActivity_> {
+public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     public LibraryPageRefreshingTest() {
-        super(DrawerActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setActivityIntent(DrawerActivity_.intent(getApplication())
-                .position(DrawerActivity.Position.LIBRARY.ordinal()).get());
+        setActivityIntent(NavigationActivity_.intent(getApplication())
+                .position(DrawerActivity2.Position.LIBRARY.ordinal()).get());
 
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();

@@ -51,29 +51,31 @@
         android:label="@string/app_label"
         android:theme="@style/Theme.JasperMobile">
 
-        <activity android:name=".activities.DrawerActivity_"/>
-
-        <meta-data android:name="roboguice.modules" android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule"/>
-        <meta-data android:name="roboguice.annotations.packages" android:value="com.jaspersoft.android.jaspermobile"/>
+        <meta-data
+            android:name="roboguice.modules"
+            android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule" />
+        <meta-data
+            android:name="roboguice.annotations.packages"
+            android:value="com.jaspersoft.android.jaspermobile" />
 
         <!-- Main activity -->
         <activity
-            android:name=".activities.navigation.NavigationActivity_"
-            android:theme="@style/Theme.JasperMobile.NoActionBar"
-            android:configChanges="locale" >
+            android:name=".activities.StartUpActivity_"
+            android:theme="@style/Theme.JasperMobile.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <activity
-            android:name=".activities.StartUpActivity_"
+            android:name=".activities.navigation.NavigationActivity_"
+            android:configChanges="locale"
+            android:parentActivityName=".activities.StartUpActivity_"
             android:theme="@style/Theme.JasperMobile.NoActionBar">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.StartUpActivity_" />
         </activity>
 
         <!-- Main activity -->
@@ -138,8 +140,13 @@
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
+            android:theme="@style/Theme.JasperMobile.Settings"
             android:configChanges="locale"
-            android:label="@string/st_title" />
+            android:label="@string/st_title" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.StartUpActivity_" />
+        </activity>
 
         <activity
             android:name=".activities.SearchableActivity_"

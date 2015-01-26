@@ -29,8 +29,8 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity;
-import com.jaspersoft.android.jaspermobile.activities.DrawerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.DrawerActivity2;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -67,7 +67,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-public class LibraryPageTest extends ProtoActivityInstrumentation<DrawerActivity_> {
+public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActivity_> {
     private static final int DASHBOARD_ITEM_POSITION = 1;
 
     private static final String GEO_QUERY = "Geo";
@@ -77,14 +77,14 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<DrawerActivity
     private ResourceLookup dashboardResource;
 
     public LibraryPageTest() {
-        super(DrawerActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setActivityIntent(DrawerActivity_.intent(getApplication())
-                .position(DrawerActivity.Position.LIBRARY.ordinal()).get());
+        setActivityIntent(NavigationActivity_.intent(getApplication())
+                .position(DrawerActivity2.Position.LIBRARY.ordinal()).get());
         smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, "library_reports_small");
         dashboardResource = smallLookUp.getResourceLookups().get(DASHBOARD_ITEM_POSITION);
 

@@ -44,4 +44,15 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+
+        <item name="toolbarStyle">@style/Widget.Toolbar</item>
+    </style>
+
+    <style name="Widget.Toolbar" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="android:navigationIcon">?attr/homeAsUpIndicator</item>
+    </style>
+
 </resources>

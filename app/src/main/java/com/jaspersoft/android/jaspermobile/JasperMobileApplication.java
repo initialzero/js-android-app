@@ -28,7 +28,9 @@ import android.app.Application;
 import android.content.Context;
 import android.view.ViewConfiguration;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
+import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;

@@ -32,7 +32,6 @@ import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesRemoveColumnMigra
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
-import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
 
 /**
  * @author Tom Koptel

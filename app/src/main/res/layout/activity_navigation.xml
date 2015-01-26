@@ -7,18 +7,33 @@
     <include layout="@layout/view_navigation_toolbar" />
 
     <android.support.v4.widget.DrawerLayout
-        android:id="@+id/dlNavigationAN"
+        android:id="@+id/dl_navigation"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize">
 
         <FrameLayout
-            android:id="@+id/flContentAN"
+            android:id="@+id/main_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="false"/>
+        <FrameLayout
+            android:id="@+id/resource_controller"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/search_controller"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout_
-            android:id="@+id/nplNavigationMenuAN"
+            android:id="@+id/npl_navigation_menu"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"

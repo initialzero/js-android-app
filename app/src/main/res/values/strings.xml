@@ -35,6 +35,7 @@
     <string name="nd_drawer_open" translatable="false">open</string>
     <string name="nd_drawer_close" translatable="false">close</string>
     <string name="nd_manage_accounts" translatable="false">Manage accounts</string>
+    <string name="nd_select_account">Select Account</string>
 
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
@@ -295,12 +296,9 @@
     <string name="hint_password" translatable="false">Password</string>
     <string name="success_add_account" translatable="false"><![CDATA[Add account with name %s]]></string>
     <string name="failure_add_account" translatable="false"><![CDATA[Failed to add account. Reason: %s]]></string>
-    <string name="adding_account" translatable="false">Adding account</string>
-    <string name="activating_account" translatable="false">Activating account</string>
-
-    <!--Dummy-->
-    <string name="dummy_drawer_open" translatable="false">open drawer</string>
-    <string name="dummy_drawer_close" translatable="false">close drawer</string>
-
+    <string name="account_add" translatable="false">Adding account</string>
+    <string name="account_activating" translatable="false">Activating account</string>
+    <string name="account_switch_failed" translatable="false">Failed to switch account</string>
+    <string name="account_switch_success" translatable="false">Account switched</string>
 
 </resources>

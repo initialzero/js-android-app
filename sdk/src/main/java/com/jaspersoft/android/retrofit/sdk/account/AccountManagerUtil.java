@@ -89,6 +89,40 @@ public class AccountManagerUtil {
         return mJasperAccounts;
     }
 
+    /**
+     * Activates account by requesting auth token for new account invalidating it, if exists, and requesting new one.
+     *
+     * @param newAccount Account we are requesting token for. As soon as, token received we are
+     *                   persisting within {@link com.jaspersoft.android.retrofit.sdk.account.AccountProvider}
+     * @return observable which wraps account for activating
+     */
+    public Observable<Account> activateAccount(final Account newAccount) {
+        return getAuthToken(newAccount)
+                .flatMap(new Func1<String, Observable<String>>() {
+                    @Override
+                    public Observable<String> call(String tokenToInvalidate) {
+                        AccountManager accountManager = AccountManager.get(mContext);
+                        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+                        return getAuthToken(newAccount);
+                    }
+                }).flatMap(new Func1<String, Observable<Account>>() {
+                    @Override
+                    public Observable<Account> call(String newToken) {
+                        BasicAccountProvider.get(mContext).putAccount(newAccount);
+                        return Observable.just(newAccount);
+                    }
+                });
+    }
+
+    public Observable<String> getActiveAuthToken() {
+       return getActiveAccount().flatMap(new Func1<Account, Observable<String>>() {
+           @Override
+           public Observable<String> call(Account account) {
+               return getAuthToken(account);
+           }
+       });
+    }
+
     public Observable<String> getAuthToken(final Account account) {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
@@ -107,45 +141,6 @@ public class AccountManagerUtil {
                 }
             }
         });
-    }
-
-    /**
-     * Activates account by requesting auth token for new account and invalidating, if exists, old one.
-     * If for instance app loose reference to active account we are invalidating token for new account.
-     *
-     * @param newAccount Account we are requesting token for. As soon as, token received we are
-     *                   persisting within {@link com.jaspersoft.android.retrofit.sdk.account.AccountProvider}
-     * @return observable which wraps account for activating
-     */
-    public Observable<Account> activateAccount(final Account newAccount) {
-        final AccountManager accountManager = AccountManager.get(mContext);
-        return getActiveAccount()
-                .flatMap(new Func1<Account, Observable<String>>() {
-                    @Override
-                    public Observable<String> call(Account activeAccount) {
-                        return getAuthToken(activeAccount);
-                    }
-                })
-                .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
-                    @Override
-                    public Observable<? extends String> call(Throwable throwable) {
-                        return getAuthToken(newAccount);
-                    }
-                })
-                .flatMap(new Func1<String, Observable<String>>() {
-                    @Override
-                    public Observable<String> call(String token) {
-                        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
-                        return getAuthToken(newAccount);
-                    }
-                })
-                .flatMap(new Func1<String, Observable<Account>>() {
-                    @Override
-                    public Observable<Account> call(String token) {
-                        BasicAccountProvider.get(mContext).putAccount(newAccount);
-                        return Observable.just(newAccount);
-                    }
-                });
     }
 
     public Account[] getAccounts() {

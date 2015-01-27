@@ -234,7 +234,7 @@ public class AuthenticatorFragment extends RoboFragment {
         mFetching = enabled;
         if (mFetching) {
             ProgressDialogFragment.builder(getFragmentManager())
-                    .setLoadingMessage(R.string.adding_account)
+                    .setLoadingMessage(R.string.account_add)
                     .show();
         } else {
             ProgressDialogFragment.dismiss(getFragmentManager());

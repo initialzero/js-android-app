@@ -27,11 +27,19 @@ package com.jaspersoft.android.jaspermobile;
 import android.app.Application;
 import android.content.Context;
 
+import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
+import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;
+
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+
+import java.util.List;
 
 /**
  * @author Ivan Gadzhega
@@ -48,7 +56,14 @@ public class JasperMobileModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(JsRestClient.class).in(Singleton.class);
+        JsRestClient jsRestClient = new JsRestClient();
+        List<ClientHttpRequestInterceptor> interceptors = Lists.newArrayList();
+        interceptors.add(new LocalesHttpRequestInterceptor());
+        interceptors.add(new TokenHttpRequestInterceptor(mContext));
+        interceptors.add(new KeepAliveHttpRequestInterceptor());
+        jsRestClient.setRequestInterceptors(interceptors);
+
+        bind(JsRestClient.class).toInstance(jsRestClient);
         bind(ServerInfoSnapshot.class).in(Singleton.class);
 
         int animationSpeed = mContext.getResources().getInteger(

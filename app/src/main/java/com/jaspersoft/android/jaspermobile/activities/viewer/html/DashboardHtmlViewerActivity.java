@@ -24,23 +24,21 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.accounts.Account;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -63,22 +61,17 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         implements WebViewFragment.OnWebViewCreated {
 
-    @Inject
-    JsRestClient jsRestClient;
-    @Bean
-    ServerInfoManager infoManager;
-
     @OptionsMenuItem
-    MenuItem favoriteAction;
+    protected MenuItem favoriteAction;
 
     @Extra
-    ResourceLookup resource;
+    protected ResourceLookup resource;
 
     @Bean
-    FavoritesHelper favoritesHelper;
+    protected FavoritesHelper favoritesHelper;
 
     @InstanceState
-    Uri favoriteEntryUri;
+    protected Uri favoriteEntryUri;
 
     private WebViewFragment webViewFragment;
 
@@ -132,25 +125,16 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     @Override
     public void onWebViewCreated(final WebViewFragment webViewFragment) {
-        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
-            @Override
-            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
-                setDashboardUrl(webViewFragment, serverInfo);
-            }
-        });
-    }
+        Account account = BasicAccountProvider.get(this).getAccount();
+        AccountServerData accountServerData = AccountServerData.get(this, account);
+        ServerRelease serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
 
-    private void setDashboardUrl(WebViewFragment webViewFragment, ServerInfoSnapshot serverInfo) {
-        String dashboardUrl;
-        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
-        String serverUrl = jsRestClient.getServerProfile().getServerUrl();
-
-        dashboardUrl = serverUrl
+        String dashboardUrl = accountServerData.getServerUrl()
                 + "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource="
                 + resource.getUri();
-        if (serverInfo.getVersionCode() >= ServerInfo.VERSION_CODES.AMBER) {
+        if (serverRelease.code() >= ServerRelease.AMBER.code()) {
             if (resource.getResourceType() == ResourceLookup.ResourceType.dashboard) {
-                dashboardUrl = serverUrl + "/dashboard/viewer.html?_opt=false&sessionDecorator=no#" + resource.getUri();
+                dashboardUrl = accountServerData.getServerUrl() + "/dashboard/viewer.html?sessionDecorator=no#" + resource.getUri();
             }
         }
 

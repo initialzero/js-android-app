@@ -174,7 +174,6 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         private final Bundle savedInstanceState;
 
         private ViewType viewType;
-        private double mServerVersion;
 
         public Builder(Context context, Bundle savedInstanceState) {
             this.context = context;
@@ -183,11 +182,6 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
         public Builder viewType(ViewType viewType) {
             this.viewType = viewType;
-            return this;
-        }
-
-        public Builder serverVersion(double version) {
-            mServerVersion = version;
             return this;
         }
 

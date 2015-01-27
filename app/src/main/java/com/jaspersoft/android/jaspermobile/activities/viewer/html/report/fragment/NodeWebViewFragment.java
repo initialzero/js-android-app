@@ -77,9 +77,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     @InstanceState
     @FragmentArg
-    double versionCode;
-    @InstanceState
-    @FragmentArg
     int page;
     @InstanceState
     @FragmentArg
@@ -150,7 +147,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
 
     private void initWebView() {
-        CookieManagerFactory.syncCookies(getActivity(), jsRestClient);
+        CookieManagerFactory.syncCookies(getActivity());
         prepareWebView();
         setWebViewClient();
         loadHtml(currentHtml);
@@ -219,7 +216,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 .setExecutionMode(RequestExecutor.Mode.VISIBLE)
                 .setJSRestClient(jsRestClient)
                 .setRequestId(requestId)
-                .setVersionCode(versionCode)
                 .setResultListener(new ExportResultListener())
                 .create()
                 .loadByPage(page);

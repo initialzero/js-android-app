@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
+import android.accounts.Account;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -46,14 +47,15 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
@@ -61,7 +63,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -92,63 +93,61 @@ public class ResourcesFragment extends RoboSpiceFragment
     private static final int LOAD_FROM_NETWORK = 2;
 
     @InjectView(android.R.id.list)
-    AbsListView listView;
+    protected AbsListView listView;
     @InjectView(R.id.refreshLayout)
-    SwipeRefreshLayout swipeRefreshLayout;
+    protected SwipeRefreshLayout swipeRefreshLayout;
 
     @InjectView(android.R.id.empty)
-    TextView emptyText;
+    protected TextView emptyText;
 
     @Inject
-    JsRestClient jsRestClient;
-    @Bean
-    ServerInfoManager infoManager;
+    protected JsRestClient jsRestClient;
     @Inject
-    ResourceLookupSearchCriteria mSearchCriteria;
+    protected ResourceLookupSearchCriteria mSearchCriteria;
 
     @InstanceState
     @FragmentArg
-    ArrayList<String> resourceTypes;
+    protected ArrayList<String> resourceTypes;
     @InstanceState
     @FragmentArg
-    SortOrder sortOrder;
+    protected SortOrder sortOrder;
     @InstanceState
     @FragmentArg
-    boolean recursiveLookup;
+    protected boolean recursiveLookup;
     @InstanceState
     @FragmentArg
-    String resourceLabel;
+    protected String resourceLabel;
     @InstanceState
     @FragmentArg
-    String resourceUri;
+    protected String resourceUri;
     @InstanceState
     @FragmentArg
-    String query;
+    protected String query;
     @InstanceState
     @FragmentArg
-    int emptyMessage;
+    protected int emptyMessage;
 
     @FragmentArg
-    ViewType viewType;
+    protected ViewType viewType;
 
     @Inject
     @Named("LIMIT")
-    int mLimit;
+    protected int mLimit;
     @Inject
     @Named("THRESHOLD")
-    int mTreshold;
+    protected int mTreshold;
 
     @InstanceState
-    boolean mLoading;
+    protected boolean mLoading;
     @InstanceState
-    int mLoaderState = LOAD_FROM_CACHE;
+    protected int mLoaderState = LOAD_FROM_CACHE;
 
     @Bean
-    DefaultPrefHelper prefHelper;
+    protected DefaultPrefHelper prefHelper;
     @Bean
-    ResourceOpener resourceOpener;
+    protected ResourceOpener resourceOpener;
     @Bean
-    FavoritesHelper favoritesHelper;
+    protected FavoritesHelper favoritesHelper;
 
     private ResourceAdapter mAdapter;
     private PaginationPolicy mPaginationPolicy;
@@ -192,23 +191,21 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         listView.setOnScrollListener(new ScrollListener());
 
-        infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
-            @Override
-            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
-                setDataAdapter(serverInfo, savedInstanceState);
-                updatePaginationPolicy(serverInfo);
+        Account account = BasicAccountProvider.get(getActivity()).getAccount();
+        AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
+        ServerRelease serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
 
-                String proVersion = ServerInfo.EDITIONS.PRO;
-                boolean isRepository = !recursiveLookup;
-                boolean isRoot = TextUtils.isEmpty(resourceUri);
-                boolean isProJrs = proVersion.equals(serverInfo.getEdition());
-                if (isRepository && isRoot && isProJrs) {
-                    loadRootFolders(serverInfo);
-                } else {
-                    loadFirstPage();
-                }
-            }
-        });
+        setDataAdapter(savedInstanceState);
+        updatePaginationPolicy(serverRelease);
+
+        boolean isRepository = !recursiveLookup;
+        boolean isRoot = TextUtils.isEmpty(resourceUri);
+        boolean isProJrs = accountServerData.getEdition().equals("PRO");
+        if (isRepository && isRoot && isProJrs) {
+            loadRootFolders();
+        } else {
+            loadFirstPage();
+        }
     }
 
     @Override
@@ -288,21 +285,20 @@ public class ResourcesFragment extends RoboSpiceFragment
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void setDataAdapter(ServerInfoSnapshot serverInfo, Bundle savedInstanceState) {
+    private void setDataAdapter(Bundle savedInstanceState) {
         mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
                 .viewType(viewType)
-                .serverVersion(serverInfo.getVersionCode())
                 .create();
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
     }
 
-    private void updatePaginationPolicy(ServerInfoSnapshot serverInfo) {
-        double versionCode = serverInfo.getVersionCode();
-        if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
+    private void updatePaginationPolicy(ServerRelease release) {
+        double versionCode = release.code();
+        if (versionCode <= ServerRelease.EMERALD_MR2.code()) {
             mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
         }
-        if (versionCode > ServerInfo.VERSION_CODES.EMERALD_TWO) {
+        if (versionCode > ServerRelease.EMERALD_MR2.code()) {
             mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
         }
 
@@ -316,7 +312,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-    private void loadRootFolders(ServerInfoSnapshot serverInfo) {
+    private void loadRootFolders() {
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
         // Fetch default URI

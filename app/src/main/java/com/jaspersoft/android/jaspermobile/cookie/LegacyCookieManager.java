@@ -28,26 +28,40 @@ import android.content.Context;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import org.apache.commons.lang3.StringUtils;
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class LegacyCookieManager extends AbstractCookieManager {
+public class LegacyCookieManager implements JsCookieManager{
+    private final Context mContext;
 
     public LegacyCookieManager(Context context) {
-        super(context);
+        mContext = context;
     }
 
     @Override
-    public void semanticConfiguration(String targetDomain) {
-        CookieSyncManager.createInstance(getContext());
+    public void manage() {
+        AccountManagerUtil.get(mContext)
+                .getActiveServerData()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<AccountServerData>() {
+                    @Override
+                    public void call(final AccountServerData serverData) {
+                        CookieSyncManager.createInstance(mContext);
 
-        final CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeSessionCookie();
-        cookieManager.setCookie(targetDomain, StringUtils.join(getCookieStore(), ";"));
-        CookieSyncManager.getInstance().sync();
+                        final CookieManager cookieManager = CookieManager.getInstance();
+                        cookieManager.removeSessionCookie();
+                        cookieManager.setCookie(serverData.getServerUrl(), serverData.getServerCookie());
+                        CookieSyncManager.getInstance().sync();
+                    }
+                });
     }
-
 }

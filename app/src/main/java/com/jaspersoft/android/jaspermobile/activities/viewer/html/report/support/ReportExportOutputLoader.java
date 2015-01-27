@@ -23,7 +23,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -41,7 +40,6 @@ public class ReportExportOutputLoader {
     private final RequestExecutor requestExecutor;
     private final String requestId;
     private final JsRestClient jsRestClient;
-    private final double versionCode;
     private final ReportExecutionUtil reportExecutionUtil;
     private ResultListener resultListener;
 
@@ -52,11 +50,9 @@ public class ReportExportOutputLoader {
     private ReportExportOutputLoader(RoboSpiceFragment fragment,
                                      RequestExecutor.Mode executionMode,
                                      JsRestClient jsRestClient,
-                                     String requestId,
-                                     double versionCode) {
+                                     String requestId) {
         this.controllFragment = fragment;
         this.fragmentManager = fragment.getFragmentManager();
-        this.versionCode = versionCode;
         this.jsRestClient = jsRestClient;
         this.requestId = requestId;
         this.reportExecutionUtil = ReportExecutionUtil_
@@ -74,7 +70,7 @@ public class ReportExportOutputLoader {
 
     public void loadByPage(int page) {
         ExportsRequest executionData = new ExportsRequest();
-        reportExecutionUtil.setupAttachmentPrefix(executionData, versionCode);
+        reportExecutionUtil.setupAttachmentPrefix(executionData);
         reportExecutionUtil.setupBaseUrl(executionData);
         executionData.setOutputFormat("html");
         executionData.setPages(String.valueOf(page));
@@ -112,10 +108,7 @@ public class ReportExportOutputLoader {
 
         @Override
         public void onRequestSuccess(ExportExecution response) {
-            String executionId = response.getId();
-            if (versionCode <= ServerInfo.VERSION_CODES.EMERALD_TWO) {
-                executionId = ("html;pages=" + mPage);
-            }
+            String executionId = reportExecutionUtil.createRequestId(response, mPage);
 
             RunReportExportOutputRequestListener semanticListener
                     = new RunReportExportOutputRequestListener(executionId);
@@ -219,7 +212,6 @@ public class ReportExportOutputLoader {
         private RequestExecutor.Mode executionMode;
         private JsRestClient jsRestClient;
         private String requestId;
-        private double versionCode;
 
         public Builder() {
             this.executionMode = RequestExecutor.Mode.VISIBLE;
@@ -232,11 +224,6 @@ public class ReportExportOutputLoader {
 
         public Builder setExecutionMode(RequestExecutor.Mode executionMode) {
             this.executionMode = executionMode;
-            return this;
-        }
-
-        public Builder setVersionCode(double versionCode) {
-            this.versionCode = versionCode;
             return this;
         }
 
@@ -260,11 +247,10 @@ public class ReportExportOutputLoader {
             Preconditions.checkNotNull(executionMode);
             Preconditions.checkNotNull(jsRestClient);
             Preconditions.checkNotNull(requestId);
-            Preconditions.checkArgument(versionCode != 0d);
 
             ReportExportOutputLoader reportExportOutputLoader =
                     new ReportExportOutputLoader(fragment, executionMode,
-                    jsRestClient, requestId, versionCode);
+                    jsRestClient, requestId);
             reportExportOutputLoader.setResultListener(resultListener);
             return reportExportOutputLoader;
         }

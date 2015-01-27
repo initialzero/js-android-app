@@ -80,7 +80,7 @@ public class ResourceViewHelper {
 
         Account account = BasicAccountProvider.get(mContext).getAccount();
         AccountServerData serverData = AccountServerData.get(mContext, account);
-        mServerRelease = ServerRelease.parseString(serverData.getVersionName());
+        mServerRelease = ServerRelease.parseVersion(serverData.getVersionName());
 
         Locale current = mContext.getResources().getConfiguration().locale;
         serverDateFormats = new SimpleDateFormat[]{new SimpleDateFormat(FIRST_INITIAL_DATE_FORMAT, current),

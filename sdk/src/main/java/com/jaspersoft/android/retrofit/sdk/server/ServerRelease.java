@@ -46,11 +46,11 @@ public enum ServerRelease {
         return mVersionCode;
     }
 
-    public static ServerRelease parseString(String versionName) {
-        return parseString(versionName, new DefaultVersionParser());
+    public static ServerRelease parseVersion(String versionName) {
+        return parseVersion(versionName, new DefaultVersionParser());
     }
 
-    public static ServerRelease parseString(String versionName, VersionParser parser) {
+    public static ServerRelease parseVersion(String versionName, VersionParser parser) {
         if (versionName == null) {
             throw new IllegalArgumentException("Argument 'versionName' should not be null");
         }

@@ -54,7 +54,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
@@ -73,9 +72,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
     public static final String TAG = PaginationManagerFragment.class.getSimpleName();
     private static final int FIRST_PAGE = 1;
-
-    @FragmentArg
-    double versionCode;
 
     @Inject
     @Named("MAX_PAGE_ALLOWED")
@@ -289,7 +285,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                 .setExecutionMode(executionMode)
                 .setJSRestClient(jsRestClient)
                 .setRequestId(requestId)
-                .setVersionCode(versionCode)
                 .setResultListener(new ExportResultListener(executionMode, page))
                 .create()
                 .loadByPage(page);
@@ -413,7 +408,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                             .executionId(output.getExecutionId())
                             .currentHtml(output.getData())
                             .outputFinal(output.isFinal())
-                            .versionCode(versionCode)
                             .page(outputPage)
                             .build();
             fragments.add(nodeWebViewFragment);

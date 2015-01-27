@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
@@ -38,19 +37,12 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportActionFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportExecutionFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportExecutionFragment_;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OptionsItem;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -67,66 +59,39 @@ public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
     public static final String EXTRA_REPORT_CONTROLS = "ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS";
     // Result Code
     public static final int REQUEST_REPORT_PARAMETERS = 100;
+
     @Extra
-    ResourceLookup resource;
+    protected ResourceLookup resource;
     @Bean
-    ScrollableTitleHelper scrollableTitleHelper;
-    @Bean
-    ServerInfoManager infoManager;
+    protected ScrollableTitleHelper scrollableTitleHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            scrollableTitleHelper.injectTitle(this, resource.getLabel());
-        }
+        scrollableTitleHelper.injectTitle(resource.getLabel());
 
         if (savedInstanceState == null) {
-            infoManager.getServerInfo(getSpiceManager(), new ServerInfoManager.InfoCallback() {
-                @Override
-                public void onInfoReceived(ServerInfoSnapshot serverInfo) {
-                    commitFragments(serverInfo);
-                }
-            });
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            PaginationManagerFragment paginationManagerFragment = PaginationManagerFragment_
+                    .builder().build();
+            transaction.add(R.id.control, paginationManagerFragment, PaginationManagerFragment.TAG);
+
+            ReportExecutionFragment reportExecutionFragment = ReportExecutionFragment_.builder()
+                    .resource(resource).build();
+            transaction.add(reportExecutionFragment, ReportExecutionFragment.TAG);
+
+            ReportActionFragment reportActionFragment = ReportActionFragment_.builder()
+                    .resource(resource).build();
+            transaction.add(reportActionFragment, ReportActionFragment.TAG);
+
+            FilterManagerFragment filterManagerFragment = FilterManagerFragment_.builder()
+                    .resource(resource).build();
+            transaction.add(filterManagerFragment, FilterManagerFragment.TAG);
+
+            transaction.commit();
         }
     }
 
-    private void commitFragments(ServerInfoSnapshot serverInfo) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        PaginationManagerFragment paginationManagerFragment = PaginationManagerFragment_
-                .builder().versionCode(serverInfo.getVersionCode()).build();
-        transaction.add(R.id.control, paginationManagerFragment, PaginationManagerFragment.TAG);
-
-        ReportExecutionFragment reportExecutionFragment = ReportExecutionFragment_.builder()
-                .resource(resource).versionCode(serverInfo.getVersionCode()).build();
-        transaction.add(reportExecutionFragment, ReportExecutionFragment.TAG);
-
-        ReportActionFragment reportActionFragment = ReportActionFragment_.builder()
-                .resource(resource).build();
-        transaction.add(reportActionFragment, ReportActionFragment.TAG);
-
-        FilterManagerFragment filterManagerFragment = FilterManagerFragment_.builder()
-                .resource(resource).build();
-        transaction.add(filterManagerFragment, FilterManagerFragment.TAG);
-
-        transaction.commit();
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void goBack() {
-        onBackPressed();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        getSpiceManager().removeDataFromCache(InputControlsList.class);
-        getSpiceManager().removeDataFromCache(ReportExecutionResponse.class);
-        getSpiceManager().removeDataFromCache(ExportExecution.class);
-        getSpiceManager().removeDataFromCache(ReportDataResponse.class);
-    }
 }

@@ -49,13 +49,11 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
@@ -95,8 +93,6 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
 
     @Pref
     GeneralPref_ generalPref;
-    @Bean
-    ProfileHelper profileHelper;
 
     private final Handler mHandler = new Handler();
     private final Runnable restartAppTask = new Runnable() {

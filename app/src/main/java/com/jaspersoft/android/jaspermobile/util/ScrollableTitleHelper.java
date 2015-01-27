@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.util;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,20 +8,26 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-@EBean(scope = EBean.Scope.Singleton)
+@EBean
 public class ScrollableTitleHelper {
-    public void injectTitle(Activity activity, CharSequence title) {
+
+    @RootContext
+    protected BaseActionBarActivity activity;
+
+    public void injectTitle(CharSequence title) {
         ActionBar actionBar = activity.getActionBar();
         if (actionBar == null) return;
-
         actionBar.setTitle(title);
+
         int barTitleId = activity.getResources().getIdentifier("action_bar_title", "id", "android");
 
         TextView acionBarTitle = (TextView) activity.findViewById(barTitleId);
@@ -43,4 +48,5 @@ public class ScrollableTitleHelper {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setCustomView(scrollContainer);
     }
+
 }

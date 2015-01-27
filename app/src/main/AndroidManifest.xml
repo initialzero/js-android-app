@@ -118,7 +118,12 @@
         <!-- Activity that performs report viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:parentActivityName=".activities.StartUpActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.StartUpActivity_" />
+        </activity>
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
@@ -128,7 +133,12 @@
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.DashboardHtmlViewerActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:parentActivityName=".activities.StartUpActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.StartUpActivity_" />
+        </activity>
 
         <!-- Activity that performs report saving to the local storage -->
         <activity
@@ -172,7 +182,8 @@
         <!-- Activity that shows Privacy Policy -->
         <activity
             android:name=".activities.PrivacyPolicyActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale">
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:parentActivityName=".activities.StartUpActivity_">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

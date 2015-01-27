@@ -42,6 +42,7 @@ import java.util.List;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
+import rx.functions.Func2;
 import timber.log.Timber;
 
 /**
@@ -112,6 +113,27 @@ public class AccountManagerUtil {
                         return Observable.just(newAccount);
                     }
                 });
+    }
+
+    public Observable<AccountServerData> getActiveServerData() {
+        return getActiveAccount()
+                .flatMap(new Func1<Account, Observable<AccountServerData>>() {
+            @Override
+            public Observable<AccountServerData> call(Account account) {
+                return getServerData(account);
+            }
+        });
+    }
+
+    public Observable<AccountServerData> getServerData(Account account) {
+        return getAuthToken(account).zipWith(Observable.just(account), new Func2<String, Account, AccountServerData>() {
+            @Override
+            public AccountServerData call(String cookie, Account account) {
+                AccountServerData accountServerData = AccountServerData.get(mContext, account);
+                accountServerData.setServerCookie(cookie);
+                return accountServerData;
+            }
+        });
     }
 
     public Observable<String> getActiveAuthToken() {

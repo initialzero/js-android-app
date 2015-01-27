@@ -63,12 +63,12 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         return new Builder(context, savedInstanceState);
     }
 
-    private ResourceAdapter(Context context, double serverVersion,
+    private ResourceAdapter(Context context,
                             Bundle savedInstanceState, ViewType viewType) {
         super(savedInstanceState, context, 0);
         favoriteHelper = FavoritesHelper_.getInstance_(context);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
-        viewHelper = new ResourceViewHelper(context, serverVersion);
+        viewHelper = new ResourceViewHelper(context);
     }
 
     @Override
@@ -192,7 +192,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         }
 
         public ResourceAdapter create() {
-            return new ResourceAdapter(context, mServerVersion, savedInstanceState, viewType);
+            return new ResourceAdapter(context, savedInstanceState, viewType);
         }
     }
 }

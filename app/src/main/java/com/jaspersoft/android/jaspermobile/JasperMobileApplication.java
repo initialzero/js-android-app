@@ -29,7 +29,7 @@ import android.content.Context;
 import android.view.ViewConfiguration;
 
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
-import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
+import com.jaspersoft.android.jaspermobile.uil.TokenImageDownloader;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -85,7 +85,7 @@ public class JasperMobileApplication extends Application {
         //  ImageLoaderConfiguration.createDefault(this);
         // method.
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-                .imageDownloader(new CustomImageDownaloder(context))
+                .imageDownloader(new TokenImageDownloader(context))
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())

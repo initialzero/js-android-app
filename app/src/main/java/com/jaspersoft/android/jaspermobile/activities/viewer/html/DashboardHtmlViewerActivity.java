@@ -56,7 +56,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  * @author Ivan Gadzhega
  * @since 1.4
  */
-@EActivity
+@EActivity(R.layout.content_layout)
 @OptionsMenu(R.menu.dashboard_menu)
 public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
         implements WebViewFragment.OnWebViewCreated {
@@ -87,7 +87,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
                     .build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
+                    .add(R.id.content_frame, webViewFragment, WebViewFragment.TAG)
                     .commit();
 
         }

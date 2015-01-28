@@ -34,6 +34,7 @@ import android.os.Handler;
 
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
+import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,7 +85,7 @@ public class AccountManagerUtil {
         Account activeAccount = BasicAccountProvider.get(mContext).getAccount();
         Account[] accounts = getAccounts();
         for (Account jasperAccount : accounts) {
-            if(!withoutActive || !(activeAccount != null && activeAccount.equals(jasperAccount)))
+            if (!withoutActive || !(activeAccount != null && activeAccount.equals(jasperAccount)))
                 mJasperAccounts.add(AccountServerData.get(mContext, jasperAccount));
         }
         return mJasperAccounts;
@@ -118,11 +119,11 @@ public class AccountManagerUtil {
     public Observable<AccountServerData> getActiveServerData() {
         return getActiveAccount()
                 .flatMap(new Func1<Account, Observable<AccountServerData>>() {
-            @Override
-            public Observable<AccountServerData> call(Account account) {
-                return getServerData(account);
-            }
-        });
+                    @Override
+                    public Observable<AccountServerData> call(Account account) {
+                        return getServerData(account);
+                    }
+                });
     }
 
     public Observable<AccountServerData> getServerData(Account account) {
@@ -145,6 +146,15 @@ public class AccountManagerUtil {
        });
     }
 
+    /**
+     * Retrieves token from {@link android.accounts.AccountManager} for specified {@link android.accounts.Account}.
+     * Performs check on token if any has been returned. It checks for cookie being alive(not expired).
+     *
+     * If we found cookie(token) being in invalid state we are invalidating inside AccountManager and requesting new one.
+     *
+     * @param account which represents both JRS and user data configuration for more details refer to {@link com.jaspersoft.android.retrofit.sdk.account.AccountServerData}
+     * @return token which in our case is cookie string for specified account
+     */
     public Observable<String> getAuthToken(final Account account) {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
@@ -153,8 +163,17 @@ public class AccountManagerUtil {
                     AccountManager accountManager = AccountManager.get(mContext);
                     AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
                             JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, true, null, null);
-                    Bundle bundle = future.getResult();
-                    String token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    String token = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+
+                    List<HttpCookie> cookies = HttpCookie.parse(token);
+                    HttpCookie cookie = cookies.get(0);
+                    if (cookie.hasExpired()) {
+                        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
+                        future = accountManager.getAuthToken(account,
+                                JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, true, null, null);
+                        token = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+                    }
+
                     subscriber.onNext(token);
                     subscriber.onCompleted();
                 } catch (Exception ex) {

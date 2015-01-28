@@ -31,7 +31,9 @@ import android.os.Bundle;
 
 /**
  * TODO provide unit tests
-
+ * Wraps JRS instance info and provides as bundle for the needs of {@link android.accounts.AccountManager}.
+ * This class generify together credentials of specific user to the specified JRS instance.
+ *
  * @author Tom Koptel
  * @since 2.0
  */

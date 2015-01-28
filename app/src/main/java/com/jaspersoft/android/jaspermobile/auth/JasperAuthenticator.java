@@ -40,6 +40,7 @@ import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
+import retrofit.RetrofitError;
 import timber.log.Timber;
 
 /**
@@ -81,6 +82,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
         String authToken = accountManager.peekAuthToken(account, authTokenType);
 
         Timber.d("We have peek token: " + authToken);
+
         // Lets give another try to authenticate the user
         if (TextUtils.isEmpty(authToken)) {
             String password = accountManager.getPassword(account);
@@ -90,16 +92,22 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
                 AccountServerData serverData = AccountServerData.get(mContext, account);
                 JsRestClient2 jsRestClient2 = JsRestClient2.forEndpoint(
                         serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION);
-                LoginResponse loginResponse = jsRestClient2.login(
-                        serverData.getOrganization(), serverData.getUsername(), password
-                ).toBlocking().firstOrDefault(null);
-                if (loginResponse != null) {
+                try {
+                    LoginResponse loginResponse = jsRestClient2.login(
+                            serverData.getOrganization(), serverData.getUsername(), password
+                    ).toBlocking().firstOrDefault(null);
+
                     ServerInfo serverInfo = loginResponse.getServerInfo();
                     Timber.d("Updating user data with server info: " + serverInfo);
                     accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
                     accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
                     authToken = loginResponse.getCookie();
                     Timber.d("New token: " + authToken);
+                } catch (RetrofitError retrofitError) {
+                    Timber.d(retrofitError, "We cant access user password :(");
+                    int status = retrofitError.getResponse().getStatus();
+                    result.putString(AccountManager.KEY_ERROR_MESSAGE, retrofitError.getMessage());
+                    result.putInt(AccountManager.KEY_ERROR_CODE, status);
                 }
             }
         }
@@ -109,16 +117,8 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
             result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
             result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-            return result;
         }
 
-        // If we get here, then we couldn't access the user's password - so we
-        // need to re-prompt them for their credentials. We do that by creating
-        // an intent to display our AuthenticatorActivity.
-        Timber.d("We cant access user password :(");
-        final Intent intent = new Intent(JasperSettings.ACTION_AUTHORIZE);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-        result.putParcelable(AccountManager.KEY_INTENT, intent);
         return result;
     }
 

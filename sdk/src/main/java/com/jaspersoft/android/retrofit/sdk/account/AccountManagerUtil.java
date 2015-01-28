@@ -28,12 +28,15 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
+import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -163,8 +166,13 @@ public class AccountManagerUtil {
                     AccountManager accountManager = AccountManager.get(mContext);
                     AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
                             JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, true, null, null);
-                    String token = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+                    Bundle output = future.getResult();
+                    if (output.containsKey(AccountManager.KEY_ERROR_MESSAGE)) {
+                        subscriber.onError(new TokenNotReceivedException(output));
+                        return;
+                    }
 
+                    String token = output.getString(AccountManager.KEY_AUTHTOKEN);
                     List<HttpCookie> cookies = HttpCookie.parse(token);
                     HttpCookie cookie = cookies.get(0);
                     if (cookie.hasExpired()) {
@@ -176,8 +184,14 @@ public class AccountManagerUtil {
 
                     subscriber.onNext(token);
                     subscriber.onCompleted();
-                } catch (Exception ex) {
-                    Timber.e(ex, "Failed to getAuthToken()");
+                } catch (AuthenticatorException ex) {
+                    Timber.e(ex, "Failed to getAuthToken() AuthenticatorException");
+                    subscriber.onError(ex);
+                } catch (OperationCanceledException ex) {
+                    Timber.e(ex, "Failed to getAuthToken() OperationCanceledException");
+                    subscriber.onError(ex);
+                } catch (IOException ex) {
+                    Timber.e(ex, "Failed to getAuthToken() IOException");
                     subscriber.onError(ex);
                 }
             }
@@ -305,6 +319,18 @@ public class AccountManagerUtil {
 
         public AccountNotFoundException(String detailMessage) {
             super(detailMessage);
+        }
+    }
+    public static class TokenNotReceivedException extends Throwable {
+        private final Bundle mOutput;
+
+        public TokenNotReceivedException(Bundle output) {
+            super(output.getString(AccountManager.KEY_ERROR_MESSAGE));
+            mOutput = output;
+        }
+
+        public Bundle getOutput() {
+            return mOutput;
         }
     }
 }

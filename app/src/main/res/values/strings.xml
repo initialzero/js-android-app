@@ -285,7 +285,7 @@
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
 
-    <!--Accounts activity-->
+    <!-- Accounts activity -->
     <string name="accounts_activity_label" translatable="false">Accounts</string>
     <string name="no_accounts" translatable="false">There is no Jasper accounts registered</string>
     <string name="add_account" translatable="false">Add account</string>
@@ -299,6 +299,7 @@
     <string name="account_add" translatable="false">Adding account</string>
     <string name="account_activating" translatable="false">Activating account</string>
     <string name="account_switch_failed" translatable="false">Failed to switch account</string>
+    <string name="account_password_changed" translatable="false">Account password changed</string>
     <string name="account_switch_success" translatable="false">Account switched</string>
 
 </resources>

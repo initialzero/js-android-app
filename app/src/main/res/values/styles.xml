@@ -204,29 +204,6 @@
         <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
     </style>
 
-    <style name="home.dialog" />
-
-    <style name="home.dialog.table" />
-
-    <style name="home.dialog.table.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:shrinkColumns">1</item>
-        <item name="android:paddingBottom">10dp</item>
-    </style>
-
-    <style name="home.dialog.table.label">
-        <item name="android:textStyle">bold</item>
-        <item name="android:layout_marginLeft">5dp</item>
-        <item name="android:paddingRight">10dp</item>
-    </style>
-
-    <style name="home.dialog.passwordEdit">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:inputType">textPassword</item>
-    </style>
-
     <style name="list2" />
 
     <style name="list2.item" />

@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.dialog;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -34,12 +36,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 
 import roboguice.fragment.RoboDialogFragment;
 
@@ -52,25 +51,20 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
     private static final String PASSWORD_EXTRA = "PASSWORD";
 
-    @Inject
-    private JsRestClient jsRestClient;
-
     private EditText mPasswordEdit;
-    private TextView mOrganizationText;
-    private TextView mProfileNameText;
-    private TextView mUserNameText;
-    private View mOrganizationTableRow;
     private String mPasswordValue;
+    private OnPasswordChanged onPasswordChangedListener;
 
     //---------------------------------------------------------------------
     // Static methods
     //---------------------------------------------------------------------
 
-    public static void show(FragmentManager fm) {
+    public static void show(FragmentManager fm, OnPasswordChanged onPasswordChanged) {
         PasswordDialogFragment dialogFragment = (PasswordDialogFragment)
                 fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
             dialogFragment = new PasswordDialogFragment();
+            dialogFragment.setOnPasswordChangedListener(onPasswordChanged);
             dialogFragment.show(fm, TAG);
         }
     }
@@ -88,23 +82,30 @@ public class PasswordDialogFragment extends RoboDialogFragment {
 
         View view = inflater.inflate(R.layout.ask_pwd_dialog_layout, null);
         mPasswordEdit = (EditText) view.findViewById(R.id.dialogPasswordEdit);
-        mOrganizationText = (TextView) view.findViewById(R.id.dialogOrganizationText);
-        mProfileNameText = (TextView) view.findViewById(R.id.dialogProfileNameText);
-        mUserNameText = (TextView) view.findViewById(R.id.dialogUsernameText);
-        mOrganizationTableRow = view.findViewById(R.id.dialogOrganizationTableRow);
         builder.setView(view);
 
         builder.setTitle(R.string.h_ad_title_enter_password);
-        builder.setCancelable(false)
+        builder.setCancelable(true)
                 .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        if (onPasswordChangedListener != null) {
+                            onPasswordChangedListener.onCancel();
+                        }
                         dialog.cancel();
                     }
                 });
 
 
         final AlertDialog dialog = builder.create();
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                if (onPasswordChangedListener != null) {
+                     onPasswordChangedListener.onCancel();
+                }
+            }
+        });
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
@@ -116,8 +117,14 @@ public class PasswordDialogFragment extends RoboDialogFragment {
                                 if (TextUtils.isEmpty(password)) {
                                     mPasswordEdit.setError(getString(R.string.sp_error_field_required));
                                 } else {
-                                    jsRestClient.getServerProfile().setPassword(password);
+                                    Account account = BasicAccountProvider.get(getActivity()).getAccount();
+                                    AccountManager accountManager = AccountManager.get(getActivity());
+                                    accountManager.setPassword(account, password);
                                     dismiss();
+
+                                    if (onPasswordChangedListener != null) {
+                                        onPasswordChangedListener.onPasswordChanged();
+                                    }
                                 }
                             }
                         });
@@ -135,35 +142,23 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mPasswordEdit.setText(mPasswordValue);
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(PASSWORD_EXTRA, mPasswordEdit.getText().toString());
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
-        String alias = jsRestClient.getServerProfile().getAlias();
-        String org = jsRestClient.getServerProfile().getOrganization();
-        String usr = jsRestClient.getServerProfile().getUsername();
-
-        // Update username
-        mProfileNameText.setText(alias);
-
-        // Update organization
-        if (TextUtils.isEmpty(org)) {
-            mOrganizationTableRow.setVisibility(View.GONE);
-        } else {
-            mOrganizationText.setText(org);
-            mOrganizationTableRow.setVisibility(View.VISIBLE);
-        }
-
-        // Update username
-        mUserNameText.setText(usr);
-
-        mPasswordEdit.setText(mPasswordValue);
+    public void setOnPasswordChangedListener(OnPasswordChanged onPasswordChangedListener) {
+        this.onPasswordChangedListener = onPasswordChangedListener;
     }
 
+    public static interface OnPasswordChanged {
+        void onPasswordChanged();
+        void onCancel();
+    }
 }

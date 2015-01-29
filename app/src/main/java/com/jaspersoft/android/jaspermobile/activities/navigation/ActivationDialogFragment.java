@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.activities.navigation;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -12,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 
 import org.androidannotations.annotations.EFragment;
@@ -25,8 +23,6 @@ import rx.android.app.AppObservable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-
-import static com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil.TokenNotReceivedException;
 
 /**
  * @author Tom Koptel
@@ -100,41 +96,14 @@ class ActivationDialogFragment extends DialogFragment {
                                 if (activationListener != null) {
                                     activationListener.onAccountActivation(page);
                                 }
-                                Toast.makeText(getActivity(), R.string.account_switch_success, Toast.LENGTH_LONG).show();
                             }
                         },
                         new Action1<Throwable>() {
                             @Override
                             public void call(Throwable throwable) {
                                 dismiss();
-                                Toast.makeText(getActivity(), R.string.account_switch_failed, Toast.LENGTH_LONG).show();
                             }
                         });
-    }
-
-    private void recoverFromError(Throwable throwable) {
-        if (throwable instanceof TokenNotReceivedException) {
-            TokenNotReceivedException receivedException = (TokenNotReceivedException) throwable;
-            Bundle bundle = receivedException.getOutput();
-            int errorCode = bundle.getInt(AccountManager.KEY_ERROR_CODE);
-            if (errorCode == 401) {
-                Toast.makeText(getActivity(), R.string.account_password_changed, Toast.LENGTH_LONG).show();
-                PasswordDialogFragment.show(getFragmentManager(), new PasswordDialogFragment.OnPasswordChanged() {
-                    @Override
-                    public void onPasswordChanged() {
-                        makeSubscription();
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        dismiss();
-                    }
-                });
-            }
-        } else {
-            dismiss();
-            Toast.makeText(getActivity(), R.string.account_switch_failed, Toast.LENGTH_LONG).show();
-        }
     }
 
     public void setActivationListener(OnActivationListener activationListener) {

@@ -112,9 +112,9 @@
     <!-- Error messages -->
     <string name="sp_error_field_required">This field is required.</string>
     <string name="sp_error_url_not_valid">URL is not valid.</string>
-    <string name="sp_error_duplicate_alias">Duplicate alias.</string>
+    <string name="sp_error_duplicate_alias">Duplicate account name.</string>
     <string name="sp_error_reserved_alias" translatable="false">Alias reserved.</string>
-    <string name="sp_error_unique_alias">Server with such alias \'%s\' already exists. </string>
+    <string name="sp_error_unique_alias">Server with such account name \'%s\' already exists. </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">There are no resources in this folder.</string>
@@ -289,7 +289,7 @@
     <string name="accounts_activity_label" translatable="false">Accounts</string>
     <string name="no_accounts" translatable="false">There is no Jasper accounts registered</string>
     <string name="add_account" translatable="false">Add account</string>
-    <string name="hint_alias" translatable="false">Alias</string>
+    <string name="hint_alias" translatable="false">Account name</string>
     <string name="hint_server_url" translatable="false">Server url</string>
     <string name="hint_organization" translatable="false">Organization</string>
     <string name="hint_username" translatable="false">Username</string>
@@ -298,8 +298,6 @@
     <string name="failure_add_account" translatable="false"><![CDATA[Failed to add account. Reason: %s]]></string>
     <string name="account_add" translatable="false">Adding account</string>
     <string name="account_activating" translatable="false">Activating account</string>
-    <string name="account_switch_failed" translatable="false">Failed to switch account</string>
-    <string name="account_password_changed" translatable="false">Account password changed</string>
-    <string name="account_switch_success" translatable="false">Account switched</string>
+    <string name="account_password_changed" translatable="false"><![CDATA[Invalid password for \"%s\"]]></string>
 
 </resources>

@@ -37,7 +37,6 @@ import android.os.Handler;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.io.IOException;
-import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -151,12 +150,9 @@ public class AccountManagerUtil {
 
     /**
      * Retrieves token from {@link android.accounts.AccountManager} for specified {@link android.accounts.Account}.
-     * Performs check on token if any has been returned. It checks for cookie being alive(not expired).
-     *
-     * If we found cookie(token) being in invalid state we are invalidating inside AccountManager and requesting new one.
      *
      * @param account which represents both JRS and user data configuration for more details refer to {@link com.jaspersoft.android.retrofit.sdk.account.AccountServerData}
-     * @return token which in our case is cookie string for specified account
+     * @return token which in our case is cookie string for specified account. Can be <b>null</b> or empty if token is missing
      */
     public Observable<String> getAuthToken(final Account account) {
         return Observable.create(new Observable.OnSubscribe<String>() {
@@ -173,15 +169,6 @@ public class AccountManagerUtil {
                     }
 
                     String token = output.getString(AccountManager.KEY_AUTHTOKEN);
-                    List<HttpCookie> cookies = HttpCookie.parse(token);
-                    HttpCookie cookie = cookies.get(0);
-                    if (cookie.hasExpired()) {
-                        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
-                        future = accountManager.getAuthToken(account,
-                                JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, true, null, null);
-                        token = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
-                    }
-
                     subscriber.onNext(token);
                     subscriber.onCompleted();
                 } catch (AuthenticatorException ex) {

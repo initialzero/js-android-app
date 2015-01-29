@@ -106,8 +106,19 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
                 } catch (RetrofitError retrofitError) {
                     Timber.d(retrofitError, "We cant access user password :(");
                     int status = retrofitError.getResponse().getStatus();
+
                     result.putString(AccountManager.KEY_ERROR_MESSAGE, retrofitError.getMessage());
                     result.putInt(AccountManager.KEY_ERROR_CODE, status);
+
+                    Intent intent = new Intent();
+                    if (status == 401) {
+                        intent.setAction(JasperSettings.ACTION_INVALID_PASSWORD);
+                        intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);
+                    } else {
+                        intent.setAction(JasperSettings.ACTION_REST_ERROR);
+                        intent.putExtra(RestErrorReceiver.KEY_EXCEPTION_MESSAGE, retrofitError.getMessage());
+                    }
+                    mContext.sendBroadcast(intent);
                 }
             }
         }

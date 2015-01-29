@@ -102,6 +102,8 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
                     accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
                     accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
                     authToken = loginResponse.getCookie();
+
+                    accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
                     Timber.d("New token: " + authToken);
                 } catch (RetrofitError retrofitError) {
                     Timber.d(retrofitError, "We cant access user password :(");

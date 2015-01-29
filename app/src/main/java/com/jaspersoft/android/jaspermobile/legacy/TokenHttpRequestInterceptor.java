@@ -77,11 +77,15 @@ public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor
             } else {
                 accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
             }
-        } else if (status == HttpStatus.OK) {
-            HttpHeaders headers = response.getHeaders();
-            List<String> cookies = headers.get("Set-Cookie");
+        }
+
+        HttpHeaders headers = response.getHeaders();
+        if (headers.containsKey(COOKIE)) {
+            List<String> cookies = headers.get(COOKIE);
             String newToken = Strings.join("", cookies);
-            accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, newToken);
+            if (!token.equals(newToken)) {
+                accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, newToken);
+            }
         }
 
         return response;

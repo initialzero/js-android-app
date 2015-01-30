@@ -24,40 +24,39 @@
 
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
-import android.content.res.Configuration;
-import android.os.Bundle;
-
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
-
-import java.util.Locale;
-
-import roboguice.activity.RoboPreferenceActivity;
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
+import com.octo.android.robospice.SpiceManager;
 
 /**
+ * @author Ivan Gadzhega
  * @author Tom Koptel
  * @since 1.9
  */
-public class BasePreferenceActivity extends RoboPreferenceActivity {
+public class RoboSpiceActivity extends RoboToolboxActivity {
 
-    private Locale currentLocale;
+    @Inject
+    private JsSpiceManager jsSpiceManager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        currentLocale = Locale.getDefault();
-        BugSenseWrapper.initAndStartSession(this);
+    protected void onStart() {
+        if (!jsSpiceManager.isStarted()) {
+            jsSpiceManager.start(this);
+        }
+        super.onStart();
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
 
-        // Checks the orientation of the screen
-        if (newConfig.locale != currentLocale) {
-            JasperMobileApplication.removeAllCookies();
-            currentLocale = newConfig.locale;
+    @Override
+    protected void onStop() {
+        if (jsSpiceManager.isStarted()) {
+            jsSpiceManager.shouldStop();
         }
+        super.onStop();
+    }
+
+    public SpiceManager getSpiceManager() {
+        return jsSpiceManager;
     }
 
 }

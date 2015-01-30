@@ -31,7 +31,7 @@ import android.view.MenuItem;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
@@ -60,7 +60,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
+public class DashboardHtmlViewerActivity extends RoboSpiceActivity
         implements WebViewFragment.OnWebViewCreated {
 
     @Inject
@@ -94,7 +94,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
                     .build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
+                    .add(R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
 
         }

@@ -31,7 +31,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:singleLine="true"
-                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/library_card_label" />
 
         </LinearLayout>
@@ -57,7 +57,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:singleLine="true"
-                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/repository_card_label" />
 
         </LinearLayout>
@@ -83,7 +83,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:singleLine="true"
-                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/favorites_card_label" />
 
         </LinearLayout>
@@ -109,7 +109,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:singleLine="true"
-                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/sdr_ab_title" />
 
         </LinearLayout>
@@ -118,7 +118,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="5dp"
-            android:background="@color/ab_background" />
+            android:background="@color/navigation_profile_separator" />
 
         <TextView
             android:id="@+id/tv_settings"
@@ -128,19 +128,10 @@
             android:background="@drawable/bg_navigation_item"
             android:clickable="true"
             android:padding="15dp"
+            android:singleLine="true"
             android:fontFamily="sans-serif-light"
+            android:textColor="@android:color/white"
             android:text="@string/settings_card_label" />
-
-        <TextView
-            android:id="@+id/tv_privacy_policy"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/bg_navigation_item"
-            android:clickable="true"
-            android:padding="15dp"
-            android:fontFamily="sans-serif-light"
-            android:text="@string/sa_about_privacy" />
 
         <TextView
             android:id="@+id/tv_feedback"
@@ -150,7 +141,7 @@
             android:background="@drawable/bg_navigation_item"
             android:clickable="true"
             android:padding="15dp"
-            android:fontFamily="sans-serif-light"
+            android:singleLine="true"
             android:text="@string/sa_show_feedback" />
 
         <TextView
@@ -160,7 +151,7 @@
             android:background="@drawable/bg_navigation_item"
             android:clickable="true"
             android:padding="15dp"
-            android:fontFamily="sans-serif-light"
+            android:singleLine="true"
             android:text="@string/sa_show_about" />
 
     </LinearLayout>

@@ -28,12 +28,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
@@ -107,7 +107,7 @@ public class SavedReportsFragment extends RoboFragment {
     @Override
     public void onResume() {
         super.onResume();
-        ActionBar actionBar = ((BaseActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sdr_ab_title);
         }

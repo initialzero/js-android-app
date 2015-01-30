@@ -17,7 +17,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,12 +25,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.PrivacyPolicyActivity_;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -50,11 +48,9 @@ import java.util.List;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends BaseActionBarActivity {
+public class NavigationActivity extends RoboToolboxActivity {
     private static final String DIRECT_TAG = "DIRECT_FRAGMENT";
 
-    @ViewById(R.id.tb_navigation)
-    Toolbar drawerToolbar;
     @ViewById(R.id.dl_navigation)
     DrawerLayout drawerLayout;
     @ViewById(R.id.npl_navigation_menu)
@@ -66,9 +62,6 @@ public class NavigationActivity extends BaseActionBarActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private Bundle mSavedInstanceState;
 
-    private boolean shouldGoInvisible;
-    private float mPreviousOffset = 0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,37 +70,21 @@ public class NavigationActivity extends BaseActionBarActivity {
 
     @AfterViews
     final void init() {
-        if (drawerToolbar != null) {
-            setSupportActionBar(drawerToolbar);
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.app_label);
         }
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, drawerToolbar, R.string.nd_drawer_open, R.string.nd_drawer_close) {
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, getToolbar(), R.string.nd_drawer_open, R.string.nd_drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                shouldGoInvisible = false;
                 invalidateOptionsMenu();
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                shouldGoInvisible = true;
                 invalidateOptionsMenu();
-            }
-
-            @Override
-            public void onDrawerSlide(View arg0, float slideOffset) {
-                super.onDrawerSlide(arg0, slideOffset);
-                if (slideOffset > mPreviousOffset && !shouldGoInvisible) {
-                    shouldGoInvisible = true;
-                    invalidateOptionsMenu();
-                } else if (mPreviousOffset > slideOffset && slideOffset < 0.5f && shouldGoInvisible) {
-                    shouldGoInvisible = false;
-                    invalidateOptionsMenu();
-                }
-                mPreviousOffset = slideOffset;
             }
         };
         drawerLayout.setDrawerListener(mDrawerToggle);
@@ -144,7 +121,7 @@ public class NavigationActivity extends BaseActionBarActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean drawerOpen = shouldGoInvisible;
+        boolean drawerOpen = drawerLayout.isDrawerOpen(navigationPanelLayout);
         hideMenuItems(menu, !drawerOpen);
         return super.onPrepareOptionsMenu(menu);
     }
@@ -152,6 +129,11 @@ public class NavigationActivity extends BaseActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     private void handleNavigationAction(int viewId) {
@@ -174,9 +156,6 @@ public class NavigationActivity extends BaseActionBarActivity {
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
                 break;
-            case R.id.tv_privacy_policy:
-                PrivacyPolicyActivity_.intent(this).start();
-                break;
             case R.id.tv_feedback:
                 new FeedBackDialog().show(getSupportFragmentManager(), FeedBackDialog.class.getSimpleName());
                 break;
@@ -184,6 +163,10 @@ public class NavigationActivity extends BaseActionBarActivity {
                 new AboutDialog().show(getSupportFragmentManager(), AboutDialog.class.getSimpleName());
         }
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void commitContent(@NonNull Fragment directFragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

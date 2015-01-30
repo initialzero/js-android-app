@@ -6,7 +6,7 @@ import android.webkit.WebViewClient;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.network.PrivacyRequest;
@@ -17,14 +17,13 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.OptionsItem;
 
 /**
  * @author Andrew Tivodar
  * @since 1.9
  */
 @EActivity
-public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements WebViewFragment.OnWebViewCreated {
+public class PrivacyPolicyActivity extends RoboSpiceActivity implements WebViewFragment.OnWebViewCreated {
 
     private WebViewFragment webViewFragment;
 
@@ -38,8 +37,6 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         if (savedInstanceState == null) {
             webViewFragment = WebViewFragment_.builder()
                     .resourceLabel(getString(R.string.sa_about_privacy))
@@ -48,14 +45,9 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
             webViewFragment.setOnWebViewCreated(this);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, webViewFragment, ResourcesControllerFragment.TAG)
+                    .add(R.id.content, webViewFragment, ResourcesControllerFragment.TAG)
                     .commit();
         }
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void showHome() {
-        super.onBackPressed();
     }
 
     @Override

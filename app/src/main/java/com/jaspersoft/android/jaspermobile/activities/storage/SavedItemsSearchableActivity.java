@@ -29,7 +29,7 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 
@@ -42,7 +42,7 @@ import org.androidannotations.annotations.OptionsItem;
  * @since 1.9
  */
 @EActivity(R.layout.content_layout)
-public class SavedItemsSearchableActivity extends RoboSpiceFragmentActivity {
+public class SavedItemsSearchableActivity extends RoboSpiceActivity {
 
     @Extra
     String query;

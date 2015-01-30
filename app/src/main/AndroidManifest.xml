@@ -60,8 +60,7 @@
 
         <!-- Main activity -->
         <activity
-            android:name=".activities.StartUpActivity_"
-            android:theme="@style/Theme.JasperMobile.NoActionBar">
+            android:name=".activities.StartUpActivity_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -71,8 +70,7 @@
         <activity
             android:name=".activities.navigation.NavigationActivity_"
             android:configChanges="locale"
-            android:parentActivityName=".activities.StartUpActivity_"
-            android:theme="@style/Theme.JasperMobile.NoActionBar">
+            android:parentActivityName=".activities.StartUpActivity_">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.StartUpActivity_" />
@@ -95,8 +93,7 @@
         <activity
             android:name=".activities.intro.IntroPageActivity_"
             android:configChanges="locale"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.JasperMobile.NoActionBar" />
+            android:screenOrientation="portrait" />
 
         <!-- Activity that provides functionality for creating and modifying server profiles -->
         <activity
@@ -140,13 +137,9 @@
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
+            android:theme="@style/Theme.JasperMobile.Settings"
             android:configChanges="locale"
-            android:label="@string/st_title"
-            android:theme="@style/Theme.JasperMobile.Settings">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.StartUpActivity_" />
-        </activity>
+            android:label="@string/st_title"/>
 
         <activity
             android:name=".activities.SearchableActivity_"
@@ -174,10 +167,6 @@
             android:name=".activities.PrivacyPolicyActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale">
 
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.StartUpActivity_" />
-
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.intent.action.VIEW" />
@@ -186,8 +175,7 @@
         </activity>
 
         <activity
-            android:name=".activities.auth.AuthenticatorActivity"
-            android:theme="@style/Theme.JasperMobile.NoActionBar">
+            android:name=".activities.auth.AuthenticatorActivity">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="jaspersoft.intent.action.AUTHORIZE" />

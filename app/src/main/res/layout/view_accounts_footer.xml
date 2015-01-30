@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="5dp"
-        android:background="@color/ab_background" />
+        android:background="@color/navigation_profile_separator" />
 
     <LinearLayout
         android:id="@+id/vg_add_account"
@@ -35,6 +35,7 @@
             android:layout_marginLeft="20dp"
             android:fontFamily="sans-serif-light"
             android:singleLine="true"
+            android:textColor="@android:color/white"
             android:text="@string/add_account" />
 
     </LinearLayout>
@@ -61,6 +62,7 @@
             android:layout_marginLeft="20dp"
             android:fontFamily="sans-serif-light"
             android:singleLine="true"
+            android:textColor="@android:color/white"
             android:text="@string/nd_manage_accounts" />
 
     </LinearLayout>

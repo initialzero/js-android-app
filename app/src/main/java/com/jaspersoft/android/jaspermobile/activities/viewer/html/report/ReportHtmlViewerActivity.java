@@ -29,7 +29,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.FilterManagerFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.FilterManagerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.PaginationManagerFragment;
@@ -60,7 +60,7 @@ import org.androidannotations.annotations.OptionsItem;
  * @since 1.4
  */
 @EActivity(R.layout.report_viewer_layout)
-public class ReportHtmlViewerActivity extends RoboSpiceFragmentActivity {
+public class ReportHtmlViewerActivity extends RoboSpiceActivity {
 
     // Extras
     public static final String EXTRA_REPORT_PARAMETERS = "ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS";

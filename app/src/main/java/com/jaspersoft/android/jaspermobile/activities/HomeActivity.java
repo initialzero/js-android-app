@@ -42,13 +42,12 @@ import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
-import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -61,7 +60,6 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.sharedpreferences.Pref;
 
 /**
  * @author Ivan Gadzhega
@@ -69,7 +67,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
  * @since 1.0
  */
 @EActivity(R.layout.home_layout)
-public class HomeActivity extends RoboSpiceFragmentActivity {
+public class HomeActivity extends RoboSpiceActivity {
     private static final int PENDING_INTENT_ID = 123456;
 
     // Special intent actions
@@ -93,8 +91,9 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @InstanceState
     protected boolean mAnimateStartup = true;
 
-    @Pref
-    GeneralPref_ generalPref;
+    @Bean
+    DefaultPrefHelper defaultPrefHelper;
+
     @Bean
     ProfileHelper profileHelper;
 
@@ -211,7 +210,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     }
 
     private void animateLayout() {
-        boolean animationEnabled = SettingsActivity.isAnimationEnabled(this);
+        boolean animationEnabled = defaultPrefHelper.isAnimationEnabled();
         // No sense in animating if no speed set up
         // '0' case possible while black box testing
         if (animationEnabled && mAnimationSpeed > 0) {

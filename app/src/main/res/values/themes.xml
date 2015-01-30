@@ -26,10 +26,22 @@
 <resources>
     <style name="Theme.JasperMobile" parent="Theme.AppCompat">
         <item name="android:windowBackground">@drawable/ic_resources_background</item>
-        <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+
+        <item name="colorPrimary">#3af</item>
+        <item name="colorPrimaryDark">#aaf</item>
+
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="colorControlActivated">@android:color/white</item>
+        <item name="colorControlHighlight">@android:color/white</item>
+
         <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
-        <item name="colorPrimary">@drawable/ab_solid_home</item>
-        <item name="colorPrimaryDark">@color/primaryColorDark</item>
+        <item name="android:textViewStyle">@style/Widget.JasperMobile.TextView</item>
+        <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
+        <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
+        <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
 
         <!--android-styled-dialogs reference style -->
         <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
@@ -39,30 +51,14 @@
         <item name="gridLayoutStyle">@style/grid.item.layout</item>
     </style>
 
-    <style name="Theme.JasperMobile.NoActionBar" parent="Theme.JasperMobile">
-        <item name="windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
+    <style name="Theme.JasperMobile.NoToolbar" parent="Theme.JasperMobile">
+       <item name="windowToolbar">false</item>
     </style>
 
     <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-
-        <item name="toolbarStyle">@style/Widget.Toolbar</item>
+        <item name="android:editTextStyle">@android:style/Widget.Holo.EditText</item>
     </style>
 
-    <style name="Widget.Toolbar" parent="@style/Widget.AppCompat.Toolbar">
-        <item name="navigationIcon">?attr/homeAsUpIndicator</item>
-    </style>
-
-    <style name="Widget.JasperMobile.ActionBar" parent="Widget.AppCompat.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_solid_home</item>
-    </style>
-
-    <style name="Widget.JasperMobile.DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
-        <item name="spinBars">true</item>
-        <item name="color">@android:color/white</item>
-    </style>
 
     <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
 

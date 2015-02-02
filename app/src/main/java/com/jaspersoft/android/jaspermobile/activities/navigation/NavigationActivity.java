@@ -1,10 +1,13 @@
 package com.jaspersoft.android.jaspermobile.activities.navigation;
 
 import android.accounts.Account;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -17,7 +20,6 @@ import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.PrivacyPolicyActivity_;
-import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryFragment_;
@@ -193,7 +195,11 @@ public class NavigationActivity extends BaseActionBarActivity {
                 startActivityForResult(new Intent(this, AuthenticatorActivity.class), NEW_ACCOUNT);
                 break;
             case R.id.vg_manage_accounts:
-                AccountsActivity_.intent(this).start();
+                String[] authorities = {"com.jaspersoft.android.jaspermobile.db.provider"};
+                Intent intent = new Intent(Settings.ACTION_SYNC_SETTINGS);
+                intent.putExtra(Settings.EXTRA_AUTHORITIES, authorities);
+                addExtraTypes(intent);
+                startActivity(intent);
                 break;
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
@@ -207,6 +213,12 @@ public class NavigationActivity extends BaseActionBarActivity {
             case R.id.tv_about:
                 new AboutDialogFragment().show(getSupportFragmentManager(), AboutDialogFragment.class.getSimpleName());
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    private void addExtraTypes(Intent intent) {
+        String[] types = {"com.jaspersoft"};
+        intent.putExtra(Settings.EXTRA_ACCOUNT_TYPES, types);
     }
 
     private void activateAccount(@NonNull Account account) {

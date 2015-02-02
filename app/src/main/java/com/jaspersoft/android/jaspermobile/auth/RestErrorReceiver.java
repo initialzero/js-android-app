@@ -25,7 +25,7 @@ public class RestErrorReceiver extends BroadcastReceiver {
                     Toast.LENGTH_LONG).show();
         }
         if (action.equals(JasperSettings.ACTION_TOKEN_EXPIRED)) {
-            // TODO reload report viewer
+            // TODO do something
         }
         if (action.equals(JasperSettings.ACTION_REST_ERROR)) {
             String exceptionMessage = intent.getStringExtra(KEY_EXCEPTION_MESSAGE);

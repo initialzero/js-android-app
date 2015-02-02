@@ -49,7 +49,7 @@ import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
@@ -197,7 +197,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     //---------------------------------------------------------------------
 
     private boolean hasActiveAccount() {
-        Account account = BasicAccountProvider.get(this).getAccount();
+        Account account = JasperAccountProvider.get(this).getAccount();
         JsServerProfile serverProfile = jsRestClient.getServerProfile();
         if (account == null || serverProfile == null) {
             AccountsActivity_.intent(this).start();

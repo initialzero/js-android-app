@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -98,7 +98,7 @@ public class NavigationPanelLayout extends RelativeLayout {
     private void initAccountsView() {
         AccountsAdapter accountsAdapter = new AccountsAdapter(getContext());
         accountsMenu.setAdapter(accountsAdapter);
-        Account currentAccount = BasicAccountProvider.get(getContext()).getAccount();
+        Account currentAccount = JasperAccountProvider.get(getContext()).getAccount();
         tvProfile.setText(currentAccount != null ? currentAccount.name : getContext().getString(R.string.nd_select_account));
     }
 

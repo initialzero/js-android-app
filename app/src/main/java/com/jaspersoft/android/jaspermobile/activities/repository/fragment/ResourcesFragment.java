@@ -54,7 +54,7 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
@@ -191,7 +191,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         listView.setOnScrollListener(new ScrollListener());
 
-        Account account = BasicAccountProvider.get(getActivity()).getAccount();
+        Account account = JasperAccountProvider.get(getActivity()).getAccount();
         AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
         ServerRelease serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
 

@@ -8,11 +8,10 @@ import android.text.TextUtils;
 
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -22,8 +21,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.List;
-
-import roboguice.util.Strings;
 
 /**
  * For description of flow refer to http://code2flow.com/uyFdCJ
@@ -43,7 +40,7 @@ public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        Account account = BasicAccountProvider.get(mContext).getAccount();
+        Account account = JasperAccountProvider.get(mContext).getAccount();
         AccountManager accountManager = AccountManager.get(mContext);
 
         String token = AccountManagerUtil.get(mContext)
@@ -76,15 +73,6 @@ public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor
                 mContext.sendBroadcast(intent);
             } else {
                 accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
-            }
-        }
-
-        HttpHeaders headers = response.getHeaders();
-        if (headers.containsKey(COOKIE)) {
-            List<String> cookies = headers.get(COOKIE);
-            String newToken = Strings.join("", cookies);
-            if (!token.equals(newToken)) {
-                accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, newToken);
             }
         }
 

@@ -44,6 +44,7 @@ import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import timber.log.Timber;
@@ -75,16 +76,23 @@ public class AccountManagerUtil {
     }
 
     public Observable<Account> getActiveAccount() {
-        Account account = BasicAccountProvider.get(mContext).getAccount();
+        Account account = JasperAccountProvider.get(mContext).getAccount();
         if (account == null) {
             return Observable.error(new AccountNotFoundException("There is no active account"));
         }
+        Observable<Account> o = Observable.just(account);
+        o.subscribe(new Action1<Account>() {
+            @Override
+            public void call(Account account) {
+
+            }
+        });
         return Observable.just(account);
     }
 
     public List<AccountServerData> getAccountServers(boolean withoutActive) {
         List<AccountServerData> mJasperAccounts = new ArrayList<AccountServerData>();
-        Account activeAccount = BasicAccountProvider.get(mContext).getAccount();
+        Account activeAccount = JasperAccountProvider.get(mContext).getAccount();
         Account[] accounts = getAccounts();
         for (Account jasperAccount : accounts) {
             if (!withoutActive || !(activeAccount != null && activeAccount.equals(jasperAccount)))
@@ -112,7 +120,7 @@ public class AccountManagerUtil {
                 }).flatMap(new Func1<String, Observable<Account>>() {
                     @Override
                     public Observable<Account> call(String newToken) {
-                        BasicAccountProvider.get(mContext).putAccount(newAccount);
+                        JasperAccountProvider.get(mContext).putAccount(newAccount);
                         return Observable.just(newAccount);
                     }
                 });
@@ -295,7 +303,7 @@ public class AccountManagerUtil {
 
         private void ensureSaneDefaults() {
             if (accountProvider == null) {
-                accountProvider = BasicAccountProvider.get(mContext);
+                accountProvider = JasperAccountProvider.get(mContext);
             }
         }
     }

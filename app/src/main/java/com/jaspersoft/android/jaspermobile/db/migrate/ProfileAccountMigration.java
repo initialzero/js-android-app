@@ -34,7 +34,7 @@ import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.util.List;
@@ -101,7 +101,7 @@ public class ProfileAccountMigration implements Migration {
                 account = new Account(AccountServerData.Demo.ALIAS,
                         JasperSettings.JASPER_ACCOUNT_TYPE);
             }
-            BasicAccountProvider.get(mContext).putAccount(account);
+            JasperAccountProvider.get(mContext).putAccount(account);
             Timber.d("Account[" + account + "] was activated");
         } finally {
             cursor.close();

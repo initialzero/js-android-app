@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.sdk;
 import android.accounts.Account;
 
 import com.jaspersoft.android.jaspermobile.test.support.UnitTestSpecification;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,11 +41,11 @@ import static org.hamcrest.Matchers.notNullValue;
  * @since 2.0
  */
 public class BasicAccountProviderTest extends UnitTestSpecification {
-    private BasicAccountProvider storage;
+    private JasperAccountProvider storage;
 
     @Before
     public void setUp() {
-        storage = BasicAccountProvider.get(getContext());
+        storage = JasperAccountProvider.get(getContext());
     }
 
     @Test
@@ -58,11 +58,11 @@ public class BasicAccountProviderTest extends UnitTestSpecification {
 
     @Test(expected = IllegalArgumentException.class)
     public void testFactoryShouldNotAcceptNullContext() {
-        BasicAccountProvider.get(null);
+        JasperAccountProvider.get(null);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testGetMethodShouldFollowContract() {
-        BasicAccountProvider.get(getContext()).getAccount();
+        JasperAccountProvider.get(getContext()).getAccount();
     }
 }

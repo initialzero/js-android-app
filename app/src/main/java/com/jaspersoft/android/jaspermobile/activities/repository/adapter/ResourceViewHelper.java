@@ -34,7 +34,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -78,7 +78,7 @@ public class ResourceViewHelper {
 
         mContext = context;
 
-        Account account = BasicAccountProvider.get(mContext).getAccount();
+        Account account = JasperAccountProvider.get(mContext).getAccount();
         AccountServerData serverData = AccountServerData.get(mContext, account);
         mServerRelease = ServerRelease.parseVersion(serverData.getVersionName());
 

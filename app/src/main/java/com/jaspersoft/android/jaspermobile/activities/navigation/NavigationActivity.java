@@ -1,6 +1,8 @@
 package com.jaspersoft.android.jaspermobile.activities.navigation;
 
 import android.accounts.Account;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,6 +18,7 @@ import android.view.View;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.PrivacyPolicyActivity_;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
+import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment_;
@@ -23,13 +26,19 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarAct
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * @author Ivan Gadzhega
@@ -39,6 +48,9 @@ import java.util.List;
  */
 @EActivity(R.layout.activity_navigation)
 public class NavigationActivity extends BaseActionBarActivity {
+
+    private static final String TAG = NavigationActivity.class.getSimpleName();
+    private static final int AUTHORIZE = 10;
     public static final String CURRENT_TAG = "CURRENT_FRAGMENT";
 
     @ViewById(R.id.tb_navigation)
@@ -53,47 +65,127 @@ public class NavigationActivity extends BaseActionBarActivity {
 
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private boolean shouldGoInvisible;
-    private float mPreviousOffset = 0;
+    private boolean mHideMenu;
+    private boolean mHasAccount;
+    private float mPreviousOffset = 0f;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Timber.tag(TAG);
+
+        // Lets check accounts to be properly setup
+        signInOrCreateAnAccount();
+    }
 
     @AfterViews
-    final void init() {
-        if (drawerToolbar != null) {
-            setSupportActionBar(drawerToolbar);
-            getSupportActionBar().setTitle(R.string.app_label);
-        }
+    final void setupNavigation() {
+        setSupportActionBar(drawerToolbar);
+        setupNavDrawer();
+        setupNavPanel();
+    }
 
+    private void signInOrCreateAnAccount() {
+        //Get list of accounts on device.
+        Account[] accounts = AccountManagerUtil.get(this).getAccounts();
+        mHasAccount = (accounts.length != 0);
+        if (mHasAccount) {
+            //Try to log the user in with the first account on the device.
+            AccountProvider accountProvider = JasperAccountProvider.get(this);
+            if (accountProvider.getAccount() == null) {
+                accountProvider.putAccount(accounts[0]);
+            }
+        } else {
+            //Send the user to the "Add Account" page.
+            Intent intent = new Intent(this, AuthenticatorActivity.class);
+            intent.putExtra("account_types", new String[]{"com.jaspersoft"});
+            startActivityForResult(intent, AUTHORIZE);
+        }
+    }
+
+    @OnActivityResult(AUTHORIZE)
+    protected void onAuthorize(int resultCode) {
+        if (resultCode == Activity.RESULT_OK) {
+            mHasAccount = true;
+            navigateToCurrentSelection();
+        } else {
+            mHasAccount = false;
+            finish();
+        }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+
+        if (mHasAccount) {
+            navigateToCurrentSelection();
+        }
+    }
+
+    @Override
+    protected void onAccountsChanged() {
+        signInOrCreateAnAccount();
+        navigationPanelLayout.notifyAccountChange();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean drawerOpen = mHideMenu;
+        hideMenuItems(menu, !drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void setupNavDrawer() {
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, drawerToolbar,
                 R.string.nd_drawer_open, R.string.nd_drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                shouldGoInvisible = false;
+                mHideMenu = false;
                 invalidateOptionsMenu();
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                shouldGoInvisible = true;
+                mHideMenu = true;
                 invalidateOptionsMenu();
             }
 
             @Override
             public void onDrawerSlide(View arg0, float slideOffset) {
                 super.onDrawerSlide(arg0, slideOffset);
-                if (slideOffset > mPreviousOffset && !shouldGoInvisible) {
-                    shouldGoInvisible = true;
+                if (slideOffset > mPreviousOffset && !mHideMenu) {
+                    mHideMenu = true;
                     invalidateOptionsMenu();
-                } else if (mPreviousOffset > slideOffset && slideOffset < 0.5f && shouldGoInvisible) {
-                    shouldGoInvisible = false;
+                } else if (mPreviousOffset > slideOffset && slideOffset < 0.5f && mHideMenu) {
+                    mHideMenu = false;
                     invalidateOptionsMenu();
                 }
                 mPreviousOffset = slideOffset;
             }
         };
         drawerLayout.setDrawerListener(mDrawerToggle);
+    }
 
+    private void setupNavPanel() {
         navigationPanelLayout.setListener(new NavigationPanelLayout.NavigationListener() {
             @Override
             public void onNavigate(int viewId) {
@@ -106,35 +198,13 @@ public class NavigationActivity extends BaseActionBarActivity {
                 activateAccount(account);
             }
         });
+    }
 
+    private void navigateToCurrentSelection() {
         if (getSupportFragmentManager().findFragmentByTag(CURRENT_TAG) == null) {
             handleNavigationAction(defaultSelection);
             navigationPanelLayout.setItemSelected(defaultSelection);
         }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean drawerOpen = shouldGoInvisible;
-        hideMenuItems(menu, !drawerOpen);
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     private void handleNavigationAction(int viewId) {
@@ -207,4 +277,5 @@ public class NavigationActivity extends BaseActionBarActivity {
             menu.getItem(i).setVisible(visible);
         }
     }
+
 }

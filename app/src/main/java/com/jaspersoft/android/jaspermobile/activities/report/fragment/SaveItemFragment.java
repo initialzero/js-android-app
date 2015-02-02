@@ -48,7 +48,7 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
@@ -285,7 +285,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     }
 
     private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {
-        Account currentAccount = BasicAccountProvider.get(getActivity()).getAccount();
+        Account currentAccount = JasperAccountProvider.get(getActivity()).getAccount();
         JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile profile = jsRestClient.getServerProfile();
         SavedItems savedItemsEntry = new SavedItems();

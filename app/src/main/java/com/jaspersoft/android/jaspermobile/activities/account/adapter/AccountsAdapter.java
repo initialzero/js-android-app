@@ -20,7 +20,7 @@ import com.jaspersoft.android.jaspermobile.dialog.ConfirmDialogFragment;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import rx.functions.Action1;
 
@@ -34,7 +34,7 @@ public class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
 
     public AccountsAdapter(Context context, Bundle savedInstanceState) {
         super(savedInstanceState, context, 0);
-        accountProvider = BasicAccountProvider.get(getContext());
+        accountProvider = JasperAccountProvider.get(getContext());
     }
 
     @Override

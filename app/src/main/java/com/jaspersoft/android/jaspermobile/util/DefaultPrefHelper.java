@@ -43,8 +43,20 @@ import java.util.concurrent.TimeUnit;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class DefaultPrefHelper {
+    public static final String KEY_PREF_INTRO_SHOWN = "pref_intro_shown";
+
     @RootContext
     Context context;
+
+    public boolean needToShowIntro() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(KEY_PREF_INTRO_SHOWN, false);
+    }
+
+    public void needToShowIntro(boolean value) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(KEY_PREF_INTRO_SHOWN, value).apply();
+    }
 
     public int getConnectTimeoutValue() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

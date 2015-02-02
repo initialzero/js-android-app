@@ -44,7 +44,7 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
@@ -198,7 +198,7 @@ public class AuthenticatorFragment extends RoboFragment {
                 .subscribe(new Action1<Account>() {
                     @Override
                     public void call(Account account) {
-                        BasicAccountProvider.get(getActivity()).putAccount(account);
+                        JasperAccountProvider.get(getActivity()).putAccount(account);
                         activateAccount(serverData.getServerCookie());
                         setProgressEnabled(false);
                     }
@@ -207,7 +207,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
     private void activateAccount(String authToken) {
         AccountManager accountManager = AccountManager.get(getActivity());
-        Account account = BasicAccountProvider.get(getActivity()).getAccount();
+        Account account = JasperAccountProvider.get(getActivity()).getAccount();
         accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
 
         Bundle data = new Bundle();

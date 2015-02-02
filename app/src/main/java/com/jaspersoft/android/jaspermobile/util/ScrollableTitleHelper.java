@@ -5,7 +5,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -28,28 +27,29 @@ public class ScrollableTitleHelper {
         if (actionBar == null) return;
         actionBar.setTitle(title);
 
-        int barTitleId = activity.getResources().getIdentifier("action_bar_title", "id", "android");
+        TextView toolBarTitle = null;
+        ViewGroup toolBar = (ViewGroup) activity.findViewById(R.id.tb_navigation);
+        if (toolBar == null) return;
 
-        TextView acionBarTitle = (TextView) activity.findViewById(barTitleId);
-                LayoutInflater inflator = LayoutInflater.from(activity);
-        if (acionBarTitle == null) {
-            return;
+        int toolbarChildCount = toolBar.getChildCount();
+        for (int i = 0; i < toolbarChildCount; i++) {
+            View view = toolBar.getChildAt(i);
+            if (view instanceof TextView) {
+                toolBarTitle = (TextView) view;
+                break;
+            }
         }
-        ViewGroup actionBarTitleParent = ((ViewGroup)acionBarTitle.getParent());
-        actionBarTitleParent.removeView(acionBarTitle);
 
-        View scrollContainer = inflator.inflate(R.layout.scrollable_title_container,
-                actionBarTitleParent, false);
+        if (toolBarTitle == null) return;
+        toolBar.removeView(toolBarTitle);
+
+        LayoutInflater layoutInflater = LayoutInflater.from(activity);
+        View scrollContainer = layoutInflater.inflate(R.layout.scrollable_title_container,
+                null, false);
         ViewGroup container = (ViewGroup) scrollContainer.findViewById(R.id.container);
-        container.addView(acionBarTitle);
+        container.addView(toolBarTitle);
 
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) acionBarTitle.getLayoutParams();
-        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-        acionBarTitle.setLayoutParams(params);
-
-        actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setCustomView(scrollContainer);
+        toolBar.addView(scrollContainer);
     }
 
 }

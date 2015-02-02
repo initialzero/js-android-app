@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.util;
 
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +9,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -21,10 +21,10 @@ import org.androidannotations.annotations.RootContext;
 public class ScrollableTitleHelper {
 
     @RootContext
-    protected BaseActionBarActivity activity;
+    protected ActionBarActivity activity;
 
     public void injectTitle(CharSequence title) {
-        ActionBar actionBar = activity.getActionBar();
+        ActionBar actionBar = activity.getSupportActionBar();
         if (actionBar == null) return;
         actionBar.setTitle(title);
 
@@ -32,6 +32,9 @@ public class ScrollableTitleHelper {
 
         TextView acionBarTitle = (TextView) activity.findViewById(barTitleId);
                 LayoutInflater inflator = LayoutInflater.from(activity);
+        if (acionBarTitle == null) {
+            return;
+        }
         ViewGroup actionBarTitleParent = ((ViewGroup)acionBarTitle.getParent());
         actionBarTitleParent.removeView(acionBarTitle);
 

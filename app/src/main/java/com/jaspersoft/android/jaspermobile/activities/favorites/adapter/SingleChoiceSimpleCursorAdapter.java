@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.favorites.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.ActionMode;
+import android.support.v7.view.ActionMode;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;

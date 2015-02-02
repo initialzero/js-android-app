@@ -75,7 +75,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolboxActivity
                     .resourceLabel(resourceLabel).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content_frame, webViewFragment, WebViewFragment.TAG)
+                    .add(R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
         }
     }

@@ -114,6 +114,7 @@ public class ReportExportOutputLoader {
                     = new RunReportExportOutputRequestListener(executionId);
             UniversalRequestListener<ReportDataResponse> listener =
                     UniversalRequestListener.builder(controllFragment.getActivity())
+                            .executionMode(requestExecutor.getExecutionMode())
                             .semanticListener(semanticListener)
                             .removeRule(ExceptionRule.FORBIDDEN)
                             .closeActivityMode()

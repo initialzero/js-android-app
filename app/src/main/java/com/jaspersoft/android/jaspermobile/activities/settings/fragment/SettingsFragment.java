@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
-import android.preference.SwitchPreference;
+import android.preference.TwoStatePreference;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -36,7 +36,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
         EditTextPreference repoCacheExpirationPref = (EditTextPreference) getPreferenceScreen().findPreference(DefaultPrefHelper.KEY_PREF_REPO_CACHE_EXPIRATION);
         EditTextPreference connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(DefaultPrefHelper.KEY_PREF_CONNECT_TIMEOUT);
         EditTextPreference readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(DefaultPrefHelper.KEY_PREF_READ_TIMEOUT);
-        SwitchPreference sendCrashesPref = (SwitchPreference) getPreferenceScreen().findPreference(DefaultPrefHelper.KEY_PREF_SEND_CRASHES);
+        TwoStatePreference sendCrashesPref = (TwoStatePreference) getPreferenceScreen().findPreference(DefaultPrefHelper.KEY_PREF_SEND_CRASHES);
 
         String repoCacheExpiration = sharedPreferences.getString(DefaultPrefHelper.KEY_PREF_REPO_CACHE_EXPIRATION, DefaultPrefHelper.DEFAULT_REPO_CACHE_EXPIRATION);
         String connectTimeout = sharedPreferences.getString(DefaultPrefHelper.KEY_PREF_CONNECT_TIMEOUT, DefaultPrefHelper.DEFAULT_CONNECT_TIMEOUT);

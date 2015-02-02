@@ -24,18 +24,13 @@
 -->
 
 <resources>
-    <style name="Theme.JasperMobile" parent="Theme.AppCompat">
+    <style name="Theme.JasperMobile" parent="Base.Theme.AppCompat">
         <item name="android:windowBackground">@drawable/ic_resources_background</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:fontFamily">sans-serif-light</item>
 
-        <item name="colorPrimary">#3af</item>
-        <item name="colorPrimaryDark">#aaf</item>
-
-        <item name="colorControlNormal">@android:color/white</item>
-        <item name="colorControlActivated">@android:color/white</item>
-        <item name="colorControlHighlight">@android:color/white</item>
+        <item name="colorAccent">@android:color/white</item>
 
         <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
         <item name="android:textViewStyle">@style/Widget.JasperMobile.TextView</item>
@@ -57,16 +52,6 @@
 
     <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile">
         <item name="android:editTextStyle">@android:style/Widget.Holo.EditText</item>
-    </style>
-
-
-    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
-
-    <style name="Widget.JasperMobileDialog" parent="@style/DialogStyleDark.Custom" />
-
-    <style name="DialogStyleDark.Custom">
-        <item name="titleTextColor">@color/dialog_title_txt_color</item>
-        <item name="dialogBackground">@drawable/ic_resources_background</item>
     </style>
 
 </resources>

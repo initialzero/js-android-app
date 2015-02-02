@@ -45,8 +45,6 @@
     <color name="text_login_bg">#f0f0f0</color>
 
     <!-- Navigation Drawer -->
-    <color name="primaryColor">#f0f</color>
-    <color name="primaryColorDark">#ff0</color>
     <color name="ab_background">#363942</color>
     <color name="shadow_light">#55000000</color>
     <color name="shadow_dark">#cc000000</color>

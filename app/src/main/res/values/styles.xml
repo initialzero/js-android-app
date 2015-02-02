@@ -31,15 +31,11 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="Widget.JasperMobile.EditText" parent="Widget.AppCompat.EditText">
+    <style name="Widget.JasperMobile.EditText" parent="android:Widget.Holo.EditText">
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="Widget.JasperMobile.Holo.EditText" parent="android:Widget.Holo.EditText">
-        <item name="android:fontFamily">sans-serif-light</item>
-    </style>
-
-    <style name="Widget.JasperMobile.Spinner" parent="Widget.AppCompat.Spinner">
+    <style name="Widget.JasperMobile.Spinner" parent="android:Widget.Holo.Spinner">
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
@@ -326,4 +322,14 @@
         <item name="cardElevation">5dp</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
+
+    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
+
+    <style name="Widget.JasperMobileDialog" parent="@style/DialogStyleDark.Custom" />
+
+    <style name="DialogStyleDark.Custom">
+        <item name="titleTextColor">@color/dialog_title_txt_color</item>
+        <item name="dialogBackground">@drawable/ic_resources_background</item>
+    </style>
+
 </resources>

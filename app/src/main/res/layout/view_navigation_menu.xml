@@ -129,8 +129,6 @@
             android:clickable="true"
             android:padding="15dp"
             android:singleLine="true"
-            android:fontFamily="sans-serif-light"
-            android:textColor="@android:color/white"
             android:text="@string/settings_card_label" />
 
         <TextView

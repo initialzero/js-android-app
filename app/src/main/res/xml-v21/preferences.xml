@@ -4,7 +4,7 @@
 
     <PreferenceCategory android:title="@string/st_category_repo_cache">
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="pref_repo_cache_enabled"
             android:defaultValue="true"
             android:title="@string/st_title_cache_enable"
@@ -37,12 +37,12 @@
 
     <PreferenceCategory android:title="@string/st_category_more">
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="pref_animation_enabled"
             android:defaultValue="true"
             android:title="@string/st_title_animations" />
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="pref_crash_reports"
             android:defaultValue="true"
             android:title="@string/st_send_crashes"

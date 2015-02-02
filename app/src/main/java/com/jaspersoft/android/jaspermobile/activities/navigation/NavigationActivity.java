@@ -26,9 +26,6 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarAct
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
-import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -37,8 +34,6 @@ import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
-
-import timber.log.Timber;
 
 /**
  * @author Ivan Gadzhega
@@ -49,9 +44,8 @@ import timber.log.Timber;
 @EActivity(R.layout.activity_navigation)
 public class NavigationActivity extends BaseActionBarActivity {
 
-    private static final String TAG = NavigationActivity.class.getSimpleName();
-    private static final int AUTHORIZE = 10;
     public static final String CURRENT_TAG = "CURRENT_FRAGMENT";
+    private static final int NEW_ACCOUNT = 20;
 
     @ViewById(R.id.tb_navigation)
     protected Toolbar drawerToolbar;
@@ -66,17 +60,7 @@ public class NavigationActivity extends BaseActionBarActivity {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private boolean mHideMenu;
-    private boolean mHasAccount;
     private float mPreviousOffset = 0f;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Timber.tag(TAG);
-
-        // Lets check accounts to be properly setup
-        signInOrCreateAnAccount();
-    }
 
     @AfterViews
     final void setupNavigation() {
@@ -85,49 +69,24 @@ public class NavigationActivity extends BaseActionBarActivity {
         setupNavPanel();
     }
 
-    private void signInOrCreateAnAccount() {
-        //Get list of accounts on device.
-        Account[] accounts = AccountManagerUtil.get(this).getAccounts();
-        mHasAccount = (accounts.length != 0);
-        if (mHasAccount) {
-            //Try to log the user in with the first account on the device.
-            AccountProvider accountProvider = JasperAccountProvider.get(this);
-            if (accountProvider.getAccount() == null) {
-                accountProvider.putAccount(accounts[0]);
-            }
-        } else {
-            //Send the user to the "Add Account" page.
-            Intent intent = new Intent(this, AuthenticatorActivity.class);
-            intent.putExtra("account_types", new String[]{"com.jaspersoft"});
-            startActivityForResult(intent, AUTHORIZE);
-        }
-    }
-
-    @OnActivityResult(AUTHORIZE)
-    protected void onAuthorize(int resultCode) {
-        if (resultCode == Activity.RESULT_OK) {
-            mHasAccount = true;
-            navigateToCurrentSelection();
-        } else {
-            mHasAccount = false;
-            finish();
-        }
-    }
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mDrawerToggle.syncState();
 
-        if (mHasAccount) {
+        if (savedInstanceState == null) {
             navigateToCurrentSelection();
         }
     }
 
     @Override
     protected void onAccountsChanged() {
-        signInOrCreateAnAccount();
         navigationPanelLayout.notifyAccountChange();
+    }
+
+    @Override
+    protected void onActiveAccountChanged() {
+        navigateToCurrentSelection();
     }
 
     @Override
@@ -146,6 +105,13 @@ public class NavigationActivity extends BaseActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    }
+
+    @OnActivityResult(NEW_ACCOUNT)
+    final void newAccountAction(int resultCode) {
+        if (resultCode == Activity.RESULT_OK) {
+            onActiveAccountChanged();
+        }
     }
 
     //---------------------------------------------------------------------
@@ -201,10 +167,8 @@ public class NavigationActivity extends BaseActionBarActivity {
     }
 
     private void navigateToCurrentSelection() {
-        if (getSupportFragmentManager().findFragmentByTag(CURRENT_TAG) == null) {
-            handleNavigationAction(defaultSelection);
-            navigationPanelLayout.setItemSelected(defaultSelection);
-        }
+        handleNavigationAction(defaultSelection);
+        navigationPanelLayout.setItemSelected(defaultSelection);
     }
 
     private void handleNavigationAction(int viewId) {
@@ -224,6 +188,9 @@ public class NavigationActivity extends BaseActionBarActivity {
             case R.id.vg_favorites:
                 defaultSelection = R.id.vg_favorites;
                 commitContent(FavoritesPageFragment_.builder().build());
+                break;
+            case R.id.vg_add_account:
+                startActivityForResult(new Intent(this, AuthenticatorActivity.class), NEW_ACCOUNT);
                 break;
             case R.id.vg_manage_accounts:
                 AccountsActivity_.intent(this).start();

@@ -196,15 +196,15 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private boolean hasActiveAccount() {
-        Account account = JasperAccountProvider.get(this).getAccount();
-        JsServerProfile serverProfile = jsRestClient.getServerProfile();
-        if (account == null || serverProfile == null) {
-            AccountsActivity_.intent(this).start();
-            return false;
-        }
-        return true;
-    }
+//    private boolean hasActiveAccount() {
+//        Account account = JasperAccountProvider.get(this).getAccount();
+//        JsServerProfile serverProfile = jsRestClient.getServerProfile();
+//        if (account == null || serverProfile == null) {
+//            AccountsActivity_.intent(this).start();
+//            return false;
+//        }
+//        return true;
+//    }
 
     private void animateLayout() {
         boolean animationEnabled = SettingsActivity.isAnimationEnabled(this);

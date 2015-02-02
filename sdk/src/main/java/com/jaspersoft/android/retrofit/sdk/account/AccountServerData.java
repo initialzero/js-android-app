@@ -42,8 +42,18 @@ public class AccountServerData {
     private static final String SERVER_URL_KEY = "SERVER_URL_KEY";
     private static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
     private static final String USERNAME_KEY = "USERNAME_KEY";
+
     public static final String EDITION_KEY = "EDITION_KEY";
     public static final String VERSION_NAME_KEY = "VERSION_NAME_KEY";
+
+    private static final AccountServerData EMPTY = new AccountServerData()
+            .setAlias("")
+            .setServerUrl("")
+            .setOrganization("")
+            .setUsername("")
+            .setPassword("")
+            .setEdition("PRO")
+            .setVersionName("0.0");
 
     private String alias;
     private String serverUrl;
@@ -56,6 +66,9 @@ public class AccountServerData {
 
     public static AccountServerData get(Context context, Account account) {
         AccountManager accountManager = AccountManager.get(context);
+        if (account == null) {
+            return EMPTY;
+        }
 
         return new AccountServerData()
                 .setAlias(accountManager.getUserData(account, ALIAS_KEY))
@@ -86,6 +99,9 @@ public class AccountServerData {
     }
 
     public AccountServerData setAlias(String alias) {
+        if (alias == null) {
+            throw new IllegalArgumentException("Username should not be null");
+        }
         this.alias = alias;
         return this;
     }
@@ -95,6 +111,9 @@ public class AccountServerData {
     }
 
     public AccountServerData setServerUrl(String serverUrl) {
+        if (serverUrl == null) {
+            throw new IllegalArgumentException("Server url name should not be null");
+        }
         this.serverUrl = serverUrl;
         return this;
     }
@@ -113,6 +132,9 @@ public class AccountServerData {
     }
 
     public AccountServerData setUsername(String username) {
+        if (username == null) {
+            throw new IllegalArgumentException("Username should not be null");
+        }
         this.username = username;
         return this;
     }
@@ -131,6 +153,9 @@ public class AccountServerData {
     }
 
     public AccountServerData setEdition(String edition) {
+        if (edition == null) {
+            throw new IllegalArgumentException("Edition should not be null");
+        }
         this.edition = edition;
         return this;
     }
@@ -140,6 +165,9 @@ public class AccountServerData {
     }
 
     public AccountServerData setVersionName(String versionName) {
+        if (versionName == null) {
+            throw new IllegalArgumentException("Version name should not be null");
+        }
         this.versionName = versionName;
         return this;
     }
@@ -151,6 +179,18 @@ public class AccountServerData {
     public AccountServerData setServerCookie(String serverCookie) {
         this.serverCookie = serverCookie;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountServerData{" +
+                "versionName='" + versionName + '\'' +
+                ", edition='" + edition + '\'' +
+                ", username='" + username + '\'' +
+                ", organization='" + organization + '\'' +
+                ", serverUrl='" + serverUrl + '\'' +
+                ", alias='" + alias + '\'' +
+                '}';
     }
 
     public static class Demo {

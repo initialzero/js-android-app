@@ -89,6 +89,7 @@ public class AccountSeed implements Seed {
             Gson gson = new Gson();
             Profiles profiles = gson.fromJson(json, Profiles.class);
             for (AccountServerData serverData : profiles.getData()) {
+                Timber.d("Add server explicitly" + serverData);
                 accountManagerUtil.addAccountExplicitly(serverData)
                         .subscribeOn(Schedulers.io())
                         .subscribe();

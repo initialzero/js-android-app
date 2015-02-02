@@ -50,7 +50,7 @@ public class DefaultPrefHelper {
 
     public boolean needToShowIntro() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(KEY_PREF_INTRO_SHOWN, false);
+        return preferences.getBoolean(KEY_PREF_INTRO_SHOWN, true);
     }
 
     public void needToShowIntro(boolean value) {

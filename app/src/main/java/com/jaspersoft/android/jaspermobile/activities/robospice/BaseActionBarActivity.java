@@ -12,7 +12,9 @@ import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
@@ -81,6 +83,11 @@ public class BaseActionBarActivity extends RoboActionBarActivity {
         // Listen for view render events during dev process
         if (isDevMode()) {
             ViewServer.get(this).addWindow(this);
+        }
+
+        boolean needInfo = DefaultPrefHelper_.getInstance_(this).needToShowIntro();
+        if (needInfo) {
+            IntroPageActivity_.intent(this).start();
         }
 
         // Listen to account changes

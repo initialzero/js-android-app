@@ -227,7 +227,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             Optional<NodeWebViewFragment> optional = findFragmentByPage(currentPage);
             if (optional.isPresent()) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.content, optional.get(),
+                        .replace(R.id.report_content, optional.get(),
                                 NodeWebViewFragment.TAG + currentPage).commit();
                 updatePageForNewRequestId();
             }
@@ -420,7 +420,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             }
             if (executionMode == RequestExecutor.Mode.VISIBLE) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.content, nodeWebViewFragment,
+                        .replace(R.id.report_content, nodeWebViewFragment,
                                 NodeWebViewFragment.TAG + currentPage).commit();
             }
             removeOutdatedPageOnDemand();
@@ -432,7 +432,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         public final void onSemanticSuccess(ReportExecutionResponse response) {
             int totalPageCount = response.getTotalPages();
             boolean needToShow = (totalPageCount > 1);
-            setPaginationControlVisible(needToShow);
 
             if (needToShow) {
                 showTotalPageCount(response.getTotalPages());

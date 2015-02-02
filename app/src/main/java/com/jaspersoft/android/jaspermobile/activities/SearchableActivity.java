@@ -31,7 +31,7 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
@@ -44,7 +44,7 @@ import java.util.ArrayList;
  * @since 1.9
  */
 @EActivity(R.layout.content_layout)
-public class SearchableActivity extends RoboSpiceFragmentActivity {
+public class SearchableActivity extends RoboSpiceActivity {
 
     @Extra
     ArrayList<String> resourceTypes;

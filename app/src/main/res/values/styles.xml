@@ -25,6 +25,30 @@
 
 <resources>
 
+    <!-- Default Widget Style Style -->
+    <style name="Widget.JasperMobile.TextView" parent="android:Widget.Holo.TextView">
+        <item name="android:textColor">@color/default_text</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.EditText" parent="android:Widget.Holo.EditText">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.Spinner" parent="android:Widget.Holo.Spinner">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.Button" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
+    </style>
+
+
     <!-- Default ListView Style -->
     <style name="editText">
         <item name="android:layout_marginLeft">16dp</item>
@@ -275,4 +299,14 @@
         <item name="cardElevation">5dp</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
+
+    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
+
+    <style name="Widget.JasperMobileDialog" parent="@style/DialogStyleDark.Custom" />
+
+    <style name="DialogStyleDark.Custom">
+        <item name="titleTextColor">@color/dialog_title_txt_color</item>
+        <item name="dialogBackground">@drawable/ic_resources_background</item>
+    </style>
+
 </resources>

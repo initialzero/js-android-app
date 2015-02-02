@@ -26,7 +26,8 @@ package com.jaspersoft.android.jaspermobile.activities.account;
 
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
 
 import org.androidannotations.annotations.EActivity;
 
@@ -35,14 +36,14 @@ import org.androidannotations.annotations.EActivity;
  * @since 2.0
  */
 @EActivity
-public class AccountsActivity extends BaseActionBarActivity {
+public class AccountsActivity extends RoboToolboxActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, AccountsFragment_.builder().build())
+                    .add(R.id.content, AccountsFragment_.builder().build())
                     .commit();
         }
     }

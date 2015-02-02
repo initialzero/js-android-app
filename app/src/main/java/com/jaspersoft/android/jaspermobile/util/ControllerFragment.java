@@ -36,7 +36,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 
 import roboguice.fragment.RoboFragment;
 
@@ -102,7 +101,7 @@ public abstract class ControllerFragment extends RoboFragment {
     }
 
     protected void commitContentFragment() {
-        boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
+        boolean animationEnabled = DefaultPrefHelper_.getInstance_(getActivity()).isAnimationEnabled();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         if (animationEnabled) {
             transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);

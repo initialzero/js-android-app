@@ -50,7 +50,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.ViewById;
 
 import roboguice.fragment.RoboFragment;
@@ -105,11 +104,6 @@ public class WebViewFragment extends RoboFragment {
         if (webView == null) createWebView();
         // attach to placeholder
         webViewPlaceholder.addView(webView);
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void goHome() {
-        getActivity().onBackPressed();
     }
 
     @Override

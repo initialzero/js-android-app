@@ -33,18 +33,21 @@
         <item name="android:textColor">@color/list_label_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceLargeInverse</item>
         <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
     <style name="list2.item.subTitle">
         <item name="android:textColor">@color/list_label_light_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
         <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
     <style name="list2.item.metadata">
         <item name="android:textColor">@color/list_label_light_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
     <style name="grid"/>

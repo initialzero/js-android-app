@@ -122,7 +122,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         showActivatedPanel(isShowingMenu);
     }
 
-    @Click({R.id.tv_settings, R.id.tv_feedback, R.id.tv_privacy_policy, R.id.tv_about})
+    @Click({R.id.tv_settings, R.id.tv_feedback, R.id.tv_about})
     final void navigationSubItemClick(View view) {
         if (mListener != null) {
             mListener.onNavigate(view.getId());

@@ -48,7 +48,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
@@ -86,7 +86,7 @@ import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDi
  * @author Tom Koptel
  * @since 1.6
  */
-public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
+public class ReportOptionsActivity extends RoboSpiceActivity {
 
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";

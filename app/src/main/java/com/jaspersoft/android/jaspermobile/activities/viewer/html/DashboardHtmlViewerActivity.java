@@ -31,7 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -56,9 +56,9 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  * @author Ivan Gadzhega
  * @since 1.4
  */
-@EActivity(R.layout.content_layout)
+@EActivity
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
+public class DashboardHtmlViewerActivity extends RoboSpiceActivity
         implements WebViewFragment.OnWebViewCreated {
 
     @OptionsMenuItem
@@ -87,7 +87,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
                     .build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content_frame, webViewFragment, WebViewFragment.TAG)
+                    .add(R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
 
         }

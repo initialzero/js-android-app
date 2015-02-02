@@ -13,18 +13,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.PrivacyPolicyActivity_;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -44,13 +42,11 @@ import java.util.List;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends BaseActionBarActivity {
+public class NavigationActivity extends RoboToolboxActivity {
 
     public static final String CURRENT_TAG = "CURRENT_FRAGMENT";
     private static final int NEW_ACCOUNT = 20;
 
-    @ViewById(R.id.tb_navigation)
-    protected Toolbar drawerToolbar;
     @ViewById(R.id.dl_navigation)
     protected DrawerLayout drawerLayout;
     @ViewById(R.id.npl_navigation_menu)
@@ -66,7 +62,9 @@ public class NavigationActivity extends BaseActionBarActivity {
 
     @AfterViews
     final void setupNavigation() {
-        setSupportActionBar(drawerToolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.app_label);
+        }
         setupNavDrawer();
         setupNavPanel();
     }
@@ -99,7 +97,7 @@ public class NavigationActivity extends BaseActionBarActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean drawerOpen = mHideMenu;
+        boolean drawerOpen = drawerLayout.isDrawerOpen(navigationPanelLayout);
         hideMenuItems(menu, !drawerOpen);
         return super.onPrepareOptionsMenu(menu);
     }
@@ -121,7 +119,7 @@ public class NavigationActivity extends BaseActionBarActivity {
     //---------------------------------------------------------------------
 
     private void setupNavDrawer() {
-        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, drawerToolbar,
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, getToolbar(),
                 R.string.nd_drawer_open, R.string.nd_drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
@@ -203,9 +201,6 @@ public class NavigationActivity extends BaseActionBarActivity {
                 break;
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
-                break;
-            case R.id.tv_privacy_policy:
-                PrivacyPolicyActivity_.intent(this).start();
                 break;
             case R.id.tv_feedback:
                 new FeedBackDialogFragment().show(getSupportFragmentManager(), FeedBackDialogFragment.class.getSimpleName());

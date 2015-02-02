@@ -14,12 +14,14 @@
 
         <TextView
             android:id="@+id/tv_profile"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="false"
-            android:fontFamily="sans-serif-light"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:fontFamily="sans-serif-regular"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_toLeftOf="@+id/iv_profile_arrow"
+            android:layout_marginRight="5dp" />
 
         <ImageView
             android:id="@+id/iv_profile_arrow"

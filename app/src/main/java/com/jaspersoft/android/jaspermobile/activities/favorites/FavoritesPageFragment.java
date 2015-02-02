@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
@@ -36,7 +37,6 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -105,7 +105,7 @@ public class FavoritesPageFragment extends RoboFragment {
     @Override
     public void onResume() {
         super.onResume();
-        ActionBar actionBar = ((BaseActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.f_title);
         }

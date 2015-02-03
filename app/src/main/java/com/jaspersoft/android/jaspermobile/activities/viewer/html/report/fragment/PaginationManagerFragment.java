@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.FragmentCreator;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.NodePagerAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
 import com.jaspersoft.android.jaspermobile.widget.JSViewPager;
@@ -63,7 +64,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     @ViewById
     protected View rootContainer;
     @ViewById
-    protected PaginationBarView paginationLayout;
+    protected AbstractPaginationView paginationControl;
 
     @InstanceState
     protected int mTotalPage;
@@ -84,11 +85,11 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             @Override
             public void onPageSelected(int position) {
                 int currentPage = position + 1;
-                paginationLayout.setPage(currentPage);
+                paginationControl.setCurrentPage(currentPage);
 
                 boolean showNext = (currentPage == mAdapter.getCount());
-                if (paginationLayout.hasTotalCount()) {
-                    int totalPages = paginationLayout.getTotalPage();
+                if (paginationControl.isTotalPagesLoaded()) {
+                    int totalPages = paginationControl.getTotalPages();
                     showNext &= (currentPage + 1 <= totalPages);
                 }
 
@@ -114,7 +115,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         });
         viewPager.setAdapter(mAdapter);
 
-        paginationLayout.setOnPageChangeListener(new PaginationBarView.OnPageChangeListener() {
+        paginationControl.setOnPageChangeListener(new PaginationBarView.OnPageChangeListener() {
             @Override
             public void onPageSelected(final int page) {
                 int count = mAdapter.getCount();
@@ -128,31 +129,34 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         });
 
         if (mTotalPage != 0) {
-            paginationLayout.showTotalCount(mTotalPage);
+            paginationControl.setTotalCount(mTotalPage);
             showPaginationControl();
         }
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         reportSession.removeObserver(sessionObserver);
     }
 
     public void paginateToCurrentSelection() {
-        viewPager.setCurrentItem(paginationLayout.getPage() - 1);
+        viewPager.setCurrentItem(paginationControl.getCurrentPage() - 1);
     }
 
     public void paginateTo(int page) {
-        paginationLayout.navigateTo(page);
+        int maximumAllowed = mAdapter.getCount();
+        if (page <= maximumAllowed) {
+            viewPager.setCurrentItem(page - 1);
+        }
     }
 
     public void showTotalPageCount(int totalPageCount) {
-        paginationLayout.showTotalCount(totalPageCount);
+        paginationControl.setTotalCount(totalPageCount);
     }
 
     public boolean isPaginationLoaded() {
-        return paginationLayout.hasTotalCount();
+        return paginationControl.isTotalPagesLoaded();
     }
 
     public void loadNextPageInBackground() {
@@ -185,7 +189,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         RelativeLayout htmlViewer = (RelativeLayout)
                 getActivity().findViewById(R.id.htmlViewer_layout);
         if (htmlViewer != null) {
-            htmlViewer.setPadding(0, 0, 0, paginationLayout.getHeight());
+            htmlViewer.setPadding(0, 0, 0, paginationControl.getHeight());
         }
     }
 
@@ -200,7 +204,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                     mAdapter.clear();
                     mAdapter.addPage();
                     mAdapter.notifyDataSetChanged();
-                    paginationLayout.setPage(1);
+                    paginationControl.setCurrentPage(1);
                     viewPager.setCurrentItem(0);
                 }
             };

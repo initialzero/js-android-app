@@ -30,7 +30,7 @@
     android:layout_height="match_parent">
 
     <com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView_
-        android:id="@+id/paginationLayout"
+        android:id="@+id/paginationControl"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:layout_alignParentBottom="true"

@@ -3,13 +3,10 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -24,14 +21,10 @@ import org.androidannotations.annotations.ViewById;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
 @EViewGroup(R.layout.pagination_bar_layout)
-public class PaginationBarView extends RelativeLayout {
-    private static final int FIRST_PAGE = 1;
-    private static final String INSTANCE_STATE = "INSTANCE_STATE";
-    private static final String CURRENT_PAGE = "CURRENT_PAGE";
-    private static final String TOTAL_PAGE = "TOTAL_PAGE";
+public class PaginationBarView extends AbstractPaginationView {
 
     @ViewById
     protected TextView firstPage;
@@ -49,16 +42,12 @@ public class PaginationBarView extends RelativeLayout {
     @ViewById
     protected View progressLayout;
 
-    private OnPageChangeListener onPageChangeListener;
-    private int currentPage = FIRST_PAGE;
-    private int mTotalPage = -1;
-
     private final OnPageSelectedListener onPageSelectedListener =
             new OnPageSelectedListener() {
                 @Override
                 public void onPageSelected(int page) {
-                    currentPage = page;
-                    PaginationBarView.this.onPageSelected();
+                    setCurrentPage(page);
+                    updateState();
                 }
             };
 
@@ -81,106 +70,50 @@ public class PaginationBarView extends RelativeLayout {
 
     @AfterViews
     final void init() {
-        currentPageLabel.setText(String.valueOf(currentPage));
+        currentPageLabel.setText(String.valueOf(getCurrentPage()));
         alterControlStates();
-    }
-
-    public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
-        this.onPageChangeListener = onPageChangeListener;
-    }
-
-    public void showTotalCount(int totalPage) {
-        mTotalPage = totalPage;
-
-        progressLayout.setVisibility(View.GONE);
-        totalPageLabel.setVisibility(View.VISIBLE);
-        lastPage.setEnabled(true);
-
-        totalPageLabel.setText(getContext().getString(R.string.of, totalPage));
-    }
-
-    public void setPage(int page) {
-        currentPage = page;
-        alterControlStates();
-    }
-
-    public int getPage() {
-        return currentPage;
-    }
-
-    public void navigateTo(int page) {
-        currentPage = page;
-        onPageSelected();
-    }
-
-    public boolean hasTotalCount() {
-        return (mTotalPage != -1);
-    }
-
-    public int getTotalPage() {
-        return mTotalPage;
     }
 
     @Click
     final void firstPage() {
-        currentPage = FIRST_PAGE;
-        onPageSelected();
+        setCurrentPage(FIRST_PAGE);
+        updateState();
     }
 
     @Click
     final void previousPage() {
-        if (currentPage != FIRST_PAGE) {
-            currentPage -= 1;
+        if (getCurrentPage() != FIRST_PAGE) {
+            setCurrentPage(-1);
         }
-        onPreviousPage();
+        updateState();
     }
 
     @Click
     final void nextPage() {
-        if (currentPage != mTotalPage) {
-            currentPage += 1;
+        if (getCurrentPage() != getTotalPages()) {
+            setCurrentPage(getCurrentPage() + 1);
         }
-        onNextPage();
+        updateState();
     }
 
     @Click
     final void lastPage() {
-        currentPage = mTotalPage;
-        onPageSelected();
+        setCurrentPage(getTotalPages());
+        updateState();
     }
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        boolean totalPagesLoaded = mTotalPage != 0;
-        if (totalPagesLoaded) {
+        if (isTotalPagesLoaded()) {
             NumberDialogFragment.builder(getFragmentManager())
                     .selectListener(onPageSelectedListener)
-                    .value(currentPage)
+                    .value(getCurrentPage())
                     .minValue(1)
-                    .maxValue(mTotalPage)
+                    .maxValue(getTotalPages())
                     .show();
         } else {
             PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
         }
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        Bundle bundle = (Bundle) state;
-        currentPage = bundle.getInt(CURRENT_PAGE);
-        mTotalPage = bundle.getInt(TOTAL_PAGE);
-        Parcelable instanceState = bundle.getParcelable(INSTANCE_STATE);
-        super.onRestoreInstanceState(instanceState);
-    }
-
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        super.onSaveInstanceState();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
-        bundle.putInt(CURRENT_PAGE, currentPage);
-        bundle.putInt(TOTAL_PAGE, mTotalPage);
-        return bundle;
     }
 
     private FragmentManager getFragmentManager() {
@@ -188,53 +121,42 @@ public class PaginationBarView extends RelativeLayout {
         return activity.getSupportFragmentManager();
     }
 
-    private void onNextPage() {
+    private void updateState() {
         alterControlStates();
-        if (onPageChangeListener != null) {
-            onPageChangeListener.onPageSelected(currentPage);
-        }
+        dispatchChangeListener();
     }
 
-    private void onPreviousPage() {
-        alterControlStates();
-        if (onPageChangeListener != null) {
-            onPageChangeListener.onPageSelected(currentPage);
-        }
+    @Override
+    protected void alterTotalCount() {
+        progressLayout.setVisibility(View.GONE);
+        totalPageLabel.setVisibility(View.VISIBLE);
+        lastPage.setEnabled(true);
+
+        totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
     }
 
-    private void onPageSelected() {
-        alterControlStates();
-        if (onPageChangeListener != null) {
-            onPageChangeListener.onPageSelected(currentPage);
-        }
-    }
+    @Override
+    protected void alterControlStates() {
+        currentPageLabel.setText(String.valueOf(getCurrentPage()));
 
-    private void alterControlStates() {
-        boolean hasTotalCount = (mTotalPage > 0);
-        currentPageLabel.setText(String.valueOf(currentPage));
-
-        if (currentPage == mTotalPage) {
+        if (getCurrentPage() == getTotalPages()) {
             previousPage.setEnabled(true);
             firstPage.setEnabled(true);
             nextPage.setEnabled(false);
-            lastPage.setEnabled(!hasTotalCount);
+            lastPage.setEnabled(!isTotalPagesLoaded());
             return;
         }
-        if (currentPage == FIRST_PAGE) {
+        if (getCurrentPage() == FIRST_PAGE) {
             previousPage.setEnabled(false);
             firstPage.setEnabled(false);
             nextPage.setEnabled(true);
-            lastPage.setEnabled(hasTotalCount);
+            lastPage.setEnabled(isTotalPagesLoaded());
             return;
         }
         previousPage.setEnabled(true);
         firstPage.setEnabled(true);
         nextPage.setEnabled(true);
-        lastPage.setEnabled(hasTotalCount);
-    }
-
-    public static interface OnPageChangeListener {
-        void onPageSelected(int currentPage);
+        lastPage.setEnabled(isTotalPagesLoaded());
     }
 
 }

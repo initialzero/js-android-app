@@ -129,6 +129,10 @@ public class PaginationBarView extends RelativeLayout {
         return (mTotalPage != -1);
     }
 
+    public int getTotalPage() {
+        return mTotalPage;
+    }
+
     @Click
     final void firstPage() {
         currentPage = FIRST_PAGE;

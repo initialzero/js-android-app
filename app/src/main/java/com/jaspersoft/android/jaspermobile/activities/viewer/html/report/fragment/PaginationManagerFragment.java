@@ -49,6 +49,8 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
+import timber.log.Timber;
+
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -84,7 +86,21 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                paginationLayout.setPage(position + 1);
+                int currentPage = position + 1;
+                paginationLayout.setPage(currentPage);
+
+                boolean showNext = (currentPage == mAdapter.getCount());
+                if (paginationLayout.hasTotalCount()) {
+                    int totalPages = paginationLayout.getTotalPage();
+                    showNext &= (currentPage + 1 <= totalPages);
+                }
+
+                if (showNext) {
+                    viewPager.setOnPageChangeListener(null);
+                    mAdapter.addPage();
+                    mAdapter.notifyDataSetChanged();
+                    viewPager.setOnPageChangeListener(this);
+                }
             }
         });
 
@@ -117,7 +133,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         paginationLayout.setOnPageChangeListener(new PaginationBarView.OnPageChangeListener() {
             @Override
             public void onNextPage(int nextPage) {
-                mAdapter.addPageOnDemand(nextPage);
+                mAdapter.addPage();
                 mAdapter.notifyDataSetChanged();
                 viewPager.setCurrentItem(nextPage - 1);
             }
@@ -129,13 +145,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             }
 
             @Override
-            public void onPageSelected(int page) {
+            public void onPageSelected(final int page) {
                 int count = mAdapter.getCount();
+                int item = page - 1;
                 if (count < page) {
                     mAdapter.setCount(page);
                     mAdapter.notifyDataSetChanged();
                 }
-                viewPager.setCurrentItem(page - 1);
+                viewPager.setCurrentItem(item);
             }
         });
 

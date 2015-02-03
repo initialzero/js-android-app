@@ -28,8 +28,7 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -43,13 +42,14 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ExportOutputData;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportExportOutputLoader;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -69,35 +69,35 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     @ViewById
     protected JSWebView webView;
-    @ViewById(R.id.htmlViewer_webView_progressBar)
+    @ViewById
+    protected ProgressBar statusBar;
+    @ViewById
     protected ProgressBar progressBar;
 
+    @InstanceState
     @FragmentArg
-    String currentHtml;
+    protected int page;
 
     @InstanceState
-    @FragmentArg
-    int page;
+    protected String executionId;
     @InstanceState
-    @FragmentArg
-    String requestId;
-    @FragmentArg
+    protected String currentHtml;
     @InstanceState
-    String executionId;
-
-    @FragmentArg
-    @InstanceState
-    boolean outputFinal;
+    protected boolean outputFinal;
 
     @Inject
     protected JsRestClient jsRestClient;
 
     @Bean
-    JSWebViewClient jsWebViewClient;
+    protected JSWebViewClient jsWebViewClient;
+    @Bean
+    protected ReportSession reportSession;
 
-    public static int getPage(NodeWebViewFragment fragment) {
-        Bundle args = fragment.getArguments();
-        return args.getInt(NodeWebViewFragment_.PAGE_ARG);
+    private OnPageLoadListener onPageLoadListener;
+
+    @OptionsItem
+    final void refreshAction() {
+        fetchReport();
     }
 
     @Override
@@ -106,40 +106,25 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         setHasOptionsMenu(true);
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    @AfterViews
+    final void init() {
         initWebView();
-    }
-
-    @OptionsItem
-    final void refreshAction() {
-        fetchReport();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        reportSession.removeObserver(sessionObserver);
         webView.destroy();
         webView = null;
     }
 
-    public boolean needUpdate() {
-        PaginationManagerFragment paginationManagerFragment = (PaginationManagerFragment)
-                getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
-        String currentRequestId = paginationManagerFragment.getRequestId();
-        return (!getRequestId().equals(currentRequestId));
-    }
-
-    public void refreshForNewRequestId() {
-        PaginationManagerFragment paginationManagerFragment = (PaginationManagerFragment)
-                getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
-        requestId = paginationManagerFragment.getRequestId();
-        fetchReport();
-    }
-
     public void loadFinalOutput() {
         if (!outputFinal) fetchReport();
+    }
+
+    public void setOnPageLoadListener(OnPageLoadListener onPageLoadListener) {
+        this.onPageLoadListener = onPageLoadListener;
     }
 
     //---------------------------------------------------------------------
@@ -150,7 +135,11 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         CookieManagerFactory.syncCookies(getActivity());
         prepareWebView();
         setWebViewClient();
-        loadHtml(currentHtml);
+        if (TextUtils.isEmpty(currentHtml)) {
+            fetchReport();
+        } else {
+            loadHtml(currentHtml);
+        }
     }
 
     private void loadHtml(String html) {
@@ -163,7 +152,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         }
         String mime = "text/html";
         String encoding = "utf-8";
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         webView.loadDataWithBaseURL(
                 jsRestClient.getServerProfile().getServerUrl(),
                 currentHtml, mime, encoding, null);
@@ -173,16 +161,16 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         webView.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
                 // fade in
-                if (progressBar.getAlpha() == 0) {
-                    ObjectAnimator.ofFloat(progressBar, "alpha", 0f, 1f)
+                if (statusBar.getAlpha() == 0) {
+                    ObjectAnimator.ofFloat(statusBar, "alpha", 0f, 1f)
                             .setDuration(500).start();
                 }
                 // update value
-                int maxProgress = progressBar.getMax();
-                progressBar.setProgress((maxProgress / 100) * progress);
+                int maxProgress = statusBar.getMax();
+                statusBar.setProgress((maxProgress / 100) * progress);
                 // fade out
                 if (progress == maxProgress) {
-                    ObjectAnimator.ofFloat(progressBar, "alpha", 1f, 0f)
+                    ObjectAnimator.ofFloat(statusBar, "alpha", 1f, 0f)
                             .setDuration(1000).start();
                 }
             }
@@ -211,9 +199,14 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     }
 
     private void fetchReport() {
+        fetchReport(reportSession.getRequestId());
+    }
+
+    private void fetchReport(String requestId) {
+        progressBar.setVisibility(View.VISIBLE);
         ReportExportOutputLoader.builder()
                 .setControlFragment(this)
-                .setExecutionMode(RequestExecutor.Mode.VISIBLE)
+                .setExecutionMode(RequestExecutor.Mode.SILENT)
                 .setJSRestClient(jsRestClient)
                 .setRequestId(requestId)
                 .setResultListener(new ExportResultListener())
@@ -221,29 +214,41 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 .loadByPage(page);
     }
 
-    private String getRequestId() {
-        if (requestId == null) {
-            Bundle args = getArguments();
-            requestId = args.getString(NodeWebViewFragment_.REQUEST_ID_ARG);
-        }
-        return requestId;
-    }
-
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
+    private final ReportSession.SessionObserver sessionObserver = new ReportSession.SessionObserver() {
+        @Override
+        public void onSessionChanged(String requestId) {
+            fetchReport(requestId);
+        }
+    };
+
     private class ExportResultListener implements ReportExportOutputLoader.ResultListener {
         @Override
         public void onFailure() {
+            progressBar.setVisibility(View.GONE);
+            if (onPageLoadListener != null) {
+                onPageLoadListener.onFailure();
+            }
         }
 
         @Override
         public void onSuccess(ExportOutputData output) {
+            progressBar.setVisibility(View.GONE);
             executionId = output.getExecutionId();
             outputFinal = output.isFinal();
             loadHtml(output.getData());
+            if (onPageLoadListener != null) {
+                onPageLoadListener.onSuccess(page);
+            }
         }
+    }
+
+    public static interface OnPageLoadListener {
+        void onFailure();
+        void onSuccess(int page);
     }
 
 }

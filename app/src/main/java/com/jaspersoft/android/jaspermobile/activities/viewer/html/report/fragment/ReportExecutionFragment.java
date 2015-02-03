@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -51,6 +52,9 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
     @Bean
     ReportExecutionUtil reportExecutionUtil;
+
+    @Bean
+    ReportSession reportSession;
 
     private final Handler mHandler = new Handler();
     private RequestExecutor requestExecutor;
@@ -201,7 +205,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             final String requestId = response.getRequestId();
-            paginationManagerFragment.setRequestId(requestId);
+            reportSession.setRequestId(requestId);
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {

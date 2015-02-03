@@ -67,8 +67,7 @@ android {
         buildTypes {
             release {
                 minifyEnabled true
-                proguardFile "proguard.cfg"
-                proguardFile getDefaultProguardFile('proguard-android.txt')
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard.cfg"
                 signingConfig signingConfigs.release
             }
         }
@@ -91,13 +90,6 @@ android {
         lintConfig file("lint.xml")
     }
 
-    applicationVariants.all { variant ->
-        renameApk(variant)
-        variant.assemble.doLast {
-            removeUnaligned(variant)
-        }
-    }
-
     sourceSets.main {
         // src/gen is the target for generated content like json model
         java.srcDirs += 'build/generated/source/db'
@@ -114,10 +106,9 @@ android {
         dev {
         }
         production {
-            defaultConfig {
-                versionCode 15010901
-                versionName "1.9"
-            }
+            versionCode 15010902
+            versionName "1.9"
+
             buildTypes {
                 debug {
                     if (project.hasProperty('JMA_STORE_FILE')) {

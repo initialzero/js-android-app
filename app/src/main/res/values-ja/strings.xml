@@ -224,7 +224,8 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[/%d]]></string>
     <string name="dialog_current_page">現在のページを設定</string>
-
+    <string name="rv_error_empty_report_title">レポートが空です</string>
+    <string name="rv_error_empty_report_message">フィルタオプションを変更する場合は、[Ok] を、古いレポートに戻る場合は [キャンセル] をタップします。</string>
 
 
 </resources>

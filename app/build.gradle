@@ -67,8 +67,7 @@ android {
         buildTypes {
             release {
                 minifyEnabled true
-                proguardFile "proguard.cfg"
-                proguardFile getDefaultProguardFile('proguard-android.txt')
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard.cfg"
                 signingConfig signingConfigs.release
             }
         }
@@ -107,7 +106,7 @@ android {
         dev {
         }
         production {
-            versionCode 15010901
+            versionCode 15010902
             versionName "1.9"
 
             buildTypes {

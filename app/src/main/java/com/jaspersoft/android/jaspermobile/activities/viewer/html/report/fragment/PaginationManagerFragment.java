@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -48,8 +47,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
-
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -117,33 +114,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         });
         viewPager.setAdapter(mAdapter);
 
-        paginationLayout.setOnVisibilityChangeListener(new PaginationBarView.OnVisibilityChangeListener() {
-            @Override
-            public void onVisibilityChanged(boolean visible) {
-                rootContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
-
-                RelativeLayout htmlViewer = (RelativeLayout)
-                        getActivity().findViewById(R.id.htmlViewer_layout);
-                if (htmlViewer != null) {
-                    htmlViewer.setPadding(0, 0, 0, visible ? paginationLayout.getHeight() : 0);
-                }
-            }
-        });
-
         paginationLayout.setOnPageChangeListener(new PaginationBarView.OnPageChangeListener() {
-            @Override
-            public void onNextPage(int nextPage) {
-                mAdapter.addPage();
-                mAdapter.notifyDataSetChanged();
-                viewPager.setCurrentItem(nextPage - 1);
-            }
-
-            @Override
-            public void onPreviousPage(int currentPage) {
-                int page = viewPager.getCurrentItem();
-                viewPager.setCurrentItem(page - 1);
-            }
-
             @Override
             public void onPageSelected(final int page) {
                 int count = mAdapter.getCount();
@@ -158,7 +129,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
         if (mTotalPage != 0) {
             paginationLayout.showTotalCount(mTotalPage);
-            paginationLayout.setVisible(true);
+            showPaginationControl();
         }
     }
 
@@ -208,16 +179,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     // Helper methods
     //---------------------------------------------------------------------
 
-    @NonNull
-    private ReportExecutionFragment getReportExecutionFragment() {
-        return (ReportExecutionFragment)
-                getFragmentManager().findFragmentByTag(ReportExecutionFragment.TAG);
-    }
+    private void showPaginationControl() {
+        rootContainer.setVisibility(View.VISIBLE );
 
-    @NonNull
-    private FilterManagerFragment getFilterMangerFragment() {
-        return (FilterManagerFragment)
-                getFragmentManager().findFragmentByTag(FilterManagerFragment.TAG);
+        RelativeLayout htmlViewer = (RelativeLayout)
+                getActivity().findViewById(R.id.htmlViewer_layout);
+        if (htmlViewer != null) {
+            htmlViewer.setPadding(0, 0, 0, paginationLayout.getHeight());
+        }
     }
 
     //---------------------------------------------------------------------
@@ -248,7 +217,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                     // and that is enough to show pagination control
                     if (page == 2) {
                         viewPager.setSwipeable(true);
-                        paginationLayout.setVisible(true);
+                        showPaginationControl();
                     }
                 }
             };
@@ -264,9 +233,13 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             }
 
             if (totalPageCount == 0) {
-                getReportExecutionFragment().showEmptyReportOptionsDialog();
+                ReportExecutionFragment reportExecutionFragment = (ReportExecutionFragment)
+                        getFragmentManager().findFragmentByTag(ReportExecutionFragment.TAG);
+                reportExecutionFragment.showEmptyReportOptionsDialog();
             } else {
-                getFilterMangerFragment().makeSnapshot();
+                FilterManagerFragment filterManagerFragment = (FilterManagerFragment)
+                        getFragmentManager().findFragmentByTag(FilterManagerFragment.TAG);
+                filterManagerFragment.makeSnapshot();
             }
         }
     }

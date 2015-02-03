@@ -50,7 +50,6 @@ public class PaginationBarView extends RelativeLayout {
     protected View progressLayout;
 
     private OnPageChangeListener onPageChangeListener;
-    private OnVisibilityChangeListener onVisibilityChangeListener;
     private int currentPage = FIRST_PAGE;
     private int mTotalPage = -1;
 
@@ -86,19 +85,8 @@ public class PaginationBarView extends RelativeLayout {
         alterControlStates();
     }
 
-    public void setOnVisibilityChangeListener(OnVisibilityChangeListener onVisibilityChangeListener) {
-        this.onVisibilityChangeListener = onVisibilityChangeListener;
-    }
-
     public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
         this.onPageChangeListener = onPageChangeListener;
-    }
-
-    public void setVisible(boolean flag) {
-        setVisibility(flag ? VISIBLE : GONE);
-        if (onVisibilityChangeListener != null) {
-            onVisibilityChangeListener.onVisibilityChanged(flag);
-        }
     }
 
     public void showTotalCount(int totalPage) {
@@ -203,14 +191,14 @@ public class PaginationBarView extends RelativeLayout {
     private void onNextPage() {
         alterControlStates();
         if (onPageChangeListener != null) {
-            onPageChangeListener.onNextPage(currentPage);
+            onPageChangeListener.onPageSelected(currentPage);
         }
     }
 
     private void onPreviousPage() {
         alterControlStates();
         if (onPageChangeListener != null) {
-            onPageChangeListener.onPreviousPage(currentPage);
+            onPageChangeListener.onPageSelected(currentPage);
         }
     }
 
@@ -245,13 +233,7 @@ public class PaginationBarView extends RelativeLayout {
         lastPage.setEnabled(hasTotalCount);
     }
 
-    public static interface OnVisibilityChangeListener {
-        void onVisibilityChanged(boolean visible);
-    }
-
     public static interface OnPageChangeListener {
-        void onNextPage(int currentPage);
-        void onPreviousPage(int currentPage);
         void onPageSelected(int currentPage);
     }
 

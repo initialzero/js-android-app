@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -70,16 +69,12 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     @ViewById
     protected JSWebView webView;
     @ViewById
-    protected ProgressBar statusBar;
-    @ViewById
     protected ProgressBar progressBar;
 
     @InstanceState
     @FragmentArg
     protected int page;
 
-    @InstanceState
-    protected String executionId;
     @InstanceState
     protected String currentHtml;
     @InstanceState
@@ -108,12 +103,13 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     @AfterViews
     final void init() {
+        reportSession.registerObserver(sessionObserver);
         initWebView();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         reportSession.removeObserver(sessionObserver);
         webView.destroy();
         webView = null;
@@ -160,18 +156,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     private void setWebViewClient() {
         webView.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
-                // fade in
-                if (statusBar.getAlpha() == 0) {
-                    ObjectAnimator.ofFloat(statusBar, "alpha", 0f, 1f)
-                            .setDuration(500).start();
-                }
-                // update value
-                int maxProgress = statusBar.getMax();
-                statusBar.setProgress((maxProgress / 100) * progress);
-                // fade out
-                if (progress == maxProgress) {
-                    ObjectAnimator.ofFloat(statusBar, "alpha", 1f, 0f)
-                            .setDuration(1000).start();
+                if (progress == 100) {
+                    progressBar.setVisibility(View.GONE);
                 }
             }
         });
@@ -236,8 +222,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
         @Override
         public void onSuccess(ExportOutputData output) {
-            progressBar.setVisibility(View.GONE);
-            executionId = output.getExecutionId();
             outputFinal = output.isFinal();
             loadHtml(output.getData());
             if (onPageLoadListener != null) {

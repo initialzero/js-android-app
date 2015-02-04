@@ -32,14 +32,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ProgressBar
-        android:id="@+id/statusBar"
-        style="@style/htmlViewer.progressBar"
-        android:alpha="0" />
-
     <fr.castorflex.android.circularprogressbar.CircularProgressBar
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:visibility="gone"
         android:id="@+id/progressBar"
         android:padding="2dp"
         android:layout_height="36dp"

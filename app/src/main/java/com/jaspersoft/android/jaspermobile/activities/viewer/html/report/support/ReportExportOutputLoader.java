@@ -1,13 +1,12 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support;
 
-import android.app.Activity;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.PaginationManagerFragment;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -15,7 +14,6 @@ import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
-import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil_;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
@@ -27,48 +25,49 @@ import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import roboguice.RoboGuice;
+import roboguice.inject.RoboInjector;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
+@EBean
 public class ReportExportOutputLoader {
-    private final RoboSpiceFragment controllFragment;
-    private final FragmentManager fragmentManager;
-    private final RequestExecutor requestExecutor;
-    private final String requestId;
-    private final JsRestClient jsRestClient;
-    private final ReportExecutionUtil reportExecutionUtil;
+
+    @Inject
+    protected JsRestClient jsRestClient;
+
+    @RootContext
+    protected FragmentActivity context;
+    @Bean
+    protected ReportExecutionUtil reportExecutionUtil;
+    @Bean
+    protected ReportSession reportSession;
+
     private ResultListener resultListener;
+    private RequestExecutor requestExecutor;
 
-    public static Builder builder() {
-        return new Builder();
+    @AfterInject
+    protected void injectRoboGuiceDependencies() {
+        final RoboInjector injector = RoboGuice.getInjector(context);
+        injector.injectMembersWithoutViews(this);
     }
 
-    private ReportExportOutputLoader(RoboSpiceFragment fragment,
-                                     RequestExecutor.Mode executionMode,
-                                     JsRestClient jsRestClient,
-                                     String requestId) {
-        this.controllFragment = fragment;
-        this.fragmentManager = fragment.getFragmentManager();
-        this.jsRestClient = jsRestClient;
-        this.requestId = requestId;
-        this.reportExecutionUtil = ReportExecutionUtil_
-                .getInstance_(controllFragment.getActivity());
-        this.requestExecutor = RequestExecutor.builder()
-                .setSpiceManager(fragment.getSpiceManager())
-                .setFragmentManager(fragmentManager)
-                .setExecutionMode(executionMode)
-                .create();
-    }
+    public void loadByPage(RequestExecutor requestExecutor, ResultListener resultListener, int page) {
+        Preconditions.checkArgument(page != 0);
+        Preconditions.checkNotNull(requestExecutor);
 
-    public void setResultListener(ResultListener resultListener) {
+        this.requestExecutor = requestExecutor;
         this.resultListener = resultListener;
-    }
 
-    public void loadByPage(int page) {
         ExportsRequest executionData = new ExportsRequest();
         reportExecutionUtil.setupAttachmentPrefix(executionData);
         reportExecutionUtil.setupBaseUrl(executionData);
@@ -76,19 +75,18 @@ public class ReportExportOutputLoader {
         executionData.setPages(String.valueOf(page));
 
         final RunReportExportsRequest request = new RunReportExportsRequest(jsRestClient,
-                executionData, requestId);
+                executionData, reportSession.getRequestId());
         requestExecutor.execute(request, new RunReportExportsRequestListener(page));
     }
 
     private void handleFailure(SpiceException exception) {
-        Activity activity = controllFragment.getActivity();
-        if (controllFragment.isVisible() && activity != null) {
+        if (context != null) {
             if (exception instanceof RequestCancelledException) {
-                Toast.makeText(activity, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
             } else {
-                RequestExceptionHandler.handle(exception, activity, false);
+                RequestExceptionHandler.handle(exception, context, false);
             }
-            ProgressDialogFragment.dismiss(fragmentManager);
+            ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
         }
     }
 
@@ -113,7 +111,7 @@ public class ReportExportOutputLoader {
             RunReportExportOutputRequestListener semanticListener
                     = new RunReportExportOutputRequestListener(executionId);
             UniversalRequestListener<ReportDataResponse> listener =
-                    UniversalRequestListener.builder(controllFragment.getActivity())
+                    UniversalRequestListener.builder(context)
                             .executionMode(requestExecutor.getExecutionMode())
                             .semanticListener(semanticListener)
                             .removeRule(ExceptionRule.FORBIDDEN)
@@ -121,7 +119,7 @@ public class ReportExportOutputLoader {
                             .create();
 
             RunReportExportOutputRequest request = new RunReportExportOutputRequest(jsRestClient,
-                    requestId, executionId);
+                    reportSession.getRequestId(), executionId);
             requestExecutor.execute(request, listener);
         }
     }
@@ -135,7 +133,7 @@ public class ReportExportOutputLoader {
 
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
-            ProgressDialogFragment.dismiss(fragmentManager);
+            ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
 
             if (requestExecutor.runsInSilentMode()) {
                 return;
@@ -149,7 +147,7 @@ public class ReportExportOutputLoader {
 
                 boolean outOfRange = errorDescriptor.getErrorCode().equals("export.pages.out.of.range");
                 if (outOfRange) {
-                    AlertDialogFragment.createBuilder(controllFragment.getActivity(), fragmentManager)
+                    AlertDialogFragment.createBuilder(context, context.getSupportFragmentManager())
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
                                 @Override
@@ -174,7 +172,7 @@ public class ReportExportOutputLoader {
                             .setPositiveButtonText(R.string.rv_dialog_reload)
                             .show();
                 } else {
-                    AlertDialogFragment.createBuilder(controllFragment.getActivity(), fragmentManager)
+                    AlertDialogFragment.createBuilder(context, context.getSupportFragmentManager())
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .setTitle(errorDescriptor.getErrorCode())
                             .setMessage(errorDescriptor.getMessage())
@@ -191,7 +189,7 @@ public class ReportExportOutputLoader {
 
         @Override
         public void onSemanticSuccess(ReportDataResponse response) {
-            ProgressDialogFragment.dismiss(fragmentManager);
+            ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
             ExportOutputData exportOutputData = ExportOutputData.builder()
                     .setExecutionId(mExecutionId)
                     .setResponse(response)
@@ -205,55 +203,5 @@ public class ReportExportOutputLoader {
     public static interface ResultListener {
         public void onFailure();
         public void onSuccess(ExportOutputData exportOutputData);
-    }
-
-    public static class Builder {
-        private ResultListener resultListener;
-        private RoboSpiceFragment fragment;
-        private RequestExecutor.Mode executionMode;
-        private JsRestClient jsRestClient;
-        private String requestId;
-
-        public Builder() {
-            this.executionMode = RequestExecutor.Mode.VISIBLE;
-        }
-
-        public Builder setControlFragment(RoboSpiceFragment fragment) {
-            this.fragment = fragment;
-            return this;
-        }
-
-        public Builder setExecutionMode(RequestExecutor.Mode executionMode) {
-            this.executionMode = executionMode;
-            return this;
-        }
-
-       public Builder setJSRestClient(JsRestClient jsRestClient) {
-            this.jsRestClient = jsRestClient;
-            return this;
-        }
-
-        public Builder setRequestId(String requestId) {
-            this.requestId = requestId;
-            return this;
-        }
-
-        public Builder setResultListener(ResultListener resultListener) {
-            this.resultListener = resultListener;
-            return this;
-        }
-
-        public ReportExportOutputLoader create() {
-            Preconditions.checkNotNull(fragment);
-            Preconditions.checkNotNull(executionMode);
-            Preconditions.checkNotNull(jsRestClient);
-            Preconditions.checkNotNull(requestId);
-
-            ReportExportOutputLoader reportExportOutputLoader =
-                    new ReportExportOutputLoader(fragment, executionMode,
-                    jsRestClient, requestId);
-            reportExportOutputLoader.setResultListener(resultListener);
-            return reportExportOutputLoader;
-        }
     }
 }

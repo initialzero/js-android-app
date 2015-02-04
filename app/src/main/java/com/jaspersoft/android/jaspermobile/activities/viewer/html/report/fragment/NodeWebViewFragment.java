@@ -87,8 +87,12 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     protected JSWebViewClient jsWebViewClient;
     @Bean
     protected ReportSession reportSession;
+    @Bean
+    protected ReportExportOutputLoader reportExportOutputLoader;
 
+    private ExportResultListener exportResultListener;
     private OnPageLoadListener onPageLoadListener;
+    private RequestExecutor requestExecutor;
 
     @OptionsItem
     final void refreshAction() {
@@ -98,6 +102,12 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     @AfterViews
     final void init() {
         setHasOptionsMenu(true);
+        exportResultListener = new ExportResultListener();
+        requestExecutor = RequestExecutor.builder()
+                .setSpiceManager(getSpiceManager())
+                .setFragmentManager(getFragmentManager())
+                .setExecutionMode(RequestExecutor.Mode.SILENT)
+                .create();
         reportSession.registerObserver(sessionObserver);
         initWebView();
     }
@@ -188,19 +198,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     }
 
     private void fetchReport() {
-        fetchReport(reportSession.getRequestId());
-    }
-
-    private void fetchReport(String requestId) {
         progressBar.setVisibility(View.VISIBLE);
-        ReportExportOutputLoader.builder()
-                .setControlFragment(this)
-                .setExecutionMode(RequestExecutor.Mode.SILENT)
-                .setJSRestClient(jsRestClient)
-                .setRequestId(requestId)
-                .setResultListener(new ExportResultListener())
-                .create()
-                .loadByPage(page);
+        reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
     }
 
     //---------------------------------------------------------------------
@@ -210,7 +209,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     private final ReportSession.ExecutionObserver sessionObserver = new ReportSession.ExecutionObserver() {
         @Override
         public void onRequestIdChanged(String requestId) {
-            fetchReport(requestId);
+            fetchReport();
         }
 
         @Override

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
@@ -90,6 +92,11 @@ public abstract class AbstractPaginationView extends RelativeLayout {
         bundle.putInt(CURRENT_PAGE, currentPage);
         bundle.putInt(TOTAL_PAGE, mTotalPages);
         return bundle;
+    }
+
+    protected FragmentManager getFragmentManager() {
+        FragmentActivity activity = (FragmentActivity) getContext();
+        return activity.getSupportFragmentManager();
     }
 
     /**

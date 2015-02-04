@@ -23,7 +23,7 @@ import org.androidannotations.annotations.ViewById;
  * @author Tom Koptel
  * @since 2.0
  */
-@EViewGroup(R.layout.pagination_bar_layout)
+@EViewGroup(R.layout.view_pagination_bar)
 public class PaginationBarView extends AbstractPaginationView {
 
     @ViewById
@@ -47,7 +47,7 @@ public class PaginationBarView extends AbstractPaginationView {
                 @Override
                 public void onPageSelected(int page) {
                     setCurrentPage(page);
-                    updateState();
+                    dispatchChangeListener();
                 }
             };
 
@@ -77,29 +77,29 @@ public class PaginationBarView extends AbstractPaginationView {
     @Click
     final void firstPage() {
         setCurrentPage(FIRST_PAGE);
-        updateState();
+        dispatchChangeListener();
     }
 
     @Click
     final void previousPage() {
         if (getCurrentPage() != FIRST_PAGE) {
-            setCurrentPage(-1);
+            setCurrentPage(getCurrentPage() - 1);
+            dispatchChangeListener();
         }
-        updateState();
     }
 
     @Click
     final void nextPage() {
         if (getCurrentPage() != getTotalPages()) {
             setCurrentPage(getCurrentPage() + 1);
+            dispatchChangeListener();
         }
-        updateState();
     }
 
     @Click
     final void lastPage() {
         setCurrentPage(getTotalPages());
-        updateState();
+        dispatchChangeListener();
     }
 
     @Click(R.id.currentPageLabel)
@@ -114,16 +114,6 @@ public class PaginationBarView extends AbstractPaginationView {
         } else {
             PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
         }
-    }
-
-    private FragmentManager getFragmentManager() {
-        FragmentActivity activity = (FragmentActivity) getContext();
-        return activity.getSupportFragmentManager();
-    }
-
-    private void updateState() {
-        alterControlStates();
-        dispatchChangeListener();
     }
 
     @Override

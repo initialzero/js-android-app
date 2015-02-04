@@ -37,11 +37,8 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.NodePag
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
-import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
 import com.jaspersoft.android.jaspermobile.widget.JSViewPager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.ReportDetailsRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -155,28 +152,9 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         paginationControl.setTotalCount(totalPageCount);
     }
 
-    public boolean isPaginationLoaded() {
-        return paginationControl.isTotalPagesLoaded();
-    }
-
     public void loadNextPageInBackground() {
         mAdapter.addPage();
         mAdapter.notifyDataSetChanged();
-    }
-
-    public void update() {
-        if (!isPaginationLoaded()) {
-            requestDetails(reportSession.getRequestId());
-        }
-    }
-
-    private void requestDetails(String requestId) {
-        ReportDetailsRequest reportDetailsRequest = new ReportDetailsRequest(jsRestClient, requestId);
-        UniversalRequestListener<ReportExecutionResponse> universalRequestListener =
-                UniversalRequestListener.builder(getActivity())
-                        .semanticListener(new ReportDetailsRequestListener())
-                        .create();
-        getSpiceManager().execute(reportDetailsRequest, universalRequestListener);
     }
 
     //---------------------------------------------------------------------
@@ -197,15 +175,22 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     // Inner classes
     //---------------------------------------------------------------------
 
-    private final ReportSession.SessionObserver sessionObserver =
-            new ReportSession.SessionObserver() {
+    private final ReportSession.ExecutionObserver sessionObserver =
+            new ReportSession.ExecutionObserver() {
                 @Override
-                public void onSessionChanged(String requestId) {
+                public void onRequestIdChanged(String requestId) {
                     mAdapter.clear();
                     mAdapter.addPage();
                     mAdapter.notifyDataSetChanged();
                     paginationControl.setCurrentPage(1);
                     viewPager.setCurrentItem(0);
+                }
+
+                @Override
+                public void onPagesLoaded(int totalPage) {
+                    if (totalPage > 1) {
+                        showTotalPageCount(totalPage);
+                    }
                 }
             };
 
@@ -225,27 +210,4 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                     }
                 }
             };
-
-    private class ReportDetailsRequestListener extends UniversalRequestListener.SimpleSemanticListener<ReportExecutionResponse> {
-        @Override
-        public final void onSemanticSuccess(ReportExecutionResponse response) {
-            int totalPageCount = response.getTotalPages();
-            boolean needToShow = (totalPageCount > 1);
-
-            if (needToShow) {
-                showTotalPageCount(response.getTotalPages());
-            }
-
-            if (totalPageCount == 0) {
-                ReportExecutionFragment reportExecutionFragment = (ReportExecutionFragment)
-                        getFragmentManager().findFragmentByTag(ReportExecutionFragment.TAG);
-                reportExecutionFragment.showEmptyReportOptionsDialog();
-            } else {
-                FilterManagerFragment filterManagerFragment = (FilterManagerFragment)
-                        getFragmentManager().findFragmentByTag(FilterManagerFragment.TAG);
-                filterManagerFragment.makeSnapshot();
-            }
-        }
-    }
-
 }

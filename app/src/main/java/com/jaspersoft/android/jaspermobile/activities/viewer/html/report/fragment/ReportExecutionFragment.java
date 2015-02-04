@@ -15,9 +15,11 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.CheckReportStatusRequest;
+import com.jaspersoft.android.sdk.client.async.request.ReportDetailsRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
@@ -210,16 +212,17 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
                 int totalPageCount = response.getTotalPages();
-                paginationManagerFragment.showTotalPageCount(totalPageCount);
+                reportSession.setTotalPage(totalPageCount);
 
                 if (totalPageCount == 0) {
-                    getFilterMangerFragment().makeSnapshot();
                     showEmptyReportOptionsDialog();
                 } else {
+                    getFilterMangerFragment().makeSnapshot();
                     paginationManagerFragment.paginateToCurrentSelection();
                     paginationManagerFragment.loadNextPageInBackground();
                 }
             } else if (isStatusPending(status)) {
+                getFilterMangerFragment().makeSnapshot();
                 paginationManagerFragment.paginateToCurrentSelection();
                 paginationManagerFragment.loadNextPageInBackground();
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
@@ -260,9 +263,28 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         public void onRequestSuccess(ReportStatusResponse response) {
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
-                getPaginationManagerFragment().update();
+                ReportDetailsRequest reportDetailsRequest = new ReportDetailsRequest(jsRestClient, requestId);
+                UniversalRequestListener<ReportExecutionResponse> universalRequestListener =
+                        UniversalRequestListener.builder(getActivity())
+                                .semanticListener(new ReportDetailsRequestListener())
+                                .create();
+                getSpiceManager().execute(reportDetailsRequest, universalRequestListener);
             } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            }
+        }
+    }
+
+    private class ReportDetailsRequestListener extends UniversalRequestListener.SimpleSemanticListener<ReportExecutionResponse> {
+        @Override
+        public final void onSemanticSuccess(ReportExecutionResponse response) {
+            int totalPageCount = response.getTotalPages();
+            reportSession.setTotalPage(totalPageCount);
+
+            if (totalPageCount == 0) {
+                showEmptyReportOptionsDialog();
+            } else {
+                getFilterMangerFragment().makeSnapshot();
             }
         }
     }

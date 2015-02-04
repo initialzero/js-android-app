@@ -95,16 +95,17 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         fetchReport();
     }
 
+    @AfterViews
+    final void init() {
+        setHasOptionsMenu(true);
+        reportSession.registerObserver(sessionObserver);
+        initWebView();
+    }
+
     @Override
     public void onStart() {
         super.onStart();
-        setHasOptionsMenu(true);
-    }
-
-    @AfterViews
-    final void init() {
-        reportSession.registerObserver(sessionObserver);
-        initWebView();
+        fetchReport();
     }
 
     @Override
@@ -113,10 +114,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         reportSession.removeObserver(sessionObserver);
         webView.destroy();
         webView = null;
-    }
-
-    public void loadFinalOutput() {
-        if (!outputFinal) fetchReport();
     }
 
     public void setOnPageLoadListener(OnPageLoadListener onPageLoadListener) {
@@ -128,9 +125,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
 
     private void initWebView() {
-        CookieManagerFactory.syncCookies(getActivity());
         prepareWebView();
-        setWebViewClient();
         if (TextUtils.isEmpty(currentHtml)) {
             fetchReport();
         } else {
@@ -153,7 +148,27 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 currentHtml, mime, encoding, null);
     }
 
-    private void setWebViewClient() {
+    @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
+    private void prepareWebView() {
+        WebSettings settings = webView.getSettings();
+
+        // disable hardware acceleration
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        }
+        if (BuildConfig.DEBUG) {
+            enableDebug();
+        }
+
+        // configure additional settings
+        settings.setJavaScriptEnabled(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        settings.setLoadWithOverviewMode(true);
+        settings.setUseWideViewPort(true);
+
+        webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        webView.setWebViewClient(jsWebViewClient);
         webView.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
                 if (progress == 100) {
@@ -161,25 +176,13 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 }
             }
         });
+
+        CookieManagerFactory.syncCookies(getActivity());
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
-    private void prepareWebView() {
-        // disable hardware acceleration
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        }
-        // configure additional settings
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webView.setWebViewClient(jsWebViewClient);
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.getSettings().setDisplayZoomControls(false);
-        webView.getSettings().setLoadWithOverviewMode(true);
-        webView.getSettings().setUseWideViewPort(true);
-
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    private void enableDebug() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
     }
@@ -204,10 +207,15 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     // Inner classes
     //---------------------------------------------------------------------
 
-    private final ReportSession.SessionObserver sessionObserver = new ReportSession.SessionObserver() {
+    private final ReportSession.ExecutionObserver sessionObserver = new ReportSession.ExecutionObserver() {
         @Override
-        public void onSessionChanged(String requestId) {
+        public void onRequestIdChanged(String requestId) {
             fetchReport(requestId);
+        }
+
+        @Override
+        public void onPagesLoaded(int totalPage) {
+            if (!outputFinal) fetchReport();
         }
     };
 

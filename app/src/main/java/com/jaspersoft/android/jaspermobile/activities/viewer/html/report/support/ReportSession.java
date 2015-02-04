@@ -13,13 +13,14 @@ import java.util.List;
 @EBean(scope = EBean.Scope.Singleton)
 public class ReportSession {
     private String requestId;
-    private List<SessionObserver> observers = Lists.newArrayList();
+    private int totalPage;
+    private final List<ExecutionObserver> observers = Lists.newArrayList();
 
-    public void registerObserver(SessionObserver observer) {
+    public void registerObserver(ExecutionObserver observer) {
         observers.add(observer);
     }
 
-    public void removeObserver(SessionObserver observer) {
+    public void removeObserver(ExecutionObserver observer) {
         observers.remove(observer);
     }
 
@@ -29,12 +30,34 @@ public class ReportSession {
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
-        for (SessionObserver observer : observers) {
-            observer.onSessionChanged(requestId);
+        for (ExecutionObserver observer : observers) {
+            observer.onRequestIdChanged(requestId);
         }
     }
 
-    public static interface SessionObserver {
-        void onSessionChanged(String requestId);
+    public int getTotalPage() {
+        return totalPage;
+    }
+
+    public void setTotalPage(int totalPage) {
+        this.totalPage = totalPage;
+        for (ExecutionObserver observer : observers) {
+            observer.onPagesLoaded(totalPage);
+        }
+    }
+
+    public static class SimpleExecutionObserver implements ExecutionObserver {
+        @Override
+        public void onRequestIdChanged(String requestId) {
+        }
+
+        @Override
+        public void onPagesLoaded(int totalPage) {
+        }
+    }
+
+    public static interface ExecutionObserver {
+        void onRequestIdChanged(String requestId);
+        void onPagesLoaded(int totalPage);
     }
 }

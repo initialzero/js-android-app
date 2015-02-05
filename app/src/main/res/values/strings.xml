@@ -301,4 +301,7 @@
     <string name="account_activating" translatable="false">Activating account</string>
     <string name="account_password_changed" translatable="false"><![CDATA[Invalid password for \"%s\"]]></string>
 
+    <!--Dashboard activity-->
+    <string name="da_session_expired" translatable="false">Session expired</string>
+
 </resources>

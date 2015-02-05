@@ -36,6 +36,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -97,6 +98,13 @@ public class WebViewFragment extends RoboFragment {
     final void init() {
         initWebView();
         scrollableTitleHelper.injectTitle(resourceLabel);
+        jsWebViewClient.setSessionListener(new JSWebViewClient.SessionListener() {
+            @Override
+            public void onSessionExpired() {
+                Toast.makeText(getActivity(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
+                getActivity().finish();
+            }
+        });
     }
 
     private void initWebView() {

@@ -135,6 +135,10 @@ public class ReportExportOutputLoader {
         public void onSemanticFailure(SpiceException spiceException) {
             ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
 
+            if (resultListener != null) {
+                resultListener.onFailure(spiceException);
+            }
+
             if (requestExecutor.runsInSilentMode()) {
                 return;
             }
@@ -182,9 +186,6 @@ public class ReportExportOutputLoader {
             } else {
                 handleFailure(spiceException);
             }
-            if (resultListener != null) {
-                resultListener.onFailure();
-            }
         }
 
         @Override
@@ -201,7 +202,7 @@ public class ReportExportOutputLoader {
     }
 
     public static interface ResultListener {
-        public void onFailure();
+        public void onFailure(Exception exception);
         public void onSuccess(ExportOutputData exportOutputData);
     }
 }

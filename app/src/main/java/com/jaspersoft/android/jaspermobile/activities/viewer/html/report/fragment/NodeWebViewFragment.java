@@ -225,10 +225,10 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     private class ExportResultListener implements ReportExportOutputLoader.ResultListener {
         @Override
-        public void onFailure() {
+        public void onFailure(Exception exception) {
             progressBar.setVisibility(View.GONE);
             if (onPageLoadListener != null) {
-                onPageLoadListener.onFailure();
+                onPageLoadListener.onFailure(exception);
             }
         }
 
@@ -244,7 +244,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     }
 
     public static interface OnPageLoadListener {
-        void onFailure();
+        void onFailure(Exception exception);
         void onSuccess(int page);
     }
 

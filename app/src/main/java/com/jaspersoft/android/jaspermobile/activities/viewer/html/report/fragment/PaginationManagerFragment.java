@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.NodePag
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.widget.JSViewPager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
@@ -45,6 +46,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
+import org.springframework.http.HttpStatus;
 
 /**
  * @author Tom Koptel
@@ -162,7 +164,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
 
     private void showPaginationControl() {
-        rootContainer.setVisibility(View.VISIBLE );
+        rootContainer.setVisibility(View.VISIBLE);
 
         RelativeLayout htmlViewer = (RelativeLayout)
                 getActivity().findViewById(R.id.htmlViewer_layout);
@@ -197,7 +199,15 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     private final NodeWebViewFragment.OnPageLoadListener nodeListener =
             new NodeWebViewFragment.OnPageLoadListener() {
                 @Override
-                public void onFailure() {
+                public void onFailure(Exception exception) {
+                    HttpStatus statusCode = RequestExceptionHandler.extractStatusCode(exception);
+                    if (statusCode != null && statusCode == HttpStatus.BAD_REQUEST) {
+                        // Enforcing max page or first one
+                        // this situation possible due to the user has entered out of range page
+                        mAdapter.setCount(paginationControl.isTotalPagesLoaded() ?
+                                paginationControl.getTotalPages() : 2);
+                        mAdapter.notifyDataSetChanged();
+                    }
                 }
 
                 @Override
@@ -210,4 +220,5 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                     }
                 }
             };
+
 }

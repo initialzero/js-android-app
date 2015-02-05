@@ -1,23 +1,23 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
+import org.androidannotations.annotations.SeekBarProgressChange;
 import org.androidannotations.annotations.SeekBarTouchStop;
 import org.androidannotations.annotations.ViewById;
-
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -25,7 +25,6 @@ import timber.log.Timber;
  */
 @EViewGroup(R.layout.view_pagination_seekbar)
 public class SeekPaginationView extends AbstractPaginationView {
-    private static final String TAG = SeekPaginationView.class.getSimpleName();
 
     @ViewById
     protected SeekBar seekBar;
@@ -44,6 +43,7 @@ public class SeekPaginationView extends AbstractPaginationView {
                     dispatchChangeListener();
                 }
             };
+    private Toast mToast;
 
     public SeekPaginationView(Context context) {
         super(context);
@@ -61,9 +61,10 @@ public class SeekPaginationView extends AbstractPaginationView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    @SuppressLint("ShowToast")
     @AfterViews
     final void init() {
-        Timber.tag(TAG);
+        mToast = Toast.makeText(getContext(), "", Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -77,34 +78,42 @@ public class SeekPaginationView extends AbstractPaginationView {
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        if (isTotalPagesLoaded()) {
-            NumberDialogFragment.builder(getFragmentManager())
-                    .selectListener(onPageSelectedListener)
-                    .value(getCurrentPage())
-                    .minValue(1)
-                    .maxValue(getTotalPages())
-                    .show();
-        } else {
-            PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
-        }
+        PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
     }
 
     @Override
     protected void alterControlStates() {
         currentPageLabel.setText(String.valueOf(getCurrentPage()));
+        if (isTotalPagesLoaded()) {
+            int currentProgress = Math.round((float) getCurrentPage() * 100 / (float) getTotalPages());
+            seekBar.setProgress(currentProgress);
+        }
+    }
+
+    @SeekBarProgressChange(R.id.seekBar)
+    final void onProgressChange() {
+        mToast.setText(String.valueOf(currentPageFromProgress()));
+        mToast.show();
     }
 
     @SeekBarTouchStop(R.id.seekBar)
-    void onProgressChangeOnSeekBar(SeekBar seekBar) {
+    final void onProgressChangeOnSeekBar() {
+        setCurrentPage(currentPageFromProgress());
+        dispatchChangeListener();
+    }
+
+    private int currentPageFromProgress() {
         int progress = seekBar.getProgress();
         int currentPage;
 
         if (progress == 0) {
             currentPage = FIRST_PAGE;
         } else  {
-            currentPage = getTotalPages() * progress / 100;
+            currentPage = Math.round((float) getTotalPages() * (float) progress / 100);
         }
-        setCurrentPage(currentPage);
-        dispatchChangeListener();
+        if (currentPage == 0) {
+            currentPage = FIRST_PAGE;
+        }
+        return currentPage;
     }
 }

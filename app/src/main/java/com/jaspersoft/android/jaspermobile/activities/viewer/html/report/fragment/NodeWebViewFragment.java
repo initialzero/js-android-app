@@ -24,12 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
+import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
@@ -46,6 +46,9 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
@@ -93,6 +96,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     private ExportResultListener exportResultListener;
     private OnPageLoadListener onPageLoadListener;
     private RequestExecutor requestExecutor;
+    private ServerRelease mRelease;
 
     @OptionsItem
     final void refreshAction() {
@@ -102,6 +106,11 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     @AfterViews
     final void init() {
         setHasOptionsMenu(true);
+
+        Account account = JasperAccountProvider.get(getActivity()).getAccount();
+        AccountServerData serverData = AccountServerData.get(getActivity(), account);
+        mRelease = ServerRelease.parseVersion(serverData.getVersionName());
+
         exportResultListener = new ExportResultListener();
         requestExecutor = RequestExecutor.builder()
                 .setSpiceManager(getSpiceManager())
@@ -126,8 +135,13 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     public void onDestroyView() {
         super.onDestroyView();
         reportSession.removeObserver(sessionObserver);
+    }
+
+    @Override
+    public void onDestroy() {
         webView.destroy();
         webView = null;
+        super.onDestroy();
     }
 
     public void setOnPageLoadListener(OnPageLoadListener onPageLoadListener) {
@@ -174,13 +188,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         webView.setWebViewClient(jsWebViewClient);
-        webView.setWebChromeClient(new WebChromeClient() {
-            public void onProgressChanged(WebView view, int progress) {
-                if (progress == 100) {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        });
 
         CookieManagerFactory.syncCookies(getActivity());
     }
@@ -201,7 +208,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     // Inner classes
     //---------------------------------------------------------------------
 
-    private final ReportSession.ExecutionObserver sessionObserver = new ReportSession.ExecutionObserver() {
+    private final ReportSession.ExecutionObserver sessionObserver =
+            new ReportSession.ExecutionObserver() {
         @Override
         public void onRequestIdChanged(String requestId) {
             fetchReport();
@@ -209,7 +217,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
         @Override
         public void onPagesLoaded(int totalPage) {
-            if (!outputFinal) fetchReport();
+            if (!outputFinal && mRelease.code() >= ServerRelease.EMERALD_MR3.code()) {
+                fetchReport();
+            }
         }
     };
 
@@ -224,6 +234,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
         @Override
         public void onSuccess(ExportOutputData output) {
+            progressBar.setVisibility(View.GONE);
             outputFinal = output.isFinal();
             loadHtml(output.getData());
             if (onPageLoadListener != null) {

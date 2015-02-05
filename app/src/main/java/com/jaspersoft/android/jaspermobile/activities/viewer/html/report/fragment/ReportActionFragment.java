@@ -3,13 +3,17 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.util.PrintReportHelper;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -20,6 +24,8 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
+import java.util.ArrayList;
+
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
@@ -28,11 +34,17 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EFragment
 @OptionsMenu(R.menu.retrofit_report_menu)
-public class ReportActionFragment extends Fragment {
+public class ReportActionFragment extends RoboSpiceFragment {
     public static final String TAG = ReportActionFragment.class.getSimpleName();
 
     @FragmentArg
     ResourceLookup resource;
+    @FragmentArg
+    ArrayList<ReportParameter> reportParameters;
+
+    @Inject
+    JsRestClient jsRestClient;
+
     @Bean
     FavoritesHelper favoritesHelper;
 
@@ -72,5 +84,10 @@ public class ReportActionFragment extends Fragment {
                 .setMessage(resource.getDescription())
                 .setNegativeButtonText(android.R.string.ok)
                 .show();
+    }
+
+    @OptionsItem
+    final void printAction() {
+        PrintReportHelper.printReport(jsRestClient, getActivity(), resource, reportParameters);
     }
 }

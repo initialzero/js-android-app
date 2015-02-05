@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebVi
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.util.PrintReportHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
@@ -127,6 +128,11 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
                 .setMessage(resource.getDescription())
                 .setNegativeButtonText(android.R.string.ok)
                 .show();
+    }
+
+    @OptionsItem
+    final void printAction() {
+        PrintReportHelper.printDashboard(this, webViewFragment.getWebView(), resource.getLabel());
     }
 
     @Override

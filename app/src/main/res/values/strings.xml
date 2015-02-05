@@ -123,12 +123,14 @@
     <string name="r_cm_add_to_favorites">Add to favorites</string>
     <string name="r_cm_remove_from_favorites">Remove from favorites</string>
     <string name="r_cm_remove_from_favorites_failed">Failed to remove from favorites</string>
+    <string name="r_cm_print">Print</string>
 
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Running report…</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
+    <string name="r_error_print_app_not_installed">Google Cloud Print app is not installed</string>
 
     <!-- Search Activity -->
     <string name="s_hint">Search resources</string>

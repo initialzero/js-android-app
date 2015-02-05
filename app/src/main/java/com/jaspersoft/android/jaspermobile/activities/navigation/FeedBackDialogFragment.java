@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 
-class FeedBackDialogFragment extends DialogFragment {
+public class FeedBackDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

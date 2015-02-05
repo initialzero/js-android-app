@@ -35,7 +35,7 @@
     <string name="nd_drawer_open" translatable="false">open</string>
     <string name="nd_drawer_close" translatable="false">close</string>
     <string name="nd_manage_accounts" translatable="false">Manage accounts</string>
-    <string name="nd_select_account">Select Account</string>
+    <string name="nd_select_account" translatable="false">Select Account</string>
 
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
@@ -241,7 +241,7 @@
     <string name="st_title_animations">Application animations</string>
     <string name="st_send_crashes">Send crash reports</string>
     <string name="st_send_crashes_summary">WARNING: This option restarts application!</string>
-    <string name="st_send_crashes_note">NOTE: This option will be applied on next app launch!</string>
+    <string name="st_send_crashes_note" translatable="false">NOTE: This option will be applied on next app launch!</string>
     <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>

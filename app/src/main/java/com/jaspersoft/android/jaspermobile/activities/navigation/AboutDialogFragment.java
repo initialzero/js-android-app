@@ -17,7 +17,7 @@ import com.jaspersoft.android.jaspermobile.R;
  * @author Tom Koptel
  * @since 1.9
  */
-class AboutDialogFragment extends DialogFragment {
+public class AboutDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

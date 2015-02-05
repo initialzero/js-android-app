@@ -28,7 +28,7 @@ import rx.schedulers.Schedulers;
  * @since 2.0
  */
 @EFragment
-class ActivationDialogFragment extends DialogFragment {
+public class ActivationDialogFragment extends DialogFragment {
 
     @FragmentArg
     protected Account account;

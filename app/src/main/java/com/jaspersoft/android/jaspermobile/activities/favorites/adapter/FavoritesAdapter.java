@@ -28,19 +28,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
  * @author Tom Koptel
@@ -51,8 +46,14 @@ public class FavoritesAdapter extends SingleChoiceSimpleCursorAdapter {
     private static final String[] FROM = {FavoritesTable.TITLE, FavoritesTable.URI, FavoritesTable.WSTYPE};
     private static final int[] TO = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
 
+    private FavoritesInteractionListener mFavoritesInteractionListener;
+
     public FavoritesAdapter(Context context, Bundle savedInstanceState, int layout) {
         super(savedInstanceState, context, layout, null, FROM, TO, 0);
+    }
+
+    public void setFavoritesInteractionListener(FavoritesInteractionListener favoritesInteractionListener) {
+        mFavoritesInteractionListener = favoritesInteractionListener;
     }
 
     @Override
@@ -70,44 +71,38 @@ public class FavoritesAdapter extends SingleChoiceSimpleCursorAdapter {
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        long id = Lists.newArrayList(getCheckedItems()).get(0);
-        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
-                String.valueOf(id));
+        Cursor cursor = getCursor();
+        cursor.moveToPosition(getCurrentPosition());
+        String title = cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE));
 
         switch (item.getItemId()) {
             case R.id.removeFromFavorites:
-                getContext().getContentResolver().delete(uri, null, null);
-                finishActionMode();
+                if (mFavoritesInteractionListener != null) {
+                    long itemId = cursor.getLong(cursor.getColumnIndex(FavoritesTable._ID));
+                    Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
+                            String.valueOf(itemId));
+                    mFavoritesInteractionListener.onDelete(title, uri);
+                }
                 return true;
             case R.id.showAction:
-                showAboutInfo(uri);
+                if (mFavoritesInteractionListener != null) {
+                    String description = cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION));
+                    mFavoritesInteractionListener.onInfo(title, description);
+                }
                 return true;
             default:
                 return false;
         }
     }
 
-    private void showAboutInfo(Uri uri) {
-        Cursor cursor = getContext().getContentResolver().query(uri,
-                new String[]{FavoritesTable.TITLE, FavoritesTable.DESCRIPTION}, null, null, null);
-        if (cursor != null) {
-            try {
-                if (cursor.getCount() > 0) {
-                    cursor.moveToFirst();
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
 
-                    String title = cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE));
-                    String description = cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION));
-                    FragmentManager fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
-                    SimpleDialogFragment.createBuilder(getContext(), fm)
-                            .setTitle(title)
-                            .setMessage(description)
-                            .setNegativeButtonText(android.R.string.ok)
-                            .show();
-                }
-            } finally {
-                cursor.close();
-            }
-        }
+    public static interface FavoritesInteractionListener {
+        void onDelete(String title, Uri itemToDelete);
+
+        void onInfo(String title, String description);
     }
 
 }

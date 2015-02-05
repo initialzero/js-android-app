@@ -31,6 +31,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -72,7 +73,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
@@ -85,7 +85,7 @@ import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.On
  */
 @EFragment
 public class SavedItemsFragment extends RoboFragment
-        implements ISimpleDialogListener, FileAdapter.FileInteractionListener, LoaderManager.LoaderCallbacks<Cursor> {
+        implements FileAdapter.FileInteractionListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private final int SAVED_ITEMS_LOADER_ID = 0;
 
@@ -329,10 +329,28 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     @Override
-    public void onDelete(File file) {
+    public void onDelete(final File file) {
         int currentPosition = mAdapter.getCurrentPosition();
         AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
                 .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
+                    @Override
+                    public void onClick(DialogFragment fragment) {
+                        if (file.isDirectory()) {
+                            FileUtils.deleteFilesInDirectory(file);
+                        }
+
+                        if (file.delete() || !file.exists()) {
+                            long id = Lists.newArrayList(mAdapter.getCheckedItems()).get(0);
+                            Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                                    String.valueOf(id));
+                            getActivity().getContentResolver().delete(uri, null, null);
+                        } else {
+                            Toast.makeText(getActivity(), R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
+                        }
+                        mAdapter.finishActionMode();
+                    }
+                })
                 .setTargetFragment(this, currentPosition)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getActivity().getString(R.string.sdr_drd_msg,
@@ -349,36 +367,6 @@ public class SavedItemsFragment extends RoboFragment
                 .setTitle(title)
                 .setMessage(description)
                 .show();
-    }
-
-    //---------------------------------------------------------------------
-    // Implements ISimpleDialogListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onPositiveButtonClicked(int position) {
-        File selectedFile = getFileByPosition(position).getParentFile();
-        if (selectedFile.isDirectory()) {
-            FileUtils.deleteFilesInDirectory(selectedFile);
-        }
-
-        if (selectedFile.delete() || !selectedFile.exists()) {
-            long id = Lists.newArrayList(mAdapter.getCheckedItems()).get(0);
-            Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                    String.valueOf(id));
-            getActivity().getContentResolver().delete(uri, null, null);
-        } else {
-            Toast.makeText(getActivity(), R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
-        }
-        mAdapter.finishActionMode();
-    }
-
-    @Override
-    public void onNegativeButtonClicked(int i) {
-    }
-
-    @Override
-    public void onNeutralButtonClicked(int i) {
     }
 
 }

@@ -214,6 +214,7 @@
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">Delete report</string>
+    <string name="sdr_dfd_title" translatable="false">Delete item</string>
     <string name="sdr_drd_msg">Do you really want to delete \"%s\"?</string>
 
     <!-- Toasts -->

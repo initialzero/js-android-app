@@ -78,7 +78,11 @@ public class SeekPaginationView extends AbstractPaginationView {
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
+        PageDialogFragment.configure()
+                .setMin(1)
+                .setMax(isTotalPagesLoaded() ? getTotalPages() : Integer.MAX_VALUE)
+                .setOnPageSelectedListener(onPageSelectedListener)
+                .show(getFragmentManager());
     }
 
     @Override
@@ -108,7 +112,7 @@ public class SeekPaginationView extends AbstractPaginationView {
 
         if (progress == 0) {
             currentPage = FIRST_PAGE;
-        } else  {
+        } else {
             currentPage = Math.round((float) getTotalPages() * (float) progress / 100);
         }
         if (currentPage == 0) {

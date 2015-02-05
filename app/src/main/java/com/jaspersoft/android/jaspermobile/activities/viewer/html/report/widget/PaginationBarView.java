@@ -3,8 +3,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
@@ -112,7 +110,9 @@ public class PaginationBarView extends AbstractPaginationView {
                     .maxValue(getTotalPages())
                     .show();
         } else {
-            PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
+            PageDialogFragment.configure()
+                    .setOnPageSelectedListener(onPageSelectedListener)
+                    .show(getFragmentManager());
         }
     }
 

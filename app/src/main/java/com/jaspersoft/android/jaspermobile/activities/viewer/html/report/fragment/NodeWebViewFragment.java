@@ -109,13 +109,17 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 .setExecutionMode(RequestExecutor.Mode.SILENT)
                 .create();
         reportSession.registerObserver(sessionObserver);
-        initWebView();
+        prepareWebView();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        fetchReport();
+        if (TextUtils.isEmpty(currentHtml)) {
+            fetchReport();
+        } else {
+            loadHtml(currentHtml);
+        }
     }
 
     @Override
@@ -133,15 +137,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-
-    private void initWebView() {
-        prepareWebView();
-        if (TextUtils.isEmpty(currentHtml)) {
-            fetchReport();
-        } else {
-            loadHtml(currentHtml);
-        }
-    }
 
     private void loadHtml(String html) {
         Preconditions.checkNotNull(html);

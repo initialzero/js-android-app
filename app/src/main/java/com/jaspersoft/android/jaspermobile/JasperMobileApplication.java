@@ -26,8 +26,13 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 import android.view.ViewConfiguration;
 
+import com.google.android.gms.analytics.ExceptionReporter;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.StandardExceptionParser;
+import com.google.android.gms.analytics.Tracker;
 import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -48,6 +53,7 @@ import timber.log.Timber;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+    private Tracker jsTracker;
 
     public static void removeAllCookies() {
         JsRestClient.flushCookies();
@@ -66,6 +72,7 @@ public class JasperMobileApplication extends Application {
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
+        getTracker();
         forceOverFlowMenu();
         initImageLoader(getApplicationContext());
     }
@@ -104,6 +111,28 @@ public class JasperMobileApplication extends Application {
         } catch (Exception ex) {
             // Ignore
         }
+    }
+
+    public synchronized Tracker getTracker() {
+        if (jsTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            jsTracker = analytics.newTracker(R.xml.analytics_tracker);
+
+            ExceptionReporter crashHandler =
+                    new ExceptionReporter(jsTracker, Thread.getDefaultUncaughtExceptionHandler(), this);
+
+            StandardExceptionParser exceptionParser =
+                    new StandardExceptionParser(getApplicationContext(), null) {
+                        @Override
+                        public String getDescription(String threadName, Throwable t) {
+                            return "{" + threadName + "} \n" + Log.getStackTraceString(t);
+                        }
+                    };
+
+            crashHandler.setExceptionParser(exceptionParser);
+            Thread.setDefaultUncaughtExceptionHandler(crashHandler);
+        }
+        return jsTracker;
     }
 
 }

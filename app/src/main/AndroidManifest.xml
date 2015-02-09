@@ -192,6 +192,10 @@
             </intent-filter>
         </activity>
 
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
             android:name=".network.XmlSpiceService"

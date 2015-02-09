@@ -155,6 +155,7 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
         if (hasNetwork() && hasActiveAccount()) {
             LibraryActivity_.intent(this).start();
         }
+        throw new RuntimeException("Test with slash n and flag false");
     }
 
     @Click(R.id.home_item_favorites)

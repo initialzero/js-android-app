@@ -28,29 +28,30 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.util.JsSpiceManager;
 import com.octo.android.robospice.SpiceManager;
 
-import roboguice.fragment.RoboListFragment;
-
 /**
  * @author Ivan Gadzhega
  * @author Tom Koptel
  * @since 1.9
  */
-public class RoboSpiceListFragment extends RoboListFragment {
+public class RoboSpiceActivity extends RoboToolboxActivity {
 
     @Inject
     private JsSpiceManager jsSpiceManager;
 
     @Override
-    public void onStart() {
-        if (!jsSpiceManager.isStarted())
-            jsSpiceManager.start(getActivity());
+    protected void onStart() {
+        if (!jsSpiceManager.isStarted()) {
+            jsSpiceManager.start(this);
+        }
         super.onStart();
     }
 
+
     @Override
-    public void onStop() {
-        if (jsSpiceManager.isStarted())
+    protected void onStop() {
+        if (jsSpiceManager.isStarted()) {
             jsSpiceManager.shouldStop();
+        }
         super.onStop();
     }
 

@@ -26,39 +26,32 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Base64;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.ViewById;
-
-import java.util.HashMap;
 
 import roboguice.fragment.RoboFragment;
 
@@ -104,12 +97,14 @@ public class WebViewFragment extends RoboFragment {
     @AfterViews
     final void init() {
         initWebView();
-
-        ActionBar actionBar = getActivity().getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            scrollableTitleHelper.injectTitle(getActivity(), resourceLabel);
-        }
+        scrollableTitleHelper.injectTitle(resourceLabel);
+        jsWebViewClient.setSessionListener(new JSWebViewClient.SessionListener() {
+            @Override
+            public void onSessionExpired() {
+                Toast.makeText(getActivity(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
+                getActivity().finish();
+            }
+        });
     }
 
     private void initWebView() {
@@ -117,11 +112,6 @@ public class WebViewFragment extends RoboFragment {
         if (webView == null) createWebView();
         // attach to placeholder
         webViewPlaceholder.addView(webView);
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void goHome() {
-        getActivity().onBackPressed();
     }
 
     @Override
@@ -144,16 +134,8 @@ public class WebViewFragment extends RoboFragment {
     }
 
     public void loadUrl(String url) {
-        // basic auth
-        HashMap<String, String> map = Maps.newHashMap();
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
-        JsServerProfile serverProfile = jsRestClient.getServerProfile();
-        String authorisation = serverProfile.getUsernameWithOrgId() + ":" + serverProfile.getPassword();
-        String encodedAuthorisation = "Basic " + Base64.encodeToString(authorisation.getBytes(), Base64.NO_WRAP);
-        map.put("Authorization", encodedAuthorisation);
-        // load url
         currentUrl = url;
-        webView.loadUrl(url, map);
+        webView.loadUrl(url);
     }
 
     public void loadHtml(String baseUrl, String currentHtml) {
@@ -176,10 +158,9 @@ public class WebViewFragment extends RoboFragment {
     // Helper methods
     //---------------------------------------------------------------------
 
-
     private void createWebView() {
         webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
-        CookieManagerFactory.syncCookies(getActivity(), jsRestClient);
+        CookieManagerFactory.syncCookies(getActivity());
         prepareWebView();
         setWebViewClient();
         if (onWebViewCreated != null) {

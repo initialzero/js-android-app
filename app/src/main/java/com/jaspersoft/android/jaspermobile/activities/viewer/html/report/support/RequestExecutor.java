@@ -115,6 +115,10 @@ public class RequestExecutor {
         return executionMode == Mode.SILENT;
     }
 
+    public Mode getExecutionMode() {
+        return executionMode;
+    }
+
     public static class Builder {
         private SpiceManager spiceManager;
         private FragmentManager fragmentManager;

@@ -30,7 +30,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.view.ActionMode;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -63,12 +63,12 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         return new Builder(context, savedInstanceState);
     }
 
-    private ResourceAdapter(Context context, double serverVersion,
+    private ResourceAdapter(Context context,
                             Bundle savedInstanceState, ViewType viewType) {
         super(savedInstanceState, context, 0);
         favoriteHelper = FavoritesHelper_.getInstance_(context);
         mViewType = checkNotNull(viewType, "ViewType can`t be null");
-        viewHelper = new ResourceViewHelper(context, serverVersion);
+        viewHelper = new ResourceViewHelper(context);
     }
 
     @Override
@@ -174,7 +174,6 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         private final Bundle savedInstanceState;
 
         private ViewType viewType;
-        private double mServerVersion;
 
         public Builder(Context context, Bundle savedInstanceState) {
             this.context = context;
@@ -186,13 +185,8 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
             return this;
         }
 
-        public Builder serverVersion(double version) {
-            mServerVersion = version;
-            return this;
-        }
-
         public ResourceAdapter create() {
-            return new ResourceAdapter(context, mServerVersion, savedInstanceState, viewType);
+            return new ResourceAdapter(context, savedInstanceState, viewType);
         }
     }
 }

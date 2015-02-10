@@ -35,6 +35,7 @@
     <string name="nd_drawer_open" translatable="false">open</string>
     <string name="nd_drawer_close" translatable="false">close</string>
     <string name="nd_manage_accounts" translatable="false">Manage accounts</string>
+    <string name="nd_select_account" translatable="false">Select Account</string>
 
     <!-- Home Activity -->
     <string name="h_repository_label">Repository</string>
@@ -111,9 +112,9 @@
     <!-- Error messages -->
     <string name="sp_error_field_required">This field is required.</string>
     <string name="sp_error_url_not_valid">URL is not valid.</string>
-    <string name="sp_error_duplicate_alias">Duplicate alias.</string>
+    <string name="sp_error_duplicate_alias">Duplicate account name.</string>
     <string name="sp_error_reserved_alias" translatable="false">Alias reserved.</string>
-    <string name="sp_error_unique_alias">Server with such alias \'%s\' already exists. </string>
+    <string name="sp_error_unique_alias">Server with such account name \'%s\' already exists. </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">There are no resources in this folder.</string>
@@ -241,6 +242,7 @@
     <string name="st_title_animations">Application animations</string>
     <string name="st_send_crashes">Send crash reports</string>
     <string name="st_send_crashes_summary">WARNING: This option restarts application!</string>
+    <string name="st_send_crashes_note" translatable="false">NOTE: This option will be applied on next app launch!</string>
     <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
@@ -285,23 +287,22 @@
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
 
-    <!--Accounts activity-->
+    <!-- Accounts activity -->
     <string name="accounts_activity_label" translatable="false">Accounts</string>
     <string name="no_accounts" translatable="false">There is no Jasper accounts registered</string>
     <string name="add_account" translatable="false">Add account</string>
-    <string name="hint_alias" translatable="false">Alias</string>
+    <string name="hint_alias" translatable="false">Account name</string>
     <string name="hint_server_url" translatable="false">Server url</string>
     <string name="hint_organization" translatable="false">Organization</string>
     <string name="hint_username" translatable="false">Username</string>
     <string name="hint_password" translatable="false">Password</string>
     <string name="success_add_account" translatable="false"><![CDATA[Add account with name %s]]></string>
     <string name="failure_add_account" translatable="false"><![CDATA[Failed to add account. Reason: %s]]></string>
-    <string name="adding_account" translatable="false">Adding account</string>
-    <string name="activating_account" translatable="false">Activating account</string>
+    <string name="account_add" translatable="false">Adding account</string>
+    <string name="account_activating" translatable="false">Activating account</string>
+    <string name="account_password_changed" translatable="false"><![CDATA[Invalid password for \"%s\"]]></string>
 
-    <!--Dummy-->
-    <string name="dummy_drawer_open" translatable="false">open drawer</string>
-    <string name="dummy_drawer_close" translatable="false">close drawer</string>
-
+    <!--Dashboard activity-->
+    <string name="da_session_expired" translatable="false">Session expired</string>
 
 </resources>

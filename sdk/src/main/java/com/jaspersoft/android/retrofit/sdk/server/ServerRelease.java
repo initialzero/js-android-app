@@ -34,7 +34,9 @@ public enum ServerRelease {
     EMERALD_MR1(5.2d),
     EMERALD_MR2(5.5d),
     EMERALD_MR3(5.6d),
-    AMBER(6.0d);
+    AMBER(6.0d),
+    AMBER_MR1(6.01d),
+    JADE(6.1d);
 
     private final double mVersionCode;
 
@@ -46,11 +48,11 @@ public enum ServerRelease {
         return mVersionCode;
     }
 
-    public static ServerRelease parseString(String versionName) {
-        return parseString(versionName, new DefaultVersionParser());
+    public static ServerRelease parseVersion(String versionName) {
+        return parseVersion(versionName, new DefaultVersionParser());
     }
 
-    public static ServerRelease parseString(String versionName, VersionParser parser) {
+    public static ServerRelease parseVersion(String versionName, VersionParser parser) {
         if (versionName == null) {
             throw new IllegalArgumentException("Argument 'versionName' should not be null");
         }

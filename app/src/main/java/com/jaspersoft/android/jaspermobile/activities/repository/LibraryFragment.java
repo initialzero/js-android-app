@@ -23,10 +23,12 @@
  */
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
+import android.accounts.Account;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,11 +44,10 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterM
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
@@ -75,8 +76,6 @@ public class LibraryFragment extends RoboFragment {
     @Inject
     protected JsRestClient jsRestClient;
 
-    @Bean
-    protected ServerInfoManager infoManager;
     @Pref
     protected LibraryPref_ pref;
     @Bean
@@ -141,21 +140,19 @@ public class LibraryFragment extends RoboFragment {
     @Override
     public void onResume() {
         super.onResume();
-        ActionBar actionBar = ((BaseActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.h_library_label);
         }
     }
 
     private void updateOptionsMenu() {
-        infoManager.getServerInfo(null, new ServerInfoManager.InfoCallback() {
-            @Override
-            public void onInfoReceived(ServerInfoSnapshot serverInfo) {
-                mShowSortOption = true;
-                mShowFilterOption = serverInfo.isPro();
-                getActivity().invalidateOptionsMenu();
-            }
-        });
+        Account account = JasperAccountProvider.get(getActivity()).getAccount();
+        AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
+
+        mShowSortOption = true;
+        mShowFilterOption = accountServerData.getEdition().equals("PRO");
+        getActivity().invalidateOptionsMenu();
     }
 
     @Override

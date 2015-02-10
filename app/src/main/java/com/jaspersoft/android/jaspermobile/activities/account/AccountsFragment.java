@@ -220,7 +220,7 @@ public class AccountsFragment extends RoboFragment {
         mFetching = enabled;
         if (mFetching) {
             ProgressDialogFragment.builder(getFragmentManager())
-                    .setLoadingMessage(R.string.activating_account)
+                    .setLoadingMessage(R.string.account_activating)
                     .show();
         } else {
             ProgressDialogFragment.dismiss(getFragmentManager());

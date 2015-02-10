@@ -40,20 +40,21 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
  * @author Tom Koptel
  * @since 2.0
  */
-public class BasicAccountProvider implements AccountProvider {
-    private static final String PREF_NAME = BasicAccountProvider.class.getSimpleName();
+public class JasperAccountProvider implements AccountProvider {
+    private static final String PREF_NAME = JasperAccountProvider.class.getSimpleName();
     private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";
 
     private final SharedPreferences mPreference;
 
-    public static BasicAccountProvider get(Context context) {
+    public static JasperAccountProvider get(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("Context should not be 'null'");
         }
-        return new BasicAccountProvider(context);
+
+        return new JasperAccountProvider(context);
     }
 
-    private BasicAccountProvider(Context context) {
+    private JasperAccountProvider(Context context) {
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
     }
 

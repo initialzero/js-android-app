@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright © 2014 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -23,60 +22,18 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/pwdDialogLayoutRoot"
-    style="@style/dialog.layout"
-    android:orientation="vertical">
-
-    <TableLayout
-        style="@style/home.dialog.table.layout">
-
-        <!-- Server Profile -->
-        <TableRow>
-
-            <TextView
-                style="@style/home.dialog.table.label"
-                android:text="@string/h_ad_label_server_profile" />
-
-            <TextView android:id="@+id/dialogProfileNameText" />
-        </TableRow>
-
-        <!-- Organization -->
-        <TableRow
-            android:id="@+id/dialogOrganizationTableRow"
-            android:visibility="gone">
-
-            <TextView
-                style="@style/home.dialog.table.label"
-                android:text="@string/h_ad_label_organization" />
-
-            <TextView android:id="@+id/dialogOrganizationText" />
-        </TableRow>
-
-        <!-- Username -->
-        <TableRow>
-
-            <TextView
-                style="@style/home.dialog.table.label"
-                android:text="@string/h_ad_label_username" />
-
-            <TextView android:id="@+id/dialogUsernameText" />
-        </TableRow>
-
-    </TableLayout>
-
-    <!-- Password -->
-    <TextView
-        style="@style/label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/sp_password_label" />
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:padding="10dp">
 
     <EditText
         android:id="@+id/dialogPasswordEdit"
-        style="@style/home.dialog.passwordEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/sp_password_hint" />
+        android:hint="@string/sp_password_hint"
+        android:inputType="textPassword" />
 
-</LinearLayout>
+</FrameLayout>

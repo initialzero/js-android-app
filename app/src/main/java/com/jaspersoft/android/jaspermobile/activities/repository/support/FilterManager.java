@@ -24,12 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.support;
 
+import android.accounts.Account;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterInject;
@@ -60,13 +62,16 @@ public class FilterManager {
     FragmentActivity activity;
     @Pref
     LibraryPref_ pref;
-    @Inject
-    ServerInfoSnapshot serverInfo;
+    private ServerRelease serverRelease;
 
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(activity);
         injector.injectMembersWithoutViews(this);
+
+        Account account = JasperAccountProvider.get(activity).getAccount();
+        AccountServerData accountServerData = AccountServerData.get(activity, account);
+        serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
     }
 
     public ArrayList<String> getFilters() {
@@ -82,7 +87,7 @@ public class FilterManager {
     }
 
     public ArrayList<String> getFiltersByType(Type value) {
-        if (serverInfo != null && !serverInfo.isMissing() && serverInfo.isAmberRelease()) {
+        if (serverRelease == ServerRelease.AMBER) {
             return value.typesForAmber().getAsList();
         }
         return value.typesForPreAmber().getAsList();

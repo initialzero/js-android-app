@@ -30,7 +30,7 @@ import android.content.Context;
 
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import rx.functions.Actions;
@@ -56,7 +56,7 @@ public final class AccountUtil {
         if (managerUtil.getAccounts().length > 0) {
             managerUtil.removeAccounts().toBlocking().forEach(Actions.empty());
         }
-        BasicAccountProvider.get(mContext).removeAccount();
+        JasperAccountProvider.get(mContext).removeAccount();
         return this;
     }
 
@@ -80,7 +80,7 @@ public final class AccountUtil {
         }
 
         public AccountUnit activate() {
-            BasicAccountProvider.get(mContext).putAccount(mAccount);
+            JasperAccountProvider.get(mContext).putAccount(mAccount);
             return this;
         }
 

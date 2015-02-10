@@ -25,23 +25,28 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites.adapter;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapter;
-import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapterHelper;
+import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapterHelperBase;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
+public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelperBase {
 
     public static final int NO_POSITION = -1;
     private static String CURRENT_POSITION_KEY = "CURRENT_POSITION";
     private int currentPosition;
+    private ActionMode actionMode;
 
     public SingleChoiceAdapterHelper(BaseAdapter owner) {
         super(owner);
@@ -63,11 +68,6 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
             setItemChecked(handle, !wasChecked);
         }
         return true;
-    }
-
-    @Override
-    public void finishActionMode() {
-        super.finishActionMode();
     }
 
     private int correctPositionAccountingForHeader(AdapterView<?> adapterView, int position) {
@@ -103,4 +103,37 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
         }
     }
 
+    @Override
+    protected void setActionModeTitle(String title) {
+        actionMode.setTitle(title);
+    }
+
+    @Override
+    protected boolean isActionModeStarted() {
+        return actionMode != null;
+    }
+
+    @Override
+    protected void startActionMode() {
+        try {
+            ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
+            Method method = activity.getClass().getMethod("startSupportActionMode", ActionMode.Callback.class);
+            actionMode = (ActionMode) method.invoke(activity, owner);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void finishActionMode() {
+        if (actionMode != null) {
+            actionMode.finish();
+        }
+    }
+
+    @Override
+    protected void clearActionMode() {
+        actionMode = null;
+    }
 }

@@ -11,7 +11,7 @@ import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
 import com.jaspersoft.android.jaspermobile.test.junit.filters.EmulatorOnly;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.junit.After;
@@ -172,7 +172,7 @@ public class AccountsActivityTest {
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        Account account = BasicAccountProvider
+        Account account = JasperAccountProvider
                 .get(activityRule.getApplicationContext())
                 .getAccount();
         assertThat(account.name, is("name1"));

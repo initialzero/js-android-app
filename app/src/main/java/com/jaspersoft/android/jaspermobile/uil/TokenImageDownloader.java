@@ -26,35 +26,30 @@ package com.jaspersoft.android.jaspermobile.uil;
 
 import android.content.Context;
 
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.Map;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class CustomImageDownaloder extends BaseImageDownloader {
+public class TokenImageDownloader extends BaseImageDownloader {
+    private static final String COOKIE = "Cookie";
+    private final AccountManagerUtil accountManagerUtil;
 
-    public CustomImageDownaloder(Context context) {
+    public TokenImageDownloader(Context context) {
         super(context);
-    }
-
-    public CustomImageDownaloder(Context context, int connectTimeout, int readTimeout) {
-        super(context, connectTimeout, readTimeout);
+        accountManagerUtil = AccountManagerUtil.get(context);
     }
 
     @Override
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
         HttpURLConnection conn = super.createConnection(url, extra);
-        Map<String, String> headers = (Map<String, String>) extra;
-        if (headers != null) {
-            for (Map.Entry<String, String> header : headers.entrySet()) {
-                conn.setRequestProperty(header.getKey(), header.getValue());
-            }
-        }
+        String token = accountManagerUtil.getActiveAuthToken().toBlocking().first();
+        conn.setRequestProperty(COOKIE, token);
         return conn;
     }
 }

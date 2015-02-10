@@ -22,42 +22,37 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.robospice;
+package com.jaspersoft.android.jaspermobile.widget;
 
-import android.content.res.Configuration;
-import android.os.Bundle;
-
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
-
-import java.util.Locale;
-
-import roboguice.activity.RoboPreferenceActivity;
+import android.content.Context;
+import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
-public class BasePreferenceActivity extends RoboPreferenceActivity {
+public class JSViewPager extends ViewPager {
+    private boolean swipeable = true;
 
-    private Locale currentLocale;
+    public JSViewPager(Context context) {
+        super(context);
+    }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        currentLocale = Locale.getDefault();
-        BugSenseWrapper.initAndStartSession(this);
+    public JSViewPager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    // Call this method in your motion events when you want to disable or enable
+    // It should work as desired.
+    public void setSwipeable(boolean swipeable) {
+        this.swipeable = swipeable;
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        // Checks the orientation of the screen
-        if (newConfig.locale != currentLocale) {
-            JasperMobileApplication.removeAllCookies();
-            currentLocale = newConfig.locale;
-        }
+    public boolean onInterceptTouchEvent(MotionEvent arg0) {
+        return (this.swipeable) ? super.onInterceptTouchEvent(arg0) : false;
     }
 
 }

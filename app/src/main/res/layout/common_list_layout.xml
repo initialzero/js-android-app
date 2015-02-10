@@ -36,7 +36,8 @@
         android:layout_marginTop="16dp"
         android:divider="@android:color/transparent"
         android:dividerHeight="10dp"
-        android:drawSelectorOnTop="true" />
+        android:drawSelectorOnTop="true"
+        android:scrollbarStyle="outsideInset"/>
 
     <TextView
         android:id="@android:id/empty"

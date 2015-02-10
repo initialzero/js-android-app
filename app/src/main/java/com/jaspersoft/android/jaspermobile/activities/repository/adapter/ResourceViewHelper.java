@@ -24,22 +24,20 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
@@ -50,9 +48,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
 
 import roboguice.RoboGuice;
+import timber.log.Timber;
 
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
@@ -66,19 +64,23 @@ public class ResourceViewHelper {
     private static final String FIRST_INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String SECOND_INITIAL_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private final SimpleDateFormat[] serverDateFormats;
-    private final double mServerVersion;
+    private final ServerRelease mServerRelease;
     private final Context mContext;
 
     private DisplayImageOptions displayImageOptions;
 
     @Inject
-    JsRestClient jsRestClient;
+    protected JsRestClient jsRestClient;
 
-    public ResourceViewHelper(Context context, double serverVersion) {
+    public ResourceViewHelper(Context context) {
+        Timber.tag(TAG);
         RoboGuice.getInjector(context).injectMembersWithoutViews(this);
 
         mContext = context;
-        mServerVersion = serverVersion;
+
+        Account account = JasperAccountProvider.get(mContext).getAccount();
+        AccountServerData serverData = AccountServerData.get(mContext, account);
+        mServerRelease = ServerRelease.parseVersion(serverData.getVersionName());
 
         Locale current = mContext.getResources().getConfiguration().locale;
         serverDateFormats = new SimpleDateFormat[]{new SimpleDateFormat(FIRST_INITIAL_DATE_FORMAT, current),
@@ -131,7 +133,7 @@ public class ResourceViewHelper {
         int background = getResourceBackground(item.getResourceType());
 
         ResourceType currentType = item.getResourceType();
-        boolean isAmberOrHigher = mServerVersion >= ServerInfo.VERSION_CODES.AMBER;
+        boolean isAmberOrHigher = mServerRelease.code() >= ServerRelease.AMBER.code();
         boolean isReport = currentType.equals(ResourceType.reportUnit);
         boolean isDashboard = currentType.equals(ResourceType.dashboard) ||
                 currentType.equals(ResourceType.legacyDashboard);
@@ -157,16 +159,6 @@ public class ResourceViewHelper {
 
     public DisplayImageOptions getDisplayImageOptions() {
         if (displayImageOptions == null) {
-            Map<String, String> headers = Maps.newHashMap();
-
-            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClient);
-            JsServerProfile profile = jsRestClient.getServerProfile();
-            String authorisation = profile.getUsernameWithOrgId() + ":" + profile.getPassword();
-            String encodedAuthorisation = "Basic " + Base64.encodeToString(
-                    authorisation.getBytes(), Base64.NO_WRAP);
-            headers.put("Authorization", encodedAuthorisation);
-            headers.put("Accept", "image/jpeg");
-
             int animationSpeed = mContext.getResources().getInteger(
                     android.R.integer.config_mediumAnimTime);
 
@@ -177,7 +169,6 @@ public class ResourceViewHelper {
                     .considerExifParams(true)
                     .cacheInMemory(true)
                     .cacheOnDisk(true)
-                    .extraForDownloader(headers)
                     .bitmapConfig(Bitmap.Config.RGB_565)
                     .displayer(new FadeInBitmapDisplayer(animationSpeed))
                     .build();
@@ -194,7 +185,7 @@ public class ResourceViewHelper {
             DateFormat dateFormat = DateFormat.getDateInstance();
             return dateFormat.format(dateValue);
         } catch (ParseException ex) {
-            // ignoring
+            Timber.w("Wrong date format");
         }
 
         try {
@@ -202,7 +193,7 @@ public class ResourceViewHelper {
             DateFormat dateFormat = DateFormat.getDateInstance();
             return dateFormat.format(dateValue);
         } catch (ParseException ex) {
-            Log.w(TAG, "Wrong date format");
+            Timber.w("Wrong date format");
         }
 
         return updateDate;

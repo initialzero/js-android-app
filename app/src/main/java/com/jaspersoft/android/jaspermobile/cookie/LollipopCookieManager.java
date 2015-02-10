@@ -30,28 +30,43 @@ import android.os.Build;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 
-import org.apache.commons.lang3.StringUtils;
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class LollipopCookieManager extends AbstractCookieManager {
+public class LollipopCookieManager implements JsCookieManager{
+    private final Context mContext;
+
     public LollipopCookieManager(Context context) {
-        super(context);
+        mContext = context;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
-    protected void semanticConfiguration(final String targetDomain) {
-        final CookieManager cookieManager = CookieManager.getInstance();
-
-        cookieManager.removeSessionCookies(new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean value) {
-                cookieManager.setCookie(targetDomain, StringUtils.join(getCookieStore(), ";"));
-                CookieManager.getInstance().flush();
-            }
-        });
+    public void manage() {
+        AccountManagerUtil.get(mContext)
+                .getActiveServerData()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<AccountServerData>() {
+                    @Override
+                    public void call(final AccountServerData serverData) {
+                        final CookieManager cookieManager = CookieManager.getInstance();
+                        cookieManager.removeSessionCookies(new ValueCallback<Boolean>() {
+                            @Override
+                            public void onReceiveValue(Boolean value) {
+                                cookieManager.setCookie(serverData.getServerUrl(), serverData.getServerCookie());
+                                CookieManager.getInstance().flush();
+                            }
+                        });
+                    }
+                });
     }
 }

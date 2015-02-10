@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.ActionMode;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,7 +20,7 @@ import com.jaspersoft.android.jaspermobile.dialog.ConfirmDialogFragment;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import rx.functions.Action1;
 
@@ -34,7 +34,7 @@ public class AccountsAdapter extends SingleChoiceArrayAdapter<Account> {
 
     public AccountsAdapter(Context context, Bundle savedInstanceState) {
         super(savedInstanceState, context, 0);
-        accountProvider = BasicAccountProvider.get(getContext());
+        accountProvider = JasperAccountProvider.get(getContext());
     }
 
     @Override

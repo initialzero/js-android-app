@@ -28,8 +28,6 @@ import android.content.Context;
 import android.os.Build;
 
 import com.google.common.base.Preconditions;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 
 /**
  * @author Tom Koptel
@@ -41,26 +39,16 @@ public class CookieManagerFactory {
      * Sync cookies between HttpURLConnection and WebView
      *
      * @param context required for initialization of {@link android.webkit.CookieSyncManager} instamce
-     * @param jsRestClient JasperSoft sdk Rest client
      */
-    public static void syncCookies(Context context, JsRestClient jsRestClient) {
+    public static void syncCookies(Context context) {
         Preconditions.checkNotNull(context);
-        Preconditions.checkNotNull(jsRestClient);
-
-        // As soon as, we utilize server profiles data
-        // we need to be sure that profile exists
-        if (jsRestClient.getServerProfile() == null) {
-            return;
-        }
-
-        String serverUrl = jsRestClient.getServerProfile().getServerUrl();
-        CookieManagerFactory.createManager(context).setCookieForServerUrl(serverUrl);
+        CookieManagerFactory.createManager(context).manage();
     }
 
     /**
      * Creates implementation of manger on the basis of current SDK version.
      */
-    private static AbstractCookieManager createManager(Context context) {
+    private static JsCookieManager createManager(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return new LollipopCookieManager(context);
         } else {

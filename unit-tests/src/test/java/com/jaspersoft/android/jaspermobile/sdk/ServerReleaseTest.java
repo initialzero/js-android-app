@@ -51,7 +51,7 @@ public class ServerReleaseTest extends UnitTestSpecification {
         doubleMap.put("20.0", ServerRelease.UNKNOWN);
 
         for (Map.Entry<String, ServerRelease> entry : doubleMap.entrySet()) {
-            assertThat(ServerRelease.parseString(entry.getKey()), is(entry.getValue())) ;
+            assertThat(ServerRelease.parseVersion(entry.getKey()), is(entry.getValue())) ;
         }
     }
 
@@ -59,7 +59,7 @@ public class ServerReleaseTest extends UnitTestSpecification {
     public void shouldParseNonSemanticVersioning() {
         String[] nonSemanticOne = {"5.6.0 Preview", "5.6.0-BETA"};
         for (String nonSemanticVersion : nonSemanticOne) {
-            assertThat(ServerRelease.parseString(nonSemanticVersion), is(ServerRelease.EMERALD_MR3));
+            assertThat(ServerRelease.parseVersion(nonSemanticVersion), is(ServerRelease.EMERALD_MR3));
         }
     }
 }

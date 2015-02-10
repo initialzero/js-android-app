@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -78,18 +78,28 @@ public class NavigationPanelLayout extends RelativeLayout {
         navigationMenuItemSelect(findViewById(viewId));
     }
 
-    @AfterViews()
-    final void initNavigationLayout() {
+    public void notifyAccountChange() {
+        initAccountsView();
         isShowingMenu = true;
-        AccountsAdapter accountsAdapter = new AccountsAdapter(getContext());
+        showActivatedPanel(isShowingMenu);
+    }
+
+    @AfterViews
+    final void initNavigationLayout() {
+        Timber.tag(TAG);
+        isShowingMenu = true;
         View accountsFooter = LayoutInflater.from(getContext()).inflate(R.layout.view_accounts_footer, null, false);
         accountsFooter.findViewById(R.id.vg_add_account).setOnClickListener(onAddProfileClickListener);
         accountsFooter.findViewById(R.id.vg_manage_accounts).setOnClickListener(onManageProfileClickListener);
         accountsMenu.addFooterView(accountsFooter);
+        initAccountsView();
+    }
+
+    private void initAccountsView() {
+        AccountsAdapter accountsAdapter = new AccountsAdapter(getContext());
         accountsMenu.setAdapter(accountsAdapter);
-        Account currentAccount = BasicAccountProvider.get(getContext()).getAccount();
-        tvProfile.setText(currentAccount != null ? currentAccount.name : "Select Account");
-        Timber.tag(TAG);
+        Account currentAccount = JasperAccountProvider.get(getContext()).getAccount();
+        tvProfile.setText(currentAccount != null ? currentAccount.name : getContext().getString(R.string.nd_select_account));
     }
 
     private OnClickListener onAddProfileClickListener = new OnClickListener() {
@@ -112,7 +122,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         showActivatedPanel(isShowingMenu);
     }
 
-    @Click({R.id.tv_settings, R.id.tv_feedback, R.id.tv_privacy_policy, R.id.tv_about})
+    @Click({R.id.tv_settings, R.id.tv_feedback, R.id.tv_about})
     final void navigationSubItemClick(View view) {
         if (mListener != null) {
             mListener.onNavigate(view.getId());

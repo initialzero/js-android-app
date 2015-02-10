@@ -31,6 +31,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +42,7 @@ import android.widget.EditText;
 import com.jaspersoft.android.jaspermobile.R;
 
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.SystemService;
 
 /**
@@ -50,20 +53,18 @@ import org.androidannotations.annotations.SystemService;
 public class PageDialogFragment extends DialogFragment {
     private static final String TAG = PageDialogFragment.class.getSimpleName();
 
+    @FragmentArg
+    protected int max;
+    @FragmentArg
+    protected int min;
+
     @SystemService
-    InputMethodManager inputMethodManager;
+    protected InputMethodManager inputMethodManager;
 
     private OnPageSelectedListener onPageSelectedListener;
 
-    public static void show(FragmentManager fm, OnPageSelectedListener onPageSelectedListener) {
-        PageDialogFragment dialogFragment = (PageDialogFragment)
-                fm.findFragmentByTag(TAG);
-
-        if (dialogFragment == null) {
-            dialogFragment = PageDialogFragment_.builder().build();
-            dialogFragment.setPageSelectedListener(onPageSelectedListener);
-            dialogFragment.show(fm, TAG);
-        }
+    public static Builder configure() {
+        return new Builder();
     }
 
     public void setPageSelectedListener(OnPageSelectedListener onPageSelectedListener) {
@@ -79,6 +80,7 @@ public class PageDialogFragment extends DialogFragment {
                 .inflate(R.layout.page_dialog_layout,
                         (ViewGroup) getActivity().getWindow().getDecorView(), false);
         final EditText numberEditText = (EditText) customView.findViewById(R.id.customNumber);
+        numberEditText.setFilters(new InputFilter[] {new InputFilterMinMax(min, max)});
 
         builder.setTitle(R.string.rv_select_page);
         builder.setView(customView);
@@ -119,4 +121,74 @@ public class PageDialogFragment extends DialogFragment {
         });
         return dialog;
     }
+
+    public static class Builder {
+        private OnPageSelectedListener onPageSelectedListener;
+        private int min = -1;
+        private int max = -1;
+
+        public Builder setOnPageSelectedListener(OnPageSelectedListener onPageSelectedListener) {
+            this.onPageSelectedListener = onPageSelectedListener;
+            return this;
+        }
+
+        public Builder setMin(int min) {
+            this.min = min;
+            return this;
+        }
+
+        public Builder setMax(int max) {
+            this.max = max;
+            return this;
+        }
+
+        public void show(FragmentManager fm) {
+            PageDialogFragment dialogFragment = (PageDialogFragment)
+                    fm.findFragmentByTag(TAG);
+
+            if (dialogFragment == null) {
+                ensureDefaults();
+                dialogFragment = PageDialogFragment_.builder()
+                        .min(min)
+                        .max(max)
+                        .build();
+                dialogFragment.setPageSelectedListener(onPageSelectedListener);
+                dialogFragment.show(fm, TAG);
+            }
+        }
+
+        private void ensureDefaults() {
+            if (min == -1) {
+                min = Integer.MIN_VALUE;
+            }
+            if (max == -1) {
+                max = Integer.MAX_VALUE;
+            }
+        }
+    }
+
+    private static class InputFilterMinMax implements InputFilter {
+        private int min, max;
+
+        public InputFilterMinMax(int min, int max) {
+            this.min = min;
+            this.max = max;
+        }
+
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end,
+                                   Spanned dest, int dstart, int dend) {
+            try {
+                int input = Integer.parseInt(dest.toString() + source.toString());
+                if (isInRange(min, max, input))
+                    return null;
+            } catch (NumberFormatException nfe) { }
+            return "";
+        }
+
+        private boolean isInRange(int a, int b, int c) {
+            return b > a ? c >= a && c <= b : c >= b && c <= a;
+        }
+    }
+
 }

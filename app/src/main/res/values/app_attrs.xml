@@ -28,6 +28,7 @@
     <declare-styleable name="Theme.JasperMobile">
         <attr name="listLayoutStyle" format="reference" />
         <attr name="gridLayoutStyle" format="reference" />
+        <attr name="windowToolbar" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="AutoLayerLayout">

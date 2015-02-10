@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -33,19 +34,15 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
 import java.util.List;
-
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
 
 /**
  * @author Tom Koptel
@@ -54,24 +51,30 @@ import roboguice.inject.RoboInjector;
 @EBean
 public class JSWebViewClient extends WebViewClient {
     @RootContext
-    Activity activity;
-    @Inject
-    JsRestClient jsRestClient;
+    protected Activity activity;
+
+    private String serverUrl;
+    private SessionListener sessionListener;
 
     @AfterInject
-    void injectRoboGuiceDependencies() {
-        final RoboInjector injector = RoboGuice.getInjector(activity);
-        injector.injectMembersWithoutViews(this);
+    final void initServerUrl() {
+        Account account = JasperAccountProvider.get(activity).getAccount();
+        AccountServerData serverData = AccountServerData.get(activity, account);
+        serverUrl = serverData.getServerUrl();
     }
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        JsServerProfileCompat.initLegacyJsRestClient(activity, jsRestClient);
-        String serverUrl = jsRestClient.getServerProfile().getServerUrl();
         String jasperHost = Uri.parse(serverUrl).getHost();
 
         // This is my Jasper site, let WebView load the page with additional parameter
         if (Uri.parse(url).getHost().equals(jasperHost)) {
+            if (url.contains("login.html")) {
+                if (sessionListener != null) {
+                    sessionListener.onSessionExpired();
+                }
+                return true;
+            }
             List<UrlQuerySanitizer.ParameterValuePair> parametersList
                     = new UrlQuerySanitizer(url).getParameterList();
             if (parametersList.isEmpty()) {
@@ -92,6 +95,14 @@ public class JSWebViewClient extends WebViewClient {
                     activity.getString(R.string.sdr_t_no_app_available, "view"), Toast.LENGTH_SHORT).show();
         }
         return true;
+    }
+
+    public void setSessionListener(SessionListener sessionListener) {
+        this.sessionListener = sessionListener;
+    }
+
+    public static interface SessionListener {
+        void onSessionExpired();
     }
 
 }

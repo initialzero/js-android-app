@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.network;
 
 import android.app.Activity;
 
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.springframework.http.HttpStatus;
@@ -42,13 +43,14 @@ public class UniversalRequestListener<T> extends SimpleRequestListener<T> {
     private final DialogMode dialogMode;
     private final Activity mActivity;
     private final SemanticListener semanticListener;
+    private final RequestExecutor.Mode executionMode;
 
-    public UniversalRequestListener(Activity activity, SemanticListener semanticListener,
-                                     EnumMap<HttpStatus, ExceptionRule> rules, DialogMode dialogMode) {
-        this.mActivity = activity;
-        this.rules = rules;
-        this.semanticListener = semanticListener;
-        this.dialogMode = dialogMode;
+    public UniversalRequestListener(Builder builder) {
+        this.mActivity = builder.activity;
+        this.rules = builder.rules;
+        this.semanticListener = builder.semanticListener;
+        this.dialogMode = builder.dialogMode;
+        this.executionMode = builder.executionMode;
     }
 
     public static Builder builder(Activity activity) {
@@ -58,7 +60,9 @@ public class UniversalRequestListener<T> extends SimpleRequestListener<T> {
     @Override
     public final void onRequestFailure(SpiceException spiceException) {
         boolean finishActivity = (dialogMode == DialogMode.FORCE_CLOSE);
-        RequestExceptionHandler.handle(spiceException, mActivity, rules, finishActivity);
+        if (executionMode == RequestExecutor.Mode.VISIBLE) {
+            RequestExceptionHandler.handle(spiceException, mActivity, rules, finishActivity);
+        }
         if (semanticListener != null) {
             semanticListener.onSemanticFailure(spiceException);
         }
@@ -75,11 +79,13 @@ public class UniversalRequestListener<T> extends SimpleRequestListener<T> {
         private EnumMap<HttpStatus, ExceptionRule> rules;
         private DialogMode dialogMode;
         private SemanticListener semanticListener;
-        private final Activity mActivity;
+        private RequestExecutor.Mode executionMode;
+        private final Activity activity;
 
-        public Builder(Activity mActivity) {
-            this.mActivity = mActivity;
+        public Builder(Activity activity) {
+            this.activity = activity;
             rules = ExceptionRule.all();
+            executionMode = RequestExecutor.Mode.VISIBLE;
             dialogMode = DialogMode.DEFAULT;
         }
 
@@ -108,8 +114,13 @@ public class UniversalRequestListener<T> extends SimpleRequestListener<T> {
             return this;
         }
 
+        public Builder executionMode(RequestExecutor.Mode mode) {
+            this.executionMode = mode;
+            return this;
+        }
+
         public <T> UniversalRequestListener<T> create() {
-            return new UniversalRequestListener<T>(mActivity, semanticListener, rules, dialogMode);
+            return new UniversalRequestListener<T>(this);
         }
     }
 

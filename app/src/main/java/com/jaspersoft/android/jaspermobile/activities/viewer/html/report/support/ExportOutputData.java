@@ -35,7 +35,6 @@ public class ExportOutputData {
     public static class Builder {
         private String executionId;
         private ReportDataResponse response;
-        private int page;
 
         public Builder setExecutionId(String executionId) {
             this.executionId = executionId;
@@ -46,8 +45,6 @@ public class ExportOutputData {
             this.response = response;
             return this;
         }
-
-
 
         public ExportOutputData create() {
             Preconditions.checkNotNull(executionId);

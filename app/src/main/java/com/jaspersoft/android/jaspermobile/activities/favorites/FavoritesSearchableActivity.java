@@ -30,7 +30,7 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
@@ -41,7 +41,7 @@ import org.androidannotations.annotations.OptionsItem;
  * @since 1.9
  */
 @EActivity(R.layout.content_layout)
-public class FavoritesSearchableActivity extends RoboSpiceFragmentActivity {
+public class FavoritesSearchableActivity extends RoboSpiceActivity {
 
     @Extra
     String query;

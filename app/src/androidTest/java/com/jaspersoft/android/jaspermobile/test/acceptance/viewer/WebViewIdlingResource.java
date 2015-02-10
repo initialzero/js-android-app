@@ -30,7 +30,7 @@ import android.webkit.WebView;
 import com.jaspersoft.android.jaspermobile.test.utils.espresso.ActivityLifecycleIdlingResource;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 
-import static com.google.android.apps.common.testing.testrunner.util.Checks.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class WebViewIdlingResource extends WebChromeClient implements ActivityLifecycleIdlingResource<JSWebView> {
 

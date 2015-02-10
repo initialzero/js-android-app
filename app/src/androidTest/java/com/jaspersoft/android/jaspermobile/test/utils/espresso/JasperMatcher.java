@@ -25,31 +25,31 @@
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
 import android.app.Activity;
+import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.espresso.Root;
+import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.ViewAssertion;
+import android.support.test.espresso.ViewInteraction;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.GeneralSwipeAction;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Swipe;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.EditText;
 
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
-import com.google.android.apps.common.testing.ui.espresso.Root;
-import com.google.android.apps.common.testing.ui.espresso.ViewAction;
-import com.google.android.apps.common.testing.ui.espresso.ViewAssertion;
-import com.google.android.apps.common.testing.ui.espresso.ViewInteraction;
-import com.google.android.apps.common.testing.ui.espresso.action.GeneralLocation;
-import com.google.android.apps.common.testing.ui.espresso.action.GeneralSwipeAction;
-import com.google.android.apps.common.testing.ui.espresso.action.Press;
-import com.google.android.apps.common.testing.ui.espresso.action.Swipe;
-import com.google.common.base.Optional;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.RootMatchers.withDecorView;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import javax.annotation.Nullable;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
@@ -111,9 +111,9 @@ public final class JasperMatcher {
     public static ViewAssertion hasTotalCount(final int totalCount) {
         return new ViewAssertion() {
             @Override
-            public void check(Optional<View> view, Optional<NoMatchingViewException> noView) {
+            public void check(@Nullable View view, @Nullable NoMatchingViewException e) {
                 @SuppressWarnings("rawtypes")
-                AbsListView adapter = ((AbsListView) view.get());
+                AbsListView adapter = ((AbsListView) view);
                 assertThat(adapter.getAdapter().getCount(), is(totalCount));
             }
         };

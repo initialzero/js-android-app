@@ -24,10 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
-import android.app.Application;
 import android.database.Cursor;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
-import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.profile.ServersManagerActivity_;
 import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
@@ -35,25 +35,26 @@ import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import roboguice.RoboGuice;
-
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isEnabled;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.clearText;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.CoreMatchers.is;
@@ -69,34 +70,30 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * One of constraints to this trait is that update of Server profile data will
  * undergo check on the server side by simple call to ServerInfo.
  */
+@RunWith(AndroidJUnit4.class)
 public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManagerActivity_> {
 
-    private JsRestClient jsRestClient;
 
     public ActiveProfileTest() {
         super(ServersManagerActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
-
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-
-        Injector injector = RoboGuice.getBaseApplicationInjector(application);
-        jsRestClient = injector.getInstance(JsRestClient.class);
         startActivityUnderTest();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testValidChangesToProfileWillBePersisted() {
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -119,6 +116,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         assertThat(jsServerProfile.getPassword(), is("1234"));
     }
 
+    @Test
     public void testInValidChangesToProfileWillBeIgnored() {
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -148,6 +146,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).perform(click());
     }
 
+    @Test
     public void testOldServerInstanceShouldBeIgnored() {
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -175,6 +174,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(R.string.r_error_server_not_supported)));
     }
 
+    @Test
     public void testSelectionOfAlreadyActiveProfileChangeNothing() {
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -186,6 +186,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
     // Bug related. When user selects active profile and apply change it should be
     // persisted properly. There was a case when app lost reference to the profile
     // because of wrong saved data.
+    @Test
     public void testProfileShouldBeActiveAfterUpdate() {
         onData(Matchers.is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -209,6 +210,7 @@ public class ActiveProfileTest extends ProtoActivityInstrumentation<ServersManag
     // Bug related. All alterations around password should be persisted properly.
     // There was a case when user set ask for password and then altered password data again.
     // This behavior was buggy and user saw previously saved state, not the one he currently applied.
+    @Test
     public void testProfilePasswordResetShouldBePersistent() {
         FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         onData(Matchers.is(instanceOf(Cursor.class)))

@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
-import com.google.android.apps.common.testing.ui.espresso.IdlingResource;
+import android.support.test.espresso.IdlingResource;
 
 /**
  * @author Tom Koptel

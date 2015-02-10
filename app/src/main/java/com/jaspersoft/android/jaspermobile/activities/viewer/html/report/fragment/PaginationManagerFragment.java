@@ -24,21 +24,29 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.common.collect.Maps;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ExportOutputData;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportExportOutputLoader;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
+import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.ReportDetailsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
@@ -50,7 +58,11 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Tom Koptel
@@ -65,6 +77,9 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     @FragmentArg
     double versionCode;
 
+    @Inject
+    @Named("MAX_PAGE_ALLOWED")
+    private int maxPageAllowed;
     @Inject
     JsRestClient jsRestClient;
     @InstanceState
@@ -98,8 +113,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     @InstanceState
     int currentPage = FIRST_PAGE;
 
-    private final Map<Integer, NodeWebViewFragment> pagesMap = Maps.newHashMap();
-
     private final OnPageSelectedListener onPageSelectedListener =
             new OnPageSelectedListener() {
                 @Override
@@ -109,6 +122,20 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                 }
             };
 
+    private final Comparator<NodeWebViewFragment> pageComparator =
+            new Comparator<NodeWebViewFragment>() {
+                @Override
+                public int compare(NodeWebViewFragment leftFragment, NodeWebViewFragment rightFragment) {
+                    int leftPage = NodeWebViewFragment.getPage(leftFragment);
+                    int rightPage = NodeWebViewFragment.getPage(rightFragment);
+                    return Ints.compare(leftPage, rightPage);
+                }
+            };
+
+    private final List<NodeWebViewFragment> fragments = Lists.newArrayList();
+    private final Set<Integer> pages = Sets.newHashSet();
+    private final Deque<Integer> stack = Queues.newArrayDeque();
+
     @AfterViews
     final void init() {
         currentPageLabel.setText(String.valueOf(currentPage));
@@ -116,7 +143,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
         if (mTotalPage != 0) {
             showTotalPageCount(mTotalPage);
-            setVisible(true);
         }
     }
 
@@ -169,7 +195,11 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         }
     }
 
-    public void setVisible(boolean visible) {
+    public void loadNextPageInBackground() {
+        loadReportByPage(currentPage + 1, RequestExecutor.Mode.SILENT);
+    }
+
+    public void setPaginationControlVisible(boolean visible) {
         rootContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
 
         RelativeLayout htmlViewer = (RelativeLayout)
@@ -185,38 +215,80 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
     }
 
     public void paginateToCurrentSelection() {
+        updateStack();
         alterControlStates();
 
-        NodeWebViewFragment nodeWebViewFragment;
-        if (pagesMap.keySet().size() == 0) {
-            nodeWebViewFragment = createNodeWebViewFragment();
-        } else {
-            if (pagesMap.containsKey(currentPage)) {
-                nodeWebViewFragment = pagesMap.get(currentPage);
-            } else {
-                nodeWebViewFragment = createNodeWebViewFragment();
-            }
-        }
-        // We need refresh request id so that new exports data comes in proper way
-        nodeWebViewFragment.setRequestId(requestId);
+        boolean noPagesLoaded = fragments.isEmpty();
+        boolean thereIsNoSuchPageForIndex = !pages.contains(currentPage);
 
-        if (nodeWebViewFragment.isVisible()) {
-            // This condition happens only in the case of input controls has changed their value
-            nodeWebViewFragment.fetchReport();
+        if (noPagesLoaded || thereIsNoSuchPageForIndex) {
+            loadReportByPage(currentPage);
         } else {
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.content, nodeWebViewFragment,
-                            NodeWebViewFragment.TAG + currentPage).commit();
+            Optional<NodeWebViewFragment> optional = findFragmentByPage(currentPage);
+            if (optional.isPresent()) {
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content, optional.get(),
+                                NodeWebViewFragment.TAG + currentPage).commit();
+                updatePageForNewRequestId();
+            }
         }
     }
 
-    private NodeWebViewFragment createNodeWebViewFragment() {
-        NodeWebViewFragment nodeWebViewFragment =
-                NodeWebViewFragment_.builder().requestId(requestId)
-                        .page(currentPage).versionCode(versionCode)
-                        .build();
-        pagesMap.put(currentPage, nodeWebViewFragment);
-        return nodeWebViewFragment;
+    public void update() {
+        if (!isPaginationLoaded()) {
+            ReportDetailsRequest reportDetailsRequest = new ReportDetailsRequest(jsRestClient, requestId);
+            UniversalRequestListener<ReportExecutionResponse> universalRequestListener =
+                    UniversalRequestListener.builder(getActivity())
+                            .semanticListener(new ReportDetailsRequestListener())
+                            .create();
+            getSpiceManager().execute(reportDetailsRequest, universalRequestListener);
+        }
+
+        Optional<NodeWebViewFragment> optional = getCurrentNodeWebViewFragment();
+        if (optional.isPresent()) {
+            optional.get().loadFinalOutput();
+        }
+    }
+
+    public boolean isPaginationLoaded() {
+        return (mTotalPage != 0);
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void updatePageForNewRequestId() {
+        Optional<NodeWebViewFragment> optional = getCurrentNodeWebViewFragment();
+        if (optional.isPresent() && optional.get().needUpdate()) {
+            optional.get().refreshForNewRequestId();
+        }
+    }
+
+    private void loadReportByPage(int page) {
+        loadReportByPage(page, RequestExecutor.Mode.VISIBLE);
+    }
+
+    private void loadReportByPage(int page, RequestExecutor.Mode executionMode) {
+        pages.add(page);
+
+        ReportExportOutputLoader.builder()
+                .setControlFragment(this)
+                .setExecutionMode(executionMode)
+                .setJSRestClient(jsRestClient)
+                .setRequestId(requestId)
+                .setVersionCode(versionCode)
+                .setResultListener(new ExportResultListener(executionMode, page))
+                .create()
+                .loadByPage(page);
     }
 
     private void alterControlStates() {
@@ -243,44 +315,24 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         lastPage.setEnabled(hasTotalCount);
     }
 
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
-
-    public void update() {
-        boolean paginationLoaded = (mTotalPage != 0);
-        if (!paginationLoaded) {
-            ReportDetailsRequest reportDetailsRequest = new ReportDetailsRequest(jsRestClient, requestId);
-            ReportDetailsRequestListener requestListener = new ReportDetailsRequestListener();
-            getSpiceManager().execute(reportDetailsRequest, requestListener);
-        }
-
-        NodeWebViewFragment nodeWebViewFragment = getCurrentNodeWebViewFragment();
-        if (nodeWebViewFragment != null && nodeWebViewFragment.isResourceLoaded()) {
-            nodeWebViewFragment.loadFinalOutput();
-        }
-    }
-
-    public boolean isResourceLoaded() {
-        NodeWebViewFragment currentWebView = getCurrentNodeWebViewFragment();
-        if (currentWebView == null) return false;
-        return currentWebView.isResourceLoaded() && !mReportIsEmpty;
-    }
-
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
-
-    @Nullable
-    private NodeWebViewFragment getCurrentNodeWebViewFragment() {
-        return (NodeWebViewFragment)
-                getFragmentManager().findFragmentByTag(NodeWebViewFragment.TAG + currentPage);
-    }
-
     @NonNull
     private ReportExecutionFragment getReportExecutionFragment() {
         return (ReportExecutionFragment)
                 getFragmentManager().findFragmentByTag(ReportExecutionFragment.TAG);
+    }
+
+    @NonNull
+    private Optional<NodeWebViewFragment> getCurrentNodeWebViewFragment() {
+        return findFragmentByPage(currentPage);
+    }
+
+    @NonNull
+    private Optional<NodeWebViewFragment> findFragmentByPage(final int page) {
+        return Iterables.tryFind(fragments, new Predicate<NodeWebViewFragment>() {
+            public boolean apply(NodeWebViewFragment fragment) {
+                return NodeWebViewFragment.getPage(fragment) == page;
+            }
+        });
     }
 
     @NonNull
@@ -289,31 +341,110 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                 getFragmentManager().findFragmentByTag(FilterManagerFragment.TAG);
     }
 
+    /**
+     * This dirty way to fix memory issue on report viewer section.
+     * We are basically keeping only few instances of Fragments in memory.
+     * This is also respects bidirectional behavior pagination has.
+     */
+    private void removeOutdatedPageOnDemand() {
+        if (fragments.size() > maxPageAllowed) {
+            removeCachedPage();
+        }
+    }
+
+    private void removeCachedPage() {
+        int max = Collections.max(stack);
+        // User can navigate back/forward this involves appropriate 'poll' events to be invoked.
+        // If user has in cache [3, 2, 1] pages and loads 4 then result will be [4, 3, 2].
+        // If user has in cache [4, 3, 2] pages and loads 1 then result will be [3, 2, 1].
+        // This makes bidirectional removal experience.
+        int pageToDelete = (currentPage >= max) ? stack.pollLast() : stack.pollFirst();
+        fragments.remove(findFragmentByPage(pageToDelete).get());
+        pages.remove(pageToDelete);
+    }
+
+    private void updateStack() {
+        if (stack.contains(currentPage)) {
+            return;
+        }
+        if (stack.isEmpty()) {
+            stack.addFirst(currentPage);
+        } else {
+            int max = Collections.max(stack);
+            // User can navigate back/forward this involves appropriate 'push' events to be invoked.
+            // If user has in cache [3, 2, 1] pages and loads 4 then result will be [4, 3, 2, 1].
+            // If user has in cache [4, 3, 2] pages and loads 1 then result will be [3, 2, 1].
+            // This makes bidirectional insertion experience.
+            if (currentPage > max)  {
+                stack.addFirst(currentPage);
+            } else {
+                stack.addLast(currentPage);
+            }
+        }
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
-    private class ReportDetailsRequestListener extends CommonRequestListener<ReportExecutionResponse> {
+
+    private class ExportResultListener implements ReportExportOutputLoader.ResultListener {
+        private final RequestExecutor.Mode executionMode;
+        private final int outputPage;
+
+        private ExportResultListener(RequestExecutor.Mode executionMode, int outputPage) {
+            this.executionMode = executionMode;
+            this.outputPage = outputPage;
+        }
+
+        @Override
+        public void onFailure() {
+            pages.remove(outputPage);
+        }
+
+        @Override
+        public void onSuccess(ExportOutputData output) {
+            NodeWebViewFragment nodeWebViewFragment =
+                    NodeWebViewFragment_.builder()
+                            .requestId(requestId)
+                            .executionId(output.getExecutionId())
+                            .currentHtml(output.getData())
+                            .outputFinal(output.isFinal())
+                            .versionCode(versionCode)
+                            .page(outputPage)
+                            .build();
+            fragments.add(nodeWebViewFragment);
+            Collections.sort(fragments, pageComparator);
+
+            // This means that we have 2 page loaded
+            // and that is enough to show pagination control
+            if (outputPage == 2) {
+                setPaginationControlVisible(true);
+            }
+            if (executionMode == RequestExecutor.Mode.VISIBLE) {
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content, nodeWebViewFragment,
+                                NodeWebViewFragment.TAG + currentPage).commit();
+            }
+            removeOutdatedPageOnDemand();
+        }
+    }
+
+    private class ReportDetailsRequestListener extends UniversalRequestListener.SimpleSemanticListener<ReportExecutionResponse> {
         @Override
         public final void onSemanticSuccess(ReportExecutionResponse response) {
             int totalPageCount = response.getTotalPages();
             boolean needToShow = (totalPageCount > 1);
-            setVisible(needToShow);
+            setPaginationControlVisible(needToShow);
 
             if (needToShow) {
                 showTotalPageCount(response.getTotalPages());
             }
 
             if (totalPageCount == 0) {
-                mReportIsEmpty = true;
                 getReportExecutionFragment().showEmptyReportOptionsDialog();
             } else {
                 getFilterMangerFragment().makeSnapshot();
             }
-        }
-
-        @Override
-        public Activity getCurrentActivity() {
-            return getActivity();
         }
     }
 }

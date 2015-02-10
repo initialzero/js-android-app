@@ -103,4 +103,8 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
         }
     }
 
+    @Override
+    public String getActionModeTitle(int count) {
+        return String.valueOf(count);
+    }
 }

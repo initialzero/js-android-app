@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util;
 
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
@@ -92,13 +93,19 @@ public class ResourceOpener {
     }
 
     private void openFolder(ResourceLookup resource) {
-        ResourcesControllerFragment newControllerFragment =
-                ResourcesControllerFragment_.builder()
-                        .emptyMessage(R.string.r_browser_nothing_to_display)
-                        .resourceTypes(resourceTypes)
-                        .resourceLabel(resource.getLabel())
-                        .resourceUri(resource.getUri())
-                        .build();
+        // TODO It is smelly fix. Consider this issue while migration to RecyclerView
+        ResourcesControllerFragment topController = (ResourcesControllerFragment)
+                activity.getSupportFragmentManager().findFragmentByTag(ResourcesControllerFragment.TAG);
+        ResourcesControllerFragment_.FragmentBuilder_ builder = ResourcesControllerFragment_.builder()
+                .emptyMessage(R.string.r_browser_nothing_to_display)
+                .resourceTypes(resourceTypes)
+                .resourceLabel(resource.getLabel())
+                .resourceUri(resource.getUri());
+        if (!TextUtils.isEmpty(topController.controllerTag)) {
+            builder.controllerTag(topController.controllerTag);
+        }
+        ResourcesControllerFragment newControllerFragment = builder.build();
+
         activity.getSupportFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())
                 .replace(R.id.controller, newControllerFragment, ResourcesControllerFragment.TAG + resource.getUri())

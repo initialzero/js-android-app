@@ -24,8 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.profile;
 
-import android.app.Application;
 import android.database.Cursor;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.R;
@@ -46,21 +48,25 @@ import com.octo.android.robospice.request.CachedSpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 import roboguice.RoboGuice;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.clearText;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.typeText;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.clearText;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ALIAS;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_ORGANIZATION;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.TEST_PASS;
@@ -73,37 +79,37 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class ServersManagerPageTest extends ProtoActivityInstrumentation<ServersManagerActivity_> {
-
-    private Application mApplication;
 
     public ServersManagerPageTest() {
         super(ServersManagerActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
-        mApplication = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
         deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         deleteTestProfiles(getInstrumentation().getContext().getContentResolver());
         super.tearDown();
     }
 
+    @Test
     public void testValidFormCreation() {
         startActivityUnderTest();
 
@@ -118,7 +124,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
 
         onView(withId(R.id.saveAction)).perform(click());
 
-        Cursor cursor = queryTestProfile(mApplication.getContentResolver());
+        Cursor cursor = queryTestProfile(getApplication().getContentResolver());
         try {
             assertThat(cursor.getCount(), is(1));
         } finally {
@@ -126,8 +132,9 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         }
     }
 
+    @Test
     public void testServerAliasShouldBeUniqueDuringCreation() {
-        createTestProfile(mApplication.getContentResolver());
+        createTestProfile(getApplication().getContentResolver());
         startActivityUnderTest();
 
         onView(withId(R.id.addProfile)).perform(click());
@@ -147,8 +154,9 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withText(TEST_ALIAS + "_suffix")).check(matches(isDisplayed()));
     }
 
+    @Test
     public void testServerAliasShouldBeUniqueDuringUpdate() {
-        createTestProfile(mApplication.getContentResolver());
+        createTestProfile(getApplication().getContentResolver());
         startActivityUnderTest();
 
         onView(withId(R.id.addProfile)).perform(click());
@@ -169,10 +177,11 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(getActivity().getString(R.string.sp_error_duplicate_alias))));
     }
 
+    @Test
     public void testNotActiveServerProfileCanBeDeleted() {
-        DatabaseUtils.deleteAllProfiles(mApplication.getContentResolver());
-        DatabaseUtils.createTestProfile(mApplication.getContentResolver());
-        DatabaseUtils.createDefaultProfile(mApplication.getContentResolver());
+        DatabaseUtils.deleteAllProfiles(getApplication().getContentResolver());
+        DatabaseUtils.createTestProfile(getApplication().getContentResolver());
+        DatabaseUtils.createDefaultProfile(getApplication().getContentResolver());
         startActivityUnderTest();
 
         onView(withText(TEST_ALIAS)).perform(longClick());
@@ -182,8 +191,21 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onView(withId(android.R.id.list)).check(hasTotalCount(1));
     }
 
+    // Bug related: User can`t delete the only one profile
+    // he will not simply found button to do that
+    @Test(expected = NoMatchingViewException.class)
+    public void testUserCantDeleteSingleProfile() {
+        DatabaseUtils.deleteAllProfiles(getApplication().getContentResolver());
+        DatabaseUtils.createTestProfile(getApplication().getContentResolver());
+        startActivityUnderTest();
+
+        onView(withText(TEST_ALIAS)).perform(longClick());
+        onView(withId(R.id.deleteItem)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
     public void testUnauthorizedUserCanCreateProfile() {
-        Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
+        Injector injector = RoboGuice.getBaseApplicationInjector(getApplication());
         JsRestClient jsRestClient = injector.getInstance(JsRestClient.class);
         jsRestClient.setServerProfile(null);
 
@@ -205,6 +227,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
     // Bug related: When user enter invalid data REST will rise 401
     // As soon as we shared same RequestExceptionHandler for all
     // failure listeners we experienced flow which required customization
+    @Test
     public void testPageShouldProperlyHandleUnAuthorized() {
         registerTestModule(new CommonTestModule() {
             @Override
@@ -238,6 +261,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
         onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).perform(click());
     }
 
+    @Test
     public void testServerLowerThanEmeraldNotAcceptable() {
         registerTestModule(new CommonTestModule() {
             @Override

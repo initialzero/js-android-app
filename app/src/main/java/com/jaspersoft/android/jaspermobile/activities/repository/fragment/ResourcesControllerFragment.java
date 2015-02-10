@@ -79,14 +79,11 @@ public class ResourcesControllerFragment extends ControllerFragment
 
     @FragmentArg
     boolean hideMenu;
+    @InstanceState
+    @FragmentArg
+    public String controllerTag;
 
     private ResourcesFragment contentFragment;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -99,6 +96,15 @@ public class ResourcesControllerFragment extends ControllerFragment
             commitContentFragment();
         } else {
             contentFragment = inMemoryFragment;
+        }
+    }
+
+    public void replacePreviewOnDemand() {
+        String currentType = contentFragment.viewType.toString();
+        boolean previewHasChanged = !controllerPref.viewType().get().equals(currentType);
+        if (previewHasChanged) {
+            controllerPref.viewType().put(currentType);
+            switchLayout();
         }
     }
 

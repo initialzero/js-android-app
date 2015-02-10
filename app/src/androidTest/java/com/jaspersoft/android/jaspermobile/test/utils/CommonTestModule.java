@@ -40,6 +40,7 @@ public abstract class CommonTestModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
         bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
+        bindConstant().annotatedWith(Names.named("MAX_PAGE_ALLOWED")).to(1);
         semanticConfigure();
     }
 

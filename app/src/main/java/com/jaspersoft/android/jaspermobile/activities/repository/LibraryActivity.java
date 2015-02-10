@@ -51,6 +51,7 @@ import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -182,6 +183,11 @@ public class LibraryActivity extends RoboSpiceFragmentActivity {
                 }
             }
         });
+    }
+
+    @OnActivityResult(SearchControllerFragment.SEARCH_ACTION)
+    public void searchAction() {
+        resourcesController.replacePreviewOnDemand();
     }
 
 }

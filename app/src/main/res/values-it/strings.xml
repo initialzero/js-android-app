@@ -22,6 +22,10 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <resources>
+    <!-- Images content description -->
+    <string name="img_cd_list_item">Anteprima dell\'elemento lista</string>
+    <string name="img_cd_grid_item">Anteprima dell\'elemento griglia</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">Archivio</string>
     <string name="h_library_label">Libreria</string>
@@ -120,16 +124,23 @@
     <string name="s_fd_sort_label">Per etichetta</string>
     <string name="s_fd_sort_date">Per data di creazione</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">Informazioni</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v1.9\n\nStrumenti di gestione e visualizzazione di rapporti per il server JasperReports 5.5 e versioni successive.\n\nPer ulteriori informazioni visitare: \n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nPer informazioni sulle nostre normative sulla privacy, visitare:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2014 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy">Normative sulla Privacy</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Esegui report</string>
+    <string name="ro_page_title">Opzioni di filtraggio</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Salva report</string>
     <string name="rv_ab_show_filters">Mostra filtri</string>
     <string name="rv_error_empty_report">Nessun dati report presenti</string>
+    <string name="rv_select_page">Selezionare la pagina</string>
+    <string name="rv_out_of_range">La pagina richiesta non è disponibile</string>
+    <string name="rv_dialog_reload">Ricaricare</string>
+
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">Scheda di memoria esterna non disponibile. Montare la scheda e riprovare.</string>
 
@@ -175,7 +186,9 @@
     <!-- Settings activity -->
     <string name="st_title">Impostazioni</string>
     <string name="st_category_repo_cache">Cache di archivio</string>
+    <string name="st_category_repo_cache_summary">Modificare le opzioni della Cache dell\'archivio</string>
     <string name="st_category_connection">Connessione</string>
+    <string name="st_category_connection_summary">Modificare le impostazioni di connessione globale per le chiamate di rete</string>
     <string name="st_title_cache_enable">Abilita cache</string>
     <string name="st_title_cache_expiration">Scadenza cache</string>
     <string name="st_title_connect_timeout">Timeout connessione</string>
@@ -187,6 +200,7 @@
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Formato numero non valido</string>
+    <string name="st_category_more">Altro</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Richiesta non valida. La richiesta non è valida.</string>

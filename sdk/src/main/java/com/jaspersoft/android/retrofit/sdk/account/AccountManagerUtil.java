@@ -90,15 +90,22 @@ public class AccountManagerUtil {
         return Observable.just(account);
     }
 
-    public List<AccountServerData> getAccountServers(boolean withoutActive) {
-        List<AccountServerData> mJasperAccounts = new ArrayList<AccountServerData>();
+    public List<AccountServerData> getInactiveAccountServers() {
         Account activeAccount = JasperAccountProvider.get(mContext).getAccount();
-        Account[] accounts = getAccounts();
-        for (Account jasperAccount : accounts) {
-            if (!withoutActive || !(activeAccount != null && activeAccount.equals(jasperAccount)))
-                mJasperAccounts.add(AccountServerData.get(mContext, jasperAccount));
-        }
-        return mJasperAccounts;
+        final String activeName = activeAccount.name;
+
+        return Observable.from(getAccounts())
+                .filter(new Func1<Account, Boolean>() {
+                    @Override
+                    public Boolean call(Account account) {
+                        return !activeName.equals(account.name);
+                    }
+                }).map(new Func1<Account, AccountServerData>() {
+                    @Override
+                    public AccountServerData call(Account account) {
+                        return AccountServerData.get(mContext, account);
+                    }
+                }).toList().toBlocking().first();
     }
 
     /**
@@ -148,12 +155,12 @@ public class AccountManagerUtil {
     }
 
     public Observable<String> getActiveAuthToken() {
-       return getActiveAccount().flatMap(new Func1<Account, Observable<String>>() {
-           @Override
-           public Observable<String> call(Account account) {
-               return getAuthToken(account);
-           }
-       });
+        return getActiveAccount().flatMap(new Func1<Account, Observable<String>>() {
+            @Override
+            public Observable<String> call(Account account) {
+                return getAuthToken(account);
+            }
+        });
     }
 
     /**
@@ -316,6 +323,7 @@ public class AccountManagerUtil {
             super(detailMessage);
         }
     }
+
     public static class TokenNotReceivedException extends Throwable {
         private final Bundle mOutput;
 

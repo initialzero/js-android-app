@@ -52,7 +52,7 @@ public class AccountServerData {
             .setOrganization("")
             .setUsername("")
             .setPassword("")
-            .setEdition("PRO")
+            .setEdition("CE")
             .setVersionName("0.0");
 
     private String alias;

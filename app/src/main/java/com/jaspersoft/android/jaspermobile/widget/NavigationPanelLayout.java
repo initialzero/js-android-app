@@ -227,7 +227,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         LayoutInflater mInflater;
 
         private AccountsAdapter(Context context) {
-            mJasperAccounts = AccountManagerUtil.get(context).getAccountServers(true);
+            mJasperAccounts = AccountManagerUtil.get(context).getInactiveAccountServers();
             mInflater = LayoutInflater.from(context);
         }
 

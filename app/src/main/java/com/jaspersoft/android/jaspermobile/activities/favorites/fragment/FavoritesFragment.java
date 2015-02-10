@@ -26,8 +26,11 @@ package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
 import android.app.ActionBar;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -48,6 +51,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewTyp
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
+import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -65,6 +69,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -76,7 +81,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  */
 @EFragment
 public class FavoritesFragment extends RoboFragment
-        implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor> {
+        implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor>, FavoritesAdapter.FavoritesInteractionListener {
 
     private final int FAVORITES_LOADER_ID = 20;
 
@@ -122,6 +127,7 @@ public class FavoritesFragment extends RoboFragment
         mAdapter = new FavoritesAdapter(getActivity(), savedInstanceState, layout);
         mAdapter.setAdapterView(listView);
         mAdapter.setViewBinder(this);
+        mAdapter.setFavoritesInteractionListener(this);
         listView.setAdapter(mAdapter);
 
         getActivity().getSupportLoaderManager().initLoader(FAVORITES_LOADER_ID, null, this);
@@ -275,4 +281,39 @@ public class FavoritesFragment extends RoboFragment
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mAdapter.swapCursor(null);
     }
+
+    //---------------------------------------------------------------------
+    // Implements FavoritesAdapter.FavoritesInteractionListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onDelete(String itemTitle, final Uri itemToDelete) {
+        int currentPosition = mAdapter.getCurrentPosition();
+        AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
+                    @Override
+                    public void onClick(DialogFragment fragment) {
+                        getActivity().getContentResolver().delete(itemToDelete, null, null);
+                        mAdapter.finishActionMode();
+                    }
+                })
+                .setTargetFragment(this, currentPosition)
+                .setTitle(R.string.sdr_dfd_title)
+                .setMessage(getActivity().getString(R.string.sdr_drd_msg, itemTitle))
+                .setPositiveButtonText(R.string.spm_delete_btn)
+                .setNegativeButtonText(android.R.string.cancel)
+                .show();
+    }
+
+    @Override
+    public void onInfo(String title, String description) {
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        SimpleDialogFragment.createBuilder(getActivity(), fm)
+                .setTitle(title)
+                .setMessage(description)
+                .setNegativeButtonText(android.R.string.ok)
+                .show();
+    }
+
 }

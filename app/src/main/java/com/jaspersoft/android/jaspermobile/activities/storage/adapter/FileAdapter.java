@@ -43,6 +43,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResour
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;
@@ -106,7 +107,13 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         String fileFormat = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
         String fileName = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
 
-        itemView.getImageView().setImageResource(getFileIconByExtension(fileFormat));
+        TopCropImageView iconView = (TopCropImageView) itemView.getImageView();
+        if (iconView != null) {
+            iconView.setImageResource(getFileIconByExtension(fileFormat));
+            iconView.setBackgroundColor(getContext().getResources().getColor(R.color.card_header_config));
+            iconView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+        }
+
         itemView.setTitle(fileName);
         itemView.setTimeStamp(getHumanReadableFileSize(file));
         itemView.setSubTitle(getFormattedDateModified(creationTime));

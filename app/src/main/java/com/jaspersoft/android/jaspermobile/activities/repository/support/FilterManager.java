@@ -59,7 +59,7 @@ public class FilterManager {
     @RootContext
     FragmentActivity activity;
     @Pref
-    LibraryPref_ repositoryPref;
+    LibraryPref_ pref;
     @Inject
     ServerInfoSnapshot serverInfo;
 
@@ -70,15 +70,15 @@ public class FilterManager {
     }
 
     public ArrayList<String> getFilters() {
-        Set<String> initialTypes = repositoryPref.filterTypes().get();
+        Set<String> initialTypes = pref.filterTypes().get();
         if (initialTypes == null || initialTypes.isEmpty()) {
             putFilters(getFiltersByType(Type.ALL_FOR_LIBRARY));
         }
-        return Lists.newArrayList(repositoryPref.filterTypes().get());
+        return Lists.newArrayList(pref.filterTypes().get());
     }
 
     public void putFilters(List<String> filters) {
-        repositoryPref.filterTypes().put(Sets.newHashSet(filters));
+        pref.filterTypes().put(Sets.newHashSet(filters));
     }
 
     public ArrayList<String> getFiltersByType(Type value) {

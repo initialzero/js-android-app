@@ -38,6 +38,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import roboguice.fragment.RoboDialogFragment;
@@ -52,7 +53,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     private static final String PASSWORD_EXTRA = "PASSWORD";
 
     @Inject
-    private JsRestClient mJsRestClient;
+    private JsRestClient jsRestClient;
 
     private EditText mPasswordEdit;
     private TextView mOrganizationText;
@@ -115,7 +116,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
                                 if (TextUtils.isEmpty(password)) {
                                     mPasswordEdit.setError(getString(R.string.sp_error_field_required));
                                 } else {
-                                    mJsRestClient.getServerProfile().setPassword(password);
+                                    jsRestClient.getServerProfile().setPassword(password);
                                     dismiss();
                                 }
                             }
@@ -143,9 +144,10 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        String alias = mJsRestClient.getServerProfile().getAlias();
-        String org = mJsRestClient.getServerProfile().getOrganization();
-        String usr = mJsRestClient.getServerProfile().getUsername();
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
+        String alias = jsRestClient.getServerProfile().getAlias();
+        String org = jsRestClient.getServerProfile().getOrganization();
+        String usr = jsRestClient.getServerProfile().getUsername();
 
         // Update username
         mProfileNameText.setText(alias);

@@ -45,6 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportExportOutputLoader;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -165,6 +166,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
         }
         String mime = "text/html";
         String encoding = "utf-8";
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         webView.loadDataWithBaseURL(
                 jsRestClient.getServerProfile().getServerUrl(),
                 currentHtml, mime, encoding, null);

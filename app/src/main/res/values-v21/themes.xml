@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+
+<resources>
+    <style name="Theme.JasperMobile" parent="Theme.AppCompat">
+        <item name="android:windowBackground">@drawable/ic_resources_background</item>
+        <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+        <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
+        <item name="colorPrimary">@android:color/darker_gray</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+
+        <!--android-styled-dialogs reference style -->
+        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
+
+        <!--App reference styles-->
+        <item name="listLayoutStyle">@style/list2.item.layout</item>
+        <item name="gridLayoutStyle">@style/grid.item.layout</item>
+    </style>
+
+    <style name="Theme.JasperMobile.NoActionBar" parent="Theme.JasperMobile">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+
+        <item name="toolbarStyle">@style/Widget.Toolbar</item>
+    </style>
+
+    <style name="Widget.Toolbar" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="android:navigationIcon">?attr/homeAsUpIndicator</item>
+    </style>
+
+</resources>

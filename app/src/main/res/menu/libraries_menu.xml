@@ -23,17 +23,18 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/filter"
         android:icon="@drawable/ic_action_filter"
         android:orderInCategory="65"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/s_ab_filter_by"/>
     <item
         android:id="@+id/sort"
         android:icon="@drawable/ic_action_sort"
         android:orderInCategory="70"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/s_ab_sort_by"/>
 </menu>

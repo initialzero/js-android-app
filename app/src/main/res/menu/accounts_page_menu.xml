@@ -23,10 +23,11 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/addAccount"
         android:title="@string/spm_ab_add_profile"
         android:icon="@drawable/ic_action_add_account"
-        android:showAsAction="always"/>
+        app:showAsAction="always"/>
 </menu>

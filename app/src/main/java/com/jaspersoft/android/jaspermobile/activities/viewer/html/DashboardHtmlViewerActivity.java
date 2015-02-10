@@ -36,6 +36,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebVi
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -141,6 +142,7 @@ public class DashboardHtmlViewerActivity extends RoboSpiceFragmentActivity
 
     private void setDashboardUrl(WebViewFragment webViewFragment, ServerInfoSnapshot serverInfo) {
         String dashboardUrl;
+        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
         String serverUrl = jsRestClient.getServerProfile().getServerUrl();
 
         dashboardUrl = serverUrl

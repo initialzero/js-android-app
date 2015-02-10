@@ -25,23 +25,18 @@
 package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
-import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
-import org.apache.http.fake.FakeHttpLayerManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -56,10 +51,7 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
  * @author Tom Koptel
  * @since 1.9
  */
-@RunWith(AndroidJUnit4.class)
 public class DashboardViewPageTest extends ProtoActivityInstrumentation<DashboardHtmlViewerActivity_> {
-    private static final String RESOURCE_URI = "/Dashboards/Supermart_Dashboard";
-    private static final String RESOURCE_LABEL = "1. Supermart Dashboard";
     private ResourceLookup mResource;
     private IdleInjector idleInjector;
 
@@ -70,45 +62,36 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-
-        registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
         idleInjector = WebViewInjector.registerFor(DashboardHtmlViewerActivity_.class);
-
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         mResource = resourceLookupsList.getResourceLookups().get(0);
-        mResource.setLabel(RESOURCE_LABEL);
-        mResource.setUri(RESOURCE_URI);
 
-        FakeHttpLayerManager.clearHttpResponseRules();
+        createReportIntent();
+        startActivityUnderTest();
     }
 
     @After
     public void tearDown() throws Exception {
-        unregisterTestModule();
         idleInjector.unregister();
+        getActivity().finish();
         super.tearDown();
     }
 
     @Test
     public void testInitialLoad() {
-        createReportIntent();
-        startActivityUnderTest();
-        onView(withText(RESOURCE_LABEL)).check(matches(isDisplayed()));
+        onView(withText(mResource.getLabel())).check(matches(isDisplayed()));
         rotate();
         onView(firstChildOf(withId(R.id.webViewPlaceholder))).check(matches(isDisplayed()));
     }
 
     @Test
     public void testAboutAction() {
-        createReportIntent();
-        startActivityUnderTest();
-
         onView(withId(R.id.aboutAction)).perform(click());
 
         onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(mResource.getLabel())));
         onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(mResource.getDescription())));
+        onOverflowView(getActivity(), withId(R.id.sdl__negative_button)).perform(click());
     }
 
     //---------------------------------------------------------------------

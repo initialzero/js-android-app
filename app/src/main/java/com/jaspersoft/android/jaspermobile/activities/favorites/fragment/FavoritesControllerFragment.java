@@ -42,6 +42,7 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
+    public static final String CONTENT_TAG = "FavoritesControllerFragment.CONTENT_TAG";
     public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
 
     private FavoritesFragment contentFragment;
@@ -71,6 +72,11 @@ public class FavoritesControllerFragment extends ControllerFragment {
                 .searchQuery(searchQuery)
                 .build();
         return contentFragment;
+    }
+
+    @Override
+    protected String getContentFragmentTag() {
+        return CONTENT_TAG;
     }
 
     public void loadItemsByTypes(ResourceLookup.ResourceType newFilterType) {

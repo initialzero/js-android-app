@@ -32,7 +32,6 @@ import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesRemoveColumnMigra
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
-import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
 
 /**
  * @author Tom Koptel
@@ -49,7 +48,6 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
     @Override
     public void onCreate(SQLiteDatabase db) {
         super.onCreate(db);
-        new AccountSeed(mContext).seed(db);
     }
 
     @Override

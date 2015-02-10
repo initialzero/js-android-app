@@ -50,6 +50,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
@@ -82,7 +83,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
 public class FavoritesFragment extends RoboFragment
         implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor>, FavoritesAdapter.FavoritesInteractionListener {
 
-    private final int FAVORITES_LOADER_ID = 0;
+    private final int FAVORITES_LOADER_ID = 20;
 
     @FragmentArg
     ViewType viewType;
@@ -160,7 +161,7 @@ public class FavoritesFragment extends RoboFragment
         resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
         resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
 
-        resourceOpener.openResource(resource);
+        resourceOpener.openResource(this, resource);
     }
 
     public void showSavedItemsByFilter(ResourceType selectedFilter) {
@@ -207,6 +208,7 @@ public class FavoritesFragment extends RoboFragment
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = Lists.newArrayList();
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
 
@@ -277,6 +279,7 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        mAdapter.swapCursor(null);
     }
 
     //---------------------------------------------------------------------

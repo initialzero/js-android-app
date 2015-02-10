@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.db.seed;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.google.gson.Gson;
 import com.jaspersoft.android.jaspermobile.R;
@@ -38,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -45,15 +45,17 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class AccountSeed implements Seed {
+    private final AccountManagerUtil accountManagerUtil;
     private final Context mContext;
 
     public AccountSeed(Context context) {
-        this.mContext = context;
+        mContext = context;
+        accountManagerUtil = AccountManagerUtil.get(context);
         Timber.tag(AccountSeed.class.getSimpleName());
     }
 
     @Override
-    public void seed(SQLiteDatabase database) {
+    public void seed() {
         populateDefaultServer();
         populateTestServers();
     }
@@ -68,8 +70,9 @@ public class AccountSeed implements Seed {
                 .setPassword(AccountServerData.Demo.PASSWORD)
                 .setEdition("PRO")
                 .setVersionName("5.5");
-        AccountManagerUtil.get(mContext)
+        accountManagerUtil
                 .addAccountExplicitly(serverData)
+                .subscribeOn(Schedulers.io())
                 .subscribe();
     }
 
@@ -85,9 +88,10 @@ public class AccountSeed implements Seed {
             String json = IOUtils.toString(is);
             Gson gson = new Gson();
             Profiles profiles = gson.fromJson(json, Profiles.class);
-            AccountManagerUtil util = AccountManagerUtil.get(mContext);
             for (AccountServerData serverData : profiles.getData()) {
-                util.addAccountExplicitly(serverData).subscribe();
+                accountManagerUtil.addAccountExplicitly(serverData)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe();
             }
         } catch (IOException e) {
             Timber.w("Ignoring population of data");

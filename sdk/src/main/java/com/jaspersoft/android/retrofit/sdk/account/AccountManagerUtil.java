@@ -78,6 +78,17 @@ public class AccountManagerUtil {
         return Observable.just(account);
     }
 
+    public List<AccountServerData> getAccountServers(boolean withoutActive) {
+        List<AccountServerData> mJasperAccounts = new ArrayList<AccountServerData>();
+        Account activeAccount = BasicAccountProvider.get(mContext).getAccount();
+        Account[] accounts = getAccounts();
+        for (Account jasperAccount : accounts) {
+            if(!withoutActive || !(activeAccount != null && activeAccount.equals(jasperAccount)))
+                mJasperAccounts.add(AccountServerData.get(mContext, jasperAccount));
+        }
+        return mJasperAccounts;
+    }
+
     public Observable<String> getAuthToken(final Account account) {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
@@ -91,6 +102,7 @@ public class AccountManagerUtil {
                     subscriber.onNext(token);
                     subscriber.onCompleted();
                 } catch (Exception ex) {
+                    Timber.e(ex, "Failed to getAuthToken()");
                     subscriber.onError(ex);
                 }
             }
@@ -194,8 +206,9 @@ public class AccountManagerUtil {
                             Timber.d("Remove status for Account[" + account.name + "]: " + result);
                             subscriber.onNext(result);
                             subscriber.onCompleted();
-                        } catch (Exception e) {
-                            subscriber.onError(e);
+                        } catch (Exception ex) {
+                            Timber.e(ex, "Failed to removeAccount()");
+                            subscriber.onError(ex);
                         }
                     }
                 }, handler);

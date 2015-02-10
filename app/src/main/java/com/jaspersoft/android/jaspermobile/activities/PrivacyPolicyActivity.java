@@ -1,6 +1,5 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.webkit.WebViewClient;
 
@@ -39,10 +38,7 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (savedInstanceState == null) {
             webViewFragment = WebViewFragment_.builder()

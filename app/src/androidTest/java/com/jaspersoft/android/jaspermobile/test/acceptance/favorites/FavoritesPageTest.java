@@ -24,13 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.favorites;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
@@ -60,6 +58,7 @@ import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -75,17 +74,20 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesActivity_> {
+public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private FavoritesHelper_ favoritesHelper;
 
     public FavoritesPageTest() {
-        super(FavoritesActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        setActivityIntent(NavigationActivity_.intent(getApplication())
+                .defaultSelection(R.id.vg_favorites).get());
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
@@ -158,11 +160,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         startActivityUnderTest();
 
         // Force only dashboards
-        Intent intent = LibraryActivity_.intent(getApplication())
-                .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .get();
-        getInstrumentation().startActivitySync(intent);
-        getInstrumentation().waitForIdleSync();
+        openLibrary();
 
         // Select dashboard
         onData(is(instanceOf(ResourceLookup.class)))
@@ -172,7 +170,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         // Add to favorite
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
-        pressBack();
+        openFavorites();
 
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -181,6 +179,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         // Remove from favorite
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
+
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
     }
@@ -193,11 +192,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         startActivityUnderTest();
 
         // Force only reports
-        Intent intent = LibraryActivity_.intent(getApplication())
-                .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .get();
-        getInstrumentation().startActivitySync(intent);
-        getInstrumentation().waitForIdleSync();
+        openLibrary();
 
         // Select report
         FakeHttpLayerManager.setDefaultHttpResponse(TestResponses.get().noContent());
@@ -208,7 +203,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         // Add to favorite
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
-        pressBack();
+        openFavorites();
 
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -463,7 +458,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
     //---------------------------------------------------------------------
     // Test search feature
     //---------------------------------------------------------------------
-    
+
     @Test
     public void testSearch() throws IOException {
         ResourceLookupsList allResources = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ALL_RESOURCES);
@@ -473,7 +468,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         int expectedSearchCount = 0;
         for (ResourceLookup resourceLookup : resourcesList) {
             favoritesHelper.addToFavorites(resourceLookup);
-            if(resourceLookup.getLabel().contains(searchQuery)) {
+            if (resourceLookup.getLabel().contains(searchQuery)) {
                 expectedSearchCount++;
             }
         }
@@ -506,53 +501,43 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
                 ApiMatcher.REPORT_EXECUTIONS,
                 TestResponses.get().noContent());
 
-        Intent intent = LibraryActivity_.intent(getApplication())
-                .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .get();
-        getInstrumentation().startActivitySync(intent);
-        getInstrumentation().waitForIdleSync();
+        openLibrary();
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
-        pressBack();
+
+        openFavorites();
 
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
         pressBack();
 
-        intent = LibraryActivity_.intent(getApplication())
-                .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .get();
-        getInstrumentation().startActivitySync(intent);
-        getInstrumentation().waitForIdleSync();
+        openLibrary();
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
-        pressBack();
 
-        Thread.sleep(200);
+        openFavorites();
+
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
 
-        intent = LibraryActivity_.intent(getApplication())
-                .flags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .get();
-        getInstrumentation().startActivitySync(intent);
-        getInstrumentation().waitForIdleSync();
+        openLibrary();
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.favoriteAction)).perform(click());
         pressBack();
-        pressBack();
+
+        openFavorites();
 
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
@@ -563,16 +548,22 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
     }
 
+    private void openLibrary() {
+        openDrawer(R.id.drawerLayout);
+        onView(withText(R.string.h_library_label)).perform(click());
+    }
+
+    private void openFavorites() {
+        openDrawer(R.id.drawerLayout);
+        onView(withText(R.string.f_title)).perform(click());
+    }
+
     private void clickFilterMenuItem() {
         try {
             onView(withId(R.id.filter)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_filter_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            onView(withText(R.string.s_ab_filter_by)).perform(click());
         }
     }
 
@@ -581,11 +572,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<FavoritesAct
             onView(withId(R.id.sort)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_sort_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            onView(withText(R.string.s_ab_sort_by)).perform(click());
         }
     }
 

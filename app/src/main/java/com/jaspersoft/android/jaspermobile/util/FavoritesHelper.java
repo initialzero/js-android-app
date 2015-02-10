@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -75,6 +76,7 @@ public class FavoritesHelper {
     }
 
     public Uri addToFavorites(ResourceLookup resource) {
+        JsServerProfileCompat.initLegacyJsRestClient(context, jsRestClient);
         JsServerProfile profile = jsRestClient.getServerProfile();
         Favorites favoriteEntry = new Favorites();
 

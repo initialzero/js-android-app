@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterInject;
@@ -65,6 +66,7 @@ public class JSWebViewClient extends WebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        JsServerProfileCompat.initLegacyJsRestClient(activity, jsRestClient);
         String serverUrl = jsRestClient.getServerProfile().getServerUrl();
         String jasperHost = Uri.parse(serverUrl).getHost();
 

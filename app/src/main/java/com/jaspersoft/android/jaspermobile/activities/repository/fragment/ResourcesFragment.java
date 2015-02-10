@@ -24,11 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,9 +44,11 @@ import com.jaspersoft.android.jaspermobile.activities.repository.adapter.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
+import com.jaspersoft.android.jaspermobile.activities.robospice.BaseActionBarActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoManager;
 import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -168,12 +170,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         if (sortOrder != null) {
             mSearchCriteria.setSortBy(sortOrder.getValue());
         }
-
-        ActionBar actionBar = getActivity().getActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(TextUtils.isEmpty(resourceLabel) ?
-                    getActivity().getTitle() : resourceLabel);
-        }
     }
 
     @Override
@@ -216,6 +212,22 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        ActionBar actionBar = ((BaseActionBarActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            if (TextUtils.isEmpty(resourceLabel)) {
+                boolean isRepository = !recursiveLookup;
+                actionBar.setTitle(isRepository ?
+                        getString(R.string.h_repository_label) : getString(R.string.h_library_label));
+            } else {
+                actionBar.setTitle(resourceLabel);
+            }
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         mAdapter.save(outState);
         super.onSaveInstanceState(outState);
@@ -232,7 +244,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     @ItemClick(android.R.id.list)
     public void onItemClick(ResourceLookup resource) {
         mAdapter.finishActionMode();
-        resourceOpener.openResource(resource);
+        resourceOpener.openResource(this, resource);
     }
 
     //---------------------------------------------------------------------
@@ -308,6 +320,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
         // Fetch default URI
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
@@ -335,6 +348,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
 
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;

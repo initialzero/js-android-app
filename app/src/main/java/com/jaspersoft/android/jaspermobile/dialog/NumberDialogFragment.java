@@ -43,7 +43,6 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.negusoft.holoaccent.dialog.AccentAlertDialog;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -75,7 +74,7 @@ public class NumberDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AccentAlertDialog.Builder builder = new AccentAlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         ViewGroup customView = (ViewGroup) LayoutInflater.from(getActivity())
                 .inflate(R.layout.number_dialog_layout, (ViewGroup) getView(), false);

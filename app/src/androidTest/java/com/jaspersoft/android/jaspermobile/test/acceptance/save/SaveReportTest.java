@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
@@ -21,6 +21,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.apache.http.fake.TestHttpResponse;
 import org.hamcrest.Matchers;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -67,7 +68,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         setDefaultCurrentProfile();
 
         SavedFilesUtil.clear(getApplication());
-        DatabaseUtils.deleteAllSavedItems(getApplication().getContentResolver());
+        DatabaseUtils.deleteAllSavedItems(getContentResolver());
 
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
         resource = resourceLookupsList.getResourceLookups().get(0);
@@ -90,10 +91,10 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         super.tearDown();
     }
 
-
     //---------------------------------------------------------------------
     // Save test methods
     //---------------------------------------------------------------------
+    @Test
     public void testSaveWithDifferentNames() throws IOException {
         prepareSaveReportActivity(resource);
 
@@ -128,6 +129,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
                 .onChildView(withId(android.R.id.text1)).check(matches(withText(differReportName)));
     }
 
+    @Test
     public void testSaveWithDifferentFormats() throws Throwable {
         prepareSaveReportActivity(resource);
 
@@ -160,6 +162,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         }
     }
 
+    @Test
     public void testNotSaveWithSameName() throws Throwable {
         prepareSaveReportActivity(resource);
         saveReport(resource.getLabel(), "PDF");
@@ -173,6 +176,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     // Test rename methods
     //---------------------------------------------------------------------
 
+    @Test
     public void testRename() throws IOException {
         prepareSaveReportActivity(resource);
 
@@ -204,6 +208,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         assertFalse(SavedFilesUtil.contains(getActivity(), oldReportName, "PDF", profileId));
     }
 
+    @Test
     public void testNotRenameWithExistingName() throws Throwable {
         prepareSaveReportActivity(resource);
 
@@ -228,6 +233,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     //---------------------------------------------------------------------
     // Test delete methods
     //---------------------------------------------------------------------
+    @Test
     public void testDelete() throws IOException {
         prepareSaveReportActivity(resource);
 
@@ -252,6 +258,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     //---------------------------------------------------------------------
     // Test filtering
     //---------------------------------------------------------------------
+    @Test
     public void testFilterOption() throws IOException, InterruptedException {
         prepareSaveReportActivity(resource);
 
@@ -287,6 +294,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         onView(withId(android.R.id.list)).check(hasTotalCount(reportsNames.length));
     }
 
+    @Test
     public void testFilteringIsPersistentAfterRotate() throws IOException {
         prepareSaveReportActivity(resource);
 
@@ -318,6 +326,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         onView(withId(android.R.id.list)).check(hasTotalCount(3));
     }
 
+    @Test
     public void testFilteringIsPersistentAfterSwitchViewType() throws IOException {
         prepareSaveReportActivity(resource);
 
@@ -352,13 +361,13 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     //---------------------------------------------------------------------
     // Test sorting
     //---------------------------------------------------------------------
+    @Test
     public void testSortOption() throws IOException, InterruptedException {
         prepareSaveReportActivity(resource);
 
         String[] reportFullNames = new String[reportsNames.length];
 
         for (int i = 0; i < reportsNames.length; i++) {
-            Thread.sleep(2000);
             reportFullNames[i] = reportsNames[i] + reportsFormats[i];
             saveReport(reportFullNames[i], reportsFormats[i]);
         }
@@ -389,6 +398,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         }
     }
 
+    @Test
     public void testSortingIsPersistentAfterRotate() throws IOException {
         prepareSaveReportActivity(resource);
 
@@ -424,6 +434,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         }
     }
 
+    @Test
     public void testSortingIsPersistentAfterSwitchViewType() throws IOException {
         prepareSaveReportActivity(resource);
 
@@ -462,6 +473,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     //---------------------------------------------------------------------
     // Test search feature
     //---------------------------------------------------------------------
+    @Test
     public void testSearch() throws IOException {
         prepareSaveReportActivity(resource);
 
@@ -521,7 +533,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
     private void openSavePage() {
         getInstrumentation().startActivitySync(
-                SavedReportsActivity_.intent(getInstrumentation().getTargetContext())
+                NavigationActivity_.intent(getInstrumentation().getTargetContext())
+                        .defaultSelection(R.id.vg_saved_items)
                         .flags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         .get());
         getInstrumentation().waitForIdleSync();
@@ -532,11 +545,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
             onView(withId(R.id.filter)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_filter_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            onView(withText(R.string.s_ab_filter_by)).perform(click());;
         }
     }
 
@@ -546,9 +555,9 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
             try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_sort_by)).perform(click());
+                onView(withText(R.string.s_ab_sort_by)).perform(click());;
             } catch (Throwable throwable) {
-                new RuntimeException(throwable);
+                throw new RuntimeException(throwable);
             }
         }
     }

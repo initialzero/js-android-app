@@ -41,14 +41,10 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesActivity_;
 import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog;
 import com.jaspersoft.android.jaspermobile.util.ConnectivityUtil;
@@ -144,31 +140,31 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Click(R.id.home_item_repository)
     final void showRepository() {
         JsRestClient.flushCookies();
-        if (hasNetwork() && hasActiveAccount()) {
-            RepositoryActivity_.intent(this).start();
-        }
+//        if (hasNetwork() && hasActiveAccount()) {
+//            RepositoryActivity_.intent(this).start();
+//        }
     }
 
     @Click(R.id.home_item_library)
     final void showLibrary() {
         JsRestClient.flushCookies();
-        if (hasNetwork() && hasActiveAccount()) {
-            LibraryActivity_.intent(this).start();
-        }
+//        if (hasNetwork() && hasActiveAccount()) {
+//            LibraryActivity_.intent(this).start();
+//        }
     }
 
     @Click(R.id.home_item_favorites)
     final void showFavorites() {
-        if (hasNetwork() && hasActiveAccount()) {
-            FavoritesActivity_.intent(this).start();
-        }
+//        if (hasNetwork() && hasActiveAccount()) {
+//            FavoritesActivity_.intent(this).start();
+//        }
     }
 
     @Click(R.id.home_item_saved_reports)
     final void showSavedItems() {
-        if (hasActiveAccount()) {
-            SavedReportsActivity_.intent(this).start();
-        }
+//        if (hasActiveAccount()) {
+//            SavedReportsActivity_.intent(this).start();
+//        }
     }
 
     @Click(R.id.home_item_settings)

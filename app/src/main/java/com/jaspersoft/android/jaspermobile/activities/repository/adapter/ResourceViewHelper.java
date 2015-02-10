@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -158,6 +159,7 @@ public class ResourceViewHelper {
         if (displayImageOptions == null) {
             Map<String, String> headers = Maps.newHashMap();
 
+            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClient);
             JsServerProfile profile = jsRestClient.getServerProfile();
             String authorisation = profile.getUsernameWithOrgId() + ":" + profile.getPassword();
             String encodedAuthorisation = "Basic " + Base64.encodeToString(

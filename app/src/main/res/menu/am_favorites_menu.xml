@@ -23,15 +23,16 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/showAction"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:icon="@drawable/ic_action_about"
         android:title="@string/r_cm_view_details" />
     <item
         android:id="@+id/removeFromFavorites"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_resource_delete"
         android:title="@string/r_cm_remove_from_favorites" />
 </menu>

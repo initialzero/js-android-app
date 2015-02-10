@@ -33,23 +33,25 @@ import com.octo.android.robospice.SpiceManager;
  * @author Tom Koptel
  * @since 1.9
  */
-public class RoboSpiceFragmentActivity extends RoboAccentFragmentActivity  {
+public class RoboSpiceFragmentActivity extends BaseActionBarActivity {
 
     @Inject
     private JsSpiceManager jsSpiceManager;
 
     @Override
     protected void onStart() {
-        if (!jsSpiceManager.isStarted())
-        jsSpiceManager.start(this);
+        if (!jsSpiceManager.isStarted()) {
+            jsSpiceManager.start(this);
+        }
         super.onStart();
     }
 
 
     @Override
     protected void onStop() {
-        if (jsSpiceManager.isStarted())
+        if (jsSpiceManager.isStarted()) {
             jsSpiceManager.shouldStop();
+        }
         super.onStop();
     }
 

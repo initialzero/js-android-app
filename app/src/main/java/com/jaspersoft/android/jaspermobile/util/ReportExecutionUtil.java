@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.content.Context;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.report.ExecutionRequest;
@@ -58,12 +59,14 @@ public class ReportExecutionUtil {
 
     public <T extends ExecutionRequest>  void setupAttachmentPrefix(T executionData, double versionCode) {
         String prefix = (versionCode == ServerInfo.VERSION_CODES.EMERALD_TWO) ? ATTACHMENT_PREFIX_5_0 : ATTACHMENT_PREFIX_5_6;
+        JsServerProfileCompat.initLegacyJsRestClient(context, jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         String attachmentsPrefix = (jsServerProfile.getServerUrl() + JsRestClient.REST_SERVICES_V2_URI + prefix);
         executionData.setAttachmentsPrefix(attachmentsPrefix);
     }
 
     public <T extends ExecutionRequest> void setupBaseUrl(T executionData) {
+        JsServerProfileCompat.initLegacyJsRestClient(context, jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         executionData.setBaseUrl(jsServerProfile.getServerUrl());
     }

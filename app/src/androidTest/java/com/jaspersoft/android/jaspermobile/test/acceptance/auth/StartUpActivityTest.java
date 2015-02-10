@@ -30,13 +30,13 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.StartUpActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
+import com.jaspersoft.android.jaspermobile.test.junit.filters.EmulatorOnly;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,9 +50,7 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -75,11 +73,7 @@ public class StartUpActivityTest {
         assertThat(webMockRule.get(), notNullValue());
     }
 
-    @After
-    public void after() {
-        activityRule.get().finish();
-    }
-
+    @EmulatorOnly
     @Test
     public void testAddAccountAction() {
         MockResponse authResponse = new MockResponse()
@@ -90,9 +84,13 @@ public class StartUpActivityTest {
                 .setBody("{}");
         MockResponse mobileDemoServerRespone = authResponse.clone()
                 .setBody(TestResource.getJson().rawData("mobile_demo"));
+        MockResponse resources = new MockResponse()
+                .addHeader("Content-Type", "application/xml; charset=utf-8")
+                .setBody(TestResource.get(TestResource.DataFormat.XML).rawData("all_resources"));
 
         webMockRule.get().enqueue(authResponse);
         webMockRule.get().enqueue(mobileDemoServerRespone);
+        webMockRule.get().enqueue(resources);
         activityRule.saveStart();
 
         onView(withId(R.id.aliasEdit)).perform(typeText(AccountServerData.Demo.ALIAS));
@@ -105,16 +103,16 @@ public class StartUpActivityTest {
 
         onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
-        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
     }
 
     @Test
     public void testEmptyAliasNotAcceptable() {
         activityRule.saveStart();
         onView(withId(R.id.aliasEdit)).perform(typeText("  "));
+        onView(withId(R.id.serverUrlEdit)).perform(scrollTo());
+        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.usernameEdit)).perform(scrollTo());
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
-        onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
 
@@ -122,7 +120,11 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
 
+        onView(withId(R.id.aliasEdit)).perform(scrollTo());
         onView(withId(R.id.aliasEdit)).perform(clearText());
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
@@ -130,7 +132,10 @@ public class StartUpActivityTest {
     @Test
     public void testEmptyUsernameNotAcceptable() {
         activityRule.saveStart();
+        onView(withId(R.id.aliasEdit)).perform(typeText(AccountServerData.Demo.ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(scrollTo());
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
         onView(withId(R.id.usernameEdit)).perform(typeText("  "));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
@@ -139,7 +144,9 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
 
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
         onView(withId(R.id.usernameEdit)).perform(clearText());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.usernameEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
@@ -147,7 +154,10 @@ public class StartUpActivityTest {
     @Test
     public void testEmptyPasswordNotAcceptable() {
         activityRule.saveStart();
+        onView(withId(R.id.aliasEdit)).perform(typeText(AccountServerData.Demo.ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(scrollTo());
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText("  "));
@@ -156,7 +166,11 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
 
+        onView(withId(R.id.aliasEdit)).perform(scrollTo());
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(clearText());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.passwordEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
@@ -164,7 +178,10 @@ public class StartUpActivityTest {
     @Test
     public void testEmptyForServerUrlNotAcceptable() {
         activityRule.saveStart();
+        onView(withId(R.id.aliasEdit)).perform(typeText(AccountServerData.Demo.ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(scrollTo());
         onView(withId(R.id.serverUrlEdit)).perform(typeText("  "));
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
@@ -174,6 +191,7 @@ public class StartUpActivityTest {
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_url_not_valid)));
 
         onView(withId(R.id.serverUrlEdit)).perform(clearText());
+        onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.serverUrlEdit)).check(matches(hasErrorText(R.string.sp_error_field_required)));
     }
@@ -181,7 +199,10 @@ public class StartUpActivityTest {
     @Test
     public void testServerUrlShouldBeValidUrl() {
         activityRule.saveStart();
+        onView(withId(R.id.aliasEdit)).perform(typeText(AccountServerData.Demo.ALIAS));
+        onView(withId(R.id.serverUrlEdit)).perform(scrollTo());
         onView(withId(R.id.serverUrlEdit)).perform(typeText("invalid url"));
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
         onView(withId(R.id.usernameEdit)).perform(typeText(AccountServerData.Demo.USERNAME));
         onView(withId(R.id.passwordEdit)).perform(scrollTo());
         onView(withId(R.id.passwordEdit)).perform(typeText(AccountServerData.Demo.PASSWORD));
@@ -207,5 +228,4 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(click());
         onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(R.string.sp_error_reserved_alias)));
     }
-
 }

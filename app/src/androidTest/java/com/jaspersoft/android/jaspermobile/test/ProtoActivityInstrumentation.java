@@ -40,8 +40,7 @@ import android.view.WindowManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
@@ -62,7 +61,6 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 @RunWith(AndroidJUnit4.class)
 public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
-    protected static final String PASSWORD = "phoneuser";
 
     protected T mActivity;
     protected JsRestClient jsRestClient;
@@ -86,7 +84,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
     @After
     public void tearDown() throws Exception {
         super.tearDown();
-        RoboGuice.util.reset();
+        unregisterTestModule();
         mApplication = null;
         mActivity = null;
     }
@@ -105,7 +103,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 .addAccount(serverData)
                 .setAuthToken()
                 .activate().getAccount();
-        ProfileManager.initLegacyJsRestClient(getApplication(), account, getJsRestClient());
+        JsServerProfileCompat.initLegacyJsRestClient(getApplication(), account, getJsRestClient());
     }
 
     public void startActivityUnderTest() {
@@ -165,16 +163,11 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     protected void registerTestModule(AbstractModule module) {
         unregisterTestModule();
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(module));
+        RoboGuice.overrideApplicationInjector(mApplication, module);
     }
 
     protected void unregisterTestModule() {
-        RoboGuice.util.reset();
+        RoboGuice.Util.reset();
     }
 
     protected Activity getCurrentActivity() throws Throwable {
@@ -194,7 +187,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     protected JsRestClient getJsRestClient() {
         if (jsRestClient == null) {
-            Injector injector = RoboGuice.getBaseApplicationInjector(getApplication());
+            Injector injector = RoboGuice.getInjector(getApplication());
             jsRestClient = injector.getInstance(JsRestClient.class);
         }
         return jsRestClient;

@@ -24,12 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-
 import com.google.common.collect.Queues;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
@@ -41,7 +38,6 @@ import org.apache.http.fake.FakeHttpLayerManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -60,17 +56,15 @@ import static org.hamcrest.core.Is.is;
  * @author Tom Koptel
  * @since 1.9
  */
-@RunWith(AndroidJUnit4.class)
-public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     public LibraryPageRefreshingTest() {
-        super(LibraryActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();

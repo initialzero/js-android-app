@@ -23,10 +23,11 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/saveAction"
         android:title="@string/sp_save_btn"
         android:icon="@drawable/ic_action_submit_disabled"
-        android:showAsAction="always"/>
+        app:showAsAction="always"/>
 </menu>

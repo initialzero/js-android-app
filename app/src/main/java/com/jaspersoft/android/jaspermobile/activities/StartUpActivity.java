@@ -34,8 +34,8 @@ import android.support.v4.app.TaskStackBuilder;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
-import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
@@ -65,56 +65,6 @@ public class StartUpActivity extends RoboActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         signInOrCreateAnAccount();
-
-        // Force database update
-        getContentResolver().query(MobileDbProvider.SERVER_PROFILES_CONTENT_URI,
-                new String[]{"_ID"}, null, null, null);
-    }
-
-    private void signInOrCreateAnAccount() {
-        final Context context = this;
-        compose(
-                AppObservable.bindActivity(this,
-                        AccountManagerUtil.get(this)
-                                .getActiveAccount()
-                ).subscribe(
-                        new Action1<Account>() {
-                            @Override
-                            public void call(Account account) {
-                                ProfileManager.initLegacyJsRestClient(context, account, jsRestClient);
-                                HomeActivity_.intent(context).start();
-                                finish();
-                            }
-                        }, new Action1<Throwable>() {
-                            @Override
-                            public void call(Throwable throwable) {
-                                recoverMissingAccountState();
-                            }
-                        })
-        );
-    }
-
-    private void recoverMissingAccountState() {
-        Account[] accounts = AccountManagerUtil.get(this).getAccounts();
-        if (accounts.length == 0) {
-            addAccount();
-        } else {
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            stackBuilder.addParentStack(AccountsActivity_.class);
-            stackBuilder.addNextIntent(AccountsActivity_.intent(this).get());
-            stackBuilder.startActivities();
-            finish();
-        }
-    }
-
-    private void compose(Subscription subscription) {
-        compositeSubscription.add(subscription);
-    }
-
-    private void addAccount() {
-        Intent intent = new Intent(this, AuthenticatorActivity.class);
-        intent.putExtra("account_types", new String[]{"com.jaspersoft"});
-        startActivityForResult(intent, AUTHORIZE);
     }
 
     @OnActivityResult(AUTHORIZE)
@@ -129,5 +79,59 @@ public class StartUpActivity extends RoboActivity {
     protected void onDestroy() {
         compositeSubscription.unsubscribe();
         super.onDestroy();
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void signInOrCreateAnAccount() {
+        Account[] accounts = AccountManagerUtil.get(this).getAccounts();
+        if (accounts.length == 0) {
+            addAccount();
+        } else {
+            checkActiveAccount();
+        }
+    }
+
+    private void checkActiveAccount() {
+        final Context context = this;
+        compose(
+                AppObservable.bindActivity(this,
+                        AccountManagerUtil.get(this)
+                                .getActiveAccount()
+                ).subscribe(
+                        new Action1<Account>() {
+                            @Override
+                            public void call(Account account) {
+                                JsServerProfileCompat.initLegacyJsRestClient(context, account, jsRestClient);
+                                NavigationActivity_.intent(context).start();
+                                finish();
+                            }
+                        }, new Action1<Throwable>() {
+                            @Override
+                            public void call(Throwable throwable) {
+                                pickAccount();
+                            }
+                        })
+        );
+    }
+
+    private void pickAccount() {
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(AccountsActivity_.class);
+        stackBuilder.addNextIntent(AccountsActivity_.intent(this).get());
+        stackBuilder.startActivities();
+        finish();
+    }
+
+    private void compose(Subscription subscription) {
+        compositeSubscription.add(subscription);
+    }
+
+    private void addAccount() {
+        Intent intent = new Intent(this, AuthenticatorActivity.class);
+        intent.putExtra("account_types", new String[]{"com.jaspersoft"});
+        startActivityForResult(intent, AUTHORIZE);
     }
 }

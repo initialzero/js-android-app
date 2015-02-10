@@ -28,7 +28,9 @@ import android.app.Application;
 import android.content.Context;
 import android.view.ViewConfiguration;
 
+import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
 import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
+import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -66,8 +68,15 @@ public class JasperMobileApplication extends Application {
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
+        seedProfiles();
         forceOverFlowMenu();
         initImageLoader(getApplicationContext());
+    }
+
+    private void seedProfiles() {
+        if (AccountManagerUtil.get(this).getAccounts().length == 0) {
+            new AccountSeed(this).seed();
+        }
     }
 
     private void initImageLoader(Context context) {

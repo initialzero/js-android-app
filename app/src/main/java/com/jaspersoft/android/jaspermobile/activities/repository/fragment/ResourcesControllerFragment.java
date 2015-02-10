@@ -27,15 +27,12 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 
 import com.google.common.collect.Lists;
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourceSearchable;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
@@ -53,7 +50,7 @@ import java.util.List;
 public class ResourcesControllerFragment extends ControllerFragment
         implements ResourcesLoader, ResourceSearchable {
     public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
-    public static final String CONTENT_TAG = "CONTENT_TAG";
+    public static final String CONTENT_TAG = "ResourcesControllerFragment.CONTENT_TAG";
 
     @InstanceState
     @FragmentArg
@@ -109,18 +106,6 @@ public class ResourcesControllerFragment extends ControllerFragment
     }
 
     @Override
-    protected void commitContentFragment() {
-        boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (animationEnabled) {
-            transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        }
-        transaction
-                .replace(android.R.id.content, getContentFragment(), getContentTag())
-                .commit();
-    }
-
-    @Override
     public Fragment getContentFragment() {
         contentFragment = ResourcesFragment_.builder()
                 .query(query)
@@ -133,6 +118,11 @@ public class ResourcesControllerFragment extends ControllerFragment
                 .sortOrder(sortOrder)
                 .build();
         return contentFragment;
+    }
+
+    @Override
+    protected String getContentFragmentTag() {
+        return CONTENT_TAG + resourceUri;
     }
 
     @Override

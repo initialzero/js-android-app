@@ -28,6 +28,7 @@ import android.content.Context;
 import android.os.Build;
 
 import com.google.common.base.Preconditions;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 /**

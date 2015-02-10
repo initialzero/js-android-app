@@ -55,6 +55,7 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -87,7 +88,7 @@ import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.On
 public class SavedItemsFragment extends RoboFragment
         implements FileAdapter.FileInteractionListener, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private final int SAVED_ITEMS_LOADER_ID = 0;
+    private final int SAVED_ITEMS_LOADER_ID = 10;
 
     @FragmentArg
     ViewType viewType;
@@ -228,6 +229,7 @@ public class SavedItemsFragment extends RoboFragment
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = Lists.newArrayList();
 
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
 
@@ -300,7 +302,7 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
+        mAdapter.swapCursor(null);
     }
 
     //---------------------------------------------------------------------
@@ -368,5 +370,4 @@ public class SavedItemsFragment extends RoboFragment
                 .setMessage(description)
                 .show();
     }
-
 }

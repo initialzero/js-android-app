@@ -8,8 +8,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.account.AccountsActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
+import com.jaspersoft.android.jaspermobile.test.junit.filters.EmulatorOnly;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
-import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
@@ -29,7 +29,6 @@ import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
@@ -88,13 +87,6 @@ public class AccountsActivityTest {
     }
 
     @Test
-    public void testHomeAsUpDisplayHomePage() {
-        activityRule.saveStart();
-        onView(withId(android.R.id.home)).perform(click());
-        onView(withText(R.string.app_label)).check(matches(isDisplayed()));
-    }
-
-    @Test
     public void testAliasShouldBeUnique() {
         AccountServerData data = new AccountServerData()
                 .setAlias(AccountServerData.Demo.ALIAS)
@@ -123,6 +115,7 @@ public class AccountsActivityTest {
         onView(withId(R.id.aliasEdit)).check(matches(hasErrorText(R.string.sp_error_duplicate_alias)));
     }
 
+    @EmulatorOnly
     @Test
     public void testAddAccountItemAltersPageState() {
         mockLoginAction();
@@ -133,6 +126,7 @@ public class AccountsActivityTest {
         onView(withId(R.id.addAccount)).perform(click());
 
         // When user adds account
+        onView(withId(R.id.aliasEdit)).perform(typeText(AccountServerData.Demo.ALIAS));
         onView(withId(R.id.serverUrlEdit)).perform(typeText(webMockRule.getEndpoint()));
         onView(withId(R.id.organizationEdit)).perform(typeText(AccountServerData.Demo.ORGANIZATION));
         onView(withId(R.id.usernameEdit)).perform(scrollTo());
@@ -146,19 +140,22 @@ public class AccountsActivityTest {
         DataInteraction firsItem = onData(is(instanceOf(Account.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(1);
-        firsItem.onChildView(withId(android.R.id.text1)).check(matches(withText(AccountServerData.Demo.USERNAME)));
+        firsItem.onChildView(withId(android.R.id.text1)).check(matches(withText(AccountServerData.Demo.ALIAS)));
         firsItem.onChildView(withId(android.R.id.text2)).check(matches(withText(containsString(webMockRule.getEndpoint()))));
     }
 
+    @EmulatorOnly
     @Test
     public void testClickOnItemListActivatesAccount() {
         mockLoginAction();
         AccountServerData data = new AccountServerData()
-                .setUsername("name1")
+                .setAlias("name1")
+                .setUsername("username1")
                 .setPassword("password")
                 .setServerUrl(webMockRule.getEndpoint());
         AccountServerData data1 = new AccountServerData()
-                .setUsername("name2")
+                .setAlias("name2")
+                .setUsername("username2")
                 .setPassword("password")
                 .setServerUrl(webMockRule.getEndpoint());
         AccountUtil.get(activityRule.getApplicationContext())
@@ -187,7 +184,7 @@ public class AccountsActivityTest {
 
     private void createTestAccount() {
         AccountServerData serverData = new AccountServerData()
-                .setUsername(TEST_NAME)
+                .setAlias(TEST_NAME)
                 .setServerUrl(TEST_URL);
         AccountUtil.get(activityRule.getApplicationContext())
                 .removeAllAccounts()
@@ -207,8 +204,7 @@ public class AccountsActivityTest {
                 .addHeader("Set-Cookie", "userLocale=en_US;Expires=Thu, 15-Jan-2015 12:15:36 GMT;HttpOnly")
                 .throttleBody(Integer.MAX_VALUE, 1, TimeUnit.MILLISECONDS)
                 .setBody("{}");
-        MockResponse mobileDemoServerResponse = authResponse.clone()
-                .setBody(TestResource.getJson().rawData("mobile_demo"));
+        MockResponse mobileDemoServerResponse = authResponse.clone();
 
         webMockRule.get().enqueue(authResponse);
         webMockRule.get().enqueue(mobileDemoServerResponse);

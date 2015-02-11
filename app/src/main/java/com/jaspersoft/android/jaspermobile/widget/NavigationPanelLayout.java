@@ -13,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -83,6 +84,13 @@ public class NavigationPanelLayout extends RelativeLayout {
         initAccountsView();
         isShowingMenu = true;
         showActivatedPanel(isShowingMenu);
+    }
+
+    public void notifyPanelClosed(){
+        isShowingMenu = true;
+        showActivatedPanel(isShowingMenu);
+        accountsMenu.setSelectionAfterHeaderView();
+        ((ScrollView) navigationMenu).fullScroll(FOCUS_UP);
     }
 
     @AfterViews
@@ -211,10 +219,12 @@ public class NavigationPanelLayout extends RelativeLayout {
             ivProfileArrow.setImageResource(R.drawable.ic_arrow_up);
             navigationMenu.setVisibility(GONE);
             accountsMenu.setVisibility(VISIBLE);
+            ((ScrollView) navigationMenu).fullScroll(FOCUS_UP);
         } else {
             ivProfileArrow.setImageResource(R.drawable.ic_arrow_down);
             navigationMenu.setVisibility(VISIBLE);
             accountsMenu.setVisibility(GONE);
+            accountsMenu.setSelectionAfterHeaderView();
         }
     }
 

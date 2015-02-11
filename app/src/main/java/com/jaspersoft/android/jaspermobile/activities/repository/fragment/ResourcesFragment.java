@@ -440,7 +440,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
 
         private void enableRefreshLayout(AbsListView listView) {
-            boolean enable = false;
+            boolean enable = true;
             if (listView != null && listView.getChildCount() > 0) {
                 // check if the first item of the list is visible
                 boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;

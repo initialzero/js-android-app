@@ -28,7 +28,7 @@
 
     <com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout_
         android:id="@+id/npl_navigation_menu"
-        android:layout_width="240dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="#111" />

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,6 +101,20 @@ public class NavigationPanelLayout extends RelativeLayout {
         accountsMenu.setAdapter(accountsAdapter);
         Account currentAccount = JasperAccountProvider.get(getContext()).getAccount();
         tvProfile.setText(currentAccount != null ? currentAccount.name : getContext().getString(R.string.nd_select_account));
+    }
+
+    /**
+     * Calculation width of Left Panel Menu. The size should be minimum of 2 values: screen width - ab size or 320dp.
+     * NOTE: http://www.google.com/design/spec/patterns/navigation-drawer.html But minimum size(5 * ab size) is incorrect.
+     */
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        int screenWidth = Math.min(dm.widthPixels, dm.heightPixels);
+        int toolbarHeight = (int) getResources().getDimension(android.support.v7.appcompat.R.dimen.abc_action_bar_default_height_material);
+
+        getLayoutParams().width = (int) Math.min(screenWidth - toolbarHeight, 320 * dm.scaledDensity);
     }
 
     private OnClickListener onAddProfileClickListener = new OnClickListener() {

@@ -106,6 +106,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
             PaginationManagerFragment manager = (PaginationManagerFragment) getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
 
             SaveReportActivity_.intent(this)
+                    .requestId(getReportExecutionFragment().getRequestId())
                     .reportParameters(reportParameters)
                     .resource(resource)
                     .pageCount(manager.mTotalPage)

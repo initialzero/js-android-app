@@ -48,15 +48,15 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
+import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportAttachmentRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportOutputRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
+import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -66,6 +66,7 @@ import com.octo.android.robospice.request.SpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -110,6 +111,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @FragmentArg
     ResourceLookup resource;
     @FragmentArg
+    String requestId;
+    @FragmentArg
     ArrayList<ReportParameter> reportParameters;
     @FragmentArg
     int pageCount;
@@ -119,6 +122,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @Inject
     JsRestClient jsRestClient;
+    @Bean
+    ReportExecutionUtil reportExecutionUtil;
 
     @InstanceState
     int runningRequests;
@@ -161,30 +166,31 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 // run new report execution
                 setRefreshActionButtonState(true);
 
-                final ReportExecutionRequest executionRequest = new ReportExecutionRequest();
-                executionRequest.setReportUnitUri(resource.getUri());
-                executionRequest.setInteractive(false);
-                executionRequest.setOutputFormat(outputFormat.toString());
-                executionRequest.setEscapedAttachmentsPrefix("./");
+                final ExportsRequest executionData = new ExportsRequest();
+                executionData.setReportUnitUri(resource.getUri());
+                executionData.setInteractive(false);
+                executionData.setOutputFormat(outputFormat.toString());
+                executionData.setEscapedAttachmentsPrefix("./");
+                executionData.setPages("1");
 
                 boolean hasPagination = (pageCount > 1);
                 if (hasPagination) {
                     boolean rangeIsValid = mFromPage < mToPage;
                     if (rangeIsValid) {
-                        executionRequest.setPages(mFromPage + "-" + mToPage);
+                        executionData.setPages(mFromPage + "-" + mToPage);
                     }
                     boolean exactPage = (mFromPage == mToPage);
                     if (exactPage) {
-                        executionRequest.setPages(String.valueOf(mFromPage));
+                        executionData.setPages(String.valueOf(mFromPage));
                     }
                 }
 
                 if (reportParameters != null && !reportParameters.isEmpty()) {
-                    executionRequest.setParameters(reportParameters);
+                    executionData.setParameters(reportParameters);
                 }
 
-                RunReportExecutionRequest request =
-                        new RunReportExecutionRequest(jsRestClient, executionRequest);
+                final RunReportExportsRequest request = new RunReportExportsRequest(jsRestClient,
+                        executionData, requestId);
                 getSpiceManager().execute(request,
                         new RunReportExecutionListener(outputFormat));
             }
@@ -367,7 +373,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener implements RequestListener<ReportExecutionResponse> {
+    private class RunReportExecutionListener implements RequestListener<ExportExecution> {
         private OutputFormat outputFormat;
 
         private RunReportExecutionListener(OutputFormat outputFormat) {
@@ -384,16 +390,13 @@ public class SaveItemFragment extends RoboSpiceFragment {
         }
 
         @Override
-        public void onRequestSuccess(ReportExecutionResponse response) {
+        public void onRequestSuccess(ExportExecution execution) {
             runningRequests--;
-
-            ExportExecution execution = response.getExports().get(0);
             String exportOutput = execution.getId();
-            String executionId = response.getRequestId();
 
             // save report file
             SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient,
-                    executionId, exportOutput, reportFile);
+                    requestId, exportOutput, reportFile);
             getSpiceManager().execute(outputRequest, new ReportFileSaveListener(outputFormat));
 
             // save attachments
@@ -403,13 +406,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
                     File attachmentFile = new File(reportFile.getParentFile(), attachmentName);
 
                     SaveExportAttachmentRequest attachmentRequest = new SaveExportAttachmentRequest(jsRestClient,
-                            executionId, exportOutput, attachmentName, attachmentFile);
+                            requestId, exportOutput, attachmentName, attachmentFile);
                     requests.add(attachmentRequest);
                     getSpiceManager().execute(attachmentRequest, new AttachmentFileSaveListener());
                 }
             }
         }
-
     }
 
     private class AttachmentFileSaveListener implements RequestListener<File> {

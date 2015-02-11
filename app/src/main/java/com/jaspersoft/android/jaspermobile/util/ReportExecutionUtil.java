@@ -79,10 +79,10 @@ public class ReportExecutionUtil {
         executionData.setBaseUrl(mServerData.getServerUrl());
     }
 
-    public String createRequestId(ExportExecution response, int page) {
+    public String createExecutionId(ExportExecution response, String pages) {
         String executionId = response.getId();
         if (isEmeraldMr2()) {
-            executionId = ("html;pages=" + page);
+            executionId = ("html;pages=" + pages);
         }
         return executionId;
     }

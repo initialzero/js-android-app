@@ -60,6 +60,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
     private final Handler mHandler = new Handler();
     private RequestExecutor requestExecutor;
+    private String requestId;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -144,6 +145,10 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 .show();
     }
 
+    public String getRequestId() {
+        return requestId;
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -206,7 +211,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             }
 
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
-            final String requestId = response.getRequestId();
+            requestId = response.getRequestId();
             reportSession.setRequestId(requestId);
 
             ReportStatus status = response.getReportStatus();

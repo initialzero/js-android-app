@@ -106,7 +106,7 @@ public class ReportExportOutputLoader {
 
         @Override
         public void onRequestSuccess(ExportExecution response) {
-            String executionId = reportExecutionUtil.createRequestId(response, mPage);
+            String executionId = reportExecutionUtil.createExecutionId(response, String.valueOf(mPage));
 
             RunReportExportOutputRequestListener semanticListener
                     = new RunReportExportOutputRequestListener(executionId);

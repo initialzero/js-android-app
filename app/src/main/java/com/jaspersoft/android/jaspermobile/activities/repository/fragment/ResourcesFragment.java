@@ -151,6 +151,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     private ResourceAdapter mAdapter;
     private PaginationPolicy mPaginationPolicy;
+    private AccountServerData mServerData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -182,6 +183,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Account account = JasperAccountProvider.get(getActivity()).getAccount();
+        mServerData = AccountServerData.get(getActivity(), account);
+
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_light,
@@ -190,17 +194,19 @@ public class ResourcesFragment extends RoboSpiceFragment
                 R.color.holo_blue_bright);
 
         listView.setOnScrollListener(new ScrollListener());
-
-        Account account = JasperAccountProvider.get(getActivity()).getAccount();
-        AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
-        ServerRelease serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
-
         setDataAdapter(savedInstanceState);
-        updatePaginationPolicy(serverRelease);
+        updatePaginationPolicy();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        mAdapter.clear();
 
         boolean isRepository = !recursiveLookup;
         boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = accountServerData.getEdition().equals("PRO");
+        boolean isProJrs = mServerData.getEdition().equals("PRO");
         if (isRepository && isRoot && isProJrs) {
             loadRootFolders();
         } else {
@@ -228,10 +234,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onSaveInstanceState(Bundle outState) {
         mAdapter.save(outState);
         super.onSaveInstanceState(outState);
-    }
-
-    public boolean isLoading() {
-        return mLoading;
     }
 
     public void setQuery(String query) {
@@ -293,8 +295,10 @@ public class ResourcesFragment extends RoboSpiceFragment
         listView.setAdapter(mAdapter);
     }
 
-    private void updatePaginationPolicy(ServerRelease release) {
+    private void updatePaginationPolicy() {
+        ServerRelease release = ServerRelease.parseVersion(mServerData.getVersionName());
         double versionCode = release.code();
+
         if (versionCode <= ServerRelease.EMERALD_MR2.code()) {
             mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
         }
@@ -440,7 +444,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
 
         private void enableRefreshLayout(AbsListView listView) {
-            boolean enable = false;
+            boolean enable = true;
             if (listView != null && listView.getChildCount() > 0) {
                 // check if the first item of the list is visible
                 boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;

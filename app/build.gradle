@@ -141,7 +141,7 @@ dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
 
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'

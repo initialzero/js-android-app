@@ -244,4 +244,8 @@
     <string name="of"><![CDATA[of %d]]></string>
     <string name="dialog_current_page">Set current page</string>
 
+    <!-- MultiSelectSpinner -->
+    <string name="mss_btn_check_all" translatable="false">Check all</string>
+    <string name="mss_btn_uncheck_all" translatable="false">Uncheck all</string>
+
 </resources>

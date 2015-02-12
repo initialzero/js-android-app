@@ -74,6 +74,7 @@ android {
     }
 
     packagingOptions {
+        exclude 'META-INF/ASL2.0'
         exclude 'asm-license.txt'
         exclude 'NOTICE'
         exclude 'LICENSE'
@@ -135,8 +136,7 @@ dependencies {
     // AS soon as we have broken builds on artifactory you should build sdk manually
     // git checkout v1.9.2
     // gradlew install
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.2'
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.3-SNAPSHOT'
 
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'

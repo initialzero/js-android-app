@@ -42,6 +42,91 @@
         <item name="android:textColor">@color/js_blue</item>
     </style>
 
+    <!-- Input Controls -->
+    <style name="inputControl" />
+
+    <style name="inputControl.layout">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:paddingBottom">7dp</item>
+    </style>
+
+    <style name="inputControl.label">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@color/js_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="inputControl.errorText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@android:color/holo_red_dark</item>
+    </style>
+
+    <!-- Boolean -->
+    <style name="inputControl.boolean" />
+
+    <style name="inputControl.boolean.checkBox">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@color/js_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Single Value -->
+    <style name="inputControl.singleValue" />
+
+    <style name="inputControl.singleValue.editText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <!-- Date -->
+    <style name="inputControl.date" />
+
+    <style name="inputControl.date.inputContainer" />
+
+    <style name="inputControl.date.inputContainer.layout">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="inputControl.date.inputContainer.editText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="inputControl.date.inputContainer.picker">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+
+    <style name="inputControl.date.inputContainer.picker.date">
+        <item name="android:src">@drawable/ic_action_date_picker</item>
+    </style>
+
+    <style name="inputControl.date.inputContainer.picker.time">
+        <item name="android:src">@drawable/ic_action_time_picker</item>
+    </style>
+
+    <!-- Single/Multi Select -->
+    <style name="inputControl.select" />
+
+    <style name="inputControl.select.spinner">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    
     <!-- Report Options Layout -->
     <style name="reportOptions" />
 
@@ -146,7 +231,7 @@
 
     <style name="dialog.textView.error">
         <item name="android:visibility">gone</item>
-        <item name="android:textColor">@color/red</item>
+        <item name="android:textColor">@android:color/holo_red_dark</item>
     </style>
 
     <!--New Home Styling-->
@@ -274,7 +359,7 @@
         <item name="android:textColor">@color/list_label_grey</item>
         <item name="android:layout_margin">4dp</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:maxLines">2</item>
+        <item name="android:lines">2</item>
     </style>
 
     <style name="grid.item.subTitle">

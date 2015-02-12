@@ -51,14 +51,10 @@ public class NavigationActivity extends RoboToolboxActivity {
     protected DrawerLayout drawerLayout;
     @ViewById(R.id.npl_navigation_menu)
     protected NavigationPanelLayout navigationPanelLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Extra
     protected int defaultSelection = R.id.vg_library;
-
-    private ActionBarDrawerToggle mDrawerToggle;
-
-    private boolean mHideMenu;
-    private float mPreviousOffset = 0f;
 
     @AfterViews
     final void setupNavigation() {
@@ -124,28 +120,14 @@ public class NavigationActivity extends RoboToolboxActivity {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                mHideMenu = false;
                 invalidateOptionsMenu();
+                navigationPanelLayout.notifyPanelClosed();
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                mHideMenu = true;
                 invalidateOptionsMenu();
-            }
-
-            @Override
-            public void onDrawerSlide(View arg0, float slideOffset) {
-                super.onDrawerSlide(arg0, slideOffset);
-                if (slideOffset > mPreviousOffset && !mHideMenu) {
-                    mHideMenu = true;
-                    invalidateOptionsMenu();
-                } else if (mPreviousOffset > slideOffset && slideOffset < 0.5f && mHideMenu) {
-                    mHideMenu = false;
-                    invalidateOptionsMenu();
-                }
-                mPreviousOffset = slideOffset;
             }
         };
         drawerLayout.setDrawerListener(mDrawerToggle);

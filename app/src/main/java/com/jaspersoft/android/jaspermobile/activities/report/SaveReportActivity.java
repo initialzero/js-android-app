@@ -47,6 +47,8 @@ import java.util.ArrayList;
 public class SaveReportActivity extends RoboSpiceFragmentActivity {
 
     @Extra
+    String requestId;
+    @Extra
     String resourceLabel;
     @Extra
     String resourceUri;
@@ -64,6 +66,7 @@ public class SaveReportActivity extends RoboSpiceFragmentActivity {
 
         if (savedInstanceState == null) {
             SaveItemFragment saveItemFragment = SaveItemFragment_.builder()
+                    .requestId(requestId)
                     .resourceLabel(resourceLabel)
                     .resourceUri(resourceUri)
                     .reportParameters(reportParameters)

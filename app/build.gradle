@@ -132,8 +132,12 @@ dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
 
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
+    // AS soon as we have broken builds on artifactory you should build sdk manually
+    // git checkout v1.9.2
+    // gradlew install
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.2'
     compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
+
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'
     compile('com.android.support:support-v4:20.0.0') {

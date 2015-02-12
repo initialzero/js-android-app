@@ -104,6 +104,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     final void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
             SaveReportActivity_.intent(this)
+                    .requestId(getReportExecutionFragment().getRequestId())
                     .reportParameters(reportParameters)
                     .resourceUri(resource.getUri())
                     .resourceLabel(resource.getLabel())

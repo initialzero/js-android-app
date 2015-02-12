@@ -171,7 +171,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
                 executionData.setInteractive(false);
                 executionData.setOutputFormat(outputFormat.toString());
                 executionData.setEscapedAttachmentsPrefix("./");
-                executionData.setPages("1");
 
                 boolean hasPagination = (pageCount > 1);
                 if (hasPagination) {

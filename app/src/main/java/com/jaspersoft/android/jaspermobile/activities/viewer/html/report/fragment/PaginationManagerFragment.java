@@ -190,6 +190,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
 
                 @Override
                 public void onPagesLoaded(int totalPage) {
+                    mTotalPage = totalPage;
                     if (totalPage > 1) {
                         showTotalPageCount(totalPage);
                     }

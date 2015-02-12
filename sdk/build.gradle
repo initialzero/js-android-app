@@ -43,6 +43,6 @@ dependencies {
         exclude group: 'com.google.code.gson'
     }
     compile 'com.jakewharton.timber:timber:2.5.0'
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.1-SNAPSHOT'
+    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.3-SNAPSHOT'
     compile 'io.reactivex:rxandroid:0.24.0'
 }

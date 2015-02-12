@@ -52,6 +52,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivit
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
+import com.jaspersoft.android.jaspermobile.widget.MultiSelectSpinner;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
@@ -62,7 +63,6 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlStatesList;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-import com.jaspersoft.android.sdk.ui.widget.MultiSelectSpinner;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -318,7 +318,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
     private void initSingleValueControl(final InputControl inputControl) {
         LayoutInflater inflater = getLayoutInflater();
-        View layoutView = inflater.inflate(R.layout.ic_single_value_layout, baseLayout, false);
+        View layoutView = inflater.inflate(R.layout.view_ic_single_value, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
         EditText editText = (EditText) layoutView.findViewById(R.id.ic_edit_text);
@@ -347,7 +347,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
     private void initDateControl(final InputControl inputControl) {
         LayoutInflater inflater = getLayoutInflater();
-        View layoutView = inflater.inflate(R.layout.ic_single_value_date_layout, baseLayout, false);
+        View layoutView = inflater.inflate(R.layout.view_ic_single_value_date, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
         final EditText editText = (EditText) layoutView.findViewById(R.id.ic_date_text);
@@ -417,7 +417,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
     private void initSingleSelectControl(final InputControl inputControl) {
         LayoutInflater inflater = getLayoutInflater();
-        View layoutView = inflater.inflate(R.layout.ic_single_select_layout, baseLayout, false);
+        View layoutView = inflater.inflate(R.layout.view_ic_single_select, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
         Spinner spinner = (Spinner) layoutView.findViewById(R.id.ic_spinner);
@@ -466,7 +466,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
     private void initMultiSelectControl(final InputControl inputControl) {
         LayoutInflater inflater = getLayoutInflater();
-        View layoutView = inflater.inflate(R.layout.ic_multi_select_layout, baseLayout, false);
+        View layoutView = inflater.inflate(R.layout.view_ic_multi_select, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
         MultiSelectSpinner<InputControlOption> multiSpinner =

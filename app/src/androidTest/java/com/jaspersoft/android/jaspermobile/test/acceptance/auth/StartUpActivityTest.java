@@ -27,12 +27,13 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.auth;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.StartUpActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
 import com.jaspersoft.android.jaspermobile.test.junit.filters.EmulatorOnly;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
+import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.squareup.okhttp.mockwebserver.MockResponse;
@@ -51,6 +52,8 @@ import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -64,12 +67,15 @@ public class StartUpActivityTest {
     @Rule
     public WebMockRule webMockRule = new WebMockRule();
     @Rule
-    public final ActivityRule<StartUpActivity_> activityRule =
-            ActivityRule.create(StartUpActivity_.class);
+    public final ActivityRule<NavigationActivity_> activityRule =
+            ActivityRule.create(NavigationActivity_.class);
 
     @Before
     public void before() {
         AccountUtil.get(activityRule.getApplicationContext()).removeAllAccounts();
+        PreferenceApiAdapter.init(activityRule.getApplicationContext())
+                .setInAppAnimationEnabled(false)
+                .setIntroEnabled(false);
         assertThat(webMockRule.get(), notNullValue());
     }
 
@@ -103,6 +109,8 @@ public class StartUpActivityTest {
 
         onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
+
+        onView(firstChildOf(withId(R.id.tb_navigation))).check(matches(withText(R.string.h_library_label)));
     }
 
     @Test

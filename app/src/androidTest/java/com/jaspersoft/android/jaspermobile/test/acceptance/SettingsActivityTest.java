@@ -30,6 +30,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.octo.android.robospice.persistence.DurationInMillis;
 
@@ -48,9 +49,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_CONNECT_TIMEOUT;
-import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_READ_TIMEOUT;
-import static com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity.DEFAULT_REPO_CACHE_EXPIRATION;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.Is.is;
 
@@ -90,7 +88,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
 
-        int expectedTimeOut = (int) TimeUnit.SECONDS.toMillis(Integer.valueOf(DEFAULT_READ_TIMEOUT));
+        int expectedTimeOut = (int) TimeUnit.SECONDS.toMillis(Integer.valueOf(DefaultPrefHelper.DEFAULT_READ_TIMEOUT));
         assertThat(prefHelper.getReadTimeoutValue(), is(expectedTimeOut));
     }
 
@@ -103,7 +101,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
 
-        int expectedTimeOut = (int) TimeUnit.SECONDS.toMillis(Integer.valueOf(DEFAULT_CONNECT_TIMEOUT));
+        int expectedTimeOut = (int) TimeUnit.SECONDS.toMillis(Integer.valueOf(DefaultPrefHelper.DEFAULT_CONNECT_TIMEOUT));
         assertThat(prefHelper.getConnectTimeoutValue(), is(expectedTimeOut));
     }
 
@@ -118,7 +116,7 @@ public class SettingsActivityTest extends ProtoActivityInstrumentation<SettingsA
         onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
         onOverflowView(getActivity(), withText(R.string.st_invalid_number_format)).check(matches(isDisplayed()));
 
-        long defaultValue = Long.valueOf(DEFAULT_REPO_CACHE_EXPIRATION) * DurationInMillis.ONE_HOUR;
+        long defaultValue = Long.valueOf(DefaultPrefHelper.DEFAULT_REPO_CACHE_EXPIRATION) * DurationInMillis.ONE_HOUR;
         assertThat(prefHelper.getRepoCacheExpirationValue(), is(defaultValue));
     }
 

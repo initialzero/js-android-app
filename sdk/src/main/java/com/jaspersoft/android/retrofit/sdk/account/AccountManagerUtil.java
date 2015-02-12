@@ -92,7 +92,7 @@ public class AccountManagerUtil {
 
     public List<AccountServerData> getInactiveAccountServers() {
         Account activeAccount = JasperAccountProvider.get(mContext).getAccount();
-        final String activeName = activeAccount.name;
+        final String activeName = (activeAccount == null) ? "" : activeAccount.name;
 
         return Observable.from(getAccounts())
                 .filter(new Func1<Account, Boolean>() {

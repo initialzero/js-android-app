@@ -42,8 +42,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -75,10 +74,10 @@ public class ProtoActivityInstrumentation<T extends Activity>
         super.setUp();
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
-        DefaultPrefHelper helper = DefaultPrefHelper_
-                .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
-        helper.setAnimationEnabled(false);
-        helper.setRepoCacheEnabled(false);
+        PreferenceApiAdapter.init(getApplication())
+                .setCacheEnabled(false)
+                .setInAppAnimationEnabled(false)
+                .setIntroEnabled(false);
     }
 
     @After

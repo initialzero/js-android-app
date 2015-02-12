@@ -37,6 +37,8 @@ import org.junit.Before;
 import org.junit.rules.ExternalResource;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import roboguice.RoboGuice;
 import timber.log.Timber;
@@ -50,15 +52,19 @@ public class WebMockRule extends ExternalResource {
     private MockWebServer server;
     private String endpoint;
 
+    private Logger logger = Logger.getLogger(WebMockRule.class.getName());
+
     @Before
     public void before() throws Throwable {
         super.before();
+
         // Create a MockWebServer. These are lean enough that you can create a new
         // instance for every unit test.
         server = new MockWebServer();
         try {
             server.play();
         } catch (IOException e) {
+            logger.log(Level.INFO, "Failed to start MockWebServer");
             throw new RuntimeException(e);
         }
 
@@ -69,6 +75,11 @@ public class WebMockRule extends ExternalResource {
     @Override
     protected void after() {
         super.after();
+        try {
+            server.shutdown();
+        } catch (IOException e) {
+            logger.log(Level.INFO, "Failed to shutdown MockWebServer", e);
+        }
         RoboGuice.Util.reset();
     }
 

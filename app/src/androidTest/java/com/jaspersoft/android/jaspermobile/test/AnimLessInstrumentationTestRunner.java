@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.test;
 
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.test.runner.AndroidJUnitRunner;
@@ -49,15 +48,10 @@ public class AnimLessInstrumentationTestRunner extends AndroidJUnitRunner {
     }
 
     private void disableAnimation() {
-        int permStatus = getContext().checkCallingOrSelfPermission(ANIMATION_PERMISSION);
-        if (permStatus == PackageManager.PERMISSION_GRANTED) {
-            if (reflectivelyDisableAnimation()) {
-                Log.i(TAG, "All animations disabled.");
-            } else {
-                Log.i(TAG, "Could not disable animations.");
-            }
+        if (reflectivelyDisableAnimation()) {
+            Log.i(TAG, "All animations disabled.");
         } else {
-            Log.i(TAG, "Cannot disable animations due to lack of permission.");
+            Log.i(TAG, "Could not disable animations.");
         }
     }
 

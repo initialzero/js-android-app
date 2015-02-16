@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="ga_autoActivityTracking">true</bool>
-    <bool name="ga_reportUncaughtExceptions">false</bool>
     <integer name="ga_sessionTimeout">1800</integer>
     <integer name="ga_dispatchPeriod">15 </integer>
 

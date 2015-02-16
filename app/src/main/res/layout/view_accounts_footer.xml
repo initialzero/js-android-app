@@ -8,22 +8,24 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
+        android:layout_height="1px"
+        android:layout_marginTop="8dp"
         android:background="@color/navigation_profile_separator" />
 
     <LinearLayout
         android:id="@+id/vg_add_account"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/bg_navigation_item"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="15dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <ImageView
             android:id="@+id/iv_add_account"
-            android:layout_width="25dp"
+            android:layout_width="24dp"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_add" />
 
@@ -31,26 +33,28 @@
             android:id="@+id/tv_add_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="20dp"
-            android:fontFamily="sans-serif-light"
+            android:layout_marginLeft="32dp"
+            android:fontFamily="sans-serif-regular"
             android:singleLine="true"
-            android:textColor="@android:color/white"
-            android:text="@string/add_account" />
+            android:text="@string/add_account"
+            android:textColor="@android:color/white" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/vg_manage_accounts"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginBottom="9dp"
         android:background="@drawable/bg_navigation_item"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="15dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <ImageView
             android:id="@+id/iv_manage_accounts"
-            android:layout_width="25dp"
+            android:layout_width="24dp"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_settings" />
 
@@ -58,12 +62,11 @@
             android:id="@+id/tv_manage_accounts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="20dp"
-            android:fontFamily="sans-serif-light"
+            android:layout_marginLeft="32dp"
+            android:fontFamily="sans-serif-regular"
             android:singleLine="true"
-            android:textColor="@android:color/white"
-            android:text="@string/nd_manage_accounts" />
+            android:text="@string/nd_manage_accounts"
+            android:textColor="@android:color/white" />
 
     </LinearLayout>
 

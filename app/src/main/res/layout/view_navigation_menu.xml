@@ -12,15 +12,17 @@
         <LinearLayout
             android:id="@+id/vg_library"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_navigation_item"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="15dp">
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
 
             <ImageView
                 android:id="@+id/iv_library"
-                android:layout_width="25dp"
+                android:layout_width="24dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/bg_navigation_icon_library" />
 
@@ -28,10 +30,9 @@
                 android:id="@+id/tv_library"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="32dp"
+                android:fontFamily="sans-serif-regular"
                 android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/library_card_label" />
 
         </LinearLayout>
@@ -39,14 +40,16 @@
         <LinearLayout
             android:id="@+id/vg_repository"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:background="@drawable/bg_navigation_item"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="15dp">
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
 
             <ImageView
                 android:id="@+id/iv_repository"
-                android:layout_width="25dp"
+                android:layout_width="24dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/bg_navigation_icon_repository" />
 
@@ -54,10 +57,9 @@
                 android:id="@+id/tv_repository"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="32dp"
+                android:fontFamily="sans-serif"
                 android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/repository_card_label" />
 
         </LinearLayout>
@@ -65,14 +67,16 @@
         <LinearLayout
             android:id="@+id/vg_favorites"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:background="@drawable/bg_navigation_item"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="15dp">
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
 
             <ImageView
                 android:id="@+id/iv_favorites"
-                android:layout_width="25dp"
+                android:layout_width="24dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/bg_navigation_icon_favorites" />
 
@@ -80,10 +84,9 @@
                 android:id="@+id/tv_favorites"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="32dp"
+                android:fontFamily="sans-serif-regular"
                 android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/favorites_card_label" />
 
         </LinearLayout>
@@ -91,14 +94,16 @@
         <LinearLayout
             android:id="@+id/vg_saved_items"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:background="@drawable/bg_navigation_item"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="15dp">
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
 
             <ImageView
                 android:id="@+id/iv_saved_items"
-                android:layout_width="25dp"
+                android:layout_width="24dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/bg_navigation_icon_saved_items" />
 
@@ -106,51 +111,56 @@
                 android:id="@+id/tv_saved_items"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="32dp"
+                android:fontFamily="sans-serif-regular"
                 android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/sdr_ab_title" />
 
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="5dp"
+            android:layout_height="1px"
+            android:layout_marginTop="8dp"
             android:background="@color/navigation_profile_separator" />
 
         <TextView
             android:id="@+id/tv_settings"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_navigation_item"
             android:clickable="true"
-            android:padding="15dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             android:singleLine="true"
             android:text="@string/settings_card_label" />
 
         <TextView
             android:id="@+id/tv_feedback"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_navigation_item"
             android:clickable="true"
-            android:padding="15dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             android:singleLine="true"
             android:text="@string/sa_show_feedback" />
 
         <TextView
             android:id="@+id/tv_about"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:background="@drawable/bg_navigation_item"
             android:clickable="true"
-            android:padding="15dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             android:singleLine="true"
-            android:text="@string/sa_show_about" />
+            android:text="@string/sa_show_about"
+            android:layout_marginBottom="8dp" />
 
     </LinearLayout>
 

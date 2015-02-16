@@ -7,21 +7,23 @@
     <RelativeLayout
         android:id="@+id/vg_profile"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/profile_bg"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_profile"
         android:clickable="true"
-        android:padding="15dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:id="@+id/tv_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@+id/iv_profile_arrow"
             android:clickable="false"
             android:fontFamily="sans-serif-regular"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_toLeftOf="@+id/iv_profile_arrow"
-            android:layout_marginRight="5dp" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <ImageView
             android:id="@+id/iv_profile_arrow"

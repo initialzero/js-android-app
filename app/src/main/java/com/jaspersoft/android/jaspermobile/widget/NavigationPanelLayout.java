@@ -288,8 +288,9 @@ public class NavigationPanelLayout extends RelativeLayout {
             mViewHolder.tvAccountName.setText(getItem(position).getAlias());
 
             AccountServerData serverData = getItem(position);
-            String userName = serverData.getUsername();
-            mViewHolder.tvAccountVersion.setText(userName == null ? "?" : userName.substring(0, 1));
+            //We need to show only 2 digits of version
+            String serverVersion = serverData.getVersionName().substring(0, 3);
+            mViewHolder.tvAccountVersion.setText(serverVersion);
 
             return convertView;
         }

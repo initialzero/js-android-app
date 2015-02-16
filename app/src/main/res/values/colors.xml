@@ -53,11 +53,12 @@
     <color name="ab_background">#363942</color>
     <color name="shadow_light">#55000000</color>
     <color name="shadow_dark">#cc000000</color>
-    <color name="profile_bg">#2d85b4</color>
+    <color name="profile_bg">#9939abe7</color>
     <color name="navigation_profile_separator">#444444</color>
     <color name="navigation_profile_shadow">#aa000000</color>
     <color name="navigation_menu_bg">#292b30</color>
     <color name="navigation_item_bg">#373b42</color>
+    <color name="navigation_account_icon_bg">#464952</color>
 
     <!--Dialog-->
     <color name="dialog_title_txt_color">#0185c3</color>

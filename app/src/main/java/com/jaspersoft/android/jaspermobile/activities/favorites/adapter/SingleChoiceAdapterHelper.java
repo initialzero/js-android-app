@@ -102,6 +102,10 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelperBase {
             outState.putInt(CURRENT_POSITION_KEY, currentPosition);
         }
     }
+    @Override
+    public String getActionModeTitle(int count) {
+        return String.valueOf(count);
+    }
 
     @Override
     protected void setActionModeTitle(String title) {

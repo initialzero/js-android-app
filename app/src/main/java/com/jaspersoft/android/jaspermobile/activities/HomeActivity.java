@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
@@ -66,6 +67,8 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * @author Ivan Gadzhega
@@ -189,6 +192,8 @@ public class HomeActivity extends RoboSpiceFragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
+        int i = 4/0;
         IntroPageActivity_.intent(this).start();
     }
 

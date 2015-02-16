@@ -196,6 +196,10 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="9d425447d513077d94708723fd9cf72803a745bc" />
+
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
             android:name=".network.XmlSpiceService"

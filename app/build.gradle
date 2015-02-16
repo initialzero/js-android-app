@@ -23,15 +23,24 @@
  */
 
 buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
+apply plugin: 'io.fabric'
 apply from: 'build_utils.gradle'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
 
 android {
     compileSdkVersion androidCompileSdkVersion
@@ -162,6 +171,10 @@ dependencies {
 
     // Splunk Mint(Bugsense)
     compile "com.splunk.mint:mint:4.0.3"
+
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.1@aar') {
+        transitive = true;
+    }
 
     // Remove gradle dependency
     // When all required testing for JRS will be completed

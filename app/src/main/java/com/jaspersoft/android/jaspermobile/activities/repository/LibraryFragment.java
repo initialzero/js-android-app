@@ -35,7 +35,7 @@ import android.view.MenuItem;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
@@ -160,11 +160,6 @@ public class LibraryFragment extends RoboFragment {
         super.onCreateOptionsMenu(menu, inflater);
         filter.setVisible(mShowFilterOption);
         sort.setVisible(mShowSortOption);
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void showHome() {
-        HomeActivity.goHome(getActivity());
     }
 
     @OptionsItem(R.id.filter)

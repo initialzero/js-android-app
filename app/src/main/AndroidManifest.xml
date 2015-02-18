@@ -87,16 +87,6 @@
             android:configChanges="locale"
             android:screenOrientation="portrait" />
 
-        <!-- Activity that provides functionality for creating and modifying server profiles -->
-        <activity
-            android:name=".activities.account.AccountsActivity_"
-            android:label="@string/accounts_activity_label"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
-        </activity>
-
         <!-- Activity that allows to specify the report options before running it -->
         <activity
             android:name=".activities.report.ReportOptionsActivity"

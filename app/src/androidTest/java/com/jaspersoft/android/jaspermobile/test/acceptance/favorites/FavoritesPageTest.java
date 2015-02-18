@@ -549,12 +549,12 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
     }
 
     private void openLibrary() {
-        openDrawer(R.id.drawerLayout);
+        openDrawer(android.R.id.home);
         onView(withText(R.string.h_library_label)).perform(click());
     }
 
     private void openFavorites() {
-        openDrawer(R.id.drawerLayout);
+        openDrawer(android.R.id.home);
         onView(withText(R.string.f_title)).perform(click());
     }
 

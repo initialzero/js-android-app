@@ -37,5 +37,4 @@
     <dimen name="intro_page_bottom_copyright_margin">75dp</dimen>
     <dimen name="intro_page_bottom_name_margin">45dp</dimen>
     <dimen name="intro_page_logo_padding">37dp</dimen>
-    <dimen name="intro_page_logo_size">450dp</dimen>
 </resources>

@@ -24,9 +24,10 @@
   -->
 
 <lint>
-    <issue id="CutPasteId" severity="ignore" />
-    <issue id="MergeRootFrame" severity="ignore" />
-    <issue id="RtlEnabled" severity="ignore" />
+    <issue id="CutPasteId" severity="Warning" />
+    <issue id="MergeRootFrame" severity="Warning" />
+    <issue id="RtlEnabled" severity="Warning" />
+    <issue id="InvalidPackage" severity="Warning" />
 
     <!-- Ignore the ObsoleteLayoutParam issue in the given files -->
     <issue id="UselessParent">

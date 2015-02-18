@@ -30,9 +30,7 @@
     <color name="js_grey">#7d7d7d</color>
 
     <!-- Home screen -->
-    <color name="profile_title_txt">#7d7f85</color>
     <color name="card_title_txt">#4b4b4b</color>
-    <color name="config_item_bg">#474747</color>
     <color name="card_subtitle_txt">#9c9c9c</color>
     <color name="js_blue_50">#500480ba</color>
     <color name="dashboard_item_bg">#428ec0</color>
@@ -55,7 +53,6 @@
     <color name="shadow_dark">#cc000000</color>
     <color name="profile_bg">#9939abe7</color>
     <color name="navigation_profile_separator">#444444</color>
-    <color name="navigation_profile_shadow">#aa000000</color>
     <color name="navigation_menu_bg">#292b30</color>
     <color name="navigation_item_bg">#373b42</color>
     <color name="navigation_account_icon_bg">#464952</color>

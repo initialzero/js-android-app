@@ -28,6 +28,6 @@
     <item
         android:id="@+id/deleteItem"
         android:title="@string/sdr_drd_title"
-        android:icon="@drawable/ic_resource_delete"
+        android:icon="@drawable/ic_menu_delete"
         app:showAsAction="always"/>
 </menu>

@@ -29,7 +29,7 @@
     <item
         android:id="@+id/deleteItem"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_resource_delete"
+        android:icon="@drawable/ic_menu_delete"
         android:title="@string/spm_cm_delete" />
 
 </menu>

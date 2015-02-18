@@ -5,14 +5,14 @@
 
     <item
         android:id="@+id/showFilters"
-        android:icon="@drawable/ic_action_filter"
+        android:icon="@drawable/ic_menu_filter"
         android:title="@string/rv_ab_show_filters"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/saveReport"
-        android:icon="@drawable/ic_action_save"
+        android:icon="@drawable/ic_menu_save"
         android:title="@string/rv_ab_save_report"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
 </menu>

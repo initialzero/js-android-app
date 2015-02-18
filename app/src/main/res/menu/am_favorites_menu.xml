@@ -28,11 +28,11 @@
     <item
         android:id="@+id/showAction"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_about"
+        android:icon="@drawable/ic_menu_info"
         android:title="@string/r_cm_view_details" />
     <item
         android:id="@+id/removeFromFavorites"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_resource_delete"
+        android:icon="@drawable/ic_menu_delete"
         android:title="@string/r_cm_remove_from_favorites" />
 </menu>

@@ -32,14 +32,13 @@
         style="@style/inputControl.label"
     />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
        style="@style/inputControl.date.inputContainer.layout"
        android:orientation="horizontal" >
 
         <EditText
             android:id="@+id/ic_date_text"
             style="@style/inputControl.date.inputContainer.editText"
-            android:editable="false"
             android:focusable="false"
         />
 

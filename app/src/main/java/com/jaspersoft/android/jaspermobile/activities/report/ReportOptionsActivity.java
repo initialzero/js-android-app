@@ -24,11 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -123,7 +123,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             // use the App Icon for Navigation
             actionBar.setHomeButtonEnabled(true);

@@ -30,6 +30,7 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;
+import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -63,7 +64,7 @@ public class SavedItemsMigration implements Migration {
         for (File savedItemDir : savedItemsDir.listFiles()) {
 
             String fileName = FileUtils.getBaseName(savedItemDir.getName());
-            String fileFormat = FileUtils.getExtension(savedItemDir.getName()).toUpperCase();
+            String fileFormat = FileUtils.getExtension(savedItemDir.getName()).toUpperCase(Locale.getDefault());
             long creationTime = savedItemDir.lastModified();
             File newFilePath = new File(sharedDir, fileName);
 

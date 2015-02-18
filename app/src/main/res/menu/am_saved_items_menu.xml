@@ -28,16 +28,16 @@
     <item
         android:id="@+id/showAction"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_about"
+        android:icon="@drawable/ic_menu_info"
         android:title="@string/r_cm_view_details" />
     <item
         android:id="@+id/renameItem"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_content_edit"
+        android:icon="@drawable/ic_menu_edit"
         android:title="@string/sdr_cm_rename" />
     <item
         android:id="@+id/deleteItem"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_resource_delete"
+        android:icon="@drawable/ic_menu_delete"
         android:title="@string/sdr_cm_delete" />
 </menu>

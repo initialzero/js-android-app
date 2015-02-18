@@ -94,9 +94,9 @@ public abstract class ControllerFragment extends RoboFragment {
 
     private void toggleSwitcher() {
         if (getViewType() == LIST) {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_grid);
+            switchLayoutMenuItem.setIcon(R.drawable.ic_menu_module);
         } else {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_list);
+            switchLayoutMenuItem.setIcon(R.drawable.ic_menu_list);
         }
     }
 

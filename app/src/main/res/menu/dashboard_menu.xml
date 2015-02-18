@@ -28,20 +28,20 @@
 
     <item
         android:id="@+id/favoriteAction"
-        android:icon="@drawable/ic_rating_not_favorite"
+        android:icon="@drawable/ic_star_outline"
         android:title="@string/r_cm_add_to_favorites"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/aboutAction"
-        android:icon="@drawable/ic_action_about"
+        android:icon="@drawable/ic_menu_info"
         android:title="@string/r_cm_view_details"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/refreshAction"
-        android:icon="@drawable/ic_action_refresh"
+        android:icon="@drawable/ic_menu_refresh"
         android:title="@string/r_ab_refresh"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
 </menu>

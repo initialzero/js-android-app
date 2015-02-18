@@ -128,20 +128,20 @@ public class FavoritesHelper {
             favoriteEntryUri = addToFavorites(resource);
             if (favoriteEntryUri == null) {
                 messageId = R.string.r_cm_add_to_favorites_failed;
-                iconId = R.drawable.ic_rating_not_favorite;
+                iconId = R.drawable.ic_star_outline;
             } else {
                 messageId = R.string.r_cm_add_to_favorites;
-                iconId = R.drawable.ic_rating_favorite;
+                iconId = R.drawable.ic_star;
             }
         } else {
             int count = context.getContentResolver().delete(favoriteEntryUri, null, null);
             if (count == 0) {
                 messageId = R.string.r_cm_remove_from_favorites_failed;
-                iconId = R.drawable.ic_rating_favorite;
+                iconId = R.drawable.ic_star;
             } else {
                 favoriteEntryUri = null;
                 messageId = R.string.r_cm_remove_from_favorites;
-                iconId = R.drawable.ic_rating_not_favorite;
+                iconId = R.drawable.ic_star_outline;
             }
         }
 

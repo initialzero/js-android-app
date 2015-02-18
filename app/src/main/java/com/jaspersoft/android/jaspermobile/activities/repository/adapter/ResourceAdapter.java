@@ -128,7 +128,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
         try {
             boolean alreadyFavorite = (cursor.getCount() > 0);
-            favoriteActionItem.setIcon(alreadyFavorite ? R.drawable.ic_rating_favorite : R.drawable.ic_rating_not_favorite);
+            favoriteActionItem.setIcon(alreadyFavorite ? R.drawable.ic_star : R.drawable.ic_star_outline);
             favoriteActionItem.setTitle(alreadyFavorite ? R.string.r_cm_remove_from_favorites : R.string.r_cm_add_to_favorites);
         } finally {
             if (cursor != null) cursor.close();

@@ -22,6 +22,10 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <resources>
+    <!-- Images content description -->
+    <string name="img_cd_list_item">Aperçu des éléments de la liste</string>
+    <string name="img_cd_grid_item">Aperçu des éléments de la grille</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">Référentiel</string>
     <string name="h_library_label">Bibliothèque</string>
@@ -103,8 +107,10 @@
     <!-- Error messages -->
     <string name="r_error_server_not_supported">La version du serveur est antérieure à la 5.5 (elle n\'est pas prise en charge) ou l\'URL est incorrecte.</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="s_hint">Ressources de recherche</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nOutil de gestion et visionneur de rapport pour JasperReports Server 5.5 et plus.\n\nPour plus d\'informations, consulter :\n<a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a>\n\nPour les informations de la politique de confidentialité, consulter :\n<a href="com.jaspersoft.android.privacy_policy://"> http://www.tibco.com/privacy-policies/jaspermobile-android </a>\n\nDroits d\'auteurs © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy">Politique de confidentialité</string>
 
     <!-- Action Bar -->
     <string name="s_ab_filter_by">Filtrer par</string>
@@ -122,11 +128,16 @@
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Exécuter le rapport</string>
+    <string name="ro_page_title">Options de filtre</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Enregistrer le rapport</string>
     <string name="rv_ab_show_filters">Afficher les filtres</string>
     <string name="rv_error_empty_report">Aucune donnée de rapport.</string>
+    <string name="rv_select_page">Sélectionnez la page</string>
+    <string name="rv_out_of_range">La page demandée est hors de portée</string>
+    <string name="rv_dialog_reload">Recharger</string>
+
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">La carte mémoire externe n\'est pas disponible. Veuillez monter la carte et réessayer.</string>
 
@@ -172,7 +183,9 @@
     <!-- Settings activity -->
     <string name="st_title">Paramètres</string>
     <string name="st_category_repo_cache">Cache du référentiel</string>
+    <string name="st_category_repo_cache_summary">Modifier les options de mise en cache de référentiel</string>
     <string name="st_category_connection">Connexion</string>
+    <string name="st_category_connection_summary">Modifier les paramètres de connexion globale pour les appels du réseau</string>
     <string name="st_title_cache_enable">Activer le cache</string>
     <string name="st_title_cache_expiration">Expiration du cache</string>
     <string name="st_title_connect_timeout">Délai de connexion</string>
@@ -184,6 +197,7 @@
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Format de nombre non valide</string>
+    <string name="st_category_more">Plus</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Demande incorrecte. Demande non valide.</string>

@@ -22,6 +22,10 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <resources>
+    <!-- Images content description -->
+    <string name="img_cd_list_item">Vista previa de lista de ítems</string>
+    <string name="img_cd_grid_item">Vista previa de cuadrícula de ítems</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">Repositorio</string>
     <string name="h_library_label">Biblioteca</string>
@@ -117,16 +121,23 @@
     <string name="s_fd_sort_label">Por etiqueta</string>
     <string name="s_fd_sort_date">Por fecha de creación</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">Acerca de</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nHerramienta de gestión y visualización de informes para JasperReports Server 5.5 y superior.\n\nPara mayor información visite:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">\nhttp://community.jaspersoft.com/project/jaspermobile-android</a>\n\nPara información de la política de privacidad, visite:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nDerechos reservados © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy">Política de Privacidad</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Ejecutar informe</string>
+    <string name="ro_page_title">Opciones de filtro</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Guardar informe</string>
     <string name="rv_ab_show_filters">Mostrar filtros</string>
     <string name="rv_error_empty_report">No hay ningún dato de informe.</string>
+    <string name="rv_select_page">Seleccionar página</string>
+    <string name="rv_out_of_range">Página solicitada fuera de rango</string>
+    <string name="rv_dialog_reload">Actualizar</string>
+
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">La tarjeta de memoria externa no está disponible. Monte la tarjeta e inténtelo de nuevo.</string>
 
@@ -172,7 +183,9 @@
     <!-- Settings activity -->
     <string name="st_title">Configuración</string>
     <string name="st_category_repo_cache">Caché del repositorio</string>
+    <string name="st_category_repo_cache_summary">Cambiar las opciones de caché del repositorio</string>
     <string name="st_category_connection">Con conexión</string>
+    <string name="st_category_connection_summary">Cambiar los ajustes de conexión global para las llamadas de red</string>
     <string name="st_title_cache_enable">Activar caché</string>
     <string name="st_title_cache_expiration">Caducidad de la caché</string>
     <string name="st_title_connect_timeout">Tiempo de espera de la conexión</string>
@@ -184,6 +197,7 @@
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Formato de número no válido</string>
+    <string name="st_category_more">Más</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Solicitud errónea. La solicitud no es válida.</string>

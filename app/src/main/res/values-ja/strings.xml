@@ -22,6 +22,10 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <resources>
+    <!-- Images content description -->
+    <string name="img_cd_list_item">リスト項目プレビュー</string>
+    <string name="img_cd_grid_item">グリッド項目プレビュー</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">リポジトリ</string>
     <string name="h_library_label">ライブラリ</string>
@@ -117,11 +121,14 @@
     <string name="s_fd_sort_label">ラベル</string>
     <string name="s_fd_sort_date">作成日</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">バージョン情報</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nJasperReports Server 5.5以上向けの管理ツールおよびレポートビューア\n\n詳細について：\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\n個人情報保護方針について：\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy">個人情報保護方針</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">レポートの実行</string>
+    <string name="ro_page_title">フィルターオプション</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">レポートの保存</string>
@@ -134,6 +141,10 @@
     <string name="sr_ab_title">レポートの保存</string>
     <string name="sr_report_name">レポート名</string>
     <string name="sr_output_format">出力フォーマット</string>
+    <string name="rv_select_page">ページを選択</string>
+    <string name="rv_out_of_range">範囲外で要求されたページ</string>
+    <string name="rv_dialog_reload">リロード</string>
+
     <!-- Toasts -->
     <string name="sr_t_report_saved">レポートは正常に保存されました</string>
     <!-- Error messages -->
@@ -172,7 +183,9 @@
     <!-- Settings activity -->
     <string name="st_title">設定</string>
     <string name="st_category_repo_cache">リポジトリキャッシュ</string>
+    <string name="st_category_repo_cache_summary">リポジトリのキャッシュオプションを変更</string>
     <string name="st_category_connection">接続</string>
+    <string name="st_category_connection_summary">ネットワーク呼び出しのためのグローバル接続の設定変更</string>
     <string name="st_title_cache_enable">キャッシュを有効にする</string>
     <string name="st_title_cache_expiration">キャッシュの有効期限</string>
     <string name="st_title_connect_timeout">接続タイムアウト</string>
@@ -184,6 +197,7 @@
     <string name="st_summary_sec">%s 秒</string>
     <string name="st_summary_h">%s 時間</string>
     <string name="st_invalid_number_format">無効な数値フォーマット</string>
+    <string name="st_category_more">詳細</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - 要求が正しくありません。リクエストは無効です。</string>

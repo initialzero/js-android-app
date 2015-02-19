@@ -11,11 +11,12 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.R;
 
 /**
- * Created by AndrewTivodar on 06.11.2014.
+ * @author Andrew Tivodar
+ * @since 2.0
  */
 public class IntroPagerAdapter extends PagerAdapter {
 
-    private final int pageCount = 4;
+    private final static int PAGE_COUNT = 4;
     private Context mContext;
 
     public IntroPagerAdapter(Context context) {
@@ -24,7 +25,7 @@ public class IntroPagerAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return pageCount;
+        return PAGE_COUNT;
     }
 
     @Override

@@ -66,10 +66,10 @@
     <string name="ip_skip_btn" translatable="false">Skip Intro</string>
     <string name="ip_next_btn" translatable="false">Next</string>
     <string name="ip_start_btn" translatable="false">Start using TIBCO JasperMobile</string>
-    <string name="ip_first_text" translatable="false">Copyright \u00A9 2015 TIBCO Software, Inc.</string>
+    <string name="ip_first_text" translatable="false">Copyright \u00A9 2005-2015 TIBCO Software, Inc.</string>
     <string name="ip_second_text" translatable="false">TIBCO JasperMobile keeps you connected to your business wherever you are</string>
     <string name="ip_third_text" translatable="false">Get access to live interactive reports driven from your operational applications.</string>
-    <string name="ip_fourth_text" translatable="false">View and interact with your TIBCO JasperReport Server v5.5 or greater environment</string>
+    <string name="ip_fourth_text" translatable="false">View and interact with your TIBCO JasperReport Server v5.6.0 or greater environment</string>
 
     <!-- Server Profile Activity -->
     <string name="sp_password_hint">my password</string>

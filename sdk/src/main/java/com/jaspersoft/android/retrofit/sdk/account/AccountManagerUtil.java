@@ -44,7 +44,6 @@ import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import timber.log.Timber;
@@ -80,13 +79,6 @@ public class AccountManagerUtil {
         if (account == null) {
             return Observable.error(new AccountNotFoundException("There is no active account"));
         }
-        Observable<Account> o = Observable.just(account);
-        o.subscribe(new Action1<Account>() {
-            @Override
-            public void call(Account account) {
-
-            }
-        });
         return Observable.just(account);
     }
 
@@ -283,6 +275,17 @@ public class AccountManagerUtil {
                 } catch (Exception e) {
                     subscriber.onError(e);
                 }
+            }
+        });
+    }
+
+    public Observable<String> updateAuthToken() {
+        return getActiveAuthToken().flatMap(new Func1<String, Observable<String>>() {
+            @Override
+            public Observable<String> call(String activeToken) {
+                AccountManager accountManager = AccountManager.get(mContext);
+                accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, activeToken);
+                return getActiveAuthToken();
             }
         });
     }

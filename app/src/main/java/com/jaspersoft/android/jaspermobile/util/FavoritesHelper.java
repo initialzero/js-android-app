@@ -147,7 +147,7 @@ public class FavoritesHelper {
 
         if (favoriteAction != null) {
             favoriteAction.setIcon(iconId);
-            favoriteAction.setTitle(iconId == R.drawable.ic_rating_not_favorite
+            favoriteAction.setTitle(iconId == R.drawable.ic_star_outline
                     ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
         }
 

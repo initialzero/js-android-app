@@ -42,9 +42,8 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
@@ -193,12 +192,12 @@ public class AuthenticatorFragment extends RoboFragment {
     }
 
     private void addAccount(final AccountServerData serverData) {
-        addAccountSubscription = AccountManagerUtil.get(getActivity())
+        addAccountSubscription = JasperAccountManager.get(getActivity())
                 .addAccountExplicitly(serverData)
                 .subscribe(new Action1<Account>() {
                     @Override
                     public void call(Account account) {
-                        JasperAccountProvider.get(getActivity()).putAccount(account);
+                        JasperAccountManager.get(getActivity()).activateAccount(account);
                         activateAccount(serverData.getServerCookie());
                         setProgressEnabled(false);
                     }
@@ -207,7 +206,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
     private void activateAccount(String authToken) {
         AccountManager accountManager = AccountManager.get(getActivity());
-        Account account = JasperAccountProvider.get(getActivity()).getAccount();
+        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
 
         Bundle data = new Bundle();
@@ -282,7 +281,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
         if (!TextUtils.isEmpty(alias)) {
             Account account = new Account(alias, JasperSettings.JASPER_ACCOUNT_TYPE);
-            List<Account> accountList = AccountManagerUtil.get(getActivity())
+            List<Account> accountList = JasperAccountManager.get(getActivity())
                     .listAccounts().toBlocking().first();
             if (accountList.contains(account)) {
                 aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));

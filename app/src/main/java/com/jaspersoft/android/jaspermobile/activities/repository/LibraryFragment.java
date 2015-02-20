@@ -47,7 +47,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
@@ -147,7 +147,7 @@ public class LibraryFragment extends RoboFragment {
     }
 
     private void updateOptionsMenu() {
-        Account account = JasperAccountProvider.get(getActivity()).getAccount();
+        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
 
         mShowSortOption = true;

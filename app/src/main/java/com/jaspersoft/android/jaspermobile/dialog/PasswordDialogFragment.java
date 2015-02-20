@@ -38,7 +38,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import roboguice.fragment.RoboDialogFragment;
 
@@ -117,7 +117,7 @@ public class PasswordDialogFragment extends RoboDialogFragment {
                                 if (TextUtils.isEmpty(password)) {
                                     mPasswordEdit.setError(getString(R.string.sp_error_field_required));
                                 } else {
-                                    Account account = JasperAccountProvider.get(getActivity()).getAccount();
+                                    Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
                                     AccountManager accountManager = AccountManager.get(getActivity());
                                     accountManager.setPassword(account, password);
                                     dismiss();

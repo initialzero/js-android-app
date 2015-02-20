@@ -36,7 +36,7 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -58,7 +58,7 @@ public class JSWebViewClient extends WebViewClient {
 
     @AfterInject
     final void initServerUrl() {
-        Account account = JasperAccountProvider.get(activity).getAccount();
+        Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData serverData = AccountServerData.get(activity, account);
         serverUrl = serverData.getServerUrl();
     }

@@ -30,7 +30,7 @@ import android.content.Context;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
 import com.jaspersoft.android.jaspermobile.uil.TokenImageDownloader;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -72,7 +72,7 @@ public class JasperMobileApplication extends Application {
 
     private void seedProfiles() {
         boolean firstlaunch = DefaultPrefHelper_.getInstance_(this).needToShowIntro();
-        if (AccountManagerUtil.get(this).getAccounts().length == 0 && firstlaunch) {
+        if (JasperAccountManager.get(this).getAccounts().length == 0 && firstlaunch) {
             new AccountSeed(this).seed();
         }
     }

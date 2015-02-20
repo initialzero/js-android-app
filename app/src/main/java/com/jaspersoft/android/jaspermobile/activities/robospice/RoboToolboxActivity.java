@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.content.Intent;
@@ -21,9 +20,7 @@ import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity
 import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
-import com.jaspersoft.android.retrofit.sdk.account.AccountProvider;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
 import org.roboguice.shaded.goole.common.collect.Lists;
@@ -40,49 +37,45 @@ import timber.log.Timber;
  */
 public class RoboToolboxActivity extends RoboActionBarActivity {
 
-    private static final String TAG = BaseActionBarActivity.class.getSimpleName();
+    private static final String TAG = RoboToolboxActivity.class.getSimpleName();
     private static final int AUTHORIZE_CODE = 10;
 
     private Toolbar toolbar;
     private View baseView;
     private ViewGroup contentLayout;
 
-    private AccountManager mAccountManager;
-    private AccountManagerUtil mAccountManagerUtil;
-    private boolean mActiveAccountChanged;
-    private boolean mAccountsChanged;
-    private boolean windowToolbar;
+    private JasperAccountManager mJasperAccountManager;
+    JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
+    private boolean windowToolbar;
     private Locale currentLocale;
-    private JasperAccountProvider mAccountProvider;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
         public void onAccountsUpdated(Account[] allAccounts) {
-            Timber.d("accounts updated");
-            mAccountsChanged = true;
-
-            Account[] jasperAccounts = mAccountManagerUtil.getAccounts();
-            if (jasperAccounts.length == 0) {
-                Timber.d("No accounts");
-                mAccountProvider.removeAccount();
-            } else {
-                Account currentAccount = mAccountProvider.getAccount();
-                boolean activeAccountExists = Lists.newArrayList(jasperAccounts).contains(currentAccount);
-                if (!activeAccountExists) {
-                    Account newAccount = jasperAccounts[0];
-                    Timber.d("Previous active account has been removed");
-                    Timber.d("Previous " + currentAccount);
-                    Timber.d("New " + newAccount);
-                    mAccountProvider.putAccount(newAccount);
-                    mActiveAccountChanged = true;
-                }
-            }
+            Timber.d("Accounts list was changed...");
+            mJasperAccountsStatus = JasperAccountsStatus.ANY_ACCOUNT_CHANGED;
+            defineJasperAccountsState();
         }
     };
 
+
+    public boolean isDevMode() {
+        return BuildConfig.DEBUG && BuildConfig.FLAVOR.equals("dev");
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Lets check account to be properly setup
+        mJasperAccountManager = JasperAccountManager.get(this);
+        defineJasperAccountsState();
+        updateActiveAccount();
+        handleActiveAccountState();
+
         super.onCreate(savedInstanceState);
         addToolbar();
         Timber.tag(TAG);
@@ -104,14 +97,7 @@ public class RoboToolboxActivity extends RoboActionBarActivity {
         }
 
         // Listen to account changes
-        mAccountProvider = JasperAccountProvider.get(this);
-        mAccountManager = AccountManager.get(this);
-        mAccountManagerUtil = AccountManagerUtil.get(this);
-
-        mAccountManager.addOnAccountsUpdatedListener(accountsUpdateListener, null, true);
-
-        // Lets check account to be properly setup
-        assertJasperAccountState();
+        mJasperAccountManager.setOnAccountsUpdatedListener(accountsUpdateListener);
     }
 
     @Override
@@ -127,36 +113,28 @@ public class RoboToolboxActivity extends RoboActionBarActivity {
     }
 
     @Override
-    public void onResume() {
+    protected void onStart() {
+        updateActiveAccount();
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
         super.onResume();
         if (isDevMode()) {
             ViewServer.get(this).setFocusedWindow(this);
         }
-        if (mActiveAccountChanged) {
-            onActiveAccountChanged();
-            mActiveAccountChanged = false;
-        }
-        if (mAccountsChanged) {
-            assertJasperAccountState();
-            onAccountsChanged();
-            mAccountsChanged = false;
-        }
+        updateAccountDependentUi();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
+        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).removeWindow(this);
         }
     }
-
-    public boolean isDevMode() {
-        return BuildConfig.DEBUG && BuildConfig.FLAVOR.equals("dev");
-    }
-
-    public Toolbar getToolbar() {return toolbar;}
 
     @Override
     public void setContentView(View view) {
@@ -196,21 +174,20 @@ public class RoboToolboxActivity extends RoboActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home)  {
+        if (item.getItemId() == android.R.id.home) {
             super.onBackPressed();
             return true;
-        }
-        else return super.onOptionsItemSelected(item);
+        } else return super.onOptionsItemSelected(item);
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void addToolbar(){
-        TypedArray a = getTheme().obtainStyledAttributes(new int[] {R.attr.windowToolbar});
+    private void addToolbar() {
+        TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.windowToolbar});
         windowToolbar = a.getBoolean(0, true);
-        if(!windowToolbar) return;
+        if (!windowToolbar) return;
 
         LayoutInflater li = LayoutInflater.from(this);
         baseView = li.inflate(R.layout.view_base_toolbox_layout, null, false);
@@ -222,49 +199,97 @@ public class RoboToolboxActivity extends RoboActionBarActivity {
         super.setContentView(baseView);
     }
 
-    /**
-     * Flow description can be found here <img src="http://code2flow.com/RXAXPt.png"/>
-     */
-    private void assertJasperAccountState() {
-        // Get list of accounts on device.
-        Account[] accounts = AccountManagerUtil.get(this).getAccounts();
-        AccountProvider accountProvider = JasperAccountProvider.get(this);
-        Account currentAccount = accountProvider.getAccount();
+    private void defineJasperAccountsState(){
+        Account[] accounts = mJasperAccountManager.getAccounts();
+        Account currentAccount = mJasperAccountManager.getActiveAccount();
 
         if (accounts.length == 0) {
-            Timber.d("We have found no accounts send user to account page.");
-            if (currentAccount != null) {
-                Timber.d("We have cached account. Removing...");
-                accountProvider.removeAccount();
+            mJasperAccountsStatus = JasperAccountsStatus.NO_ACCOUNTS;
+        } else if (currentAccount != null) {
+            boolean activeAccountExists = Lists.newArrayList(accounts).contains(currentAccount);
+            if (!activeAccountExists) {
+                mJasperAccountsStatus = JasperAccountsStatus.ACTIVE_ACCOUNT_CHANGED;
             }
-            // Send the user to the "Add Account" page.
-            startActivityForResult(new Intent(this, AuthenticatorActivity.class), AUTHORIZE_CODE);
         } else {
-
-            if (currentAccount == null) {
-                // Try to log the user in with the first account on the device.
-                Account newAccount = accounts[0];
-                Timber.d("We have found account activating...");
-                Timber.d("New " + newAccount);
-                accountProvider.putAccount(newAccount);
-            } else {
-                // Assert current account to really be present in system
-                boolean activeAccountExists = Lists.newArrayList(accounts).contains(currentAccount);
-                if (!activeAccountExists) {
-                    Account newAccount = accounts[0];
-                    Timber.d("Previous active account has been removed");
-                    Timber.d("Previous " + currentAccount);
-                    Timber.d("New " + newAccount);
-                    mAccountProvider.putAccount(newAccount);
-                    mActiveAccountChanged = true;
-                }
-            }
+            mJasperAccountsStatus = JasperAccountsStatus.NO_ACTIVE_ACCOUNT;
         }
     }
 
+    private void updateActiveAccount() {
+        if (mJasperAccountsStatus == JasperAccountsStatus.NO_CHANGES)
+            return;
+
+        switch (mJasperAccountsStatus) {
+            case NO_ACCOUNTS:
+                Timber.d("We have found no accounts. send user to account page.");
+                Timber.d("Try to remove active account...");
+                mJasperAccountManager.deactivateAccount();
+                break;
+
+            case ACTIVE_ACCOUNT_CHANGED:
+                Timber.d("Previous active account has been removed");
+                Timber.d("Try to activate first account");
+                mJasperAccountManager.activateFirstAccount();
+                break;
+
+            case NO_ACTIVE_ACCOUNT:
+                Timber.d("Try to activate first account");
+                mJasperAccountManager.activateFirstAccount();
+                break;
+        }
+    }
+
+    private void handleActiveAccountState() {
+        if (mJasperAccountsStatus == JasperAccountsStatus.NO_CHANGES)
+            return;
+
+        switch (mJasperAccountsStatus) {
+            case NO_ACCOUNTS:
+                Timber.d("Send user to account page.");
+                startActivityForResult(new Intent(this, AuthenticatorActivity.class), AUTHORIZE_CODE);
+            break;
+        }
+        mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
+    }
+
+    /**
+     * Flow description can be found here <img src="http://code2flow.com/RXAXPt.png"/>
+     */
+    private void updateAccountDependentUi() {
+        if (mJasperAccountsStatus == JasperAccountsStatus.NO_CHANGES)
+            return;
+
+        switch (mJasperAccountsStatus) {
+            case NO_ACCOUNTS:
+                restartApp();
+                break;
+
+            case ANY_ACCOUNT_CHANGED:
+                onAccountsChanged();
+                break;
+
+            case ACTIVE_ACCOUNT_CHANGED:
+                onActiveAccountChanged();
+                onAccountsChanged();
+                break;
+        }
+        mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
+    }
+
+    private void restartApp(){
+        Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+    }
+
     protected void onActiveAccountChanged() {
+        restartApp();
     }
 
     protected void onAccountsChanged() {
+    }
+
+    public enum JasperAccountsStatus {
+        NO_CHANGES, ANY_ACCOUNT_CHANGED, NO_ACTIVE_ACCOUNT, ACTIVE_ACCOUNT_CHANGED, NO_ACCOUNTS
     }
 }

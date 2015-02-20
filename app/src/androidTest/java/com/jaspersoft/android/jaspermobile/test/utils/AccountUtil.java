@@ -28,9 +28,8 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import rx.functions.Actions;
@@ -52,16 +51,16 @@ public final class AccountUtil {
     }
 
     public AccountUtil removeAllAccounts() {
-        AccountManagerUtil managerUtil = AccountManagerUtil.get(mContext);
+        JasperAccountManager managerUtil = JasperAccountManager.get(mContext);
         if (managerUtil.getAccounts().length > 0) {
             managerUtil.removeAccounts().toBlocking().forEach(Actions.empty());
         }
-        JasperAccountProvider.get(mContext).removeAccount();
+        JasperAccountManager.get(mContext).deactivateAccount();
         return this;
     }
 
     public AccountUnit addAccount(AccountServerData serverData) {
-        AccountManagerUtil accountManager = AccountManagerUtil.get(mContext);
+        JasperAccountManager accountManager = JasperAccountManager.get(mContext);
         Account account = accountManager.addAccountExplicitly(serverData).toBlocking().first();
         return new AccountUnit(account);
     }
@@ -80,7 +79,7 @@ public final class AccountUtil {
         }
 
         public AccountUnit activate() {
-            JasperAccountProvider.get(mContext).putAccount(mAccount);
+            JasperAccountManager.get(mContext).activateAccount(mAccount);
             return this;
         }
 

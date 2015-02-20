@@ -28,7 +28,7 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 import org.apache.commons.io.IOUtils;
@@ -45,12 +45,12 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class AccountSeed implements Seed {
-    private final AccountManagerUtil accountManagerUtil;
+    private final JasperAccountManager jasperAccountManager;
     private final Context mContext;
 
     public AccountSeed(Context context) {
         mContext = context;
-        accountManagerUtil = AccountManagerUtil.get(context);
+        jasperAccountManager = JasperAccountManager.get(context);
         Timber.tag(AccountSeed.class.getSimpleName());
     }
 
@@ -70,7 +70,7 @@ public class AccountSeed implements Seed {
                 .setPassword(AccountServerData.Demo.PASSWORD)
                 .setEdition("PRO")
                 .setVersionName("5.5");
-        accountManagerUtil
+        jasperAccountManager
                 .addAccountExplicitly(serverData)
                 .subscribeOn(Schedulers.io())
                 .subscribe();
@@ -90,7 +90,7 @@ public class AccountSeed implements Seed {
             Profiles profiles = gson.fromJson(json, Profiles.class);
             for (AccountServerData serverData : profiles.getData()) {
                 Timber.d("Add server explicitly" + serverData);
-                accountManagerUtil.addAccountExplicitly(serverData)
+                jasperAccountManager.addAccountExplicitly(serverData)
                         .subscribeOn(Schedulers.io())
                         .subscribe();
             }

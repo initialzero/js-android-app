@@ -17,9 +17,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -55,6 +54,8 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @ViewById(R.id.iv_profile_arrow)
     ImageView ivProfileArrow;
+
+    private View footerDivider;
 
     //---------------------------------------------------------------------
     // Public methods
@@ -100,6 +101,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         View accountsFooter = LayoutInflater.from(getContext()).inflate(R.layout.view_accounts_footer, null, false);
         accountsFooter.findViewById(R.id.vg_add_account).setOnClickListener(onAddProfileClickListener);
         accountsFooter.findViewById(R.id.vg_manage_accounts).setOnClickListener(onManageProfileClickListener);
+        footerDivider = accountsFooter.findViewById(R.id.footer_divider);
         accountsMenu.addFooterView(accountsFooter);
         initAccountsView();
     }
@@ -107,7 +109,7 @@ public class NavigationPanelLayout extends RelativeLayout {
     private void initAccountsView() {
         AccountsAdapter accountsAdapter = new AccountsAdapter(getContext());
         accountsMenu.setAdapter(accountsAdapter);
-        Account currentAccount = JasperAccountProvider.get(getContext()).getAccount();
+        Account currentAccount = JasperAccountManager.get(getContext()).getActiveAccount();
         tvProfile.setText(currentAccount != null ? currentAccount.name : getContext().getString(R.string.nd_select_account));
     }
 
@@ -174,7 +176,7 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @ItemClick(R.id.lv_accounts_menu)
     public void onAccountSelect(AccountServerData accountsData) {
-        Account[] accounts = AccountManagerUtil.get(getContext()).getAccounts();
+        Account[] accounts = JasperAccountManager.get(getContext()).getAccounts();
         for (Account account : accounts) {
             if (accountsData.getAlias().equals(account.name))
                 if (mListener != null) mListener.onProfileChange(account);
@@ -252,8 +254,15 @@ public class NavigationPanelLayout extends RelativeLayout {
         LayoutInflater mInflater;
 
         private AccountsAdapter(Context context) {
-            mJasperAccounts = AccountManagerUtil.get(context).getInactiveAccountServers();
+            mJasperAccounts = JasperAccountManager.get(context).getInactiveAccountsData();
             mInflater = LayoutInflater.from(context);
+
+            if(mJasperAccounts.isEmpty()) {
+                footerDivider.setVisibility(GONE);
+            }
+            else {
+                footerDivider.setVisibility(VISIBLE);
+            }
         }
 
         @Override

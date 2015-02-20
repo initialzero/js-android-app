@@ -30,7 +30,7 @@ import android.support.v4.app.FragmentActivity;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -69,7 +69,7 @@ public class FilterManager {
         final RoboInjector injector = RoboGuice.getInjector(activity);
         injector.injectMembersWithoutViews(this);
 
-        Account account = JasperAccountProvider.get(activity).getAccount();
+        Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(activity, account);
         serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
     }

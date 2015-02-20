@@ -28,7 +28,7 @@ import android.content.Context;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -48,7 +48,7 @@ public class LegacyCookieManager implements JsCookieManager{
 
     @Override
     public void manage() {
-        AccountManagerUtil.get(mContext)
+        JasperAccountManager.get(mContext)
                 .getActiveServerData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

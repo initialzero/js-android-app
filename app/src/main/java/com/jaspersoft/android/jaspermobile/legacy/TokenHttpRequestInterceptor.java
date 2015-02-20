@@ -6,9 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
@@ -40,10 +39,10 @@ public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        Account account = JasperAccountProvider.get(mContext).getAccount();
+        Account account = JasperAccountManager.get(mContext).getActiveAccount();
         AccountManager accountManager = AccountManager.get(mContext);
 
-        String token = AccountManagerUtil.get(mContext)
+        String token = JasperAccountManager.get(mContext)
                 .getActiveAuthToken()
                 .toBlocking()
                 .firstOrDefault(null);

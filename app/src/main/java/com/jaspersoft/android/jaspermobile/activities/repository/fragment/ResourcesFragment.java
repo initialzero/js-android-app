@@ -232,7 +232,9 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        mAdapter.save(outState);
+        if (mAdapter != null) {
+            mAdapter.save(outState);
+        }
         super.onSaveInstanceState(outState);
     }
 

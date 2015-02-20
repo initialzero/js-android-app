@@ -242,7 +242,7 @@ public class ServersFragment extends RoboSpiceFragment implements LoaderManager.
                 JsRestClient tmpRestClient = new JsRestClient();
                 tmpRestClient.setConnectTimeout(prefHelper.getConnectTimeoutValue());
                 tmpRestClient.setReadTimeout(prefHelper.getReadTimeoutValue());
-                tmpRestClient.setServerProfile(newProfile);
+                tmpRestClient.setLegacyServerProfile(newProfile);
 
                 GetServerInfoRequest request = new GetServerInfoRequest(tmpRestClient);
                 request.setRetryPolicy(null);

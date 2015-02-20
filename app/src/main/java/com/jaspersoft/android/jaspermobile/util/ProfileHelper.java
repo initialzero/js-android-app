@@ -164,7 +164,7 @@ public class ProfileHelper {
 
     public void setCurrentServerProfile(Cursor cursor) {
         JsServerProfile serverProfile = createProfileFromCursor(cursor);
-        jsRestClient.setServerProfile(serverProfile);
+        jsRestClient.setLegacyServerProfile(serverProfile);
     }
 
     public void seedProfilesIfNeed() {

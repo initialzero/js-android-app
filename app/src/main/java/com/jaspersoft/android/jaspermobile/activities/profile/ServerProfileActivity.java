@@ -406,13 +406,13 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             if (askPasswordCheckBox.isChecked()) {
                 // We can`t validate profile on server side without password
                 // so we are explicitly saving it!
-                jsRestClient.setServerProfile(newProfile);
+                jsRestClient.setLegacyServerProfile(newProfile);
                 persistProfileData();
                 setOkResult();
                 finish();
             } else {
                 // Alter update only for changes
-                jsRestClient.setServerProfile(newProfile);
+                jsRestClient.setLegacyServerProfile(newProfile);
 
                 getSpiceManager().execute(
                         new GetServerInfoRequest(jsRestClient),
@@ -478,7 +478,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
         @Override
         public void onSemanticFailure(SpiceException spiceException) {
             // Reset back to old profile
-            jsRestClient.setServerProfile(mOldProfile);
+            jsRestClient.setLegacyServerProfile(mOldProfile);
             saveAction.setActionView(null);
 
             HttpStatus statusCode = extractStatusCode(spiceException);
@@ -501,7 +501,7 @@ public class ServerProfileActivity extends RoboSpiceFragmentActivity
             double currentVersion = serverInfo.getVersionCode();
             if (currentVersion < ServerInfo.VERSION_CODES.EMERALD_TWO) {
                 // Reset back to old profile
-                jsRestClient.setServerProfile(mOldProfile);
+                jsRestClient.setLegacyServerProfile(mOldProfile);
 
                 AlertDialogFragment.createBuilder(context, getSupportFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)

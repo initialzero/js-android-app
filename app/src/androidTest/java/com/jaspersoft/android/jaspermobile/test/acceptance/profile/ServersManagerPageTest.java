@@ -207,7 +207,7 @@ public class ServersManagerPageTest extends ProtoActivityInstrumentation<Servers
     public void testUnauthorizedUserCanCreateProfile() {
         Injector injector = RoboGuice.getBaseApplicationInjector(getApplication());
         JsRestClient jsRestClient = injector.getInstance(JsRestClient.class);
-        jsRestClient.setServerProfile(null);
+        jsRestClient.setLegacyServerProfile(null);
 
         startActivityUnderTest();
 

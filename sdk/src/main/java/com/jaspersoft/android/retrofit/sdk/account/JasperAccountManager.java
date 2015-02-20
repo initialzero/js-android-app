@@ -272,6 +272,17 @@ public class JasperAccountManager {
         });
     }
 
+    public Observable<String> updateAuthToken() {
+        return getActiveAuthToken().flatMap(new Func1<String, Observable<String>>() {
+            @Override
+            public Observable<String> call(String activeToken) {
+                AccountManager accountManager = AccountManager.get(mContext);
+                accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, activeToken);
+                return getActiveAuthToken();
+            }
+        });
+    }
+
     public static class AccountNotFoundException extends Throwable {
         public AccountNotFoundException() {
         }

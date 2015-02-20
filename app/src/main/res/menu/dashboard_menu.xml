@@ -25,7 +25,11 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
+    <item
+        android:id="@+id/dumb"
+        android:title="@string/spm_ab_add_profile"
+        android:icon="@drawable/ic_action_add_account"
+        app:showAsAction="always"/>
     <item
         android:id="@+id/favoriteAction"
         android:icon="@drawable/ic_star_outline"

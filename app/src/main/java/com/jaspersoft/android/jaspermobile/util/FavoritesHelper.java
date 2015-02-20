@@ -130,7 +130,7 @@ public class FavoritesHelper {
                 messageId = R.string.r_cm_add_to_favorites_failed;
                 iconId = R.drawable.ic_star_outline;
             } else {
-                messageId = R.string.r_cm_add_to_favorites;
+                messageId = R.string.r_cm_added_to_favorites;
                 iconId = R.drawable.ic_star;
             }
         } else {
@@ -140,7 +140,7 @@ public class FavoritesHelper {
                 iconId = R.drawable.ic_star;
             } else {
                 favoriteEntryUri = null;
-                messageId = R.string.r_cm_remove_from_favorites;
+                messageId = R.string.r_cm_removed_from_favorites;
                 iconId = R.drawable.ic_star_outline;
             }
         }

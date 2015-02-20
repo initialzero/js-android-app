@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -70,6 +71,9 @@ public class JSWebViewClient extends WebViewClient {
         // This is my Jasper site, let WebView load the page with additional parameter
         if (Uri.parse(url).getHost().equals(jasperHost)) {
             if (url.contains("login.html")) {
+                Intent intent = new Intent(JasperSettings.ACTION_TOKEN_EXPIRED);
+                activity.sendBroadcast(intent);
+
                 if (sessionListener != null) {
                     sessionListener.onSessionExpired();
                 }

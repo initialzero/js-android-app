@@ -41,7 +41,7 @@ import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -86,7 +86,7 @@ public class FavoritesHelper {
         favoriteEntry.setWstype(resource.getResourceType().toString());
         favoriteEntry.setUsername(profile.getUsername());
         favoriteEntry.setOrganization(profile.getOrganization());
-        favoriteEntry.setAccountName(JasperAccountProvider.get(context).getAccount().name);
+        favoriteEntry.setAccountName(JasperAccountManager.get(context).getActiveAccount().name);
         favoriteEntry.setCreationTime(resource.getCreationDate());
 
         return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
@@ -98,7 +98,7 @@ public class FavoritesHelper {
         mapValues.put(FavoritesTable.TITLE, resource.getLabel());
         mapValues.put(FavoritesTable.URI, resource.getUri());
         mapValues.put(FavoritesTable.WSTYPE, resource.getResourceType().toString());
-        mapValues.put(FavoritesTable.ACCOUNT_NAME, JasperAccountProvider.get(context).getAccount().name);
+        mapValues.put(FavoritesTable.ACCOUNT_NAME, JasperAccountManager.get(context).getActiveAccount().name);
 
         List<String> conditions = Lists.newArrayList();
         for (Map.Entry<String, String> entry : mapValues.entrySet()) {

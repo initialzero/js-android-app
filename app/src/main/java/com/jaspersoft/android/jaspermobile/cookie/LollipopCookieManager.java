@@ -30,7 +30,7 @@ import android.os.Build;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -51,7 +51,7 @@ public class LollipopCookieManager implements JsCookieManager{
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void manage() {
-        AccountManagerUtil.get(mContext)
+        JasperAccountManager.get(mContext)
                 .getActiveServerData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

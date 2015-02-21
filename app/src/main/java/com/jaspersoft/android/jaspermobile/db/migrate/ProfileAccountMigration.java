@@ -32,9 +32,8 @@ import android.database.sqlite.SQLiteDatabase;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.util.List;
@@ -46,7 +45,7 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class ProfileAccountMigration implements Migration {
-    private static final String TAG = AccountManagerUtil.class.getSimpleName();
+    private static final String TAG = JasperAccountManager.class.getSimpleName();
     private final Context mContext;
 
     public ProfileAccountMigration(Context context) {
@@ -62,7 +61,7 @@ public class ProfileAccountMigration implements Migration {
 
     private void migrateOldProfiles(SQLiteDatabase db) {
         AccountServerData data;
-        AccountManagerUtil util = AccountManagerUtil.get(mContext);
+        JasperAccountManager util = JasperAccountManager.get(mContext);
         Cursor cursor = db.query(ServerProfilesTable.TABLE_NAME,
                 ServerProfilesTable.ALL_COLUMNS, null, null, null, null, null);
         try {
@@ -101,7 +100,7 @@ public class ProfileAccountMigration implements Migration {
                 account = new Account(AccountServerData.Demo.ALIAS,
                         JasperSettings.JASPER_ACCOUNT_TYPE);
             }
-            JasperAccountProvider.get(mContext).putAccount(account);
+            JasperAccountManager.get(mContext).activateAccount(account);
             Timber.d("Account[" + account + "] was activated");
         } finally {
             cursor.close();

@@ -29,10 +29,14 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
+import android.accounts.OnAccountsUpdateListener;
 import android.accounts.OperationCanceledException;
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
@@ -54,36 +58,55 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-public class AccountManagerUtil {
-    private static final String TAG = AccountManagerUtil.class.getSimpleName();
+public class JasperAccountManager {
+    private static final String PREF_NAME = JasperAccountManager.class.getSimpleName();
+    private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";
 
     private final Context mContext;
-    private final AccountProvider mAccountProvider;
+    private final SharedPreferences mPreference;
 
-    public static AccountManagerUtil get(Context context) {
-        return new Builder(context).build();
-    }
-
-    public static Builder builder(Context context) {
-        return new Builder(context);
-    }
-
-    private AccountManagerUtil(Context context, AccountProvider accountProvider) {
-        mContext = context;
-        mAccountProvider = accountProvider;
-        Timber.tag(TAG);
-    }
-
-    public Observable<Account> getActiveAccount() {
-        Account account = JasperAccountProvider.get(mContext).getAccount();
-        if (account == null) {
-            return Observable.error(new AccountNotFoundException("There is no active account"));
+    public static JasperAccountManager get(Context context) {
+        if (context == null) {
+            throw new IllegalArgumentException("Context should not be null");
         }
-        return Observable.just(account);
+        return new JasperAccountManager(context);
     }
 
-    public List<AccountServerData> getInactiveAccountServers() {
-        Account activeAccount = JasperAccountProvider.get(mContext).getAccount();
+    private JasperAccountManager(Context context) {
+        mContext = context;
+        mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
+        Timber.tag(PREF_NAME);
+    }
+
+    public Account getActiveAccount() {
+        String accountName = mPreference.getString(ACCOUNT_NAME_KEY, "");
+        if (TextUtils.isEmpty(accountName)) {
+            return null;
+        }
+        return new Account(accountName, JasperSettings.JASPER_ACCOUNT_TYPE);
+    }
+
+    public void activateAccount(Account account) {
+        AccountManager accountManager = AccountManager.get(mContext);
+        String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+        mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
+    }
+
+    public void activateFirstAccount() {
+        Account account = getAccounts()[0];
+        AccountManager accountManager = AccountManager.get(mContext);
+        String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+        mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
+    }
+
+    public void deactivateAccount() {
+        mPreference.edit().putString(ACCOUNT_NAME_KEY, "").apply();
+    }
+
+    public List<AccountServerData> getInactiveAccountsData() {
+        Account activeAccount = getActiveAccount();
         final String activeName = (activeAccount == null) ? "" : activeAccount.name;
 
         return Observable.from(getAccounts())
@@ -100,42 +123,20 @@ public class AccountManagerUtil {
                 }).toList().toBlocking().first();
     }
 
-    /**
-     * Activates account by requesting auth token for new account invalidating it, if exists, and requesting new one.
-     *
-     * @param newAccount Account we are requesting token for. As soon as, token received we are
-     *                   persisting within {@link com.jaspersoft.android.retrofit.sdk.account.AccountProvider}
-     * @return observable which wraps account for activating
-     */
-    public Observable<Account> activateAccount(final Account newAccount) {
-        return getAuthToken(newAccount)
-                .flatMap(new Func1<String, Observable<String>>() {
-                    @Override
-                    public Observable<String> call(String tokenToInvalidate) {
-                        AccountManager accountManager = AccountManager.get(mContext);
-                        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
-                        return getAuthToken(newAccount);
-                    }
-                }).flatMap(new Func1<String, Observable<Account>>() {
-                    @Override
-                    public Observable<Account> call(String newToken) {
-                        JasperAccountProvider.get(mContext).putAccount(newAccount);
-                        return Observable.just(newAccount);
-                    }
-                });
+    public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener){
+        AccountManager.get(mContext).addOnAccountsUpdatedListener(listener, null, false);
+    }
+
+    public void removeOnAccountsUpdatedListener(OnAccountsUpdateListener listener){
+        AccountManager.get(mContext).removeOnAccountsUpdatedListener(listener);
     }
 
     public Observable<AccountServerData> getActiveServerData() {
-        return getActiveAccount()
-                .flatMap(new Func1<Account, Observable<AccountServerData>>() {
-                    @Override
-                    public Observable<AccountServerData> call(Account account) {
-                        return getServerData(account);
-                    }
-                });
+        Account activeAccount = getActiveAccount();
+        return getServerData(activeAccount);
     }
 
-    public Observable<AccountServerData> getServerData(Account account) {
+    private Observable<AccountServerData> getServerData(Account account) {
         return getAuthToken(account).zipWith(Observable.just(account), new Func2<String, Account, AccountServerData>() {
             @Override
             public AccountServerData call(String cookie, Account account) {
@@ -147,12 +148,8 @@ public class AccountManagerUtil {
     }
 
     public Observable<String> getActiveAuthToken() {
-        return getActiveAccount().flatMap(new Func1<Account, Observable<String>>() {
-            @Override
-            public Observable<String> call(Account account) {
-                return getAuthToken(account);
-            }
-        });
+        Account activeAccount = getActiveAccount();
+        return getAuthToken(activeAccount);
     }
 
     /**
@@ -161,7 +158,7 @@ public class AccountManagerUtil {
      * @param account which represents both JRS and user data configuration for more details refer to {@link com.jaspersoft.android.retrofit.sdk.account.AccountServerData}
      * @return token which in our case is cookie string for specified account. Can be <b>null</b> or empty if token is missing
      */
-    public Observable<String> getAuthToken(final Account account) {
+    private Observable<String> getAuthToken(final Account account) {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(Subscriber<? super String> subscriber) {
@@ -204,7 +201,7 @@ public class AccountManagerUtil {
         return Observable.just(accounts);
     }
 
-    public Observable<Account> listFlatAccounts() {
+    private Observable<Account> listFlatAccounts() {
         return listAccounts()
                 .flatMap(
                         new Func1<List<Account>, Observable<Account>>() {
@@ -225,15 +222,11 @@ public class AccountManagerUtil {
                 });
     }
 
-    public Observable<Boolean> removeAccount() {
-        return removeAccount(mAccountProvider.getAccount(), null);
-    }
-
     public Observable<Boolean> removeAccount(Account account) {
         return removeAccount(account, null);
     }
 
-    public Observable<Boolean> removeAccount(final Account account, final Handler handler) {
+    private Observable<Boolean> removeAccount(final Account account, final Handler handler) {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(final Subscriber<? super Boolean> subscriber) {
@@ -241,10 +234,10 @@ public class AccountManagerUtil {
                     @Override
                     public void run(AccountManagerFuture<Boolean> future) {
                         try {
-                            Account currentAccount = mAccountProvider.getAccount();
+                            Account currentAccount = getActiveAccount();
                             if (currentAccount != null && currentAccount.name.equals(account.name)) {
                                 Timber.d("Account removed from AccountProvider");
-                                mAccountProvider.removeAccount();
+                                deactivateAccount();
                             }
                             Boolean result = future.getResult();
                             Timber.d("Remove status for Account[" + account.name + "]: " + result);
@@ -288,34 +281,6 @@ public class AccountManagerUtil {
                 return getActiveAuthToken();
             }
         });
-    }
-
-    public static class Builder {
-        private final Context mContext;
-        private AccountProvider accountProvider;
-
-        public Builder(Context mContext) {
-            this.mContext = mContext;
-        }
-
-        public Builder accountProvider(AccountProvider accountProvider) {
-            this.accountProvider = accountProvider;
-            return this;
-        }
-
-        public AccountManagerUtil build() {
-            if (mContext == null) {
-                throw new IllegalArgumentException("Context should not be null");
-            }
-            ensureSaneDefaults();
-            return new AccountManagerUtil(mContext, accountProvider);
-        }
-
-        private void ensureSaneDefaults() {
-            if (accountProvider == null) {
-                accountProvider = JasperAccountProvider.get(mContext);
-            }
-        }
     }
 
     public static class AccountNotFoundException extends Throwable {

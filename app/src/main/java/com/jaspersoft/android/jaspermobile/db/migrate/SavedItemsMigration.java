@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.db.migrate;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;
@@ -41,7 +41,7 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class SavedItemsMigration implements Migration {
-    private static final String TAG = AccountManagerUtil.class.getSimpleName();
+    private static final String TAG = JasperAccountManager.class.getSimpleName();
     private final Context mContext;
 
     public SavedItemsMigration(Context context) {

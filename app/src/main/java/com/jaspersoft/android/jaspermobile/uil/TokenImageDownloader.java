@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.uil;
 
 import android.content.Context;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 import java.io.IOException;
@@ -38,17 +38,17 @@ import java.net.HttpURLConnection;
  */
 public class TokenImageDownloader extends BaseImageDownloader {
     private static final String COOKIE = "Cookie";
-    private final AccountManagerUtil accountManagerUtil;
+    private final JasperAccountManager jasperAccountManager;
 
     public TokenImageDownloader(Context context) {
         super(context);
-        accountManagerUtil = AccountManagerUtil.get(context);
+        jasperAccountManager = JasperAccountManager.get(context);
     }
 
     @Override
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
         HttpURLConnection conn = super.createConnection(url, extra);
-        String token = accountManagerUtil.getActiveAuthToken().toBlocking().first();
+        String token = jasperAccountManager.getActiveAuthToken().toBlocking().first();
         conn.setRequestProperty(COOKIE, token);
         return conn;
     }

@@ -54,7 +54,7 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
@@ -183,7 +183,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Account account = JasperAccountProvider.get(getActivity()).getAccount();
+        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         mServerData = AccountServerData.get(getActivity(), account);
 
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -232,7 +232,9 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        mAdapter.save(outState);
+        if (mAdapter != null) {
+            mAdapter.save(outState);
+        }
         super.onSaveInstanceState(outState);
     }
 

@@ -26,6 +26,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActiv
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -199,18 +200,12 @@ public class NavigationActivity extends RoboToolboxActivity {
     }
 
     private void activateAccount(@NonNull Account account) {
-        ActivationDialogFragment activationDialogFragment = ActivationDialogFragment_.builder()
-                .account(account).build();
-        activationDialogFragment.setActivationListener(
-                new ActivationDialogFragment.OnActivationListener() {
-                    @Override
-                    public void onAccountActivation(Fragment page) {
-                        drawerLayout.closeDrawer(navigationPanelLayout);
-                        navigationPanelLayout.notifyAccountChange();
-                        commitContent(page);
-                    }
-                });
-        activationDialogFragment.show(getSupportFragmentManager(), null);
+        JasperAccountManager.get(this).activateAccount(account);
+
+        onActiveAccountChanged();
+        onAccountsChanged();
+
+        drawerLayout.closeDrawer(navigationPanelLayout);
     }
 
     private void commitContent(@NonNull Fragment directFragment) {

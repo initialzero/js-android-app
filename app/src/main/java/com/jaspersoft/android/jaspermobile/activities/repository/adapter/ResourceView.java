@@ -30,7 +30,7 @@ import android.widget.ImageView;
  * @author Tom Koptel
  * @since 1.9
  */
-public interface IResourceView {
+public interface ResourceView {
 
     void setTitle(CharSequence title);
 

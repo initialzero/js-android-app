@@ -40,7 +40,9 @@ import android.view.ViewGroup;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceAdapterHelper;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource.ResourceBinder;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource.ResourceBinderFactory;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceAdapterHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -73,7 +75,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
     @Override
     protected View getViewImpl(int position, View convertView, ViewGroup parent) {
-        IResourceView itemView = (IResourceView) convertView;
+        ResourceView itemView = (ResourceView) convertView;
 
         if (itemView == null) {
             if (mViewType == ViewType.LIST) {

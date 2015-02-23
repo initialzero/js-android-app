@@ -37,9 +37,9 @@ import android.view.ViewGroup;
 
 import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceSimpleCursorAdapter;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceSimpleCursorAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
@@ -89,7 +89,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
 
     @Override
     public View getViewImpl(int position, View convertView, ViewGroup parent) {
-        IResourceView itemView = (IResourceView) convertView;
+        ResourceView itemView = (ResourceView) convertView;
 
         if (itemView == null) {
             if (mViewType == ViewType.LIST) {

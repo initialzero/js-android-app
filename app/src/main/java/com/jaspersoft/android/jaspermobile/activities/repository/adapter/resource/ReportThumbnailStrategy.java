@@ -1,0 +1,98 @@
+package com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource;
+
+import android.accounts.Account;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.view.View;
+import android.widget.ImageView;
+
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+
+import roboguice.RoboGuice;
+
+/**
+ * @author Tom Koptel
+ * @since 2.0
+ */
+class ReportThumbnailStrategy implements ThumbnailStrategy {
+    private final ResourceAsset mResourceAsset;
+    private final int mAnimationSpeed;
+    private final boolean isAmberOrHigher;
+
+    private DisplayImageOptions displayImageOptions;
+
+    @Inject
+    protected JsRestClient jsRestClient;
+
+    public ReportThumbnailStrategy(Context context, ResourceAsset resourceAsset) {
+        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
+
+        mResourceAsset = resourceAsset;
+
+        Account account = JasperAccountManager.get(context).getActiveAccount();
+        AccountServerData serverData = AccountServerData.get(context, account);
+        ServerRelease serverRelease = ServerRelease.parseVersion(serverData.getVersionName());
+        isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
+
+        mAnimationSpeed = context.getResources().getInteger(
+                android.R.integer.config_mediumAnimTime);
+    }
+
+    @Override
+    public void setIcon(ImageView imageView, String uri) {
+        imageView.setBackgroundResource(mResourceAsset.getResourceBackground());
+        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+
+        if (isAmberOrHigher) {
+            loadFromNetwork(imageView, uri);
+        } else {
+            imageView.setImageResource(mResourceAsset.getResourceIcon());
+        }
+    }
+
+    private void loadFromNetwork(ImageView imageView, String uri) {
+        String path = jsRestClient.generateThumbNailUri(uri);
+        ImageLoader.getInstance().displayImage(
+                path, imageView, getDisplayImageOptions(),
+                new ImageLoadingListener()
+        );
+    }
+
+    private DisplayImageOptions getDisplayImageOptions() {
+        if (displayImageOptions == null) {
+            displayImageOptions = new DisplayImageOptions.Builder()
+                    .showImageOnLoading(R.drawable.sample_report_grey)
+                    .showImageForEmptyUri(R.drawable.sample_report_grey)
+                    .showImageOnFail(R.drawable.sample_report_grey)
+                    .considerExifParams(true)
+                    .cacheInMemory(true)
+                    .cacheOnDisk(true)
+                    .bitmapConfig(Bitmap.Config.RGB_565)
+                    .displayer(new FadeInBitmapDisplayer(mAnimationSpeed))
+                    .build();
+        }
+        return displayImageOptions;
+    }
+
+    private static class ImageLoadingListener extends SimpleImageLoadingListener {
+        @Override
+        public void onLoadingStarted(String imageUri, View view) {
+            ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+        }
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.TOP_CROP);
+        }
+    }
+}

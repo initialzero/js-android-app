@@ -9,13 +9,16 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url 'https://raw.github.com/xujiaao/mvn-repository/master/releases' }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
+        classpath 'com.github.xujiaao:aarLinkSources:1.0.0'
     }
 }
 
 
+apply plugin: 'aar-link-sources'
 apply plugin: 'com.android.library'
 
 android {
@@ -43,6 +46,9 @@ dependencies {
         exclude group: 'com.google.code.gson'
     }
     compile 'com.jakewharton.timber:timber:2.5.0'
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.3-SNAPSHOT'
+
+    compile "com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}"
+    aarLinkSources "com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}:sources@jar"
+
     compile 'io.reactivex:rxandroid:0.24.0'
 }

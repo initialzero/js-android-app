@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.uil;
+package com.jaspersoft.android.jaspermobile.network;
 
 import android.content.Context;
 

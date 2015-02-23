@@ -39,7 +39,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -125,6 +125,7 @@ public class FavoritesAdapter extends SingleChoiceCursorAdapter {
     private ResourceLookup transformCursor(Cursor cursor) {
         ResourceLookup resourceLookup = new ResourceLookup();
         resourceLookup.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
+        resourceLookup.setDescription(cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION)));
         resourceLookup.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
         resourceLookup.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
         resourceLookup.setCreationDate(cursor.getString(cursor.getColumnIndex(FavoritesTable.CREATION_TIME)));

@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource;
+package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -24,7 +24,7 @@ import roboguice.RoboGuice;
  * @author Tom Koptel
  * @since 1.9
  */
-class ReportResourceBinder extends BaseResourceBinder {
+class ReportResourceBinder extends ResourceBinder {
     private final int mAnimationSpeed;
     private final boolean isAmberOrHigher;
 

@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource;
+package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
 
@@ -8,7 +8,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
  * @author Tom Koptel
  * @since 1.9
  */
-public final class ResourceBinderFactory {
+final class ResourceBinderFactory {
     private ResourceBinderFactory() {
     }
 

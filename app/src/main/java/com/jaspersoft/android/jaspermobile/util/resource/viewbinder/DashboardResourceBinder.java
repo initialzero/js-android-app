@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource;
+package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
 import android.widget.ImageView;
@@ -10,7 +10,7 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
  * @author Tom Koptel
  * @since 1.9
  */
-class DashboardResourceBinder extends BaseResourceBinder {
+class DashboardResourceBinder extends ResourceBinder {
     public DashboardResourceBinder(Context context) {
         super(context);
     }

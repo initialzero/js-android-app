@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource;
+package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
 import android.widget.ImageView;
@@ -20,7 +20,7 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-class FolderResourceBinder extends BaseResourceBinder {
+class FolderResourceBinder extends ResourceBinder {
 
     private static final String FIRST_INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String SECOND_INITIAL_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";

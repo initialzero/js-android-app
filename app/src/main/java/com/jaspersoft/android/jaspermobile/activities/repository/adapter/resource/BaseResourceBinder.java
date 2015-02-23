@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource;
 
 import android.content.Context;
+import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -9,10 +10,9 @@ import timber.log.Timber;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
 abstract class BaseResourceBinder implements ResourceBinder {
-
     private final Context mContext;
 
     public BaseResourceBinder(Context context) {
@@ -22,11 +22,7 @@ abstract class BaseResourceBinder implements ResourceBinder {
 
     @Override
     public void bindView(ResourceView resourceView, ResourceLookup item) {
-        String type = item.getResourceType().toString();
-
-        ThumbnailStrategy thumbnailStrategy = ThumbnailStrategyFactory.create(mContext, type);
-        thumbnailStrategy.setIcon(resourceView.getImageView(), item.getUri());
-
+        setIcon(resourceView.getImageView(), item.getUri());
         resourceView.setTitle(item.getLabel());
         resourceView.setSubTitle(item.getDescription());
     }
@@ -35,6 +31,5 @@ abstract class BaseResourceBinder implements ResourceBinder {
         return mContext;
     }
 
-    public abstract int getResourceIcon();
-    public abstract int getResourceBackground();
+    public abstract void setIcon(ImageView imageView, String uri);
 }

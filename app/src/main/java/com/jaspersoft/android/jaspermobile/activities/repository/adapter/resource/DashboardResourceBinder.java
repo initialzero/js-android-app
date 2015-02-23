@@ -1,8 +1,10 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource;
 
 import android.content.Context;
+import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
 /**
  * @author Tom Koptel
@@ -14,12 +16,9 @@ class DashboardResourceBinder extends BaseResourceBinder {
     }
 
     @Override
-    public int getResourceIcon() {
-        return R.drawable.sample_dashboard_blue;
-    }
-
-    @Override
-    public int getResourceBackground() {
-        return R.drawable.js_blue_gradient;
+    public void setIcon(ImageView imageView, String uri) {
+        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_XY);
+        imageView.setBackgroundResource(R.drawable.js_blue_gradient);
+        imageView.setImageResource(R.drawable.sample_dashboard_blue);
     }
 }

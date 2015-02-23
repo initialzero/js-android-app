@@ -1,9 +1,11 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter.resource;
 
 import android.content.Context;
+import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.text.DateFormat;
@@ -39,13 +41,10 @@ class FolderResourceBinder extends BaseResourceBinder {
     }
 
     @Override
-    public int getResourceIcon() {
-        return R.drawable.sample_repo_blue;
-    }
-
-    @Override
-    public int getResourceBackground() {
-        return R.color.dashboard_item_bg;
+    public void setIcon(ImageView imageView, String uri) {
+        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_XY);
+        imageView.setBackgroundResource(R.color.dashboard_item_bg);
+        imageView.setImageResource(R.drawable.sample_repo_blue);
     }
 
     private String formatDateString(String updateDate) {

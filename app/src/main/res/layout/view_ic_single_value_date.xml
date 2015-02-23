@@ -32,7 +32,7 @@
         style="@style/inputControl.label"
     />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
        style="@style/inputControl.date.inputContainer.layout"
        android:orientation="horizontal" >
 

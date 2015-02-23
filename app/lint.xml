@@ -38,4 +38,7 @@
     <issue id="MissingTranslation">
         <ignore path="src/main/res/values/roboguice.xml" />
     </issue>
+	<issue id="NewApi" severity="ignore">
+		<ignore path="src/main/res/layout/item_select_dialog_multichoice.xml" />
+	</issue>
 </lint>

@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import rx.schedulers.Schedulers;
@@ -28,7 +28,7 @@ public class RestErrorReceiver extends BroadcastReceiver {
                     Toast.LENGTH_LONG).show();
         }
         if (action.equals(JasperSettings.ACTION_TOKEN_EXPIRED)) {
-            AccountManagerUtil.get(context)
+            JasperAccountManager.get(context)
                     .updateAuthToken()
                     .subscribeOn(Schedulers.io())
                     .subscribe();

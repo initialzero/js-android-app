@@ -28,7 +28,7 @@
     <item android:drawable="@color/dashboard_item_bg" />
 
     <item>
-        <bitmap android:gravity="center" android:src="@drawable/ic_repository" />
+        <bitmap android:gravity="center" android:src="@drawable/ic_folder"/>
     </item>
 
 </layer-list>

@@ -28,6 +28,6 @@
     <item
         android:id="@+id/saveAction"
         android:title="@string/sp_save_btn"
-        android:icon="@drawable/ic_action_submit_disabled"
+        android:icon="@drawable/ic_menu_save"
         app:showAsAction="always"/>
 </menu>

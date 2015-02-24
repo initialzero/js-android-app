@@ -132,8 +132,8 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
         // settings
         MenuItem applyMenuItem = menu.add(Menu.NONE, R.id.saveAction, Menu.NONE, R.string.ro_run_report_btn)
-                .setIcon(R.drawable.ic_run_report);
-        applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                .setIcon(R.drawable.ic_menu_run_report);
+        applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         return super.onCreateOptionsMenu(menu);
     }

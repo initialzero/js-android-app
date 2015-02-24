@@ -37,7 +37,9 @@ import java.net.HttpURLConnection;
  * @since 2.0
  */
 public class TokenImageDownloader extends BaseImageDownloader {
-    private static final String COOKIE = "Cookie";
+    private static final String COOKIE_HEADER = "Cookie";
+    private static final String ACCEPT_HEADER = "Accept";
+
     private final JasperAccountManager jasperAccountManager;
 
     public TokenImageDownloader(Context context) {
@@ -49,7 +51,8 @@ public class TokenImageDownloader extends BaseImageDownloader {
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
         HttpURLConnection conn = super.createConnection(url, extra);
         String token = jasperAccountManager.getActiveAuthToken().toBlocking().first();
-        conn.setRequestProperty(COOKIE, token);
+        conn.setRequestProperty(COOKIE_HEADER, token);
+        conn.setRequestProperty(ACCEPT_HEADER, "image/jpeg");
         return conn;
     }
 }

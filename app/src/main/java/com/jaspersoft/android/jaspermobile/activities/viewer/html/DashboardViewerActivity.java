@@ -31,11 +31,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.DashboardWebClient;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.WebFlowStrategy;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.settings.GeneralWebViewSettings;
@@ -100,7 +100,7 @@ public class DashboardViewerActivity extends RoboSpiceActivity {
 
         GeneralWebViewSettings.configure(webView);
         webView.setWebChromeClient(new ChromeClient());
-        webView.setWebViewClient(new WebClient(jsWebViewClient));
+        webView.setWebViewClient(new DashboardWebClient(jsWebViewClient));
 
         WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createStrategy();
         webFlow.load(webView, resource.getUri());
@@ -133,25 +133,6 @@ public class DashboardViewerActivity extends RoboSpiceActivity {
                 .setMessage(resource.getDescription())
                 .setNegativeButtonText(android.R.string.ok)
                 .show();
-    }
-
-    private static class WebClient extends WebViewClient {
-        private final WebViewClient mDecoratedClient;
-
-        WebClient(WebViewClient decoratedClient) {
-            mDecoratedClient = decoratedClient;
-        }
-
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            return mDecoratedClient.shouldOverrideUrlLoading(view, url);
-        }
-
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            String js = "console.log( \"ready!\" );";
-            view.loadUrl("javascript:" + js);
-        }
     }
 
     private class ChromeClient extends WebChromeClient {

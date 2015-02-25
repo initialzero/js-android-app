@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.flow;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -35,11 +35,11 @@ import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
  * @author Tom Koptel
  * @since 2.0
  */
-public class EmeraldWebFlowStrategy implements WebFlowStrategy {
-    private static final String FLOW_URI = "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource=";
+class AmberWebFlowStrategy implements WebFlowStrategy {
+    private static final String FLOW_URI = "/dashboard/viewer.html?_opt=true&sessionDecorator=no&decorate=no#";
     private final String mServerUrl;
 
-    public EmeraldWebFlowStrategy(Context context) {
+    public AmberWebFlowStrategy(Context context) {
         Account account = JasperAccountManager.get(context).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(context, account);
         mServerUrl = accountServerData.getServerUrl();

@@ -8,7 +8,7 @@ import android.webkit.WebView;
  * @author Tom Koptel
  * @since 2.0
  */
-public class CommonWebViewSettings implements WebViewSettings {
+class CommonWebViewSettings implements WebViewSettings {
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void setup(WebView webView) {

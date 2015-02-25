@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.flow;
 
 import android.webkit.WebView;
 

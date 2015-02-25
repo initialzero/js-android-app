@@ -32,7 +32,7 @@ import android.webkit.WebView;
  * @author Tom Koptel
  * @since 2.0
  */
-public class JellyBeanWebViewSettings implements WebViewSettings {
+class JellyBeanWebViewSettings implements WebViewSettings {
     private final WebViewSettings mDecorated;
 
     public JellyBeanWebViewSettings(WebViewSettings decorated) {

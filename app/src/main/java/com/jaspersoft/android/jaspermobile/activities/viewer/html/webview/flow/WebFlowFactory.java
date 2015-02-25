@@ -69,7 +69,7 @@ public class WebFlowFactory {
                 return new EmeraldWebFlowStrategy(mContext);
             case AMBER:
             case AMBER_MR1:
-            case JADE:
+            case AMBER_MR2:
                 return new AmberWebFlowStrategy(mContext);
             default:
                 throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);

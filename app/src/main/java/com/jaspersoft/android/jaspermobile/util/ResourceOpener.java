@@ -32,7 +32,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -98,7 +98,7 @@ public class ResourceOpener {
     }
 
     private void runDashboard(ResourceLookup resource) {
-        DashboardHtmlViewerActivity_.intent(activity)
+        DashboardViewerActivity_.intent(activity)
                 .resource(resource).start();
     }
 

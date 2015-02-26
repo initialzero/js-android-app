@@ -39,14 +39,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.ImageView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
@@ -82,7 +79,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  */
 @EFragment
 public class FavoritesFragment extends RoboFragment
-        implements SimpleCursorAdapter.ViewBinder, LoaderManager.LoaderCallbacks<Cursor>, FavoritesAdapter.FavoritesInteractionListener {
+        implements LoaderManager.LoaderCallbacks<Cursor>, FavoritesAdapter.FavoritesInteractionListener {
 
     private final int FAVORITES_LOADER_ID = 20;
 
@@ -124,10 +121,8 @@ public class FavoritesFragment extends RoboFragment
         super.onViewCreated(view, savedInstanceState);
         setEmptyText(0);
 
-        int layout = (viewType == ViewType.LIST) ? R.layout.common_list_item : R.layout.common_grid_item;
-        mAdapter = new FavoritesAdapter(getActivity(), savedInstanceState, layout);
+        mAdapter = new FavoritesAdapter(getActivity(), savedInstanceState, viewType);
         mAdapter.setAdapterView(listView);
-        mAdapter.setViewBinder(this);
         mAdapter.setFavoritesInteractionListener(this);
         listView.setAdapter(mAdapter);
 
@@ -183,22 +178,6 @@ public class FavoritesFragment extends RoboFragment
             emptyText.setVisibility(View.VISIBLE);
             emptyText.setText(resId);
         }
-    }
-
-    //---------------------------------------------------------------------
-    // Implements SimpleCursorAdapter.ViewBinder
-    //---------------------------------------------------------------------
-
-    @Override
-    public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-        if (columnIndex == cursor.getColumnIndex(FavoritesTable.WSTYPE)) {
-            String wsType = cursor.getString(columnIndex);
-            ResourceType resourceType = ResourceType.valueOf(wsType);
-            ImageView imageView = (ImageView) view;
-            imageView.setImageResource(ResourceViewHelper.getResourceIcon(resourceType));
-            return true;
-        }
-        return false;
     }
 
     //---------------------------------------------------------------------

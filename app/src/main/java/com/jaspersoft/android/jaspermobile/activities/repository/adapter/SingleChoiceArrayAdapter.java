@@ -33,7 +33,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceAdapterHelper;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceAdapterHelper;
 import com.manuelpeinado.multichoiceadapter.ItemClickInActionModePolicy;
 import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapter;
 

@@ -6,8 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import org.springframework.http.HttpRequest;
@@ -35,7 +34,9 @@ public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        String token = AccountManagerUtil.get(mContext)
+        JasperAccountManager manager = JasperAccountManager.get(mContext);
+
+        String token = manager
                 .getActiveAuthToken()
                 .toBlocking()
                 .firstOrDefault(null);
@@ -49,7 +50,7 @@ public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor
             Intent intent = new Intent();
 
             if (TextUtils.isEmpty(token)) {
-                Account account = JasperAccountProvider.get(mContext).getAccount();
+                Account account = manager.getActiveAccount();
                 intent.setAction(JasperSettings.ACTION_INVALID_PASSWORD);
                 intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);
             } else {

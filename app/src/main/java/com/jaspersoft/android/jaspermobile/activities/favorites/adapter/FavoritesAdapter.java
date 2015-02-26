@@ -32,24 +32,34 @@ import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewHelper;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceCursorAdapter;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class FavoritesAdapter extends SingleChoiceSimpleCursorAdapter {
+public class FavoritesAdapter extends SingleChoiceCursorAdapter {
 
-    private static final String[] FROM = {FavoritesTable.TITLE, FavoritesTable.URI, FavoritesTable.WSTYPE};
-    private static final int[] TO = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
-
+    private final ViewType mViewType;
+    private final ResourceViewHelper mViewHelper;
     private FavoritesInteractionListener mFavoritesInteractionListener;
 
-    public FavoritesAdapter(Context context, Bundle savedInstanceState, int layout) {
-        super(savedInstanceState, context, layout, null, FROM, TO, 0);
+    public FavoritesAdapter(Context context, Bundle savedInstanceState, ViewType viewType) {
+        super(savedInstanceState, context, null, 0);
+        mViewType = viewType;
+        mViewHelper = new ResourceViewHelper(context);
     }
 
     public void setFavoritesInteractionListener(FavoritesInteractionListener favoritesInteractionListener) {
@@ -95,13 +105,39 @@ public class FavoritesAdapter extends SingleChoiceSimpleCursorAdapter {
         }
     }
 
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        View itemView;
+        if (mViewType == ViewType.LIST) {
+            itemView = ListItemView_.build(getContext());
+        } else {
+            itemView = GridItemView_.build(getContext());
+        }
+        return itemView;
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        ResourceView itemView = (ResourceView) view;
+        mViewHelper.populateView(itemView, transformCursor(cursor));
+    }
+
+    private ResourceLookup transformCursor(Cursor cursor) {
+        ResourceLookup resourceLookup = new ResourceLookup();
+        resourceLookup.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
+        resourceLookup.setDescription(cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION)));
+        resourceLookup.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
+        resourceLookup.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
+        resourceLookup.setCreationDate(cursor.getString(cursor.getColumnIndex(FavoritesTable.CREATION_TIME)));
+        return resourceLookup;
+    }
+
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
 
     public static interface FavoritesInteractionListener {
         void onDelete(String title, Uri itemToDelete);
-
         void onInfo(String title, String description);
     }
 

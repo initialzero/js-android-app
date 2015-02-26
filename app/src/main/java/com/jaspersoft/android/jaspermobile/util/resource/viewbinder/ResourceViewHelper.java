@@ -22,34 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.uil;
+package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
 
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 1.9
  */
-public class TokenImageDownloader extends BaseImageDownloader {
-    private static final String COOKIE = "Cookie";
-    private final JasperAccountManager jasperAccountManager;
+public class ResourceViewHelper {
 
-    public TokenImageDownloader(Context context) {
-        super(context);
-        jasperAccountManager = JasperAccountManager.get(context);
+    private final Context mContext;
+
+    public ResourceViewHelper(Context context) {
+        mContext = context;
     }
 
-    @Override
-    protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
-        HttpURLConnection conn = super.createConnection(url, extra);
-        String token = jasperAccountManager.getActiveAuthToken().toBlocking().first();
-        conn.setRequestProperty(COOKIE, token);
-        return conn;
+    public void populateView(ResourceView resourceView, ResourceLookup item) {
+        String type = item.getResourceType().toString();
+        ResourceBinder resourceBinder = ResourceBinderFactory.create(mContext, type);
+        resourceBinder.bindView(resourceView, item);
     }
+
 }

@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.accounts.Account;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -48,7 +49,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
@@ -66,7 +67,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -372,10 +372,16 @@ public class ResourcesFragment extends RoboSpiceFragment
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetRootFolderDataRequestListener implements RequestListener<FolderDataResponse> {
+    private class GetRootFolderDataRequestListener extends SimpleRequestListener2<FolderDataResponse> {
+
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, getActivity(), true);
+            super.onRequestFailure(exception);
             setRefreshState(false);
             showEmptyText(R.string.failed_load_data);
         }
@@ -395,11 +401,16 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-    private class GetResourceLookupsListener implements RequestListener<ResourceLookupsList> {
+    private class GetResourceLookupsListener extends SimpleRequestListener2<ResourceLookupsList> {
+
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
 
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, getActivity(), true);
+            super.onRequestFailure(exception);
             setRefreshState(false);
             showEmptyText(R.string.failed_load_data);
         }

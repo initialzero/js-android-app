@@ -45,8 +45,10 @@
     <string name="h_ad_msg_no_connection">Please check your mobile network settings and try again.</string>
 
     <!-- Password Dialog -->
-    <string name="h_ad_title_enter_password">Enter Password</string>
-    <string name="h_ad_label_server_profile">Server Profile:</string>
+    <string name="h_ad_title_enter_password">Server sign-in</string>
+    <string name="h_ad_title_server_sign_in" translatable="false">Server sign-in</string>
+    <string name="h_ad_label_wrong_password" translatable="false">You entered wrong password or your account has changed. Please re-enter your password.</string>
+    <string name="h_ad_label_server_profile">Server Profile</string>
 
     <!-- Rate Dialog -->
     <string name="h_rd_description">If you enjoy using TIBCO JasperMobile, would you mind taking a moment to rate it? It won\'t take more than a minute. Thanks for your support!</string>
@@ -101,9 +103,6 @@
 
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Running report…</string>
-
-    <!-- Error messages -->
-    <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
 
     <!-- Search Activity -->
     <string name="s_hint">Search resources</string>
@@ -214,6 +213,8 @@
     <string name="st_show_intro" translatable="false">Show Intro</string>
 
     <!-- Error messages -->
+    <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
+    <string name="r_error_server_not_found" translatable="false">Server not found</string>
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
     <string name="error_http_401">401 - Unauthorized.
                                   \nAuthentication credentials were missing or incorrect.

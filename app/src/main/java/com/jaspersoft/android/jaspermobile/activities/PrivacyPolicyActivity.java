@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.webkit.WebViewClient;
 
@@ -10,10 +11,8 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivit
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.network.PrivacyRequest;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -59,10 +58,11 @@ public class PrivacyPolicyActivity extends RoboSpiceActivity implements WebViewF
                 new PrivacyRequestListener());
     }
 
-    private class PrivacyRequestListener implements RequestListener<String> {
+    private class PrivacyRequestListener extends SimpleRequestListener2<String> {
+
         @Override
-        public void onRequestFailure(SpiceException e) {
-            RequestExceptionHandler.handle(e, PrivacyPolicyActivity.this, true);
+        protected Context getContext() {
+            return PrivacyPolicyActivity.this;
         }
 
         @Override
@@ -70,7 +70,6 @@ public class PrivacyPolicyActivity extends RoboSpiceActivity implements WebViewF
             if (privacy == null) {
                 return;
             }
-
             webViewFragment.loadHtml(PrivacyRequest.PRIVACY_URL, privacy);
         }
     }

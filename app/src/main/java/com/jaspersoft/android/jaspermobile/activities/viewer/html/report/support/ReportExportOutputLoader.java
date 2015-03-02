@@ -1,8 +1,8 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support;
 
+import android.content.Context;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -10,9 +10,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.PaginationManagerFragment;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.ExceptionRule;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.network.UniversalRequestListener;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequest;
@@ -21,9 +20,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
-import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -79,18 +76,7 @@ public class ReportExportOutputLoader {
         requestExecutor.execute(request, new RunReportExportsRequestListener(page));
     }
 
-    private void handleFailure(SpiceException exception) {
-        if (context != null) {
-            if (exception instanceof RequestCancelledException) {
-                Toast.makeText(context, R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-            } else {
-                RequestExceptionHandler.handle(exception, context, false);
-            }
-            ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
-        }
-    }
-
-    private class RunReportExportsRequestListener implements RequestListener<ExportExecution> {
+    private class RunReportExportsRequestListener extends SimpleRequestListener2<ExportExecution> {
         private final int mPage;
 
         private RunReportExportsRequestListener(int page) {
@@ -98,9 +84,15 @@ public class ReportExportOutputLoader {
         }
 
         @Override
+        protected Context getContext() {
+            return context;
+        }
+
+        @Override
         public void onRequestFailure(SpiceException exception) {
             if (!requestExecutor.runsInSilentMode()) {
-                handleFailure(exception);
+                super.onRequestFailure(exception);
+                ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
             }
         }
 
@@ -108,23 +100,13 @@ public class ReportExportOutputLoader {
         public void onRequestSuccess(ExportExecution response) {
             String executionId = reportExecutionUtil.createExecutionId(response, String.valueOf(mPage));
 
-            RunReportExportOutputRequestListener semanticListener
-                    = new RunReportExportOutputRequestListener(executionId);
-            UniversalRequestListener<ReportDataResponse> listener =
-                    UniversalRequestListener.builder(context)
-                            .executionMode(requestExecutor.getExecutionMode())
-                            .semanticListener(semanticListener)
-                            .removeRule(ExceptionRule.FORBIDDEN)
-                            .closeActivityMode()
-                            .create();
-
             RunReportExportOutputRequest request = new RunReportExportOutputRequest(jsRestClient,
                     reportSession.getRequestId(), executionId);
-            requestExecutor.execute(request, listener);
+            requestExecutor.execute(request, new RunReportExportOutputRequestListener(executionId));
         }
     }
 
-    private class RunReportExportOutputRequestListener implements UniversalRequestListener.SemanticListener<ReportDataResponse> {
+    private class RunReportExportOutputRequestListener extends SimpleRequestListener2<ReportDataResponse> {
         private final String mExecutionId;
 
         private RunReportExportOutputRequestListener(String executionId) {
@@ -132,7 +114,12 @@ public class ReportExportOutputLoader {
         }
 
         @Override
-        public void onSemanticFailure(SpiceException spiceException) {
+        protected Context getContext() {
+            return context;
+        }
+
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
             ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
 
             if (resultListener != null) {
@@ -184,16 +171,17 @@ public class ReportExportOutputLoader {
                             .show();
                 }
             } else {
-                handleFailure(spiceException);
+                super.onRequestFailure(spiceException);
+                ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
             }
         }
 
         @Override
-        public void onSemanticSuccess(ReportDataResponse response) {
+        public void onRequestSuccess(ReportDataResponse reportDataResponse) {
             ProgressDialogFragment.dismiss(context.getSupportFragmentManager());
             ExportOutputData exportOutputData = ExportOutputData.builder()
                     .setExecutionId(mExecutionId)
-                    .setResponse(response)
+                    .setResponse(reportDataResponse)
                     .create();
             if (resultListener != null) {
                 resultListener.onSuccess(exportOutputData);

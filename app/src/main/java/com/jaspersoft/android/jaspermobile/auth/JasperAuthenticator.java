@@ -34,10 +34,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import retrofit.RetrofitError;
@@ -88,48 +91,46 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             String password = accountManager.getPassword(account);
             Timber.d(String.format("Password for account[%s] : %s", account.name, password));
 
-            if (password != null) {
-                AccountServerData serverData = AccountServerData.get(mContext, account);
-                JsRestClient2 jsRestClient2 = JsRestClient2.forEndpoint(
-                        serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION);
-                try {
-                    LoginResponse loginResponse = jsRestClient2.login(
-                            serverData.getOrganization(), serverData.getUsername(), password
-                    ).toBlocking().firstOrDefault(null);
+            AccountServerData serverData = AccountServerData.get(mContext, account);
+            JsRestClient2 jsRestClient2 = JsRestClient2.forEndpoint(
+                    serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION);
+            try {
+                LoginResponse loginResponse = jsRestClient2.login(
+                        serverData.getOrganization(), serverData.getUsername(), password
+                ).toBlocking().firstOrDefault(null);
 
-                    ServerInfo serverInfo = loginResponse.getServerInfo();
-                    Timber.d("Updating user data with server info: " + serverInfo);
-                    accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
-                    accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
-                    authToken = loginResponse.getCookie();
+                ServerInfo serverInfo = loginResponse.getServerInfo();
+                Timber.d("Updating user data with server info: " + serverInfo);
+                accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
+                accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
 
-                    accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
-                    Timber.d("New token: " + authToken);
-                } catch (RetrofitError retrofitError) {
-                    Timber.d(retrofitError, "We cant access user password :(");
-                    int status = retrofitError.getResponse().getStatus();
-
-                    result.putString(AccountManager.KEY_ERROR_MESSAGE, retrofitError.getMessage());
-                    result.putInt(AccountManager.KEY_ERROR_CODE, status);
-
-                    Intent intent = new Intent();
-                    if (status == 401) {
-                        intent.setAction(JasperSettings.ACTION_INVALID_PASSWORD);
-                        intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);
-                    } else {
-                        intent.setAction(JasperSettings.ACTION_REST_ERROR);
-                        intent.putExtra(RestErrorReceiver.KEY_EXCEPTION_MESSAGE, retrofitError.getMessage());
-                    }
-                    mContext.sendBroadcast(intent);
+                if (!ServerRelease.satisfiesMinVersion(serverInfo.getVersion())) {
+                    result.putString(AccountManager.KEY_ERROR_MESSAGE, mContext.getString(R.string.r_error_server_not_supported));
+                    result.putInt(AccountManager.KEY_ERROR_CODE, JasperAccountManager.TokenException.INCORRECT_SERVER_VERSION_ERROR);
+                    return result;
                 }
-            }
-        }
 
-        // If we get an authToken - we return it
-        if (!TextUtils.isEmpty(authToken)) {
-            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-            result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+                authToken = loginResponse.getCookie();
+                accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
+
+                Timber.d("Prepare correct token bundle");
+                result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+                result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+                result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+            } catch (RetrofitError retrofitError) {
+                Timber.d(retrofitError, "We can not log in");
+                int status;
+                String message;
+                if (retrofitError.getKind() == RetrofitError.Kind.NETWORK) {
+                    status = JasperAccountManager.TokenException.SERVER_NOT_FOUND;
+                    message = mContext.getString(R.string.r_error_server_not_found);
+                } else {
+                    status = retrofitError.getResponse().getStatus();
+                    message = retrofitError.getMessage();
+                }
+                result.putString(AccountManager.KEY_ERROR_MESSAGE, message);
+                result.putInt(AccountManager.KEY_ERROR_CODE, status);
+            }
         }
 
         return result;

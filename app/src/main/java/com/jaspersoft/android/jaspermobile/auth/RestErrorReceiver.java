@@ -10,12 +10,11 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import rx.schedulers.Schedulers;
-
 /**
  * @author Tom Koptel
  * @since 2.0
  */
+@Deprecated
 public class RestErrorReceiver extends BroadcastReceiver {
     public static final String KEY_EXCEPTION_MESSAGE = "exceptionMessage";
 
@@ -28,10 +27,7 @@ public class RestErrorReceiver extends BroadcastReceiver {
                     Toast.LENGTH_LONG).show();
         }
         if (action.equals(JasperSettings.ACTION_TOKEN_EXPIRED)) {
-            JasperAccountManager.get(context)
-                    .updateAuthToken()
-                    .subscribeOn(Schedulers.io())
-                    .subscribe();
+            JasperAccountManager.get(context).invalidateActiveToken();
         }
         if (action.equals(JasperSettings.ACTION_REST_ERROR)) {
             String exceptionMessage = intent.getStringExtra(KEY_EXCEPTION_MESSAGE);

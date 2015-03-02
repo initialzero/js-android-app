@@ -26,13 +26,19 @@ package com.jaspersoft.android.jaspermobile.test.utils;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.content.Context;
+import android.os.Handler;
 
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
+import rx.Observable;
+import rx.Subscriber;
 import rx.functions.Actions;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -52,11 +58,36 @@ public final class AccountUtil {
 
     public AccountUtil removeAllAccounts() {
         JasperAccountManager managerUtil = JasperAccountManager.get(mContext);
-        if (managerUtil.getAccounts().length > 0) {
-            managerUtil.removeAccounts().toBlocking().forEach(Actions.empty());
+        Account[] accounts = managerUtil.getAccounts();
+        if (accounts.length > 0) {
+            for (Account account : accounts) {
+                removeAccount(account, null).toBlocking().forEach(Actions.empty());
+            }
         }
         JasperAccountManager.get(mContext).deactivateAccount();
         return this;
+    }
+
+    private Observable<Boolean> removeAccount(final Account account, final Handler handler) {
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(final Subscriber<? super Boolean> subscriber) {
+                AccountManager.get(mContext).removeAccount(account, new AccountManagerCallback<Boolean>() {
+                    @Override
+                    public void run(AccountManagerFuture<Boolean> future) {
+                        try {
+                            Boolean result = future.getResult();
+                            Timber.d("Remove status for Account[" + account.name + "]: " + result);
+                            subscriber.onNext(result);
+                            subscriber.onCompleted();
+                        } catch (Exception ex) {
+                            Timber.e(ex, "Failed to removeAccount()");
+                            subscriber.onError(ex);
+                        }
+                    }
+                }, handler);
+            }
+        });
     }
 
     public AccountUnit addAccount(AccountServerData serverData) {

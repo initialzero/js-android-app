@@ -60,6 +60,10 @@ public enum ServerRelease {
         return getByVersionCode(versionCode);
     }
 
+    public static boolean satisfiesMinVersion(String versionName) {
+        return parseVersion(versionName).code() >= EMERALD_MR2.code();
+    }
+
     public static ServerRelease getByVersionCode(final double versionCode) {
         for (ServerRelease release : ServerRelease.values()) {
             if (Double.compare(release.code(), versionCode) == 0) {

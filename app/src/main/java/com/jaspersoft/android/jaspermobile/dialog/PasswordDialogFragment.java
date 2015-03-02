@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.dialog;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -36,6 +34,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
@@ -49,17 +48,14 @@ import roboguice.fragment.RoboDialogFragment;
 public class PasswordDialogFragment extends RoboDialogFragment {
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
-    private static final String PASSWORD_EXTRA = "PASSWORD";
 
-    private EditText mPasswordEdit;
-    private String mPasswordValue;
-    private OnPasswordChanged onPasswordChangedListener;
+    private OnPasswordChangedListener onPasswordChangedListener;
 
     //---------------------------------------------------------------------
     // Static methods
     //---------------------------------------------------------------------
 
-    public static void show(FragmentManager fm, OnPasswordChanged onPasswordChanged) {
+    public static void show(FragmentManager fm, OnPasswordChangedListener onPasswordChanged) {
         PasswordDialogFragment dialogFragment = (PasswordDialogFragment)
                 fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
@@ -73,92 +69,72 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     // Public methods
     //---------------------------------------------------------------------
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-
-        View view = inflater.inflate(R.layout.ask_pwd_dialog_layout, null);
-        mPasswordEdit = (EditText) view.findViewById(R.id.dialogPasswordEdit);
-        builder.setView(view);
-
-        builder.setTitle(R.string.h_ad_title_enter_password);
-        builder.setCancelable(true)
-                .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (onPasswordChangedListener != null) {
-                            onPasswordChangedListener.onCancel();
-                        }
-                        dialog.cancel();
-                    }
-                });
-
-
-        final AlertDialog dialog = builder.create();
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (onPasswordChangedListener != null) {
-                     onPasswordChangedListener.onCancel();
-                }
-            }
-        });
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                String password = mPasswordEdit.getText().toString();
-                                if (TextUtils.isEmpty(password)) {
-                                    mPasswordEdit.setError(getString(R.string.sp_error_field_required));
-                                } else {
-                                    Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-                                    AccountManager accountManager = AccountManager.get(getActivity());
-                                    accountManager.setPassword(account, password);
-                                    dismiss();
-
-                                    if (onPasswordChangedListener != null) {
-                                        onPasswordChangedListener.onPasswordChanged();
-                                    }
-                                }
-                            }
-                        });
-            }
-        });
-        return dialog;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            mPasswordValue = savedInstanceState.getString(PASSWORD_EXTRA, "");
-        }
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mPasswordEdit.setText(mPasswordValue);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putString(PASSWORD_EXTRA, mPasswordEdit.getText().toString());
-        super.onSaveInstanceState(outState);
-    }
-
-    public void setOnPasswordChangedListener(OnPasswordChanged onPasswordChangedListener) {
+    public void setOnPasswordChangedListener(OnPasswordChangedListener onPasswordChangedListener) {
         this.onPasswordChangedListener = onPasswordChangedListener;
     }
 
-    public static interface OnPasswordChanged {
-        void onPasswordChanged();
-        void onCancel();
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+
+        View dialogView = inflater.inflate(R.layout.dialog_password, null);
+        String accName = JasperAccountManager.get(getActivity()).getActiveAccount().name;
+        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(accName);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.h_ad_title_server_sign_in)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setView(dialogView)
+                .setCancelable(true)
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(android.R.string.cancel, null);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new OnPasswordDialogShowListener());
+
+        return dialog;
+    }
+
+    //---------------------------------------------------------------------
+    // Nested classes
+    //---------------------------------------------------------------------
+
+    private class OnPasswordDialogShowListener implements DialogInterface.OnShowListener{
+
+        @Override
+        public void onShow(DialogInterface dialogInterface) {
+            AlertDialog dialog = ((AlertDialog) getDialog());
+            EditText etPassword = (EditText) dialog.findViewById(R.id.et_new_password);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                    .setOnClickListener(new PasswordDialogOkClickListener(etPassword));
+        }
+    }
+
+    private class PasswordDialogOkClickListener implements View.OnClickListener {
+
+        private EditText mPasswordEdit;
+
+        private PasswordDialogOkClickListener(EditText mPasswordEdit) {
+            this.mPasswordEdit = mPasswordEdit;
+        }
+
+        @Override
+        public void onClick(View v) {
+            String password = mPasswordEdit.getText().toString();
+            if (TextUtils.isEmpty(password)) {
+                mPasswordEdit.setError(getString(R.string.sp_error_field_required));
+            } else {
+                dismiss();
+
+                if (onPasswordChangedListener != null) {
+                    onPasswordChangedListener.onPasswordChanged(password);
+                }
+            }
+        }
+    }
+
+    public static interface OnPasswordChangedListener {
+        void onPasswordChanged(String newPassword);
     }
 }

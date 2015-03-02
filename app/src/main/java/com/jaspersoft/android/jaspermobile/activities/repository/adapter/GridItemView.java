@@ -40,7 +40,7 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 @EViewGroup(R.layout.res_grid_item)
-public class GridItemView extends CheckedRelativeLayout implements IResourceView {
+public class GridItemView extends CheckedRelativeLayout implements ResourceView {
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;

@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -32,16 +33,23 @@ import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.DashboardWebClient;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.ScaleDialog;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.ScaleDialog_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.ScalePref_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.flow.WebFlowStrategy;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.settings.GeneralWebViewSettings;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
+import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterViews;
@@ -52,7 +60,11 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.sharedpreferences.Pref;
+
+import java.lang.ref.WeakReference;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
@@ -64,7 +76,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity(R.layout.activity_dashboard_viewer)
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardViewerActivity extends RoboSpiceActivity {
+public class DashboardViewerActivity extends RoboSpiceActivity implements DashboardCallback {
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -76,6 +88,8 @@ public class DashboardViewerActivity extends RoboSpiceActivity {
     protected FavoritesHelper favoritesHelper;
     @Bean
     protected JSWebViewClient jsWebViewClient;
+    @Bean
+    protected ScrollableTitleHelper scrollableTitleHelper;
 
     @InstanceState
     protected Uri favoriteEntryUri;
@@ -85,9 +99,17 @@ public class DashboardViewerActivity extends RoboSpiceActivity {
     @ViewById
     protected ProgressBar progressBar;
 
+    @InstanceState
+    protected boolean mMaximized;
+
+    @Pref
+    ScalePref_ scalePref;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        scrollableTitleHelper.injectTitle(resource.getLabel());
 
         if (savedInstanceState == null) {
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
@@ -96,11 +118,24 @@ public class DashboardViewerActivity extends RoboSpiceActivity {
 
     @AfterViews
     final void init() {
+        final WeakReference<Activity> weakReference = new WeakReference<Activity>(this);
+        jsWebViewClient.setSessionListener(new JSWebViewClient.SessionListener() {
+            @Override
+            public void onSessionExpired() {
+                if (weakReference.get() != null) {
+                    Toast.makeText(weakReference.get(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
+                    weakReference.get().finish();
+                }
+            }
+        });
+
         CookieManagerFactory.syncCookies(this);
 
         GeneralWebViewSettings.configure(webView);
         webView.setWebChromeClient(new ChromeClient());
         webView.setWebViewClient(new DashboardWebClient(jsWebViewClient));
+        webView.addJavascriptInterface(new DashboardWebInterface(this), "Android");
+        webView.setInitialScale(scalePref.pageScale().get());
 
         WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createStrategy();
         webFlow.load(webView, resource.getUri());
@@ -127,12 +162,48 @@ public class DashboardViewerActivity extends RoboSpiceActivity {
     }
 
     @OptionsItem
+    final void scale() {
+        ScaleDialog scaleDialog = ScaleDialog_.builder().build();
+        scaleDialog.show(getSupportFragmentManager(), null);
+    }
+
+    @OptionsItem
     final void aboutAction() {
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
                 .setNegativeButtonText(android.R.string.ok)
                 .show();
+    }
+
+    @UiThread
+    @Override
+    public void onMaximize(String title) {
+        mMaximized = true;
+        scrollableTitleHelper.injectTitle(title);
+    }
+
+    @UiThread
+    @Override
+    public void onMinimize() {
+        mMaximized = false;
+    }
+
+    @UiThread
+    @Override
+    public void onLoaded() {
+        String size = scalePref.pageSize().getOr("'100%', '100%'");
+        webView.loadUrl("javascript:DashboardWrapper.wrapScreen(" + size + ")");
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mMaximized && webView != null) {
+            webView.loadUrl("javascript:DashboardWrapper.minimizeDashlet()");
+            scrollableTitleHelper.injectTitle(resource.getLabel());
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private class ChromeClient extends WebChromeClient {

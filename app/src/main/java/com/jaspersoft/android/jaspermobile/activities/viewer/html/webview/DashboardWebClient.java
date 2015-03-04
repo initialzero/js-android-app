@@ -41,7 +41,7 @@ import timber.log.Timber;
  */
 public class DashboardWebClient extends WebViewClient {
     private static final String INJECTION_TOKEN = "**injection**";
-    private static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dumy.js";
+    private static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-android-mobilejs-sdk.js";
     private final WebViewClient mDecoratedClient;
 
     public DashboardWebClient(WebViewClient decoratedClient) {

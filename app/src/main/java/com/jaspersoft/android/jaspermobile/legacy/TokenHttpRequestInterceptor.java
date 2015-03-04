@@ -1,13 +1,8 @@
 package com.jaspersoft.android.jaspermobile.legacy;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.Context;
-import android.content.Intent;
-import android.text.TextUtils;
 
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
@@ -36,28 +31,17 @@ public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         JasperAccountManager manager = JasperAccountManager.get(mContext);
 
-        String token = manager
-                .getActiveAuthToken()
-                .toBlocking()
-                .firstOrDefault(null);
+        String token = manager.getActiveAuthToken();
         request.getHeaders().add(COOKIE, token);
-
         ClientHttpResponse response = execution.execute(request, body);
-
         HttpStatus status = response.getStatusCode();
 
+        // Token expired
         if (status == HttpStatus.UNAUTHORIZED) {
-            Intent intent = new Intent();
-
-            if (TextUtils.isEmpty(token)) {
-                Account account = manager.getActiveAccount();
-                intent.setAction(JasperSettings.ACTION_INVALID_PASSWORD);
-                intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            } else {
-                intent.setAction(JasperSettings.ACTION_TOKEN_EXPIRED);
-            }
-
-            mContext.sendBroadcast(intent);
+            manager.invalidateToken(token);
+            token = manager.getActiveAuthToken();
+            request.getHeaders().add(COOKIE, token);
+            response = execution.execute(request, body);
         }
 
         return response;

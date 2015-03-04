@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.report.fragment;
 
 import android.accounts.Account;
 import android.app.ActionBar;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -47,7 +48,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -63,7 +64,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.SpiceRequest;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -372,7 +372,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener implements RequestListener<ExportExecution> {
+    private class RunReportExecutionListener extends SimpleRequestListener2<ExportExecution> {
         private OutputFormat outputFormat;
 
         private RunReportExecutionListener(OutputFormat outputFormat) {
@@ -381,8 +381,13 @@ public class SaveItemFragment extends RoboSpiceFragment {
         }
 
         @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
+        @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, getActivity(), false);
+            super.onRequestFailure(exception);
             setRefreshActionButtonState(false);
             runningRequests--;
             removeTemplate();
@@ -413,15 +418,20 @@ public class SaveItemFragment extends RoboSpiceFragment {
         }
     }
 
-    private class AttachmentFileSaveListener implements RequestListener<File> {
+    private class AttachmentFileSaveListener extends SimpleRequestListener2<File> {
 
         private AttachmentFileSaveListener() {
             runningRequests++;
         }
 
         @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
+        @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, getActivity(), false);
+            super.onRequestFailure(exception);
             for (SpiceRequest<?> request : requests) {
                 runningRequests--;
                 request.cancel();

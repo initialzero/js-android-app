@@ -56,6 +56,8 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -281,8 +283,8 @@ public class AuthenticatorFragment extends RoboFragment {
 
         if (!TextUtils.isEmpty(alias)) {
             Account account = new Account(alias, JasperSettings.JASPER_ACCOUNT_TYPE);
-            List<Account> accountList = JasperAccountManager.get(getActivity())
-                    .listAccounts().toBlocking().first();
+            List<Account> accountList = new ArrayList<Account>();
+            Collections.addAll(accountList, JasperAccountManager.get(getActivity()).getAccounts());
             if (accountList.contains(account)) {
                 aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
                 aliasEdit.requestFocus();
@@ -295,7 +297,6 @@ public class AuthenticatorFragment extends RoboFragment {
                 formValid &= false;
             }
         }
-
 
         return formValid;
     }

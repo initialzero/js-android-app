@@ -26,30 +26,23 @@ package com.jaspersoft.android.retrofit.sdk.account;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
 import android.accounts.OnAccountsUpdateListener;
-import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
-import rx.functions.Func2;
 import timber.log.Timber;
 
 /**
@@ -78,6 +71,19 @@ public class JasperAccountManager {
         Timber.tag(PREF_NAME);
     }
 
+    public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
+        AccountManager.get(mContext).addOnAccountsUpdatedListener(listener, null, false);
+    }
+
+    public void removeOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
+        AccountManager.get(mContext).removeOnAccountsUpdatedListener(listener);
+    }
+
+    public AccountServerData getActiveServerData() throws TokenException {
+        Account activeAccount = getActiveAccount();
+        return getServerData(activeAccount);
+    }
+
     public Account getActiveAccount() {
         String accountName = mPreference.getString(ACCOUNT_NAME_KEY, "");
         if (TextUtils.isEmpty(accountName)) {
@@ -89,7 +95,7 @@ public class JasperAccountManager {
     public void activateAccount(Account account) {
         AccountManager accountManager = AccountManager.get(mContext);
         String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+        invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
     }
 
@@ -97,12 +103,23 @@ public class JasperAccountManager {
         Account account = getAccounts()[0];
         AccountManager accountManager = AccountManager.get(mContext);
         String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+        invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
     }
 
     public void deactivateAccount() {
         mPreference.edit().putString(ACCOUNT_NAME_KEY, "").apply();
+    }
+
+    public void updateActiveAccountPassword(String newPassword){
+        AccountManager accountManager = AccountManager.get(mContext);
+        accountManager.setPassword(getActiveAccount(), newPassword);
+    }
+
+    public Account[] getAccounts() {
+        Account[] accounts = AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        Timber.d(Arrays.toString(accounts));
+        return accounts;
     }
 
     public List<AccountServerData> getInactiveAccountsData() {
@@ -121,136 +138,6 @@ public class JasperAccountManager {
                         return AccountServerData.get(mContext, account);
                     }
                 }).toList().toBlocking().first();
-    }
-
-    public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener){
-        AccountManager.get(mContext).addOnAccountsUpdatedListener(listener, null, false);
-    }
-
-    public void removeOnAccountsUpdatedListener(OnAccountsUpdateListener listener){
-        AccountManager.get(mContext).removeOnAccountsUpdatedListener(listener);
-    }
-
-    public Observable<AccountServerData> getActiveServerData() {
-        Account activeAccount = getActiveAccount();
-        return getServerData(activeAccount);
-    }
-
-    private Observable<AccountServerData> getServerData(Account account) {
-        return getAuthToken(account).zipWith(Observable.just(account), new Func2<String, Account, AccountServerData>() {
-            @Override
-            public AccountServerData call(String cookie, Account account) {
-                AccountServerData accountServerData = AccountServerData.get(mContext, account);
-                accountServerData.setServerCookie(cookie);
-                return accountServerData;
-            }
-        });
-    }
-
-    public Observable<String> getActiveAuthToken() {
-        Account activeAccount = getActiveAccount();
-        return getAuthToken(activeAccount);
-    }
-
-    /**
-     * Retrieves token from {@link android.accounts.AccountManager} for specified {@link android.accounts.Account}.
-     *
-     * @param account which represents both JRS and user data configuration for more details refer to {@link com.jaspersoft.android.retrofit.sdk.account.AccountServerData}
-     * @return token which in our case is cookie string for specified account. Can be <b>null</b> or empty if token is missing
-     */
-    private Observable<String> getAuthToken(final Account account) {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-            @Override
-            public void call(Subscriber<? super String> subscriber) {
-                try {
-                    AccountManager accountManager = AccountManager.get(mContext);
-                    AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
-                            JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, true, null, null);
-                    Bundle output = future.getResult();
-                    if (output.containsKey(AccountManager.KEY_ERROR_MESSAGE)) {
-                        subscriber.onError(new TokenNotReceivedException(output));
-                        return;
-                    }
-
-                    String token = output.getString(AccountManager.KEY_AUTHTOKEN);
-                    subscriber.onNext(token);
-                    subscriber.onCompleted();
-                } catch (AuthenticatorException ex) {
-                    Timber.e(ex, "Failed to getAuthToken() AuthenticatorException");
-                    subscriber.onError(ex);
-                } catch (OperationCanceledException ex) {
-                    Timber.e(ex, "Failed to getAuthToken() OperationCanceledException");
-                    subscriber.onError(ex);
-                } catch (IOException ex) {
-                    Timber.e(ex, "Failed to getAuthToken() IOException");
-                    subscriber.onError(ex);
-                }
-            }
-        });
-    }
-
-    public Account[] getAccounts() {
-        Account[] accounts = AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
-        Timber.d(Arrays.toString(accounts));
-        return accounts;
-    }
-
-    public Observable<List<Account>> listAccounts() {
-        List<Account> accounts = new ArrayList<Account>();
-        Collections.addAll(accounts, getAccounts());
-        return Observable.just(accounts);
-    }
-
-    private Observable<Account> listFlatAccounts() {
-        return listAccounts()
-                .flatMap(
-                        new Func1<List<Account>, Observable<Account>>() {
-                            @Override
-                            public Observable<Account> call(List<Account> accounts) {
-                                return Observable.from(accounts);
-                            }
-                        });
-    }
-
-    public Observable<Boolean> removeAccounts() {
-        return listFlatAccounts()
-                .flatMap(new Func1<Account, Observable<Boolean>>() {
-                    @Override
-                    public Observable<Boolean> call(Account account) {
-                        return removeAccount(account);
-                    }
-                });
-    }
-
-    public Observable<Boolean> removeAccount(Account account) {
-        return removeAccount(account, null);
-    }
-
-    private Observable<Boolean> removeAccount(final Account account, final Handler handler) {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(final Subscriber<? super Boolean> subscriber) {
-                AccountManager.get(mContext).removeAccount(account, new AccountManagerCallback<Boolean>() {
-                    @Override
-                    public void run(AccountManagerFuture<Boolean> future) {
-                        try {
-                            Account currentAccount = getActiveAccount();
-                            if (currentAccount != null && currentAccount.name.equals(account.name)) {
-                                Timber.d("Account removed from AccountProvider");
-                                deactivateAccount();
-                            }
-                            Boolean result = future.getResult();
-                            Timber.d("Remove status for Account[" + account.name + "]: " + result);
-                            subscriber.onNext(result);
-                            subscriber.onCompleted();
-                        } catch (Exception ex) {
-                            Timber.e(ex, "Failed to removeAccount()");
-                            subscriber.onError(ex);
-                        }
-                    }
-                }, handler);
-            }
-        });
     }
 
     public Observable<Account> addAccountExplicitly(final AccountServerData serverData) {
@@ -272,36 +159,79 @@ public class JasperAccountManager {
         });
     }
 
-    public Observable<String> updateAuthToken() {
-        return getActiveAuthToken().flatMap(new Func1<String, Observable<String>>() {
-            @Override
-            public Observable<String> call(String activeToken) {
-                AccountManager accountManager = AccountManager.get(mContext);
-                accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, activeToken);
-                return getActiveAuthToken();
-            }
-        });
+    public String getActiveAuthToken() throws TokenException {
+        Account activeAccount = getActiveAccount();
+        return getAuthToken(activeAccount);
     }
 
-    public static class AccountNotFoundException extends Throwable {
-        public AccountNotFoundException() {
-        }
-
-        public AccountNotFoundException(String detailMessage) {
-            super(detailMessage);
-        }
+    public void invalidateActiveToken() {
+        AccountManager accountManager = AccountManager.get(mContext);
+        String tokenToInvalidate = accountManager.peekAuthToken(getActiveAccount(), JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        invalidateToken(tokenToInvalidate);
     }
 
-    public static class TokenNotReceivedException extends Throwable {
-        private final Bundle mOutput;
+    public void invalidateToken(String token) {
+        AccountManager accountManager = AccountManager.get(mContext);
+        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
+    }
 
-        public TokenNotReceivedException(Bundle output) {
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    /**
+     * Retrieves token from {@link android.accounts.AccountManager} for specified {@link android.accounts.Account}.
+     *
+     * @param account which represents both JRS and user data configuration for more details refer to {@link com.jaspersoft.android.retrofit.sdk.account.AccountServerData}
+     * @return token which in our case is cookie string for specified account. Can be <b>null</b> or empty if token is missing
+     */
+    private String getAuthToken(final Account account) throws TokenException {
+        AccountManager accountManager = AccountManager.get(mContext);
+        Bundle tokenOutput;
+        try {
+            AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
+                    JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, false, null, null);
+            tokenOutput = future.getResult();
+        } catch (Exception ex) {
+            Timber.e(ex, "Failed to getAuthToken()");
+            Bundle output = new Bundle();
+            output.putString(AccountManager.KEY_ERROR_MESSAGE, ex.getLocalizedMessage());
+            output.putInt(AccountManager.KEY_ERROR_CODE, TokenException.OBTAIN_TOKEN_ERROR);
+            throw new TokenException(output);
+        }
+
+        if (tokenOutput.containsKey(AccountManager.KEY_ERROR_MESSAGE)) {
+            throw new TokenException(tokenOutput);
+        }
+
+        return tokenOutput.getString(AccountManager.KEY_AUTHTOKEN);
+    }
+
+    private AccountServerData getServerData(Account account) throws TokenException {
+        String token = getAuthToken(account);
+        AccountServerData accountServerData = AccountServerData.get(mContext, account);
+        accountServerData.setServerCookie(token);
+        return accountServerData;
+    }
+
+    //---------------------------------------------------------------------
+    // Nested classes
+    //---------------------------------------------------------------------
+
+    public static class TokenException extends IOException {
+        public static final int OBTAIN_TOKEN_ERROR = 15;
+        public static final int SERVER_NOT_FOUND = 16;
+        public static final int INCORRECT_SERVER_VERSION_ERROR = 17;
+
+        private final int mErrorCode;
+
+        public TokenException(Bundle output) {
             super(output.getString(AccountManager.KEY_ERROR_MESSAGE));
-            mOutput = output;
+            mErrorCode = output.getInt(AccountManager.KEY_ERROR_CODE);
         }
 
-        public Bundle getOutput() {
-            return mOutput;
+        public int getErrorCode() {
+            return mErrorCode;
         }
     }
 }

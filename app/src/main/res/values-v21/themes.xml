@@ -40,6 +40,7 @@
         <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
         <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
         <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
+        <item name="android:scrollbarThumbVertical">@drawable/im_scrollbar_thumb</item>
 
         <!--android-styled-dialogs reference style -->
         <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
@@ -56,7 +57,7 @@
         <item name="windowToolbar">false</item>
     </style>
 
-    <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile"></style>
+    <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile"/>
 
     <style name="Theme.JasperMobile.Dialog.Alert" parent="Theme.AppCompat.Dialog">
         <item name="android:windowContentOverlay">@null</item>

@@ -36,7 +36,7 @@
 
     <!-- Password Dialog -->
     <string name="h_ad_title_enter_password">输入密码</string>
-    <string name="h_ad_label_server_profile">服务器配置文件:</string>
+    <string name="h_ad_label_server_profile">服务器配置文件</string>
 
     <!-- Action Bar -->
     <string name="spm_ab_add_profile">添加服务器配置文件</string>

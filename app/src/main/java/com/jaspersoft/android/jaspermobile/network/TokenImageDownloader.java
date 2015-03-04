@@ -50,7 +50,7 @@ public class TokenImageDownloader extends BaseImageDownloader {
     @Override
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
         HttpURLConnection conn = super.createConnection(url, extra);
-        String token = jasperAccountManager.getActiveAuthToken().toBlocking().first();
+        String token = jasperAccountManager.getActiveAuthToken();
         conn.setRequestProperty(COOKIE_HEADER, token);
         conn.setRequestProperty(ACCEPT_HEADER, "image/jpeg");
         return conn;

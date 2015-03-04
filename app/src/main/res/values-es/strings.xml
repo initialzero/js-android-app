@@ -36,7 +36,7 @@
 
     <!-- Password Dialog -->
     <string name="h_ad_title_enter_password">Introduzca una contraseña</string>
-    <string name="h_ad_label_server_profile">Perfil del servidor:</string>
+    <string name="h_ad_label_server_profile">Perfil del servidor</string>
 
     <!-- Action Bar -->
     <string name="spm_ab_add_profile">Añadir perfil del servidor</string>

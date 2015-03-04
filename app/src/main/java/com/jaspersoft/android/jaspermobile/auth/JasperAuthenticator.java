@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
@@ -128,6 +129,9 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
                     status = retrofitError.getResponse().getStatus();
                     message = retrofitError.getMessage();
                 }
+
+                // For android 4.4+ we need to send face intent with any data. In other case we will get error in AccountManagerFuture.getResult() method
+                result.putParcelable(AccountManager.KEY_INTENT, new Intent(mContext, AuthenticatorActivity.class));
                 result.putString(AccountManager.KEY_ERROR_MESSAGE, message);
                 result.putInt(AccountManager.KEY_ERROR_CODE, status);
             }

@@ -190,7 +190,7 @@ public class JasperAccountManager {
         Bundle tokenOutput;
         try {
             AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
-                    JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, true, null, null);
+                    JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, false, null, null);
             tokenOutput = future.getResult();
         } catch (Exception ex) {
             Timber.e(ex, "Failed to getAuthToken()");

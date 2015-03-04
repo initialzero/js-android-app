@@ -35,8 +35,6 @@ import android.widget.ListView;
 import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapter;
 import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapterHelperBase;
 
-import java.lang.reflect.Method;
-
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -83,7 +81,7 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelperBase {
         return currentPosition;
     }
 
-   public void resetCurrentPosition() {
+    public void resetCurrentPosition() {
         currentPosition = NO_POSITION;
     }
 
@@ -102,6 +100,7 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelperBase {
             outState.putInt(CURRENT_POSITION_KEY, currentPosition);
         }
     }
+
     @Override
     public String getActionModeTitle(int count) {
         return String.valueOf(count);
@@ -119,14 +118,8 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelperBase {
 
     @Override
     protected void startActionMode() {
-        try {
-            ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
-            Method method = activity.getClass().getMethod("startSupportActionMode", ActionMode.Callback.class);
-            actionMode = (ActionMode) method.invoke(activity, owner);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
+        actionMode = activity.startSupportActionMode((ActionMode.Callback) owner);
     }
 
     @Override

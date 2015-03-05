@@ -29,8 +29,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -38,8 +36,6 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.DashboardWebClient;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.ScaleDialog;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.ScaleDialog_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.ScalePref_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.bridge.DashboardWebInterface;
@@ -102,9 +98,6 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
     @InstanceState
     protected boolean mMaximized;
 
-    @Pref
-    ScalePref_ scalePref;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,10 +125,9 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
         CookieManagerFactory.syncCookies(this);
 
         GeneralWebViewSettings.configure(webView);
-        webView.setWebChromeClient(new ChromeClient());
         webView.setWebViewClient(new DashboardWebClient(jsWebViewClient));
         webView.addJavascriptInterface(new DashboardWebInterface(this), "Android");
-        webView.setInitialScale(scalePref.pageScale().get());
+        webView.setInitialScale(2);
 
         WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createStrategy();
         webFlow.load(webView, resource.getUri());
@@ -159,12 +151,6 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
     final void refreshAction() {
         WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createStrategy();
         webFlow.load(webView, resource.getUri());
-    }
-
-    @OptionsItem
-    final void scale() {
-        ScaleDialog scaleDialog = ScaleDialog_.builder().build();
-        scaleDialog.show(getSupportFragmentManager(), null);
     }
 
     @OptionsItem
@@ -192,8 +178,7 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
     @UiThread
     @Override
     public void onLoaded() {
-        String size = scalePref.pageSize().getOr("'100%', '100%'");
-        webView.loadUrl("javascript:DashboardWrapper.wrapScreen(" + size + ")");
+        webView.loadUrl("javascript:DashboardWrapper.wrapScreen('200%', '200%')");
     }
 
     @Override
@@ -206,13 +191,4 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
         }
     }
 
-    private class ChromeClient extends WebChromeClient {
-        public void onProgressChanged(WebView view, int progress) {
-            int maxProgress = progressBar.getMax();
-            progressBar.setProgress((maxProgress / 100) * progress);
-            if (progress == maxProgress) {
-                progressBar.setVisibility(View.GONE);
-            }
-        }
-    }
 }

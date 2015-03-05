@@ -43,10 +43,5 @@
         android:icon="@drawable/ic_menu_refresh"
         android:title="@string/r_ab_refresh"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/scale"
-        android:icon="@drawable/ic_menu_search"
-        android:title="Set scale"
-        app:showAsAction="always" />
 
 </menu>

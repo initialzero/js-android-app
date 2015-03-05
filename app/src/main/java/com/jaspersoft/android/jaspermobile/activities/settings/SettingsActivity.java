@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.settings;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.fragment.SettingsFragment_;
 
 import org.androidannotations.annotations.EActivity;
@@ -38,7 +38,7 @@ import org.androidannotations.annotations.EActivity;
  * @since 1.5
  */
 @EActivity
-public class SettingsActivity extends RoboToolboxActivity {
+public class SettingsActivity extends RoboToolbarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

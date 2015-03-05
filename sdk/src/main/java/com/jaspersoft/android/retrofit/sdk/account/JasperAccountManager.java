@@ -84,6 +84,23 @@ public class JasperAccountManager {
         return getServerData(activeAccount);
     }
 
+    public Observable<AccountServerData> getAsyncActiveServerData() {
+        return Observable.create(new Observable.OnSubscribe<AccountServerData>() {
+            @Override
+            public void call(Subscriber<? super AccountServerData> subscriber) {
+                AccountServerData serverData;
+                try {
+                    Account activeAccount = getActiveAccount();
+                    serverData = getServerData(activeAccount);
+                    subscriber.onNext(serverData);
+                    subscriber.onCompleted();
+                } catch (JasperAccountManager.TokenException e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
+    }
+
     public Account getActiveAccount() {
         String accountName = mPreference.getString(ACCOUNT_NAME_KEY, "");
         if (TextUtils.isEmpty(accountName)) {

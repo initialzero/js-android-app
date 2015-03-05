@@ -28,9 +28,12 @@ import android.content.Context;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -46,17 +49,25 @@ public class LegacyCookieManager implements JsCookieManager{
 
     @Override
     public void manage() {
-        AccountServerData serverData;
-        try {
-            serverData = JasperAccountManager.get(mContext).getActiveServerData();
-            CookieSyncManager.createInstance(mContext);
+        JasperAccountManager.get(mContext)
+                .getAsyncActiveServerData()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<AccountServerData>() {
+                    @Override
+                    public void call(AccountServerData serverData) {
+                        CookieSyncManager.createInstance(mContext);
 
-            final CookieManager cookieManager = CookieManager.getInstance();
-            cookieManager.removeSessionCookie();
-            cookieManager.setCookie(serverData.getServerUrl(), serverData.getServerCookie());
-            CookieSyncManager.getInstance().sync();
-        } catch (JasperAccountManager.TokenException e) {
-            Timber.e(e, "Failed to sync cookies: error in obtaining token");
-        }
+                        final CookieManager cookieManager = CookieManager.getInstance();
+                        cookieManager.removeSessionCookie();
+                        cookieManager.setCookie(serverData.getServerUrl(), serverData.getServerCookie());
+                        CookieSyncManager.getInstance().sync();
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Timber.e(throwable, "Failed to sync cookies: error in obtaining token");
+                    }
+                });
     }
 }

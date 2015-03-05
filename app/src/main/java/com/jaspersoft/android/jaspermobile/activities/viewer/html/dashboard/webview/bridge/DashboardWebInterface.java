@@ -51,7 +51,13 @@ public class DashboardWebInterface implements DashboardCallback {
 
     @JavascriptInterface
     @Override
-    public void onLoaded() {
-        dashboardCallback.onLoaded();
+    public void onWrapperLoaded() {
+        dashboardCallback.onWrapperLoaded();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onDashletsLoaded() {
+        dashboardCallback.onDashletsLoaded();
     }
 }

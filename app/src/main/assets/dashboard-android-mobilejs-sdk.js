@@ -17,13 +17,13 @@
     return CallbackImplementor = (function() {
       function CallbackImplementor() {}
 
-      CallbackImplementor.prototype.requestScreenSize = function() {};
-
       CallbackImplementor.prototype.onMaximize = function(title) {};
 
       CallbackImplementor.prototype.onMinimize = function() {};
 
-      CallbackImplementor.prototype.onLoaded = function() {};
+      CallbackImplementor.prototype.onWrapperLoaded = function() {};
+
+      CallbackImplementor.prototype.onDashletsLoaded = function() {};
 
       return CallbackImplementor;
 
@@ -49,12 +49,16 @@
         Android.onMaximize(title);
       };
 
-      AndroidCallbackImplementor.prototype.onLoaded = function() {
-        Android.onLoaded();
-      };
-
       AndroidCallbackImplementor.prototype.onMinimize = function() {
         Android.onMinimize();
+      };
+
+      AndroidCallbackImplementor.prototype.onWrapperLoaded = function() {
+        Android.onWrapperLoaded();
+      };
+
+      AndroidCallbackImplementor.prototype.onDashletsLoaded = function() {
+        Android.onDashletsLoaded();
       };
 
       return AndroidCallbackImplementor;
@@ -92,9 +96,7 @@
         return AndroidLogger.__super__.constructor.apply(this, arguments);
       }
 
-      AndroidLogger.prototype.log = function(message) {
-        return console.log(message);
-      };
+      AndroidLogger.prototype.log = function(message) {};
 
       return AndroidLogger;
 
@@ -215,12 +217,17 @@
             dashletContent = jQuery('.dashletContent > div.content');
             if (dashletContent.length === dashlets.length && !self.dashletsLoaded) {
               self.dashletsLoaded = true;
-              self._overrideDashletTouches();
-              self._disableDashlets();
-              self._removeRedundantArtifacts();
+              self._configureDashboard();
             }
           }
         });
+      };
+
+      DashboardController.prototype._configureDashboard = function() {
+        this._overrideDashletTouches();
+        this._disableDashlets();
+        this._removeRedundantArtifacts();
+        return this.callback.onDashletsLoaded();
       };
 
       DashboardController.prototype._removeRedundantArtifacts = function() {
@@ -306,7 +313,11 @@
   define('js.mobile.dashboard.wrapper', ['js.mobile.dashboard.controller', 'js.mobile.dashboard.window'], function(DashboardController, DashboardWindow) {
     var DashboardWrapper, root;
     DashboardWrapper = (function() {
+      var a;
+
       DashboardWrapper._instance = null;
+
+      a = 1;
 
       DashboardWrapper.getInstance = function(context) {
         return this._instance || (this._instance = new DashboardWrapper(context));
@@ -322,7 +333,7 @@
 
       function DashboardWrapper(context1) {
         this.context = context1;
-        this.context.callback.onLoaded();
+        this.context.callback.onDashletsLoaded();
       }
 
       DashboardWrapper.prototype.wrapScreen = function(width, height) {
@@ -367,7 +378,8 @@
           callback: callbackImplementor,
           logger: logger
         });
-        return DashboardWrapper.getInstance(context);
+        DashboardWrapper.getInstance(context);
+        return callbackImplementor.onWrapperLoaded();
       };
 
       return AndroidClient;

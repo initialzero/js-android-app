@@ -40,10 +40,10 @@ import android.view.ViewGroup;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewHelper;
-import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceAdapterHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceAdapterHelper;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;

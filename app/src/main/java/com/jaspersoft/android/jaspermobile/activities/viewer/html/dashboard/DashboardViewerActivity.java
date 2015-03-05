@@ -30,13 +30,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter.DashboardPresenter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter.PresenterFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
@@ -57,6 +58,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.WindowFeature;
 
 import java.lang.ref.WeakReference;
 
@@ -70,7 +72,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity(R.layout.activity_dashboard_viewer)
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardViewerActivity extends RoboSpiceActivity  {
+public class DashboardViewerActivity extends RoboToolboxActivity {
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -98,7 +100,6 @@ public class DashboardViewerActivity extends RoboSpiceActivity  {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         if (savedInstanceState == null) {

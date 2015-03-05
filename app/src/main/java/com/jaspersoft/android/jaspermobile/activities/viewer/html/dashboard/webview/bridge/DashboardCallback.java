@@ -7,5 +7,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.web
 public interface DashboardCallback {
     void onMaximize(String title);
     void onMinimize();
-    void onLoaded();
+    void onWrapperLoaded();
+    void onDashletsLoaded();
 }

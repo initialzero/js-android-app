@@ -90,8 +90,12 @@ public class AmberPresenter implements DashboardCallback, DashboardPresenter {
 
     @UiThread
     @Override
-    public void onLoaded() {
+    public void onWrapperLoaded() {
         mWebView.loadUrl("javascript:DashboardWrapper.wrapScreen('200%', '200%')");
+    }
+
+    @Override
+    public void onDashletsLoaded() {
     }
 
     private void configureWebView() {

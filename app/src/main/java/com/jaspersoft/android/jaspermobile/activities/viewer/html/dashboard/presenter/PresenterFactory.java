@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -36,49 +36,51 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
  * @author Tom Koptel
  * @since 2.0
  */
-public class WebFlowFactory {
+public class PresenterFactory {
     private final Context mContext;
 
-    private WebFlowFactory(Context context) {
+    private PresenterFactory(Context context) {
         mContext = context;
     }
 
-    public static WebFlowFactory getInstance(Context context) {
-        return new WebFlowFactory(context);
+    public static PresenterFactory getInstance(Context context) {
+        return new PresenterFactory(context);
     }
 
-    public WebFlowStrategy createFlow(ResourceLookup resource) {
+    public DashboardPresenter createPresenter(ResourceLookup resourceLookup) {
         Account account = JasperAccountManager.get(mContext).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(mContext, account);
-        return createFlow(accountServerData.getVersionName(), resource);
+        return createStrategy(accountServerData.getVersionName(), resourceLookup);
     }
 
     /**
      * Creates most appropriate strategy
      *
-     * @param versionName represents double string to identify current JRS version
+     * @param versionName    represents double string to identify current JRS version
+     * @param resourceLookup represents resource meta data
      * @return specific web flow strategy which varies between JRS releases
      */
-    public WebFlowStrategy createFlow(String versionName, ResourceLookup resource) {
+    public DashboardPresenter createStrategy(String versionName, ResourceLookup resourceLookup) {
         ServerRelease serverRelease = ServerRelease.parseVersion(versionName);
-        ResourceLookup.ResourceType resourceType = resource.getResourceType();
+        ResourceLookup.ResourceType resourceType = resourceLookup.getResourceType();
 
         if (resourceType == ResourceLookup.ResourceType.legacyDashboard) {
-            return new EmeraldWebFlowStrategy(mContext, resource);
+            return EmeraldPresenter_.getInstance_(mContext);
         } else {
             switch (serverRelease) {
                 case EMERALD:
                 case EMERALD_MR1:
                 case EMERALD_MR2:
                 case EMERALD_MR3:
-                    return new EmeraldWebFlowStrategy(mContext, resource);
+                    return EmeraldPresenter_.getInstance_(mContext);
                 case AMBER:
                 case AMBER_MR1:
                 case AMBER_MR2:
-                    return new AmberWebFlowStrategy(mContext, resource);
+                    return AmberPresenter_.getInstance_(mContext);
                 default:
                     throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);
             }
         }
     }
+
 }

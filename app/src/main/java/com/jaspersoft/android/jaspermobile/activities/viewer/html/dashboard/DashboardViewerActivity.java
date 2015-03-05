@@ -29,15 +29,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardWebClient;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter.DashboardPresenter;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter.PresenterFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowStrategy;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings.GeneralWebViewSettings;
@@ -55,7 +56,6 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
-import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.lang.ref.WeakReference;
@@ -70,7 +70,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity(R.layout.activity_dashboard_viewer)
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardViewerActivity extends RoboSpiceActivity implements DashboardCallback {
+public class DashboardViewerActivity extends RoboSpiceActivity  {
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -93,8 +93,7 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
     @ViewById
     protected ProgressBar progressBar;
 
-    @InstanceState
-    protected boolean mMaximized;
+    private DashboardPresenter dashboardPresenter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,26 +108,18 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
 
     @AfterViews
     final void init() {
-        final WeakReference<Activity> weakReference = new WeakReference<Activity>(this);
-        jsWebViewClient.setSessionListener(new JSWebViewClient.SessionListener() {
-            @Override
-            public void onSessionExpired() {
-                if (weakReference.get() != null) {
-                    Toast.makeText(weakReference.get(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
-                    weakReference.get().finish();
-                }
-            }
-        });
+        jsWebViewClient.setSessionListener(new SessionListener(new WeakReference<Activity>(this)));
 
         CookieManagerFactory.syncCookies(this);
 
         GeneralWebViewSettings.configure(webView);
-        webView.setWebViewClient(new DashboardWebClient(jsWebViewClient));
-        webView.addJavascriptInterface(new DashboardWebInterface(this), "Android");
-        webView.setInitialScale(2);
+        webView.setWebChromeClient(new ChromeClient());
 
-        WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createStrategy();
-        webFlow.load(webView, resource.getUri());
+        dashboardPresenter = PresenterFactory.getInstance(this).createPresenter(resource);
+        dashboardPresenter.initialize(webView, resource);
+
+        WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createFlow(resource);
+        webFlow.load(webView);
     }
 
     @Override
@@ -147,8 +138,8 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
 
     @OptionsItem
     final void refreshAction() {
-        WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createStrategy();
-        webFlow.load(webView, resource.getUri());
+        WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createFlow(resource);
+        webFlow.load(webView);
     }
 
     @OptionsItem
@@ -160,33 +151,36 @@ public class DashboardViewerActivity extends RoboSpiceActivity implements Dashbo
                 .show();
     }
 
-    @UiThread
-    @Override
-    public void onMaximize(String title) {
-        mMaximized = true;
-        scrollableTitleHelper.injectTitle(title);
-    }
-
-    @UiThread
-    @Override
-    public void onMinimize() {
-        mMaximized = false;
-    }
-
-    @UiThread
-    @Override
-    public void onLoaded() {
-        webView.loadUrl("javascript:DashboardWrapper.wrapScreen('200%', '200%')");
-    }
-
     @Override
     public void onBackPressed() {
-        if (mMaximized && webView != null) {
-            webView.loadUrl("javascript:DashboardWrapper.minimizeDashlet()");
-            scrollableTitleHelper.injectTitle(resource.getLabel());
-        } else {
+        if (!dashboardPresenter.onBackPressed()) {
             super.onBackPressed();
         }
     }
 
+    private static class SessionListener implements JSWebViewClient.SessionListener {
+        private final WeakReference<Activity> weakReference;
+
+        private SessionListener(WeakReference<Activity> weakReference) {
+            this.weakReference = weakReference;
+        }
+
+        @Override
+        public void onSessionExpired() {
+            if (weakReference.get() != null) {
+                Toast.makeText(weakReference.get(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
+                weakReference.get().finish();
+            }
+        }
+    }
+
+    private class ChromeClient extends WebChromeClient {
+        public void onProgressChanged(WebView view, int progress) {
+            int maxProgress = progressBar.getMax();
+            progressBar.setProgress((maxProgress / 100) * progress);
+            if (progress == maxProgress) {
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+    }
 }

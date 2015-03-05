@@ -7,5 +7,5 @@ import android.webkit.WebView;
  * @since 2.0
  */
 public interface WebFlowStrategy {
-    void load(WebView webView, String resourceUri);
+    void load(WebView webView);
 }

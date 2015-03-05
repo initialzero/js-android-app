@@ -24,30 +24,25 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.webkit.WebView;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-class AmberWebFlowStrategy implements WebFlowStrategy {
+class AmberWebFlowStrategy extends AbstractWebFlow {
     private static final String FLOW_URI = "/dashboard/viewer.html?_opt=true&sessionDecorator=no&decorate=no#";
-    private final String mServerUrl;
 
-    public AmberWebFlowStrategy(Context context) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(context, account);
-        mServerUrl = accountServerData.getServerUrl();
+    public AmberWebFlowStrategy(Context context, ResourceLookup resource) {
+        super(context, resource);
     }
 
     @Override
-    public void load(WebView webView, String resourceUri) {
-        String dashboardUrl = mServerUrl + FLOW_URI + resourceUri;
+    public void load(WebView webView) {
+        String dashboardUrl = mServerUrl + FLOW_URI + mUri;
         webView.loadUrl(dashboardUrl);
     }
 }

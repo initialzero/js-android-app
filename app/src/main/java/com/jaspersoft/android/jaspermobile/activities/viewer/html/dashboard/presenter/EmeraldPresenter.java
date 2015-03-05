@@ -22,27 +22,34 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter;
 
-import android.content.Context;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EBean;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-class EmeraldWebFlowStrategy extends AbstractWebFlow {
-    private static final String FLOW_URI = "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource=";
+@EBean
+public class EmeraldPresenter implements DashboardPresenter {
 
-    public EmeraldWebFlowStrategy(Context context, ResourceLookup resource) {
-        super(context, resource);
+    @Bean
+    protected JSWebViewClient jsWebViewClient;
+
+    @Override
+    public void initialize(WebView webView, ResourceLookup resource) {
+        webView.setWebViewClient(jsWebViewClient);
     }
 
     @Override
-    public void load(WebView webView) {
-        String dashboardUrl = mServerUrl + FLOW_URI + mUri;
-        webView.loadUrl(dashboardUrl);
+    public boolean onBackPressed() {
+        return false;
     }
+
 }

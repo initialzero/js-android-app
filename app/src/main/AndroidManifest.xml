@@ -108,7 +108,7 @@
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.DashboardViewerActivity_"
+            android:name=".activities.viewer.html.dashboard.DashboardViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
             android:parentActivityName=".activities.navigation.NavigationActivity_" >
             <meta-data

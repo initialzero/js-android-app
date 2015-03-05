@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.flow;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
 
 import android.accounts.Account;
 import android.content.Context;

@@ -21,33 +21,30 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings;
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.flow;
-
-import android.accounts.Account;
-import android.content.Context;
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.view.View;
 import android.webkit.WebView;
-
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-class EmeraldWebFlowStrategy implements WebFlowStrategy {
-    private static final String FLOW_URI = "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource=";
-    private final String mServerUrl;
+class HoneycombWebViewSettings implements WebViewSettings {
+    private final WebViewSettings mDecorated;
 
-    public EmeraldWebFlowStrategy(Context context) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(context, account);
-        mServerUrl = accountServerData.getServerUrl();
+    public HoneycombWebViewSettings(WebViewSettings decorated) {
+        mDecorated = decorated;
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public void load(WebView webView, String resourceUri) {
-        String dashboardUrl = mServerUrl + FLOW_URI + resourceUri;
-        webView.loadUrl(dashboardUrl);
+    public void setup(WebView webView) {
+        mDecorated.setup(webView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
     }
 }

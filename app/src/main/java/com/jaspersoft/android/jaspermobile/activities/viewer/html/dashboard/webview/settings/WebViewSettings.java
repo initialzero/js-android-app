@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.settings;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings;
 
 import android.webkit.WebView;
 

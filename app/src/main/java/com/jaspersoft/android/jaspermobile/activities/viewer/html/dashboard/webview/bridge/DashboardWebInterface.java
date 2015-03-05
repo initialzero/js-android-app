@@ -21,30 +21,37 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.settings;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-import android.view.View;
-import android.webkit.WebView;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
+
+import android.webkit.JavascriptInterface;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-class HoneycombWebViewSettings implements WebViewSettings {
-    private final WebViewSettings mDecorated;
+public class DashboardWebInterface implements DashboardCallback {
+    private final DashboardCallback dashboardCallback;
 
-    public HoneycombWebViewSettings(WebViewSettings decorated) {
-        mDecorated = decorated;
+    public DashboardWebInterface(DashboardCallback dashboardCallback) {
+        this.dashboardCallback = dashboardCallback;
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @JavascriptInterface
     @Override
-    public void setup(WebView webView) {
-        mDecorated.setup(webView);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        }
+    public void onMaximize(String title) {
+        dashboardCallback.onMaximize(title);
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onMinimize() {
+        dashboardCallback.onMinimize();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onLoaded() {
+        dashboardCallback.onLoaded();
     }
 }

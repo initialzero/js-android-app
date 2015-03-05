@@ -21,7 +21,7 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.settings;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings;
 
 import android.annotation.TargetApi;
 import android.os.Build;

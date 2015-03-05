@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -35,13 +35,12 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.DashboardWebClient;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.ScalePref_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.flow.WebFlowFactory;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.flow.WebFlowStrategy;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.settings.GeneralWebViewSettings;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardWebClient;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowStrategy;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings.GeneralWebViewSettings;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
@@ -58,7 +57,6 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.lang.ref.WeakReference;
 

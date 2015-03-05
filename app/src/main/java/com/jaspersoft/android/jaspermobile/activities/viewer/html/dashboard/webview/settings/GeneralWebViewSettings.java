@@ -22,36 +22,24 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.bridge;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings;
 
-import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class DashboardWebInterface implements DashboardCallback {
-    private final DashboardCallback dashboardCallback;
-
-    public DashboardWebInterface(DashboardCallback dashboardCallback) {
-        this.dashboardCallback = dashboardCallback;
+public class GeneralWebViewSettings implements WebViewSettings {
+    @Override
+    public void setup(WebView webView) {
+        CommonWebViewSettings webViewSettings = new CommonWebViewSettings();
+        HoneycombWebViewSettings honeycombWebViewSettings = new HoneycombWebViewSettings(webViewSettings);
+        JellyBeanWebViewSettings jellyBeanWebViewSettings = new JellyBeanWebViewSettings(honeycombWebViewSettings);
+        jellyBeanWebViewSettings.setup(webView);
     }
 
-    @JavascriptInterface
-    @Override
-    public void onMaximize(String title) {
-        dashboardCallback.onMaximize(title);
-    }
-
-    @JavascriptInterface
-    @Override
-    public void onMinimize() {
-        dashboardCallback.onMinimize();
-    }
-
-    @JavascriptInterface
-    @Override
-    public void onLoaded() {
-        dashboardCallback.onLoaded();
+    public static void configure(WebView webView) {
+        new GeneralWebViewSettings().setup(webView);
     }
 }

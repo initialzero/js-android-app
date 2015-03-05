@@ -22,24 +22,32 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.webview.settings;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
 
+import android.accounts.Account;
+import android.content.Context;
 import android.webkit.WebView;
+
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class GeneralWebViewSettings implements WebViewSettings {
-    @Override
-    public void setup(WebView webView) {
-        CommonWebViewSettings webViewSettings = new CommonWebViewSettings();
-        HoneycombWebViewSettings honeycombWebViewSettings = new HoneycombWebViewSettings(webViewSettings);
-        JellyBeanWebViewSettings jellyBeanWebViewSettings = new JellyBeanWebViewSettings(honeycombWebViewSettings);
-        jellyBeanWebViewSettings.setup(webView);
+class EmeraldWebFlowStrategy implements WebFlowStrategy {
+    private static final String FLOW_URI = "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource=";
+    private final String mServerUrl;
+
+    public EmeraldWebFlowStrategy(Context context) {
+        Account account = JasperAccountManager.get(context).getActiveAccount();
+        AccountServerData accountServerData = AccountServerData.get(context, account);
+        mServerUrl = accountServerData.getServerUrl();
     }
 
-    public static void configure(WebView webView) {
-        new GeneralWebViewSettings().setup(webView);
+    @Override
+    public void load(WebView webView, String resourceUri) {
+        String dashboardUrl = mServerUrl + FLOW_URI + resourceUri;
+        webView.loadUrl(dashboardUrl);
     }
 }

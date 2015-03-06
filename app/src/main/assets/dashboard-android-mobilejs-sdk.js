@@ -96,7 +96,9 @@
         return AndroidLogger.__super__.constructor.apply(this, arguments);
       }
 
-      AndroidLogger.prototype.log = function(message) {};
+      AndroidLogger.prototype.log = function(message) {
+        return console.log(message);
+      };
 
       return AndroidLogger;
 
@@ -199,7 +201,7 @@
       DashboardController.prototype._injectViewport = function() {
         var viewPort;
         viewPort = document.querySelector('meta[name=viewport]');
-        return viewPort.setAttribute('content', 'width=device-width; minimum-scale=0.1; maximum-scale=1; user-scalable=yes');
+        return viewPort.setAttribute('content', "width=device-width, height=device-height, user-scalable=yes");
       };
 
       DashboardController.prototype._scaleDashboard = function() {
@@ -232,13 +234,15 @@
 
       DashboardController.prototype._removeRedundantArtifacts = function() {
         jQuery('.header').hide();
-        jQuery('.dashletToolbar').hide();
+        jQuery('.dashletToolbar').first().hide();
         jQuery('.show_chartTypeSelector_wrapper').hide();
         jQuery('.column.decorated').css('margin', '0px');
         jQuery('.column.decorated').css('border', 'none');
         jQuery('.dashboardViewer .dashboardContainer > .content > .body').css('top', '0px');
         jQuery('.column.decorated > .content > .body').css('top', '0px');
-        return jQuery('.column > .content > .body').css('top', '0px');
+        jQuery('.column > .content > .body').css('top', '0px');
+        jQuery('body').css('-webkit-transform', 'translateZ(0) !important');
+        return jQuery('body').css('-webkit-backface-visibility', 'hidden !important');
       };
 
       DashboardController.prototype._disableDashlets = function() {
@@ -313,11 +317,7 @@
   define('js.mobile.dashboard.wrapper', ['js.mobile.dashboard.controller', 'js.mobile.dashboard.window'], function(DashboardController, DashboardWindow) {
     var DashboardWrapper, root;
     DashboardWrapper = (function() {
-      var a;
-
       DashboardWrapper._instance = null;
-
-      a = 1;
 
       DashboardWrapper.getInstance = function(context) {
         return this._instance || (this._instance = new DashboardWrapper(context));

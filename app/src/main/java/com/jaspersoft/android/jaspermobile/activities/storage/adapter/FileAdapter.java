@@ -35,7 +35,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
@@ -47,6 +46,7 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -65,7 +65,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         UNKNOWN
     }
 
-    private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = Maps.newEnumMap(FileType.class);
+    private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = new EnumMap<FileType, Integer>(FileType.class);
 
     static {
         DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.ic_composed_html);

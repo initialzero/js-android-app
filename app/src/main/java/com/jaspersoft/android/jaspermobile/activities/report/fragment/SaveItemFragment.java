@@ -38,7 +38,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
@@ -128,7 +127,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     @InstanceState
     int runningRequests;
 
-    private List<SpiceRequest<?>> requests = Lists.newArrayList();
+    private List<SpiceRequest<?>> requests = new ArrayList<SpiceRequest<?>>();
     private File reportFile;
 
     private int mFromPage;

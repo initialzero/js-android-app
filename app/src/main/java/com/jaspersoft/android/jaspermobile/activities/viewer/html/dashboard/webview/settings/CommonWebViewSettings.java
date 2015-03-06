@@ -15,7 +15,7 @@ class CommonWebViewSettings implements WebViewSettings {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setBuiltInZoomControls(true);
-        settings.setDisplayZoomControls(false);
+        settings.setDisplayZoomControls(true);
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
     }

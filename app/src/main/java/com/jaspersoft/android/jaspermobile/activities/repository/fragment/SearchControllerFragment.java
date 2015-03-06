@@ -32,7 +32,6 @@ import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
 
@@ -102,7 +101,7 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     }
 
     public void setResourceTypes(List<String> resourceTypes) {
-        this.resourceTypes = Lists.newArrayList(resourceTypes);
+        this.resourceTypes = new ArrayList<String>(resourceTypes);
     }
 
     public String getResourceUri() {

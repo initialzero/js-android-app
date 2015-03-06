@@ -37,7 +37,6 @@ import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -58,6 +57,7 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -255,7 +255,7 @@ public class AuthenticatorFragment extends RoboFragment {
         String serverUrl = serverUrlEdit.getText().toString();
         String alias = aliasEdit.getText().toString();
 
-        Map<EditText, String> valueMap = Maps.newHashMap();
+        Map<EditText, String> valueMap = new HashMap<EditText, String>();
         valueMap.put(aliasEdit, alias);
         valueMap.put(serverUrlEdit, serverUrl);
         valueMap.put(usernameEdit, usernameEdit.getText().toString());

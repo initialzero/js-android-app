@@ -1,9 +1,9 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support;
 
-import com.google.common.collect.Lists;
 
 import org.androidannotations.annotations.EBean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +14,7 @@ import java.util.List;
 public class ReportSession {
     private String requestId;
     private int totalPage;
-    private final List<ExecutionObserver> observers = Lists.newArrayList();
+    private final List<ExecutionObserver> observers = new ArrayList<ExecutionObserver>();
 
     public void registerObserver(ExecutionObserver observer) {
         observers.add(observer);

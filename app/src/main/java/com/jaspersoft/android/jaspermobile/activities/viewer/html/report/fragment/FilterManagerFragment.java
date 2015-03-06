@@ -10,7 +10,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
@@ -189,7 +188,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
-            ArrayList<InputControl> inputControls = Lists.newArrayList(controlsList.getInputControls());
+            ArrayList<InputControl> inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;
             mShowSaveOption = true;

@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile;
 import android.app.Application;
 import android.content.Context;
 
-import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
@@ -37,6 +36,7 @@ import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;
 
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,7 +55,7 @@ public class JasperMobileModule extends AbstractModule {
     @Override
     protected void configure() {
         JsRestClient jsRestClient = new JsRestClient();
-        List<ClientHttpRequestInterceptor> interceptors = Lists.newArrayList();
+        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>();
         interceptors.add(new LocalesHttpRequestInterceptor());
         interceptors.add(new TokenHttpRequestInterceptor(mContext));
         interceptors.add(new KeepAliveHttpRequestInterceptor());

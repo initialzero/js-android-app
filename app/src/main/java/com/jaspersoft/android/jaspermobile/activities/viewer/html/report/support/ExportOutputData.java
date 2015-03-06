@@ -1,6 +1,5 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support;
 
-import com.google.common.base.Preconditions;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDataResponse;
 
 /**
@@ -47,8 +46,12 @@ public class ExportOutputData {
         }
 
         public ExportOutputData create() {
-            Preconditions.checkNotNull(executionId);
-            Preconditions.checkNotNull(response);
+            if (executionId == null) {
+                throw new IllegalStateException("Execution id is null");
+            }
+            if (response == null) {
+                throw new IllegalStateException("Response id is null");
+            }
             return new ExportOutputData(executionId, response);
         }
     }

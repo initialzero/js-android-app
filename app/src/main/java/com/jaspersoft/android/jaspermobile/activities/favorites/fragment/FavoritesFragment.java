@@ -41,7 +41,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
@@ -187,7 +186,7 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         StringBuilder selection = new StringBuilder("");
-        ArrayList<String> selectionArgs = Lists.newArrayList();
+        ArrayList<String> selectionArgs = new ArrayList<String>();
         JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;

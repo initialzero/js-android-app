@@ -24,14 +24,20 @@
 
 package com.jaspersoft.android.jaspermobile;
 
+import android.app.Application;
 import android.content.Context;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Names;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
+import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;
+
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ivan Gadzhega
@@ -39,26 +45,29 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
  * @since 1.0
  */
 public class JasperMobileModule extends AbstractModule {
-
     private final Context mContext;
 
-    @Inject
-    public JasperMobileModule(final Context context) {
+    public JasperMobileModule(Application application) {
         super();
-        mContext = context;
+        mContext = application;
     }
 
     @Override
     protected void configure() {
-        bind(JsRestClient.class).in(Singleton.class);
-        bind(ServerInfoSnapshot.class).in(Singleton.class);
+        JsRestClient jsRestClient = new JsRestClient();
+        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>();
+        interceptors.add(new LocalesHttpRequestInterceptor());
+        interceptors.add(new TokenHttpRequestInterceptor(mContext));
+        interceptors.add(new KeepAliveHttpRequestInterceptor());
+        jsRestClient.setRequestInterceptors(interceptors);
+        bind(JsRestClient.class).toInstance(jsRestClient);
 
         int animationSpeed = mContext.getResources().getInteger(
                 android.R.integer.config_longAnimTime);
         animationSpeed *= 1.5;
         bindConstant().annotatedWith(Names.named("animationSpeed"))
                 .to(animationSpeed);
-        bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
+        bindConstant().annotatedWith(Names.named("LIMIT")).to(100);
         bindConstant().annotatedWith(Names.named("MAX_PAGE_ALLOWED")).to(10);
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
     }

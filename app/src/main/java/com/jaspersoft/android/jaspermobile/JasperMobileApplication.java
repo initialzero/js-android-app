@@ -25,15 +25,21 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
-import android.view.ViewConfiguration;
+import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
+import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
-import java.lang.reflect.Field;
+import timber.log.Timber;
 
 /**
  * @author Ivan Gadzhega
@@ -42,8 +48,6 @@ import java.lang.reflect.Field;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
-    @Bean
-    ProfileHelper profileHelper;
 
     public static void removeAllCookies() {
         JsRestClient.flushCookies();
@@ -53,31 +57,42 @@ public class JasperMobileApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new Timber.HollowTree());
+        }
+
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
-        forceOverFlowMenu();
-        profileHelper.initJsRestClient();
-        profileHelper.initServerInfoSnapshot();
-        profileHelper.seedProfilesIfNeed();
+        seedProfiles();
+        initImageLoader(getApplicationContext());
     }
 
-    /**
-     * We are forcing OS to show overflow menu for the devices which expose hardware implementation.
-     * WARNING: This is considered to be bad practice though we decide to violate rules.
-     * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
-     */
-    private void forceOverFlowMenu() {
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if(menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
-        } catch (Exception ex) {
-            // Ignore
+    private void seedProfiles() {
+        boolean firstlaunch = DefaultPrefHelper_.getInstance_(this).needToShowIntro();
+        if (JasperAccountManager.get(this).getAccounts().length == 0 && firstlaunch) {
+            new AccountSeed(this).seed();
         }
+    }
+
+    private void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+                .imageDownloader(new TokenImageDownloader(context))
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .diskCacheSize(50 * 1024 * 1024) // 50 Mb
+                .tasksProcessingOrder(QueueProcessingType.LIFO)
+                .writeDebugLogs() // Remove for release app
+                .build();
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config);
     }
 
 }

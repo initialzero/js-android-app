@@ -24,13 +24,16 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.accounts.Account;
 import android.content.Context;
 
-import com.google.inject.Inject;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.oxm.report.ExecutionRequest;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -47,24 +50,45 @@ public class ReportExecutionUtil {
     @RootContext
     Context context;
 
-    @Inject
-    JsRestClient jsRestClient;
+    private ServerRelease mServerRelease;
+    private AccountServerData mServerData;
 
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);
+
+        Account account = JasperAccountManager.get(context).getActiveAccount();
+        mServerData = AccountServerData.get(context, account);
+        mServerRelease = ServerRelease.parseVersion(mServerData.getVersionName());
     }
 
-    public <T extends ExecutionRequest>  void setupAttachmentPrefix(T executionData, double versionCode) {
-        String prefix = (versionCode == ServerInfo.VERSION_CODES.EMERALD_TWO) ? ATTACHMENT_PREFIX_5_0 : ATTACHMENT_PREFIX_5_6;
-        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
-        String attachmentsPrefix = (jsServerProfile.getServerUrl() + JsRestClient.REST_SERVICES_V2_URI + prefix);
+    public void setupInteractiveness(ReportExecutionRequest executionData) {
+        double currentVersion = mServerRelease.code();
+        boolean interactive = !(currentVersion >= ServerRelease.EMERALD_MR3.code() && currentVersion < ServerRelease.AMBER.code());
+        executionData.setInteractive(interactive);
+    }
+
+    public <T extends ExecutionRequest> void setupAttachmentPrefix(T executionData) {
+        String prefix = isEmeraldMr2() ? ATTACHMENT_PREFIX_5_0 : ATTACHMENT_PREFIX_5_6;
+        String attachmentsPrefix = (mServerData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION + prefix);
         executionData.setAttachmentsPrefix(attachmentsPrefix);
     }
 
     public <T extends ExecutionRequest> void setupBaseUrl(T executionData) {
-        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
-        executionData.setBaseUrl(jsServerProfile.getServerUrl());
+        executionData.setBaseUrl(mServerData.getServerUrl());
     }
+
+    public String createExecutionId(ExportExecution response, String pages) {
+        String executionId = response.getId();
+        if (isEmeraldMr2()) {
+            executionId = ("html;pages=" + pages);
+        }
+        return executionId;
+    }
+
+    private boolean isEmeraldMr2() {
+        return mServerRelease == ServerRelease.EMERALD_MR2;
+    }
+
 }

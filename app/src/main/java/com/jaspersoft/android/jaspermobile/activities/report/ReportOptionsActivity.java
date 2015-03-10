@@ -24,11 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -48,9 +49,9 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 import com.jaspersoft.android.jaspermobile.widget.MultiSelectSpinner;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -64,7 +65,6 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlStatesList;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -86,7 +86,7 @@ import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDi
  * @author Tom Koptel
  * @since 1.6
  */
-public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
+public class ReportOptionsActivity extends RoboSpiceActivity {
 
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
@@ -123,7 +123,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             // use the App Icon for Navigation
             actionBar.setHomeButtonEnabled(true);
@@ -132,8 +132,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
         // settings
         MenuItem applyMenuItem = menu.add(Menu.NONE, R.id.saveAction, Menu.NONE, R.string.ro_run_report_btn)
-                .setIcon(R.drawable.ic_run_report);
-        applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                .setIcon(R.drawable.ic_menu_run_report);
+        applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -533,11 +533,16 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetInputControlsValuesListener implements RequestListener<InputControlStatesList> {
+    private class GetInputControlsValuesListener extends SimpleRequestListener2<InputControlStatesList> {
+
+        @Override
+        protected Context getContext() {
+            return ReportOptionsActivity.this;
+        }
 
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, false);
+            super.onRequestFailure(exception);
             setRefreshActionButtonState(false);
         }
 
@@ -601,11 +606,16 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     }
 
-    private class ValidateInputControlsValuesListener implements RequestListener<InputControlStatesList> {
+    private class ValidateInputControlsValuesListener extends SimpleRequestListener2<InputControlStatesList> {
+
+        @Override
+        protected Context getContext() {
+            return ReportOptionsActivity.this;
+        }
 
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, false);
+            super.onRequestFailure(exception);
             setRefreshActionButtonState(false);
         }
 

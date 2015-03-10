@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+
+<resources>
+
+    <style name="Theme.JasperMobile" parent="Base.Theme.AppCompat">
+        <item name="android:windowBackground">@drawable/ic_resources_background</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+
+        <item name="colorAccent">@android:color/holo_blue_dark</item>
+        <item name="colorPrimary">@color/ab_background</item>
+        <item name="colorPrimaryDark">@color/navigation_menu_bg</item>
+
+        <item name="android:alertDialogTheme">@style/Theme.JasperMobile.Dialog.Alert</item>
+        <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
+        <item name="android:textViewStyle">@style/Widget.JasperMobile.TextView</item>
+        <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
+        <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
+        <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
+        <item name="android:scrollbarThumbVertical">@drawable/im_scrollbar_thumb</item>
+
+        <!--android-styled-dialogs reference style -->
+        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
+
+        <!--App reference styles-->
+        <item name="listLayoutStyle">@style/list2.item.layout</item>
+        <item name="gridLayoutStyle">@style/grid.item.layout</item>
+
+        <!-- For Action Mode http://stackoverflow.com/questions/26450936/actionmode-with-toolbar-offsetting-content-->
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Theme.JasperMobile.NoToolbar" parent="Theme.JasperMobile">
+        <item name="windowToolbar">false</item>
+    </style>
+
+    <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile"/>
+
+    <style name="Theme.JasperMobile.Dialog.Alert" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
+
+        <item name="colorPrimary">@color/holo_blue_dark</item>
+        <item name="colorAccent">@color/holo_blue_dark</item>
+        <item name="colorPrimaryDark">@color/holo_blue_dark</item>
+    </style>
+
+</resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="12dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="12dp">
+
+    <TextView
+        android:id="@+id/tv_account_version"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_account_icon"
+        android:gravity="center"
+        android:textAllCaps="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/tv_account_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:fontFamily="sans-serif-regular"
+        android:singleLine="true"
+        android:textColor="@android:color/white">
+
+    </TextView>
+
+</LinearLayout>

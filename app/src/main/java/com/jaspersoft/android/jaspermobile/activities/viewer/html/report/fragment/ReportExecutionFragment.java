@@ -1,22 +1,24 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.CheckReportStatusRequest;
+import com.jaspersoft.android.sdk.client.async.request.ReportDetailsRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
@@ -24,10 +26,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportStatusResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
-import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -46,14 +45,15 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
     @FragmentArg
     ResourceLookup resource;
-    @FragmentArg
-    double versionCode;
 
     @Inject
     JsRestClient jsRestClient;
 
     @Bean
     ReportExecutionUtil reportExecutionUtil;
+
+    @Bean
+    ReportSession reportSession;
 
     private final Handler mHandler = new Handler();
     private RequestExecutor requestExecutor;
@@ -153,7 +153,8 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     private ReportExecutionRequest prepareExecutionData(ArrayList<ReportParameter> reportParameters) {
         ReportExecutionRequest executionData = new ReportExecutionRequest();
 
-        reportExecutionUtil.setupAttachmentPrefix(executionData, versionCode);
+        reportExecutionUtil.setupInteractiveness(executionData);
+        reportExecutionUtil.setupAttachmentPrefix(executionData);
         reportExecutionUtil.setupBaseUrl(executionData);
 
         executionData.setReportUnitUri(resource.getUri());
@@ -164,9 +165,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         if (!reportParameters.isEmpty()) {
             executionData.setParameters(reportParameters);
         }
-
-        boolean interactive = !(versionCode >= ServerInfo.VERSION_CODES.EMERALD_THREE && versionCode < ServerInfo.VERSION_CODES.AMBER);
-        executionData.setInteractive(interactive);
 
         return executionData;
     }
@@ -191,14 +189,16 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener implements RequestListener<ReportExecutionResponse> {
+    private class RunReportExecutionListener extends SimpleRequestListener2<ReportExecutionResponse> {
+
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
         @Override
         public void onRequestFailure(SpiceException exception) {
-            if (exception instanceof RequestCancelledException) {
-                Toast.makeText(getActivity(), R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-            } else {
-                RequestExceptionHandler.handle(exception, getActivity(), true);
-            }
+            super.onRequestFailure(exception);
             ProgressDialogFragment.dismiss(getFragmentManager());
         }
 
@@ -211,21 +211,22 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             requestId = response.getRequestId();
-            paginationManagerFragment.setRequestId(requestId);
+            reportSession.setRequestId(requestId);
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
                 int totalPageCount = response.getTotalPages();
-                paginationManagerFragment.showTotalPageCount(totalPageCount);
+                reportSession.setTotalPage(totalPageCount);
 
                 if (totalPageCount == 0) {
-                    getFilterMangerFragment().makeSnapshot();
                     showEmptyReportOptionsDialog();
                 } else {
+                    getFilterMangerFragment().makeSnapshot();
                     paginationManagerFragment.paginateToCurrentSelection();
                     paginationManagerFragment.loadNextPageInBackground();
                 }
             } else if (isStatusPending(status)) {
+                getFilterMangerFragment().makeSnapshot();
                 paginationManagerFragment.paginateToCurrentSelection();
                 paginationManagerFragment.loadNextPageInBackground();
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
@@ -250,7 +251,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         }
     }
 
-    private class CheckReportStatusRequestListener implements RequestListener<ReportStatusResponse> {
+    private class CheckReportStatusRequestListener extends SimpleRequestListener2<ReportStatusResponse> {
         private final String requestId;
 
         private CheckReportStatusRequestListener(String requestId) {
@@ -258,17 +259,38 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         }
 
         @Override
-        public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, getActivity(), true);
+        protected Context getContext() {
+            return getActivity();
         }
 
         @Override
         public void onRequestSuccess(ReportStatusResponse response) {
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
-                getPaginationManagerFragment().update();
+                ReportDetailsRequest reportDetailsRequest = new ReportDetailsRequest(jsRestClient, requestId);
+                getSpiceManager().execute(reportDetailsRequest, new ReportDetailsRequestListener());
             } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            }
+        }
+    }
+
+    private class ReportDetailsRequestListener extends SimpleRequestListener2<ReportExecutionResponse> {
+
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
+        @Override
+        public void onRequestSuccess(ReportExecutionResponse reportExecutionResponse) {
+            int totalPageCount = reportExecutionResponse.getTotalPages();
+            reportSession.setTotalPage(totalPageCount);
+
+            if (totalPageCount == 0) {
+                showEmptyReportOptionsDialog();
+            } else {
+                getFilterMangerFragment().makeSnapshot();
             }
         }
     }

@@ -1,46 +1,55 @@
 package com.jaspersoft.android.jaspermobile.util;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-@EBean(scope = EBean.Scope.Singleton)
+@EBean
 public class ScrollableTitleHelper {
-    public void injectTitle(Activity activity, CharSequence title) {
-        ActionBar actionBar = activity.getActionBar();
+
+    @RootContext
+    protected ActionBarActivity activity;
+
+    public void injectTitle(CharSequence title) {
+        ActionBar actionBar = activity.getSupportActionBar();
         if (actionBar == null) return;
-
         actionBar.setTitle(title);
-        int barTitleId = activity.getResources().getIdentifier("action_bar_title", "id", "android");
 
-        TextView acionBarTitle = (TextView) activity.findViewById(barTitleId);
-                LayoutInflater inflator = LayoutInflater.from(activity);
-        ViewGroup actionBarTitleParent = ((ViewGroup)acionBarTitle.getParent());
-        actionBarTitleParent.removeView(acionBarTitle);
+        TextView toolBarTitle = null;
+        ViewGroup toolBar = (ViewGroup) activity.findViewById(R.id.tb_navigation);
+        if (toolBar == null) return;
 
-        View scrollContainer = inflator.inflate(R.layout.scrollable_title_container,
-                actionBarTitleParent, false);
+        int toolbarChildCount = toolBar.getChildCount();
+        for (int i = 0; i < toolbarChildCount; i++) {
+            View view = toolBar.getChildAt(i);
+            if (view instanceof TextView) {
+                toolBarTitle = (TextView) view;
+                break;
+            }
+        }
+
+        if (toolBarTitle == null) return;
+        toolBar.removeView(toolBarTitle);
+
+        LayoutInflater layoutInflater = LayoutInflater.from(activity);
+        View scrollContainer = layoutInflater.inflate(R.layout.scrollable_title_container,
+                null, false);
         ViewGroup container = (ViewGroup) scrollContainer.findViewById(R.id.container);
-        container.addView(acionBarTitle);
+        container.addView(toolBarTitle);
 
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) acionBarTitle.getLayoutParams();
-        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-        acionBarTitle.setLayoutParams(params);
-
-        actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setCustomView(scrollContainer);
+        toolBar.addView(scrollContainer);
     }
+
 }

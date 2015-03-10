@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
@@ -60,15 +60,16 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 2.0
  */
-public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageFilterTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     public LibraryPageFilterTest() {
-        super(LibraryActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
@@ -84,7 +85,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     @Test
     public void testDashboardAndAllFilterOption() throws InterruptedException {
         ResourceLookupsList onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_DASHBOARD);
-        ResourceLookupsList allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ALL_RESOURCES);
+        ResourceLookupsList allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.SMALL_LOOKUP);
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
@@ -100,7 +101,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.ALL_RESOURCES);
+                TestResponses.SMALL_LOOKUP);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(allLookUp.getResourceLookups().size()));
@@ -180,12 +181,8 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         try {
             onView(withId(R.id.filter)).perform(click());
         } catch (NoMatchingViewException ex) {
-            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_filter_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            openActionBarOverflowOrOptionsMenu(getApplication());
+            onView(withText(R.string.s_ab_filter_by)).perform(click());
         }
     }
 

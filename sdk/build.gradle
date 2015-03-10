@@ -1,0 +1,54 @@
+/*
+ * Copyright (c) 2015. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
+buildscript {
+    repositories {
+        jcenter()
+        maven { url 'https://raw.github.com/xujiaao/mvn-repository/master/releases' }
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
+        classpath 'com.github.xujiaao:aarLinkSources:1.0.0'
+    }
+}
+
+
+apply plugin: 'aar-link-sources'
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion androidCompileSdkVersion
+    buildToolsVersion androidBuildToolsVersion
+
+    defaultConfig {
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+}
+
+dependencies {
+    compile(project(":pojo")) {
+        exclude group: 'com.google.code.gson'
+    }
+    compile('com.squareup.retrofit:retrofit:1.8.0') {
+        exclude group: 'com.google.code.gson'
+    }
+    compile 'com.jakewharton.timber:timber:2.5.0'
+
+    compile "com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}"
+    aarLinkSources "com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}:sources@jar"
+
+    compile 'io.reactivex:rxandroid:0.24.0'
+}

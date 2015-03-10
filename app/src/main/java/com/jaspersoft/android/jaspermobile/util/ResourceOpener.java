@@ -24,29 +24,29 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.CordovaDashboardActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.DashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
 import java.util.ArrayList;
-
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
 
 /**
  * @author Tom Koptel
@@ -58,26 +58,17 @@ public class ResourceOpener {
     FilterManager filterManager;
     @RootContext
     FragmentActivity activity;
-    @Inject
-    JsRestClient jsRestClient;
 
     private ArrayList<String> resourceTypes;
-
-    @AfterInject
-    void injectRoboGuiceDependencies() {
-        final RoboInjector injector = RoboGuice.getInjector(activity);
-        injector.injectMembersWithoutViews(this);
-        resourceTypes = filterManager.getFiltersByType(FilterManager.Type.ALL_FOR_REPOSITORY);
-    }
 
     public void setResourceTypes(ArrayList<String> resourceTypes) {
         this.resourceTypes = resourceTypes;
     }
 
-    public void openResource(ResourceLookup resource) {
+    public void openResource(Fragment fragment, ResourceLookup resource) {
         switch (resource.getResourceType()) {
             case folder:
-                openFolder(resource);
+                openFolder(fragment, resource);
                 break;
             case reportUnit:
                 JasperMobileApplication.removeAllCookies();
@@ -92,23 +83,18 @@ public class ResourceOpener {
         }
     }
 
-    private void openFolder(ResourceLookup resource) {
-        // TODO It is smelly fix. Consider this issue while migration to RecyclerView
-        ResourcesControllerFragment topController = (ResourcesControllerFragment)
-                activity.getSupportFragmentManager().findFragmentByTag(ResourcesControllerFragment.TAG);
-        ResourcesControllerFragment_.FragmentBuilder_ builder = ResourcesControllerFragment_.builder()
-                .emptyMessage(R.string.r_browser_nothing_to_display)
-                .resourceTypes(resourceTypes)
-                .resourceLabel(resource.getLabel())
-                .resourceUri(resource.getUri());
-        if (!TextUtils.isEmpty(topController.controllerTag)) {
-            builder.controllerTag(topController.controllerTag);
-        }
-        ResourcesControllerFragment newControllerFragment = builder.build();
-
-        activity.getSupportFragmentManager().beginTransaction()
+    private void openFolder(Fragment fragment, ResourceLookup resource) {
+        ResourcesControllerFragment newControllerFragment =
+                ResourcesControllerFragment_.builder()
+                        .emptyMessage(R.string.r_browser_nothing_to_display)
+                        .resourceTypes(resourceTypes)
+                        .resourceLabel(resource.getLabel())
+                        .resourceUri(resource.getUri())
+                        .build();
+        fragment.getFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())
-                .replace(R.id.controller, newControllerFragment, ResourcesControllerFragment.TAG + resource.getUri())
+                .replace(R.id.resource_controller, newControllerFragment,
+                        ResourcesControllerFragment.TAG + resource.getUri())
                 .commit();
     }
 
@@ -118,8 +104,37 @@ public class ResourceOpener {
     }
 
     private void runDashboard(ResourceLookup resource) {
-        DashboardHtmlViewerActivity_.intent(activity)
-                .resource(resource).start();
+        SelectDashboardRenderDialog selectDashboardRenderDialog = new SelectDashboardRenderDialog();
+        selectDashboardRenderDialog.setResource(resource);
+        selectDashboardRenderDialog.show(activity.getSupportFragmentManager(), null);
     }
 
+    public static class SelectDashboardRenderDialog extends DialogFragment {
+        private ResourceLookup resource;
+
+        public void setResource(ResourceLookup resource) {
+            this.resource = resource;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Select WebView render")
+                    .setItems(new String[] {"Default", "Cordova"}, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                           switch (which) {
+                               case 0:
+                                   DashboardViewerActivity_.intent(getActivity())
+                                           .resource(resource).start();
+                                   break;
+                               case 1:
+                                   CordovaDashboardActivity_.intent(getActivity())
+                                           .resource(resource).start();
+                                   break;
+                           }
+                        }
+                    });
+            return builder.create();
+        }
+    }
 }

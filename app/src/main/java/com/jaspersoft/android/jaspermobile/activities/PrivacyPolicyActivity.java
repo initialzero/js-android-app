@@ -1,31 +1,28 @@
 package com.jaspersoft.android.jaspermobile.activities;
 
-import android.app.ActionBar;
+import android.content.Context;
 import android.os.Bundle;
 import android.webkit.WebViewClient;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.network.PrivacyRequest;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.OptionsItem;
 
 /**
  * @author Andrew Tivodar
  * @since 1.9
  */
 @EActivity
-public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements WebViewFragment.OnWebViewCreated {
+public class PrivacyPolicyActivity extends RoboSpiceActivity implements WebViewFragment.OnWebViewCreated {
 
     private WebViewFragment webViewFragment;
 
@@ -39,11 +36,6 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         if (savedInstanceState == null) {
             webViewFragment = WebViewFragment_.builder()
                     .resourceLabel(getString(R.string.sa_about_privacy))
@@ -52,14 +44,9 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
             webViewFragment.setOnWebViewCreated(this);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, webViewFragment, ResourcesControllerFragment.TAG)
+                    .add(R.id.content, webViewFragment, ResourcesControllerFragment.TAG)
                     .commit();
         }
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void showHome() {
-        super.onBackPressed();
     }
 
     @Override
@@ -71,10 +58,11 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
                 new PrivacyRequestListener());
     }
 
-    private class PrivacyRequestListener implements RequestListener<String> {
+    private class PrivacyRequestListener extends SimpleRequestListener2<String> {
+
         @Override
-        public void onRequestFailure(SpiceException e) {
-            RequestExceptionHandler.handle(e, PrivacyPolicyActivity.this, true);
+        protected Context getContext() {
+            return PrivacyPolicyActivity.this;
         }
 
         @Override
@@ -82,7 +70,6 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
             if (privacy == null) {
                 return;
             }
-
             webViewFragment.loadHtml(PrivacyRequest.PRIVACY_URL, privacy);
         }
     }

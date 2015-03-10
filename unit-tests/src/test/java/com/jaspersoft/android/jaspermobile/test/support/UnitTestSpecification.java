@@ -24,7 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.support;
 
+import android.content.Context;
+
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.shadows.ShadowLog;
 
 import java.io.IOException;
@@ -41,6 +44,10 @@ public abstract class UnitTestSpecification {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Context getContext() {
+        return Robolectric.application;
     }
 
 }

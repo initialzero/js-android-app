@@ -28,18 +28,32 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
+import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesRemoveColumnMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 
-
+/**
+ * @author Tom Koptel
+ * @since 1.9
+ */
 public class JSDatabaseHelper extends JasperMobileDbDatabase {
+    private final Context mContext;
 
     public JSDatabaseHelper(Context context) {
         super(context);
+        mContext = context;
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        super.onCreate(db);
     }
 
     @Override
     public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         executePragmas(db);
-        switch(oldVersion) {
+        switch (oldVersion) {
             case 1:
             case 2:
                 db.execSQL("DROP TABLE IF EXISTS report_options;");
@@ -64,6 +78,11 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 db.execSQL("INSERT INTO favorites(name, title, uri, description, wstype, username, organization, server_profile_id)" +
                         " select name, title, uri, description, wstype, username, organization, server_profile_id from tmp_favorites;");
                 db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
+            case 3:
+                new ProfileAccountMigration(mContext).migrate(db);
+                new ProfileFavoritesMigration().migrate(db);
+                new SavedItemsMigration(mContext).migrate(db);
+                new FavoritesRemoveColumnMigration().migrate(db);
                 break;
         }
     }

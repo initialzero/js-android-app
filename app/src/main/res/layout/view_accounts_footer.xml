@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/footer_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="8dp"
+        android:background="@color/navigation_profile_separator" />
+
+    <LinearLayout
+        android:id="@+id/vg_add_account"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_navigation_item"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <ImageView
+            android:id="@+id/iv_add_account"
+            android:layout_width="24dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add" />
+
+        <TextView
+            android:id="@+id/tv_add_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="32dp"
+            android:fontFamily="sans-serif-regular"
+            android:singleLine="true"
+            android:text="@string/add_account"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/vg_manage_accounts"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="9dp"
+        android:background="@drawable/bg_navigation_item"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <ImageView
+            android:id="@+id/iv_manage_accounts"
+            android:layout_width="24dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_settings" />
+
+        <TextView
+            android:id="@+id/tv_manage_accounts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="32dp"
+            android:fontFamily="sans-serif-regular"
+            android:singleLine="true"
+            android:text="@string/nd_manage_accounts"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -49,7 +49,7 @@ android {
 //        xx - major version number
 //        yy - minor version number
 //        zz - revision number
-        versionCode 15010900
+        versionCode 15020000
         versionName generateVersionName()
         testInstrumentationRunner INSTRUMENTATION_RUNNER
     }
@@ -107,8 +107,8 @@ android {
         dev {
         }
         production {
-            versionCode 15010902
-            versionName "1.9"
+            versionCode 15020000
+            versionName "2.0"
 
             buildTypes {
                 debug {
@@ -125,6 +125,8 @@ apt {
     arguments {
         androidManifestFile variant.outputs[0].processResources.manifestFile
         resourcePackageName PACKAGE_NAME
+        guiceAnnotationDatabasePackageName "com.jaspersoft.android.jaspermobile"
+        logLevel "WARN"
     }
 }
 
@@ -132,38 +134,39 @@ apt {
 dependencies {
     provided project(':database-generator')
     compile project(':library-circular')
+    compile project(':sdk')
+    compile project(':cordova')
 
-    // AS soon as we have broken builds on artifactory you should build sdk manually
-    // git checkout v1.9.2
-    // gradlew install
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.3-SNAPSHOT'
+    compile 'org.roboguice:roboguice:3.0.1'
+    provided 'org.roboguice:roboblender:3.0.1'
 
-    compile 'org.roboguice:roboguice:2.0'
-    compile 'com.google.guava:guava:18.0'
-    compile('com.android.support:support-v4:20.0.0') {
-        exclude group: 'com.android.support'
-    }
-    // This is required for @Nullable @NonNull annotations
-    compile 'com.android.support:support-annotations:20.0.0'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:cardview-v7:21.0.3'
+
     // For sugar instantiate of dialogs
     compile('eu.inmite.android.lib:android-styled-dialogs:1.2.0:') {
         exclude group: 'com.android.support'
     }
 
-    compile("org.androidannotations:androidannotations-api:${androidAnnotationsVersion}")
-    apt "org.androidannotations:androidannotations:${androidAnnotationsVersion}"
+    compile("org.androidannotations:androidannotations-api:3.2")
+    apt "org.androidannotations:androidannotations:3.2"
+    apt 'org.roboguice:roboblender:3.0.1'
 
     // For action mode support within list views
     compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'
-    // For homogeneous design on all platforms
-    compile 'com.negusoft.holoaccent:library:1.1'
 
     // Splunk Mint(Bugsense)
     compile "com.splunk.mint:mint:4.0.3"
 
     // Remove gradle dependency
     // When all required testing for JRS will be completed
-    compile 'com.google.code.gson:gson:1.7.2'
+    compile 'com.google.code.gson:gson:2.3'
+
+    // Dependency for image loading management
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+
+    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
+    androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
 
     androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {
         exclude group: 'com.android.support'

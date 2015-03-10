@@ -29,8 +29,6 @@
     <!-- Home Activity -->
     <string name="h_repository_label">Référentiel</string>
     <string name="h_library_label">Bibliothèque</string>
-    <string name="h_server_profile_label">"Profil du serveur : "</string>
-    <string name="h_server_switched_toast">Le serveur a été basculé vers \"%s\"</string>
 
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">Aucune connexion</string>
@@ -38,23 +36,7 @@
 
     <!-- Password Dialog -->
     <string name="h_ad_title_enter_password">Saisir le mot de passe</string>
-    <string name="h_ad_label_server_profile">Profil du serveur :</string>
-    <string name="h_ad_label_organization">Organisation :</string>
-    <string name="h_ad_label_username">Nom d’utilisateur :</string>
-
-    <!-- Server Profiles Manager Activity -->
-    <string name="spm_list_title">Profils de serveur</string>
-
-    <!-- Toasts -->
-    <string name="spm_profile_created_toast">Nouveau profil de serveur \'%s\' créé avec succès.</string>
-    <string name="spm_profile_updated_toast">Profil de serveur \'%s\' mis à jour avec succès.</string>
-    <string name="spm_profile_deleted_toast">Profil de serveur supprimé avec succès.</string>
-    <string name="toast_select_profile">Veuillez sélectionner votre profil.</string>
-
-    <!-- Context Menu -->
-    <string name="spm_cm_switch">Se connecter</string>
-    <string name="spm_cm_edit">Modifier</string>
-    <string name="spm_cm_delete">Supprimer</string>
+    <string name="h_ad_label_server_profile">Profil du serveur</string>
 
     <!-- Action Bar -->
     <string name="spm_ab_add_profile">Ajouter un profil de serveur</string>
@@ -65,23 +47,8 @@
     <string name="spm_cancel_btn">Annuler</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_bc_add_profile">Nouveau profil de serveur</string>
-    <string name="sp_bc_edit_profile">Modifier le profil de serveur</string>
-    <string name="sp_name_label">Nom :</string>
-    <string name="sp_name_hint">nom de mon serveur</string>
-    <string name="sp_url_label">URL du serveur :</string>
-    <string name="sp_url_hint">http://myserver.com</string>
-    <string name="sp_org_label">Organisation :</string>
-    <string name="sp_organization_hint">ID de l’organisation</string>
-    <string name="sp_username_label">Nom d’utilisateur :</string>
-    <string name="sp_username_hint">mon nom d’utilisateur</string>
-    <string name="sp_password_label">Mot de passe :</string>
     <string name="sp_password_hint">mon mot de passe</string>
-    <string name="sp_ask_password_text">toujours demander un mot de passe</string>
     <string name="sp_save_btn">Enregistrer</string>
-    <string name="sp_active_item">Actif : %s</string>
-    <string name="sp_label_general">Général</string>
-    <string name="sp_label_auth">Authentification</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">Ce champ est obligatoire.</string>
@@ -112,7 +79,7 @@
 
     <!-- Settings Activity -->
     <string name="s_hint">Ressources de recherche</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ v1.9\n\nOutil de gestion et visionneur de rapport pour JasperReports Server 5.5 et plus.\n\nPour plus d\'informations, consulter :\n<a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a>\n\nPour les informations de la politique de confidentialité, consulter :\n<a href="com.jaspersoft.android.privacy_policy://"> http://www.tibco.com/privacy-policies/jaspermobile-android </a>\n\nDroits d\'auteurs © 2005-2014 TIBCO Software, Inc.</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nOutil de gestion et visionneur de rapport pour JasperReports Server 5.5 et plus.\n\nPour plus d\'informations, consulter :\n<a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a>\n\nPour les informations de la politique de confidentialité, consulter :\n<a href="com.jaspersoft.android.privacy_policy://"> http://www.tibco.com/privacy-policies/jaspermobile-android </a>\n\nDroits d\'auteurs © 2005-2015 TIBCO Software, Inc.</string>
     <string name="sa_about_privacy">Politique de confidentialité</string>
 
     <!-- Action Bar -->
@@ -186,16 +153,13 @@
     <!-- Settings activity -->
     <string name="st_title">Paramètres</string>
     <string name="st_category_repo_cache">Cache du référentiel</string>
-    <string name="st_category_repo_cache_summary">Modifier les options de mise en cache de référentiel</string>
     <string name="st_category_connection">Connexion</string>
-    <string name="st_category_connection_summary">Modifier les paramètres de connexion globale pour les appels du réseau</string>
     <string name="st_title_cache_enable">Activer le cache</string>
     <string name="st_title_cache_expiration">Expiration du cache</string>
     <string name="st_title_connect_timeout">Délai de connexion</string>
     <string name="st_title_read_timeout">Délai de lecture des données</string>
     <string name="st_title_animations">Animations de l\'application</string>
     <string name="st_send_crashes">Envoyer les rapports d\'incidents</string>
-    <string name="st_send_crashes_summary">AVERTISSEMENT : Cette option redémarre l\'application !</string>
     <string name="st_summary_cache_enable">Mettre en cache les demandes du référentiel pour la durée spécifiée</string>
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>
@@ -219,27 +183,26 @@
     <string name="error_msg">Erreur</string>
     <string name="warning_msg">Avertissement</string>
     <string name="cancelled_msg">Annulé</string>
-
-    <!-- New Home Page Labels -->
-    <string name="library_card_label">Bibliothèque</string>
-    <string name="library_card_desc">Parcourez votre bibliothèque JR Server.</string>
-    <string name="saved_items_card_desc">Affichez les éléments enregistrés sur cet appareil.</string>
-    <string name="repository_card_label">Référentiel</string>
-    <string name="repository_card_desc">Parcourez votre référentiel JR Server.</string>
-    <string name="favorites_card_label">Favoris</string>
-    <string name="favorites_card_desc">Affichez les Favoris sur cet appareil.</string>
-    <string name="servers_card_label">Serveurs</string>
-    <string name="servers_card_desc">Sélectionnez votre profil JR Server.</string>
-    <string name="settings_card_label">Paramètres</string>
-    <string name="settings_card_desc">Configurez votre application mobile TIBCO Jaspersoft.</string>
     <string name="search_result_format">Résultat de la recherche pour \'%s\'</string>
     <string name="failed_load_data">Echec du chargement des données !</string>
+
+    <!-- Navigation panel -->
+    <string name="library_card_label">Bibliothèque</string>
+    <string name="repository_card_label">Référentiel</string>
+    <string name="favorites_card_label">Favoris</string>
+    <string name="settings_card_label">Paramètres</string>
 
     <!-- Pagination controll -->
     <string name="of"><![CDATA[sur %d]]></string>
     <string name="dialog_current_page">Définir la page en cours</string>
     <string name="rv_error_empty_report_title">Le rapport est vide</string>
     <string name="rv_error_empty_report_message">Appuyez sur \"OK\" si vous souhaitez modifier les options de filtre ou sur Annuler pour revenir à l\'ancien rapport.</string>
+
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">Si vous aimez TIBCO JasperMobile, voulez-vous prendre un moment pour l\'évaluer? Cela ne vous prendra pas plus d\'une minute. Merci de votre soutien!</string>
+    <string name="h_rd_later">Me rappeler plus tard</string>
+    <string name="h_rd_never">Non, merci</string>
+    <string name="h_rd_rate">Évaluer TIBCO JasperMobile</string>
 
 
 </resources>

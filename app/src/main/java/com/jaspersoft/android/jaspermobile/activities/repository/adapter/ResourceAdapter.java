@@ -30,27 +30,25 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.view.ActionMode;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.collect.Ordering;
-import com.google.common.primitives.Ints;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceAdapterHelper;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceAdapterHelper;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;
-import java.util.Locale;
+import java.util.Comparator;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     private final FavoritesHelper_ favoriteHelper;
@@ -60,21 +58,26 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     private MenuItem favoriteActionItem;
 
     public static Builder builder(Context context, Bundle savedInstanceState) {
-        checkNotNull(context);
+        if (context == null) {
+            throw new IllegalArgumentException("Context is null");
+        }
         return new Builder(context, savedInstanceState);
     }
 
-    private ResourceAdapter(Context context, Bundle savedInstanceState, ViewType viewType) {
+    private ResourceAdapter(Context context,
+                            Bundle savedInstanceState, ViewType viewType) {
         super(savedInstanceState, context, 0);
         favoriteHelper = FavoritesHelper_.getInstance_(context);
-        mViewType = checkNotNull(viewType, "ViewType can`t be null");
-        Locale current = context.getResources().getConfiguration().locale;
-        viewHelper = new ResourceViewHelper(current);
+        if (viewType == null) {
+            throw new IllegalArgumentException("ViewType can`t be null");
+        }
+        mViewType = viewType;
+        viewHelper = new ResourceViewHelper(context);
     }
 
     @Override
     protected View getViewImpl(int position, View convertView, ViewGroup parent) {
-        IResourceView itemView = (IResourceView) convertView;
+        ResourceView itemView = (ResourceView) convertView;
 
         if (itemView == null) {
             if (mViewType == ViewType.LIST) {
@@ -129,7 +132,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
         try {
             boolean alreadyFavorite = (cursor.getCount() > 0);
-            favoriteActionItem.setIcon(alreadyFavorite ? R.drawable.ic_rating_favorite : R.drawable.ic_rating_not_favorite);
+            favoriteActionItem.setIcon(alreadyFavorite ? R.drawable.ic_star : R.drawable.ic_star_outline);
             favoriteActionItem.setTitle(alreadyFavorite ? R.string.r_cm_remove_from_favorites : R.string.r_cm_add_to_favorites);
         } finally {
             if (cursor != null) cursor.close();
@@ -161,12 +164,16 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         super.sort(new OrderingByType());
     }
 
-    private static class OrderingByType extends Ordering<ResourceLookup> {
+    private static class OrderingByType implements Comparator<ResourceLookup> {
         @Override
         public int compare(ResourceLookup res1, ResourceLookup res2) {
             ResourceLookup.ResourceType resType1 = res1.getResourceType();
             ResourceLookup.ResourceType resType2 = res2.getResourceType();
-            return Ints.compare(resType1.ordinal(), resType2.ordinal());
+            return compare(resType1.ordinal(), resType2.ordinal());
+        }
+
+        private static int compare(int lhs, int rhs) {
+            return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
         }
     }
 
@@ -181,7 +188,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
             this.savedInstanceState = savedInstanceState;
         }
 
-        public Builder setViewType(ViewType viewType) {
+        public Builder viewType(ViewType viewType) {
             this.viewType = viewType;
             return this;
         }

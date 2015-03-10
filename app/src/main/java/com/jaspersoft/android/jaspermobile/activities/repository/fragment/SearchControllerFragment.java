@@ -25,12 +25,13 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
 
@@ -64,10 +65,16 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     ArrayList<String> resourceTypes;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         searchView.setQueryHint(getString(R.string.s_hint));
         searchView.setOnQueryTextListener(this);
     }
@@ -94,7 +101,7 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     }
 
     public void setResourceTypes(List<String> resourceTypes) {
-        this.resourceTypes = Lists.newArrayList(resourceTypes);
+        this.resourceTypes = new ArrayList<String>(resourceTypes);
     }
 
     public String getResourceUri() {

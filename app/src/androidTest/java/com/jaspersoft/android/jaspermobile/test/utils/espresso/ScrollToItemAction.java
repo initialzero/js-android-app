@@ -25,15 +25,14 @@
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
 import android.graphics.Rect;
-import android.util.Log;
-import android.view.View;
-import android.widget.AbsListView;
-
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.espresso.util.HumanReadables;
+import android.util.Log;
+import android.view.View;
+import android.widget.AbsListView;
 
 import org.hamcrest.Matcher;
 

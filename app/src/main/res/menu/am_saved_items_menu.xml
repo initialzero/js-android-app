@@ -23,20 +23,21 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/showAction"
-        android:showAsAction="always"
-        android:icon="@drawable/ic_action_about"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_menu_info"
         android:title="@string/r_cm_view_details" />
     <item
         android:id="@+id/renameItem"
-        android:showAsAction="ifRoom"
-        android:icon="@drawable/ic_content_edit"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_menu_edit"
         android:title="@string/sdr_cm_rename" />
     <item
         android:id="@+id/deleteItem"
-        android:showAsAction="ifRoom"
-        android:icon="@drawable/ic_resource_delete"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_menu_delete"
         android:title="@string/sdr_cm_delete" />
 </menu>

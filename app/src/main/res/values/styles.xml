@@ -25,21 +25,27 @@
 
 <resources>
 
-    <!-- Default ListView Style -->
-    <style name="editText">
-        <item name="android:layout_marginLeft">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:ems">10</item>
-        <item name="android:singleLine">true</item>
+    <!-- Default Widget Style Style -->
+    <style name="Widget.JasperMobile.TextView" parent="android:Widget.Holo.TextView">
+        <item name="android:textColor">@color/default_text</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="label">
-        <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginLeft">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/js_blue</item>
+    <style name="Widget.JasperMobile.EditText" parent="android:Widget.Holo.EditText">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.Spinner" parent="android:Widget.Holo.Spinner">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.Button" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
     </style>
 
     <!-- Input Controls -->
@@ -126,7 +132,24 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
-    
+
+    <!-- Default ListView Style -->
+    <style name="editText">
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:ems">10</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="label">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/js_blue</item>
+    </style>
+
     <!-- Report Options Layout -->
     <style name="reportOptions" />
 
@@ -289,29 +312,6 @@
         <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
     </style>
 
-    <style name="home.dialog" />
-
-    <style name="home.dialog.table" />
-
-    <style name="home.dialog.table.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:shrinkColumns">1</item>
-        <item name="android:paddingBottom">10dp</item>
-    </style>
-
-    <style name="home.dialog.table.label">
-        <item name="android:textStyle">bold</item>
-        <item name="android:layout_marginLeft">5dp</item>
-        <item name="android:paddingRight">10dp</item>
-    </style>
-
-    <style name="home.dialog.passwordEdit">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:inputType">textPassword</item>
-    </style>
-
     <style name="list2" />
 
     <style name="list2.item" />
@@ -366,6 +366,31 @@
         <item name="android:textColor">@color/list_label_light_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:maxLines">2</item>
+    </style>
+
+    <!--Add account page-->
+
+    <style name="editTextAccount">
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/bg_login_edit</item>
+        <item name="android:ems">10</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="addAccountCard">
+        <item name="cardBackgroundColor">@null</item>
+        <item name="cardCornerRadius">0dp</item>
+        <item name="cardElevation">5dp</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
+
+    <style name="Widget.JasperMobileDialog" parent="@style/DialogStyleDark.Custom" />
+
+    <style name="DialogStyleDark.Custom">
+        <item name="titleTextColor">@color/dialog_title_txt_color</item>
+        <item name="dialogBackground">@drawable/ic_resources_background</item>
     </style>
 
 </resources>

@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.test;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
@@ -39,35 +40,29 @@ import android.view.WindowManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
+import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
+import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collection;
 
 import roboguice.RoboGuice;
 
-import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(AndroidJUnit4.class)
 public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
-    protected static final String PASSWORD = "phoneuser";
 
     protected T mActivity;
     protected JsRestClient jsRestClient;
-    private ProfileHelper_ profileHelper;
     private Application mApplication;
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
@@ -79,37 +74,35 @@ public class ProtoActivityInstrumentation<T extends Activity>
         super.setUp();
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
-        DefaultPrefHelper helper = DefaultPrefHelper_
-                .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
-        helper.setAnimationEnabled(false);
-        helper.setRepoCacheEnabled(false);
+        PreferenceApiAdapter.init(getApplication())
+                .setCacheEnabled(false)
+                .setInAppAnimationEnabled(false)
+                .setIntroEnabled(false);
     }
 
     @After
     public void tearDown() throws Exception {
         super.tearDown();
-        RoboGuice.util.reset();
+        unregisterTestModule();
         mApplication = null;
         mActivity = null;
-        profileHelper = null;
-    }
-
-    @Test
-    public void checkPreconditions() {
-        // Check that Instrumentation was correctly injected in setUp()
-        assertThat(getInstrumentation(), notNullValue());
     }
 
     protected void setDefaultCurrentProfile() {
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        profileHelper = ProfileHelper_.getInstance_(application);
-
-        ContentResolver cr = application.getContentResolver();
-        DatabaseUtils.deleteAllProfiles(cr);
-        long id = DatabaseUtils.createDefaultProfile(cr);
-        profileHelper.setCurrentServerProfile(id);
-        profileHelper.setCurrentInfoSnapshot(id);
+        AccountServerData serverData = new AccountServerData()
+                .setAlias(AccountServerData.Demo.ALIAS)
+                .setServerUrl(AccountServerData.Demo.SERVER_URL)
+                .setOrganization(AccountServerData.Demo.ORGANIZATION)
+                .setUsername(AccountServerData.Demo.USERNAME)
+                .setPassword(AccountServerData.Demo.PASSWORD)
+                .setEdition("PRO")
+                .setVersionName("5.5");
+        Account account = AccountUtil.get(getApplication())
+                .removeAllAccounts()
+                .addAccount(serverData)
+                .setAuthToken()
+                .activate().getAccount();
+        JsServerProfileCompat.initLegacyJsRestClient(getApplication(), account, getJsRestClient());
     }
 
     public void startActivityUnderTest() {
@@ -169,16 +162,11 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     protected void registerTestModule(AbstractModule module) {
         unregisterTestModule();
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(module));
+        RoboGuice.overrideApplicationInjector(mApplication, module);
     }
 
     protected void unregisterTestModule() {
-        RoboGuice.util.reset();
+        RoboGuice.Util.reset();
     }
 
     protected Activity getCurrentActivity() throws Throwable {
@@ -198,7 +186,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     protected JsRestClient getJsRestClient() {
         if (jsRestClient == null) {
-            Injector injector = RoboGuice.getBaseApplicationInjector(getApplication());
+            Injector injector = RoboGuice.getInjector(getApplication());
             jsRestClient = injector.getInstance(JsRestClient.class);
         }
         return jsRestClient;

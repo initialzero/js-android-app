@@ -1,0 +1,13 @@
+{
+    "description": "Report parameters wrapper.",
+    "type": "object",
+    "properties": {
+        "reportParameters": {
+            "type": "array",
+            "items" : {
+                "type" : "object",
+                "$ref": "reportParameter.json"
+            }
+        }
+    }
+}

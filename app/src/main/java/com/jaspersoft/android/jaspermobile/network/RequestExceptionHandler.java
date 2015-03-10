@@ -32,8 +32,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.octo.android.robospice.exception.NetworkException;
 
@@ -139,8 +138,7 @@ public class RequestExceptionHandler {
                 .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
                     @Override
                     public void onClick(DialogFragment fragment) {
-                        HomeActivity_.intent(activity)
-                                .action(HomeActivity.EDIT_SERVER_PROFILE_ACTION)
+                        NavigationActivity_.intent(activity)
                                 .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                                 .start();
                     }

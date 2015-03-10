@@ -1,7 +1,7 @@
 {
 	"packageName" : "com.jaspersoft.android.jaspermobile.db",
 	"providerName" : "jasper_mobile_db",
-	"databaseVersion" : 3,
+	"databaseVersion" : 4,
 	"tables" : [{
 			"name" : "server_profiles",
 			"members" : [{
@@ -29,10 +29,8 @@
 			]
 		}, {
 			"name" : "favorites",
+			"buildable": true,
 			"members" : [{
-					"type" : "string",
-					"name" : "name"
-				}, {
 					"type" : "string",
 					"name" : "title"
 				}, {
@@ -50,20 +48,51 @@
 				}, {
 					"type" : "string",
 					"name" : "organization"
-				}
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "account_name",
+ 					"not_null": true,
+ 					"default": "\'\'"
+                }, {
+ 					"type" : "string",
+ 					"name" : "creation_time"
+ 				}
 			]
-		}
+		}, {
+ 			"name" : "saved_items",
+			"buildable": true,
+ 			"members" : [{
+                    "type" : "string",
+                    "name" : "file_path"
+                }, {
+ 					"type" : "string",
+ 					"name" : "name"
+                }, {
+  					"type" : "string",
+  					"name" : "file_format"
+  				}, {
+ 					"type" : "string",
+ 					"name" : "description"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "wstype"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "username"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "organization"
+ 				}, {
+ 					"type" : "string",
+ 					"name" : "account_name",
+                    "not_null": true,
+                    "default": "\'\'"
+                }, {
+  				    "type" : "long",
+  				    "name" : "creation_time"
+ 				}
+ 			]
+ 		}
 	],
-	"relationships" : [{
-			"name" : "server_profiles_favorites",
-			"left_table" : "server_profiles",
-			"right_table" : "favorites",
-			"foreign_key" : "server_profile_id",
-			"modify_action": {
-                "type": "delete",
-                "action": "cascade"
-            },
-			"type" : "to_many"
-		}
-	]
+	"relationships" : []
 }

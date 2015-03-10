@@ -24,11 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
+import android.support.test.espresso.matcher.BoundedMatcher;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
-
-import android.support.test.espresso.matcher.BoundedMatcher;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

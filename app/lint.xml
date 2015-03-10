@@ -25,8 +25,9 @@
 
 <lint>
     <issue id="CutPasteId" severity="ignore" />
-    <issue id="MergeRootFrame" severity="ignore" />
-    <issue id="RtlEnabled" severity="ignore" />
+    <issue id="MergeRootFrame" severity="Warning" />
+    <issue id="RtlEnabled" severity="Warning" />
+    <issue id="InvalidPackage" severity="Warning" />
 
     <!-- Ignore the ObsoleteLayoutParam issue in the given files -->
     <issue id="UselessParent">
@@ -37,6 +38,30 @@
     </issue>
     <issue id="MissingTranslation">
         <ignore path="src/main/res/values/roboguice.xml" />
+    </issue>
+    <issue id="InvalidPackage">
+        <ignore regexp="okio-2.0.0.jar" />
+    </issue>
+    <issue id="NewApi">
+        <ignore path="src/main/res/values/styles.xml" />
+        <ignore path="src/main/res/values/themes.xml" />
+        <ignore path="src/main/res/values-sw600dp/styles.xml" />
+        <ignore path="src/main/res/layout/item_select_dialog_multichoice.xml" />
+    </issue>
+    <issue id="UnusedAttribute">
+        <ignore path="src/main/AndroidManifest.xml" />
+        <ignore path="src/main/res/layout/login_layout.xml" />
+        <ignore path="src/main/res/layout-sw600dp/login_layout.xml" />
+        <ignore path="src/main/res/layout-sw600dp-land/login_layout.xml" />
+        <ignore path="src/main/res/layout-land/login_layout.xml" />
+        <ignore path="src/main/res/layout/add_account_layout.xml" />
+        <ignore path="src/main/res/layout-sw600dp/add_account_layout.xml" />
+        <ignore path="src/main/res/layout-sw600dp-land/add_account_layout.xml" />
+        <ignore path="src/main/res/layout-land/add_account_layout.xml" />
+        <ignore path="src/main/res/layout/item_account.xml" />
+        <ignore path="src/main/res/layout/view_accounts_footer.xml" />
+        <ignore path="src/main/res/layout/view_navigation_menu.xml" />
+        <ignore path="src/main/res/layout/view_navigation_panel.xml" />
     </issue>
 	<issue id="NewApi" severity="ignore">
 		<ignore path="src/main/res/layout/item_select_dialog_multichoice.xml" />

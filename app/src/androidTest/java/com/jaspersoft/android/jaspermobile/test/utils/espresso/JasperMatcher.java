@@ -25,8 +25,10 @@
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.Root;
+import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.ViewInteraction;
@@ -34,11 +36,15 @@ import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
+import android.support.test.espresso.matcher.BoundedMatcher;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.TimePicker;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -173,33 +179,124 @@ public final class JasperMatcher {
         };
     }
 
-    public static Matcher<? super View> hasErrorText(String expectedError) {
-        return new ErrorTextMatcher(expectedError);
-    }
-
-    private static class ErrorTextMatcher extends TypeSafeMatcher<View> {
-        private final String expectedError;
-
-        private ErrorTextMatcher(String expectedError) {
-            this.expectedError = checkNotNull(expectedError);
-        }
-
-        @Override
-        public boolean matchesSafely(View view) {
-            if (!(view instanceof EditText)) {
-                return false;
+    public static ViewAction setTime(final int hour, final int minute) {
+        return new ViewAction() {
+            @Override
+            public void perform(UiController uiController, View view) {
+                TimePicker tp = (TimePicker) view;
+                tp.setCurrentHour(hour);
+                tp.setCurrentMinute(minute);
             }
-            EditText editText = (EditText) view;
-            return expectedError.equals(editText.getError());
-        }
 
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("with error: " + expectedError);
-        }
+            @Override
+            public String getDescription() {
+                return "Set the passed time into the TimePicker";
+            }
+
+            @Override
+            public Matcher<View> getConstraints() {
+                return ViewMatchers.isAssignableFrom(TimePicker.class);
+            }
+        };
     }
 
-    public static Matcher<? super View> hasText(String expectedError) {
+    public static ViewAction selectCurrentNumber(final int number) {
+        return new ViewAction() {
+            @Override
+            public void perform(UiController uiController, View view) {
+                NumberPicker numberPicker = (NumberPicker) view;
+                numberPicker.setValue(number);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Set the passed value into the NumberPicker";
+            }
+
+            @Override
+            public Matcher<View> getConstraints() {
+                return ViewMatchers.isAssignableFrom(NumberPicker.class);
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasMinValue(final int minValue) {
+        return new TypeSafeMatcher<View>() {
+            public int assertedMinValue = Integer.MIN_VALUE;
+
+            @Override
+            public boolean matchesSafely(View view) {
+                NumberPicker numberPicker = (NumberPicker) view;
+                assertedMinValue = numberPicker.getMinValue();
+                return numberPicker.getMinValue() == minValue;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("expected minValue: "
+                        + minValue + " but it was: " + assertedMinValue);
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasErrorText(final String expectedError) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public boolean matchesSafely(View view) {
+                if (!(view instanceof EditText)) {
+                    return false;
+                }
+                EditText editText = (EditText) view;
+                return expectedError.equals(editText.getError());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with error: " + expectedError);
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasErrorText(final int resourceId) {
+        return new BoundedMatcher<View, EditText>(EditText.class) {
+            private String resourceName = null;
+            private String expectedText = null;
+
+            @Override
+            public boolean matchesSafely(EditText editText) {
+                if (null == expectedText) {
+                    try {
+                        expectedText = editText.getResources().getString(resourceId);
+                        resourceName = editText.getResources().getResourceEntryName(resourceId);
+                    } catch (Resources.NotFoundException ignored) {
+            /* view could be from a context unaware of the resource id. */
+                    }
+                }
+                if (null != expectedText) {
+                    return expectedText.equals(editText.getError());
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with string from resource id: ");
+                description.appendValue(resourceId);
+                if (null != resourceName) {
+                    description.appendText("[");
+                    description.appendText(resourceName);
+                    description.appendText("]");
+                }
+                if (null != expectedText) {
+                    description.appendText(" value: ");
+                    description.appendText(expectedText);
+                }
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasTextError(String expectedError) {
         return new HasTextMatcher(expectedError);
     }
 

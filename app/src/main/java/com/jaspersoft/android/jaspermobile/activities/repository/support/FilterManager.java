@@ -24,12 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.support;
 
+import android.accounts.Account;
 import android.support.v4.app.FragmentActivity;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterInject;
@@ -38,6 +38,7 @@ import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -59,30 +60,33 @@ public class FilterManager {
     @RootContext
     FragmentActivity activity;
     @Pref
-    LibraryPref_ repositoryPref;
-    @Inject
-    ServerInfoSnapshot serverInfo;
+    LibraryPref_ pref;
+    private ServerRelease serverRelease;
 
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(activity);
         injector.injectMembersWithoutViews(this);
+
+        Account account = JasperAccountManager.get(activity).getActiveAccount();
+        AccountServerData accountServerData = AccountServerData.get(activity, account);
+        serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
     }
 
     public ArrayList<String> getFilters() {
-        Set<String> initialTypes = repositoryPref.filterTypes().get();
+        Set<String> initialTypes = pref.filterTypes().get();
         if (initialTypes == null || initialTypes.isEmpty()) {
             putFilters(getFiltersByType(Type.ALL_FOR_LIBRARY));
         }
-        return Lists.newArrayList(repositoryPref.filterTypes().get());
+        return new ArrayList<String>(pref.filterTypes().get());
     }
 
     public void putFilters(List<String> filters) {
-        repositoryPref.filterTypes().put(Sets.newHashSet(filters));
+        pref.filterTypes().put(new HashSet<String>(filters));
     }
 
     public ArrayList<String> getFiltersByType(Type value) {
-        if (serverInfo != null && !serverInfo.isMissing() && serverInfo.isAmberRelease()) {
+        if (serverRelease == ServerRelease.AMBER) {
             return value.typesForAmber().getAsList();
         }
         return value.typesForPreAmber().getAsList();

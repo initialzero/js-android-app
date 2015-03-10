@@ -34,7 +34,7 @@ import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 /**
  * @author Tom Koptel
@@ -47,13 +47,15 @@ public class DatabaseUtils {
     public static final String TEST_USERNAME = "testuser";
     public static final String TEST_PASS = "testuser";
 
+    private DatabaseUtils() {
+        throw new AssertionError();
+    }
+
     public static long createTestProfile(ContentResolver contentResolver) {
         ServerProfiles serverProfile = new ServerProfiles();
         serverProfile.setAlias(TEST_ALIAS);
         serverProfile.setServerUrl(TEST_SERVER_URL);
         serverProfile.setOrganization(TEST_ORGANIZATION);
-        serverProfile.setUsername(TEST_USERNAME);
-        serverProfile.setPassword(TEST_PASS);
 
         Uri uri = contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
         return Long.valueOf(uri.getLastPathSegment());
@@ -68,13 +70,11 @@ public class DatabaseUtils {
 
     public static long createDefaultProfile(ContentResolver contentResolver) {
         ServerProfiles serverProfile = new ServerProfiles();
-        serverProfile.setAlias(ProfileHelper.DEFAULT_ALIAS);
-        serverProfile.setServerUrl(ProfileHelper.DEFAULT_SERVER_URL);
-        serverProfile.setOrganization(ProfileHelper.DEFAULT_ORGANIZATION);
-        serverProfile.setUsername(ProfileHelper.DEFAULT_USERNAME);
-        serverProfile.setPassword(ProfileHelper.DEFAULT_PASS);
+        serverProfile.setAlias(AccountServerData.Demo.ALIAS);
+        serverProfile.setServerUrl(AccountServerData.Demo.SERVER_URL);
+        serverProfile.setOrganization(AccountServerData.Demo.ORGANIZATION);
         serverProfile.setEdition("PRO");
-        serverProfile.setVersioncode(5.5d);
+        serverProfile.setVersionCode(5.5d);
 
         Uri uri = contentResolver.insert(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI, serverProfile.getContentValues());
         return Long.valueOf(uri.getLastPathSegment());
@@ -87,6 +87,7 @@ public class DatabaseUtils {
     public static void deleteAllFavorites(ContentResolver contentResolver) {
         contentResolver.delete(JasperMobileDbProvider.FAVORITES_CONTENT_URI, null, null);
     }
+
     public static Cursor getAllFavorites(ContentResolver contentResolver) {
         return contentResolver.query(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 FavoritesTable.ALL_COLUMNS, null, null, null);
@@ -106,6 +107,10 @@ public class DatabaseUtils {
         String[] selectionArgs = {DatabaseUtils.TEST_ALIAS};
         return contentResolver.query(JasperMobileDbProvider.SERVER_PROFILES_CONTENT_URI,
                 ServerProfilesTable.ALL_COLUMNS, selection, selectionArgs, null);
+    }
+
+    public static void deleteAllSavedItems(ContentResolver contentResolver) {
+        contentResolver.delete(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI, null, null);
     }
 
     @Nullable

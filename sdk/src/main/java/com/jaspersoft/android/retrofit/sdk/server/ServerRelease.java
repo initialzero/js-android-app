@@ -36,7 +36,8 @@ public enum ServerRelease {
     EMERALD_MR3(5.6d),
     AMBER(6.0d),
     AMBER_MR1(6.01d),
-    JADE(6.1d);
+    AMBER_MR2(6.1d),
+    JADE(7.0d);
 
     private final double mVersionCode;
 

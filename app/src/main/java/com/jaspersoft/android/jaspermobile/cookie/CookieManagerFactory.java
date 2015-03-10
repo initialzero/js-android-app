@@ -27,8 +27,6 @@ package com.jaspersoft.android.jaspermobile.cookie;
 import android.content.Context;
 import android.os.Build;
 
-import com.google.common.base.Preconditions;
-
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -41,7 +39,9 @@ public class CookieManagerFactory {
      * @param context required for initialization of {@link android.webkit.CookieSyncManager} instamce
      */
     public static void syncCookies(Context context) {
-        Preconditions.checkNotNull(context);
+        if (context == null) {
+            throw new IllegalArgumentException("Context is null");
+        }
         CookieManagerFactory.createManager(context).manage();
     }
 

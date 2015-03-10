@@ -34,7 +34,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
@@ -153,9 +152,15 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     //---------------------------------------------------------------------
 
     private void loadHtml(String html) {
-        Preconditions.checkNotNull(html);
-        Preconditions.checkNotNull(webView);
-        Preconditions.checkNotNull(jsRestClient);
+        if (html == null) {
+            throw new IllegalStateException("Html can`t be null");
+        }
+        if (webView == null) {
+            throw new IllegalStateException("WebView can`t be null");
+        }
+        if (jsRestClient == null) {
+            throw new IllegalStateException("Client can`t be null");
+        }
 
         if (!html.equals(currentHtml)) {
             currentHtml = html;

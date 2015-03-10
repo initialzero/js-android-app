@@ -27,8 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.repository.support;
 import android.accounts.Account;
 import android.support.v4.app.FragmentActivity;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -40,6 +38,7 @@ import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -79,11 +78,11 @@ public class FilterManager {
         if (initialTypes == null || initialTypes.isEmpty()) {
             putFilters(getFiltersByType(Type.ALL_FOR_LIBRARY));
         }
-        return Lists.newArrayList(pref.filterTypes().get());
+        return new ArrayList<String>(pref.filterTypes().get());
     }
 
     public void putFilters(List<String> filters) {
-        pref.filterTypes().put(Sets.newHashSet(filters));
+        pref.filterTypes().put(new HashSet<String>(filters));
     }
 
     public ArrayList<String> getFiltersByType(Type value) {

@@ -29,7 +29,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourceSearchable;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
@@ -127,7 +126,7 @@ public class ResourcesControllerFragment extends ControllerFragment
 
     @Override
     public void loadResourcesByTypes(List<String> types) {
-        resourceTypes = Lists.newArrayList(types);
+        resourceTypes = new ArrayList<String>(types);
         if (contentFragment != null) {
             contentFragment.loadResourcesByTypes(types);
         }

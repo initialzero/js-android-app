@@ -39,7 +39,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
@@ -266,7 +265,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @Override
     public void loadResourcesByTypes(List<String> types) {
-        resourceTypes = Lists.newArrayList(types);
+        resourceTypes = new ArrayList<String>(types);
         mSearchCriteria.setTypes(resourceTypes);
         mAdapter.clear();
         loadFirstPage();

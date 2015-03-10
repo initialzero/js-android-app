@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.suppor
 import android.content.DialogInterface;
 import android.support.v4.app.FragmentManager;
 
-import com.google.common.base.Preconditions;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -144,8 +143,12 @@ public class RequestExecutor {
         }
 
         public RequestExecutor create() {
-            Preconditions.checkNotNull(spiceManager);
-            Preconditions.checkNotNull(fragmentManager);
+            if (spiceManager == null) {
+                throw new IllegalStateException("Spice manager null");
+            }
+            if (fragmentManager == null) {
+                throw new IllegalStateException("Fragment manager manager null");
+            }
             return new RequestExecutor(spiceManager, fragmentManager, executionMode);
         }
     }

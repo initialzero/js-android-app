@@ -44,7 +44,6 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -227,7 +226,7 @@ public class SavedItemsFragment extends RoboFragment
     public Loader<Cursor> onCreateLoader(int code, Bundle bundle) {
         Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         StringBuilder selection = new StringBuilder("");
-        ArrayList<String> selectionArgs = Lists.newArrayList();
+        ArrayList<String> selectionArgs = new ArrayList<String>();
 
         JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
@@ -315,7 +314,7 @@ public class SavedItemsFragment extends RoboFragment
                 extension, new OnRenamedAction() {
                     @Override
                     public void onRenamed(String newFileName, String newFilePath) {
-                        long id = Lists.newArrayList(mAdapter.getCheckedItems()).get(0);
+                        long id = new ArrayList<Long>(mAdapter.getCheckedItems()).get(0);
                         Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
                                 String.valueOf(id));
 
@@ -343,7 +342,7 @@ public class SavedItemsFragment extends RoboFragment
                         }
 
                         if (file.delete() || !file.exists()) {
-                            long id = Lists.newArrayList(mAdapter.getCheckedItems()).get(0);
+                            long id = new ArrayList<Long>(mAdapter.getCheckedItems()).get(0);
                             Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
                                     String.valueOf(id));
                             getActivity().getContentResolver().delete(uri, null, null);

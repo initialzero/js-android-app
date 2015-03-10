@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.PaginationManagerFragment;
@@ -59,8 +58,12 @@ public class ReportExportOutputLoader {
     }
 
     public void loadByPage(RequestExecutor requestExecutor, ResultListener resultListener, int page) {
-        Preconditions.checkArgument(page != 0);
-        Preconditions.checkNotNull(requestExecutor);
+        if (page == 0) {
+            throw new IllegalArgumentException("Page cant be 0");
+        }
+        if (requestExecutor == null) {
+            throw new IllegalArgumentException("Request executor can`t be null");
+        }
 
         this.requestExecutor = requestExecutor;
         this.resultListener = resultListener;

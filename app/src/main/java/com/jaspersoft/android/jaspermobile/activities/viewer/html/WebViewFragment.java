@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;

@@ -30,11 +30,6 @@ import android.net.Uri;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
@@ -50,6 +45,8 @@ import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -94,13 +91,13 @@ public class FavoritesHelper {
     }
 
     public Cursor queryFavoriteByResource(ResourceLookup resource) {
-        Map<String, String> mapValues = Maps.newHashMap();
+        Map<String, String> mapValues = new HashMap<String, String>();
         mapValues.put(FavoritesTable.TITLE, resource.getLabel());
         mapValues.put(FavoritesTable.URI, resource.getUri());
         mapValues.put(FavoritesTable.WSTYPE, resource.getResourceType().toString());
         mapValues.put(FavoritesTable.ACCOUNT_NAME, JasperAccountManager.get(context).getActiveAccount().name);
 
-        List<String> conditions = Lists.newArrayList();
+        List<String> conditions = new ArrayList<String>();
         for (Map.Entry<String, String> entry : mapValues.entrySet()) {
             if (entry.getValue() == null) {
                 conditions.add(entry.getKey() + " IS NULL");
@@ -109,10 +106,19 @@ public class FavoritesHelper {
             }
         }
 
-        List<String> args = FluentIterable.from(mapValues.values())
-                .filter(Predicates.notNull())
-                .toList();
-        String selection = Joiner.on(" AND ").join(conditions);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        int count = conditions.size();
+        for (int i = 0; i < count; i++) {
+            stringBuilder.append(conditions.get(i));
+            if (i != conditions.size() - 1) {
+                stringBuilder.append(" AND ");
+            }
+        }
+
+        String selection = stringBuilder.toString();
+
+        List<String> args = new ArrayList<String>(mapValues.values());
         String[] selectionArgs = new String[mapValues.values().size()];
         args.toArray(selectionArgs);
 

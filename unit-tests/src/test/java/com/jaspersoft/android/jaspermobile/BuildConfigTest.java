@@ -45,6 +45,6 @@ public class BuildConfigTest extends UnitTestSpecification {
         } else {
             fail("build type configuration not tested or supported?");
         }
-        new BuildConfig(); // dummy coverage, should be an interface or something else
+        new BuildConfig(); // dummy coverage, should be an bridge or something else
     }
 }

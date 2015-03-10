@@ -28,8 +28,8 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import org.apache.commons.io.IOUtils;
 

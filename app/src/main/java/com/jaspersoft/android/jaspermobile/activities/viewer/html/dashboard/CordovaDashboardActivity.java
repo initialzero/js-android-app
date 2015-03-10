@@ -41,7 +41,7 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardCordovaWebClient;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
@@ -89,7 +89,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity(R.layout.activity_cordova_dashboard_viewer)
 @OptionsMenu(R.menu.dashboard_menu)
-public class CordovaDashboardActivity extends RoboToolboxActivity implements CordovaInterface, DashboardCallback {
+public class CordovaDashboardActivity extends RoboToolbarActivity implements CordovaInterface, DashboardCallback {
     private static final String FLOW_URI = "/dashboard/viewer.html?_opt=true&sessionDecorator=no&decorate=no#";
 
     @OptionsMenuItem

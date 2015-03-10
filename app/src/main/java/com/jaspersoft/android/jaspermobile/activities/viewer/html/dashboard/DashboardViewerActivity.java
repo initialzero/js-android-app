@@ -41,7 +41,7 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardLegacyWebClient;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
@@ -78,7 +78,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity(R.layout.activity_dashboard_viewer)
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardViewerActivity extends RoboToolboxActivity implements DashboardCallback  {
+public class DashboardViewerActivity extends RoboToolbarActivity implements DashboardCallback  {
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;

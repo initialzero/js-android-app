@@ -39,6 +39,7 @@
         <EditText
             android:id="@+id/ic_date_text"
             style="@style/inputControl.date.inputContainer.editText"
+            android:editable="false"
             android:focusable="false"
         />
 

@@ -24,25 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
 
-import android.content.Context;
-import android.webkit.WebView;
-
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-class AmberWebFlowStrategy extends AbstractWebFlow {
+final class AmberWebFlow implements WebFlow {
     private static final String FLOW_URI = "/dashboard/viewer.html?_opt=true&sessionDecorator=no&decorate=no#";
 
-    public AmberWebFlowStrategy(Context context, ResourceLookup resource) {
-        super(context, resource);
-    }
-
     @Override
-    public void load(WebView webView) {
-        String dashboardUrl = mServerUrl + FLOW_URI + mUri;
-        webView.loadUrl(dashboardUrl);
+    public String getFlowUri() {
+        return FLOW_URI;
     }
 }

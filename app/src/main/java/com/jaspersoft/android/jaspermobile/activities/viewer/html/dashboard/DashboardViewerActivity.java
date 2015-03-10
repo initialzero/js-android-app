@@ -26,24 +26,28 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
+import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter.DashboardPresenter;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter.PresenterFactory;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardLegacyWebClient;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowStrategy;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings.GeneralWebViewSettings;
-import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -57,10 +61,12 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.WindowFeature;
 
 import java.lang.ref.WeakReference;
+import java.util.LinkedList;
+import java.util.List;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
@@ -72,7 +78,7 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 @EActivity(R.layout.activity_dashboard_viewer)
 @OptionsMenu(R.menu.dashboard_menu)
-public class DashboardViewerActivity extends RoboToolboxActivity {
+public class DashboardViewerActivity extends RoboToolboxActivity implements DashboardCallback  {
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -89,13 +95,15 @@ public class DashboardViewerActivity extends RoboToolboxActivity {
 
     @InstanceState
     protected Uri favoriteEntryUri;
+    @InstanceState
+    protected boolean mMaximized;
 
     @ViewById
     protected WebView webView;
     @ViewById
     protected ProgressBar progressBar;
 
-    private DashboardPresenter dashboardPresenter;
+    private ChromeClient chromeClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,18 +117,17 @@ public class DashboardViewerActivity extends RoboToolboxActivity {
 
     @AfterViews
     final void init() {
+        setupSettings();
+
+        chromeClient = new ChromeClient();
+        webView.setWebChromeClient(chromeClient);
+
         jsWebViewClient.setSessionListener(new SessionListener(new WeakReference<Activity>(this)));
+        webView.setWebViewClient(new DashboardLegacyWebClient(jsWebViewClient));
+        webView.addJavascriptInterface(new DashboardWebInterface(this), "Android");
+        webView.setInitialScale(2);
 
-        CookieManagerFactory.syncCookies(this);
-
-        GeneralWebViewSettings.configure(webView);
-        webView.setWebChromeClient(new ChromeClient());
-
-        dashboardPresenter = PresenterFactory.getInstance(this).createPresenter(resource);
-        dashboardPresenter.initialize(webView, resource);
-
-        WebFlowStrategy webFlow = WebFlowFactory.getInstance(this).createFlow(resource);
-        webFlow.load(webView);
+        WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
     }
 
     @Override
@@ -128,6 +135,12 @@ public class DashboardViewerActivity extends RoboToolboxActivity {
         boolean result = super.onCreateOptionsMenu(menu);
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_star_outline : R.drawable.ic_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+
+        if (BuildConfig.DEBUG) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.debug, menu);
+        }
+
         return result;
     }
 
@@ -152,11 +165,58 @@ public class DashboardViewerActivity extends RoboToolboxActivity {
                 .show();
     }
 
+    @OptionsItem
+    final void showLog() {
+        if (chromeClient != null) {
+            LogDialog.create(getSupportFragmentManager(), chromeClient.messages);
+        }
+    }
+
+    private void setupSettings() {
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setUseWideViewPort(true);
+        settings.setSupportZoom(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(true);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        }
+    }
+
     @Override
     public void onBackPressed() {
-        if (!dashboardPresenter.onBackPressed()) {
+        if (mMaximized && webView != null) {
+            webView.loadUrl("javascript:DashboardWrapper.minimizeDashlet()");
+            scrollableTitleHelper.injectTitle("Test");
+        } else {
             super.onBackPressed();
         }
+    }
+
+    @UiThread
+    @Override
+    public void onMaximize(String title) {
+        mMaximized = true;
+        scrollableTitleHelper.injectTitle(title);
+    }
+
+    @UiThread
+    @Override
+    public void onMinimize() {
+        mMaximized = false;
+    }
+
+    @UiThread
+    @Override
+    public void onWrapperLoaded() {
+        webView.loadUrl("javascript:DashboardWrapper.wrapScreen('100%', '100%')");
+    }
+
+    @Override
+    public void onDashletsLoaded() {
     }
 
     private static class SessionListener implements JSWebViewClient.SessionListener {
@@ -176,12 +236,21 @@ public class DashboardViewerActivity extends RoboToolboxActivity {
     }
 
     private class ChromeClient extends WebChromeClient {
+        private final List<ConsoleMessage> messages = new LinkedList<ConsoleMessage>();
+
+        @Override
         public void onProgressChanged(WebView view, int progress) {
             int maxProgress = progressBar.getMax();
             progressBar.setProgress((maxProgress / 100) * progress);
             if (progress == maxProgress) {
                 progressBar.setVisibility(View.GONE);
             }
+        }
+
+        @Override
+        public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+            messages.add(consoleMessage);
+            return super.onConsoleMessage(consoleMessage);
         }
     }
 }

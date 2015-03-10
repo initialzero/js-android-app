@@ -22,27 +22,16 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
-
-import android.accounts.Account;
-import android.content.Context;
-
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public abstract class AbstractWebFlow implements WebFlowStrategy {
-    protected final String mServerUrl;
-    protected final String mUri;
+final class AmberDashboardScriptTagCreator extends DashboardScriptTagCreator {
+    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-android-mobilejs-sdk.js";
 
-    public AbstractWebFlow(Context context, ResourceLookup resource) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(context, account);
-        mServerUrl = accountServerData.getServerUrl();
-        mUri = resource.getUri();
+    public AmberDashboardScriptTagCreator() {
+        super(CLIENT_SCRIPT_SRC);
     }
 }

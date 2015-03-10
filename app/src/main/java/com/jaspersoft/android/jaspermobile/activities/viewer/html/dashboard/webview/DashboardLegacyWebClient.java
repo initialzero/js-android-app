@@ -31,20 +31,22 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagFactory;
+
 import java.io.IOException;
 
 import timber.log.Timber;
+
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagCreator.INJECTION_TOKEN;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class DashboardWebClient extends WebViewClient {
-    private static final String INJECTION_TOKEN = "**injection**";
-    private static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-android-mobilejs-sdk.js";
+public class DashboardLegacyWebClient extends WebViewClient {
     private final WebViewClient mDecoratedClient;
 
-    public DashboardWebClient(WebViewClient decoratedClient) {
+    public DashboardLegacyWebClient(WebViewClient decoratedClient) {
         mDecoratedClient = decoratedClient;
     }
 
@@ -55,13 +57,7 @@ public class DashboardWebClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        StringBuilder jsBuilder = new StringBuilder()
-                .append("var head= document.getElementsByTagName('head')[0];")
-                .append("var script= document.createElement('script');")
-                .append("script.type= 'text/javascript';")
-                .append("script.src= '"+ CLIENT_SCRIPT_SRC + "';")
-                .append("head.appendChild(script)");
-        view.loadUrl("javascript:" + jsBuilder.toString());
+        view.loadUrl("javascript:" + ScriptTagFactory.getInstance(view.getContext()).getTagCreator().createTag());
     }
 
     @Override

@@ -21,30 +21,18 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-import android.view.View;
-import android.webkit.WebView;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-class HoneycombWebViewSettings implements WebViewSettings {
-    private final WebViewSettings mDecorated;
+final class EmeraldWebFlow implements WebFlow {
+    private static final String FLOW_URI = "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource=";
 
-    public HoneycombWebViewSettings(WebViewSettings decorated) {
-        mDecorated = decorated;
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public void setup(WebView webView) {
-        mDecorated.setup(webView);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        }
+    public String getFlowUri() {
+        return FLOW_URI;
     }
 }

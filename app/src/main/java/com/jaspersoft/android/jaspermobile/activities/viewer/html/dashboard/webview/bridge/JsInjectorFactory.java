@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -30,55 +30,40 @@ import android.content.Context;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public final class WebFlowFactory {
+public class JsInjectorFactory {
     private final Context mContext;
 
-    private WebFlowFactory(Context context) {
+    private JsInjectorFactory(Context context) {
         mContext = context;
     }
 
-    public static WebFlowFactory getInstance(Context context) {
-        return new WebFlowFactory(context);
+    public static JsInjectorFactory getInstance(Context context) {
+        return new JsInjectorFactory(context);
     }
 
-    public WebFlowStrategy createFlow(ResourceLookup resource) {
+    public JsInterfaceInjector createInjector() {
         Account account = JasperAccountManager.get(mContext).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(mContext, account);
-        return createFlow(accountServerData.getVersionName(), resource);
-    }
-
-    /**
-     * Creates most appropriate strategy
-     *
-     * @param versionName represents double string to identify current JRS version
-     * @return specific web flow strategy which varies between JRS releases
-     */
-    public WebFlowStrategy createFlow(String versionName, ResourceLookup resource) {
-        WebFlow webFlow;
-        ServerRelease serverRelease = ServerRelease.parseVersion(versionName);
+        String versionName = accountServerData.getVersionName();
+        ServerRelease serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
 
         switch (serverRelease) {
             case EMERALD:
             case EMERALD_MR1:
             case EMERALD_MR2:
             case EMERALD_MR3:
-                webFlow = new EmeraldWebFlow();
-                break;
+               return new EmeraldJsInterfaceInjector();
             case AMBER:
             case AMBER_MR1:
             case AMBER_MR2:
-                webFlow = new AmberWebFlow();
-                break;
+                return new AmberJsInterfaceInjector();
             default:
-                throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);
+                throw new UnsupportedOperationException("Could not identify web js interface injector for current versionName: " + versionName);
         }
-
-        return new WebFlowStrategyImpl(mContext, webFlow, resource);
     }
 }

@@ -29,6 +29,7 @@ import android.os.Build;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
@@ -38,16 +39,26 @@ import java.io.IOException;
 
 import timber.log.Timber;
 
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagCreator.INJECTION_TOKEN;
+
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class DashboardWebClient2 extends CordovaWebViewClient {
-    private static final String INJECTION_TOKEN = "**injection**";
-    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-android-mobilejs-sdk.js";
+public class DashboardCordovaWebClient extends CordovaWebViewClient {
 
-    public DashboardWebClient2(CordovaInterface cordova, CordovaWebView view) {
+    private final WebViewClient decoratedWebViewClient;
+
+    public DashboardCordovaWebClient(CordovaInterface cordova, CordovaWebView view, WebViewClient webViewClient) {
         super(cordova, view);
+        decoratedWebViewClient = webViewClient;
+    }
+
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        boolean defaultResult = super.shouldOverrideUrlLoading(view, url);
+        boolean decoratedResult = decoratedWebViewClient.shouldOverrideUrlLoading(view, url);
+        return defaultResult && decoratedResult;
     }
 
     @Override
@@ -80,4 +91,5 @@ public class DashboardWebClient2 extends CordovaWebViewClient {
         }
         return response;
     }
+
 }

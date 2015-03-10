@@ -21,30 +21,27 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-class JellyBeanWebViewSettings implements WebViewSettings {
-    private final WebViewSettings mDecorated;
+public abstract class DashboardScriptTagCreator implements ScriptTagCreator {
+    private final String source;
 
-    public JellyBeanWebViewSettings(WebViewSettings decorated) {
-        mDecorated = decorated;
+    protected DashboardScriptTagCreator(String source) {
+        this.source = source;
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public void setup(WebView webView) {
-        mDecorated.setup(webView);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        }
+    public String createTag() {
+        return new StringBuilder()
+                .append("var head= document.getElementsByTagName('head')[0];")
+                .append("var script= document.createElement('script');")
+                .append("script.type= 'text/javascript';")
+                .append("script.src= '" + source + "';")
+                .append("head.appendChild(script)").toString();
     }
 }

@@ -22,34 +22,19 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.presenter;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
 
+import android.annotation.SuppressLint;
 import android.webkit.WebView;
-
-import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-
-import org.androidannotations.annotations.Bean;
-import org.androidannotations.annotations.EBean;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-@EBean
-public class EmeraldPresenter implements DashboardPresenter {
-
-    @Bean
-    protected JSWebViewClient jsWebViewClient;
-
+final class AmberJsInterfaceInjector implements JsInterfaceInjector {
+    @SuppressLint({"JavascriptInterface", "AddJavascriptInterface"})
     @Override
-    public void initialize(WebView webView, ResourceLookup resource) {
-        webView.setWebViewClient(jsWebViewClient);
+    public void inject(WebView webView, Object bridge) {
+        webView.addJavascriptInterface(bridge, "Android");
     }
-
-    @Override
-    public boolean onBackPressed() {
-        return false;
-    }
-
 }

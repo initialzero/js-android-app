@@ -22,24 +22,16 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.settings;
-
-import android.webkit.WebView;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class GeneralWebViewSettings implements WebViewSettings {
-    @Override
-    public void setup(WebView webView) {
-        CommonWebViewSettings webViewSettings = new CommonWebViewSettings();
-        HoneycombWebViewSettings honeycombWebViewSettings = new HoneycombWebViewSettings(webViewSettings);
-        JellyBeanWebViewSettings jellyBeanWebViewSettings = new JellyBeanWebViewSettings(honeycombWebViewSettings);
-        jellyBeanWebViewSettings.setup(webView);
-    }
+final class EmeraldDashboardScriptTagCreator extends DashboardScriptTagCreator {
+    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-legacy-mobilejs-sdk.js";
 
-    public static void configure(WebView webView) {
-        new GeneralWebViewSettings().setup(webView);
+    public EmeraldDashboardScriptTagCreator() {
+        super(CLIENT_SCRIPT_SRC);
     }
 }

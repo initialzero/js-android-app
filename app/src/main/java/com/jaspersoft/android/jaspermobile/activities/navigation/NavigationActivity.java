@@ -1,11 +1,9 @@
 package com.jaspersoft.android.jaspermobile.activities.navigation;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -22,7 +20,7 @@ import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.LibraryFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -43,9 +41,8 @@ import java.util.List;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends RoboToolboxActivity {
+public class NavigationActivity extends RoboToolbarActivity {
 
-    public static final String CURRENT_TAG = "CURRENT_FRAGMENT";
     private static final int NEW_ACCOUNT = 20;
 
     @ViewById(R.id.dl_navigation)
@@ -55,7 +52,7 @@ public class NavigationActivity extends RoboToolboxActivity {
     private ActionBarDrawerToggle mDrawerToggle;
 
     @Extra
-    protected int defaultSelection = R.id.vg_library;
+    protected int currentSelection = R.id.vg_library;
 
     @AfterViews
     final void setupNavigation() {
@@ -150,37 +147,36 @@ public class NavigationActivity extends RoboToolboxActivity {
     }
 
     private void navigateToCurrentSelection() {
-        handleNavigationAction(defaultSelection);
-        navigationPanelLayout.setItemSelected(defaultSelection);
+        handleNavigationAction(currentSelection);
+        navigationPanelLayout.setItemSelected(currentSelection);
     }
 
     private void handleNavigationAction(int viewId) {
         switch (viewId) {
             case R.id.vg_library:
-                defaultSelection = R.id.vg_library;
+                currentSelection = R.id.vg_library;
                 commitContent(LibraryFragment_.builder().build());
                 break;
             case R.id.vg_repository:
-                defaultSelection = R.id.vg_repository;
+                currentSelection = R.id.vg_repository;
                 commitContent(RepositoryFragment_.builder().build());
                 break;
             case R.id.vg_saved_items:
-                defaultSelection = R.id.vg_saved_items;
+                currentSelection = R.id.vg_saved_items;
                 commitContent(SavedReportsFragment_.builder().build());
                 break;
             case R.id.vg_favorites:
-                defaultSelection = R.id.vg_favorites;
+                currentSelection = R.id.vg_favorites;
                 commitContent(FavoritesPageFragment_.builder().build());
                 break;
             case R.id.vg_add_account:
                 startActivityForResult(new Intent(this, AuthenticatorActivity.class), NEW_ACCOUNT);
                 break;
             case R.id.vg_manage_accounts:
-                String[] authorities = {"com.jaspersoft.android.jaspermobile.db.provider"};
-                Intent intent = new Intent(Settings.ACTION_SYNC_SETTINGS);
-                intent.putExtra(Settings.EXTRA_AUTHORITIES, authorities);
-                addExtraTypes(intent);
-                startActivity(intent);
+                String[] authorities = {getString(R.string.jasper_account_authority)};
+                Intent manageAccIntent = new Intent(Settings.ACTION_SYNC_SETTINGS);
+                manageAccIntent.putExtra(Settings.EXTRA_AUTHORITIES, authorities);
+                startActivity(manageAccIntent);
                 break;
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
@@ -191,12 +187,6 @@ public class NavigationActivity extends RoboToolboxActivity {
             case R.id.tv_about:
                 new AboutDialogFragment().show(getSupportFragmentManager(), AboutDialogFragment.class.getSimpleName());
         }
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void addExtraTypes(Intent intent) {
-        String[] types = {"com.jaspersoft"};
-        intent.putExtra(Settings.EXTRA_ACCOUNT_TYPES, types);
     }
 
     private void activateAccount(@NonNull Account account) {
@@ -219,7 +209,7 @@ public class NavigationActivity extends RoboToolboxActivity {
             }
         }
         transaction
-                .replace(R.id.main_frame, directFragment, CURRENT_TAG)
+                .replace(R.id.main_frame, directFragment)
                 .commit();
     }
 

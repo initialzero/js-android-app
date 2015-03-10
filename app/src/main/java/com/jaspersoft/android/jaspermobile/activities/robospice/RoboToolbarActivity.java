@@ -35,9 +35,9 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-public class RoboToolboxActivity extends RoboActionBarActivity {
+public class RoboToolbarActivity extends RoboActionBarActivity {
 
-    private static final String TAG = RoboToolboxActivity.class.getSimpleName();
+    private static final String TAG = RoboToolbarActivity.class.getSimpleName();
     private static final int AUTHORIZE_CODE = 10;
 
     private Toolbar toolbar;

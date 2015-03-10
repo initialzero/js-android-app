@@ -28,7 +28,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolboxActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.FilterManagerFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.FilterManagerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.PaginationManagerFragment;
@@ -52,7 +52,7 @@ import org.androidannotations.annotations.Extra;
  * @since 1.4
  */
 @EActivity(R.layout.report_viewer_layout)
-public class ReportHtmlViewerActivity extends RoboToolboxActivity {
+public class ReportHtmlViewerActivity extends RoboToolbarActivity {
 
     // Extras
     public static final String EXTRA_REPORT_PARAMETERS = "ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS";

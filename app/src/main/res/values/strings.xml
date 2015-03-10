@@ -256,6 +256,8 @@
     <string name="account_add" translatable="false">Adding account</string>
     <string name="account_activating" translatable="false">Activating account</string>
     <string name="account_password_changed" translatable="false"><![CDATA[Invalid password for \"%s\"]]></string>
+    <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
+    <string name="jasper_account_authority" translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
 
     <!--Dashboard activity-->
     <string name="da_session_expired" translatable="false">Session expired</string>

@@ -216,6 +216,19 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/default_authenticator" />
         </service>
+
+        <!-- The SyncAdapter service -->
+        <service
+            android:name=".auth.JasperSyncService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_adapter" />
+        </service>
+
     </application>
 
 </manifest>

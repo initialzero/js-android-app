@@ -27,8 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 import android.accounts.Account;
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
-import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -43,6 +41,7 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterViews;
@@ -62,6 +61,7 @@ import org.apache.cordova.PluginEntry;
 import org.apache.cordova.Whitelist;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -93,6 +93,13 @@ public class CordovaDashboardActivity extends RoboToolboxActivity implements Cor
 
     @AfterViews
     final void init() {
+        WebSettings settings = webView.getSettings();
+        settings.setUseWideViewPort(true);
+        settings.setSupportZoom(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(true);
+
         Whitelist whitelist = new Whitelist();
         whitelist.addWhiteListEntry("http://*/*", true);
         whitelist.addWhiteListEntry("https://*/*", true);
@@ -104,24 +111,18 @@ public class CordovaDashboardActivity extends RoboToolboxActivity implements Cor
         webView.init(this, webViewClient2, chromeClient, pluginEntries, whitelist, whitelist, cordovaPreferences);
         webView.addJavascriptInterface(new DashboardWebInterface(this), "Android");
 
-        WebSettings settings = webView.getSettings();
-        settings.setUseWideViewPort(true);
-        settings.setSupportZoom(true);
-        settings.setLoadWithOverviewMode(true);
-        settings.setBuiltInZoomControls(true);
-        settings.setDisplayZoomControls(true);
-
         Account account = JasperAccountManager.get(this).getActiveAccount();
         AccountServerData serverData = AccountServerData.get(this, account);
-
-        String serverUrl = serverData.getServerUrl();
-        String jasperHost = Uri.parse(serverUrl).getHost();
-        String username = TextUtils.isEmpty(serverData.getOrganization()) ?
-                serverData.getUsername() : serverData.getOrganization() + ":" + serverData.getUsername();
-        webView.setHttpAuthUsernamePassword(jasperHost, "", username, serverData.getPassword());
+        BasicAccessTokenEncoder tokenEncoder = BasicAccessTokenEncoder.builder()
+                .setUsername(serverData.getUsername())
+                .setOrganization(serverData.getOrganization())
+                .setPassword(serverData.getPassword())
+                .build();
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("Authorization",  tokenEncoder.encodeToken());
 
         String url = serverData.getServerUrl() + FLOW_URI + resource.getUri();
-        webView.loadUrl(url);
+        webView.loadUrl(url, map);
     }
 
     @Override

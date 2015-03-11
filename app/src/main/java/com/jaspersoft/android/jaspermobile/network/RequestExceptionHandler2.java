@@ -37,6 +37,8 @@ import com.octo.android.robospice.exception.NetworkException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
+import retrofit.RetrofitError;
+
 /**
  * @author Ivan Gadzhega
  * @since 1.6
@@ -57,14 +59,10 @@ public class RequestExceptionHandler2 {
         }
     }
 
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
-
     /**
      * Extracts HttpStatus code otherwise returns 0.
      */
-    private static int extractStatusCode(Exception exception) {
+    public static int extractStatusCode(Exception exception) {
         if (exception instanceof NetworkException) {
             Throwable cause = exception.getCause();
             if (cause instanceof HttpStatusCodeException) {
@@ -75,8 +73,15 @@ public class RequestExceptionHandler2 {
                 return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
             }
         }
+        else if(exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
+            return ((RetrofitError) exception).getResponse().getStatus();
+        }
         return 0;
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     /**
      * Extracts Localized message otherwise returns null.

@@ -41,6 +41,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler2;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
@@ -54,6 +55,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,9 +107,18 @@ public class AuthenticatorFragment extends RoboFragment {
         @Override
         public void call(Throwable throwable) {
             Timber.e(throwable, "Login failed");
-            Toast.makeText(getActivity(),
-                    getString(R.string.failure_add_account, throwable.getMessage()),
-                    Toast.LENGTH_LONG).show();
+
+            String exceptionMessage;
+            int statusCode = RequestExceptionHandler2.extractStatusCode((Exception) throwable);
+            if (statusCode == HttpStatus.NOT_FOUND.value()) {
+                exceptionMessage = getString(R.string.r_error_server_not_found);
+            } else if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
+                exceptionMessage = getString(R.string.r_error_incorrect_credentials);
+            } else {
+                exceptionMessage = getString(R.string.failure_add_account, throwable.getMessage());
+            }
+
+            Toast.makeText(getActivity(), exceptionMessage, Toast.LENGTH_LONG).show();
             setProgressEnabled(false);
         }
     };

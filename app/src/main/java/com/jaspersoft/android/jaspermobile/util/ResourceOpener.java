@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.accounts.Account;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -40,6 +41,10 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterM
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.CordovaDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.DashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -99,8 +104,28 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        ReportHtmlViewerActivity_.intent(activity)
-                .resource(resource).start();
+        Account account = JasperAccountManager.get(activity).getActiveAccount();
+        AccountServerData accountServerData = AccountServerData.get(activity, account);
+        String versionName = accountServerData.getVersionName();
+        ServerRelease serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+
+        switch (serverRelease) {
+            case EMERALD:
+            case EMERALD_MR1:
+            case EMERALD_MR2:
+            case EMERALD_MR3:
+                ReportHtmlViewerActivity_.intent(activity)
+                        .resource(resource).start();
+                break;
+            case AMBER:
+            case AMBER_MR1:
+            case AMBER_MR2:
+                ReportViewerActivity_.intent(activity)
+                        .resource(resource).start();
+                break;
+            default:
+                throw new UnsupportedOperationException("Could not open viewer for current versionName: " + versionName);
+        }
     }
 
     private void runDashboard(ResourceLookup resource) {

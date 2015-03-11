@@ -96,7 +96,7 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
     @OptionsMenuItem
     protected MenuItem favoriteAction;
 
-    @ViewById(R.id.cordova)
+    @ViewById
     protected CordovaWebView webView;
     @ViewById
     protected ProgressBar progressBar;

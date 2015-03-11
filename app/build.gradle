@@ -165,6 +165,9 @@ dependencies {
     // Dependency for image loading management
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
 
+    // Template rendering
+    compile 'com.samskivert:jmustache:1.10'
+
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
     androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
 

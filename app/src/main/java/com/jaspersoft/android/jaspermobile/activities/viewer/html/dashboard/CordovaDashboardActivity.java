@@ -46,6 +46,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.JsInjectorFactory;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboard;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
@@ -168,7 +169,7 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
     @Override
     public void onBackPressed() {
         if (mMaximized && webView != null) {
-            webView.loadUrl("javascript:DashboardWrapper.minimizeDashlet()");
+            webView.loadUrl(MobileDashboard.minimizeDashlet());
             scrollableTitleHelper.injectTitle("Test");
         } else {
             super.onBackPressed();
@@ -191,7 +192,7 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
     @UiThread
     @Override
     public void onWrapperLoaded() {
-        webView.loadUrl("javascript:DashboardWrapper.wrapScreen('100%', '100%')");
+        webView.loadUrl(MobileDashboard.wrapScreen());
     }
 
     @Override

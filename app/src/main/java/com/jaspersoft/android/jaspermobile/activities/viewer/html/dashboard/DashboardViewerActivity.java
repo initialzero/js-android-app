@@ -45,6 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardLegacyWebClient;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboard;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowStrategy;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
@@ -189,7 +190,7 @@ public class DashboardViewerActivity extends RoboToolbarActivity implements Dash
     @Override
     public void onBackPressed() {
         if (mMaximized && webView != null) {
-            webView.loadUrl("javascript:DashboardWrapper.minimizeDashlet()");
+            webView.loadUrl(MobileDashboard.minimizeDashlet());
             scrollableTitleHelper.injectTitle("Test");
         } else {
             super.onBackPressed();
@@ -212,7 +213,7 @@ public class DashboardViewerActivity extends RoboToolbarActivity implements Dash
     @UiThread
     @Override
     public void onWrapperLoaded() {
-        webView.loadUrl("javascript:DashboardWrapper.wrapScreen('100%', '100%')");
+        webView.loadUrl(MobileDashboard.wrapScreen());
     }
 
     @Override

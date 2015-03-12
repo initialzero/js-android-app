@@ -67,9 +67,10 @@ public class JSWebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         String jasperHost = Uri.parse(serverUrl).getHost();
+        String linkHost = Uri.parse(url).getHost();
 
         // This is my Jasper site, let WebView load the page with additional parameter
-        if (Uri.parse(url).getHost().equals(jasperHost)) {
+        if (linkHost != null && linkHost.equals(jasperHost)) {
             if (url.contains("login.html")) {
                 Intent intent = new Intent(JasperSettings.ACTION_TOKEN_EXPIRED);
                 activity.sendBroadcast(intent);

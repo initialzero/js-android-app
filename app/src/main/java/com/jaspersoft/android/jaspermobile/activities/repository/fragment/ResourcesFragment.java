@@ -139,6 +139,8 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     protected boolean mLoading;
     @InstanceState
+    protected boolean mRequestUnfinished;
+    @InstanceState
     protected int mLoaderState = LOAD_FROM_CACHE;
 
     @Bean
@@ -195,13 +197,26 @@ public class ResourcesFragment extends RoboSpiceFragment
         listView.setOnScrollListener(new ScrollListener());
         setDataAdapter(savedInstanceState);
         updatePaginationPolicy();
+        loadPage();
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        loadStartPage();
+        if(mRequestUnfinished) {
+            loadPage();
+            mRequestUnfinished = false;
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if(mLoading) {
+            mRequestUnfinished = true;
+        }
     }
 
     @Override
@@ -247,7 +262,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
-        loadStartPage();
+        loadPage();
     }
 
     //---------------------------------------------------------------------
@@ -358,7 +373,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
-    private void loadStartPage(){
+    private void loadPage(){
         boolean isRepository = !recursiveLookup;
         boolean isRoot = TextUtils.isEmpty(resourceUri);
         boolean isProJrs = mServerData.getEdition().equals("PRO");
@@ -402,6 +417,9 @@ public class ResourcesFragment extends RoboSpiceFragment
             publicLookup.setLabel("Public");
             publicLookup.setUri("/public");
             mAdapter.add(publicLookup);
+
+            mAdapter.setNotifyOnChange(true);
+            mAdapter.notifyDataSetChanged();
 
             setRefreshState(false);
             showEmptyText(emptyMessage);

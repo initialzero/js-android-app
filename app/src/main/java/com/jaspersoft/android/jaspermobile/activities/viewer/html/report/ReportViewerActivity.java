@@ -26,9 +26,13 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
 import android.accounts.Account;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,8 +44,12 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardCordovaWebClient;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParameterAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.CordovaInterfaceImpl;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.SessionListener;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.SimpleChromeClient;
@@ -56,6 +64,8 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
@@ -65,6 +75,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -81,10 +92,14 @@ import org.apache.cordova.Whitelist;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS;
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
 /**
  * @author Tom Koptel
@@ -92,7 +107,7 @@ import java.util.Map;
  */
 @OptionsMenu(R.menu.retrofit_report_menu)
 @EActivity(R.layout.activity_cordova_dashboard_viewer)
-public class ReportViewerActivity extends RoboToolbarActivity implements ReportCallback, AbstractPaginationView.OnPageChangeListener {
+public class ReportViewerActivity extends RoboToolbarActivity implements ReportCallback, AbstractPaginationView.OnPageChangeListener, GetInputControlsFragment.OnInputControlsListener {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -100,6 +115,8 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
     protected FavoritesHelper favoritesHelper;
+    @Bean
+    protected ReportParameterAdapter reportParameterAdapter;
 
     @ViewById
     protected CordovaWebView webView;
@@ -124,6 +141,7 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         scrollableTitleHelper.injectTitle(resource.getLabel());
+        reportParameterAdapter.restore(savedInstanceState);
 
         if (savedInstanceState == null) {
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
@@ -139,7 +157,20 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
         setupSettings();
         setupJsInterface();
         initCordovaWebView();
-        loadFlow();
+        loadInputControls();
+    }
+
+    private void loadInputControls() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        GetInputControlsFragment fragment = (GetInputControlsFragment)
+                fragmentManager.findFragmentByTag(GetInputControlsFragment.TAG);
+        if (fragment == null) {
+            fragment = GetInputControlsFragment_.builder()
+                    .resourceUri(resource.getUri()).build();
+            getSupportFragmentManager().beginTransaction()
+                    .add(fragment, GetInputControlsFragment.TAG).commit();
+        }
     }
 
     @Override
@@ -157,6 +188,12 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        reportParameterAdapter.save(outState);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
 
@@ -169,6 +206,37 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     final void showLog() {
         if (chromeClient != null) {
             LogDialog.create(getSupportFragmentManager(), chromeClient.getMessages());
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Input controls loading callbacks
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onLoaded(List<InputControl> inputControls) {
+        boolean noControls = inputControls.isEmpty();
+
+        if (noControls) {
+            loadFlow();
+        } else {
+            showInputControlsPage(inputControls);
+        }
+    }
+
+    @Override
+    public void onShowControls(List<InputControl> inputControls) {
+        showInputControlsPage(inputControls);
+    }
+
+    @OnActivityResult(REQUEST_REPORT_PARAMETERS)
+    final void loadFlowWithControls(int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            ArrayList<ReportParameter> reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
+            reportParameterAdapter.add(reportParameters);
+            loadFlow();
+        } else {
+            finish();
         }
     }
 
@@ -189,11 +257,22 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     @Override
     public void onScriptLoaded() {
         String organization = TextUtils.isEmpty(accountServerData.getOrganization()) ? "" : accountServerData.getOrganization();
-        String executeScript = String.format("javascript:MobileReport.run({ \"uri\": \"%s\", \"username\": \"%s\", \"password\": \"%s\", \"organization\": \"%s\" })",
+        StringBuilder builder = new StringBuilder();
+        builder.append("javascript:MobileReport.run")
+                .append("({")
+                .append("\"uri\": \"%s\",")
+                .append("\"username\": \"%s\",")
+                .append("\"password\": \"%s\",")
+                .append("\"organization\": \"%s\",")
+                .append("\"params\": %s")
+                .append("})");
+
+        String executeScript = String.format(builder.toString(),
                 resource.getUri(),
                 accountServerData.getUsername(),
                 accountServerData.getPassword(),
-                organization);
+                organization,
+                reportParameterAdapter.getParams());
         webView.loadUrl(executeScript);
     }
 
@@ -219,9 +298,13 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     @UiThread
     @Override
     public void onTotalPagesLoaded(int pages) {
-        if (pages > 1) {
-            paginationControl.setVisibility(View.VISIBLE);
-            paginationControl.setTotalCount(pages);
+        if (pages == 0) {
+            reportParameterAdapter.removeParams();
+        } else {
+            if (pages > 1) {
+                paginationControl.setVisibility(View.VISIBLE);
+                paginationControl.setTotalCount(pages);
+            }
         }
     }
 
@@ -302,4 +385,14 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
             }
         }
     }
+
+    private void showInputControlsPage(List<InputControl> inputControls) {
+        Intent intent = new Intent(this, ReportOptionsActivity.class);
+        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
+        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
+        intent.putParcelableArrayListExtra(
+                ReportOptionsActivity.EXTRA_REPORT_CONTROLS, new ArrayList<Parcelable>(inputControls));
+        startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
+    }
+
 }

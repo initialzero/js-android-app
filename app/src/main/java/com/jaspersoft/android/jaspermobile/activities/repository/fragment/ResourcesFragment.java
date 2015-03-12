@@ -201,16 +201,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onStart() {
         super.onStart();
 
-        mAdapter.clear();
-
-        boolean isRepository = !recursiveLookup;
-        boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = mServerData.getEdition().equals("PRO");
-        if (isRepository && isRoot && isProJrs) {
-            loadRootFolders();
-        } else {
-            loadFirstPage();
-        }
+        loadStartPage();
     }
 
     @Override
@@ -256,7 +247,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
-        loadFirstPage();
+        loadStartPage();
     }
 
     //---------------------------------------------------------------------
@@ -367,6 +358,17 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
+    private void loadStartPage(){
+        boolean isRepository = !recursiveLookup;
+        boolean isRoot = TextUtils.isEmpty(resourceUri);
+        boolean isProJrs = mServerData.getEdition().equals("PRO");
+        if (isRepository && isRoot && isProJrs) {
+            loadRootFolders();
+        } else {
+            loadFirstPage();
+        }
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -387,6 +389,12 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         @Override
         public void onRequestSuccess(FolderDataResponse folderDataResponse) {
+            // Do this for explicit refresh during pull to refresh interaction
+            if (mLoaderState == LOAD_FROM_NETWORK) {
+                mAdapter.setNotifyOnChange(false);
+                mAdapter.clear();
+            }
+
             mAdapter.add(folderDataResponse);
 
             ResourceLookup publicLookup = new ResourceLookup();

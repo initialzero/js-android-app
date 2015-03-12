@@ -190,6 +190,12 @@
         this.totalPages = 0;
       }
 
+      ReportController.prototype.selectPage = function(page) {
+        if (this.loader != null) {
+          return this.loader.pages(page).run().done(this._processSuccess).fail(this._processErrors);
+        }
+      };
+
       ReportController.prototype.runReport = function() {
         this.callback.onLoadStart();
         this.logger.log("start loading visualize");
@@ -198,7 +204,7 @@
 
       ReportController.prototype._executeReport = function(visualize) {
         this.logger.log("start report execution");
-        return visualize.report({
+        return this.loader = visualize.report({
           resource: this.uri,
           params: this.params,
           container: "#container",
@@ -260,12 +266,21 @@
         return this._instance.run(options);
       };
 
+      MobileReport.selectPage = function(page) {
+        return this._instance.selectPage(page);
+      };
+
+      MobileReport.prototype.selectPage = function(page) {
+        if (this.reportController) {
+          return this.reportController.selectPage(page);
+        }
+      };
+
       MobileReport.prototype.run = function(options) {
-        var reportController;
         options.session = new Session(options);
         options.context = this.context;
-        reportController = new ReportController(options);
-        return reportController.runReport();
+        this.reportController = new ReportController(options);
+        return this.reportController.runReport();
       };
 
       return MobileReport;

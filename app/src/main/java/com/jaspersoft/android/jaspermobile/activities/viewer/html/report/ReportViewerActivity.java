@@ -33,8 +33,10 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
@@ -45,6 +47,8 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.SimpleChromeClient;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.bridge.ReportWebInterface;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -88,7 +92,7 @@ import java.util.Map;
  */
 @OptionsMenu(R.menu.retrofit_report_menu)
 @EActivity(R.layout.activity_cordova_dashboard_viewer)
-public class ReportViewerActivity extends RoboToolbarActivity implements ReportCallback {
+public class ReportViewerActivity extends RoboToolbarActivity implements ReportCallback, AbstractPaginationView.OnPageChangeListener {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -101,6 +105,8 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     protected CordovaWebView webView;
     @ViewById
     protected ProgressBar progressBar;
+    @ViewById
+    protected PaginationBarView paginationControl;
 
     @Extra
     protected ResourceLookup resource;
@@ -129,6 +135,7 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
 
     @AfterViews
     final void init() {
+        setupPaginationControl();
         setupSettings();
         setupJsInterface();
         initCordovaWebView();
@@ -166,6 +173,15 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     }
 
     //---------------------------------------------------------------------
+    // Pagination callbacks
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onPageSelected(int currentPage) {
+        webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", currentPage));
+    }
+
+    //---------------------------------------------------------------------
     // Javascript callbacks
     //---------------------------------------------------------------------
 
@@ -196,30 +212,37 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
     @UiThread
     @Override
     public void onLoadError(String error) {
-
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
     }
 
     @UiThread
     @Override
     public void onTotalPagesLoaded(int pages) {
-
+        if (pages > 1) {
+            paginationControl.setVisibility(View.VISIBLE);
+            paginationControl.setTotalCount(pages);
+        }
     }
 
     @UiThread
     @Override
     public void onPageChange(int page) {
-
+        paginationControl.setCurrentPage(page);
     }
 
     @UiThread
     @Override
     public void onRemoteCall(String type, String location) {
-
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void setupPaginationControl() {
+        paginationControl.setOnPageChangeListener(this);
+    }
 
     private void setupSettings() {
         WebSettings settings = webView.getSettings();
@@ -257,6 +280,7 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
         webView.init(cordovaInterface, webViewClient2, chromeClient, pluginEntries, whitelist, whitelist, cordovaPreferences);
     }
 
+    // TODO remove mustache
     private void loadFlow() {
         InputStream stream = null;
         try {
@@ -278,5 +302,4 @@ public class ReportViewerActivity extends RoboToolbarActivity implements ReportC
             }
         }
     }
-
 }

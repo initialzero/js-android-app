@@ -2,7 +2,10 @@ package com.jaspersoft.android.jaspermobile.activities.navigation;
 
 import android.accounts.Account;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -14,6 +17,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
@@ -23,6 +27,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragm
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
+import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
@@ -182,7 +187,7 @@ public class NavigationActivity extends RoboToolbarActivity {
                 SettingsActivity_.intent(this).start();
                 break;
             case R.id.tv_feedback:
-                new FeedBackDialogFragment().show(getSupportFragmentManager(), FeedBackDialogFragment.class.getSimpleName());
+                sendFeedback();
                 break;
             case R.id.tv_about:
                 new AboutDialogFragment().show(getSupportFragmentManager(), AboutDialogFragment.class.getSimpleName());
@@ -216,6 +221,28 @@ public class NavigationActivity extends RoboToolbarActivity {
     private void hideMenuItems(Menu menu, boolean visible) {
         for (int i = 0; i < menu.size(); i++) {
             menu.getItem(i).setVisible(visible);
+        }
+    }
+
+    private void sendFeedback(){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("message/rfc822");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"js.testdevice@gmail.com"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String versionName = pInfo.versionName;
+            String versionCode = String.valueOf(pInfo.versionCode);
+            intent.putExtra(Intent.EXTRA_TEXT, String.format("Version name: %s \nVersion code: %s", versionName, versionCode));
+        } catch (PackageManager.NameNotFoundException e) {
+            // Can not go here
+        }
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this,
+                    getString(R.string.sdr_t_no_app_available, "email"),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

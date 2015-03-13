@@ -139,6 +139,8 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     protected boolean mLoading;
     @InstanceState
+    protected boolean mRequestUnfinished;
+    @InstanceState
     protected int mLoaderState = LOAD_FROM_CACHE;
 
     @Bean
@@ -195,21 +197,25 @@ public class ResourcesFragment extends RoboSpiceFragment
         listView.setOnScrollListener(new ScrollListener());
         setDataAdapter(savedInstanceState);
         updatePaginationPolicy();
+        loadPage();
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        mAdapter.clear();
+        if(mRequestUnfinished) {
+            loadPage();
+            mRequestUnfinished = false;
+        }
+    }
 
-        boolean isRepository = !recursiveLookup;
-        boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = mServerData.getEdition().equals("PRO");
-        if (isRepository && isRoot && isProJrs) {
-            loadRootFolders();
-        } else {
-            loadFirstPage();
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if(mLoading) {
+            mRequestUnfinished = true;
         }
     }
 
@@ -256,7 +262,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
-        loadFirstPage();
+        loadPage();
     }
 
     //---------------------------------------------------------------------
@@ -367,6 +373,17 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
+    private void loadPage(){
+        boolean isRepository = !recursiveLookup;
+        boolean isRoot = TextUtils.isEmpty(resourceUri);
+        boolean isProJrs = mServerData.getEdition().equals("PRO");
+        if (isRepository && isRoot && isProJrs) {
+            loadRootFolders();
+        } else {
+            loadFirstPage();
+        }
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -387,6 +404,12 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         @Override
         public void onRequestSuccess(FolderDataResponse folderDataResponse) {
+            // Do this for explicit refresh during pull to refresh interaction
+            if (mLoaderState == LOAD_FROM_NETWORK) {
+                mAdapter.setNotifyOnChange(false);
+                mAdapter.clear();
+            }
+
             mAdapter.add(folderDataResponse);
 
             ResourceLookup publicLookup = new ResourceLookup();
@@ -394,6 +417,9 @@ public class ResourcesFragment extends RoboSpiceFragment
             publicLookup.setLabel("Public");
             publicLookup.setUri("/public");
             mAdapter.add(publicLookup);
+
+            mAdapter.setNotifyOnChange(true);
+            mAdapter.notifyDataSetChanged();
 
             setRefreshState(false);
             showEmptyText(emptyMessage);

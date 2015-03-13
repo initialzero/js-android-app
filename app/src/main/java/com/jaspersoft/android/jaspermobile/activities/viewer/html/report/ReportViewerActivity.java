@@ -100,6 +100,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 import timber.log.Timber;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS;
@@ -205,11 +206,30 @@ public class ReportViewerActivity extends RoboToolbarActivity
         }
     }
 
+    //---------------------------------------------------------------------
+    // Menu items callbacks
+    //---------------------------------------------------------------------
+
     @OptionsItem
     final void showLog() {
         if (chromeClient != null) {
             LogDialog.create(getSupportFragmentManager(), chromeClient.getMessages());
         }
+    }
+
+    @OptionsItem
+    final void favoriteAction() {
+        favoriteEntryUri = favoritesHelper.
+                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+    }
+
+    @OptionsItem
+    final void aboutAction() {
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setTitle(resource.getLabel())
+                .setMessage(resource.getDescription())
+                .setNegativeButtonText(android.R.string.ok)
+                .show();
     }
 
     //---------------------------------------------------------------------

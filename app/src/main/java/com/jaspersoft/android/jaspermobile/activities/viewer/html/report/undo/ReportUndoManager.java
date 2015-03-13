@@ -27,37 +27,40 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.undo;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
-import java.util.Arrays;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.model.ReportModel;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class ReportParametersUndoManager extends UndoManager<String> implements Parcelable {
+public class ReportUndoManager extends UndoManager<ReportModel> implements Parcelable {
 
-    public ReportParametersUndoManager() {
-    }
-
-    private ReportParametersUndoManager(Parcel in) {
-        String[] array = (String[]) in.readSerializable();
-        getUndoStack().addAll(Arrays.asList(array));
+    public ReportUndoManager() {
     }
 
     @NonNull
     @Override
-    public String undo() {
-        String value = super.undo();
-        return TextUtils.isEmpty(value) ? "{}" : value;
+    public ReportModel undo() {
+        ReportModel value = super.undo();
+        if (value == null) {
+            throw new IllegalStateException("Manager should contain any command before calling undo()");
+        }
+        return value;
     }
 
     @NonNull
     @Override
-    public String peekLatest() {
-        String value = super.peekLatest();
-        return TextUtils.isEmpty(value) ? "{}" : value;
+    public ReportModel peekLast() {
+        ReportModel value = super.peekLast();
+        if (value == null) {
+            throw new IllegalStateException("Manager should contain any command before calling peekLast()");
+        }
+        return value;
     }
 
     @Override
@@ -67,19 +70,24 @@ public class ReportParametersUndoManager extends UndoManager<String> implements 
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        Queue<String> stack = getUndoStack();
-        String[] array = new String[stack.size()];
-        stack.toArray(array);
-        dest.writeSerializable(array);
+        Queue<ReportModel> stack = getUndoStack();
+        dest.writeTypedList(new ArrayList<Parcelable>(stack));
     }
 
-    public static final Creator<ReportParametersUndoManager> CREATOR = new Creator<ReportParametersUndoManager>() {
-        public ReportParametersUndoManager createFromParcel(Parcel source) {
-            return new ReportParametersUndoManager(source);
+    private ReportUndoManager(Parcel in) {
+        List<ReportModel> reportModelList = new ArrayList<ReportModel>();
+        in.readTypedList(reportModelList, ReportModel.CREATOR);
+        getUndoStack().addAll(reportModelList);
+    }
+
+    public static final Creator<ReportUndoManager> CREATOR = new Creator<ReportUndoManager>() {
+        public ReportUndoManager createFromParcel(Parcel source) {
+            return new ReportUndoManager(source);
         }
 
-        public ReportParametersUndoManager[] newArray(int size) {
-            return new ReportParametersUndoManager[size];
+        public ReportUndoManager[] newArray(int size) {
+            return new ReportUndoManager[size];
         }
     };
+
 }

@@ -22,55 +22,37 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.undo;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params;
 
-import android.support.annotation.Nullable;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Queue;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class UndoManager<T> {
-    private final ArrayDeque<T> undoStack;
-    private final Set<T> set = new LinkedHashSet<T>();
+public class InputControlSerializerImpl implements InputControlsSerializer {
+    private static final String EMPTY_JSON = "{}";
 
-    public UndoManager() {
-        undoStack = new ArrayDeque<T>();
-    }
-
-    public UndoManager(Collection<T> commands) {
-        undoStack = new ArrayDeque<T>(commands);
-    }
-
-    public void add(T command) {
-        if (command == null) {
-            throw new IllegalArgumentException("Command can`t be null");
+    @Override
+    public String toJson(List<InputControl> reportParameters) {
+        Map<String, Set<String>> params = new HashMap<String, Set<String>>();
+        if (reportParameters == null) {
+            return EMPTY_JSON;
+        } else {
+            Gson gson = new Gson();
+            Type mapType = new TypeToken<Map<String,Set<String>>>() {}.getType();
+            for (InputControl inputControl : reportParameters) {
+                params.put(inputControl.getId(), inputControl.getSelectedValues());
+            }
+            return gson.toJson(params, mapType);
         }
-        undoStack.clear();
-        undoStack.add(command);
-    }
-
-    public Queue<T> getUndoStack() {
-        return undoStack;
-    }
-
-    @Nullable
-    public T undo() {
-        return undoStack.pollLast();
-    }
-
-    @Nullable
-    public T peekLast() {
-        return undoStack.peekLast();
-    }
-
-    public boolean isEmpty() {
-        return undoStack.isEmpty();
     }
 }

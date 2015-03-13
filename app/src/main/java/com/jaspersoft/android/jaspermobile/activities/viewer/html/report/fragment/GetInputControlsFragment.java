@@ -28,6 +28,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -45,6 +48,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.List;
 
@@ -62,12 +66,14 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     protected JsRestClient jsRestClient;
     @FragmentArg
     protected String resourceUri;
+    @OptionsMenuItem
+    protected MenuItem showFilters;
 
     private RequestExecutor requestExecutor;
     private OnInputControlsListener mListener = new NullListener();
-    private List<InputControl> mCachedControls;
     private boolean mLoading;
     private boolean mLoaded;
+    private boolean mShowFilterMenuItem;
 
     @Override
     public void onAttach(Activity activity) {
@@ -78,7 +84,6 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
             mListener = (OnInputControlsListener) activity;
         }
     }
-
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -104,9 +109,15 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         }
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        showFilters.setVisible(mShowFilterMenuItem);
+    }
+
     @OptionsItem
     public void showFilters() {
-        mListener.onShowControls(mCachedControls);
+        mListener.onShowControls();
     }
 
     private class GetInputControlsListener extends SimpleRequestListener2<InputControlsList> {
@@ -125,11 +136,12 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
-            mCachedControls = controlsList.getInputControls();
             mLoading = false;
             mLoaded = true;
+            mShowFilterMenuItem = !controlsList.getInputControls().isEmpty();
+            getActivity().supportInvalidateOptionsMenu();
             ProgressDialogFragment.dismiss(getFragmentManager());
-            mListener.onLoaded(mCachedControls);
+            mListener.onLoaded(controlsList.getInputControls());
         }
     }
 
@@ -139,13 +151,12 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         }
 
         @Override
-        public void onShowControls(List<InputControl> inputControls) {
+        public void onShowControls() {
         }
     }
 
     public static interface OnInputControlsListener {
         void onLoaded(List<InputControl> inputControls);
-
-        void onShowControls(List<InputControl> inputControls);
+        void onShowControls();
     }
 }

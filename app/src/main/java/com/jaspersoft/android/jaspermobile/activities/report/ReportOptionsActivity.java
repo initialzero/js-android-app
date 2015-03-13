@@ -241,6 +241,13 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         }
     }
 
+    private void hideValidationMessage(InputControl control){
+        TextView textView = (TextView) control.getErrorView();
+        if (textView != null) {
+            textView.setVisibility(View.GONE);
+        }
+    }
+
     private void showValidationMessages(List<InputControlState> invalidStateList) {
         for (InputControl control : inputControls) {
             TextView textView = (TextView) control.getErrorView();
@@ -448,6 +455,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
                             if (!option.isSelected()) {
                                 option.setSelected(true);
                                 updateDependentControls(inputControl);
+                                hideValidationMessage(inputControl);
                             }
                         } else {
                             option.setSelected(false);
@@ -500,7 +508,10 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
                         option.setSelected(selectedNow);
                     }
                     // update dependent controls if exist
-                    if (valuesChanged) updateDependentControls(inputControl);
+                    if (valuesChanged) {
+                        updateDependentControls(inputControl);
+                        hideValidationMessage(inputControl);
+                    }
                 }
             });
         }
@@ -526,6 +537,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         if (newValue != null && !newValue.equals(oldValue)) {
             inputControl.getState().setValue(newValue);
             updateDependentControls(inputControl);
+            hideValidationMessage(inputControl);
         }
     }
 

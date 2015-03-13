@@ -168,8 +168,8 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
             onView(withText(android.R.string.search_go)).perform(click());
         }
-        onView(withId(getSearcFieldId())).perform(typeText(GEO_QUERY));
-        onView(withId(getSearcFieldId())).perform(pressImeActionButton());
+        onView(withId(getSearchFieldId())).perform(typeText(GEO_QUERY));
+        onView(withId(getSearchFieldId())).perform(pressImeActionButton());
 
         onView(withText(getActivity().getString(R.string.search_result_format, GEO_QUERY)))
                 .check(matches(isDisplayed()));

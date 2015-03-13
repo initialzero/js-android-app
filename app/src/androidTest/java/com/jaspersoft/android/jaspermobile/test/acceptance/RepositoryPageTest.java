@@ -30,7 +30,6 @@ import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
@@ -59,11 +58,13 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 /**
@@ -73,7 +74,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private static final String REPORTS_QUERY = "Reports";
-    private static final String CLASS_NAME = "activities.DrawerActivity_";
+    private static final String CLASS_NAME = "activities.navigation.NavigationActivity_";
 
     public RepositoryPageTest() {
         super(NavigationActivity_.class);
@@ -99,16 +100,9 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
     }
 
     @Test
-    public void testInitialLoadOfGrid() {
-        forcePreview(ViewType.GRID);
-        startActivityUnderTest();
-        onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
-    }
-
-    @Test
     public void testSwitcher() {
-        forcePreview(ViewType.LIST);
         startActivityUnderTest();
+        forcePreview(ViewType.LIST);
 
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
         rotate();
@@ -122,9 +116,9 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
     }
 
     @Test
-    public void testInitialLoadOfList() {
-        forcePreview(ViewType.LIST);
+    public void testInitialLoadShouldDisplayListView() {
         startActivityUnderTest();
+        forcePreview(ViewType.LIST);
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
@@ -133,7 +127,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.ROOT_FOLDER_CONTENT,
                 TestResponses.ROOT_REPOSITORIES);
-        forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
         FolderDataResponse rootFolder = TestResources.get().fromXML(FolderDataResponse.class, TestResources.ROOT_FOLDER);
@@ -145,9 +138,15 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
-        onView(withId(getActionBarTitleId())).check(matches(withText(firstRootRepoLabel)));
+        onView(allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(firstRootRepoLabel)
+        )).check(matches(isDisplayed()));
         pressBack();
-        onView(withId(getActionBarTitleId())).check(matches(withText(R.string.h_repository_label)));
+        onView(allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(R.string.h_repository_label)
+        )).check(matches(isDisplayed()));
     }
 
     @Test
@@ -161,7 +160,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
                 ApiMatcher.ROOT_FOLDER_CONTENT,
                 TestResponses.ONLY_FOLDER);
 
-        forcePreview(ViewType.LIST);
         startActivityUnderTest();
 
         // Force this test not to be fluky
@@ -181,7 +179,6 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
 
     @Test
     public void testSearchInRepository() {
-        forcePreview(ViewType.LIST);
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
                 TestResponses.ONLY_FOLDER);
@@ -193,8 +190,9 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
             onView(withText(android.R.string.search_go)).perform(click());
         }
-        onView(withId(getSearcFieldId())).perform(typeText(REPORTS_QUERY));
-        onView(withId(getSearcFieldId())).perform(pressImeActionButton());
+
+        onView(withId(R.id.search_src_text)).perform(typeText(REPORTS_QUERY));
+        onView(withId(R.id.search_src_text)).perform(pressImeActionButton());
 
         onView(withText(getActivity().getString(R.string.search_result_format, REPORTS_QUERY)))
                 .check(matches(isDisplayed()));
@@ -204,9 +202,15 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
     // Helper methods
     //---------------------------------------------------------------------
 
+    // Yep, it is messy helper. Hopefully we will remove list/grid combination preview in future release.
     private void forcePreview(ViewType viewType) {
-        ControllerPref controllerPref = new ControllerPref(getInstrumentation().getContext(), CLASS_NAME);
-        controllerPref.viewType().put(viewType.toString());
+        Object list = findViewById(android.R.id.list);
+        if (list instanceof ListView && viewType == ViewType.GRID) {
+            onView(withId(R.id.switchLayout)).perform(click());
+        }
+        if (list instanceof GridView && viewType == ViewType.LIST) {
+            onView(withId(R.id.switchLayout)).perform(click());
+        }
     }
 
     //---------------------------------------------------------------------

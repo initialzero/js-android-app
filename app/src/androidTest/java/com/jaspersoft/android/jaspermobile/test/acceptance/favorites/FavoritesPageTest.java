@@ -40,6 +40,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.AllOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +62,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllFavorites;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
@@ -233,9 +235,15 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        onView(withId(getActionBarTitleId())).check(matches(withText(resourceLookup.getLabel())));
+        onView(AllOf.allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(resourceLookup.getLabel())
+        )).check(matches(isDisplayed()));
         pressBack();
-        onView(withId(getActionBarTitleId())).check(matches(withText(R.string.f_title)));
+        onView(AllOf.allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(R.string.f_title)
+        )).check(matches(isDisplayed()));
     }
 
     //---------------------------------------------------------------------
@@ -476,8 +484,8 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
         startActivityUnderTest();
 
         onView(withId(R.id.search)).perform(click());
-        onView(withId(getSearcFieldId())).perform(typeText(searchQuery));
-        onView(withId(getSearcFieldId())).perform(pressImeActionButton());
+        onView(withId(getSearchFieldId())).perform(typeText(searchQuery));
+        onView(withId(getSearchFieldId())).perform(pressImeActionButton());
 
         // Check if list by date is correct after rotate
 

@@ -487,8 +487,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         openSavePage();
 
         onView(withId(R.id.search)).perform(click());
-        onView(withId(getSearcFieldId())).perform(typeText("Fi"));
-        onView(withId(getSearcFieldId())).perform(pressImeActionButton());
+        onView(withId(getSearchFieldId())).perform(typeText("Fi"));
+        onView(withId(getSearchFieldId())).perform(pressImeActionButton());
 
         // Check if list by date is correct after rotate
 

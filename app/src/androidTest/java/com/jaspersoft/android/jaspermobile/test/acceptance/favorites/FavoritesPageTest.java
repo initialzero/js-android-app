@@ -86,7 +86,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
     public void setUp() throws Exception {
         super.setUp();
         setActivityIntent(NavigationActivity_.intent(getApplication())
-                .defaultSelection(R.id.vg_favorites).get());
+                .currentSelection(R.id.vg_favorites).get());
 
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();

@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import com.google.common.collect.Queues;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -32,12 +31,15 @@ import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayDeque;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -87,7 +89,7 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Navi
         onView(allOf(withId(R.id.refreshLayout), is(not(refreshing()))));
 
         ResourceLookupsList smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.SMALL_LOOKUP);
-        String lastResourceLabel = Queues.newArrayDeque(smallLookUp.getResourceLookups()).getLast().getLabel();
+        String lastResourceLabel = new ArrayDeque<ResourceLookup>(smallLookUp.getResourceLookups()).getLast().getLabel();
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,

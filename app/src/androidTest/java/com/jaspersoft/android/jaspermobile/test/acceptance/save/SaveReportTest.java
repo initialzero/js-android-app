@@ -534,7 +534,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     private void openSavePage() {
         getInstrumentation().startActivitySync(
                 NavigationActivity_.intent(getInstrumentation().getTargetContext())
-                        .defaultSelection(R.id.vg_saved_items)
+                        .currentSelection(R.id.vg_saved_items)
                         .flags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         .get());
         getInstrumentation().waitForIdleSync();

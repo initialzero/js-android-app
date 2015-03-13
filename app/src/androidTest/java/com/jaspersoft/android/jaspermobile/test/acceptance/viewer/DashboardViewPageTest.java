@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 import android.content.Intent;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.DashboardHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.DashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
@@ -51,19 +51,19 @@ import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatc
  * @author Tom Koptel
  * @since 1.9
  */
-public class DashboardViewPageTest extends ProtoActivityInstrumentation<DashboardHtmlViewerActivity_> {
+public class DashboardViewPageTest extends ProtoActivityInstrumentation<DashboardViewerActivity_> {
     private ResourceLookup mResource;
     private IdleInjector idleInjector;
 
     public DashboardViewPageTest() {
-        super(DashboardHtmlViewerActivity_.class);
+        super(DashboardViewerActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
         setDefaultCurrentProfile();
-        idleInjector = WebViewInjector.registerFor(DashboardHtmlViewerActivity_.class);
+        idleInjector = WebViewInjector.registerFor(DashboardViewerActivity_.class);
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_dashboard");
         mResource = resourceLookupsList.getResourceLookups().get(0);
 
@@ -100,7 +100,7 @@ public class DashboardViewPageTest extends ProtoActivityInstrumentation<Dashboar
 
     private void createReportIntent() {
         Intent htmlViewer = new Intent();
-        htmlViewer.putExtra(DashboardHtmlViewerActivity_.RESOURCE_EXTRA, mResource);
+        htmlViewer.putExtra(DashboardViewerActivity_.RESOURCE_EXTRA, mResource);
         setActivityIntent(htmlViewer);
     }
 

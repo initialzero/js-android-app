@@ -2,7 +2,6 @@ package com.jaspersoft.android.jaspermobile.test.utils;
 
 import android.content.Context;
 
-import com.google.common.base.Preconditions;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 
 import java.io.File;
@@ -48,9 +47,13 @@ public class SavedFilesUtil {
     // Helper methods
     //---------------------------------------------------------------------
     private static File getSavedReportsDirectory(Context context) {
-        Preconditions.checkNotNull(context, "Call startActivityUnderTest() before this method");
+        if (context == null) {
+            throw new IllegalArgumentException("Call startActivityUnderTest() before this method");
+        }
         File appFilesDir = context.getExternalFilesDir(null);
-        Preconditions.checkNotNull(appFilesDir, "Configure external storage on emulator");
+        if (appFilesDir == null) {
+            throw new IllegalStateException("Configure external storage on emulator");
+        }
         return new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
     }
 }

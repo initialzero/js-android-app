@@ -51,11 +51,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import roboguice.RoboGuice;
-
-import static com.google.common.collect.Iterables.getOnlyElement;
 
 @RunWith(AndroidJUnit4.class)
 public class ProtoActivityInstrumentation<T extends Activity>
@@ -178,7 +177,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 Collection<Activity> activites =
                         ActivityLifecycleMonitorRegistry.getInstance()
                                 .getActivitiesInStage(Stage.RESUMED);
-                activity[0] = getOnlyElement(activites);
+                activity[0] = new ArrayList<Activity>(activites).get(0);
             }
         });
         return activity[0];

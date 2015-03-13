@@ -24,11 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library.assertion;
 
-import com.google.common.collect.Queues;
 import com.jaspersoft.android.jaspermobile.test.utils.SyncSpiceManager;
 import com.octo.android.robospice.request.CachedSpiceRequest;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import java.util.ArrayDeque;
 import java.util.Queue;
 
 /**
@@ -36,7 +36,7 @@ import java.util.Queue;
  * @since 1.9
  */
 public class SpiceManagerRequestAssert extends SyncSpiceManager {
-    private final Queue<RequestAssertRule> assertRules = Queues.newArrayDeque();
+    private final Queue<RequestAssertRule> assertRules = new ArrayDeque<RequestAssertRule>();
 
     public void addAssertRule(RequestAssertRule requestAssert) {
         assertRules.add(requestAssert);

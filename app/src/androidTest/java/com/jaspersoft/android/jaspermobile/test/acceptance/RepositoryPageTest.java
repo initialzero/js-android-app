@@ -83,7 +83,7 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
     public void setUp() throws Exception {
         super.setUp();
         setActivityIntent(NavigationActivity_.intent(getApplication())
-                .defaultSelection(R.id.vg_repository).get());
+                .currentSelection(R.id.vg_repository).get());
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();

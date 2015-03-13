@@ -30,12 +30,15 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.octo.android.robospice.exception.NetworkException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import java.net.UnknownHostException;
 
 import retrofit.RetrofitError;
 
@@ -54,7 +57,7 @@ public class RequestExceptionHandler2 {
         if (statusCode != 0 && statusCode == HttpStatus.UNAUTHORIZED.value()) {
             showAuthErrorDialog(context);
         } else {
-            String errorMessage = extractMessage(exception, context);
+            String errorMessage = extractMessage(exception, context, statusCode);
             showCommonErrorMessage(errorMessage, context);
         }
     }
@@ -71,9 +74,10 @@ public class RequestExceptionHandler2 {
             Throwable tokenCause = cause.getCause();
             if (tokenCause instanceof JasperAccountManager.TokenException) {
                 return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
+            } else if (tokenCause instanceof UnknownHostException) {
+                return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
             }
-        }
-        else if(exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
+        } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
             return ((RetrofitError) exception).getResponse().getStatus();
         }
         return 0;
@@ -87,13 +91,17 @@ public class RequestExceptionHandler2 {
      * Extracts Localized message otherwise returns null.
      */
     @Nullable
-    private static String extractMessage(Exception exception, Context context) {
+    private static String extractMessage(Exception exception, Context context, int statusCode) {
+        if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
+            return context.getString(R.string.r_error_server_not_found);
+        }
+
         Throwable cause = exception.getCause();
-        if(cause == null) {
+        if (cause == null) {
             return exception.getLocalizedMessage();
         }
         if (cause instanceof HttpStatusCodeException) {
-            ExceptionRule rule =  ExceptionRule.all().get(((HttpStatusCodeException) cause).getStatusCode());
+            ExceptionRule rule = ExceptionRule.all().get(((HttpStatusCodeException) cause).getStatusCode());
             int messageId = rule.getMessage();
             return context.getString(messageId);
         }

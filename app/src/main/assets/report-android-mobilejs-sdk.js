@@ -83,7 +83,7 @@
       };
 
       ReportCallback.prototype.onReportExecutionClick = function(reportUri, params) {
-        Android.onReportExecutionClick(reportUri);
+        Android.onReportExecutionClick(reportUri, params);
       };
 
       return ReportCallback;
@@ -263,18 +263,21 @@
 
       ReportController.prototype._startReportExecution = function(link) {
         var params, paramsAsString, reportUri;
+        this.logger.log("ReportExecution");
         params = link.parameters;
         reportUri = params._report;
         paramsAsString = JSON.stringify(params, null, 2);
-        return this.callback.runReport(reportUri, paramsAsString);
+        return this.callback.onReportExecutionClick(reportUri, paramsAsString);
       };
 
       ReportController.prototype._navigateToAnchor = function(link) {
+        this.logger.log("LocalAnchor");
         return window.location.hash = link.href;
       };
 
       ReportController.prototype._navigateToPage = function(link) {
         var href, matches, numberPattern, pageNumber;
+        this.logger.log("LocalPage");
         href = link.href;
         numberPattern = /\d+/g;
         matches = href.match(numberPattern);
@@ -286,8 +289,9 @@
 
       ReportController.prototype._openRemoteLink = function(link) {
         var href;
+        this.logger.log("Reference");
         href = link.href;
-        return this.callback.onRemoteCall(href);
+        return this.callback.onReferenceClick(href);
       };
 
       ReportController.prototype._loadPage = function(page) {

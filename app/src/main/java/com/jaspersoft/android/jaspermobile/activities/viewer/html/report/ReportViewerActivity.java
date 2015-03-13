@@ -347,12 +347,16 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onReferenceClick(String location) {
-        Timber.d(" Location: " + location);
+        String title = getString(R.string.rv_open_link_chooser);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(location));
+        Intent chooser = Intent.createChooser(browserIntent, title);
+        if (browserIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(chooser);
+        }
     }
 
     @Override
     public void onReportExecutionClick(String reportUri, String params) {
-        Timber.d("Report: " + reportUri + " Params: " + params);
     }
 
     //---------------------------------------------------------------------

@@ -11,5 +11,6 @@ public interface ReportCallback {
     void onLoadError(String error);
     void onTotalPagesLoaded(int pages);
     void onPageChange(int page);
-    void onRemoteCall(String type, String location);
+    void onReferenceClick(String location);
+    void onReportExecutionClick(String report, String params);
 }

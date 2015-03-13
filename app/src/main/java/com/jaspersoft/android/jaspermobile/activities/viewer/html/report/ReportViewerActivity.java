@@ -100,6 +100,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import timber.log.Timber;
+
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
@@ -147,6 +149,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Timber.tag("visualize");
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         if (savedInstanceState == null) {
@@ -343,7 +346,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
-    public void onRemoteCall(String type, String location) {
+    public void onReferenceClick(String location) {
+        Timber.d(" Location: " + location);
+    }
+
+    @Override
+    public void onReportExecutionClick(String reportUri, String params) {
+        Timber.d("Report: " + reportUri + " Params: " + params);
     }
 
     //---------------------------------------------------------------------

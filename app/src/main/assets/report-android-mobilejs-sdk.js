@@ -29,7 +29,9 @@
 
       ReportCallback.prototype.onPageChange = function(page) {};
 
-      ReportCallback.prototype.onRemoteCall = function(type, location) {};
+      ReportCallback.prototype.onReferenceClick = function(location) {};
+
+      ReportCallback.prototype.onReportExecutionClick = function(reportUri, params) {};
 
       return ReportCallback;
 
@@ -76,8 +78,12 @@
         Android.onPageChange(page);
       };
 
-      ReportCallback.prototype.onRemoteCall = function(type, location) {
-        Android.onRemoteCall(type, location);
+      ReportCallback.prototype.onReferenceClick = function(location) {
+        Android.onReferenceClick(location);
+      };
+
+      ReportCallback.prototype.onReportExecutionClick = function(reportUri, params) {
+        Android.onReportExecutionClick(reportUri);
       };
 
       return ReportCallback;
@@ -177,10 +183,15 @@
     var ReportController;
     return ReportController = (function() {
       function ReportController(options) {
+        this._notifyPageChange = bind(this._notifyPageChange, this);
+        this._openRemoteLink = bind(this._openRemoteLink, this);
+        this._navigateToPage = bind(this._navigateToPage, this);
+        this._navigateToAnchor = bind(this._navigateToAnchor, this);
+        this._startReportExecution = bind(this._startReportExecution, this);
+        this._processLinkClicks = bind(this._processLinkClicks, this);
         this._processErrors = bind(this._processErrors, this);
         this._processSuccess = bind(this._processSuccess, this);
         this._processChangeTotalPages = bind(this._processChangeTotalPages, this);
-        this._processLinkClicks = bind(this._processLinkClicks, this);
         this._executeReport = bind(this._executeReport, this);
         this.context = options.context, this.session = options.session, this.uri = options.uri, this.params = options.params;
         this.callback = this.context.callback;
@@ -198,12 +209,10 @@
 
       ReportController.prototype.runReport = function() {
         this.callback.onLoadStart();
-        this.logger.log("start loading visualize");
         return visualize(this.session.authOptions(), this._executeReport);
       };
 
       ReportController.prototype._executeReport = function(visualize) {
-        this.logger.log("start report execution");
         return this.loader = visualize.report({
           resource: this.uri,
           params: this.params,
@@ -222,8 +231,6 @@
         });
       };
 
-      ReportController.prototype._processLinkClicks = function(event, link) {};
-
       ReportController.prototype._processChangeTotalPages = function(totalPages) {
         this.totalPages = totalPages;
         return this.callback.onTotalPagesLoaded(this.totalPages);
@@ -237,6 +244,58 @@
       ReportController.prototype._processErrors = function(error) {
         this.logger.log(error);
         return this.callback.onLoadError(error);
+      };
+
+      ReportController.prototype._processLinkClicks = function(event, link) {
+        var type;
+        type = link.type;
+        switch (type) {
+          case "ReportExecution":
+            return this._startReportExecution(link);
+          case "LocalAnchor":
+            return this._navigateToAnchor(link);
+          case "LocalPage":
+            return this._navigateToPage(link);
+          case "Reference":
+            return this._openRemoteLink(link);
+        }
+      };
+
+      ReportController.prototype._startReportExecution = function(link) {
+        var params, paramsAsString, reportUri;
+        params = link.parameters;
+        reportUri = params._report;
+        paramsAsString = JSON.stringify(params, null, 2);
+        return this.callback.runReport(reportUri, paramsAsString);
+      };
+
+      ReportController.prototype._navigateToAnchor = function(link) {
+        return window.location.hash = link.href;
+      };
+
+      ReportController.prototype._navigateToPage = function(link) {
+        var href, matches, numberPattern, pageNumber;
+        href = link.href;
+        numberPattern = /\d+/g;
+        matches = href.match(numberPattern);
+        if (matches != null) {
+          pageNumber = matches.join("");
+          return this._loadPage(pageNumber);
+        }
+      };
+
+      ReportController.prototype._openRemoteLink = function(link) {
+        var href;
+        href = link.href;
+        return this.callback.onRemoteCall(href);
+      };
+
+      ReportController.prototype._loadPage = function(page) {
+        return this.loader.pages(page).run().fail(this._processErrors).done(this._notifyPageChange);
+      };
+
+      ReportController.prototype._notifyPageChange = function() {
+        return this.callback.onPageChange(this.loader.pages());
       };
 
       return ReportController;

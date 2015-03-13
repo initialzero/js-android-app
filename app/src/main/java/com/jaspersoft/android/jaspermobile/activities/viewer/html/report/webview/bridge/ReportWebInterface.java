@@ -76,8 +76,14 @@ public class ReportWebInterface implements ReportCallback {
 
     @JavascriptInterface
     @Override
-    public void onRemoteCall(String type, String location) {
-        decoratedCallback.onRemoteCall(type, location);
+    public void onReferenceClick(String type) {
+        decoratedCallback.onReferenceClick(type);
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onReportExecutionClick(String report, String params) {
+        decoratedCallback.onReportExecutionClick(report, params);
     }
 
 }

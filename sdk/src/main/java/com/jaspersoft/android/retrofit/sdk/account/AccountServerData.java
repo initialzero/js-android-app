@@ -100,7 +100,7 @@ public class AccountServerData {
 
     public AccountServerData setAlias(String alias) {
         if (alias == null) {
-            throw new IllegalArgumentException("Username should not be null");
+            throw new IllegalArgumentException("Alias should not be null");
         }
         this.alias = alias;
         return this;

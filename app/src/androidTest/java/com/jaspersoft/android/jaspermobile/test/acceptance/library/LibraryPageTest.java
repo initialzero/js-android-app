@@ -30,7 +30,6 @@ import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
@@ -70,7 +69,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
     private static final int DASHBOARD_ITEM_POSITION = 1;
 
     private static final String GEO_QUERY = "Geo";
-    private static final String CLASS_NAME = "activities.DrawerActivity_";
 
     private ResourceLookupsList smallLookUp;
     private ResourceLookup dashboardResource;
@@ -102,34 +100,35 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
 
     @Test
     public void testDashboardItemClick() {
-        forcePreview(ViewType.LIST);
         startActivityUnderTest();
+        forcePreview(ViewType.LIST);
 
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(DASHBOARD_ITEM_POSITION).perform(click());
+        onView(withText("Cordova")).perform(click());
         onView(withText(dashboardResource.getLabel())).check(matches(isDisplayed()));
         pressBack();
     }
 
     @Test
     public void testInitialLoadOfGrid() {
-        forcePreview(ViewType.GRID);
         startActivityUnderTest();
+        forcePreview(ViewType.GRID);
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(GridView.class)));
     }
 
     @Test
     public void testInitialLoadOfList() {
-        forcePreview(ViewType.LIST);
         startActivityUnderTest();
+        forcePreview(ViewType.LIST);
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
     }
 
     @Test
     public void testSwitcher() {
-        forcePreview(ViewType.LIST);
         startActivityUnderTest();
+        forcePreview(ViewType.LIST);
 
         onView(withId(android.R.id.list)).check(matches(isAssignableFrom(ListView.class)));
         rotate();
@@ -159,8 +158,8 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
 
     @Test
     public void testSearchInRepository() {
-        forcePreview(ViewType.LIST);
         startActivityUnderTest();
+        forcePreview(ViewType.LIST);
 
         try {
             onView(withId(R.id.search)).perform(click());
@@ -168,8 +167,8 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
             onView(withText(android.R.string.search_go)).perform(click());
         }
-        onView(withId(getSearcFieldId())).perform(typeText(GEO_QUERY));
-        onView(withId(getSearcFieldId())).perform(pressImeActionButton());
+        onView(withId(R.id.search_src_text)).perform(typeText(GEO_QUERY));
+        onView(withId(R.id.search_src_text)).perform(pressImeActionButton());
 
         onView(withText(getActivity().getString(R.string.search_result_format, GEO_QUERY)))
                 .check(matches(isDisplayed()));
@@ -182,9 +181,15 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
     // Helper methods
     //---------------------------------------------------------------------
 
+    // Yep, it is messy helper. Hopefully we will remove list/grid combination preview in future release.
     private void forcePreview(ViewType viewType) {
-        ControllerPref controllerPref = new ControllerPref(getInstrumentation().getContext(), CLASS_NAME);
-        controllerPref.viewType().put(viewType.toString());
+        Object list = findViewById(android.R.id.list);
+        if (list instanceof ListView && viewType == ViewType.GRID) {
+            onView(withId(R.id.switchLayout)).perform(click());
+        }
+        if (list instanceof GridView && viewType == ViewType.LIST) {
+            onView(withId(R.id.switchLayout)).perform(click());
+        }
     }
 
 }

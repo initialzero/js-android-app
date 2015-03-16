@@ -26,19 +26,16 @@ package com.jaspersoft.android.jaspermobile.test.utils;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
-import android.os.Handler;
 
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Actions;
-import timber.log.Timber;
+import java.io.IOException;
 
 /**
  * @author Tom Koptel
@@ -61,33 +58,20 @@ public final class AccountUtil {
         Account[] accounts = managerUtil.getAccounts();
         if (accounts.length > 0) {
             for (Account account : accounts) {
-                removeAccount(account, null).toBlocking().forEach(Actions.empty());
+                AccountManagerFuture<Boolean> result = AccountManager.get(mContext).removeAccount(account, null, null);
+                try {
+                    result.getResult();
+                } catch (OperationCanceledException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (AuthenticatorException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         JasperAccountManager.get(mContext).deactivateAccount();
         return this;
-    }
-
-    private Observable<Boolean> removeAccount(final Account account, final Handler handler) {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(final Subscriber<? super Boolean> subscriber) {
-                AccountManager.get(mContext).removeAccount(account, new AccountManagerCallback<Boolean>() {
-                    @Override
-                    public void run(AccountManagerFuture<Boolean> future) {
-                        try {
-                            Boolean result = future.getResult();
-                            Timber.d("Remove status for Account[" + account.name + "]: " + result);
-                            subscriber.onNext(result);
-                            subscriber.onCompleted();
-                        } catch (Exception ex) {
-                            Timber.e(ex, "Failed to removeAccount()");
-                            subscriber.onError(ex);
-                        }
-                    }
-                }, handler);
-            }
-        });
     }
 
     public AccountUnit addAccount(AccountServerData serverData) {

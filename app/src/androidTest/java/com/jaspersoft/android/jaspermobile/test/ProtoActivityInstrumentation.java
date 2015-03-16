@@ -40,7 +40,6 @@ import android.view.WindowManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -51,11 +50,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import roboguice.RoboGuice;
-
-import static com.google.common.collect.Iterables.getOnlyElement;
 
 @RunWith(AndroidJUnit4.class)
 public class ProtoActivityInstrumentation<T extends Activity>
@@ -97,12 +95,18 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 .setPassword(AccountServerData.Demo.PASSWORD)
                 .setEdition("PRO")
                 .setVersionName("5.5");
-        Account account = AccountUtil.get(getApplication())
+        AccountUtil.get(getApplication())
                 .removeAllAccounts()
                 .addAccount(serverData)
                 .setAuthToken()
-                .activate().getAccount();
-        JsServerProfileCompat.initLegacyJsRestClient(getApplication(), account, getJsRestClient());
+                .activate();
+        JsServerProfile profile = new JsServerProfile();
+        profile.setAlias(serverData.getAlias());
+        profile.setServerUrl(serverData.getServerUrl());
+        profile.setOrganization(serverData.getOrganization());
+        profile.setUsername(serverData.getUsername());
+        profile.setPassword(serverData.getPassword());
+        getJsRestClient().setServerProfile(profile);
     }
 
     public void startActivityUnderTest() {
@@ -140,22 +144,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    protected int getSearcFieldId() {
-        return mActivity.getResources().getIdentifier("search_src_text", "id", "android");
-    }
-
-    protected int getActionBarId() {
-        return mActivity.getResources().getIdentifier("action_bar", "id", "android");
-    }
-
-    protected int getActionBarTitleId() {
-        return mActivity.getResources().getIdentifier("action_bar_title", "id", "android");
-    }
-
-    protected int getActionBarSubTitleId() {
-        return mActivity.getResources().getIdentifier("action_bar_subtitle", "id", "android");
-    }
-
     protected View findViewById(int id) {
         return mActivity.findViewById(id);
     }
@@ -178,7 +166,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 Collection<Activity> activites =
                         ActivityLifecycleMonitorRegistry.getInstance()
                                 .getActivitiesInStage(Stage.RESUMED);
-                activity[0] = getOnlyElement(activites);
+                activity[0] = new ArrayList<Activity>(activites).get(0);
             }
         });
         return activity[0];

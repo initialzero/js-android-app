@@ -83,7 +83,13 @@ public class FavoritesFragment extends RoboFragment
     private final int FAVORITES_LOADER_ID = 20;
 
     @FragmentArg
-    ViewType viewType;
+    protected ViewType viewType;
+    @FragmentArg
+    @InstanceState
+    protected ResourceType filterType;
+    @FragmentArg
+    @InstanceState
+    protected SortOrder sortOrder;
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -96,15 +102,11 @@ public class FavoritesFragment extends RoboFragment
     @Bean
     ResourceOpener resourceOpener;
 
-    @InstanceState
-    ResourceType filterType;
-
     @FragmentArg
     @InstanceState
     String searchQuery;
 
-    @InstanceState
-    SortOrder sortOrder;
+
 
     private FavoritesAdapter mAdapter;
 

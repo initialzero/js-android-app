@@ -30,8 +30,6 @@ import android.webkit.WebView;
 import com.jaspersoft.android.jaspermobile.test.utils.espresso.ActivityLifecycleIdlingResource;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class WebViewIdlingResource extends WebChromeClient implements ActivityLifecycleIdlingResource<JSWebView> {
 
     private static final int FINISHED = 100;
@@ -69,8 +67,10 @@ public class WebViewIdlingResource extends WebChromeClient implements ActivityLi
 
     @Override
     public void inject(JSWebView activityComponent) {
-        this.webView = checkNotNull(activityComponent,
-                String.format("Trying to instantiate a \'%s\' with a null WebView", getName()));
+        if (activityComponent == null) {
+            throw new IllegalArgumentException(String.format("Trying to instantiate a \'%s\' with a null WebView", getName()));
+        }
+        this.webView = activityComponent;
         // Shall we save the original client? Atm it's not used though.
         mInitialChromeClient = webView.getWebChromeCient();
         webView.setWebChromeClient(this);

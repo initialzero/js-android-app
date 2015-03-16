@@ -30,7 +30,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
-import com.jaspersoft.android.jaspermobile.test.junit.filters.EmulatorOnly;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
@@ -79,7 +78,6 @@ public class StartUpActivityTest {
         assertThat(webMockRule.get(), notNullValue());
     }
 
-    @EmulatorOnly
     @Test
     public void testAddAccountAction() {
         MockResponse authResponse = new MockResponse()

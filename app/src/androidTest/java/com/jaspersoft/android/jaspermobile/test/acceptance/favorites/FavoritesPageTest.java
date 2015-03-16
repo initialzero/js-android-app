@@ -78,7 +78,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-@RunWith(AndroidJUnit4.class)
 public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private FavoritesHelper_ favoritesHelper;

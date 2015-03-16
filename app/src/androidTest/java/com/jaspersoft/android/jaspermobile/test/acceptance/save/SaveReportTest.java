@@ -20,7 +20,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.apache.http.fake.TestHttpResponse;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -38,10 +37,13 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment.OutputFormat;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
@@ -103,8 +105,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         long profileId = getServerProfile().getId();
 
         // Save reports with different names
-        saveReport(reportName, "PDF");
-        saveReport(differReportName, "PDF");
+        saveReport(reportName, OutputFormat.PDF);
+        saveReport(differReportName, OutputFormat.PDF);
 
         //Check if files are saved proper in DB
         assertTrue(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), reportName, "PDF"));
@@ -118,12 +120,12 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         openSavePage();
         onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
 
-        onData(Matchers.is(instanceOf(Cursor.class)))
+        onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0)
                 .onChildView(withId(android.R.id.text1)).check(matches(withText(reportName)));
 
-        onData(Matchers.is(instanceOf(Cursor.class)))
+        onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(1)
                 .onChildView(withId(android.R.id.text1)).check(matches(withText(differReportName)));
@@ -137,9 +139,9 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         long profileId = getServerProfile().getId();
 
         // Save reports in different format
-        saveReport(reportName, "HTML");
-        saveReport(reportName, "PDF");
-        saveReport(reportName, "XLS");
+        saveReport(reportName, OutputFormat.HTML);
+        saveReport(reportName, OutputFormat.PDF);
+        saveReport(reportName, OutputFormat.XLS);
 
         //Check if files are saved proper in DB
         assertTrue(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), reportName, "HTML"));
@@ -155,7 +157,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         openSavePage();
         onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
         for (int i = 0; i < 3; i++) {
-            onData(Matchers.is(instanceOf(Cursor.class)))
+            onData(is(instanceOf(Cursor.class)))
                     .inAdapterView(withId(android.R.id.list))
                     .atPosition(i)
                     .onChildView(withId(android.R.id.text1)).check(matches(withText(reportName)));
@@ -165,9 +167,9 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     @Test
     public void testNotSaveWithSameName() throws Throwable {
         prepareSaveReportActivity(resource);
-        saveReport(resource.getLabel(), "PDF");
+        saveReport(resource.getLabel(), OutputFormat.PDF);
         // Asserting file uniqueness, so that storing again
-        saveReport(resource.getLabel(), "PDF");
+        saveReport(resource.getLabel(), OutputFormat.PDF);
 
         onView(withId(R.id.report_name_input)).check(matches(hasErrorText(getActivity().getString(R.string.sr_error_report_exists))));
     }
@@ -184,7 +186,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         String newReportName = "Renamed - " + oldReportName;
         long profileId = getServerProfile().getId();
 
-        saveReport(oldReportName, "PDF");
+        saveReport(oldReportName, OutputFormat.PDF);
         openSavePage();
 
         onView(withText(oldReportName)).perform(longClick());
@@ -198,7 +200,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         assertTrue(SavedFilesUtil.contains(getActivity(), newReportName, "PDF", profileId));
 
         // Check if file is renamed in UI
-        onData(Matchers.is(instanceOf(Cursor.class)))
+        onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0)
                 .onChildView(withId(android.R.id.text1)).check(matches(withText(newReportName)));
@@ -215,8 +217,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         String oldReportName = resource.getLabel();
         String newReportName = "Renamed - " + oldReportName;
 
-        saveReport(oldReportName, "PDF");
-        saveReport(newReportName, "PDF");
+        saveReport(oldReportName, OutputFormat.PDF);
+        saveReport(newReportName, OutputFormat.PDF);
 
         openSavePage();
 
@@ -240,7 +242,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         String reportName = resource.getLabel();
         long profileId = getServerProfile().getId();
 
-        saveReport(reportName, "PDF");
+        saveReport(reportName, OutputFormat.PDF);
         openSavePage();
 
         onView(withText(reportName)).perform(longClick());
@@ -263,7 +265,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         prepareSaveReportActivity(resource);
 
         for (int i = 0; i < reportsNames.length; i++) {
-            saveReport(reportsNames[i] + reportsFormats[i], reportsFormats[i]);
+            saveReport(reportsNames[i] + reportsFormats[i], OutputFormat.valueOf(reportsFormats[i]));
         }
 
         openSavePage();
@@ -299,7 +301,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         prepareSaveReportActivity(resource);
 
         for (int i = 0; i < reportsNames.length; i++) {
-            saveReport(reportsNames[i] + reportsFormats[i], reportsFormats[i]);
+            saveReport(reportsNames[i] + reportsFormats[i], OutputFormat.valueOf(reportsFormats[i]));
         }
 
         openSavePage();
@@ -331,7 +333,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         prepareSaveReportActivity(resource);
 
         for (int i = 0; i < reportsNames.length; i++) {
-            saveReport(reportsNames[i] + reportsFormats[i], reportsFormats[i]);
+            saveReport(reportsNames[i] + reportsFormats[i], OutputFormat.valueOf(reportsFormats[i]));
         }
 
         openSavePage();
@@ -369,7 +371,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         for (int i = 0; i < reportsNames.length; i++) {
             reportFullNames[i] = reportsNames[i] + reportsFormats[i];
-            saveReport(reportFullNames[i], reportsFormats[i]);
+            saveReport(reportFullNames[i], OutputFormat.valueOf(reportsFormats[i]));
         }
 
         openSavePage();
@@ -379,7 +381,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         onOverflowView(getActivity(), withText(R.string.s_fd_sort_date)).perform(click());
 
         for (int i = 0; i < reportFullNames.length; i++) {
-            onData(Matchers.is(instanceOf(Cursor.class)))
+            onData(is(instanceOf(Cursor.class)))
                     .inAdapterView(withId(android.R.id.list))
                     .atPosition(i)
                     .onChildView(withId(android.R.id.text1)).check(matches(withText(reportFullNames[reportFullNames.length - i - 1])));
@@ -391,7 +393,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         onOverflowView(getActivity(), withText(R.string.s_fd_sort_label)).perform(click());
 
         for (int i = 0; i < reportFullNames.length; i++) {
-            onData(Matchers.is(instanceOf(Cursor.class)))
+            onData(is(instanceOf(Cursor.class)))
                     .inAdapterView(withId(android.R.id.list))
                     .atPosition(i)
                     .onChildView(withId(android.R.id.text1)).check(matches(withText(reportFullNames[i])));
@@ -406,7 +408,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         for (int i = 0; i < reportsNames.length; i++) {
             reportFullNames[i] = reportsNames[i] + reportsFormats[i];
-            saveReport(reportFullNames[i], reportsFormats[i]);
+            saveReport(reportFullNames[i], OutputFormat.valueOf(reportsFormats[i]));
         }
 
         openSavePage();
@@ -416,7 +418,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         onOverflowView(getActivity(), withText(R.string.s_fd_sort_date)).perform(click());
 
         for (int i = 0; i < reportFullNames.length; i++) {
-            onData(Matchers.is(instanceOf(Cursor.class)))
+            onData(is(instanceOf(Cursor.class)))
                     .inAdapterView(withId(android.R.id.list))
                     .atPosition(i)
                     .onChildView(withId(android.R.id.text1)).check(matches(withText(reportFullNames[reportFullNames.length - i - 1])));
@@ -427,7 +429,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         // Check if list by date is correct after rotate
 
         for (int i = 0; i < reportFullNames.length; i++) {
-            onData(Matchers.is(instanceOf(Cursor.class)))
+            onData(is(instanceOf(Cursor.class)))
                     .inAdapterView(withId(android.R.id.list))
                     .atPosition(i)
                     .onChildView(withId(android.R.id.text1)).check(matches(withText(reportFullNames[reportsNames.length - i - 1])));
@@ -442,7 +444,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         for (int i = 0; i < reportsNames.length; i++) {
             reportFullNames[i] = reportsNames[i] + reportsFormats[i];
-            saveReport(reportFullNames[i], reportsFormats[i]);
+            saveReport(reportFullNames[i], OutputFormat.valueOf(reportsFormats[i]));
         }
 
         openSavePage();
@@ -452,7 +454,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         onOverflowView(getActivity(), withText(R.string.s_fd_sort_date)).perform(click());
 
         for (int i = 0; i < reportFullNames.length; i++) {
-            onData(Matchers.is(instanceOf(Cursor.class)))
+            onData(is(instanceOf(Cursor.class)))
                     .inAdapterView(withId(android.R.id.list))
                     .atPosition(i)
                     .onChildView(withId(android.R.id.text1)).check(matches(withText(reportFullNames[reportsNames.length - i - 1])));
@@ -463,7 +465,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         // Check if list by date is correct after rotate
 
         for (int i = 0; i < reportFullNames.length; i++) {
-            onData(Matchers.is(instanceOf(Cursor.class)))
+            onData(is(instanceOf(Cursor.class)))
                     .inAdapterView(withId(android.R.id.list))
                     .atPosition(i)
                     .onChildView(withId(android.R.id.text1)).check(matches(withText(reportFullNames[reportsNames.length - i - 1])));
@@ -481,7 +483,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         for (int i = 0; i < reportsNames.length; i++) {
             reportFullNames[i] = reportsNames[i] + reportsFormats[i];
-            saveReport(reportFullNames[i], reportsFormats[i]);
+            saveReport(reportFullNames[i], OutputFormat.valueOf(reportsFormats[i]));
         }
 
         openSavePage();
@@ -493,7 +495,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         // Check if list by date is correct after rotate
 
         for (int i = 0; i < 3; i++) {
-            onData(Matchers.is(instanceOf(Cursor.class)))
+            onData(is(instanceOf(Cursor.class)))
                     .inAdapterView(withId(android.R.id.list))
                     .atPosition(i)
                     .onChildView(withId(android.R.id.text1)).check(matches(withText(containsString("Fi"))));
@@ -505,7 +507,6 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     //---------------------------------------------------------------------
     private void prepareSaveReportActivity(ResourceLookup otherResource) throws IOException {
         FakeHttpLayerManager.setDefaultHttpResponse(TestResponses.get().noContent());
-        FakeHttpLayerManager.addHttpResponseRule(ApiMatcher.SERVER_INFO, TestResponses.SERVER_INFO);
         prepareIntent(otherResource);
         startActivityUnderTest();
 
@@ -521,13 +522,16 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         setActivityIntent(htmlViewer);
     }
 
-    private void saveReport(String name, String format) {
-        onView(withId(R.id.saveReport)).perform(click());
+    private void saveReport(String name, OutputFormat format) {
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+        onView(withText(R.string.rv_ab_save_report)).perform(click());
 
         onView(withId(R.id.report_name_input)).perform(clearText());
         onView(withId(R.id.report_name_input)).perform(typeText(name));
+
         onView(withId(R.id.output_format_spinner)).perform(click());
-        onView(withText(format)).perform(click());
+        onData(allOf(is(instanceOf(OutputFormat.class)), is(format))).perform(click());
+
         onView(withId(R.id.saveAction)).perform(click());
     }
 
@@ -545,7 +549,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
             onView(withId(R.id.filter)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            onView(withText(R.string.s_ab_filter_by)).perform(click());;
+            onView(withText(R.string.s_ab_filter_by)).perform(click());
+            ;
         }
     }
 
@@ -555,7 +560,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
             try {
-                onView(withText(R.string.s_ab_sort_by)).perform(click());;
+                onView(withText(R.string.s_ab_sort_by)).perform(click());
+                ;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }

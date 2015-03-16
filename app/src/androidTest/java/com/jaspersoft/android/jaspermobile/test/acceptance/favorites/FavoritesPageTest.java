@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.favorites;
 
 import android.database.Cursor;
 import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
@@ -44,6 +45,7 @@ import org.hamcrest.core.AllOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -76,6 +78,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
+@RunWith(AndroidJUnit4.class)
 public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private FavoritesHelper_ favoritesHelper;
@@ -168,6 +171,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(1).perform(click());
+        onView(withText("Cordova")).perform(click());
 
         // Add to favorite
         onView(withId(R.id.favoriteAction)).perform(click());
@@ -176,11 +180,11 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
 
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
+                .atPosition(0).perform(longClick());
 
         // Remove from favorite
-        onView(withId(R.id.favoriteAction)).perform(click());
-        pressBack();
+        onView(withId(R.id.removeFromFavorites)).perform(click());
+        onOverflowView(getActivity(), withId(R.id.sdl__positive_button)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
@@ -484,8 +488,8 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
         startActivityUnderTest();
 
         onView(withId(R.id.search)).perform(click());
-        onView(withId(getSearchFieldId())).perform(typeText(searchQuery));
-        onView(withId(getSearchFieldId())).perform(pressImeActionButton());
+        onView(withId(R.id.search_src_text)).perform(typeText(searchQuery));
+        onView(withId(R.id.search_src_text)).perform(pressImeActionButton());
 
         // Check if list by date is correct after rotate
 
@@ -551,18 +555,19 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.removeFromFavorites)).perform(click());
+        onOverflowView(getActivity(), withId(R.id.sdl__positive_button)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
     }
 
     private void openLibrary() {
-        openDrawer(android.R.id.home);
+        openDrawer(R.id.dl_navigation);
         onView(withText(R.string.h_library_label)).perform(click());
     }
 
     private void openFavorites() {
-        openDrawer(android.R.id.home);
+        openDrawer(R.id.dl_navigation);
         onView(withText(R.string.f_title)).perform(click());
     }
 

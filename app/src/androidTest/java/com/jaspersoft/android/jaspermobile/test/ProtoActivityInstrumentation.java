@@ -139,10 +139,6 @@ public class ProtoActivityInstrumentation<T extends Activity>
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    protected int getSearchFieldId() {
-        return mActivity.getResources().getIdentifier("search_src_text", "id", "android");
-    }
-
     protected View findViewById(int id) {
         return mActivity.findViewById(id);
     }

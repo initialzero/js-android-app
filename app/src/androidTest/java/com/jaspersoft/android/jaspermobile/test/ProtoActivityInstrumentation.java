@@ -40,7 +40,6 @@ import android.view.WindowManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -96,12 +95,18 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 .setPassword(AccountServerData.Demo.PASSWORD)
                 .setEdition("PRO")
                 .setVersionName("5.5");
-        Account account = AccountUtil.get(getApplication())
+        AccountUtil.get(getApplication())
                 .removeAllAccounts()
                 .addAccount(serverData)
                 .setAuthToken()
-                .activate().getAccount();
-        JsServerProfileCompat.initLegacyJsRestClient(getApplication(), account, getJsRestClient());
+                .activate();
+        JsServerProfile profile = new JsServerProfile();
+        profile.setAlias(serverData.getAlias());
+        profile.setServerUrl(serverData.getServerUrl());
+        profile.setOrganization(serverData.getOrganization());
+        profile.setUsername(serverData.getUsername());
+        profile.setPassword(serverData.getPassword());
+        getJsRestClient().setServerProfile(profile);
     }
 
     public void startActivityUnderTest() {

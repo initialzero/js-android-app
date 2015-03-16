@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.favorites;
 
 import android.database.Cursor;
 import android.support.test.espresso.NoMatchingViewException;
-import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
@@ -45,7 +44,6 @@ import org.hamcrest.core.AllOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -580,12 +578,8 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
     }
 
     private void clickSortMenuItem() {
-        try {
-            onView(withId(R.id.sort)).perform(click());
-        } catch (NoMatchingViewException ex) {
-            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            onView(withText(R.string.s_ab_sort_by)).perform(click());
-        }
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+        onView(withText(R.string.s_ab_sort_by)).perform(click());
     }
 
     //---------------------------------------------------------------------

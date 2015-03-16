@@ -40,6 +40,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.AllOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +62,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllFavorites;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
@@ -86,7 +88,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
     public void setUp() throws Exception {
         super.setUp();
         setActivityIntent(NavigationActivity_.intent(getApplication())
-                .defaultSelection(R.id.vg_favorites).get());
+                .currentSelection(R.id.vg_favorites).get());
 
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
@@ -166,6 +168,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(1).perform(click());
+        onView(withText("Cordova")).perform(click());
 
         // Add to favorite
         onView(withId(R.id.favoriteAction)).perform(click());
@@ -174,11 +177,11 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
 
         onData(is(instanceOf(Cursor.class)))
                 .inAdapterView(withId(android.R.id.list))
-                .atPosition(0).perform(click());
+                .atPosition(0).perform(longClick());
 
         // Remove from favorite
-        onView(withId(R.id.favoriteAction)).perform(click());
-        pressBack();
+        onView(withId(R.id.removeFromFavorites)).perform(click());
+        onOverflowView(getActivity(), withId(R.id.sdl__positive_button)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
@@ -233,9 +236,15 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(click());
 
-        onView(withId(getActionBarTitleId())).check(matches(withText(resourceLookup.getLabel())));
+        onView(AllOf.allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(resourceLookup.getLabel())
+        )).check(matches(isDisplayed()));
         pressBack();
-        onView(withId(getActionBarTitleId())).check(matches(withText(R.string.f_title)));
+        onView(AllOf.allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(R.string.f_title)
+        )).check(matches(isDisplayed()));
     }
 
     //---------------------------------------------------------------------
@@ -476,8 +485,8 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
         startActivityUnderTest();
 
         onView(withId(R.id.search)).perform(click());
-        onView(withId(getSearcFieldId())).perform(typeText(searchQuery));
-        onView(withId(getSearcFieldId())).perform(pressImeActionButton());
+        onView(withId(R.id.search_src_text)).perform(typeText(searchQuery));
+        onView(withId(R.id.search_src_text)).perform(pressImeActionButton());
 
         // Check if list by date is correct after rotate
 
@@ -543,18 +552,19 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.removeFromFavorites)).perform(click());
+        onOverflowView(getActivity(), withId(R.id.sdl__positive_button)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
     }
 
     private void openLibrary() {
-        openDrawer(android.R.id.home);
+        openDrawer(R.id.dl_navigation);
         onView(withText(R.string.h_library_label)).perform(click());
     }
 
     private void openFavorites() {
-        openDrawer(android.R.id.home);
+        openDrawer(R.id.dl_navigation);
         onView(withText(R.string.f_title)).perform(click());
     }
 
@@ -568,12 +578,8 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
     }
 
     private void clickSortMenuItem() {
-        try {
-            onView(withId(R.id.sort)).perform(click());
-        } catch (NoMatchingViewException ex) {
-            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            onView(withText(R.string.s_ab_sort_by)).perform(click());
-        }
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+        onView(withText(R.string.s_ab_sort_by)).perform(click());
     }
 
     //---------------------------------------------------------------------

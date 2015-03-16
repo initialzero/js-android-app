@@ -30,7 +30,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.junit.ActivityRule;
 import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
-import com.jaspersoft.android.jaspermobile.test.junit.filters.EmulatorOnly;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
@@ -51,12 +50,14 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.firstChildOf;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.AllOf.allOf;
 
 /**
  * @author Tom Koptel
@@ -79,7 +80,6 @@ public class StartUpActivityTest {
         assertThat(webMockRule.get(), notNullValue());
     }
 
-    @EmulatorOnly
     @Test
     public void testAddAccountAction() {
         MockResponse authResponse = new MockResponse()
@@ -110,7 +110,10 @@ public class StartUpActivityTest {
         onView(withId(R.id.addAccount)).perform(scrollTo());
         onView(withId(R.id.addAccount)).perform(click());
 
-        onView(firstChildOf(withId(R.id.tb_navigation))).check(matches(withText(R.string.h_library_label)));
+        onView(allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(R.string.h_library_label)
+        )).check(matches(isDisplayed()));
     }
 
     @Test

@@ -108,7 +108,17 @@
         </activity>
 
         <activity
-            android:name=".activities.viewer.html.dashboard.CordovaDashboardActivity_"
+            android:name=".activities.viewer.html.dashboard.Amber2DashboardActivity_"
+            android:windowSoftInputMode="adjustPan"
+            android:configChanges="keyboard|keyboardHidden|locale"
+            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.navigation.NavigationActivity_" />
+        </activity>
+
+        <activity
+            android:name=".activities.viewer.html.dashboard.AmberDashboardActivity_"
             android:windowSoftInputMode="adjustPan"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
             android:parentActivityName=".activities.navigation.NavigationActivity_" >

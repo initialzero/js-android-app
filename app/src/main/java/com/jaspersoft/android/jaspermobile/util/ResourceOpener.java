@@ -24,11 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
@@ -37,8 +33,13 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.CordovaDashboardActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.DashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -103,39 +104,30 @@ public class ResourceOpener {
     }
 
     private void runDashboard(ResourceLookup resource) {
-        SelectDashboardRenderDialog selectDashboardRenderDialog = new SelectDashboardRenderDialog();
-        selectDashboardRenderDialog.setResource(resource);
-        selectDashboardRenderDialog.show(activity.getSupportFragmentManager(), null);
-    }
+        Account account = JasperAccountManager.get(activity).getActiveAccount();
+        AccountServerData accountServerData = AccountServerData.get(activity, account);
 
-    public static class SelectDashboardRenderDialog extends DialogFragment {
-        private ResourceLookup resource;
+        String versionName = accountServerData.getVersionName();
+        ServerRelease serverRelease = ServerRelease.parseVersion(versionName);
 
-        public void setResource(ResourceLookup resource) {
-            this.resource = resource;
+
+        switch (serverRelease) {
+            case EMERALD:
+            case EMERALD_MR1:
+            case EMERALD_MR2:
+            case EMERALD_MR3:
+                DashboardViewerActivity_.intent(activity).resource(resource).start();
+                break;
+            case AMBER:
+            case AMBER_MR1:
+                AmberDashboardActivity_.intent(activity).resource(resource).start();
+                break;
+            case AMBER_MR2:
+                Amber2DashboardActivity_.intent(activity).resource(resource).start();
+                break;
+            default:
+                throw new UnsupportedOperationException("Could not identify dashboard view for: " + versionName);
         }
 
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Select WebView render")
-                    .setItems(new String[] {"Without script", "With script"}, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                           switch (which) {
-                               case 0:
-                                   CordovaDashboardActivity_.intent(getActivity())
-                                           .resource(resource).start();
-                                   break;
-                               case 1:
-                                   CordovaDashboardActivity_.intent(getActivity())
-                                           .enableScript(true)
-                                           .resource(resource)
-                                           .start();
-                                   break;
-                           }
-                        }
-                    });
-            return builder.create();
-        }
     }
 }

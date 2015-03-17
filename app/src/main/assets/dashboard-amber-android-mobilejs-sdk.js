@@ -12,7 +12,7 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.dashboard.callback', [],function() {
+  define('js.mobile.amber.dashboard.callback', [],function() {
     var DashboardCallback;
     return DashboardCallback = (function() {
       function DashboardCallback() {}
@@ -36,9 +36,9 @@
   var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  define('js.mobile.android.dashboard.callback', ['require','js.mobile.dashboard.callback'],function(require) {
+  define('js.mobile.amber.android.dashboard.callback', ['require','js.mobile.amber.dashboard.callback'],function(require) {
     var AndroidCallback, Callback;
-    Callback = require('js.mobile.dashboard.callback');
+    Callback = require('js.mobile.amber.dashboard.callback');
     return AndroidCallback = (function(superClass) {
       extend(AndroidCallback, superClass);
 
@@ -128,7 +128,7 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.dashboard.view', [],function() {
+  define('js.mobile.amber.dashboard.view', [],function() {
     var View;
     return View = (function() {
       function View(options) {
@@ -172,7 +172,7 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.dashboard.controller', ['js.mobile.dashboard.view'], function(View) {
+  define('js.mobile.amber.dashboard.controller', ['js.mobile.amber.dashboard.view'], function(View) {
     var DashboardController;
     return DashboardController = (function() {
       function DashboardController(context) {
@@ -305,7 +305,7 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.dashboard.window', [],function() {
+  define('js.mobile.amber.dashboard.window', [],function() {
     var DashboardWindow;
     return DashboardWindow = (function() {
       function DashboardWindow(width, height) {
@@ -321,8 +321,10 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.dashboard', ['js.mobile.dashboard.controller', 'js.mobile.dashboard.window'], function(DashboardController, DashboardWindow) {
-    var MobileDashboard, root;
+  define('js.mobile.amber.dashboard', ['require','js.mobile.amber.dashboard.controller','js.mobile.amber.dashboard.window'],function(require) {
+    var DashboardController, DashboardWindow, MobileDashboard, root;
+    DashboardController = require('js.mobile.amber.dashboard.controller');
+    DashboardWindow = require('js.mobile.amber.dashboard.window');
     MobileDashboard = (function() {
       MobileDashboard._instance = null;
 
@@ -368,7 +370,7 @@
   var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  define('js.mobile.android.dashboard.client', ['js.mobile.client', 'js.mobile.android.dashboard.callback', 'js.mobile.android.logger', 'js.mobile.context', 'js.mobile.dashboard'], function(MobileClient, AndroidCallback, AndroidLogger, Context, MobileDashboard) {
+  define('js.mobile.amber.android.dashboard.client', ['js.mobile.client', 'js.mobile.amber.android.dashboard.callback', 'js.mobile.android.logger', 'js.mobile.context', 'js.mobile.amber.dashboard'], function(MobileClient, AndroidCallback, AndroidLogger, Context, MobileDashboard) {
     var AndroidClient;
     return AndroidClient = (function(superClass) {
       extend(AndroidClient, superClass);
@@ -1239,7 +1241,7 @@
 }());
 
 (function() {
-  require(['js.mobile.android.dashboard.client', 'fastclick'], function(AndroidClient, FastClick) {
+  require(['js.mobile.amber.android.dashboard.client', 'fastclick'], function(AndroidClient, FastClick) {
     return (function($) {
       FastClick.attach(document.body);
       return new AndroidClient().run();
@@ -1248,5 +1250,5 @@
 
 }).call(this);
 
-define("android/dashboard/main.js", function(){});
+define("android/amber/dashboard/main.js", function(){});
 

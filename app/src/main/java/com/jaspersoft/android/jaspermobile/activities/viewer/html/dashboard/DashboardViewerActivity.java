@@ -189,7 +189,7 @@ public class DashboardViewerActivity extends RoboToolbarActivity implements Dash
     @Override
     public void onBackPressed() {
         if (mMaximized && webView != null) {
-            webView.loadUrl("javascript:DashboardWrapper.minimizeDashlet()");
+            webView.loadUrl("javascript:MobileDashboard.minimizeDashlet()");
             scrollableTitleHelper.injectTitle("Test");
         } else {
             super.onBackPressed();
@@ -212,7 +212,7 @@ public class DashboardViewerActivity extends RoboToolbarActivity implements Dash
     @UiThread
     @Override
     public void onWrapperLoaded() {
-        webView.loadUrl("javascript:DashboardWrapper.wrapScreen('100%', '100%')");
+        webView.loadUrl("javascript:MobileDashboard.wrapScreen('100%', '100%')");
     }
 
     @Override

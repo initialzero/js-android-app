@@ -109,6 +109,8 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
 
     @Extra
     protected ResourceLookup resource;
+    @Extra
+    protected boolean enableScript;
 
     @InstanceState
     protected boolean mMaximized;
@@ -151,7 +153,7 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
 
     @Override
     public Object onMessage(String message, Object o) {
-        if ("onPageFinished".equals(message)) {
+        if ("onPageFinished".equals(message) && enableScript) {
             webView.loadUrl("javascript:" + ScriptTagFactory.getInstance(this).getTagCreator().createTag());
         }
         return null;
@@ -168,8 +170,8 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
     @Override
     public void onBackPressed() {
         if (mMaximized && webView != null) {
-            webView.loadUrl("javascript:DashboardWrapper.minimizeDashlet()");
-            scrollableTitleHelper.injectTitle("Test");
+            webView.loadUrl("javascript:MobileDashboard.minimizeDashlet()");
+            scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();
         }
@@ -191,7 +193,7 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
     @UiThread
     @Override
     public void onWrapperLoaded() {
-        webView.loadUrl("javascript:DashboardWrapper.wrapScreen('100%', '100%')");
+        webView.loadUrl("javascript:MobileDashboard.wrapScreen('100%', '100%')");
     }
 
     @Override

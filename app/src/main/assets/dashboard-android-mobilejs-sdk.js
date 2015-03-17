@@ -12,20 +12,20 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.callback.implementor', [],function() {
-    var CallbackImplementor;
-    return CallbackImplementor = (function() {
-      function CallbackImplementor() {}
+  define('js.mobile.dashboard.callback', [],function() {
+    var DashboardCallback;
+    return DashboardCallback = (function() {
+      function DashboardCallback() {}
 
-      CallbackImplementor.prototype.onMaximize = function(title) {};
+      DashboardCallback.prototype.onMaximize = function(title) {};
 
-      CallbackImplementor.prototype.onMinimize = function() {};
+      DashboardCallback.prototype.onMinimize = function() {};
 
-      CallbackImplementor.prototype.onWrapperLoaded = function() {};
+      DashboardCallback.prototype.onWrapperLoaded = function() {};
 
-      CallbackImplementor.prototype.onDashletsLoaded = function() {};
+      DashboardCallback.prototype.onDashletsLoaded = function() {};
 
-      return CallbackImplementor;
+      return DashboardCallback;
 
     })();
   });
@@ -36,34 +36,35 @@
   var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  define('js.mobile.android.callback.implementor', ['js.mobile.callback.implementor'], function(CallbackImplementor) {
-    var AndroidCallbackImplementor;
-    return AndroidCallbackImplementor = (function(superClass) {
-      extend(AndroidCallbackImplementor, superClass);
+  define('js.mobile.android.dashboard.callback', ['require','js.mobile.dashboard.callback'],function(require) {
+    var AndroidCallback, Callback;
+    Callback = require('js.mobile.dashboard.callback');
+    return AndroidCallback = (function(superClass) {
+      extend(AndroidCallback, superClass);
 
-      function AndroidCallbackImplementor() {
-        return AndroidCallbackImplementor.__super__.constructor.apply(this, arguments);
+      function AndroidCallback() {
+        return AndroidCallback.__super__.constructor.apply(this, arguments);
       }
 
-      AndroidCallbackImplementor.prototype.onMaximize = function(title) {
+      AndroidCallback.prototype.onMaximize = function(title) {
         Android.onMaximize(title);
       };
 
-      AndroidCallbackImplementor.prototype.onMinimize = function() {
+      AndroidCallback.prototype.onMinimize = function() {
         Android.onMinimize();
       };
 
-      AndroidCallbackImplementor.prototype.onWrapperLoaded = function() {
+      AndroidCallback.prototype.onWrapperLoaded = function() {
         Android.onWrapperLoaded();
       };
 
-      AndroidCallbackImplementor.prototype.onDashletsLoaded = function() {
+      AndroidCallback.prototype.onDashletsLoaded = function() {
         Android.onDashletsLoaded();
       };
 
-      return AndroidCallbackImplementor;
+      return AndroidCallback;
 
-    })(CallbackImplementor);
+    })(Callback);
   });
 
 }).call(this);
@@ -127,7 +128,7 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.view', [],function() {
+  define('js.mobile.dashboard.view', [],function() {
     var View;
     return View = (function() {
       function View(options) {
@@ -171,7 +172,7 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.dashboard.controller', ['js.mobile.view'], function(View) {
+  define('js.mobile.dashboard.controller', ['js.mobile.dashboard.view'], function(View) {
     var DashboardController;
     return DashboardController = (function() {
       function DashboardController(context) {
@@ -209,20 +210,26 @@
       };
 
       DashboardController.prototype._attachDashletLoadListeners = function() {
-        var self;
-        self = this;
-        return jQuery(document).bind('DOMNodeInserted', function(e) {
-          var dashletContent, dashlets;
-          dashlets = jQuery('.dashlet');
-          self._removeRedundantArtifacts();
-          if (dashlets.length > 0) {
-            dashletContent = jQuery('.dashletContent > div.content');
-            if (dashletContent.length === dashlets.length && !self.dashletsLoaded) {
-              self.dashletsLoaded = true;
-              self._configureDashboard();
-            }
-          }
-        });
+        var timeInterval;
+        return timeInterval = window.setInterval((function(_this) {
+          return function() {
+            var timeIntervalDashletContent;
+            window.clearInterval(timeInterval);
+            return timeIntervalDashletContent = window.setInterval(function() {
+              var dashletContent, dashlets;
+              dashlets = jQuery('.dashlet');
+              _this._removeRedundantArtifacts();
+              if (dashlets.length > 0) {
+                _this._disableDashlets();
+                dashletContent = jQuery('.dashletContent > div.content');
+                if (dashletContent.length === dashlets.length) {
+                  _this._configureDashboard();
+                  return window.clearInterval(timeIntervalDashletContent);
+                }
+              }
+            }, 100);
+          };
+        })(this), 100);
       };
 
       DashboardController.prototype._configureDashboard = function() {
@@ -314,29 +321,29 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.dashboard.wrapper', ['js.mobile.dashboard.controller', 'js.mobile.dashboard.window'], function(DashboardController, DashboardWindow) {
-    var DashboardWrapper, root;
-    DashboardWrapper = (function() {
-      DashboardWrapper._instance = null;
+  define('js.mobile.dashboard', ['js.mobile.dashboard.controller', 'js.mobile.dashboard.window'], function(DashboardController, DashboardWindow) {
+    var MobileDashboard, root;
+    MobileDashboard = (function() {
+      MobileDashboard._instance = null;
 
-      DashboardWrapper.getInstance = function(context) {
-        return this._instance || (this._instance = new DashboardWrapper(context));
+      MobileDashboard.getInstance = function(context) {
+        return this._instance || (this._instance = new MobileDashboard(context));
       };
 
-      DashboardWrapper.wrapScreen = function(width, height) {
+      MobileDashboard.wrapScreen = function(width, height) {
         return this._instance.wrapScreen(width, height);
       };
 
-      DashboardWrapper.minimizeDashlet = function() {
+      MobileDashboard.minimizeDashlet = function() {
         return this._instance.minimizeDashlet();
       };
 
-      function DashboardWrapper(context1) {
+      function MobileDashboard(context1) {
         this.context = context1;
         this.context.callback.onDashletsLoaded();
       }
 
-      DashboardWrapper.prototype.wrapScreen = function(width, height) {
+      MobileDashboard.prototype.wrapScreen = function(width, height) {
         var window;
         window = new DashboardWindow(width, height);
         this.context.setWindow(window);
@@ -344,15 +351,15 @@
         return this.dashboardController.initialize();
       };
 
-      DashboardWrapper.prototype.minimizeDashlet = function() {
+      MobileDashboard.prototype.minimizeDashlet = function() {
         return this.dashboardController.minimizeDashlet();
       };
 
-      return DashboardWrapper;
+      return MobileDashboard;
 
     })();
     root = typeof window !== "undefined" && window !== null ? window : exports;
-    return root.DashboardWrapper = DashboardWrapper;
+    return root.MobileDashboard = MobileDashboard;
   });
 
 }).call(this);
@@ -361,7 +368,7 @@
   var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  define('js.mobile.android.client', ['js.mobile.client', 'js.mobile.android.callback.implementor', 'js.mobile.android.logger', 'js.mobile.context', 'js.mobile.dashboard.wrapper'], function(MobileClient, AndroidCallbackImplementor, AndroidLogger, Context, DashboardWrapper) {
+  define('js.mobile.android.dashboard.client', ['js.mobile.client', 'js.mobile.android.dashboard.callback', 'js.mobile.android.logger', 'js.mobile.context', 'js.mobile.dashboard'], function(MobileClient, AndroidCallback, AndroidLogger, Context, MobileDashboard) {
     var AndroidClient;
     return AndroidClient = (function(superClass) {
       extend(AndroidClient, superClass);
@@ -372,13 +379,13 @@
 
       AndroidClient.prototype.run = function() {
         var callbackImplementor, context, logger;
-        callbackImplementor = new AndroidCallbackImplementor();
+        callbackImplementor = new AndroidCallback();
         logger = new AndroidLogger();
         context = new Context({
           callback: callbackImplementor,
           logger: logger
         });
-        DashboardWrapper.getInstance(context);
+        MobileDashboard.getInstance(context);
         return callbackImplementor.onWrapperLoaded();
       };
 
@@ -1232,7 +1239,7 @@
 }());
 
 (function() {
-  require(['js.mobile.android.client', 'fastclick'], function(AndroidClient, FastClick) {
+  require(['js.mobile.android.dashboard.client', 'fastclick'], function(AndroidClient, FastClick) {
     return (function($) {
       FastClick.attach(document.body);
       return new AndroidClient().run();
@@ -1241,5 +1248,5 @@
 
 }).call(this);
 
-define("android/main.js", function(){});
+define("android/dashboard/main.js", function(){});
 

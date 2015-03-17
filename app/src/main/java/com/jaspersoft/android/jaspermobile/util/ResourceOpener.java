@@ -38,7 +38,6 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.CordovaDashboardActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.DashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -120,16 +119,18 @@ public class ResourceOpener {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Select WebView render")
-                    .setItems(new String[] {"Default", "Cordova"}, new DialogInterface.OnClickListener() {
+                    .setItems(new String[] {"Without script", "With script"}, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                            switch (which) {
                                case 0:
-                                   DashboardViewerActivity_.intent(getActivity())
+                                   CordovaDashboardActivity_.intent(getActivity())
                                            .resource(resource).start();
                                    break;
                                case 1:
                                    CordovaDashboardActivity_.intent(getActivity())
-                                           .resource(resource).start();
+                                           .enableScript(true)
+                                           .resource(resource)
+                                           .start();
                                    break;
                            }
                         }

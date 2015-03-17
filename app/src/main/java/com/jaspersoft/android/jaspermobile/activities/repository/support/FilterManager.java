@@ -86,7 +86,7 @@ public class FilterManager {
     }
 
     public ArrayList<String> getFiltersByType(Type value) {
-        if (serverRelease == ServerRelease.AMBER) {
+        if (serverRelease.code() >= ServerRelease.AMBER.code()) {
             return value.typesForAmber().getAsList();
         }
         return value.typesForPreAmber().getAsList();
@@ -136,11 +136,11 @@ public class FilterManager {
 
     private static enum Filter {
         ALL_PRE_AMBER(folder, reportUnit, dashboard),
-        ALL_AMBER(folder, reportUnit, legacyDashboard),
+        ALL_AMBER(folder, reportUnit, legacyDashboard, dashboard),
         ALL_LIBRARY_PRE_AMBER(reportUnit, dashboard),
-        ALL_LIBRARY_AMBER(reportUnit, legacyDashboard),
+        ALL_LIBRARY_AMBER(reportUnit, legacyDashboard, dashboard),
         ONLY_DASHBOARD_PRE_AMBER(dashboard),
-        ONLY_DASHBOARD_AMBER(legacyDashboard),
+        ONLY_DASHBOARD_AMBER(legacyDashboard, dashboard),
         ONLY_REPORT_TYPES(reportUnit);
 
         private final ArrayList<String> mTypes = new ArrayList<String>();

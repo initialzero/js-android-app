@@ -36,7 +36,7 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.CordovaDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.DashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
@@ -55,7 +55,7 @@ import java.util.ArrayList;
 @EBean
 public class ResourceOpener {
     @Bean
-    FilterManager filterManager;
+    FilterManagerBean filterManager;
     @RootContext
     FragmentActivity activity;
 

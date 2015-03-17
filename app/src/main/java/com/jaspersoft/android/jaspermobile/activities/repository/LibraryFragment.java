@@ -39,7 +39,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManager;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
@@ -78,7 +78,7 @@ public class LibraryFragment extends RoboFragment {
     @Pref
     protected LibraryPref_ pref;
     @Bean
-    protected FilterManager filterOptions;
+    protected FilterManagerBean filterOptions;
     @Bean
     protected SortOptions sortOptions;
 

@@ -22,32 +22,33 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.support;
+package com.jaspersoft.android.jaspermobile;
 
-import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.shadows.ShadowLog;
+import org.robolectric.annotation.Config;
 
-import java.io.IOException;
-import java.util.logging.LogManager;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 
 @RunWith(CustomRobolectricTestRunner.class)
-public abstract class UnitTestSpecification {
+@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+public class BuildConfigTest {
 
-    public UnitTestSpecification() {
-        // found no other way to set LogManager configuration by property file
-        try {
-            LogManager.getLogManager().readConfiguration(getClass().getResourceAsStream("/logging.properties"));
-            ShadowLog.stream = System.out; // current ShadowLog ignore log levels
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    @Test
+    public void shouldHaveCorrectConfiguration() {
+        if ("debug".equals(BuildConfig.BUILD_TYPE)) {
+            assertThat(BuildConfig.DEBUG, is(true));
+        } else if ("release".equals(BuildConfig.BUILD_TYPE)) {
+            assertThat(BuildConfig.DEBUG, is(false));
+        } else {
+            fail("build type configuration not tested or supported?");
         }
+        new BuildConfig(); // dummy coverage, should be an bridge or something else
     }
-
-    public Context getContext() {
-        return Robolectric.application;
-    }
-
 }

@@ -33,21 +33,30 @@ import org.robolectric.shadows.ShadowApplication;
 import java.io.File;
 import java.io.IOException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+
 /**
  * Just relocate the database file to a hard defined position.
  */
 @Implements(Application.class)
 public class CustomShadowApplication extends ShadowApplication {
 
-    public static final String ALTERNATIVE_DB_PATH = "build/resources/unit-test.db";
-    private File database = new File(ALTERNATIVE_DB_PATH);
+    public static final String DB_NAME = "unit-test.db";
+
+    private final File resourcesDir = new File("app/build/resources");
 
     @Override
     @Implementation
     public File getDatabasePath(String name) {
+        resourcesDir.mkdirs();
+
+        assertThat(resourcesDir.exists(), is(true));
+        File database = new File(resourcesDir.getPath() + "/" + DB_NAME);
+
         if (!database.exists()) {
             try {
-                database.createNewFile();
+                assertThat(database.createNewFile(), is(true));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

@@ -24,13 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.sdk;
 
-import com.jaspersoft.android.jaspermobile.test.support.UnitTestSpecification;
+import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 
 import retrofit.MockRestAdapter;
 import retrofit.RestAdapter;
@@ -47,7 +49,9 @@ import static org.mockito.Mockito.spy;
  * @author Tom Koptel
  * @since 2.0
  */
-public class JsRestClient2Test extends UnitTestSpecification {
+@RunWith(CustomRobolectricTestRunner.class)
+@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+public class JsRestClient2Test {
     private JsRestClient2 restClient;
     private MockRestAdapter mockRestAdapter;
     private RestAdapter restAdapter;

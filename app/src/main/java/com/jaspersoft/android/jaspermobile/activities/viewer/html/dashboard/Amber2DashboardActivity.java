@@ -46,6 +46,7 @@ import com.samskivert.mustache.Template;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.UiThread;
 import org.apache.commons.io.IOUtils;
 
@@ -66,6 +67,9 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @Extra
     protected ResourceLookup resource;
 
+    @InstanceState
+    protected boolean mMaximized;
+
     private AccountServerData accountServerData;
     private Toast mToast;
 
@@ -83,6 +87,16 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
         loadFlow();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mMaximized && webView != null) {
+            webView.loadUrl("javascript:MobileDashboard.minimizeDashlet()");
+            scrollableTitleHelper.injectTitle(resource.getLabel());
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     @SuppressLint("AddJavascriptInterface")
     @Override
     public void setupWebView(WebView webView) {
@@ -93,30 +107,37 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onMaximize(String title) {
+        mMaximized = true;
+        scrollableTitleHelper.injectTitle(title);
     }
 
     @UiThread
     @Override
     public void onMinimize() {
+        mMaximized = false;
     }
 
     @UiThread
+    @Override
     public void onScriptLoaded() {
         runDashboard();
     }
 
     @UiThread
+    @Override
     public void onLoadStart() {
         ProgressDialogFragment.builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.da_loading).show();
     }
 
     @UiThread
+    @Override
     public void onLoadDone() {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @UiThread
+    @Override
     public void onLoadError(String error) {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
         mToast.setText(error);
@@ -129,7 +150,11 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
 
     @Override
     public void onRefresh() {
-        loadFlow();
+        if (mMaximized) {
+            webView.loadUrl("javascript:MobileDashboard.refreshDashlet()");
+        } else {
+            webView.loadUrl("javascript:MobileDashboard.refresh()");
+        }
     }
 
     private void loadFlow() {

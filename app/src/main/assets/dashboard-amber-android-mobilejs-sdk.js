@@ -166,6 +166,7 @@
       }
 
       DashboardController.prototype.initialize = function() {
+        this.callback.onLoadStart();
         this._injectViewport();
         this._scaleDashboard();
         return this._attachDashletLoadListeners();

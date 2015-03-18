@@ -99,6 +99,7 @@
             success: function() {
               var dashboardId;
               self.logger.log("Scale dashboard");
+              self.components = this.data().components;
               $(this.container()).find('.dashboardCanvas').addClass('scaledCanvas');
               self.logger.log("Iterate components");
               this.data().components.forEach(function(component) {
@@ -121,7 +122,9 @@
                     maximized: true,
                     interactive: true
                   });
-                  self.updateToolbar(component);
+                  self.maximizedComponent = component;
+                  self.logger.log("onMaximize");
+                  self.callback.onMaximize(component.name);
                 }
               });
               self.callback.onLoadDone();
@@ -134,37 +137,31 @@
         });
       };
 
-      DashboardController.prototype.updateToolbar = function(component) {
-        var self;
-        self = this;
-        $('#toolbar > #label').text(component.name);
-        $('#toolbar > #minimize').show().off().on('click', function() {
-          var dashboardId;
-          dashboardId = self.v.dashboard.componentIdDomAttribute;
-          $(self.dashboard.container()).find("[" + dashboardId + "='" + component.id + "']").removeClass('originalDashletInScaledCanvas');
-          self.dashboard.updateComponent(component.id, {
-            maximized: false,
-            interactive: false
-          });
-          $(this).hide();
-          $('#toolbar > #cancel').hide();
-          $('#toolbar > #refresh').hide();
-          $('#toolbar > #label').text('My Dashboard');
+      DashboardController.prototype.refreshDashlet = function() {
+        if (this.maximizedComponent) {
+          return this.dashboard.refresh(this.maximizedComponent.id);
+        }
+      };
+
+      DashboardController.prototype.refresh = function() {
+        return this.components.forEach((function(_this) {
+          return function(component) {
+            return _this.dashboard.refresh(component.id);
+          };
+        })(this));
+      };
+
+      DashboardController.prototype.minimizeDashlet = function() {
+        var component, dashboardId;
+        dashboardId = this.v.dashboard.componentIdDomAttribute;
+        component = this.maximizedComponent;
+        $(this.dashboard.container()).find("[" + dashboardId + "='" + component.id + "']").removeClass('originalDashletInScaledCanvas');
+        this.dashboard.updateComponent(component.id, {
+          maximized: false,
+          interactive: false
         });
-        $('#toolbar > #cancel').off().on('click', function() {
-          $('#toolbar > #cancel').hide();
-          self.dashboard.cancel(component.id).always(function() {
-            $('#toolbar > #refresh').show();
-          });
-        });
-        $('#toolbar > #refresh').show().off().on('click', function() {
-          $('#toolbar > #refresh').hide();
-          $('#toolbar > #cancel').show();
-          self.dashboard.refresh(component.id).always(function() {
-            $('#toolbar > #refresh').show();
-            $('#toolbar > #cancel').hide();
-          });
-        });
+        this.logger.log("onMinimize");
+        return this.callback.onMinimize();
       };
 
       DashboardController.prototype.getComponentById = function(id) {
@@ -228,6 +225,18 @@
         return this._instance.run(options);
       };
 
+      MobileDashboard.minimizeDashlet = function() {
+        return this._instance.minimizeDashlet();
+      };
+
+      MobileDashboard.refreshDashlet = function() {
+        return this._instance.refreshDashlet();
+      };
+
+      MobileDashboard.refresh = function() {
+        return this._instance.refresh();
+      };
+
       function MobileDashboard(context1) {
         this.context = context1;
         this.context.callback.onScriptLoaded();
@@ -238,6 +247,18 @@
         options.context = this.context;
         this.dashboardController = new DashboardController(options);
         return this.dashboardController.runDashboard();
+      };
+
+      MobileDashboard.prototype.minimizeDashlet = function() {
+        return this.dashboardController.minimizeDashlet();
+      };
+
+      MobileDashboard.prototype.refreshDashlet = function() {
+        return this.dashboardController.refreshDashlet();
+      };
+
+      MobileDashboard.prototype.refresh = function() {
+        return this.dashboardController.refresh();
       };
 
       return MobileDashboard;

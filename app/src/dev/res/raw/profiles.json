@@ -10,6 +10,15 @@
 			"versionName": "5.5"
 		},
 	    {
+			"alias" : "Dashboard Hotfix",
+			"serverUrl" : "http://build-master.jaspersoft.com:8580/jrs-pro-feature-dashboard-improvements-for-jasper-mobile",
+			"organization" : "",
+			"username" : "superuser",
+			"password" : "superuser",
+			"edition": "PRO",
+			"versionName": "6.1"
+		},
+	    {
 			"alias" : "MobileDemo Superuser",
 			"serverUrl" : "http://mobiledemo.jaspersoft.com/jasperserver-pro",
 			"organization" : "",

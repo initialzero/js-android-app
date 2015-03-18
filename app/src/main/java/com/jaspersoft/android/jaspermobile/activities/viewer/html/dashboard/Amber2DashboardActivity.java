@@ -28,11 +28,13 @@ import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.JsInjectorFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -58,7 +60,7 @@ import java.util.Map;
  * @since 2.0
  */
 @EActivity
-public class Amber2DashboardActivity extends DashboardCordovaActivity {
+public class Amber2DashboardActivity extends DashboardCordovaActivity implements DashboardCallback {
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Extra
@@ -84,30 +86,37 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity {
     @SuppressLint("AddJavascriptInterface")
     @Override
     public void setupWebView(WebView webView) {
-        webView.addJavascriptInterface(this, "Android");
+        JsInjectorFactory.getInstance(this).createInjector()
+                .inject(webView, new DashboardWebInterface(this));
     }
 
     @UiThread
-    @JavascriptInterface
+    @Override
+    public void onMaximize(String title) {
+    }
+
+    @UiThread
+    @Override
+    public void onMinimize() {
+    }
+
+    @UiThread
     public void onScriptLoaded() {
         runDashboard();
     }
 
     @UiThread
-    @JavascriptInterface
     public void onLoadStart() {
         ProgressDialogFragment.builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.da_loading).show();
     }
 
     @UiThread
-    @JavascriptInterface
     public void onLoadDone() {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @UiThread
-    @JavascriptInterface
     public void onLoadError(String error) {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
         mToast.setText(error);

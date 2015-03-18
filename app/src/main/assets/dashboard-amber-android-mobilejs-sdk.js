@@ -12,39 +12,10 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.amber.dashboard.callback', [],function() {
-    var DashboardCallback;
-    return DashboardCallback = (function() {
-      function DashboardCallback() {}
-
-      DashboardCallback.prototype.onMaximize = function(title) {};
-
-      DashboardCallback.prototype.onMinimize = function() {};
-
-      DashboardCallback.prototype.onWrapperLoaded = function() {};
-
-      DashboardCallback.prototype.onDashletsLoaded = function() {};
-
-      return DashboardCallback;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  define('js.mobile.amber.android.dashboard.callback', ['require','js.mobile.amber.dashboard.callback'],function(require) {
-    var AndroidCallback, Callback;
-    Callback = require('js.mobile.amber.dashboard.callback');
-    return AndroidCallback = (function(superClass) {
-      extend(AndroidCallback, superClass);
-
-      function AndroidCallback() {
-        return AndroidCallback.__super__.constructor.apply(this, arguments);
-      }
+  define('js.mobile.android.dashboard.callback', ['require'],function(require) {
+    var AndroidCallback;
+    return AndroidCallback = (function() {
+      function AndroidCallback() {}
 
       AndroidCallback.prototype.onMaximize = function(title) {
         Android.onMaximize(title);
@@ -54,17 +25,25 @@
         Android.onMinimize();
       };
 
-      AndroidCallback.prototype.onWrapperLoaded = function() {
-        Android.onWrapperLoaded();
+      AndroidCallback.prototype.onScriptLoaded = function() {
+        Android.onScriptLoaded();
       };
 
-      AndroidCallback.prototype.onDashletsLoaded = function() {
-        Android.onDashletsLoaded();
+      AndroidCallback.prototype.onLoadStart = function() {
+        Android.onLoadStart();
+      };
+
+      AndroidCallback.prototype.onLoadDone = function() {
+        Android.onLoadDone();
+      };
+
+      AndroidCallback.prototype.onLoadError = function(error) {
+        Android.onLoadError(error);
       };
 
       return AndroidCallback;
 
-    })(Callback);
+    })();
   });
 
 }).call(this);
@@ -218,9 +197,7 @@
             return timeIntervalDashletContent = window.setInterval(function() {
               var dashletContent, dashlets;
               dashlets = jQuery('.dashlet');
-              _this._removeRedundantArtifacts();
               if (dashlets.length > 0) {
-                _this._disableDashlets();
                 dashletContent = jQuery('.dashletContent > div.content');
                 if (dashletContent.length === dashlets.length) {
                   _this._configureDashboard();
@@ -236,10 +213,11 @@
         this._overrideDashletTouches();
         this._disableDashlets();
         this._removeRedundantArtifacts();
-        return this.callback.onDashletsLoaded();
+        return this.callback.onLoadDone();
       };
 
       DashboardController.prototype._removeRedundantArtifacts = function() {
+        this.logger.log("remove artifacts");
         jQuery('.header').hide();
         jQuery('.dashletToolbar').hide();
         jQuery('.show_chartTypeSelector_wrapper').hide();
@@ -247,9 +225,7 @@
         jQuery('.column.decorated').css('border', 'none');
         jQuery('.dashboardViewer .dashboardContainer > .content > .body').css('top', '0px');
         jQuery('.column.decorated > .content > .body').css('top', '0px');
-        jQuery('.column > .content > .body').css('top', '0px');
-        jQuery('body').css('-webkit-transform', 'translateZ(0) !important');
-        return jQuery('body').css('-webkit-backface-visibility', 'hidden !important');
+        return jQuery('.column > .content > .body').css('top', '0px');
       };
 
       DashboardController.prototype._disableDashlets = function() {
@@ -342,7 +318,7 @@
 
       function MobileDashboard(context1) {
         this.context = context1;
-        this.context.callback.onDashletsLoaded();
+        this.context.callback.onScriptLoaded();
       }
 
       MobileDashboard.prototype.wrapScreen = function(width, height) {
@@ -370,8 +346,13 @@
   var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  define('js.mobile.amber.android.dashboard.client', ['js.mobile.client', 'js.mobile.amber.android.dashboard.callback', 'js.mobile.android.logger', 'js.mobile.context', 'js.mobile.amber.dashboard'], function(MobileClient, AndroidCallback, AndroidLogger, Context, MobileDashboard) {
-    var AndroidClient;
+  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.client','js.mobile.android.dashboard.callback','js.mobile.android.logger','js.mobile.context','js.mobile.amber.dashboard'],function(require) {
+    var AndroidCallback, AndroidClient, AndroidLogger, Context, MobileClient, MobileDashboard;
+    MobileClient = require('js.mobile.client');
+    AndroidCallback = require('js.mobile.android.dashboard.callback');
+    AndroidLogger = require('js.mobile.android.logger');
+    Context = require('js.mobile.context');
+    MobileDashboard = require('js.mobile.amber.dashboard');
     return AndroidClient = (function(superClass) {
       extend(AndroidClient, superClass);
 
@@ -380,15 +361,12 @@
       }
 
       AndroidClient.prototype.run = function() {
-        var callbackImplementor, context, logger;
-        callbackImplementor = new AndroidCallback();
-        logger = new AndroidLogger();
+        var context;
         context = new Context({
-          callback: callbackImplementor,
-          logger: logger
+          callback: new AndroidCallback(),
+          logger: new AndroidLogger()
         });
-        MobileDashboard.getInstance(context);
-        return callbackImplementor.onWrapperLoaded();
+        return MobileDashboard.getInstance(context);
       };
 
       return AndroidClient;

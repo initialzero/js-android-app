@@ -24,12 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -58,7 +58,6 @@ import org.apache.cordova.CordovaWebViewClient;
 import org.apache.cordova.PluginEntry;
 import org.apache.cordova.Whitelist;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,7 +74,6 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  */
 public abstract class DashboardCordovaActivity extends RoboToolbarActivity implements CordovaInterface {
     public final static String RESOURCE_EXTRA = "resource";
-
 
     protected CordovaWebView webView;
     private ProgressBar progressBar;
@@ -126,7 +124,6 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         favoriteEntryUri = savedInstanceState.getParcelable("favoriteEntryUri");
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -136,7 +133,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_star_outline : R.drawable.ic_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
 
-        if (BuildConfig.DEBUG) {
+        if (isDebugOrQa()) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.debug, menu);
         }
@@ -144,7 +141,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         return super.onCreateOptionsMenu(menu);
     }
 
-    @java.lang.Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean handled = super.onOptionsItemSelected(item);
         if (handled) {
@@ -170,6 +167,15 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         return false;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (this.webView != null) {
+            webView.handleDestroy();
+        }
+    }
+
     private void favoriteAction() {
         favoriteEntryUri = favoritesHelper.
                 handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
@@ -192,12 +198,10 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
 
     @Override
     public void startActivityForResult(CordovaPlugin command, Intent intent, int requestCode) {
-
     }
 
     @Override
     public void setActivityResultCallback(CordovaPlugin plugin) {
-
     }
 
     @Override
@@ -206,7 +210,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     }
 
     @Override
-    public Object onMessage(String message, Object data) {
+    public final Object onMessage(String message, Object data) {
         if ("onPageFinished".equals(message)) {
             onPageFinished();
         }
@@ -214,20 +218,15 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     }
 
     @Override
-    public ExecutorService getThreadPool() {
+    public final ExecutorService getThreadPool() {
         return executorService;
     }
 
-    @Nullable
-    public ChromeClient getChromeClient() {
-        return chromeClient;
-    }
+    public abstract void setupWebView(WebView webView);
 
     public abstract void onPageFinished();
 
     public abstract void onRefresh();
-
-    public abstract void setupWebView(WebView webView);
 
     private void setupSettings() {
         WebSettings settings = webView.getSettings();
@@ -240,6 +239,21 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
             webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         }
+
+        if (isDebugOrQa()) {
+            enableDebug();
+        }
+    }
+
+    private boolean isDebugOrQa() {
+        return BuildConfig.FLAVOR.equals("qa") || BuildConfig.DEBUG;
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private void enableDebug() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
     }
 
     private void initCordovaWebView() {
@@ -248,7 +262,6 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         whitelist.addWhiteListEntry("https://*/*", true);
         CordovaPreferences cordovaPreferences = new CordovaPreferences();
 
-        WeakReference<Activity> reference = new WeakReference<Activity>(this);
         jsWebViewClient.setSessionListener(new SessionListener(getActivity()));
         CordovaWebViewClient webViewClient2 = new DashboardCordovaWebClient(this, webView, jsWebViewClient);
 

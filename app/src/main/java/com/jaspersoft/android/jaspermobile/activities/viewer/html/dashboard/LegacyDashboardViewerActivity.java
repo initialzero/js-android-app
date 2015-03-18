@@ -24,14 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.webkit.WebView;
-import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.JsInjectorFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -40,39 +35,30 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.UiThread;
 
 /**
- * @author Tom Koptel
- * @since 2.0
+ * Activity that performs dashboard viewing in HTML format.
+ *
+ * @author Ivan Gadzhega
+ * @since 1.4
  */
 @EActivity
-public class AmberDashboardActivity extends DashboardCordovaActivity implements DashboardCallback {
+public class LegacyDashboardViewerActivity extends DashboardCordovaActivity {
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Extra
     protected ResourceLookup resource;
 
-    @InstanceState
-    protected boolean mMaximized;
-
-    private Toast mToast;
-
-    @SuppressLint("ShowToast")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
         loadFlow();
     }
 
     @Override
     public void setupWebView(WebView webView) {
-        JsInjectorFactory.getInstance(this).createInjector()
-                .inject(webView, new DashboardWebInterface(this));
     }
 
     @Override
@@ -84,53 +70,6 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     public void onRefresh() {
         loadFlow();
     }
-
-    @Override
-    public void onBackPressed() {
-        if (mMaximized && webView != null) {
-            webView.loadUrl("javascript:MobileDashboard.minimizeDashlet()");
-            scrollableTitleHelper.injectTitle(resource.getLabel());
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @UiThread
-    @Override
-    public void onMaximize(String title) {
-        mMaximized = true;
-        scrollableTitleHelper.injectTitle(title);
-    }
-
-    @UiThread
-    @Override
-    public void onMinimize() {
-        mMaximized = false;
-    }
-
-    @UiThread
-    @Override
-    public void onScriptLoaded() {
-        webView.loadUrl("javascript:MobileDashboard.wrapScreen('100%', '100%')");
-    }
-
-    @UiThread
-    @Override
-    public void onLoadStart() {
-    }
-
-    @UiThread
-    @Override
-    public void onLoadDone() {
-    }
-
-    @UiThread
-    @Override
-    public void onLoadError(String error) {
-        mToast.setText(error);
-        mToast.show();
-    }
-
 
     private void loadFlow() {
         WebFlowFactory.getInstance(this).createFlow(resource).load(webView);

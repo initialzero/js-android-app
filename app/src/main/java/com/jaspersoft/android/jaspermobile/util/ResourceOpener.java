@@ -35,7 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.DashboardViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
@@ -110,13 +110,12 @@ public class ResourceOpener {
         String versionName = accountServerData.getVersionName();
         ServerRelease serverRelease = ServerRelease.parseVersion(versionName);
 
-
         switch (serverRelease) {
             case EMERALD:
             case EMERALD_MR1:
             case EMERALD_MR2:
             case EMERALD_MR3:
-                DashboardViewerActivity_.intent(activity).resource(resource).start();
+                LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
                 break;
             case AMBER:
             case AMBER_MR1:
@@ -128,6 +127,5 @@ public class ResourceOpener {
             default:
                 throw new UnsupportedOperationException("Could not identify dashboard view for: " + versionName);
         }
-
     }
 }

@@ -71,6 +71,11 @@ public class LegacyDashboardViewerActivity extends DashboardCordovaActivity {
         loadFlow();
     }
 
+    @Override
+    public void onHomeAsUpEnabled() {
+        super.onBackPressed();
+    }
+
     private void loadFlow() {
         WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
     }

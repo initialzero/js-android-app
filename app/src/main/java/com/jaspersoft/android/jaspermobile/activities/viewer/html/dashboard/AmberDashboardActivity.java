@@ -88,6 +88,11 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     }
 
     @Override
+    public void onHomeAsUpEnabled() {
+        onBackPressed();
+    }
+
+    @Override
     public void onBackPressed() {
         if (mMaximized && webView != null) {
             webView.loadUrl("javascript:MobileDashboard.minimizeDashlet()");

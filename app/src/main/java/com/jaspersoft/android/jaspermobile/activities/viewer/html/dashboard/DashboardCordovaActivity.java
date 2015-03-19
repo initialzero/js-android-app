@@ -93,6 +93,10 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         setContentView(R.layout.activity_cordova_dashboard_viewer);
         restoreSavedInstanceState(savedInstanceState);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             resource = extras.getParcelable(RESOURCE_EXTRA);
@@ -143,28 +147,25 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean handled = super.onOptionsItemSelected(item);
-        if (handled) {
-            return true;
-        }
-        int itemId_ = item.getItemId();
-        if (itemId_ == R.id.refreshAction) {
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.refreshAction) {
             onRefresh();
-            return true;
         }
-        if (itemId_ == R.id.aboutAction) {
+        if (itemId == R.id.aboutAction) {
             aboutAction();
-            return true;
         }
-        if (itemId_ == R.id.favoriteAction) {
+        if (itemId == R.id.favoriteAction) {
             favoriteAction();
-            return true;
         }
-        if (itemId_ == R.id.showLog) {
+        if (itemId == R.id.showLog) {
             showLog();
-            return true;
         }
-        return false;
+        if (itemId == android.R.id.home) {
+            onHomeAsUpEnabled();
+        }
+
+        return true;
     }
 
     @Override
@@ -227,6 +228,8 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     public abstract void onPageFinished();
 
     public abstract void onRefresh();
+
+    public abstract void onHomeAsUpEnabled();
 
     private void setupSettings() {
         WebSettings settings = webView.getSettings();

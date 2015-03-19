@@ -157,6 +157,11 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
         }
     }
 
+    @Override
+    public void onHomeAsUpEnabled() {
+        onBackPressed();
+    }
+
     private void loadFlow() {
         InputStream stream = null;
         try {

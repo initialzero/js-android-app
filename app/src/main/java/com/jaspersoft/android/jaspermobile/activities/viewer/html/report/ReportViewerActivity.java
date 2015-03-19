@@ -66,6 +66,7 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
@@ -391,14 +392,19 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     private void loadFlow() {
+        ServerRelease release = ServerRelease.parseVersion(accountServerData.getVersionName());
+        // For JRS 6.0 and 6.0.1 we are fixing regression by removing optimization flag
+        boolean optimized = !(release.code() >= ServerRelease.AMBER.code() && release.code() <= ServerRelease.AMBER_MR1.code());
+
         InputStream stream = null;
         try {
             stream = getAssets().open("report.html");
             StringWriter writer = new StringWriter();
             IOUtils.copy(stream, writer, "UTF-8");
 
-            Map<String, String> data = new HashMap<String, String>();
-            data.put("visualize_url", accountServerData.getServerUrl() + "/client/visualize.js?_opt=true");
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("visualize_url", accountServerData.getServerUrl() + "/client/visualize.js?_opt=" + optimized);
+            data.put("optimized", optimized);
             Template tmpl = Mustache.compiler().compile(writer.toString());
             String html = tmpl.execute(data);
 

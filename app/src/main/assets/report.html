@@ -3,7 +3,12 @@
     <meta name="viewport" content="width=device-width, height=device-height, user-scalable=yes">
     <title>TIBCO Jaspersoft</title>
     <script type="text/javascript" src="{{visualize_url}}"></script>
-    <script data-main="file:///android_asset/report-android-mobilejs-sdk" src="file:///android_asset/require.min.js"></script>
+    {{#optimized}}
+        <script data-main="file:///android_asset/report-android-mobilejs-sdk.js" type="text/javascript" src="file:///android_asset/require.min.js"></script>
+    {{/optimized}}
+    {{^optimized}}
+        <script type="text/javascript" src="file:///android_asset/report-android-mobilejs-sdk.js"></script>
+    {{/optimized}}
 </head>
 <body>
 <div id="container"></div>

@@ -271,6 +271,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
             ArrayList<InputControl> inputControl = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
             reportModel.setInputControls(inputControl);
             loadFlow();
+        } else {
+            boolean isFirstReportMissing = (webView.getVisibility() == View.INVISIBLE);
+            if (isFirstReportMissing) {
+                emptyView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -408,6 +413,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             Template tmpl = Mustache.compiler().compile(writer.toString());
             String html = tmpl.execute(data);
 
+            webView.setVisibility(View.VISIBLE);
             webView.loadDataWithBaseURL(accountServerData.getServerUrl(), html, "text/html", "utf-8", null);
         } catch (IOException e) {
             throw new RuntimeException(e);

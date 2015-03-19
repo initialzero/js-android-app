@@ -32,7 +32,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -41,6 +40,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
@@ -51,7 +51,6 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.model.ReportModel;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.undo.ReportUndoManager;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.CordovaInterfaceImpl;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.SessionListener;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.SimpleChromeClient;
@@ -59,7 +58,6 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -126,6 +124,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @ViewById
     protected CordovaWebView webView;
+    @ViewById(android.R.id.empty)
+    protected TextView emptyView;
     @ViewById
     protected ProgressBar progressBar;
     @ViewById
@@ -136,8 +136,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @InstanceState
     protected Uri favoriteEntryUri;
-    @InstanceState
-    protected ReportUndoManager undoManager = new ReportUndoManager();
     @InstanceState
     protected ReportModel reportModel = new ReportModel();
 
@@ -249,7 +247,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public void onShowControls() {
-        ReportModel reportModel = undoManager.peekLast();
         showInputControlsPage(reportModel.getInputControls());
     }
 
@@ -259,10 +256,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
             ArrayList<InputControl> inputControl = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
             reportModel.setInputControls(inputControl);
             loadFlow();
-        } else {
-            if (undoManager.isEmpty()) {
-                finish();
-            }
         }
     }
 
@@ -308,49 +301,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void onTotalPagesLoaded(int pages) {
         if (pages == 0) {
-            if (undoManager.isEmpty()) {
-                AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                            @Override
-                            public void onClick(DialogFragment fragment) {
-                                if (reportModel != null) {
-                                    showInputControlsPage(reportModel.getInputControls());
-                                }
-                            }
-                        })
-                        .setTitle(R.string.warning_msg)
-                        .setCancelableOnTouchOutside(false)
-                        .setMessage(R.string.rv_error_empty_report)
-                        .setNegativeButtonText(android.R.string.ok)
-                        .show();
-            } else {
-                AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                            @Override
-                            public void onClick(DialogFragment fragment) {
-                                reportModel = undoManager.peekLast();
-                                runReport(reportModel.getReportParameters());
-                            }
-                        })
-                        .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                            @Override
-                            public void onClick(DialogFragment fragment) {
-                                ReportModel reportModel = undoManager.undo();
-                                showInputControlsPage(reportModel.getInputControls());
-                            }
-                        })
-                        .setNegativeButtonText(android.R.string.cancel)
-                        .setPositiveButtonText(android.R.string.ok)
-                        .setCancelableOnTouchOutside(false)
-                        .setTitle(R.string.rv_error_empty_report_title)
-                        .setMessage(R.string.rv_error_empty_report_message)
-                        .show();
-            }
+            emptyView.setVisibility(View.VISIBLE);
         } else {
-            undoManager.add(ReportModel.copy(reportModel));
-
+            emptyView.setVisibility(View.GONE);
             if (pages > 1) {
                 paginationControl.setVisibility(View.VISIBLE);
                 paginationControl.setTotalCount(pages);
@@ -423,7 +376,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
         webView.init(cordovaInterface, webViewClient2, chromeClient, pluginEntries, whitelist, whitelist, cordovaPreferences);
     }
 
-    // TODO remove mustache
     private void loadFlow() {
         InputStream stream = null;
         try {

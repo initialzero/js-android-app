@@ -97,8 +97,9 @@
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <!-- Activity that performs dashboard viewing in HTML format -->
+
         <activity
-            android:name=".activities.viewer.html.dashboard.LegacyDashboardViewerActivity_"
+            android:name=".activities.viewer.html.dashboard.Amber2DashboardActivity_"
             android:windowSoftInputMode="adjustPan"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
             android:parentActivityName=".activities.navigation.NavigationActivity_" >
@@ -108,9 +109,9 @@
         </activity>
 
         <activity
-            android:name=".activities.viewer.html.dashboard.Amber2DashboardActivity_"
+            android:name=".activities.viewer.html.dashboard.AmberDashboardActivity_"
             android:windowSoftInputMode="adjustPan"
-            android:configChanges="keyboard|keyboardHidden|locale"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
             android:parentActivityName=".activities.navigation.NavigationActivity_" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -118,7 +119,7 @@
         </activity>
 
         <activity
-            android:name=".activities.viewer.html.dashboard.AmberDashboardActivity_"
+            android:name=".activities.viewer.html.dashboard.LegacyDashboardViewerActivity_"
             android:windowSoftInputMode="adjustPan"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
             android:parentActivityName=".activities.navigation.NavigationActivity_" >

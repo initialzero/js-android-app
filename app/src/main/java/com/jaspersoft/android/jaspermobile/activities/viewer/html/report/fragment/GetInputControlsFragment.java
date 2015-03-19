@@ -120,6 +120,11 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         mListener.onShowControls();
     }
 
+    @OptionsItem
+    public void saveReport() {
+        mListener.onSaveReport();
+    }
+
     private class GetInputControlsListener extends SimpleRequestListener2<InputControlsList> {
         @Override
         protected Context getContext() {
@@ -153,10 +158,15 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         @Override
         public void onShowControls() {
         }
+
+        @Override
+        public void onSaveReport() {
+        }
     }
 
     public static interface OnInputControlsListener {
         void onLoaded(List<InputControl> inputControls);
         void onShowControls();
+        void onSaveReport();
     }
 }

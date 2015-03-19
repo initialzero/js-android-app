@@ -46,6 +46,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardCordovaWebClient;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
@@ -67,6 +68,7 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.util.FileUtils;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 
@@ -99,7 +101,6 @@ import java.util.List;
 import java.util.Map;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
-import timber.log.Timber;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
@@ -108,7 +109,7 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu(R.menu.retrofit_report_menu)
+@OptionsMenu({R.menu.retrofit_report_menu, R.menu.report_filter_manager_menu})
 @EActivity(R.layout.activity_cordova_dashboard_viewer)
 public class ReportViewerActivity extends RoboToolbarActivity
         implements ReportCallback,
@@ -148,7 +149,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Timber.tag("visualize");
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         if (savedInstanceState == null) {
@@ -250,6 +250,20 @@ public class ReportViewerActivity extends RoboToolbarActivity
         showInputControlsPage(reportModel.getInputControls());
     }
 
+    @Override
+    public void onSaveReport() {
+        if (FileUtils.isExternalStorageWritable()) {
+            SaveReportActivity_.intent(this)
+                    .reportParameters(reportModel.getReportParameters())
+                    .resource(resource)
+                    .pageCount(paginationControl.getTotalPages())
+                    .start();
+        } else {
+            Toast.makeText(this,
+                    R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadFlowWithControls(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
@@ -275,7 +289,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onScriptLoaded() {
-        runReport(reportModel.getReportParameters());
+        runReport(reportModel.getJsonReportParameters());
     }
 
     @UiThread

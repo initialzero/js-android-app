@@ -30,7 +30,9 @@ import android.os.Parcelable;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.InputControlsSerializer;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.InputControlSerializerImpl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,7 +53,16 @@ public class ReportModel implements Parcelable {
         return inputControls;
     }
 
-    public String getReportParameters() {
+    public ArrayList<ReportParameter> getReportParameters() {
+        ArrayList<ReportParameter> parameters = new ArrayList<ReportParameter>();
+        for (InputControl inputControl : inputControls) {
+            parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
+        }
+        return parameters;
+    }
+
+
+    public String getJsonReportParameters() {
         return serializer.toJson(inputControls);
     }
 

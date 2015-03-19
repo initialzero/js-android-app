@@ -48,6 +48,10 @@
         <item name="color">@android:color/white</item>
     </style>
 
+    <style name="Widget.JasperMobile.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
+        <item name="background">@color/ab_action_mode_background</item>
+    </style>
+
     <!-- Input Controls -->
     <style name="inputControl" />
 

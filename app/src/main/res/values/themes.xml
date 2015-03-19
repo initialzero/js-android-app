@@ -33,6 +33,7 @@
         <item name="colorAccent">@android:color/white</item>
 
         <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
+        <item name="actionModeStyle">@style/Widget.JasperMobile.ActionMode</item>
         <item name="android:textViewStyle">@style/Widget.JasperMobile.TextView</item>
         <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
         <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>

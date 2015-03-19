@@ -49,6 +49,7 @@
 
     <!-- Navigation Drawer -->
     <color name="ab_background">#363942</color>
+    <color name="ab_action_mode_background">#4b4e57</color>
     <color name="shadow_light">#55000000</color>
     <color name="shadow_dark">#cc000000</color>
     <color name="profile_bg">#9939abe7</color>

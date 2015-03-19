@@ -114,6 +114,7 @@
               dashboardId = self.v.dashboard.componentIdDomAttribute;
               $(this.container()).find("[" + dashboardId + "]").on('click', function() {
                 var component, id;
+                $('.show_chartTypeSelector_wrapper').show();
                 id = $(this).attr(dashboardId);
                 component = self.getComponentById(id);
                 if (component && !component.maximized) {
@@ -153,6 +154,7 @@
 
       DashboardController.prototype.minimizeDashlet = function() {
         var component, dashboardId;
+        $('.show_chartTypeSelector_wrapper').hide();
         dashboardId = this.v.dashboard.componentIdDomAttribute;
         component = this.maximizedComponent;
         $(this.dashboard.container()).find("[" + dashboardId + "='" + component.id + "']").removeClass('originalDashletInScaledCanvas');

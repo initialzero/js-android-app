@@ -22,16 +22,36 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
+package com.jaspersoft.android.jaspermobile.test.support;
+
+import android.database.sqlite.SQLiteDatabase;
+
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.robolectric.Robolectric;
+
+import java.io.File;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-final class AmberDashboardScriptTagCreator extends DashboardScriptTagCreator {
-    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-amber-android-mobilejs-sdk.js";
+public final class DatabaseRule implements TestRule  {
+    @Override
+    public final Statement apply(final Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                resetDatabase();
+                base.evaluate();
+                resetDatabase();
+            }
+        };
+    }
 
-    public AmberDashboardScriptTagCreator() {
-        super(CLIENT_SCRIPT_SRC);
+    private void resetDatabase() {
+        File dbFile = Robolectric.application.getDatabasePath(null);
+        SQLiteDatabase.deleteDatabase(dbFile);
     }
 }

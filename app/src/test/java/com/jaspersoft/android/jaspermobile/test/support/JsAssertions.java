@@ -22,16 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
+package com.jaspersoft.android.jaspermobile.test.support;
+
+import android.net.Uri;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-final class AmberDashboardScriptTagCreator extends DashboardScriptTagCreator {
-    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-amber-android-mobilejs-sdk.js";
+public class JsAssertions {
+    private JsAssertions() {
+        throw new AssertionError();
+    }
 
-    public AmberDashboardScriptTagCreator() {
-        super(CLIENT_SCRIPT_SRC);
+    public static void assertNewUri(Uri uri) {
+        assertThat(uri, notNullValue());
+
+        Long id = Long.valueOf(uri.getLastPathSegment());
+        assertThat(id, is(not(0L)));
     }
 }
+

@@ -60,8 +60,9 @@ public class ScriptTagFactory {
                 return new EmeraldDashboardScriptTagCreator();
             case AMBER:
             case AMBER_MR1:
-            case AMBER_MR2:
                 return new AmberDashboardScriptTagCreator();
+            case AMBER_MR2:
+                return new Amber2DashboardScriptTagCreator();
             default:
                 throw new UnsupportedOperationException("Could not script creator for current versionName: " + versionName);
         }

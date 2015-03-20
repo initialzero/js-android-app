@@ -1,5 +1,14 @@
 {
 	"profiles" : [
+        {
+            "alias" : "Dashboard Hotfix",
+            "serverUrl" : "http://build-master.jaspersoft.com:8580/jrs-pro-feature-dashboard-improvements-for-jasper-mobile",
+            "organization" : "",
+            "username" : "superuser",
+            "password" : "superuser",
+            "edition": "PRO",
+            "versionName": "6.1"
+        },
        {
             "alias" : "PRO TRUNK Superuser",
             "serverUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",

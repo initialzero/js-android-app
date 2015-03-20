@@ -73,7 +73,11 @@ public final class WebFlowFactory {
             case AMBER:
             case AMBER_MR1:
             case AMBER_MR2:
-                webFlow = new AmberWebFlow();
+                if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
+                    webFlow = new EmeraldWebFlow();
+                } else {
+                    webFlow = new AmberWebFlow();
+                }
                 break;
             default:
                 throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);

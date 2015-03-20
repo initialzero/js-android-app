@@ -22,16 +22,32 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview;
+
+import android.app.Activity;
+import android.widget.Toast;
+
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
+
+import java.lang.ref.WeakReference;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-final class AmberDashboardScriptTagCreator extends DashboardScriptTagCreator {
-    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-amber-android-mobilejs-sdk.js";
+public class SessionListener implements JSWebViewClient.SessionListener {
+    private final WeakReference<Activity> weakReference;
 
-    public AmberDashboardScriptTagCreator() {
-        super(CLIENT_SCRIPT_SRC);
+    public SessionListener(Activity activity) {
+        this.weakReference = new WeakReference<Activity>(activity);
+    }
+
+    @Override
+    public void onSessionExpired() {
+        if (weakReference.get() != null) {
+            Toast.makeText(weakReference.get(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
+            weakReference.get().finish();
+        }
     }
 }

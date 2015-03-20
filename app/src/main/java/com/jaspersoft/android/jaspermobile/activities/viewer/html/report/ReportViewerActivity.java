@@ -436,21 +436,29 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private void runReport(String params) {
         String organization = TextUtils.isEmpty(accountServerData.getOrganization())
                 ? "" : accountServerData.getOrganization();
+
         StringBuilder builder = new StringBuilder();
+        builder.append("javascript:MobileReport.setCredentials")
+                .append("({")
+                .append("\"username\": \"%s\",")
+                .append("\"password\": \"%s\",")
+                .append("\"organization\": \"%s\"")
+                .append("})");
+        String authScript = String.format(builder.toString(),
+                accountServerData.getUsername(),
+                accountServerData.getPassword(),
+                organization);
+        webView.loadUrl(authScript);
+
+        builder = new StringBuilder();
         builder.append("javascript:MobileReport.run")
                 .append("({")
                 .append("\"uri\": \"%s\",")
-                .append("\"username\": \"%s\",")
-                .append("\"password\": \"%s\",")
-                .append("\"organization\": \"%s\",")
                 .append("\"params\": %s")
                 .append("})");
 
         String executeScript = String.format(builder.toString(),
                 resource.getUri(),
-                accountServerData.getUsername(),
-                accountServerData.getPassword(),
-                organization,
                 params);
         webView.loadUrl(executeScript);
     }

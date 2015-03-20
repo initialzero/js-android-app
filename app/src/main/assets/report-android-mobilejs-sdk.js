@@ -146,7 +146,6 @@
         this.context = options.context, this.session = options.session, this.uri = options.uri, this.params = options.params;
         this.callback = this.context.callback;
         this.logger = this.context.logger;
-        this.logger.log(this.uri);
         this.params || (this.params = {});
         this.totalPages = 0;
       }
@@ -160,6 +159,10 @@
       ReportController.prototype.runReport = function() {
         this.callback.onLoadStart();
         return visualize(this.session.authOptions(), this._executeReport);
+      };
+
+      ReportController.prototype.destroyReport = function() {
+        return this.loader.destroy();
       };
 
       ReportController.prototype._executeReport = function(visualize) {
@@ -266,10 +269,13 @@
         return this._instance || (this._instance = new MobileReport(context));
       };
 
-      function MobileReport(context1) {
-        this.context = context1;
-        this.context.callback.onScriptLoaded();
-      }
+      MobileReport.setCredentials = function(options) {
+        return this._instance.setCredentials(options);
+      };
+
+      MobileReport.destroy = function() {
+        return this._instance.destroyReport();
+      };
 
       MobileReport.run = function(options) {
         return this._instance.run(options);
@@ -279,6 +285,15 @@
         return this._instance.selectPage(page);
       };
 
+      function MobileReport(context1) {
+        this.context = context1;
+        this.context.callback.onScriptLoaded();
+      }
+
+      MobileReport.prototype.setCredentials = function(options) {
+        return this.session = new Session(options);
+      };
+
       MobileReport.prototype.selectPage = function(page) {
         if (this.reportController) {
           return this.reportController.selectPage(page);
@@ -286,10 +301,14 @@
       };
 
       MobileReport.prototype.run = function(options) {
-        options.session = new Session(options);
+        options.session = this.session;
         options.context = this.context;
         this.reportController = new ReportController(options);
         return this.reportController.runReport();
+      };
+
+      MobileReport.prototype.destroyReport = function() {
+        return this.reportController.destroyReport();
       };
 
       return MobileReport;

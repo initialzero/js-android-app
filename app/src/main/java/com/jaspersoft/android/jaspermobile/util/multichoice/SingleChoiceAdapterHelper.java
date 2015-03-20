@@ -26,25 +26,24 @@ package com.jaspersoft.android.jaspermobile.util.multichoice;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.ActionMode;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationPanelController;
 import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapter;
-import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapterHelperBase;
+import com.manuelpeinado.multichoiceadapter.extras.actionbarcompat.MultiChoiceAdapterHelper;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelperBase {
+public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
 
     public static final int NO_POSITION = -1;
     private static String CURRENT_POSITION_KEY = "CURRENT_POSITION";
     private int currentPosition;
-    private ActionMode actionMode;
 
     public SingleChoiceAdapterHelper(BaseAdapter owner) {
         super(owner);
@@ -107,30 +106,21 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelperBase {
     }
 
     @Override
-    protected void setActionModeTitle(String title) {
-        actionMode.setTitle(title);
-    }
-
-    @Override
-    protected boolean isActionModeStarted() {
-        return actionMode != null;
-    }
-
-    @Override
     protected void startActionMode() {
+        super.startActionMode();
         ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
-        actionMode = activity.startSupportActionMode((ActionMode.Callback) owner);
+        ((NavigationPanelController) activity).swipeToOpenEnabled(false);
     }
 
     @Override
     public void finishActionMode() {
-        if (actionMode != null) {
-            actionMode.finish();
-        }
+        super.finishActionMode();
     }
 
     @Override
-    protected void clearActionMode() {
-        actionMode = null;
+    public void onDestroyActionMode() {
+        super.onDestroyActionMode();
+        ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
+        ((NavigationPanelController) activity).swipeToOpenEnabled(true);
     }
 }

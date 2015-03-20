@@ -153,7 +153,7 @@ dependencies {
     apt 'org.roboguice:roboblender:3.0.1'
 
     // For action mode support within list views
-    compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'
+    compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter-abc:3.1.0'
 
     // Splunk Mint(Bugsense)
     compile "com.splunk.mint:mint:4.0.3"

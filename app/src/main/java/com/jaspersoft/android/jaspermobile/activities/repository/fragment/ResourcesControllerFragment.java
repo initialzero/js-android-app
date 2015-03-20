@@ -86,7 +86,7 @@ public class ResourcesControllerFragment extends ControllerFragment
         super.onActivityCreated(savedInstanceState);
 
         ResourcesFragment inMemoryFragment = (ResourcesFragment)
-                getFragmentManager().findFragmentByTag(getContentTag());
+                getFragmentManager().findFragmentByTag(getContentFragmentTag());
 
         if (inMemoryFragment == null) {
             commitContentFragment();

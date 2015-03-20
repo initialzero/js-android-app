@@ -46,7 +46,7 @@ import java.util.List;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends RoboToolbarActivity {
+public class NavigationActivity extends RoboToolbarActivity implements NavigationPanelController {
 
     private static final int NEW_ACCOUNT = 20;
 
@@ -104,6 +104,15 @@ public class NavigationActivity extends RoboToolbarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void swipeToOpenEnabled(boolean enabled) {
+        if(enabled) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        } else {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
     }
 
     @OnActivityResult(NEW_ACCOUNT)

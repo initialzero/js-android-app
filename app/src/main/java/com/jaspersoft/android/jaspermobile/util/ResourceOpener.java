@@ -37,11 +37,13 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Ambe
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -60,6 +62,14 @@ public class ResourceOpener {
     FragmentActivity activity;
 
     private ArrayList<String> resourceTypes;
+    private ServerRelease serverRelease;
+
+    @AfterInject
+    final void init() {
+        Account account = JasperAccountManager.get(activity).getActiveAccount();
+        AccountServerData accountServerData = AccountServerData.get(activity, account);
+        serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+    }
 
     public void setResourceTypes(ArrayList<String> resourceTypes) {
         this.resourceTypes = resourceTypes;
@@ -99,17 +109,26 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        ReportHtmlViewerActivity_.intent(activity)
-                .resource(resource).start();
+        switch (serverRelease) {
+            case EMERALD:
+            case EMERALD_MR1:
+            case EMERALD_MR2:
+            case EMERALD_MR3:
+                ReportHtmlViewerActivity_.intent(activity)
+                        .resource(resource).start();
+                break;
+            case AMBER:
+            case AMBER_MR1:
+            case AMBER_MR2:
+                ReportViewerActivity_.intent(activity)
+                        .resource(resource).start();
+                break;
+            default:
+                throw new UnsupportedOperationException("Could not open viewer for current versionName: " + serverRelease.code());
+        }
     }
 
     private void runDashboard(ResourceLookup resource) {
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(activity, account);
-
-        String versionName = accountServerData.getVersionName();
-        ServerRelease serverRelease = ServerRelease.parseVersion(versionName);
-
         switch (serverRelease) {
             case EMERALD:
             case EMERALD_MR1:
@@ -125,7 +144,7 @@ public class ResourceOpener {
                 Amber2DashboardActivity_.intent(activity).resource(resource).start();
                 break;
             default:
-                throw new UnsupportedOperationException("Could not identify dashboard view for: " + versionName);
+                throw new UnsupportedOperationException("Could not identify dashboard view for: " + serverRelease.code());
         }
     }
 }

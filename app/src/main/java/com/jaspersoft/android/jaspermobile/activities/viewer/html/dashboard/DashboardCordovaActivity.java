@@ -107,7 +107,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
         }
 
-        webView = (CordovaWebView) findViewById(R.id.cordova);
+        webView = (CordovaWebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         jsWebViewClient = JSWebViewClient_.getInstance_(this);
 

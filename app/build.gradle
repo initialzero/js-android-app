@@ -134,7 +134,6 @@ apt {
 
 dependencies {
     provided project(':database-generator')
-
     compile project(':sdk')
     compile project(':cordova')
 
@@ -175,7 +174,6 @@ dependencies {
     testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile 'org.robolectric:robolectric:2.4'
 
-    // Functional, integration tests dependencies
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
     androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
 

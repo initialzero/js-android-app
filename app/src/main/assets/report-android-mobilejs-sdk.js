@@ -1,58 +1,8 @@
 (function() {
-  define('js.mobile.client', [],function() {
-    var Client;
-    return Client = (function() {
-      function Client() {}
-
-      return Client;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.report.callback', [],function() {
+  define('js.mobile.android.report.callback', ['require'],function(require) {
     var ReportCallback;
     return ReportCallback = (function() {
       function ReportCallback() {}
-
-      ReportCallback.prototype.onScriptLoaded = function() {};
-
-      ReportCallback.prototype.onLoadStart = function() {};
-
-      ReportCallback.prototype.onLoadDone = function(parameters) {};
-
-      ReportCallback.prototype.onLoadError = function(error) {};
-
-      ReportCallback.prototype.onTotalPagesLoaded = function(pages) {};
-
-      ReportCallback.prototype.onPageChange = function(page) {};
-
-      ReportCallback.prototype.onReferenceClick = function(location) {};
-
-      ReportCallback.prototype.onReportExecutionClick = function(reportUri, params) {};
-
-      return ReportCallback;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  define('js.mobile.android.report.callback', ['require','js.mobile.report.callback'],function(require) {
-    var Callback, ReportCallback;
-    Callback = require('js.mobile.report.callback');
-    return ReportCallback = (function(superClass) {
-      extend(ReportCallback, superClass);
-
-      function ReportCallback() {
-        return ReportCallback.__super__.constructor.apply(this, arguments);
-      }
 
       ReportCallback.prototype.onScriptLoaded = function() {
         Android.onScriptLoaded();
@@ -88,7 +38,7 @@
 
       return ReportCallback;
 
-    })(Callback);
+    })();
   });
 
 }).call(this);
@@ -152,7 +102,7 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.report.session', [],function() {
+  define('js.mobile.session', [],function() {
     var Session;
     return Session = (function() {
       function Session(options) {
@@ -237,7 +187,6 @@
       };
 
       ReportController.prototype._processSuccess = function(parameters) {
-        this.logger.log(parameters);
         return this.callback.onLoadDone(parameters);
       };
 
@@ -263,7 +212,6 @@
 
       ReportController.prototype._startReportExecution = function(link) {
         var params, paramsAsString, reportUri;
-        this.logger.log("ReportExecution");
         params = link.parameters;
         reportUri = params._report;
         paramsAsString = JSON.stringify(params, null, 2);
@@ -271,13 +219,11 @@
       };
 
       ReportController.prototype._navigateToAnchor = function(link) {
-        this.logger.log("LocalAnchor");
         return window.location.hash = link.href;
       };
 
       ReportController.prototype._navigateToPage = function(link) {
         var href, matches, numberPattern, pageNumber;
-        this.logger.log("LocalPage");
         href = link.href;
         numberPattern = /\d+/g;
         matches = href.match(numberPattern);
@@ -289,7 +235,6 @@
 
       ReportController.prototype._openRemoteLink = function(link) {
         var href;
-        this.logger.log("Reference");
         href = link.href;
         return this.callback.onReferenceClick(href);
       };
@@ -310,9 +255,9 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.report', ['require','js.mobile.report.session','js.mobile.report.controller'],function(require) {
+  define('js.mobile.report', ['require','js.mobile.session','js.mobile.report.controller'],function(require) {
     var MobileReport, ReportController, Session, root;
-    Session = require('js.mobile.report.session');
+    Session = require('js.mobile.session');
     ReportController = require('js.mobile.report.controller');
     MobileReport = (function() {
       MobileReport._instance = null;
@@ -323,6 +268,7 @@
 
       function MobileReport(context1) {
         this.context = context1;
+        this.context.callback.onScriptLoaded();
       }
 
       MobileReport.run = function(options) {
@@ -356,38 +302,27 @@
 }).call(this);
 
 (function() {
-  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  define('js.mobile.android.report.client', ['require','js.mobile.client','js.mobile.android.report.callback','js.mobile.android.logger','js.mobile.context','js.mobile.report'],function(require) {
-    var AndroidLogger, Context, MobileClient, MobileReport, ReportCallback, ReportClient;
-    MobileClient = require('js.mobile.client');
+  define('js.mobile.android.report.client', ['require','js.mobile.android.report.callback','js.mobile.android.logger','js.mobile.context','js.mobile.report'],function(require) {
+    var AndroidLogger, Context, MobileReport, ReportCallback, ReportClient;
     ReportCallback = require('js.mobile.android.report.callback');
     AndroidLogger = require('js.mobile.android.logger');
     Context = require('js.mobile.context');
     MobileReport = require('js.mobile.report');
-    return ReportClient = (function(superClass) {
-      extend(ReportClient, superClass);
-
-      function ReportClient() {
-        return ReportClient.__super__.constructor.apply(this, arguments);
-      }
+    return ReportClient = (function() {
+      function ReportClient() {}
 
       ReportClient.prototype.run = function() {
-        var callbackImplementor, context, logger;
-        callbackImplementor = new ReportCallback();
-        logger = new AndroidLogger();
+        var context;
         context = new Context({
-          callback: callbackImplementor,
-          logger: logger
+          callback: new ReportCallback(),
+          logger: new AndroidLogger()
         });
-        MobileReport.getInstance(context);
-        return callbackImplementor.onScriptLoaded();
+        return MobileReport.getInstance(context);
       };
 
       return ReportClient;
 
-    })(MobileClient);
+    })();
   });
 
 }).call(this);

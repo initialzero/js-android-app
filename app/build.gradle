@@ -133,7 +133,7 @@ apt {
 
 dependencies {
     provided project(':database-generator')
-    compile project(':library-circular')
+
     compile project(':sdk')
     compile project(':cordova')
 

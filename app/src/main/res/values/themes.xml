@@ -50,7 +50,7 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="Theme.JasperMobile.NoToolbar" parent="Theme.JasperMobile">
+    <style name="Theme.JasperMobile.NoToolbar" parent="Widget.AppCompat.ProgressBar">
        <item name="windowToolbar">false</item>
     </style>
 

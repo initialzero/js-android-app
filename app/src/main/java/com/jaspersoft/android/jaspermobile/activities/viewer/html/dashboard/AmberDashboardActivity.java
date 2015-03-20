@@ -118,7 +118,6 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     @UiThread
     @Override
     public void onScriptLoaded() {
-        webView.loadUrl("javascript:MobileDashboard.wrapScreen('100%', '100%')");
     }
 
     @UiThread

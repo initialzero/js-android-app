@@ -1,17 +1,4 @@
 (function() {
-  define('js.mobile.client', [],function() {
-    var Client;
-    return Client = (function() {
-      function Client() {}
-
-      return Client;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
   define('js.mobile.android.dashboard.callback', ['require'],function(require) {
     var AndroidCallback;
     return AndroidCallback = (function() {
@@ -151,8 +138,31 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.amber.dashboard.controller', ['js.mobile.amber.dashboard.view'], function(View) {
-    var DashboardController;
+  define('js.mobile.scaler', [],function() {
+    var Scaler;
+    return Scaler = (function() {
+      function Scaler() {}
+
+      Scaler.prototype.scale = function(factor) {
+        var originalDashletInScaledCanvasCss, scaledCanvasCss;
+        jQuery("#scale_style").remove();
+        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
+        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
+        jQuery('<style id="scale_style"></style').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
+      };
+
+      return Scaler;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.amber.dashboard.controller', ['require','js.mobile.amber.dashboard.view','js.mobile.scaler'],function(require) {
+    var DashboardController, Scaler, View;
+    View = require('js.mobile.amber.dashboard.view');
+    Scaler = require('js.mobile.scaler');
     return DashboardController = (function() {
       function DashboardController(context) {
         this.context = context;
@@ -162,18 +172,21 @@
           el: jQuery('#frame'),
           context: this.context
         });
-        this.dashletsLoaded = false;
+        this.scaler = new Scaler;
       }
 
       DashboardController.prototype.initialize = function() {
         this.callback.onLoadStart();
+        this.scaler.scale(0.25);
+        this._removeRedundantArtifacts();
         this._injectViewport();
-        this._scaleDashboard();
         return this._attachDashletLoadListeners();
       };
 
       DashboardController.prototype.minimizeDashlet = function() {
         this.logger.log("minimize dashlet");
+        this.logger.log("Remove original scale");
+        jQuery(".dashboardCanvas > .content > .body div.canvasOverlay").removeClass("originalDashletInScaledCanvas");
         jQuery("div.dashboardCanvas > div.content > div.body > div").find(".minimizeDashlet")[0].click();
         this._disableDashlets();
         return this.callback.onMinimize();
@@ -186,7 +199,7 @@
       };
 
       DashboardController.prototype._scaleDashboard = function() {
-        return this.container.scaleView();
+        return jQuery('.dashboardCanvas').addClass('scaledCanvas');
       };
 
       DashboardController.prototype._attachDashletLoadListeners = function() {
@@ -211,22 +224,17 @@
       };
 
       DashboardController.prototype._configureDashboard = function() {
+        this._scaleDashboard();
         this._overrideDashletTouches();
         this._disableDashlets();
-        this._removeRedundantArtifacts();
         return this.callback.onLoadDone();
       };
 
       DashboardController.prototype._removeRedundantArtifacts = function() {
+        var customStyle;
         this.logger.log("remove artifacts");
-        jQuery('.header').hide();
-        jQuery('.dashletToolbar').hide();
-        jQuery('.show_chartTypeSelector_wrapper').hide();
-        jQuery('.column.decorated').css('margin', '0px');
-        jQuery('.column.decorated').css('border', 'none');
-        jQuery('.dashboardViewer .dashboardContainer > .content > .body').css('top', '0px');
-        jQuery('.column.decorated > .content > .body').css('top', '0px');
-        return jQuery('.column > .content > .body').css('top', '0px');
+        customStyle = ".header, .dashletToolbar, .show_chartTypeSelector_wrapper { display: none !important; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } #mainNavigation{ display: none !important; }";
+        return jQuery('<style id="custom_mobile"></style').text(customStyle).appendTo('head');
       };
 
       DashboardController.prototype._disableDashlets = function() {
@@ -262,7 +270,6 @@
       DashboardController.prototype._maximizeDashlet = function(dashlet, title) {
         var button, dashletElements, dashlets;
         this.logger.log("maximizing dashlet");
-        this.logger.log("context: " + this.context);
         dashletElements = jQuery('.dashlet').not(jQuery('.inputControlWrapper').parentsUntil('.dashlet').parent());
         dashlets = new View({
           el: dashletElements,
@@ -271,7 +278,9 @@
         dashlets.enable();
         this.callback.onMaximize(title);
         button = jQuery(jQuery(dashlet).find('div.dashletToolbar > div.content div.buttons > .maximizeDashletButton')[0]);
-        return button.click();
+        button.click();
+        this.logger.log("Add original scale");
+        return jQuery(".dashboardCanvas > .content > .body div.canvasOverlay").addClass("originalDashletInScaledCanvas");
       };
 
       return DashboardController;
@@ -309,8 +318,8 @@
         return this._instance || (this._instance = new MobileDashboard(context));
       };
 
-      MobileDashboard.wrapScreen = function(width, height) {
-        return this._instance.wrapScreen(width, height);
+      MobileDashboard.run = function() {
+        return this._instance.run();
       };
 
       MobileDashboard.minimizeDashlet = function() {
@@ -322,9 +331,9 @@
         this.context.callback.onScriptLoaded();
       }
 
-      MobileDashboard.prototype.wrapScreen = function(width, height) {
+      MobileDashboard.prototype.run = function() {
         var window;
-        window = new DashboardWindow(width, height);
+        window = new DashboardWindow('100%', '100%');
         this.context.setWindow(window);
         this.dashboardController = new DashboardController(this.context);
         return this.dashboardController.initialize();
@@ -344,22 +353,14 @@
 }).call(this);
 
 (function() {
-  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.client','js.mobile.android.dashboard.callback','js.mobile.android.logger','js.mobile.context','js.mobile.amber.dashboard'],function(require) {
-    var AndroidCallback, AndroidClient, AndroidLogger, Context, MobileClient, MobileDashboard;
-    MobileClient = require('js.mobile.client');
+  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.android.dashboard.callback','js.mobile.android.logger','js.mobile.context','js.mobile.amber.dashboard'],function(require) {
+    var AndroidCallback, AndroidClient, AndroidLogger, Context, MobileDashboard;
     AndroidCallback = require('js.mobile.android.dashboard.callback');
     AndroidLogger = require('js.mobile.android.logger');
     Context = require('js.mobile.context');
     MobileDashboard = require('js.mobile.amber.dashboard');
-    return AndroidClient = (function(superClass) {
-      extend(AndroidClient, superClass);
-
-      function AndroidClient() {
-        return AndroidClient.__super__.constructor.apply(this, arguments);
-      }
+    return AndroidClient = (function() {
+      function AndroidClient() {}
 
       AndroidClient.prototype.run = function() {
         var context;
@@ -367,12 +368,13 @@
           callback: new AndroidCallback(),
           logger: new AndroidLogger()
         });
-        return MobileDashboard.getInstance(context);
+        MobileDashboard.getInstance(context);
+        return MobileDashboard.run();
       };
 
       return AndroidClient;
 
-    })(MobileClient);
+    })();
   });
 
 }).call(this);

@@ -48,12 +48,12 @@ class ReportResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(ImageView imageView, String uri) {
-        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
         imageView.setBackgroundResource(R.drawable.js_grey_gradient);
 
         if (isAmberOrHigher) {
             loadFromNetwork(imageView, uri);
         } else {
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             imageView.setImageResource(R.drawable.sample_report_grey);
         }
     }
@@ -90,6 +90,7 @@ class ReportResourceBinder extends ResourceBinder {
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.MATRIX);
             ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.TOP_CROP);
         }
     }

@@ -185,12 +185,10 @@
         </activity>
 
         <receiver
-            android:name=".auth.RestErrorReceiver"
+            android:name=".auth.AccountResourceReceiver"
             android:exported="false" >
             <intent-filter>
-                <action android:name="jaspersoft.intent.action.TOKEN_EXPIRED" />
-                <action android:name="jaspersoft.intent.action.INVALID_PASSWORD" />
-                <action android:name="jaspersoft.intent.action.REST_ERROR" />
+                <action android:name="jaspersoft.intent.action.ACCOUNT_REMOVED" />
             </intent-filter>
         </receiver>
 

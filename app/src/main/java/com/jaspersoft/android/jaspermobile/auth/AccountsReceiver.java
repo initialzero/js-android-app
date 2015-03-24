@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.auth;
 
-import android.accounts.AccountManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,14 +34,9 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountResources;
  * @author Tom Koptel
  * @since 2.0
  */
-public class AccountResourceReceiver extends BroadcastReceiver {
-    public static final String ACCOUNT_REMOVED = "jaspersoft.intent.action.ACCOUNT_REMOVED";
-
+public class AccountsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.hasExtra(AccountManager.KEY_ACCOUNT_NAME)) {
-            String accountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-            AccountResources.get(context, accountName).flush();
-        }
+        AccountResources.get(context).flushOnDemand();
     }
 }

@@ -32,7 +32,6 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -59,19 +58,6 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
         super(context);
         mContext = context;
         Timber.tag(JasperAuthenticator.class.getSimpleName());
-    }
-
-    @NonNull
-    @Override
-    public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account) throws NetworkErrorException {
-        Bundle result = super.getAccountRemovalAllowed(response, account);
-        boolean allowedToDelete = result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT);
-        if (allowedToDelete) {
-            Intent intent = new Intent(AccountResourceReceiver.ACCOUNT_REMOVED);
-            intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            mContext.sendBroadcast(intent);
-        }
-        return result;
     }
 
     @Override

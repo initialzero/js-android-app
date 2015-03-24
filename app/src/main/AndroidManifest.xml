@@ -185,10 +185,10 @@
         </activity>
 
         <receiver
-            android:name=".auth.AccountResourceReceiver"
+            android:name=".auth.AccountsReceiver"
             android:exported="false" >
             <intent-filter>
-                <action android:name="jaspersoft.intent.action.ACCOUNT_REMOVED" />
+                <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
             </intent-filter>
         </receiver>
 

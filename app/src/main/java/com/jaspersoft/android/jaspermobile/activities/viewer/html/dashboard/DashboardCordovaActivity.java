@@ -177,6 +177,12 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         }
     }
 
+    protected void resetZoom() {
+        while (webView.zoomOut()) {
+            webView.zoomOut();
+        }
+    }
+
     private void favoriteAction() {
         favoriteEntryUri = favoritesHelper.
                 handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);

@@ -105,6 +105,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onMaximize(String title) {
+        resetZoom();
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
     }
@@ -112,6 +113,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onMinimize() {
+        resetZoom();
         mMaximized = false;
     }
 

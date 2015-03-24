@@ -55,8 +55,10 @@ public class ReportModel implements Parcelable {
 
     public ArrayList<ReportParameter> getReportParameters() {
         ArrayList<ReportParameter> parameters = new ArrayList<ReportParameter>();
-        for (InputControl inputControl : inputControls) {
-            parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
+        if (inputControls != null) {
+            for (InputControl inputControl : inputControls) {
+                parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
+            }
         }
         return parameters;
     }

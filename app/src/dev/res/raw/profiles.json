@@ -1,6 +1,15 @@
 {
 	"profiles" : [
 	    {
+			"alias" : "6.0.1 Build Master",
+			"serverUrl" : "http://172.17.10.113:8080/jasperserver-pro-601",
+			"organization" : "",
+			"username" : "superuser",
+			"password" : "superuser",
+			"edition": "PRO",
+			"versionName": "6.0.1"
+		},
+	    {
 			"alias" : "MobileDemo JasperAdmin",
 			"serverUrl" : "http://mobiledemo.jaspersoft.com/jasperserver-pro",
 			"organization" : "organization_1",

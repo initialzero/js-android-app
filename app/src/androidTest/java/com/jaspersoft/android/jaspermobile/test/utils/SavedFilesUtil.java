@@ -43,10 +43,7 @@ public class SavedFilesUtil {
         return false;
     }
 
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
-    private static File getSavedReportsDirectory(Context context) {
+    public static File getSavedReportsDirectory(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("Call startActivityUnderTest() before this method");
         }

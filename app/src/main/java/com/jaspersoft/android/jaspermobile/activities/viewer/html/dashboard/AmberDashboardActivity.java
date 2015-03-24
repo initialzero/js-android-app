@@ -32,7 +32,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.JsInjectorFactory;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboardApi;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -73,8 +73,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @Override
     public void setupWebView(WebView webView) {
-        JsInjectorFactory.getInstance(this).createInjector()
-                .inject(webView, new DashboardWebInterface(this));
+        DashboardWebInterface.inject(this, webView);
     }
 
     @Override
@@ -95,7 +94,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     @Override
     public void onBackPressed() {
         if (mMaximized && webView != null) {
-            webView.loadUrl("javascript:MobileDashboard.minimizeDashlet()");
+            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();

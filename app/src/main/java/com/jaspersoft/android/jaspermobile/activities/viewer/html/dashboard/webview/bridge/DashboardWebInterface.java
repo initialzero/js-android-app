@@ -25,16 +25,21 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
 
 import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class DashboardWebInterface implements DashboardCallback {
+public class DashboardWebInterface extends WebInterface implements DashboardCallback {
     private final DashboardCallback dashboardCallback;
 
-    public DashboardWebInterface(DashboardCallback dashboardCallback) {
+    private DashboardWebInterface(DashboardCallback dashboardCallback) {
         this.dashboardCallback = dashboardCallback;
+    }
+
+    public static void inject(DashboardCallback dashboardCallback, WebView webView) {
+        new DashboardWebInterface(dashboardCallback).injectJavascriptInterface(webView);
     }
 
     @JavascriptInterface
@@ -73,4 +78,8 @@ public class DashboardWebInterface implements DashboardCallback {
         dashboardCallback.onLoadError(error);
     }
 
+    @Override
+    void injectJavascriptInterface(WebView webView) {
+        webView.addJavascriptInterface(this, "Android");
+    }
 }

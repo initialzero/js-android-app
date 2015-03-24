@@ -24,15 +24,25 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
 
-import android.webkit.WebView;
-
 /**
+ * Introduces hardcoded Javascript calls.
+ *
  * @author Tom Koptel
  * @since 2.0
  */
-final class EmeraldJsInterfaceInjector implements JsInterfaceInjector {
-    @Override
-    public void inject(WebView webView, Object bridge) {
-        // Ignore. Do nothing for lower versions of app
+public class MobileDashboardApi {
+    private MobileDashboardApi() {
+    }
+
+    public static String refreshDashlet() {
+        return "javascript:MobileDashboard.refresh()";
+    }
+
+    public static String refresh() {
+        return "javascript:MobileDashboard.refresh()";
+    }
+
+    public static String minimizeDashlet() {
+        return "javascript:MobileDashboard.minimizeDashlet()";
     }
 }

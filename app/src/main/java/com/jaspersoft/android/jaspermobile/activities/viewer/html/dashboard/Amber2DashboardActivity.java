@@ -34,7 +34,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.JsInjectorFactory;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboardApi;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -90,18 +90,16 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @Override
     public void onBackPressed() {
         if (mMaximized && webView != null) {
-            webView.loadUrl("javascript:MobileDashboard.minimizeDashlet()");
+            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();
         }
     }
 
-    @SuppressLint("AddJavascriptInterface")
     @Override
     public void setupWebView(WebView webView) {
-        JsInjectorFactory.getInstance(this).createInjector()
-                .inject(webView, new DashboardWebInterface(this));
+        DashboardWebInterface.inject(this, webView);
     }
 
     @UiThread
@@ -151,9 +149,9 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @Override
     public void onRefresh() {
         if (mMaximized) {
-            webView.loadUrl("javascript:MobileDashboard.refreshDashlet()");
+            webView.loadUrl(MobileDashboardApi.refreshDashlet());
         } else {
-            webView.loadUrl("javascript:MobileDashboard.refresh()");
+            webView.loadUrl(MobileDashboardApi.refresh());
         }
     }
 

@@ -28,7 +28,6 @@ import android.accounts.Account;
 import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -83,6 +82,7 @@ import java.util.Date;
 import java.util.List;
 
 import roboguice.util.Ln;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -318,7 +318,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         try {
             org.apache.commons.io.FileUtils.deleteDirectory(dir);
         } catch (IOException e) {
-            Log.w(TAG, "Failed to remove template file", e);
+            Timber.w(TAG, "Failed to remove template file", e);
         }
         Toast.makeText(getActivity(), "Failed to execute report", Toast.LENGTH_SHORT).show();
     }

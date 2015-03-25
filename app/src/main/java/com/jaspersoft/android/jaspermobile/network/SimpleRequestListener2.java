@@ -6,8 +6,8 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 /**
- * @author Tom Koptel
- * @since 1.9
+ * @author Andrew Tivodar
+ * @since 2.0
  */
 public abstract class SimpleRequestListener2<T> implements RequestListener<T> {
 

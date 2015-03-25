@@ -43,8 +43,8 @@ import java.net.UnknownHostException;
 import retrofit.RetrofitError;
 
 /**
- * @author Ivan Gadzhega
- * @since 1.6
+ * @author Andrew Tivodar
+ * @since 2.0
  */
 public class RequestExceptionHandler2 {
 

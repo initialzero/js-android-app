@@ -56,9 +56,11 @@ public class SavedItemsSearchFragment extends RoboFragment implements SearchView
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
-        searchView.setQueryHint(getString(R.string.s_saved_items_hint));
-        searchView.setOnQueryTextListener(this);
+        if (!isDetached()) {
+            SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+            searchView.setQueryHint(getString(R.string.s_saved_items_hint));
+            searchView.setOnQueryTextListener(this);
+        }
     }
 
     @Override

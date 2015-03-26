@@ -24,10 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.sdk;
 
-import com.jaspersoft.android.jaspermobile.test.support.UnitTestSpecification;
+import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.retrofit.sdk.server.DefaultVersionParser;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -40,7 +42,9 @@ import static org.hamcrest.core.Is.is;
  * @author Tom Koptel
  * @since 2.0
  */
-public class DefaultVersionParserTest extends UnitTestSpecification {
+@RunWith(CustomRobolectricTestRunner.class)
+@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+public class DefaultVersionParserTest {
     @Test
     public void shouldParseSemanticVersioning() {
         Map<String, Double> doubleMap = new HashMap<String, Double>();

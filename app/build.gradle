@@ -32,6 +32,7 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 apply from: 'build_utils.gradle'
+apply from: 'resources.gradle'
 
 android {
     compileSdkVersion androidCompileSdkVersion
@@ -164,6 +165,12 @@ dependencies {
 
     // Dependency for image loading management
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+
+    // Unit tests dependencies
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
+    testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile 'org.robolectric:robolectric:2.4'
 
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
     androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'

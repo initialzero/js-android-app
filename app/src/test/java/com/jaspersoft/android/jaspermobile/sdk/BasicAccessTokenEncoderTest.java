@@ -26,21 +26,25 @@ package com.jaspersoft.android.jaspermobile.sdk;
 
 import android.util.Base64;
 
-import com.jaspersoft.android.jaspermobile.test.support.UnitTestSpecification;
+import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class BasicAccessTokenEncoderTest extends UnitTestSpecification {
+@RunWith(CustomRobolectricTestRunner.class)
+@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+public class BasicAccessTokenEncoderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuilderShouldNotAcceptNullUsername() {

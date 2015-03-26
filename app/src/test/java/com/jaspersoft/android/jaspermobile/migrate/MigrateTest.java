@@ -22,47 +22,34 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.sdk;
+package com.jaspersoft.android.jaspermobile.migrate;
 
-import android.accounts.Account;
+import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 
-import com.jaspersoft.android.jaspermobile.test.support.UnitTestSpecification;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountProvider;
-
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
+
+import java.net.URL;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class BasicAccountProviderTest extends UnitTestSpecification {
-    private JasperAccountProvider storage;
-
-    @Before
-    public void setUp() {
-        storage = JasperAccountProvider.get(getContext());
-    }
+@RunWith(CustomRobolectricTestRunner.class)
+@Config(
+        manifest = "app/src/main/AndroidManifest.xml",
+        emulateSdk = 18
+)
+public class MigrateTest {
 
     @Test
-    public void testBasicMethods() {
-        storage.putAccount(new Account("cookie", "any"));
-        Account account = storage.getAccount();
-        assertThat(account, notNullValue());
-        assertThat(account.name, is("cookie"));
+    public void testFetchDatabaseFile() {
+        URL resource = MigrateTest.class.getClassLoader().getResource("jasper_mobile_db_1.9");
+        assertThat(resource, notNullValue());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testFactoryShouldNotAcceptNullContext() {
-        JasperAccountProvider.get(null);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testGetMethodShouldFollowContract() {
-        JasperAccountProvider.get(getContext()).getAccount();
-    }
 }

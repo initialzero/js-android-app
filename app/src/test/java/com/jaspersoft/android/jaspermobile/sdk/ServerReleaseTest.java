@@ -24,10 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.sdk;
 
-import com.jaspersoft.android.jaspermobile.test.support.UnitTestSpecification;
+import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +41,9 @@ import static org.hamcrest.core.Is.is;
  * @author Tom Koptel
  * @since 2.0
  */
-public class ServerReleaseTest extends UnitTestSpecification {
+@RunWith(CustomRobolectricTestRunner.class)
+@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+public class ServerReleaseTest {
     @Test
     public void shouldParseSemanticVersioning() {
         Map<String, ServerRelease> doubleMap = new HashMap<String, ServerRelease>();

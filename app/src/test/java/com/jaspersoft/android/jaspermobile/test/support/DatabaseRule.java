@@ -22,25 +22,36 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.util;
+package com.jaspersoft.android.jaspermobile.test.support;
 
-import android.net.Uri;
+import android.database.sqlite.SQLiteDatabase;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.notNullValue;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.robolectric.Robolectric;
+
+import java.io.File;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class JsAssertions {
-    private JsAssertions() {
-        throw new AssertionError();
+public final class DatabaseRule implements TestRule  {
+    @Override
+    public final Statement apply(final Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                resetDatabase();
+                base.evaluate();
+                resetDatabase();
+            }
+        };
     }
 
-    public static void assertNewUri(Uri uri) {
-        assertThat(uri, notNullValue());
-        assertThat(Long.valueOf(uri.getLastPathSegment()), greaterThan(0L));
+    private void resetDatabase() {
+        File dbFile = Robolectric.application.getDatabasePath(null);
+        SQLiteDatabase.deleteDatabase(dbFile);
     }
 }

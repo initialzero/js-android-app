@@ -43,12 +43,14 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -65,7 +67,7 @@ import org.androidannotations.annotations.ViewById;
  */
 @EFragment(R.layout.report_html_viewer)
 @OptionsMenu(R.menu.webview_menu)
-public class NodeWebViewFragment extends RoboSpiceFragment {
+public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDialogFragment.SimpleDialogClickListener{
     public static final String TAG = NodeWebViewFragment.class.getSimpleName();
 
     @ViewById
@@ -210,23 +212,40 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     }
 
     //---------------------------------------------------------------------
+    // Implementing SimpleDialogFragment.SimpleDialogClickListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onPositiveClick(int requestCode) {
+        PaginationManagerFragment paginationManagerFragment =
+                (PaginationManagerFragment) getFragmentManager()
+                        .findFragmentByTag(PaginationManagerFragment.TAG);
+        paginationManagerFragment.paginateTo(1);
+    }
+
+    @Override
+    public void onNegativeClick(int requestCode) {
+        getActivity().finish();
+    }
+
+    //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
     private final ReportSession.ExecutionObserver sessionObserver =
             new ReportSession.ExecutionObserver() {
-        @Override
-        public void onRequestIdChanged(String requestId) {
-            fetchReport();
-        }
+                @Override
+                public void onRequestIdChanged(String requestId) {
+                    fetchReport();
+                }
 
-        @Override
-        public void onPagesLoaded(int totalPage) {
-            if (!outputFinal && mRelease.code() >= ServerRelease.EMERALD_MR3.code()) {
-                fetchReport();
-            }
-        }
-    };
+                @Override
+                public void onPagesLoaded(int totalPage) {
+                    if (!outputFinal && mRelease.code() >= ServerRelease.EMERALD_MR3.code()) {
+                        fetchReport();
+                    }
+                }
+            };
 
     private class ExportResultListener implements ReportExportOutputLoader.ResultListener {
         @Override
@@ -244,6 +263,29 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
             loadHtml(output.getData());
             if (onPageLoadListener != null) {
                 onPageLoadListener.onSuccess(page);
+            }
+        }
+
+        @Override
+        public void onOutOfRange(boolean isOutOfRange, ErrorDescriptor errorDescriptor ) {
+            if (isOutOfRange) {
+                SimpleDialogFragment.createBuilder(getActivity(), getActivity().getSupportFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(R.string.rv_out_of_range)
+                        .setMessage(errorDescriptor.getMessage())
+                        .setNegativeButtonText(android.R.string.cancel)
+                        .setPositiveButtonText(R.string.rv_dialog_reload)
+                        .setTargetFragment(NodeWebViewFragment.this)
+                        .setCancelableOnTouchOutside(false)
+                        .show();
+            } else {
+                SimpleDialogFragment.createBuilder(getActivity(), getActivity().getSupportFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(errorDescriptor.getErrorCode())
+                        .setMessage(errorDescriptor.getMessage())
+                        .setCancelableOnTouchOutside(false)
+                        .setTargetFragment(NodeWebViewFragment.this)
+                        .show();
             }
         }
     }

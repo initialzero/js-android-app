@@ -43,4 +43,14 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
+    <style name="Theme.JasperMobile.Dialog.Alert" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
+
+        <item name="colorPrimary">@color/holo_blue_dark</item>
+        <item name="colorAccent">@color/holo_blue_dark</item>
+        <item name="colorPrimaryDark">@color/holo_blue_dark</item>
+    </style>
+
 </resources>

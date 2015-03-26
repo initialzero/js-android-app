@@ -1,16 +1,12 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support;
 
 import android.content.Context;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.PaginationManagerFragment;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportOutputRequest;
@@ -79,7 +75,7 @@ public class ReportExportOutputLoader {
         requestExecutor.execute(request, new RunReportExportsRequestListener(page));
     }
 
-    private class RunReportExportsRequestListener extends SimpleRequestListener2<ExportExecution> {
+    private class RunReportExportsRequestListener extends SimpleRequestListener<ExportExecution> {
         private final int mPage;
 
         private RunReportExportsRequestListener(int page) {
@@ -109,7 +105,7 @@ public class ReportExportOutputLoader {
         }
     }
 
-    private class RunReportExportOutputRequestListener extends SimpleRequestListener2<ReportDataResponse> {
+    private class RunReportExportOutputRequestListener extends SimpleRequestListener<ReportDataResponse> {
         private final String mExecutionId;
 
         private RunReportExportOutputRequestListener(String executionId) {
@@ -133,45 +129,15 @@ public class ReportExportOutputLoader {
                 return;
             }
 
-            HttpStatus httpStatus = RequestExceptionHandler.extractStatusCode(spiceException);
-            if (httpStatus == HttpStatus.FORBIDDEN) {
+            int httpStatus = RequestExceptionHandler.extractStatusCode(spiceException);
+            if (httpStatus == HttpStatus.FORBIDDEN.value()) {
                 HttpStatusCodeException exception = (HttpStatusCodeException)
                         spiceException.getCause();
                 ErrorDescriptor errorDescriptor = ErrorDescriptor.valueOf(exception);
 
                 boolean outOfRange = errorDescriptor.getErrorCode().equals("export.pages.out.of.range");
-                if (outOfRange) {
-                    AlertDialogFragment.createBuilder(context, context.getSupportFragmentManager())
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                                @Override
-                                public void onClick(DialogFragment fragment) {
-                                    fragment.getActivity().finish();
-                                }
-                            })
-                            .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                                @Override
-                                public void onClick(DialogFragment fragment) {
-                                    PaginationManagerFragment paginationManagerFragment =
-                                            (PaginationManagerFragment) fragment.getFragmentManager()
-                                                    .findFragmentByTag(PaginationManagerFragment.TAG);
-                                    paginationManagerFragment.paginateTo(1);
-
-                                }
-                            })
-                            .setTitle(R.string.rv_out_of_range)
-                            .setMessage(errorDescriptor.getMessage())
-                            .setCancelableOnTouchOutside(false)
-                            .setNegativeButtonText(android.R.string.cancel)
-                            .setPositiveButtonText(R.string.rv_dialog_reload)
-                            .show();
-                } else {
-                    AlertDialogFragment.createBuilder(context, context.getSupportFragmentManager())
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setTitle(errorDescriptor.getErrorCode())
-                            .setMessage(errorDescriptor.getMessage())
-                            .setCancelableOnTouchOutside(false)
-                            .show();
+                if (resultListener != null) {
+                    resultListener.onOutOfRange(outOfRange, errorDescriptor);
                 }
             } else {
                 super.onRequestFailure(spiceException);
@@ -195,5 +161,6 @@ public class ReportExportOutputLoader {
     public static interface ResultListener {
         public void onFailure(Exception exception);
         public void onSuccess(ExportOutputData exportOutputData);
+        public void onOutOfRange(boolean isOutOfRange, ErrorDescriptor errorDescriptor );
     }
 }

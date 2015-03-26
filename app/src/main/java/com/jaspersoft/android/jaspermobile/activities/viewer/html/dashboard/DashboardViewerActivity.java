@@ -48,6 +48,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowStrategy;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -67,8 +68,6 @@ import org.androidannotations.annotations.ViewById;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
-
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
  * Activity that performs dashboard viewing in HTML format.

@@ -5,16 +5,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.CheckReportStatusRequest;
@@ -40,8 +39,11 @@ import java.util.concurrent.TimeUnit;
  * @since 1.9
  */
 @EFragment
-public class ReportExecutionFragment extends RoboSpiceFragment {
+public class ReportExecutionFragment extends RoboSpiceFragment implements SimpleDialogFragment.SimpleDialogClickListener {
     public static final String TAG = ReportExecutionFragment.class.getSimpleName();
+
+    private final int EMPTY_REPORT_DIALOG_WITH_SNAPSHOT = 121;
+    private final int EMPTY_REPORT_DIALOG_WITHOUT_SNAPSHOT = 122;
 
     @FragmentArg
     ResourceLookup resource;
@@ -89,61 +91,28 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     public void showEmptyReportOptionsDialog() {
         FilterManagerFragment filterManagerFragment = getFilterMangerFragment();
         if (!filterManagerFragment.hasSnapshot()) {
-            AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+            SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                    .setRequestCode(EMPTY_REPORT_DIALOG_WITH_SNAPSHOT)
                     .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                        @Override
-                        public void onClick(DialogFragment fragment) {
-                            FilterManagerFragment filterManagerFragment =
-                                    (FilterManagerFragment) fragment.getFragmentManager()
-                                            .findFragmentByTag(FilterManagerFragment.TAG);
-                            if (filterManagerFragment != null) {
-                                filterManagerFragment.showFilters();
-                            }
-                        }
-                    })
                     .setTitle(R.string.warning_msg)
-                    .setCancelableOnTouchOutside(false)
                     .setMessage(R.string.rv_error_empty_report)
                     .setNegativeButtonText(android.R.string.ok)
+                    .setTargetFragment(this)
+                    .setCancelableOnTouchOutside(false)
                     .show();
             return;
         }
 
-        AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+        SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setRequestCode(EMPTY_REPORT_DIALOG_WITHOUT_SNAPSHOT)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                    @Override
-                    public void onClick(DialogFragment fragment) {
-                        FilterManagerFragment filterManagerFragment =
-                                (FilterManagerFragment) fragment.getFragmentManager()
-                                        .findFragmentByTag(FilterManagerFragment.TAG);
-                        if (filterManagerFragment != null) {
-                            filterManagerFragment.showPreviousReport();
-                        }
-                    }
-                })
-                .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                    @Override
-                    public void onClick(DialogFragment fragment) {
-                        FilterManagerFragment filterManagerFragment =
-                                (FilterManagerFragment) fragment.getFragmentManager()
-                                        .findFragmentByTag(FilterManagerFragment.TAG);
-                        if (filterManagerFragment != null) {
-                            filterManagerFragment.showFilters();
-                        }
-                    }
-                })
                 .setNegativeButtonText(android.R.string.cancel)
                 .setPositiveButtonText(android.R.string.ok)
-                .setCancelableOnTouchOutside(false)
                 .setTitle(R.string.rv_error_empty_report_title)
                 .setMessage(R.string.rv_error_empty_report_message)
+                .setTargetFragment(this)
+                .setCancelableOnTouchOutside(false)
                 .show();
-    }
-
-    public String getRequestId() {
-        return requestId;
     }
 
     //---------------------------------------------------------------------
@@ -178,7 +147,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     @NonNull
     private PaginationManagerFragment getPaginationManagerFragment() {
         return (PaginationManagerFragment)
-                    getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
+                getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
     }
 
     private boolean isStatusPending(ReportStatus status) {
@@ -186,10 +155,38 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     }
 
     //---------------------------------------------------------------------
+    // Implements DeleteDialogFragment.DeleteDialogClickListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onPositiveClick(int requestCode) {
+        FilterManagerFragment filterManagerFragment =
+                (FilterManagerFragment) getFragmentManager()
+                        .findFragmentByTag(FilterManagerFragment.TAG);
+        if (filterManagerFragment != null) {
+            filterManagerFragment.showFilters();
+        }
+    }
+
+    @Override
+    public void onNegativeClick(int requestCode) {
+        FilterManagerFragment filterManagerFragment =
+                (FilterManagerFragment) getFragmentManager()
+                        .findFragmentByTag(FilterManagerFragment.TAG);
+        if (filterManagerFragment != null) {
+            if (requestCode == EMPTY_REPORT_DIALOG_WITH_SNAPSHOT) {
+                filterManagerFragment.showFilters();
+            } else {
+                filterManagerFragment.showPreviousReport();
+            }
+        }
+    }
+
+    //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener extends SimpleRequestListener2<ReportExecutionResponse> {
+    private class RunReportExecutionListener extends SimpleRequestListener<ReportExecutionResponse> {
 
         @Override
         protected Context getContext() {
@@ -251,7 +248,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         }
     }
 
-    private class CheckReportStatusRequestListener extends SimpleRequestListener2<ReportStatusResponse> {
+    private class CheckReportStatusRequestListener extends SimpleRequestListener<ReportStatusResponse> {
         private final String requestId;
 
         private CheckReportStatusRequestListener(String requestId) {
@@ -275,7 +272,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         }
     }
 
-    private class ReportDetailsRequestListener extends SimpleRequestListener2<ReportExecutionResponse> {
+    private class ReportDetailsRequestListener extends SimpleRequestListener<ReportExecutionResponse> {
 
         @Override
         protected Context getContext() {

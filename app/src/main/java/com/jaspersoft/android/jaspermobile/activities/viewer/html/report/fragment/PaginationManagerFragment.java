@@ -201,8 +201,8 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
             new NodeWebViewFragment.OnPageLoadListener() {
                 @Override
                 public void onFailure(Exception exception) {
-                    HttpStatus statusCode = RequestExceptionHandler.extractStatusCode(exception);
-                    if (statusCode != null && statusCode == HttpStatus.BAD_REQUEST) {
+                    int statusCode = RequestExceptionHandler.extractStatusCode(exception);
+                    if (statusCode != 0 && statusCode == HttpStatus.BAD_REQUEST.value()) {
                         // Enforcing max page or first one
                         // this situation possible due to the user has entered out of range page
                         mAdapter.setCount(paginationControl.isTotalPagesLoaded() ?

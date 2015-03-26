@@ -47,7 +47,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -366,7 +366,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener extends SimpleRequestListener2<ReportExecutionResponse> {
+    private class RunReportExecutionListener extends SimpleRequestListener<ReportExecutionResponse> {
         private OutputFormat outputFormat;
 
         private RunReportExecutionListener(OutputFormat outputFormat) {
@@ -415,7 +415,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         }
     }
 
-    private class AttachmentFileSaveListener extends SimpleRequestListener2<File> {
+    private class AttachmentFileSaveListener extends SimpleRequestListener<File> {
 
         private AttachmentFileSaveListener() {
             runningRequests++;

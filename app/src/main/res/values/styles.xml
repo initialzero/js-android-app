@@ -390,11 +390,4 @@
 
     <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
 
-    <style name="Widget.JasperMobileDialog" parent="@style/DialogStyleDark.Custom" />
-
-    <style name="DialogStyleDark.Custom">
-        <item name="titleTextColor">@color/dialog_title_txt_color</item>
-        <item name="dialogBackground">@drawable/ic_resources_background</item>
-    </style>
-
 </resources>

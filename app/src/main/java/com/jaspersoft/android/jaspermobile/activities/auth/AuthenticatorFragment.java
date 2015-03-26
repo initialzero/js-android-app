@@ -41,7 +41,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler2;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
@@ -109,7 +109,7 @@ public class AuthenticatorFragment extends RoboFragment {
             Timber.e(throwable, "Login failed");
 
             String exceptionMessage;
-            int statusCode = RequestExceptionHandler2.extractStatusCode((Exception) throwable);
+            int statusCode = RequestExceptionHandler.extractStatusCode((Exception) throwable);
             if (statusCode == HttpStatus.NOT_FOUND.value()) {
                 exceptionMessage = getString(R.string.r_error_server_not_found);
             } else if (statusCode == HttpStatus.UNAUTHORIZED.value()) {

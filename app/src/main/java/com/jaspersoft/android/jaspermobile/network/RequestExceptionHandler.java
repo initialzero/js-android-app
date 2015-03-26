@@ -24,22 +24,23 @@
 
 package com.jaspersoft.android.jaspermobile.network;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.octo.android.robospice.exception.NetworkException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import java.util.EnumMap;
+import java.net.UnknownHostException;
+
+import retrofit.RetrofitError;
 
 /**
  * @author Ivan Gadzhega
@@ -51,125 +52,94 @@ public class RequestExceptionHandler {
         throw new AssertionError();
     }
 
-    public static void handle(Exception exception, Activity activity, boolean finishActivity) {
-        handle(exception, activity, ExceptionRule.all(), finishActivity);
-    }
-
-    public static void handle(Exception exception, Activity activity) {
-        handle(exception, activity, ExceptionRule.all(), false);
-    }
-
-    public static void handle(Exception exception, Activity activity,
-                              EnumMap<HttpStatus, ExceptionRule> rules) {
-        handle(exception, activity, rules, false);
-    }
-
-    public static void handle(Exception exception, Activity activity,
-                              EnumMap<HttpStatus, ExceptionRule> rules,
-                              boolean finishActivity) {
-        HttpStatus statusCode = extractStatusCode(exception);
-        if (statusCode != null) {
-            if (rules.keySet().contains(statusCode)) {
-                ExceptionRule rule = rules.get(statusCode);
-                if (statusCode == HttpStatus.UNAUTHORIZED) {
-                    showAuthErrorDialog(rule.getMessage(), activity, finishActivity);
-                } else {
-                    showErrorDialog(rule.getMessage(), activity, finishActivity);
-                }
-            }
+    public static void handle(Exception exception, Context context) {
+        int statusCode = extractStatusCode(exception);
+        if (statusCode != 0 && statusCode == HttpStatus.UNAUTHORIZED.value()) {
+            showAuthErrorDialog(context);
         } else {
-            Throwable cause = exception.getCause();
-            String message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
-            showErrorDialog(message, activity, finishActivity);
+            String errorMessage = extractMessage(exception, context, statusCode);
+            showCommonErrorMessage(errorMessage, context);
         }
     }
 
     /**
-     * Extracts HttpStatus code otherwise returns null.
+     * Extracts HttpStatus code otherwise returns 0.
      */
-    @Nullable
-    public static HttpStatus extractStatusCode(Exception exception) {
+    public static int extractStatusCode(Exception exception) {
         if (exception instanceof NetworkException) {
             Throwable cause = exception.getCause();
             if (cause instanceof HttpStatusCodeException) {
-                return ((HttpStatusCodeException) cause).getStatusCode();
+                return ((HttpStatusCodeException) cause).getStatusCode().value();
             }
+            Throwable tokenCause = cause.getCause();
+            if (tokenCause instanceof JasperAccountManager.TokenException) {
+                return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
+            } else if (tokenCause instanceof UnknownHostException) {
+                return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
+            }
+        } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
+            return ((RetrofitError) exception).getResponse().getStatus();
         }
-        return null;
+        return 0;
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    private static void showErrorDialog(int messageId, Activity activity, boolean finishActivity) {
-        showErrorDialog(activity.getString(messageId), activity, finishActivity);
-    }
-
-    private static void showErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        AlertDialogFragment.AlertDialogBuilder builder = AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
-                .setIcon(android.R.drawable.ic_dialog_alert);
-        if (finishActivity) {
-            builder.setNeutralButton(
-                    new AlertDialogFragment.NeutralClickListener() {
-                        @Override
-                        public void onClick(DialogFragment fragment) {
-                            if (finishActivity) activity.finish();
-                        }
-                    }
-            ).setNeutralButtonText(android.R.string.ok);
-        } else {
-            builder.setPositiveButtonText(android.R.string.ok);
+    /**
+     * Extracts Localized message otherwise returns null.
+     */
+    @Nullable
+    private static String extractMessage(Exception exception, Context context, int statusCode) {
+        if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
+            return context.getString(R.string.r_error_server_not_found);
         }
-        builder
-                .setTitle(R.string.error_msg)
-                .setCancelableOnTouchOutside(false)
-                .setMessage(message)
-                .show();
+
+        Throwable cause = exception.getCause();
+        if (cause == null) {
+            return exception.getLocalizedMessage();
+        }
+        if (cause instanceof HttpStatusCodeException) {
+            ExceptionRule rule = ExceptionRule.all().get(((HttpStatusCodeException) cause).getStatusCode());
+            int messageId = rule.getMessage();
+            return context.getString(messageId);
+        }
+        Throwable tokenCause = cause.getCause();
+        if (tokenCause instanceof JasperAccountManager.TokenException) {
+            return tokenCause.getLocalizedMessage();
+        }
+        return exception.getLocalizedMessage();
     }
 
-    private static void showAuthErrorDialog(int messageId, Activity activity, boolean finishActivity) {
-        showAuthErrorDialog(activity.getString(messageId), activity, finishActivity);
+    private static void showCommonErrorMessage(String message, final Context context) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
-    private static void showAuthErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                    @Override
-                    public void onClick(DialogFragment fragment) {
-                        NavigationActivity_.intent(activity)
-                                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                .start();
-                    }
-                })
-                .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                    @Override
-                    public void onClick(DialogFragment fragment) {
-                        if (finishActivity) activity.finish();
-                    }
-                })
-                .setNegativeButtonText(android.R.string.cancel)
-                .setPositiveButtonText(android.R.string.ok)
-                .setTitle(R.string.error_msg)
-                .setCancelableOnTouchOutside(false)
-                .setMessage(message)
-                .show();
+    private static void showAuthErrorDialog(final Context context) {
+        PasswordDialogFragment.show(getSupportFragmentManager(context), new PasswordDialogFragment.OnPasswordChangedListener() {
+            @Override
+            public void onPasswordChanged(String newPassword) {
+                JasperAccountManager jasperAccountManager = JasperAccountManager.get(context);
+                jasperAccountManager.invalidateActiveToken();
+                jasperAccountManager.updateActiveAccountPassword(newPassword);
+            }
+        });
     }
 
     /**
      * It is dirty method will leave here until
      * we move to android.app.FragmentManager
      *
-     * @param activity instance of activity should support
-     *                 getSupportFragmentManager() otherwise
-     *                 will return null
+     * @param context instance of activity should support
+     *                getSupportFragmentManager() otherwise
+     *                will return null
      * @return FragmentManager or null
      */
     @Nullable
-    private static FragmentManager getSupportFragmentManager(Activity activity) {
-        if (activity instanceof FragmentActivity) {
-            return ((FragmentActivity) activity).getSupportFragmentManager();
+    private static FragmentManager getSupportFragmentManager(Context context) {
+        if (context instanceof FragmentActivity) {
+            return ((FragmentActivity) context).getSupportFragmentManager();
         } else {
             return null;
         }

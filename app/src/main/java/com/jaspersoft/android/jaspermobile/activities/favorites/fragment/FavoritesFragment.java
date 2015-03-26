@@ -28,8 +28,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -47,7 +45,8 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
@@ -62,11 +61,11 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -78,7 +77,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  */
 @EFragment
 public class FavoritesFragment extends RoboFragment
-        implements LoaderManager.LoaderCallbacks<Cursor>, FavoritesAdapter.FavoritesInteractionListener {
+        implements LoaderManager.LoaderCallbacks<Cursor>, FavoritesAdapter.FavoritesInteractionListener, DeleteDialogFragment.DeleteDialogClickListener {
 
     private final int FAVORITES_LOADER_ID = 20;
 
@@ -105,7 +104,6 @@ public class FavoritesFragment extends RoboFragment
     @FragmentArg
     @InstanceState
     String searchQuery;
-
 
 
     private FavoritesAdapter mAdapter;
@@ -268,33 +266,39 @@ public class FavoritesFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onDelete(String itemTitle, final Uri itemToDelete) {
-        int currentPosition = mAdapter.getCurrentPosition();
-        AlertDialogFragment.createBuilder(getActivity(), getFragmentManager())
+    public void onDelete(String itemTitle, Uri recordUri) {
+        DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setRecordUri(recordUri)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                    @Override
-                    public void onClick(DialogFragment fragment) {
-                        getActivity().getContentResolver().delete(itemToDelete, null, null);
-                        mAdapter.finishActionMode();
-                    }
-                })
-                .setTargetFragment(this, currentPosition)
                 .setTitle(R.string.sdr_dfd_title)
                 .setMessage(getActivity().getString(R.string.sdr_drd_msg, itemTitle))
                 .setPositiveButtonText(R.string.spm_delete_btn)
                 .setNegativeButtonText(android.R.string.cancel)
+                .setTargetFragment(this)
                 .show();
     }
 
     @Override
-    public void onInfo(String title, String description) {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        SimpleDialogFragment.createBuilder(getActivity(), fm)
-                .setTitle(title)
-                .setMessage(description)
-                .setNegativeButtonText(android.R.string.ok)
+    public void onInfo(String itemTitle, String itemDescription) {
+        SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setTitle(itemTitle)
+                .setMessage(itemDescription)
+                .setPositiveButtonText(getString(android.R.string.ok))
+                .setTargetFragment(this)
                 .show();
     }
 
+    //---------------------------------------------------------------------
+    // Implements DeleteDialogFragment.DeleteDialogClickListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onDeleteConfirmed(Uri recordUri, File itemFile) {
+        getActivity().getContentResolver().delete(recordUri, null, null);
+        mAdapter.finishActionMode();
+    }
+
+    @Override
+    public void onDeleteCanceled() {
+    }
 }

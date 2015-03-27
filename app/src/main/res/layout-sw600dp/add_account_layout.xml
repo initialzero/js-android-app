@@ -14,15 +14,11 @@
         android:src="@drawable/im_logo_blue" />
 
     <android.support.v7.widget.CardView
+        style="@style/CardView.Auth.Container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="-5dp"
-        android:layout_marginRight="-5dp"
         android:layout_marginTop="30dp"
         card_view:cardBackgroundColor="@color/card_login_bg"
-        card_view:cardCornerRadius="0dp"
-        card_view:cardElevation="5dp"
-        card_view:cardUseCompatPadding="true"
         card_view:contentPadding="20dp">
 
         <LinearLayout
@@ -91,7 +87,7 @@
                 android:orientation="horizontal">
 
                 <android.support.v7.widget.CardView
-                    style="@style/addAccountCard"
+                    style="@style/CardView.Auth.AddAccount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -107,7 +103,7 @@
 
                 <android.support.v7.widget.CardView
                     android:id="@+id/tryDemoContainer"
-                    style="@style/addAccountCard"
+                    style="@style/CardView.Auth.TryDemo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">

@@ -52,6 +52,23 @@
         <item name="background">@color/ab_action_mode_background</item>
     </style>
 
+    <style name="CardView.Auth">
+        <item name="cardBackgroundColor">@null</item>
+        <item name="cardCornerRadius">0dp</item>
+        <item name="cardElevation">4dp</item>
+    </style>
+
+    <style name="CardView.Auth.AddAccount">
+    </style>
+
+    <style name="CardView.Auth.TryDemo">
+    </style>
+
+    <style name="CardView.Auth.Container">
+        <item name="android:layout_marginLeft">-4dp</item>
+        <item name="android:layout_marginRight">-4dp</item>
+    </style>
+
     <!-- Input Controls -->
     <style name="inputControl" />
 
@@ -379,13 +396,6 @@
         <item name="android:background">@drawable/bg_login_edit</item>
         <item name="android:ems">10</item>
         <item name="android:fontFamily">sans-serif-light</item>
-    </style>
-
-    <style name="addAccountCard">
-        <item name="cardBackgroundColor">@null</item>
-        <item name="cardCornerRadius">0dp</item>
-        <item name="cardElevation">5dp</item>
-        <item name="cardUseCompatPadding">true</item>
     </style>
 
     <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />

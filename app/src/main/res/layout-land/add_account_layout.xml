@@ -6,16 +6,12 @@
     android:layout_height="match_parent">
 
     <android.support.v7.widget.CardView
+        style="@style/CardView.Auth.Container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="-5dp"
-        android:layout_marginRight="-5dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         card_view:cardBackgroundColor="@color/card_login_bg"
-        card_view:cardCornerRadius="0dp"
-        card_view:cardElevation="5dp"
-        card_view:cardUseCompatPadding="true"
         card_view:contentPaddingBottom="10dp"
         card_view:contentPaddingLeft="20dp"
         card_view:contentPaddingRight="20dp"
@@ -110,7 +106,6 @@
                         android:orientation="horizontal">
 
                         <android.support.v7.widget.CardView
-                            style="@style/addAccountCard"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="1">
@@ -126,7 +121,6 @@
 
                         <android.support.v7.widget.CardView
                             android:id="@+id/tryDemoContainer"
-                            style="@style/addAccountCard"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="1">

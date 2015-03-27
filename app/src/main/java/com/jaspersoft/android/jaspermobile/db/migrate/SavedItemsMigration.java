@@ -25,6 +25,7 @@ package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.util.FileUtils;
@@ -57,31 +58,35 @@ public class SavedItemsMigration implements Migration {
         migrateSavedItems(database);
     }
 
-    private void migrateSavedItems(SQLiteDatabase db){
+    private void migrateSavedItems(SQLiteDatabase db) {
         File savedItemsDir = getSavedItemsDir();
         File sharedDir = new File(savedItemsDir, "com.jaspersoft.account.none");
-        if(!sharedDir.exists() && !sharedDir.mkdir()) return;
-        for (File savedItemDir : savedItemsDir.listFiles()) {
+        if (!sharedDir.exists() && !sharedDir.mkdir()) return;
 
-            String fileName = FileUtils.getBaseName(savedItemDir.getName());
-            String fileFormat = FileUtils.getExtension(savedItemDir.getName()).toUpperCase(Locale.getDefault());
-            long creationTime = savedItemDir.lastModified();
-            File newFilePath = new File(sharedDir, fileName);
+        if (savedItemsDir != null) {
+            for (File savedItemDir : savedItemsDir.listFiles()) {
 
-            boolean movedSuccess = savedItemDir.renameTo(newFilePath);
-            File saveditemFile = new File(newFilePath, fileName + "." + fileFormat);
-            if(movedSuccess && saveditemFile.exists()) {
-                db.execSQL("INSERT INTO saved_items ( file_path, name, file_format, creation_time, account_name ) VALUES ( "
-                        + "'" + saveditemFile.getPath() + "', "
-                        + "'" + fileName + "', "
-                        + "'" + fileFormat + "', "
-                        + creationTime + ", "
-                        + "com.jaspersoft.account.none");
+                String fileName = FileUtils.getBaseName(savedItemDir.getName());
+                String fileFormat = FileUtils.getExtension(savedItemDir.getName()).toUpperCase(Locale.getDefault());
+                long creationTime = savedItemDir.lastModified();
+                File newFilePath = new File(sharedDir, fileName);
+
+                boolean movedSuccess = savedItemDir.renameTo(newFilePath);
+                File saveditemFile = new File(newFilePath, fileName + "." + fileFormat);
+                if (movedSuccess && saveditemFile.exists()) {
+                    db.execSQL("INSERT INTO saved_items ( file_path, name, file_format, creation_time, account_name ) VALUES ( "
+                            + "'" + saveditemFile.getPath() + "', "
+                            + "'" + fileName + "', "
+                            + "'" + fileFormat + "', "
+                            + creationTime + ", "
+                            + "com.jaspersoft.account.none");
+                }
             }
         }
     }
 
-    private File getSavedItemsDir(){
+    @Nullable
+    private File getSavedItemsDir() {
         File appFilesDir = mContext.getExternalFilesDir(null);
         File savedReportsDir = new File(appFilesDir, "saved.reports");
 

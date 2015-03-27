@@ -36,6 +36,8 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import timber.log.Timber;
@@ -91,17 +93,13 @@ public class ProfileAccountMigration implements Migration {
                 ServerProfilesTable._ID + "=" + profileId,
                 null, null, null, null);
         try {
-            Account account;
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 ServerProfiles profile = new ServerProfiles(cursor);
-                account = new Account(profile.getAlias(), JasperSettings.JASPER_ACCOUNT_TYPE);
-            } else {
-                account = new Account(AccountServerData.Demo.ALIAS,
-                        JasperSettings.JASPER_ACCOUNT_TYPE);
+                Account account = new Account(profile.getAlias(), JasperSettings.JASPER_ACCOUNT_TYPE);
+                JasperAccountManager.get(mContext).activateAccount(account);
+                Timber.d("Account[" + account + "] was activated");
             }
-            JasperAccountManager.get(mContext).activateAccount(account);
-            Timber.d("Account[" + account + "] was activated");
         } finally {
             cursor.close();
         }

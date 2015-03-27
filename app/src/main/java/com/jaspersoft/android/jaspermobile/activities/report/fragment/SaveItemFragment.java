@@ -294,8 +294,6 @@ public class SaveItemFragment extends RoboSpiceFragment {
         savedItemsEntry.setFileFormat(fileFormat.toString());
         savedItemsEntry.setDescription(resource.getDescription());
         savedItemsEntry.setWstype(resource.getResourceType().toString());
-        savedItemsEntry.setUsername(profile.getUsername());
-        savedItemsEntry.setOrganization(profile.getOrganization());
         savedItemsEntry.setCreationTime(new Date().getTime());
         savedItemsEntry.setAccountName(currentAccount.name);
 

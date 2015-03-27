@@ -240,25 +240,11 @@ public class SavedItemsFragment extends RoboFragment
         selectionArgs.add(JasperSettings.RESERVED_ACCOUNT_NAME);
 
         //Add server profile id and username to WHERE params
-        selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
-                .append("  AND ")
-                .append(SavedItemsTable.USERNAME + " =?") ;
-
+        selection.append(SavedItemsTable.ACCOUNT_NAME + " =?");
         selectionArgs.add(account.name);
-        selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
-
-        //Add organization to WHERE params
-        if (noOrganization) {
-            selection.append("  AND ")
-                    .append(SavedItemsTable.ORGANIZATION + " IS NULL");
-        } else {
-            selection.append("  AND ")
-                    .append(SavedItemsTable.ORGANIZATION + " =?");
-            selectionArgs.add(String.valueOf(jsServerProfile.getOrganization()));
-        }
 
         // Close select brackets
-        selection .append(")");
+        selection.append(")");
 
         //Add filtration to WHERE params
         boolean withFiltering = filterType != null;

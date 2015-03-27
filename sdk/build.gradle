@@ -47,7 +47,17 @@ dependencies {
     }
     compile 'com.jakewharton.timber:timber:2.5.0'
 
-    compile "com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}"
+    compile 'commons-io:commons-io:2.4'
+    compile('org.simpleframework:simple-xml:2.7') {
+        exclude group: 'stax'
+        exclude group: 'xpp3'
+    }
+    compile('com.octo.android.robospice:robospice-spring-android:1.4.14') {
+        exclude group: 'org.apache.commons', module: 'commons-io'
+    }
+    compile("com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}") {
+        transitive = false
+    }
     aarLinkSources "com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}:sources@jar"
 
     compile 'io.reactivex:rxandroid:0.24.0'

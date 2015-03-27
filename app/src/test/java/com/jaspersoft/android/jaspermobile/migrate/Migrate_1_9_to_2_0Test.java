@@ -25,18 +25,17 @@
 package com.jaspersoft.android.jaspermobile.migrate;
 
 import android.accounts.Account;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -47,9 +46,12 @@ import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
+import static com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration.SHARED_DIR;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -95,7 +97,7 @@ public class Migrate_1_9_to_2_0Test {
     public void testServerProfilesTableMigration() throws Exception {
         performMigrations();
         cursor = newDb.query("server_profiles",
-                new String[] {"_id", "alias", "server_url", "organization", "username", "password", "edition", "version_code"},
+                new String[]{"_id", "alias", "server_url", "organization", "username", "password", "edition", "version_code"},
                 null, null, null, null, null);
         assertThat(cursor, notNullValue());
         assertThat(cursor.getCount(), is(1));
@@ -137,6 +139,81 @@ public class Migrate_1_9_to_2_0Test {
 
         Account account = JasperAccountManager.get(Robolectric.application).getActiveAccount();
         assertThat(account, CoreMatchers.notNullValue());
+    }
+
+    @Test
+    public void savedItemsShouldBeMigratedToSharedDir() throws IOException {
+        File savedReportsDir = prepareSavedReportsDir();
+        populateSavedReportsDir(savedReportsDir);
+
+        performMigrations();
+
+        File sharedSavedItemsFolder = new File(savedReportsDir, SHARED_DIR);
+        assertThat(sharedSavedItemsFolder.exists(), is(true));
+
+        assertThat(sharedSavedItemsFolder.listFiles().length, is(2));
+    }
+
+    @Test
+    public void savedItemsShouldBeMigratedToDatabase() throws IOException {
+        File savedItemsDir = prepareSavedReportsDir();
+        populateSavedReportsDir(savedItemsDir);
+
+        performMigrations();
+
+        cursor = newDb.query("saved_items",
+                new String[]{"_id", "file_path", "name", "file_format", "wstype", "account_name", "creation_time"},
+                null, null, null, null, null);
+        assertThat(cursor, notNullValue());
+        assertThat(cursor.getCount(), is(2));
+
+        File sharedDir = new File(savedItemsDir, SHARED_DIR);
+        File[] savedReports = sharedDir.listFiles();
+
+        for (int i = 0; i < savedReports.length; i++) {
+            File report = savedReports[i];
+            assertThat(cursor.moveToPosition(i), is(true));
+
+            String fileName = FileUtils.getBaseName(report.getName());
+            String fileFormat = FileUtils.getExtension(report.getName()).toUpperCase(Locale.getDefault());
+            long creationTime = report.lastModified();
+
+            assertThat(cursor.getString(cursor.getColumnIndex("file_path")), is(report.getPath()));
+            assertThat(cursor.getString(cursor.getColumnIndex("name")), is(fileName));
+            assertThat(cursor.getString(cursor.getColumnIndex("file_format")), is(fileFormat));
+            assertThat(cursor.getString(cursor.getColumnIndex("wstype")), is("unknown"));
+            assertThat(cursor.getString(cursor.getColumnIndex("account_name")), is("com.jaspersoft.account.none"));
+            assertThat(cursor.getString(cursor.getColumnIndex("creation_time")), is(String.valueOf(creationTime)));
+        }
+    }
+
+    private void populateSavedReportsDir(File savedReportsDir) throws IOException {
+        File savedItem1 = new File(savedReportsDir, "report1.html");
+        assertThat(savedItem1.createNewFile(), is(true));
+
+        File savedItem2 = new File(savedReportsDir, "report2.html");
+        assertThat(savedItem2.createNewFile(), is(true));
+    }
+
+    private File prepareSavedReportsDir() {
+        resetExternalDir();
+
+        File externalDir = Robolectric.application.getExternalFilesDir(null);
+        File savedReportsDir = new File(externalDir, "saved.reports");
+        if (!savedReportsDir.exists()) {
+            assertThat(savedReportsDir.mkdir(), is(true));
+        }
+        return savedReportsDir;
+    }
+
+    private void resetExternalDir() {
+        File externalDir = Robolectric.application.getExternalFilesDir(null);
+        try {
+            org.apache.commons.io.FileUtils.deleteDirectory(externalDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        assertThat(externalDir.mkdir(), is(true));
     }
 
     private void activateFirstProfile() {

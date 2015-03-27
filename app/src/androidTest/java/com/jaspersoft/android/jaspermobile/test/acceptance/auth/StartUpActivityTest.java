@@ -117,6 +117,37 @@ public class StartUpActivityTest {
     }
 
     @Test
+    public void testTryDemoAction() {
+        MockResponse authResponse = new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Set-Cookie", "JSESSIONID=4202A2DF42507EDEC7A66A1348C62195; Path=/jasperserver-pro/; HttpOnly")
+                .addHeader("Set-Cookie", "userLocale=en_US;Expires=Thu, 15-Jan-2015 12:15:36 GMT;HttpOnly")
+                .throttleBody(Integer.MAX_VALUE, 1, TimeUnit.MILLISECONDS)
+                .setBody("{}");
+        MockResponse mobileDemoServerRespone = authResponse.clone()
+                .setBody(TestResource.getJson().rawData("mobile_demo"));
+        MockResponse resources = new MockResponse()
+                .addHeader("Content-Type", "application/xml; charset=utf-8")
+                .setBody(TestResource.get(TestResource.DataFormat.XML).rawData("all_resources"));
+
+        webMockRule.get().enqueue(authResponse);
+        webMockRule.get().enqueue(mobileDemoServerRespone);
+        webMockRule.get().enqueue(resources);
+        activityRule.saveStart();
+
+        onView(withId(R.id.usernameEdit)).perform(scrollTo());
+        onView(withId(R.id.passwordEdit)).perform(scrollTo());
+
+        onView(withId(R.id.tryDemo)).perform(scrollTo());
+        onView(withId(R.id.tryDemo)).perform(click());
+
+        onView(allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(R.string.h_library_label)
+        )).check(matches(isDisplayed()));
+    }
+
+    @Test
     public void testEmptyAliasNotAcceptable() {
         activityRule.saveStart();
         onView(withId(R.id.aliasEdit)).perform(typeText("  "));

@@ -247,6 +247,7 @@
 
     <!-- Accounts activity -->
     <string name="add_account" translatable="false">Add account</string>
+    <string name="try_demo" translatable="false">Try demo</string>
     <string name="hint_alias" translatable="false">Account name</string>
     <string name="hint_server_url" translatable="false">Server url</string>
     <string name="hint_organization" translatable="false">Organization</string>

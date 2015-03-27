@@ -42,9 +42,9 @@
 
     <color name="card_login_bg">#2e3136</color>
     <color name="btn_demo_bg">#124f78</color>
-    <color name="btn_demo_bg_pressed">#ff08456e</color>
+    <color name="btn_demo_bg_pressed">#05426b</color>
     <color name="btn_login_bg">#33373d</color>
-    <color name="btn_login_bg_pressed">#ff2e3238</color>
+    <color name="btn_login_bg_pressed">#2e3238</color>
     <color name="text_login_bg">#f0f0f0</color>
 
     <!-- Navigation Drawer -->

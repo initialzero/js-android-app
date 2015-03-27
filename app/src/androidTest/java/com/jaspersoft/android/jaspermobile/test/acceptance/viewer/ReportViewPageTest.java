@@ -49,6 +49,7 @@ import static android.support.test.espresso.Espresso.openActionBarOverflowOrOpti
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllFavorites;
@@ -101,8 +102,8 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
         clickAboutMenuItem();
 
-        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(mResource.getLabel())));
-        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(mResource.getDescription())));
+        onOverflowView(getActivity(), withText(mResource.getLabel())).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withId(android.R.id.message)).check(matches(withText(mResource.getDescription())));
     }
 
     @Test

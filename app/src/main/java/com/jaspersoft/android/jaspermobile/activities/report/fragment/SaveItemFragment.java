@@ -242,7 +242,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         boolean nameValid = isReportNameValid();
         reportNameInput.setError(null);
         if (saveAction != null) {
-            saveAction.setIcon(nameValid ? R.drawable.ic_action_submit : R.drawable.ic_action_submit_disabled);
+            saveAction.setIcon(nameValid ? R.drawable.ic_menu_save : R.drawable.ic_menu_save_disabled);
         }
     }
 

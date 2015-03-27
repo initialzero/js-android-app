@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationPanelController;
 import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapter;
 import com.manuelpeinado.multichoiceadapter.extras.actionbarcompat.MultiChoiceAdapterHelper;
@@ -102,7 +103,7 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
 
     @Override
     public String getActionModeTitle(int count) {
-        return String.valueOf(count);
+        return getContext().getString(R.string.action_mode_title);
     }
 
     @Override

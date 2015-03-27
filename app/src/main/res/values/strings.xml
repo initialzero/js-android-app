@@ -173,6 +173,7 @@
     <string name="sdr_ab_list_msg" translatable="false">No saved items</string>
 
     <!-- Context Menu -->
+    <string name="action_mode_title" translatable="false">Selected item</string>
     <string name="sdr_cm_rename">Rename</string>
     <string name="sdr_cm_delete">Delete</string>
 

@@ -36,8 +36,6 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import timber.log.Timber;
@@ -47,12 +45,10 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class ProfileAccountMigration implements Migration {
-    private static final String TAG = JasperAccountManager.class.getSimpleName();
     private final Context mContext;
 
     public ProfileAccountMigration(Context context) {
         mContext = context;
-        Timber.tag(TAG);
     }
 
     @Override
@@ -70,15 +66,19 @@ public class ProfileAccountMigration implements Migration {
             List<ServerProfiles> profiles = ServerProfiles.listFromCursor(cursor);
             Timber.d("The number of previously saved accounts are: " + profiles.size());
             for (ServerProfiles profile : profiles) {
-                data = new AccountServerData()
-                        .setAlias(profile.getAlias())
-                        .setServerUrl(profile.getServerUrl())
-                        .setOrganization(profile.getOrganization())
-                        .setUsername(profile.getUsername())
-                        .setPassword(profile.getPassword())
-                        .setEdition(profile.getEdition())
-                        .setVersionName(profile.getVersionCode() + "");
-                util.addAccountExplicitly(data).subscribe();
+                try {
+                    data = new AccountServerData()
+                            .setAlias(profile.getAlias())
+                            .setServerUrl(profile.getServerUrl())
+                            .setOrganization(profile.getOrganization())
+                            .setUsername(profile.getUsername())
+                            .setPassword(profile.getPassword())
+                            .setEdition(profile.getEdition())
+                            .setVersionName(profile.getVersionCode() + "");
+                    util.addAccountExplicitly(data).subscribe();
+                } catch (IllegalArgumentException ex) {
+                    Timber.w(ex, "Mis-configured profile '" + profile.getAlias() + "' skipping it");
+                }
             }
         } finally {
             cursor.close();

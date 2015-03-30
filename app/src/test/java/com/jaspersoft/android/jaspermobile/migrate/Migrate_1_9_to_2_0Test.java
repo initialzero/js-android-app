@@ -65,7 +65,6 @@ import static org.hamcrest.core.IsNull.notNullValue;
 @RunWith(CustomRobolectricTestRunner.class)
 @Config(
         shadows = {ShadowApplicationImpl.class},
-        manifest = "../app/src/main/AndroidManifest.xml",
         emulateSdk = 18
 )
 public class Migrate_1_9_to_2_0Test {
@@ -73,6 +72,8 @@ public class Migrate_1_9_to_2_0Test {
 
     private static final String INSERT_PROFILE = "INSERT INTO `server_profiles`(`alias`,`server_url`,`organization`,`username`,`password`,`edition`,`version_code`)" +
             " VALUES ('Mobile Demo','http://mobiledemo.jaspersoft.com/jasperserver-pro','organization_1','phoneuser','phoneuser','PRO',5.5);";
+    private static final String INSERT_MIS_CONFIGURED_PROFILE = "INSERT INTO `server_profiles`(`alias`,`server_url`,`organization`,`username`,`password`,`edition`,`version_code`)" +
+            " VALUES ('Mobile Demo','http://mobiledemo.jaspersoft.com/jasperserver-pro','organization_1','phoneuser','phoneuser',null,null);";
     private static final String INSERT_FAVORITE = "INSERT INTO `favorites`(`name`,`title`,`uri`,`description`,`wstype`,`username`,`organization`,`server_profile_id`) " +
             "VALUES (NULL, '01. Geographic Results by Segment Report','/Reports/1._Geographic_Results_by_Segment_Report','Description','reportUnit','phoneuser','organization_1',1);";
     private SQLiteDatabase newDb;
@@ -93,6 +94,20 @@ public class Migrate_1_9_to_2_0Test {
         releaseResources();
     }
 
+    //---------------------------------------------------------------------
+    // Server profiles/accounts migration
+    //---------------------------------------------------------------------
+
+    @Test
+    public void shouldSkipsMisConfiguredServerProfiles() {
+        execSQLOverOldDb(INSERT_MIS_CONFIGURED_PROFILE);
+        performMigrations();
+
+        Account[] accounts = JasperAccountManager.get(Robolectric.application).getAccounts();
+        List<Account> accountList = Arrays.asList(accounts);
+        assertThat(accountList.size(), is(1));
+    }
+
     @Test
     public void testServerProfilesTableMigration() throws Exception {
         performMigrations();
@@ -101,25 +116,6 @@ public class Migrate_1_9_to_2_0Test {
                 null, null, null, null, null);
         assertThat(cursor, notNullValue());
         assertThat(cursor.getCount(), is(1));
-    }
-
-    @Test
-    public void testFavoritesTableMigration() throws Exception {
-        performMigrations();
-        cursor = newDb.query("favorites",
-                new String[]{"_id", "title", "uri", "description", "wstype", "username", "organization", "account_name", "creation_time"},
-                null, null, null, null, null);
-        assertThat(cursor, notNullValue());
-        assertThat(cursor.getCount(), is(1));
-        assertThat(cursor.moveToFirst(), is(true));
-
-        assertThat(cursor.getString(cursor.getColumnIndex("title")), is("01. Geographic Results by Segment Report"));
-        assertThat(cursor.getString(cursor.getColumnIndex("uri")), is("/Reports/1._Geographic_Results_by_Segment_Report"));
-        assertThat(cursor.getString(cursor.getColumnIndex("description")), is("Description"));
-        assertThat(cursor.getString(cursor.getColumnIndex("wstype")), is("reportUnit"));
-        assertThat(cursor.getString(cursor.getColumnIndex("username")), is("phoneuser"));
-        assertThat(cursor.getString(cursor.getColumnIndex("organization")), is("organization_1"));
-        assertThat(cursor.getString(cursor.getColumnIndex("account_name")), is("Mobile Demo"));
     }
 
     @Test
@@ -140,6 +136,33 @@ public class Migrate_1_9_to_2_0Test {
         Account account = JasperAccountManager.get(Robolectric.application).getActiveAccount();
         assertThat(account, CoreMatchers.notNullValue());
     }
+
+    //---------------------------------------------------------------------
+    // Favorites migration
+    //---------------------------------------------------------------------
+
+    @Test
+    public void testFavoritesTableMigration() throws Exception {
+        performMigrations();
+        cursor = newDb.query("favorites",
+                new String[]{"_id", "title", "uri", "description", "wstype", "username", "organization", "account_name", "creation_time"},
+                null, null, null, null, null);
+        assertThat(cursor, notNullValue());
+        assertThat(cursor.getCount(), is(1));
+        assertThat(cursor.moveToFirst(), is(true));
+
+        assertThat(cursor.getString(cursor.getColumnIndex("title")), is("01. Geographic Results by Segment Report"));
+        assertThat(cursor.getString(cursor.getColumnIndex("uri")), is("/Reports/1._Geographic_Results_by_Segment_Report"));
+        assertThat(cursor.getString(cursor.getColumnIndex("description")), is("Description"));
+        assertThat(cursor.getString(cursor.getColumnIndex("wstype")), is("reportUnit"));
+        assertThat(cursor.getString(cursor.getColumnIndex("username")), is("phoneuser"));
+        assertThat(cursor.getString(cursor.getColumnIndex("organization")), is("organization_1"));
+        assertThat(cursor.getString(cursor.getColumnIndex("account_name")), is("Mobile Demo"));
+    }
+
+    //---------------------------------------------------------------------
+    // Saved items migration
+    //---------------------------------------------------------------------
 
     @Test
     public void savedItemsShouldBeMigratedToSharedDir() throws IOException {
@@ -186,6 +209,10 @@ public class Migrate_1_9_to_2_0Test {
             assertThat(cursor.getString(cursor.getColumnIndex("creation_time")), is(String.valueOf(creationTime)));
         }
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void populateSavedReportsDir(File savedReportsDir) throws IOException {
         File savedItem1 = new File(savedReportsDir, "report1.html");
@@ -242,10 +269,14 @@ public class Migrate_1_9_to_2_0Test {
     }
 
     private void populateOldDatabase() {
+        execSQLOverOldDb(INSERT_PROFILE);
+        execSQLOverOldDb(INSERT_FAVORITE);
+    }
+
+    private void execSQLOverOldDb(String sql) {
         SQLiteOpenHelper_1_9 sqLiteOpenHelper_1_9 = new SQLiteOpenHelper_1_9(Robolectric.application);
         SQLiteDatabase oldDb = sqLiteOpenHelper_1_9.getWritableDatabase();
-        oldDb.execSQL(INSERT_PROFILE);
-        oldDb.execSQL(INSERT_FAVORITE);
+        oldDb.execSQL(sql);
         oldDb.close();
     }
 
@@ -263,6 +294,10 @@ public class Migrate_1_9_to_2_0Test {
             cursor.close();
         }
     }
+
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
 
     private class SQLiteOpenHelper_1_9 extends SQLiteOpenHelper {
         private static final String DATABASE_NAME = "jasper_mobile_db";

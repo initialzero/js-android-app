@@ -188,9 +188,10 @@ public class SavedItemsFragment extends RoboFragment
 
     private void openReportFile(int position) {
         File reportFile = getFileByPosition(position);
+        File reportOutputFile = new File(reportFile, reportFile.getName());
 
         Locale current = getResources().getConfiguration().locale;
-        String fileName = reportFile.getName();
+        String fileName = reportOutputFile.getName();
         String baseName = FileUtils.getBaseName(fileName);
         String extension = FileUtils.getExtension(fileName).toLowerCase(current);
 
@@ -204,7 +205,7 @@ public class SavedItemsFragment extends RoboFragment
         } else {
             // run external viewer according to the file format
             String contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-            Uri reportOutputPath = Uri.fromFile(reportFile);
+            Uri reportOutputPath = Uri.fromFile(reportOutputFile);
             Intent externalViewer = new Intent(Intent.ACTION_VIEW);
             externalViewer.setDataAndType(reportOutputPath, contentType);
             externalViewer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

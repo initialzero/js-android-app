@@ -108,7 +108,7 @@ public class SavedItemsMigration implements Migration {
         for (File savedItem : savedItems) {
             try {
                 org.apache.commons.io.FileUtils
-                        .moveFileToDirectory(savedItem, sharedDir, false);
+                        .moveDirectoryToDirectory(savedItem, sharedDir, false);
             } catch (IOException e) {
                 Timber.w(e, "Failed to move file to shared destination");
             }

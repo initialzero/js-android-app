@@ -65,7 +65,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 @RunWith(CustomRobolectricTestRunner.class)
 @Config(
         shadows = {ShadowApplicationImpl.class},
-        manifest = "app/src/main/AndroidManifest.xml",
+        manifest = "../app/src/main/AndroidManifest.xml",
         emulateSdk = 18
 )
 public class Migrate_1_9_to_2_0Test {
@@ -189,10 +189,10 @@ public class Migrate_1_9_to_2_0Test {
 
     private void populateSavedReportsDir(File savedReportsDir) throws IOException {
         File savedItem1 = new File(savedReportsDir, "report1.html");
-        assertThat(savedItem1.createNewFile(), is(true));
+        assertThat(savedItem1.mkdir(), is(true));
 
         File savedItem2 = new File(savedReportsDir, "report2.html");
-        assertThat(savedItem2.createNewFile(), is(true));
+        assertThat(savedItem2.mkdir(), is(true));
     }
 
     private File prepareSavedReportsDir() {

@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
@@ -73,8 +74,8 @@ public class ProfileAccountMigration implements Migration {
                             .setOrganization(profile.getOrganization())
                             .setUsername(profile.getUsername())
                             .setPassword(profile.getPassword())
-                            .setEdition(profile.getEdition())
-                            .setVersionName(profile.getVersionCode() + "");
+                            .setEdition(TextUtils.isEmpty(profile.getEdition()) ? "?" : profile.getEdition())
+                            .setVersionName(String.valueOf(profile.getVersionCode()));
                     util.addAccountExplicitly(data).subscribe();
                 } catch (IllegalArgumentException ex) {
                     Timber.w(ex, "Mis-configured profile '" + profile.getAlias() + "' skipping it");

@@ -157,6 +157,8 @@
     <string name="sr_output_format">Output Format</string>
     <string name="sr_from" translatable="false">"From page"</string>
     <string name="sr_to" translatable="false">"To page"</string>
+    <string name="sr_failed_to_create_local_repo" translatable="false">Failed to create local repository.</string>
+
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report saved successfully</string>
     <!-- Error messages -->

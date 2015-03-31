@@ -192,10 +192,10 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-                R.color.holo_blue_light,
-                R.color.holo_blue_dark,
-                R.color.holo_blue_light,
-                R.color.holo_blue_bright);
+                R.color.js_blue,
+                R.color.js_dark_blue,
+                R.color.js_blue,
+                R.color.js_dark_blue);
 
         listView.setOnScrollListener(new ScrollListener());
         setDataAdapter(savedInstanceState);

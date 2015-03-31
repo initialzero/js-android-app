@@ -24,11 +24,10 @@
 -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item android:drawable="@color/dashboard_item_bg" />
-
-    <item>
-        <bitmap android:gravity="center" android:src="@drawable/ic_folder"/>
-    </item>
-
+    <item
+        android:drawable="@drawable/ic_report"
+        android:bottom="@dimen/sample_image_padding"
+        android:left="@dimen/sample_image_padding"
+        android:right="@dimen/sample_image_padding"
+        android:top="@dimen/sample_image_padding" />
 </layer-list>

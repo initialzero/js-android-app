@@ -30,9 +30,9 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:fontFamily">sans-serif-light</item>
 
-        <item name="colorAccent">@android:color/holo_blue_dark</item>
-        <item name="colorPrimary">@color/ab_background</item>
-        <item name="colorPrimaryDark">@color/navigation_menu_bg</item>
+        <item name="colorAccent">@color/js_blue</item>
+        <item name="colorPrimary">@color/js_gray</item>
+        <item name="colorPrimaryDark">@color/js_night_gray</item>
 
         <item name="android:alertDialogTheme">@style/Theme.JasperMobile.Dialog.Alert</item>
         <item name="actionModeStyle">@style/Widget.JasperMobile.ActionMode</item>
@@ -41,7 +41,7 @@
         <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
         <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
         <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
-        <item name="android:scrollbarThumbVertical">@drawable/im_scrollbar_thumb</item>
+        <item name="android:scrollbarThumbVertical">@drawable/bg_scrollbar_thumb</item>
 
         <!--App reference styles-->
         <item name="listLayoutStyle">@style/list2.item.layout</item>

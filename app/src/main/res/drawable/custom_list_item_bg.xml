@@ -25,6 +25,6 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android" android:enterFadeDuration="@android:integer/config_shortAnimTime" android:exitFadeDuration="@android:integer/config_shortAnimTime">
     <item android:drawable="@android:color/white" android:state_pressed="true" />
-    <item android:drawable="@color/holo_blue_light" android:state_checked="true" />
+    <item android:drawable="@color/js_light_blue" android:state_checked="true" />
     <item android:drawable="@android:color/white" />
 </selector>

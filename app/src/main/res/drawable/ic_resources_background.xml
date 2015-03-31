@@ -24,6 +24,6 @@
 -->
 
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-        android:src="@drawable/app_main_bg"
+        android:src="@drawable/bg_app_main"
         android:tileMode="repeat"
 />

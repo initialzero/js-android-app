@@ -54,7 +54,7 @@ class ReportResourceBinder extends ResourceBinder {
             loadFromNetwork(imageView, uri);
         } else {
             imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            imageView.setImageResource(R.drawable.sample_report_grey);
+            imageView.setImageResource(R.drawable.placeholder_report);
         }
     }
 
@@ -69,9 +69,9 @@ class ReportResourceBinder extends ResourceBinder {
     private DisplayImageOptions getDisplayImageOptions() {
         if (displayImageOptions == null) {
             displayImageOptions = new DisplayImageOptions.Builder()
-                    .showImageOnLoading(R.drawable.sample_report_grey)
-                    .showImageForEmptyUri(R.drawable.sample_report_grey)
-                    .showImageOnFail(R.drawable.sample_report_grey)
+                    .showImageOnLoading(R.drawable.placeholder_report)
+                    .showImageForEmptyUri(R.drawable.placeholder_report)
+                    .showImageOnFail(R.drawable.placeholder_report)
                     .considerExifParams(true)
                     .cacheInMemory(true)
                     .cacheOnDisk(true)

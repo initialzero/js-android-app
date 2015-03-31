@@ -112,7 +112,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         TopCropImageView iconView = (TopCropImageView) itemView.getImageView();
         if (iconView != null) {
             iconView.setImageResource(getFileIconByExtension(fileFormat));
-            iconView.setBackgroundColor(getContext().getResources().getColor(R.color.card_header_config));
+            iconView.setBackgroundResource(R.drawable.js_grey_gradient);
             iconView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
         }
 

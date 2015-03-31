@@ -23,11 +23,9 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/addAccount"
-        android:title="@string/spm_ab_add_profile"
-        android:icon="@drawable/ic_action_add_account"
-        app:showAsAction="always"/>
-</menu>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <bitmap android:gravity="center" android:src="@drawable/ic_folder"/>
+    </item>
+
+</layer-list>

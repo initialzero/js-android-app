@@ -43,8 +43,8 @@ class FolderResourceBinder extends ResourceBinder {
     @Override
     public void setIcon(ImageView imageView, String uri) {
         ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_XY);
-        imageView.setBackgroundResource(R.color.dashboard_item_bg);
-        imageView.setImageResource(R.drawable.sample_repo_blue);
+        imageView.setBackgroundResource(R.drawable.js_blue_gradient);
+        imageView.setImageResource(R.drawable.placeholder_folder);
     }
 
     private String formatDateString(String updateDate) {

@@ -110,7 +110,7 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
     protected void startActionMode() {
         super.startActionMode();
         ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
-        ((NavigationPanelController) activity).swipeToOpenEnabled(false);
+        ((NavigationPanelController) activity).onActionModeEnabled(true);
     }
 
     @Override
@@ -122,6 +122,6 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
     public void onDestroyActionMode() {
         super.onDestroyActionMode();
         ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
-        ((NavigationPanelController) activity).swipeToOpenEnabled(true);
+        ((NavigationPanelController) activity).onActionModeEnabled(false);
     }
 }

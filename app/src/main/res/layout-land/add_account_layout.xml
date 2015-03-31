@@ -11,11 +11,8 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        card_view:cardBackgroundColor="@color/card_login_bg"
-        card_view:contentPaddingBottom="10dp"
-        card_view:contentPaddingLeft="20dp"
-        card_view:contentPaddingRight="20dp"
-        card_view:contentPaddingTop="10dp">
+        card_view:cardBackgroundColor="@color/js_dark_gray"
+        card_view:contentPadding="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,7 +51,7 @@
                     style="@style/editTextAccount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
+                    android:layout_marginTop="3dp"
                     android:hint="@string/hint_alias"
                     android:inputType="textUri" />
 
@@ -97,7 +94,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="20dp"
                     android:orientation="horizontal">
 
                     <LinearLayout
@@ -106,6 +103,7 @@
                         android:orientation="horizontal">
 
                         <android.support.v7.widget.CardView
+                            style="@style/CardView.Auth.AddAccount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="1">
@@ -116,10 +114,11 @@
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/bg_login_btn_gray"
                                 android:text="@string/add_account"
-                                android:textColor="@color/text_login_bg" />
+                                android:textColor="@android:color/white" />
                         </android.support.v7.widget.CardView>
 
                         <android.support.v7.widget.CardView
+                            style="@style/CardView.Auth.TryDemo"
                             android:id="@+id/tryDemoContainer"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -131,7 +130,7 @@
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/bg_login_btn_blue"
                                 android:text="@string/try_demo"
-                                android:textColor="@color/text_login_bg" />
+                                android:textColor="@android:color/white" />
                         </android.support.v7.widget.CardView>
 
                     </LinearLayout>

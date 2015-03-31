@@ -107,10 +107,12 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     @Override
-    public void swipeToOpenEnabled(boolean enabled) {
-        if(enabled) {
+    public void onActionModeEnabled(boolean enabled) {
+        if(!enabled) {
+            getToolbar().setVisibility(View.VISIBLE);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         } else {
+            getToolbar().setVisibility(View.INVISIBLE);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
     }

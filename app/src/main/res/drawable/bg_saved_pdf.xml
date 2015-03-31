@@ -23,12 +23,11 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<com.jaspersoft.android.jaspermobile.widget.CheckedRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/grid.item.layout"
-    android:layout_width="@dimen/grid_item_size"
-    android:layout_height="@dimen/grid_item_size"
-    android:background="@drawable/bg_item_resource">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <include layout="@layout/res_grid_item" />
-
-</com.jaspersoft.android.jaspermobile.widget.CheckedRelativeLayout>
+    <item android:bottom="10dp" android:left="10dp" android:right="10dp" android:top="10dp">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/ic_saved_pdf" />
+    </item>
+</layer-list>

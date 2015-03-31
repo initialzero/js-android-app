@@ -23,7 +23,11 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-        android:src="@drawable/bg_app_main"
-        android:tileMode="repeat"
-/>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:bottom="10dp" android:left="10dp" android:right="10dp" android:top="10dp">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/ic_saved_xls" />
+    </item>
+</layer-list>

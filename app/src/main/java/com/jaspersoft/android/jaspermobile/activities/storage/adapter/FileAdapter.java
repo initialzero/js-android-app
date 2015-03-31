@@ -70,10 +70,10 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = new EnumMap<FileType, Integer>(FileType.class);
 
     static {
-        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.ic_composed_html);
-        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.ic_composed_pdf);
-        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.ic_composed_xls);
-        DRAWABLE_IDS_MAP.put(FileType.UNKNOWN, R.drawable.js_grey_gradient);
+        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.bg_saved_html);
+        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.bg_saved_pdf);
+        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.bg_saved_xls);
+        DRAWABLE_IDS_MAP.put(FileType.UNKNOWN, R.drawable.bg_gradient_grey);
     }
 
 
@@ -112,7 +112,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         TopCropImageView iconView = (TopCropImageView) itemView.getImageView();
         if (iconView != null) {
             iconView.setImageResource(getFileIconByExtension(fileFormat));
-            iconView.setBackgroundResource(R.drawable.js_grey_gradient);
+            iconView.setBackgroundResource(R.drawable.bg_gradient_grey);
             iconView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
         }
 

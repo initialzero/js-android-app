@@ -48,7 +48,7 @@ class ReportResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(ImageView imageView, String uri) {
-        imageView.setBackgroundResource(R.drawable.js_grey_gradient);
+        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
 
         if (isAmberOrHigher) {
             loadFromNetwork(imageView, uri);

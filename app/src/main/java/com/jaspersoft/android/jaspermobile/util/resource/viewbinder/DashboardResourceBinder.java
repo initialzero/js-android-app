@@ -18,7 +18,7 @@ class DashboardResourceBinder extends ResourceBinder {
     @Override
     public void setIcon(ImageView imageView, String uri) {
         ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
-        imageView.setBackgroundResource(R.drawable.js_blue_gradient);
+        imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
         imageView.setImageResource(R.drawable.placeholder_dashboard);
     }
 }

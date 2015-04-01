@@ -25,6 +25,13 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/saveReport"
+        android:icon="@drawable/ic_menu_save"
+        android:title="@string/rv_ab_save_report"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/favoriteAction"
         android:icon="@drawable/ic_star_outline"

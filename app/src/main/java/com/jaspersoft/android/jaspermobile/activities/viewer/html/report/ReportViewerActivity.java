@@ -143,9 +143,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
+    @OptionsMenuItem
+    protected MenuItem saveReport;
 
     private SimpleChromeClient chromeClient;
     private AccountServerData accountServerData;
+    private boolean mShowSavedMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,6 +190,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         boolean result = super.onCreateOptionsMenu(menu);
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_star_outline : R.drawable.ic_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        saveReport.setVisible(mShowSavedMenuItem);
 
         if (BuildConfig.FLAVOR.equals("qa") || BuildConfig.FLAVOR.equals("dev")) {
             MenuInflater inflater = getMenuInflater();
@@ -231,6 +235,20 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .show();
     }
 
+    @OptionsItem
+    public void saveReport() {
+        if (FileUtils.isExternalStorageWritable()) {
+            SaveReportActivity_.intent(this)
+                    .reportParameters(reportModel.getReportParameters())
+                    .resource(resource)
+                    .pageCount(paginationControl.getTotalPages())
+                    .start();
+        } else {
+            Toast.makeText(this,
+                    R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     //---------------------------------------------------------------------
     // Input controls loading callbacks
     //---------------------------------------------------------------------
@@ -251,25 +269,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
         showInputControlsPage(reportModel.getInputControls());
     }
 
-    @Override
-    public void onSaveReport() {
-        if (FileUtils.isExternalStorageWritable()) {
-            SaveReportActivity_.intent(this)
-                    .reportParameters(reportModel.getReportParameters())
-                    .resource(resource)
-                    .pageCount(paginationControl.getTotalPages())
-                    .start();
-        } else {
-            Toast.makeText(this,
-                    R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
-        }
-    }
-
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadFlowWithControls(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             ArrayList<InputControl> inputControl = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
             reportModel.setInputControls(inputControl);
+            mShowSavedMenuItem = false;
+            supportInvalidateOptionsMenu();
             loadFlow();
         } else {
             // By default we make webview invisible
@@ -322,7 +328,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onTotalPagesLoaded(int pages) {
-        if (pages == 0) {
+        boolean noPages = (pages == 0);
+        mShowSavedMenuItem = !noPages;
+        supportInvalidateOptionsMenu();
+
+        if (noPages) {
             emptyView.setVisibility(View.VISIBLE);
         } else {
             emptyView.setVisibility(View.GONE);

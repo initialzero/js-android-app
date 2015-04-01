@@ -9,10 +9,4 @@
         android:title="@string/rv_ab_show_filters"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/saveReport"
-        android:icon="@drawable/ic_menu_save"
-        android:title="@string/rv_ab_save_report"
-        app:showAsAction="never" />
-
 </menu>

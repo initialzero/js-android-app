@@ -103,7 +103,12 @@
           self.v = v;
           self.scaler.scale(0.25);
           return self.dashboard = v.dashboard({
-            animation: false,
+            report: {
+              chart: {
+                animation: false,
+                zoom: false
+              }
+            },
             container: '#container',
             resource: self.uri,
             success: function() {

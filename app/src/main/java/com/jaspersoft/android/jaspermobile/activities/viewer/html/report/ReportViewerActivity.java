@@ -272,9 +272,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
             reportModel.setInputControls(inputControl);
             loadFlow();
         } else {
+            // By default we make webview invisible
+            // If any report run successful we will have this condition to be falsy
             boolean isFirstReportMissing = (webView.getVisibility() == View.INVISIBLE);
             if (isFirstReportMissing) {
-                emptyView.setVisibility(View.VISIBLE);
+                super.onBackPressed();
             }
         }
     }

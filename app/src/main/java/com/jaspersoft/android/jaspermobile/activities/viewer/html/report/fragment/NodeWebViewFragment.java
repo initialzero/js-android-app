@@ -58,6 +58,8 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * @author Tom Koptel
@@ -96,6 +98,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     private OnPageLoadListener onPageLoadListener;
     private RequestExecutor requestExecutor;
     private ServerRelease mRelease;
+    private boolean mReportNotFound;
 
     @OptionsItem
     final void refreshAction() {
@@ -123,10 +126,12 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (TextUtils.isEmpty(currentHtml)) {
-            fetchReport();
-        } else {
-            loadHtml(currentHtml);
+        if (!mReportNotFound) {
+            if (TextUtils.isEmpty(currentHtml)) {
+                fetchReport();
+            } else {
+                loadHtml(currentHtml);
+            }
         }
     }
 
@@ -215,25 +220,37 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     private final ReportSession.ExecutionObserver sessionObserver =
             new ReportSession.ExecutionObserver() {
-        @Override
-        public void onRequestIdChanged(String requestId) {
-            fetchReport();
-        }
+                @Override
+                public void onRequestIdChanged(String requestId) {
+                    fetchReport();
+                }
 
-        @Override
-        public void onPagesLoaded(int totalPage) {
-            if (!outputFinal && mRelease.code() >= ServerRelease.EMERALD_MR3.code()) {
-                fetchReport();
-            }
-        }
-    };
+                @Override
+                public void onPagesLoaded(int totalPage) {
+                    if (!outputFinal && mRelease.code() >= ServerRelease.EMERALD_MR3.code()) {
+                        fetchReport();
+                    }
+                }
+            };
 
     private class ExportResultListener implements ReportExportOutputLoader.ResultListener {
         @Override
         public void onFailure(Exception exception) {
+            cacheNotFoundHttpException(exception);
             progressBar.setVisibility(View.GONE);
             if (onPageLoadListener != null) {
                 onPageLoadListener.onFailure(exception);
+            }
+        }
+
+        /**
+         * Caching 404 error for later use in lifecycle events of fragment
+         */
+        private void cacheNotFoundHttpException(Exception exception) {
+            if (exception instanceof HttpClientErrorException) {
+                HttpClientErrorException httpError = (HttpClientErrorException) exception.getCause();
+                HttpStatus status = httpError.getStatusCode();
+                mReportNotFound = (status == HttpStatus.NOT_FOUND);
             }
         }
 
@@ -250,6 +267,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
 
     public static interface OnPageLoadListener {
         void onFailure(Exception exception);
+
         void onSuccess(int page);
     }
 

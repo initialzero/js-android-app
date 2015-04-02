@@ -44,8 +44,20 @@ public class DashboardWebInterface extends WebInterface implements DashboardCall
 
     @JavascriptInterface
     @Override
-    public void onMaximize(String title) {
-        dashboardCallback.onMaximize(title);
+    public void onMaximizeStart(String title) {
+        dashboardCallback.onMaximizeStart(title);
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onMaximizeEnd(String title) {
+        dashboardCallback.onMaximizeEnd(title);
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onMaximizeFailed(String error) {
+        dashboardCallback.onMaximizeFailed(error);
     }
 
     @JavascriptInterface

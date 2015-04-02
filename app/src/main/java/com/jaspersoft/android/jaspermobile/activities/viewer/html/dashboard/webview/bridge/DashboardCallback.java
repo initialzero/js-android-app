@@ -5,7 +5,9 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.web
  * @since 2.0
  */
 public interface DashboardCallback {
-    void onMaximize(String title);
+    void onMaximizeStart(String title);
+    void onMaximizeEnd(String title);
+    void onMaximizeFailed(String error);
     void onMinimize();
     void onScriptLoaded();
     void onLoadStart();

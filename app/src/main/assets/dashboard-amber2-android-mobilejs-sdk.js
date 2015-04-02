@@ -95,64 +95,6 @@
         this.scaler = new Scaler;
       }
 
-      DashboardController.prototype.runDashboard = function() {
-        var self;
-        this.callback.onLoadStart();
-        self = this;
-        return visualize(this.session.authOptions(), function(v) {
-          self.v = v;
-          self.scaler.scale(0.25);
-          return self.dashboard = v.dashboard({
-            report: {
-              chart: {
-                animation: false,
-                zoom: false
-              }
-            },
-            container: '#container',
-            resource: self.uri,
-            success: function() {
-              var dashboardId;
-              self.logger.log("Scale dashboard");
-              self.components = this.data().components;
-              $(this.container()).find('.dashboardCanvas').addClass('scaledCanvas');
-              self.logger.log("Iterate components");
-              this.data().components.forEach(function(component) {
-                if (component.type !== 'inputControl') {
-                  self.dashboard.updateComponent(component.id, {
-                    interactive: false,
-                    toolbar: false
-                  });
-                }
-              });
-              self.logger.log("Apply click events");
-              dashboardId = self.v.dashboard.componentIdDomAttribute;
-              $(this.container()).find("[" + dashboardId + "]").on('click', function() {
-                var component, id;
-                $('.show_chartTypeSelector_wrapper').show();
-                id = $(this).attr(dashboardId);
-                component = self.getComponentById(id);
-                if (component && !component.maximized) {
-                  $(self.dashboard.container()).find("[" + dashboardId + "='" + id + "']").addClass('originalDashletInScaledCanvas');
-                  self.dashboard.updateComponent(id, {
-                    maximized: true,
-                    interactive: true
-                  });
-                  self.maximizedComponent = component;
-                  self.logger.log("onMaximize");
-                  self.callback.onMaximize(component.name);
-                }
-              });
-              self.callback.onLoadDone();
-            },
-            error: function(e) {
-              self.logger.log(error);
-              self.callback.onLoadError(error);
-            }
-          });
-        });
-      };
-
       DashboardController.prototype.refreshDashlet = function() {
         if (this.maximizedComponent) {
           return this.dashboard.refresh(this.maximizedComponent.id);
@@ -181,7 +123,86 @@
         return this.callback.onMinimize();
       };
 
-      DashboardController.prototype.getComponentById = function(id) {
+      DashboardController.prototype.runDashboard = function() {
+        var self;
+        this.callback.onLoadStart();
+        self = this;
+        return visualize(this.session.authOptions(), function(v) {
+          self.v = v;
+          self.scaler.scale(0.25);
+          return self.dashboard = v.dashboard({
+            report: {
+              chart: {
+                animation: false,
+                zoom: false
+              }
+            },
+            container: '#container',
+            resource: self.uri,
+            success: function() {
+              self.selfDashboard = this;
+              self.data = this.data();
+              self.components = this.data().components;
+              self.container = this.container();
+              self._scaleContainer();
+              self._configureComponents();
+              self._defineComponentsClickEvent();
+              return self.callback.onLoadDone();
+            },
+            error: function(e) {
+              self.logger.log(error);
+              self.callback.onLoadError(error);
+            }
+          });
+        });
+      };
+
+      DashboardController.prototype._scaleContainer = function() {
+        this.logger.log("Scale dashboard");
+        return $(this.container).find('.dashboardCanvas').addClass('scaledCanvas');
+      };
+
+      DashboardController.prototype._configureComponents = function() {
+        this.logger.log("Iterate components");
+        return this.components.forEach((function(_this) {
+          return function(component) {
+            if (component.type !== 'inputControl') {
+              _this.dashboard.updateComponent(component.id, {
+                interactive: false,
+                toolbar: false
+              });
+            }
+          };
+        })(this));
+      };
+
+      DashboardController.prototype._defineComponentsClickEvent = function() {
+        var dashboardId, self;
+        this.logger.log("Apply click events");
+        dashboardId = this.v.dashboard.componentIdDomAttribute;
+        self = this;
+        return $(this.container).find("[" + dashboardId + "]").on('click', function() {
+          var component, id;
+          $('.show_chartTypeSelector_wrapper').show();
+          id = $(this).attr(dashboardId);
+          component = self._getComponentById(id);
+          if (component && !component.maximized) {
+            $(self.container).find("[" + dashboardId + "='" + id + "']").addClass('originalDashletInScaledCanvas');
+            self.callback.onMaximizeStart(component.name);
+            self.dashboard.updateComponent(id, {
+              maximized: true,
+              interactive: true
+            }, function() {
+              self.maximizedComponent = component;
+              return self.callback.onMaximizeEnd(component.name);
+            }, function(error) {
+              return self.callback.onMaximizeFailed(error);
+            });
+          }
+        });
+      };
+
+      DashboardController.prototype._getComponentById = function(id) {
         return this.dashboard.data().components.filter(function(c) {
           return c.id === id;
         })[0];
@@ -286,8 +307,16 @@
     return AndroidCallback = (function() {
       function AndroidCallback() {}
 
-      AndroidCallback.prototype.onMaximize = function(title) {
-        Android.onMaximize(title);
+      AndroidCallback.prototype.onMaximizeStart = function(title) {
+        Android.onMaximizeStart(title);
+      };
+
+      AndroidCallback.prototype.onMaximizeEnd = function(title) {
+        Android.onMaximizeEnd(title);
+      };
+
+      AndroidCallback.prototype.onMaximizeFailed = function(error) {
+        Android.onMaximizeFailed(error);
       };
 
       AndroidCallback.prototype.onMinimize = function() {

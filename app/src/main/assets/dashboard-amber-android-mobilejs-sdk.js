@@ -4,8 +4,16 @@
     return AndroidCallback = (function() {
       function AndroidCallback() {}
 
-      AndroidCallback.prototype.onMaximize = function(title) {
-        Android.onMaximize(title);
+      AndroidCallback.prototype.onMaximizeStart = function(title) {
+        Android.onMaximizeStart(title);
+      };
+
+      AndroidCallback.prototype.onMaximizeEnd = function(title) {
+        Android.onMaximizeEnd(title);
+      };
+
+      AndroidCallback.prototype.onMaximizeFailed = function(error) {
+        Android.onMaximizeFailed(error);
       };
 
       AndroidCallback.prototype.onMinimize = function() {
@@ -177,6 +185,7 @@
 
       DashboardController.prototype.initialize = function() {
         this.callback.onLoadStart();
+        this.scaler.scale(0.25);
         this._removeRedundantArtifacts();
         this._injectViewport();
         return this._attachDashletLoadListeners();
@@ -275,7 +284,7 @@
           context: this.context
         });
         dashlets.enable();
-        this.callback.onMaximize(title);
+        this.callback.onMaximizeStart(title);
         button = jQuery(jQuery(dashlet).find('div.dashletToolbar > div.content div.buttons > .maximizeDashletButton')[0]);
         button.click();
         this.logger.log("Add original scale");

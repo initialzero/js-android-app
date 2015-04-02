@@ -78,7 +78,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
+        mToast = Toast.makeText (this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
@@ -104,10 +104,25 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
 
     @UiThread
     @Override
-    public void onMaximize(String title) {
+    public void onMaximizeStart(String title) {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+    }
+
+    @UiThread
+    @Override
+    public void onMaximizeEnd(String title) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
         resetZoom();
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
+    }
+
+    @UiThread
+    @Override
+    public void onMaximizeFailed(String error) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @UiThread

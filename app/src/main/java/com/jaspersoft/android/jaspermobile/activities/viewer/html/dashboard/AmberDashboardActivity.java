@@ -103,10 +103,20 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @UiThread
     @Override
-    public void onMaximize(String title) {
+    public void onMaximizeStart(String title) {
         resetZoom();
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
+    }
+
+    @UiThread
+    @Override
+    public void onMaximizeEnd(String title) {
+    }
+
+    @UiThread
+    @Override
+    public void onMaximizeFailed(String error) {
     }
 
     @UiThread

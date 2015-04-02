@@ -62,8 +62,20 @@ public class DashboardWebInterface extends WebInterface implements DashboardCall
 
     @JavascriptInterface
     @Override
-    public void onMinimize() {
-        dashboardCallback.onMinimize();
+    public void onMinimizeStart() {
+        dashboardCallback.onMinimizeStart();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onMinimizeEnd() {
+        dashboardCallback.onMinimizeEnd();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onMinimizeFailed(String error) {
+        dashboardCallback.onMinimizeFailed(error);
     }
 
     @JavascriptInterface

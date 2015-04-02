@@ -115,12 +115,19 @@
         dashboardId = this.v.dashboard.componentIdDomAttribute;
         component = this.maximizedComponent;
         $(this.dashboard.container()).find("[" + dashboardId + "='" + component.id + "']").removeClass('originalDashletInScaledCanvas');
-        this.dashboard.updateComponent(component.id, {
+        this.callback.onMinimizeStart();
+        return this.dashboard.updateComponent(component.id, {
           maximized: false,
           interactive: false
-        });
-        this.logger.log("onMinimize");
-        return this.callback.onMinimize();
+        }, (function(_this) {
+          return function() {
+            return _this.callback.onMinimizeEnd();
+          };
+        })(this), (function(_this) {
+          return function(error) {
+            return _this.callback.onMinimizeFailed(error);
+          };
+        })(this));
       };
 
       DashboardController.prototype.runDashboard = function() {
@@ -319,8 +326,16 @@
         Android.onMaximizeFailed(error);
       };
 
-      AndroidCallback.prototype.onMinimize = function() {
-        Android.onMinimize();
+      AndroidCallback.prototype.onMinimizeStart = function() {
+        Android.onMinimizeStart();
+      };
+
+      AndroidCallback.prototype.onMinimizeEnd = function() {
+        Android.onMinimizeEnd();
+      };
+
+      AndroidCallback.prototype.onMinimizeFailed = function(error) {
+        Android.onMinimizeFailed(error);
       };
 
       AndroidCallback.prototype.onScriptLoaded = function() {

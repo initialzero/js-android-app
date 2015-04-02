@@ -16,8 +16,16 @@
         Android.onMaximizeFailed(error);
       };
 
-      AndroidCallback.prototype.onMinimize = function() {
-        Android.onMinimize();
+      AndroidCallback.prototype.onMinimizeStart = function() {
+        Android.onMinimizeStart();
+      };
+
+      AndroidCallback.prototype.onMinimizeEnd = function() {
+        Android.onMinimizeEnd();
+      };
+
+      AndroidCallback.prototype.onMinimizeFailed = function(error) {
+        Android.onMinimizeFailed(error);
       };
 
       AndroidCallback.prototype.onScriptLoaded = function() {
@@ -146,31 +154,9 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.scaler', [],function() {
-    var Scaler;
-    return Scaler = (function() {
-      function Scaler() {}
-
-      Scaler.prototype.scale = function(factor) {
-        var originalDashletInScaledCanvasCss, scaledCanvasCss;
-        jQuery("#scale_style").remove();
-        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
-        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
-        jQuery('<style id="scale_style"></style').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
-      };
-
-      return Scaler;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.amber.dashboard.controller', ['require','js.mobile.amber.dashboard.view','js.mobile.scaler'],function(require) {
-    var DashboardController, Scaler, View;
+  define('js.mobile.amber.dashboard.controller', ['require','js.mobile.amber.dashboard.view'],function(require) {
+    var DashboardController, View;
     View = require('js.mobile.amber.dashboard.view');
-    Scaler = require('js.mobile.scaler');
     return DashboardController = (function() {
       function DashboardController(context) {
         this.context = context;
@@ -180,12 +166,10 @@
           el: jQuery('#frame'),
           context: this.context
         });
-        this.scaler = new Scaler;
       }
 
       DashboardController.prototype.initialize = function() {
         this.callback.onLoadStart();
-        this.scaler.scale(0.25);
         this._removeRedundantArtifacts();
         this._injectViewport();
         return this._attachDashletLoadListeners();
@@ -197,7 +181,7 @@
         jQuery(".dashboardCanvas > .content > .body div.canvasOverlay").removeClass("originalDashletInScaledCanvas");
         jQuery("div.dashboardCanvas > div.content > div.body > div").find(".minimizeDashlet")[0].click();
         this._disableDashlets();
-        return this.callback.onMinimize();
+        return this.callback.onMinimizeStart();
       };
 
       DashboardController.prototype._injectViewport = function() {

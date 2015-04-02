@@ -127,9 +127,19 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
 
     @UiThread
     @Override
-    public void onMinimize() {
+    public void onMinimizeStart() {
+    }
+
+    @UiThread
+    @Override
+    public void onMinimizeEnd() {
         resetZoom();
         mMaximized = false;
+    }
+
+    @UiThread
+    @Override
+    public void onMinimizeFailed(String error) {
     }
 
     @UiThread

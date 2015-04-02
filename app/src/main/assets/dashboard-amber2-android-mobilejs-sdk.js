@@ -83,12 +83,15 @@
 }).call(this);
 
 (function() {
+  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
   define('js.mobile.amber2.dashboard.controller', ['require','jquery','js.mobile.scaler'],function(require) {
     var $, DashboardController, Scaler;
     $ = require('jquery');
     Scaler = require('js.mobile.scaler');
     return DashboardController = (function() {
       function DashboardController(options) {
+        this._clickCallback = bind(this._clickCallback, this);
         this.context = options.context, this.session = options.session, this.uri = options.uri;
         this.callback = this.context.callback;
         this.logger = this.context.logger;
@@ -156,9 +159,14 @@
               self._defineComponentsClickEvent();
               return self.callback.onLoadDone();
             },
+            linkOptions: {
+              events: {
+                click: self._clickCallback
+              }
+            },
             error: function(e) {
               self.logger.log(error);
-              self.callback.onLoadError(error);
+              return self.callback.onLoadError(error);
             }
           });
         });
@@ -213,6 +221,30 @@
         return this.dashboard.data().components.filter(function(c) {
           return c.id === id;
         })[0];
+      };
+
+      DashboardController.prototype._clickCallback = function(event, link) {
+        var data, dataString;
+        if (link.type === "ReportExecution") {
+          data = {
+            resource: link.parameters._report,
+            params: this._collectReportParams(link)
+          };
+          dataString = JSON.stringify(data, null, 4);
+          return this.callback.onReportExecution(dataString);
+        }
+      };
+
+      DashboardController.prototype._collectReportParams = function(link) {
+        var isValueNotArray, key, params;
+        params = {};
+        for (key in link.parameters) {
+          if (key !== '_report') {
+            isValueNotArray = Object.prototype.toString.call(link.parameters[key]) !== '[object Array]';
+            params[key] = isValueNotArray ? [link.parameters[key]] : link.parameters[key];
+          }
+        }
+        return params;
       };
 
       return DashboardController;
@@ -352,6 +384,10 @@
 
       AndroidCallback.prototype.onLoadError = function(error) {
         Android.onLoadError(error);
+      };
+
+      AndroidCallback.prototype.onReportExecution = function(data) {
+        Android.onReportExecution(data);
       };
 
       return AndroidCallback;

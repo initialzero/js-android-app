@@ -162,7 +162,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
             showLog();
         }
         if (itemId == android.R.id.home) {
-            onHomeAsUpEnabled();
+            onHomeAsUpCalled();
         }
 
         return true;
@@ -235,7 +235,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
 
     public abstract void onRefresh();
 
-    public abstract void onHomeAsUpEnabled();
+    public abstract void onHomeAsUpCalled();
 
     private void setupSettings() {
         WebSettings settings = webView.getSettings();

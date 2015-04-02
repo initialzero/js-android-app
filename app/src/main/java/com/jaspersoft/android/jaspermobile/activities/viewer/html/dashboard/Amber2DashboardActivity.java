@@ -31,10 +31,13 @@ import android.text.TextUtils;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboardApi;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -54,6 +57,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -85,16 +89,6 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
         accountServerData = AccountServerData.get(this, account);
 
         loadFlow();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mMaximized && webView != null) {
-            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
-            scrollableTitleHelper.injectTitle(resource.getLabel());
-        } else {
-            super.onBackPressed();
-        }
     }
 
     @Override
@@ -169,6 +163,20 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
         mToast.show();
     }
 
+    @UiThread
+    @Override
+    public void onReportExecution(String data) {
+        ReportData reportData = new Gson().fromJson(data, ReportData.class);
+        ResourceLookup resourceLookup = new ResourceLookup();
+        resourceLookup.setLabel("Dummy");
+        resourceLookup.setResourceType(ResourceLookup.ResourceType.reportUnit);
+        resourceLookup.setUri(reportData.getResource());
+        ReportViewerActivity_
+                .intent(this)
+                .resource(resourceLookup)
+                .start();
+    }
+
     @Override
     public void onPageFinished() {
     }
@@ -183,8 +191,11 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     }
 
     @Override
-    public void onHomeAsUpEnabled() {
-        onBackPressed();
+    public void onHomeAsUpCalled() {
+        if (mMaximized && webView != null) {
+            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
+            scrollableTitleHelper.injectTitle(resource.getLabel());
+        }
     }
 
     private void loadFlow() {
@@ -227,5 +238,20 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
                 accountServerData.getPassword(),
                 organization);
         webView.loadUrl(executeScript);
+    }
+
+    private static class ReportData {
+        @Expose
+        private String resource;
+        @Expose
+        private Map<String, List<String>> params;
+
+        public String getResource() {
+            return resource;
+        }
+
+        public Map<String, List<String>> getParams() {
+            return params;
+        }
     }
 }

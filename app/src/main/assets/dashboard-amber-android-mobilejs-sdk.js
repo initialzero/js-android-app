@@ -44,6 +44,10 @@
         Android.onLoadError(error);
       };
 
+      AndroidCallback.prototype.onReportExecution = function(data) {
+        Android.onReportExecution(data);
+      };
+
       return AndroidCallback;
 
     })();

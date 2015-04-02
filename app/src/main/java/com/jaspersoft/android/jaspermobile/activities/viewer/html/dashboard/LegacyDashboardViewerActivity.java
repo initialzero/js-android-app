@@ -72,7 +72,7 @@ public class LegacyDashboardViewerActivity extends DashboardCordovaActivity {
     }
 
     @Override
-    public void onHomeAsUpEnabled() {
+    public void onHomeAsUpCalled() {
         super.onBackPressed();
     }
 

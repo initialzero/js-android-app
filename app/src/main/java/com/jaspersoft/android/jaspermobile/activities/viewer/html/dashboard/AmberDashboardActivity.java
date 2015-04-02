@@ -87,8 +87,11 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     }
 
     @Override
-    public void onHomeAsUpEnabled() {
-        onBackPressed();
+    public void onHomeAsUpCalled() {
+        if (mMaximized && webView != null) {
+            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
+            scrollableTitleHelper.injectTitle(resource.getLabel());
+        }
     }
 
     @Override
@@ -160,6 +163,11 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
         mToast.setText(error);
         mToast.show();
+    }
+
+    @UiThread
+    @Override
+    public void onReportExecution(String data) {
     }
 
     private void loadFlow() {

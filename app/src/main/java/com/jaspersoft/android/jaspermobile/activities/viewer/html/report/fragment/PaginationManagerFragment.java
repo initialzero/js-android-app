@@ -37,6 +37,8 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.NodePag
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
+import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.widget.JSViewPager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -53,7 +55,7 @@ import org.springframework.http.HttpStatus;
  * @since 1.9
  */
 @EFragment(R.layout.fragment_pagination_manager)
-public class PaginationManagerFragment extends RoboSpiceFragment {
+public class PaginationManagerFragment extends RoboSpiceFragment implements NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener {
 
     public static final String TAG = PaginationManagerFragment.class.getSimpleName();
 
@@ -117,13 +119,24 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         paginationControl.setOnPageChangeListener(new PaginationBarView.OnPageChangeListener() {
             @Override
             public void onPageSelected(final int page) {
-                int count = mAdapter.getCount();
-                int item = page - 1;
-                if (count < page) {
-                    mAdapter.setCount(page);
-                    mAdapter.notifyDataSetChanged();
+                changePage(page);
+            }
+
+            @Override
+            public void onPickerSelected(boolean pickExactPage) {
+                if (!pickExactPage) {
+                    NumberDialogFragment.createBuilder(getFragmentManager())
+                            .setMinValue(1)
+                            .setCurrentValue(paginationControl.getCurrentPage())
+                            .setMaxValue(paginationControl.getTotalPages())
+                            .setTargetFragment(PaginationManagerFragment.this)
+                            .show();
+                } else {
+                    PageDialogFragment.createBuilder(getFragmentManager())
+                            .setMaxValue(paginationControl.isTotalPagesLoaded() ? paginationControl.getTotalPages() : Integer.MAX_VALUE)
+                            .setTargetFragment(PaginationManagerFragment.this)
+                            .show();
                 }
-                viewPager.setCurrentItem(item);
             }
         });
 
@@ -159,6 +172,18 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         mAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onPageSelected(int page, int requestCode) {
+        paginationControl.setCurrentPage(page);
+        changePage(page);
+    }
+
+    @Override
+    public void onPageSelected(int page) {
+        paginationControl.setCurrentPage(page);
+        changePage(page);
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -171,6 +196,16 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
         if (htmlViewer != null) {
             htmlViewer.setPadding(0, 0, 0, paginationControl.getHeight());
         }
+    }
+
+    private void changePage(int page) {
+        int count = mAdapter.getCount();
+        int item = page - 1;
+        if (count < page) {
+            mAdapter.setCount(page);
+            mAdapter.notifyDataSetChanged();
+        }
+        viewPager.setCurrentItem(item);
     }
 
     //---------------------------------------------------------------------
@@ -221,5 +256,4 @@ public class PaginationManagerFragment extends RoboSpiceFragment {
                     }
                 }
             };
-
 }

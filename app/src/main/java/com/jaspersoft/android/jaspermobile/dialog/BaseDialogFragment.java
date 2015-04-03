@@ -13,8 +13,10 @@ import android.support.v4.app.FragmentManager;
 public abstract class BaseDialogFragment extends DialogFragment {
 
     private final static String CANCELED_ON_TOUCH_OUTSIDE_ARG = "canceled_on_touch_outside";
+    private final static String REQUEST_CODE_ARG = "request_code";
 
     protected boolean canceledOnTouchOutside;
+    protected int requestCode;
     protected DialogClickListener mDialogListener;
 
     @Override
@@ -33,6 +35,7 @@ public abstract class BaseDialogFragment extends DialogFragment {
         Bundle args = getArguments();
         if (args != null) {
             canceledOnTouchOutside = args.getBoolean(CANCELED_ON_TOUCH_OUTSIDE_ARG, true);
+            requestCode = args.getInt(REQUEST_CODE_ARG, -1);
         }
     }
 
@@ -77,6 +80,11 @@ public abstract class BaseDialogFragment extends DialogFragment {
 
         public BaseDialogFragmentBuilder<T> setCancelableOnTouchOutside(boolean canceledOnTouchOutside) {
             args.putBoolean(CANCELED_ON_TOUCH_OUTSIDE_ARG, canceledOnTouchOutside);
+            return this;
+        }
+
+        public BaseDialogFragmentBuilder<T> setRequestCode(int requestCode) {
+            args.putInt(REQUEST_CODE_ARG, requestCode);
             return this;
         }
 

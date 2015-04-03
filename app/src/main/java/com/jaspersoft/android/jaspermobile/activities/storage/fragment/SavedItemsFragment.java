@@ -76,15 +76,14 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
-import static com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment.OnRenamedAction;
-
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment
 public class SavedItemsFragment extends RoboFragment
-        implements FileAdapter.FileInteractionListener, DeleteDialogFragment.DeleteDialogClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+        implements FileAdapter.FileInteractionListener, DeleteDialogFragment.DeleteDialogClickListener,
+        LoaderManager.LoaderCallbacks<Cursor>, RenameDialogFragment.RenameDialogClickListener {
 
     private final int SAVED_ITEMS_LOADER_ID = 10;
 
@@ -241,7 +240,7 @@ public class SavedItemsFragment extends RoboFragment
         //Add server profile id and username to WHERE params
         selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
                 .append("  AND ")
-                .append(SavedItemsTable.USERNAME + " =?") ;
+                .append(SavedItemsTable.USERNAME + " =?");
 
         selectionArgs.add(account.name);
         selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
@@ -257,7 +256,7 @@ public class SavedItemsFragment extends RoboFragment
         }
 
         // Close select brackets
-        selection .append(")");
+        selection.append(")");
 
         //Add filtration to WHERE params
         boolean withFiltering = filterType != null;
@@ -308,20 +307,13 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onRename(File itemFile, final Uri recordUri, String fileExtension) {
-        RenameDialogFragment.show(getFragmentManager(), itemFile,
-                fileExtension, new OnRenamedAction() {
-                    @Override
-                    public void onRenamed(String newFileName, String newFilePath) {
-                        SavedItems savedItemsEntry = new SavedItems();
-                        savedItemsEntry.setName(newFileName);
-                        savedItemsEntry.setFilePath(newFilePath);
-
-                        getActivity().getContentResolver().update(recordUri, savedItemsEntry.getContentValues(), null, null);
-
-                        mAdapter.finishActionMode();
-                    }
-                });
+    public void onRename(File itemFile, Uri recordUri, String fileExtension) {
+        RenameDialogFragment.createBuilder(getFragmentManager())
+                .setSelectedFile(itemFile)
+                .setExtension(fileExtension)
+                .setRecordUri(recordUri)
+                .setTargetFragment(this)
+                .show();
     }
 
     @Override
@@ -372,6 +364,18 @@ public class SavedItemsFragment extends RoboFragment
 
     }
 
+    //---------------------------------------------------------------------
+    // Implements RenameDialogFragment.RenameDialogClickListener
+    //---------------------------------------------------------------------
 
+    @Override
+    public void onRenamed(String newFileName, String newFilePath, Uri recordUri) {
+        SavedItems savedItemsEntry = new SavedItems();
+        savedItemsEntry.setName(newFileName);
+        savedItemsEntry.setFilePath(newFilePath);
 
+        getActivity().getContentResolver().update(recordUri, savedItemsEntry.getContentValues(), null, null);
+
+        mAdapter.finishActionMode();
+    }
 }

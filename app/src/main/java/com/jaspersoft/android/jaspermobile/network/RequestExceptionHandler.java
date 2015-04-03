@@ -117,14 +117,7 @@ public class RequestExceptionHandler {
     }
 
     private static void showAuthErrorDialog(final Context context) {
-        PasswordDialogFragment.show(getSupportFragmentManager(context), new PasswordDialogFragment.OnPasswordChangedListener() {
-            @Override
-            public void onPasswordChanged(String newPassword) {
-                JasperAccountManager jasperAccountManager = JasperAccountManager.get(context);
-                jasperAccountManager.invalidateActiveToken();
-                jasperAccountManager.updateActiveAccountPassword(newPassword);
-            }
-        });
+        PasswordDialogFragment.show(getSupportFragmentManager(context));
     }
 
     /**

@@ -19,14 +19,12 @@ public class SimpleDialogFragment extends BaseDialogFragment {
     private final static String MESSAGE_ARG = "message";
     private final static String TITLE_ARG = "title";
     private final static String ICON_RES_ARG = "icon_res";
-    private final static String REQUEST_CODE_ARG = "request_code";
 
     private String title;
     private String message;
     private String positiveButtonText;
     private String negativeButtonText;
     private int iconRes;
-    private int requestCode;
 
     @NonNull
     @Override
@@ -96,7 +94,6 @@ public class SimpleDialogFragment extends BaseDialogFragment {
                 title = args.getString(TITLE_ARG);
             }
             iconRes = args.getInt(ICON_RES_ARG, 0);
-            requestCode = args.getInt(REQUEST_CODE_ARG, -1);
         }
     }
 
@@ -164,11 +161,6 @@ public class SimpleDialogFragment extends BaseDialogFragment {
 
         public SimpleDialogFragmentBuilder<T> setIcon(int recourseId) {
             args.putInt(ICON_RES_ARG, recourseId);
-            return this;
-        }
-
-        public SimpleDialogFragmentBuilder<T> setRequestCode(int requestCode) {
-            args.putInt(REQUEST_CODE_ARG, requestCode);
             return this;
         }
 

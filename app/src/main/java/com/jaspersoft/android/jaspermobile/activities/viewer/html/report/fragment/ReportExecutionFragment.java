@@ -92,19 +92,18 @@ public class ReportExecutionFragment extends RoboSpiceFragment implements Simple
         FilterManagerFragment filterManagerFragment = getFilterMangerFragment();
         if (!filterManagerFragment.hasSnapshot()) {
             SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                    .setRequestCode(EMPTY_REPORT_DIALOG_WITH_SNAPSHOT)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle(R.string.warning_msg)
                     .setMessage(R.string.rv_error_empty_report)
                     .setNegativeButtonText(android.R.string.ok)
                     .setTargetFragment(this)
                     .setCancelableOnTouchOutside(false)
+                    .setRequestCode(EMPTY_REPORT_DIALOG_WITH_SNAPSHOT)
                     .show();
             return;
         }
 
         SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setRequestCode(EMPTY_REPORT_DIALOG_WITHOUT_SNAPSHOT)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setNegativeButtonText(android.R.string.cancel)
                 .setPositiveButtonText(android.R.string.ok)
@@ -112,6 +111,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment implements Simple
                 .setMessage(R.string.rv_error_empty_report_message)
                 .setTargetFragment(this)
                 .setCancelableOnTouchOutside(false)
+                .setRequestCode(EMPTY_REPORT_DIALOG_WITHOUT_SNAPSHOT)
                 .show();
     }
 

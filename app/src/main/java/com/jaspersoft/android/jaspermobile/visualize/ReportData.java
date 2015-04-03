@@ -26,8 +26,8 @@ package com.jaspersoft.android.jaspermobile.visualize;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Tom Koptel
@@ -37,13 +37,13 @@ public class ReportData {
     @Expose
     private String resource;
     @Expose
-    private Map<String, List<String>> params;
+    private Map<String, Set<String>> params;
 
     public String getResource() {
         return resource;
     }
 
-    public Map<String, List<String>> getParams() {
+    public Map<String, Set<String>> getParams() {
         return params;
     }
 }

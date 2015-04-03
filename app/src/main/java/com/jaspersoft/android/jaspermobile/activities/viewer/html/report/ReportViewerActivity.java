@@ -68,6 +68,7 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.samskivert.mustache.Mustache;
@@ -135,6 +136,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Extra
     protected ResourceLookup resource;
+    @Extra
+    protected ArrayList<ReportParameter> reportParameters;
 
     @InstanceState
     protected Uri favoriteEntryUri;
@@ -149,10 +152,17 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private SimpleChromeClient chromeClient;
     private AccountServerData accountServerData;
     private boolean mShowSavedMenuItem;
+    private boolean mHasInitialParameters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mHasInitialParameters = (reportParameters != null);
+        if (mHasInitialParameters) {
+            reportModel.setReportParameters(reportParameters);
+        }
+
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         if (savedInstanceState == null) {
@@ -260,7 +270,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (noControls) {
             loadFlow();
         } else {
-            showInputControlsPage(inputControls);
+            if (mHasInitialParameters) {
+                loadFlow();
+            } else {
+                showInputControlsPage(inputControls);
+            }
         }
     }
 
@@ -274,6 +288,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (resultCode == Activity.RESULT_OK) {
             ArrayList<InputControl> inputControl = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
             reportModel.setInputControls(inputControl);
+            reportModel.updateReportParameters();
+
             mShowSavedMenuItem = false;
             supportInvalidateOptionsMenu();
             loadFlow();

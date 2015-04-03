@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportV
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterInject;
@@ -43,6 +44,10 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.UiThread;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
@@ -85,17 +90,31 @@ public class HyperlinkHelper {
             lookup.setDescription(descriptor.getDescription());
             lookup.setUri(descriptor.getUriString());
 
-            startReportActivity(lookup);
+            ArrayList<ReportParameter> reportParameters = transform(reportData.getParams());
+            startReportActivity(lookup, reportParameters);
         } catch (HttpStatusCodeException exception) {
             reportError(exception);
         }
     }
 
+    @NonNull
+    private ArrayList<ReportParameter> transform(Map<String, Set<String>> params) {
+        ArrayList<ReportParameter> collection = new ArrayList<ReportParameter>();
+        for (Map.Entry<String, Set<String>> entry : params.entrySet()) {
+            ReportParameter reportParameter = new ReportParameter();
+            reportParameter.setName(entry.getKey());
+            reportParameter.setValues(entry.getValue());
+            collection.add(reportParameter);
+        }
+        return collection;
+    }
+
     @UiThread
-    protected void startReportActivity(@NonNull ResourceLookup lookup) {
+    protected void startReportActivity(@NonNull ResourceLookup lookup, ArrayList<ReportParameter> reportParameters) {
         ProgressDialogFragment.dismiss(activity.getSupportFragmentManager());
         ReportViewerActivity_
                 .intent(activity)
+                .reportParameters(reportParameters)
                 .resource(lookup)
                 .start();
     }

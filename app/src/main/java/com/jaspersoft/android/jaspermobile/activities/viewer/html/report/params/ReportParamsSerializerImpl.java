@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -38,19 +38,19 @@ import java.util.Set;
  * @author Tom Koptel
  * @since 2.0
  */
-public class InputControlSerializerImpl implements InputControlsSerializer {
+public class ReportParamsSerializerImpl implements ReportParamsSerializer {
     private static final String EMPTY_JSON = "{}";
 
     @Override
-    public String toJson(List<InputControl> reportParameters) {
+    public String toJson(List<ReportParameter> reportParameters) {
         Map<String, Set<String>> params = new HashMap<String, Set<String>>();
         if (reportParameters == null) {
             return EMPTY_JSON;
         } else {
             Gson gson = new Gson();
             Type mapType = new TypeToken<Map<String,Set<String>>>() {}.getType();
-            for (InputControl inputControl : reportParameters) {
-                params.put(inputControl.getId(), inputControl.getSelectedValues());
+            for (ReportParameter parameter : reportParameters) {
+                params.put(parameter.getName(), parameter.getValues());
             }
             return gson.toJson(params, mapType);
         }

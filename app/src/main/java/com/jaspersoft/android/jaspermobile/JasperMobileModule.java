@@ -29,7 +29,6 @@ import android.content.Context;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.InputControlsSerializer;
 import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;

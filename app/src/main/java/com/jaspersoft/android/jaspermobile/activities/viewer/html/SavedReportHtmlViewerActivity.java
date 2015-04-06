@@ -26,14 +26,13 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
-import com.jaspersoft.android.sdk.util.FileUtils;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
@@ -56,13 +55,16 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
         implements WebViewFragment.OnWebViewCreated, ISimpleDialogListener {
 
     @Extra
-    File reportFile;
+    protected File reportFile;
 
     @Extra
-    long reportId;
+    protected long reportId;
 
     @Extra
-    String resourceLabel;
+    protected String resourceLabel;
+
+    @Bean
+    protected SavedItemHelper savedItemHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,19 +103,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
 
     @Override
     public void onPositiveButtonClicked(int i) {
-        File reportFolderFile = reportFile.getParentFile();
-        if (reportFolderFile.isDirectory()) {
-            FileUtils.deleteFilesInDirectory(reportFolderFile);
-        }
-
-        if (reportFolderFile.delete() || !reportFolderFile.exists()) {
-            Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                    String.valueOf(reportId));
-           getContentResolver().delete(uri, null, null);
-        } else {
-            Toast.makeText(this, R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
-        }
-
+        savedItemHelper.deleteSavedItem(reportFile, reportId);
         finish();
     }
 

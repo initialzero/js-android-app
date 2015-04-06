@@ -148,7 +148,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
                 break;
             case R.id.deleteItem:
                 if (fileInteractionListener != null) {
-                    fileInteractionListener.onDelete(file.getParentFile());
+                    fileInteractionListener.onDelete(file);
                 }
                 break;
             case R.id.showAction:

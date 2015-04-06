@@ -65,7 +65,7 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
 
     private AlertDialog mDialog;
     private EditText reportNameEdit;
-    private OnRenamedAction onRenamedActionListener;
+    private OnRenamedAction onRenamedActionListener = new NullListener();
 
     public static void show(FragmentManager fm, File file, String extension, OnRenamedAction onRenamedAction) {
         RenameDialogFragment dialogFragment = (RenameDialogFragment) fm.findFragmentByTag(TAG);
@@ -84,15 +84,20 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final View customLayout = LayoutInflater.from(getActivity())
                 .inflate(R.layout.rename_report_dialog_layout, null);
+        String reportName = FileUtils.getBaseName(selectedFile.getName());
         reportNameEdit = (EditText) customLayout.findViewById(R.id.report_name_input);
-        reportNameEdit.setText(selectedFile.getName());
+        reportNameEdit.setText(reportName);
         reportNameEdit.setSelection(reportNameEdit.getText().length());
 
         reportNameEdit.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 reportNameEdit.setError(null);
@@ -122,7 +127,8 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
 
     @Override
     public void onClick(View v) {
-        String newReportFolderName = reportNameEdit.getText().toString().trim();
+        String reportName = reportNameEdit.getText().toString().trim();
+        String newReportFolderName = reportNameEdit.getText().toString().trim() + "." + extension;
 
         if (newReportFolderName.isEmpty()) {
             reportNameEdit.setError(getString(R.string.sdr_rrd_error_name_is_empty));
@@ -135,23 +141,16 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
         }
 
         File destFile = new File(selectedFile.getParentFile(), newReportFolderName);
-
-        if (!selectedFile.equals(destFile)) {
-            if (destFile.exists()) {
-                reportNameEdit.setError(getString(R.string.sdr_rrd_error_report_exists));
-                return;
-            }
-
+        if (destFile.exists()) {
+            reportNameEdit.setError(getString(R.string.sdr_rrd_error_report_exists));
+        } else {
             if (renameSavedReportFile(selectedFile, destFile)) {
-                if (onRenamedActionListener != null) {
-                    onRenamedActionListener.onRenamed(newReportFolderName, new File(destFile, newReportFolderName + "." + extension).getPath());
-                }
+                onRenamedActionListener.onRenamed(reportName, new File(destFile, newReportFolderName).getPath());
             } else {
                 Toast.makeText(getActivity(), R.string.sdr_t_report_renaming_error, Toast.LENGTH_SHORT).show();
             }
+            dismiss();
         }
-
-        dismiss();
     }
 
     public void setRenamedActionListener(OnRenamedAction onRenamedActionListener) {
@@ -163,8 +162,8 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
         boolean result = srcFile.renameTo(destFile);
         // rename sub-files
         if (result && destFile.isDirectory()) {
-            String srcName = srcFile.getName() + "." + extension;
-            String destName = destFile.getName() + "." + extension;
+            String srcName = srcFile.getName();
+            String destName = destFile.getName();
 
             FilenameFilter reportNameFilter = new ReportFilenameFilter(srcName);
             File[] subFiles = destFile.listFiles(reportNameFilter);
@@ -180,6 +179,12 @@ public class RenameDialogFragment extends DialogFragment implements DialogInterf
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
+
+    private static class NullListener implements OnRenamedAction {
+        @Override
+        public void onRenamed(String newFileName, String newFilePath) {
+        }
+    }
 
     public static interface OnRenamedAction {
         void onRenamed(String newFileName, String newFilePath);

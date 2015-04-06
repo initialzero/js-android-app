@@ -125,6 +125,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     private int mFromPage;
     private int mToPage;
+    private JasperAccountManager accountManager;
 
     public static enum OutputFormat {
         HTML,
@@ -137,6 +138,8 @@ public class SaveItemFragment extends RoboSpiceFragment {
         super.onCreate(savedInstanceState);
         hasOptionsMenu();
 
+        accountManager = JasperAccountManager.get(getActivity());
+
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sr_ab_title);
@@ -148,11 +151,12 @@ public class SaveItemFragment extends RoboSpiceFragment {
         if (isReportNameValid()) {
             final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
             String reportName = reportNameInput.getText() + "." + outputFormat;
-            File reportDir = getReportDir(reportNameInput.getText().toString());
+            File reportDir = getReportDir(reportName);
+
             if (reportDir == null) {
                 Toast.makeText(getActivity(), R.string.sr_failed_to_create_local_repo, Toast.LENGTH_SHORT).show();
             } else {
-                reportFile = new File(getReportDir(reportNameInput.getText().toString()), reportName);
+                reportFile = new File(reportDir, reportName);
 
                 if (reportFile.exists()) {
                     // show validation message
@@ -274,14 +278,20 @@ public class SaveItemFragment extends RoboSpiceFragment {
     private File getReportDir(String reportName) {
         File appFilesDir = getActivity().getExternalFilesDir(null);
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
-        File reportDir = new File(savedReportsDir, reportName);
+        Account account = accountManager.getActiveAccount();
+        if (account != null) {
+            File accountReportDir = new File(savedReportsDir, account.name);
+            File reportDir = new File(accountReportDir, reportName);
 
-        if (!reportDir.exists() && !reportDir.mkdirs()) {
-            Timber.e("Unable to create %s", savedReportsDir);
+            if (!reportDir.exists() && !reportDir.mkdirs()) {
+                Timber.e("Unable to create %s", savedReportsDir);
+                return null;
+            }
+
+            return reportDir;
+        } else {
             return null;
         }
-
-        return reportDir;
     }
 
     private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {

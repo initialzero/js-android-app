@@ -28,6 +28,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
@@ -92,7 +93,7 @@ public class SavedItemsMigration implements Migration {
     @Nullable
     private File getSavedItemsDir() {
         File appFilesDir = mContext.getExternalFilesDir(null);
-        File savedReportsDir = new File(appFilesDir, "saved.reports");
+        File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
 
         if (!savedReportsDir.exists()) {
             boolean created = savedReportsDir.mkdir();
@@ -121,13 +122,15 @@ public class SavedItemsMigration implements Migration {
 
         String fileName, fileFormat;
         long creationTime;
+        File savedReport;
         for (File savedItem : savedItems) {
+            savedReport = new File(savedItem, savedItem.getName());
             fileName = FileUtils.getBaseName(savedItem.getName());
             fileFormat = FileUtils.getExtension(savedItem.getName()).toUpperCase(Locale.getDefault());
             creationTime = savedItem.lastModified();
 
             contentValues.clear();
-            contentValues.put("file_path", savedItem.getPath());
+            contentValues.put("file_path", savedReport.getPath());
             contentValues.put("name", fileName);
             contentValues.put("file_format", fileFormat);
             contentValues.put("creation_time", creationTime);

@@ -191,16 +191,18 @@ public class Migrate_1_9_to_2_0Test {
         assertThat(cursor.getCount(), is(2));
 
         File sharedDir = new File(savedItemsDir, SHARED_DIR);
-        File[] savedReports = sharedDir.listFiles();
+        File[] savedReportsDirs = sharedDir.listFiles();
 
-        for (int i = 0; i < savedReports.length; i++) {
-            File report = savedReports[i];
+        for (int i = 0; i < savedReportsDirs.length; i++) {
+            File reportDir = savedReportsDirs[i];
+            File report = new File(reportDir, reportDir.getName());
             assertThat(cursor.moveToPosition(i), is(true));
 
             String fileName = FileUtils.getBaseName(report.getName());
             String fileFormat = FileUtils.getExtension(report.getName()).toUpperCase(Locale.getDefault());
-            long creationTime = report.lastModified();
+            long creationTime = reportDir.lastModified();
 
+            assertThat(reportDir.listFiles().length, is(2));
             assertThat(cursor.getString(cursor.getColumnIndex("file_path")), is(report.getPath()));
             assertThat(cursor.getString(cursor.getColumnIndex("name")), is(fileName));
             assertThat(cursor.getString(cursor.getColumnIndex("file_format")), is(fileFormat));
@@ -215,11 +217,19 @@ public class Migrate_1_9_to_2_0Test {
     //---------------------------------------------------------------------
 
     private void populateSavedReportsDir(File savedReportsDir) throws IOException {
-        File savedItem1 = new File(savedReportsDir, "report1.html");
-        assertThat(savedItem1.mkdir(), is(true));
+        File savedItemDir1 = new File(savedReportsDir, "report1.html");
+        File savedItem1 = new File(savedItemDir1, "report1.html");
+        File savedItemImage1 = new File(savedItemDir1, "image1.jpg");
+        assertThat(savedItemDir1.mkdir(), is(true));
+        assertThat(savedItem1.createNewFile(), is(true));
+        assertThat(savedItemImage1.createNewFile(), is(true));
 
-        File savedItem2 = new File(savedReportsDir, "report2.html");
-        assertThat(savedItem2.mkdir(), is(true));
+        File savedItemDir2 = new File(savedReportsDir, "report2.html");
+        File savedItem2 = new File(savedItemDir2, "report2.html");
+        File savedItemImage2 = new File(savedItemDir2, "image2.jpg");
+        assertThat(savedItemDir2.mkdir(), is(true));
+        assertThat(savedItem2.createNewFile(), is(true));
+        assertThat(savedItemImage2.createNewFile(), is(true));
     }
 
     private File prepareSavedReportsDir() {

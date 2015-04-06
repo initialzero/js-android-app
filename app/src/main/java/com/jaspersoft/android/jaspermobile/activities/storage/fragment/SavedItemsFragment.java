@@ -54,13 +54,13 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -90,27 +90,30 @@ public class SavedItemsFragment extends RoboFragment
     private final int SAVED_ITEMS_LOADER_ID = 10;
 
     @FragmentArg
-    ViewType viewType;
+    protected ViewType viewType;
 
     @Inject
-    JsRestClient jsRestClient;
+    protected JsRestClient jsRestClient;
 
     @InjectView(android.R.id.list)
-    AbsListView listView;
+    protected AbsListView listView;
     @InjectView(android.R.id.empty)
-    TextView emptyText;
+    protected TextView emptyText;
 
     @FragmentArg
     @InstanceState
-    FileAdapter.FileType filterType;
+    protected FileAdapter.FileType filterType;
 
     @FragmentArg
     @InstanceState
-    String searchQuery;
+    protected String searchQuery;
 
     @FragmentArg
     @InstanceState
-    SortOrder sortOrder;
+    protected SortOrder sortOrder;
+
+    @Bean
+    protected SavedItemHelper savedItemHelper;
 
     private FileAdapter mAdapter;
 
@@ -187,8 +190,7 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     private void openReportFile(int position) {
-        File reportFile = getFileByPosition(position);
-        File reportOutputFile = new File(reportFile, reportFile.getName());
+        File reportOutputFile = getFileByPosition(position);
 
         Locale current = getResources().getConfiguration().locale;
         String fileName = reportOutputFile.getName();
@@ -228,10 +230,6 @@ public class SavedItemsFragment extends RoboFragment
         Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = new ArrayList<String>();
-
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
-        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
-        boolean noOrganization = jsServerProfile.getOrganization() == null;
 
         //Add general items (server id = -1)
         selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
@@ -324,18 +322,8 @@ public class SavedItemsFragment extends RoboFragment
                 .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
                     @Override
                     public void onClick(DialogFragment fragment) {
-                        if (file.isDirectory()) {
-                            FileUtils.deleteFilesInDirectory(file);
-                        }
-
-                        if (file.delete() || !file.exists()) {
-                            long id = new ArrayList<Long>(mAdapter.getCheckedItems()).get(0);
-                            Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                                    String.valueOf(id));
-                            getActivity().getContentResolver().delete(uri, null, null);
-                        } else {
-                            Toast.makeText(getActivity(), R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
-                        }
+                        long id = new ArrayList<Long>(mAdapter.getCheckedItems()).get(0);
+                        savedItemHelper.deleteSavedItem(file, id);
                         mAdapter.finishActionMode();
                     }
                 })

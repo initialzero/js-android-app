@@ -93,7 +93,7 @@ public class AccountResourcesTest extends AndroidTestCase {
     }
 
     public void testAssertAccountRemovalFlushesAssociatedSavedItems() throws IOException {
-        SavedFilesUtil.clear(getContext());
+        SavedFilesUtil.deleteSavedItems(getContext());
         getContext().getContentResolver().delete(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, null, null);
 
         createSavedItemsInstances(account1);

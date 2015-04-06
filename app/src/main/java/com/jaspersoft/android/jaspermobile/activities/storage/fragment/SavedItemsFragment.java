@@ -198,7 +198,7 @@ public class SavedItemsFragment extends RoboFragment
         if ("HTML".equalsIgnoreCase(extension)) {
             // run the html report viewer
             SavedReportHtmlViewerActivity_.intent(this)
-                    .reportFile(reportFile)
+                    .reportFile(reportOutputFile)
                     .resourceLabel(baseName)
                     .reportId(getIndexByPosition(position))
                     .start();

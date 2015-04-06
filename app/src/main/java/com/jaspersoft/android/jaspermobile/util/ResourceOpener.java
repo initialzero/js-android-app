@@ -129,6 +129,11 @@ public class ResourceOpener {
     }
 
     private void runDashboard(ResourceLookup resource) {
+        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
+            LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
+            return;
+        }
+
         switch (serverRelease) {
             case EMERALD:
             case EMERALD_MR1:

@@ -52,13 +52,15 @@ public class ProfileFavoritesMigration implements Migration {
     }
 
     private void addAccountNameIntoFavoritesForProfile(Cursor profilesCursor, SQLiteDatabase database) {
+        ContentValues contentValues = new ContentValues();
+        String id, alias;
         while (profilesCursor.moveToNext()) {
-            String id = profilesCursor.getString(profilesCursor.getColumnIndex("_id"));
-            String alias = profilesCursor.getString(profilesCursor.getColumnIndex("alias"));
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(FavoritesTable.ACCOUNT_NAME, alias);
-            database.update(FavoritesTable.TABLE_NAME, contentValues, "server_profile_id=?", new String[]{id});
-//            database.rawQuery("UPDATE favorites SET account_name=? WHERE server_profile_id=?", new String[]{alias, id});
+            id = profilesCursor.getString(profilesCursor.getColumnIndex("_id"));
+            alias = profilesCursor.getString(profilesCursor.getColumnIndex("alias"));
+
+            contentValues.clear();
+            contentValues.put("account_name", alias);
+            database.update("favorites", contentValues, "server_profile_id=?", new String[]{id});
         }
     }
 }

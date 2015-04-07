@@ -23,13 +23,17 @@
  */
 package com.jaspersoft.android.jaspermobile.db.migrate;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 
 import timber.log.Timber;
@@ -41,6 +45,8 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class SavedItemsMigration implements Migration {
+    public static final String SHARED_DIR = "com.jaspersoft.account.none";
+
     private static final String TAG = JasperAccountManager.class.getSimpleName();
     private final Context mContext;
 
@@ -51,45 +57,85 @@ public class SavedItemsMigration implements Migration {
 
     @Override
     public void migrate(SQLiteDatabase database) {
-        database.execSQL("CREATE TABLE saved_items ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "file_path TEXT, name TEXT, file_format TEXT, description TEXT, wstype TEXT, " +
-                "username TEXT, organization TEXT, account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none', creation_time NUMERIC );");
+        database.execSQL(
+                "CREATE TABLE saved_items ( _id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        " file_path TEXT NOT NULL, name TEXT NOT NULL," +
+                        " file_format TEXT NOT NULL, description TEXT, " +
+                        "wstype TEXT NOT NULL DEFAULT 'unknown'," +
+                        " account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none'," +
+                        " creation_time NUMERIC NOT NULL )"
+        );
         migrateSavedItems(database);
     }
 
-    private void migrateSavedItems(SQLiteDatabase db){
+    private void migrateSavedItems(SQLiteDatabase db) {
         File savedItemsDir = getSavedItemsDir();
-        File sharedDir = new File(savedItemsDir, "com.jaspersoft.account.none");
-        if(!sharedDir.exists() && !sharedDir.mkdir()) return;
-        for (File savedItemDir : savedItemsDir.listFiles()) {
+        if (savedItemsDir != null) {
+            File[] savedItems = savedItemsDir.listFiles();
 
-            String fileName = FileUtils.getBaseName(savedItemDir.getName());
-            String fileFormat = FileUtils.getExtension(savedItemDir.getName()).toUpperCase(Locale.getDefault());
-            long creationTime = savedItemDir.lastModified();
-            File newFilePath = new File(sharedDir, fileName);
-
-            boolean movedSuccess = savedItemDir.renameTo(newFilePath);
-            File saveditemFile = new File(newFilePath, fileName + "." + fileFormat);
-            if(movedSuccess && saveditemFile.exists()) {
-                db.execSQL("INSERT INTO saved_items ( file_path, name, file_format, creation_time, account_name ) VALUES ( "
-                        + "'" + saveditemFile.getPath() + "', "
-                        + "'" + fileName + "', "
-                        + "'" + fileFormat + "', "
-                        + creationTime + ", "
-                        + "com.jaspersoft.account.none");
+            File sharedDir = createShareDirectory(savedItemsDir);
+            if (sharedDir != null) {
+                if (savedItems.length > 0) {
+                    moveToSharedDir(savedItems, sharedDir);
+                    saveSharedFilesInDb(db, sharedDir);
+                }
             }
         }
     }
 
-    private File getSavedItemsDir(){
+    @Nullable
+    private File createShareDirectory(File savedItemsDir) {
+        File sharedDir = new File(savedItemsDir, SHARED_DIR);
+        if (!sharedDir.exists() && !sharedDir.mkdir()) return null;
+        return sharedDir;
+    }
+
+    @Nullable
+    private File getSavedItemsDir() {
         File appFilesDir = mContext.getExternalFilesDir(null);
-        File savedReportsDir = new File(appFilesDir, "saved.reports");
+        File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
 
         if (!savedReportsDir.exists()) {
-            Timber.w("Unable to create %s", savedReportsDir);
-            return null;
+            boolean created = savedReportsDir.mkdir();
+            if (!created) {
+                Timber.w("Unable to create %s", savedReportsDir);
+                return null;
+            }
         }
-
         return savedReportsDir;
+    }
+
+    private void moveToSharedDir(File[] savedItems, File sharedDir) {
+        for (File savedItem : savedItems) {
+            try {
+                org.apache.commons.io.FileUtils
+                        .moveDirectoryToDirectory(savedItem, sharedDir, false);
+            } catch (IOException e) {
+                Timber.w(e, "Failed to move file to shared destination");
+            }
+        }
+    }
+
+    private void saveSharedFilesInDb(SQLiteDatabase db, File sharedDir) {
+        ContentValues contentValues = new ContentValues();
+        File[] savedItems = sharedDir.listFiles();
+
+        String fileName, fileFormat;
+        long creationTime;
+        File savedReport;
+        for (File savedItem : savedItems) {
+            savedReport = new File(savedItem, savedItem.getName());
+            fileName = FileUtils.getBaseName(savedItem.getName());
+            fileFormat = FileUtils.getExtension(savedItem.getName()).toUpperCase(Locale.getDefault());
+            creationTime = savedItem.lastModified();
+
+            contentValues.clear();
+            contentValues.put("file_path", savedReport.getPath());
+            contentValues.put("name", fileName);
+            contentValues.put("file_format", fileFormat);
+            contentValues.put("creation_time", creationTime);
+
+            db.insert("saved_items", null, contentValues);
+        }
     }
 }

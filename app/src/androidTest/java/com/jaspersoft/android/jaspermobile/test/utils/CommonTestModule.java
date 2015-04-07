@@ -25,8 +25,8 @@
 package com.jaspersoft.android.jaspermobile.test.utils;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
 import com.google.inject.name.Names;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 /**
  * @author Tom Koptel
@@ -34,13 +34,19 @@ import com.google.inject.name.Names;
  */
 public abstract class CommonTestModule extends AbstractModule {
     @Override
-    protected final void configure() {
+    protected void configure() {
+        commonConfigurations();
+        commonStrictConfigurations();
+    }
+
+    protected void commonStrictConfigurations() {
+        bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(AccountServerData.Demo.SERVER_URL);
+    }
+
+    protected void commonConfigurations() {
         bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
         bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
         bindConstant().annotatedWith(Names.named("MAX_PAGE_ALLOWED")).to(1);
-        semanticConfigure();
     }
-
-    protected abstract void semanticConfigure();
 }

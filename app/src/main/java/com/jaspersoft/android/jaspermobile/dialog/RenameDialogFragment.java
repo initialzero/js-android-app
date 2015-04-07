@@ -30,7 +30,6 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -78,8 +77,9 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
         final View customLayout = LayoutInflater.from(getActivity())
                 .inflate(R.layout.rename_report_dialog_layout, null);
 
+        String reportName = FileUtils.getBaseName(selectedFile.getName());
         reportNameEdit = (EditText) customLayout.findViewById(R.id.report_name_input);
-        reportNameEdit.setText(selectedFile.getName());
+        reportNameEdit.setText(reportName);
         reportNameEdit.setSelection(reportNameEdit.getText().length());
         reportNameEdit.addTextChangedListener(new RenameTextWatcher());
 
@@ -110,8 +110,8 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
         boolean result = srcFile.renameTo(destFile);
         // rename sub-files
         if (result && destFile.isDirectory()) {
-            String srcName = srcFile.getName() + "." + extension;
-            String destName = destFile.getName() + "." + extension;
+            String srcName = srcFile.getName();
+            String destName = destFile.getName();
 
             FilenameFilter reportNameFilter = new ReportFilenameFilter(srcName);
             File[] subFiles = destFile.listFiles(reportNameFilter);
@@ -191,7 +191,6 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
     //---------------------------------------------------------------------
 
     private static class ReportFilenameFilter implements FilenameFilter {
-
         private String reportName;
 
         private ReportFilenameFilter(String reportName) {
@@ -202,14 +201,13 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
         public boolean accept(File dir, String filename) {
             return filename.equals(reportName);
         }
-
     }
 
     private class OnPositiveClickListener implements View.OnClickListener {
-
         @Override
         public void onClick(View v) {
-            String newReportFolderName = reportNameEdit.getText().toString().trim();
+            String reportName = reportNameEdit.getText().toString().trim();
+            String newReportFolderName = reportNameEdit.getText().toString().trim() + "." + extension;
 
             if (newReportFolderName.isEmpty()) {
                 reportNameEdit.setError(getString(R.string.sdr_rrd_error_name_is_empty));
@@ -222,31 +220,25 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
             }
 
             File destFile = new File(selectedFile.getParentFile(), newReportFolderName);
-
-            if (!selectedFile.equals(destFile)) {
-                if (destFile.exists()) {
-                    reportNameEdit.setError(getString(R.string.sdr_rrd_error_report_exists));
-                    return;
-                }
-
+            if (destFile.exists()) {
+                reportNameEdit.setError(getString(R.string.sdr_rrd_error_report_exists));
+            } else {
                 if (renameSavedReportFile(selectedFile, destFile)) {
                     if (mDialogListener != null) {
-                        ((RenameDialogClickListener) mDialogListener).onRenamed(newReportFolderName,
-                                new File(destFile, newReportFolderName + "." + extension).getPath(), recordUri);
+                        String newFilePath = new File(destFile, newReportFolderName).getPath();
+                        ((RenameDialogClickListener) mDialogListener).onRenamed(reportName, newFilePath, recordUri);
                     }
                 } else {
                     Toast.makeText(getActivity(), R.string.sdr_t_report_renaming_error, Toast.LENGTH_SHORT).show();
                 }
+                dismiss();
             }
-            dismiss();
         }
     }
 
     private class RenameTextWatcher implements TextWatcher {
-
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
         }
 
         @Override
@@ -256,8 +248,6 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
 
         @Override
         public void afterTextChanged(Editable s) {
-
         }
     }
-
 }

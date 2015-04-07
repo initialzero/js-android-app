@@ -299,7 +299,10 @@ public class NavigationPanelLayout extends RelativeLayout {
             AccountServerData serverData = getItem(position);
             //We need to show only 2 digits of version
             String serverVersion = serverData.getVersionName().substring(0, 3);
-            mViewHolder.tvAccountVersion.setText(serverVersion);
+            // This possible due to migration issues from version 1.8 to 2.0
+            // Some instances will have missing version names
+            boolean versionNotDefined = Double.parseDouble(serverVersion) == 0d;
+            mViewHolder.tvAccountVersion.setText(versionNotDefined ? "?" : serverVersion);
 
             return convertView;
         }

@@ -67,19 +67,21 @@ public class AccountResources {
         return new AccountResources(context);
     }
 
-    public boolean flushOnDemand() {
-        return flushFavorites() && flushSavedItems();
+    public void flushOnDemand() {
+        if (accounts.length > 1) {
+            flushFavorites();
+            flushSavedItems();
+        }
     }
 
-    private boolean flushFavorites() {
+    private void flushFavorites() {
         context.getContentResolver().delete(
                 MobileDbProvider.FAVORITES_CONTENT_URI,
                 FavoritesTable.ACCOUNT_NAME + " NOT IN (" + makePlaceholders(accounts.length) + ")",
                 accounts);
-        return true;
     }
 
-    private boolean flushSavedItems() {
+    private void flushSavedItems() {
         Cursor cursor = context.getContentResolver().query(
                 MobileDbProvider.SAVED_ITEMS_CONTENT_URI, new String[]{SavedItemsTable._ID, SavedItemsTable.FILE_PATH},
                 SavedItemsTable.ACCOUNT_NAME + " NOT IN (" + makePlaceholders(accounts.length) + " )", accounts, null);
@@ -103,13 +105,10 @@ public class AccountResources {
 
         try {
             context.getContentResolver().applyBatch(MobileDbProvider.AUTHORITY, batch);
-            return true;
         } catch (RemoteException e) {
             Timber.e(e.getMessage(), e);
-            return false;
         } catch (OperationApplicationException e) {
             Timber.e(e.getMessage(), e);
-            return false;
         }
     }
 

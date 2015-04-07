@@ -53,14 +53,14 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -88,27 +88,30 @@ public class SavedItemsFragment extends RoboFragment
     private final int SAVED_ITEMS_LOADER_ID = 10;
 
     @FragmentArg
-    ViewType viewType;
+    protected ViewType viewType;
 
     @Inject
-    JsRestClient jsRestClient;
+    protected JsRestClient jsRestClient;
 
     @InjectView(android.R.id.list)
-    AbsListView listView;
+    protected AbsListView listView;
     @InjectView(android.R.id.empty)
-    TextView emptyText;
+    protected TextView emptyText;
 
     @FragmentArg
     @InstanceState
-    FileAdapter.FileType filterType;
+    protected FileAdapter.FileType filterType;
 
     @FragmentArg
     @InstanceState
-    String searchQuery;
+    protected String searchQuery;
 
     @FragmentArg
     @InstanceState
-    SortOrder sortOrder;
+    protected SortOrder sortOrder;
+
+    @Bean
+    protected SavedItemHelper savedItemHelper;
 
     private FileAdapter mAdapter;
 
@@ -185,24 +188,24 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     private void openReportFile(int position) {
-        File reportFile = getFileByPosition(position);
+        File reportOutputFile = getFileByPosition(position);
 
         Locale current = getResources().getConfiguration().locale;
-        String fileName = reportFile.getName();
+        String fileName = reportOutputFile.getName();
         String baseName = FileUtils.getBaseName(fileName);
         String extension = FileUtils.getExtension(fileName).toLowerCase(current);
 
         if ("HTML".equalsIgnoreCase(extension)) {
             // run the html report viewer
             SavedReportHtmlViewerActivity_.intent(this)
-                    .reportFile(reportFile)
+                    .reportFile(reportOutputFile)
                     .resourceLabel(baseName)
                     .reportId(getIndexByPosition(position))
                     .start();
         } else {
             // run external viewer according to the file format
             String contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-            Uri reportOutputPath = Uri.fromFile(reportFile);
+            Uri reportOutputPath = Uri.fromFile(reportOutputFile);
             Intent externalViewer = new Intent(Intent.ACTION_VIEW);
             externalViewer.setDataAndType(reportOutputPath, contentType);
             externalViewer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -226,10 +229,6 @@ public class SavedItemsFragment extends RoboFragment
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = new ArrayList<String>();
 
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
-        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
-        boolean noOrganization = jsServerProfile.getOrganization() == null;
-
         //Add general items (server id = -1)
         selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
                 .append("  OR ")
@@ -237,23 +236,9 @@ public class SavedItemsFragment extends RoboFragment
 
         selectionArgs.add(JasperSettings.RESERVED_ACCOUNT_NAME);
 
-        //Add server profile id and username to WHERE params
-        selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
-                .append("  AND ")
-                .append(SavedItemsTable.USERNAME + " =?");
-
+        //Add server profile id to WHERE params
+        selection.append(SavedItemsTable.ACCOUNT_NAME + " =?");
         selectionArgs.add(account.name);
-        selectionArgs.add(String.valueOf(jsServerProfile.getUsername()));
-
-        //Add organization to WHERE params
-        if (noOrganization) {
-            selection.append("  AND ")
-                    .append(SavedItemsTable.ORGANIZATION + " IS NULL");
-        } else {
-            selection.append("  AND ")
-                    .append(SavedItemsTable.ORGANIZATION + " =?");
-            selectionArgs.add(String.valueOf(jsServerProfile.getOrganization()));
-        }
 
         // Close select brackets
         selection.append(")");
@@ -347,21 +332,13 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete) {
-        if (fileToDelete.isDirectory()) {
-            FileUtils.deleteFilesInDirectory(fileToDelete);
-        }
-
-        if (fileToDelete.delete() || !fileToDelete.exists()) {
-            getActivity().getContentResolver().delete(itemToDelete, null, null);
-        } else {
-            Toast.makeText(getActivity(), R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
-        }
+        long id = Long.valueOf(itemToDelete.getLastPathSegment());
+        savedItemHelper.deleteSavedItem(fileToDelete, id);
         mAdapter.finishActionMode();
     }
 
     @Override
     public void onDeleteCanceled() {
-
     }
 
     //---------------------------------------------------------------------

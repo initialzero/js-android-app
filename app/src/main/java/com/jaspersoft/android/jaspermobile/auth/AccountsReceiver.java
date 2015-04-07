@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountResources;
 public class AccountsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        // TODO This peace of logic awfully buggy. Fix broken tests. Check Migrations after fixes
         AccountResources.get(context).flushOnDemand();
     }
 }

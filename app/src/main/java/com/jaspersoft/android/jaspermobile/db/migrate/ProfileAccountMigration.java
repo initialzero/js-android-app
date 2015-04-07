@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
@@ -45,12 +46,10 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class ProfileAccountMigration implements Migration {
-    private static final String TAG = JasperAccountManager.class.getSimpleName();
     private final Context mContext;
 
     public ProfileAccountMigration(Context context) {
         mContext = context;
-        Timber.tag(TAG);
     }
 
     @Override
@@ -68,15 +67,19 @@ public class ProfileAccountMigration implements Migration {
             List<ServerProfiles> profiles = ServerProfiles.listFromCursor(cursor);
             Timber.d("The number of previously saved accounts are: " + profiles.size());
             for (ServerProfiles profile : profiles) {
-                data = new AccountServerData()
-                        .setAlias(profile.getAlias())
-                        .setServerUrl(profile.getServerUrl())
-                        .setOrganization(profile.getOrganization())
-                        .setUsername(profile.getUsername())
-                        .setPassword(profile.getPassword())
-                        .setEdition(profile.getEdition())
-                        .setVersionName(profile.getVersionCode() + "");
-                util.addAccountExplicitly(data).subscribe();
+                try {
+                    data = new AccountServerData()
+                            .setAlias(profile.getAlias())
+                            .setServerUrl(profile.getServerUrl())
+                            .setOrganization(profile.getOrganization())
+                            .setUsername(profile.getUsername())
+                            .setPassword(profile.getPassword())
+                            .setEdition(TextUtils.isEmpty(profile.getEdition()) ? "?" : profile.getEdition())
+                            .setVersionName(String.valueOf(profile.getVersionCode()));
+                    util.addAccountExplicitly(data).subscribe();
+                } catch (IllegalArgumentException ex) {
+                    Timber.w(ex, "Mis-configured profile '" + profile.getAlias() + "' skipping it");
+                }
             }
         } finally {
             cursor.close();
@@ -91,17 +94,13 @@ public class ProfileAccountMigration implements Migration {
                 ServerProfilesTable._ID + "=" + profileId,
                 null, null, null, null);
         try {
-            Account account;
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 ServerProfiles profile = new ServerProfiles(cursor);
-                account = new Account(profile.getAlias(), JasperSettings.JASPER_ACCOUNT_TYPE);
-            } else {
-                account = new Account(AccountServerData.Demo.ALIAS,
-                        JasperSettings.JASPER_ACCOUNT_TYPE);
+                Account account = new Account(profile.getAlias(), JasperSettings.JASPER_ACCOUNT_TYPE);
+                JasperAccountManager.get(mContext).activateAccount(account);
+                Timber.d("Account[" + account + "] was activated");
             }
-            JasperAccountManager.get(mContext).activateAccount(account);
-            Timber.d("Account[" + account + "] was activated");
         } finally {
             cursor.close();
         }

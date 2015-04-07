@@ -39,6 +39,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
@@ -83,6 +84,9 @@ import static rx.android.app.AppObservable.bindFragment;
 public class AuthenticatorFragment extends RoboFragment {
     @Inject
     protected JsRestClient legacyRestClient;
+    @Inject
+    @Named("DEMO_ENDPOINT")
+    protected String demoServerUrl;
 
     @ViewById
     protected EditText aliasEdit;
@@ -183,8 +187,6 @@ public class AuthenticatorFragment extends RoboFragment {
 
         String endpoint = trimUrl(serverUrlEdit.getText().toString())
                 + JasperSettings.DEFAULT_REST_VERSION;
-        final String alias = aliasEdit.getText().toString();
-
         JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
         Observable<LoginResponse> loginObservable = restClient.login(
                 organizationEdit.getText().toString(),
@@ -213,9 +215,7 @@ public class AuthenticatorFragment extends RoboFragment {
             demoSubscription.unsubscribe();
         }
 
-        String endpoint = trimUrl(AccountServerData.Demo.SERVER_URL)
-                + JasperSettings.DEFAULT_REST_VERSION;
-        JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
+        JsRestClient2 restClient = JsRestClient2.forEndpoint(demoServerUrl);
         Observable<LoginResponse> tryDemoObservable = restClient.login(
                 AccountServerData.Demo.ORGANIZATION,
                 AccountServerData.Demo.USERNAME,
@@ -268,7 +268,7 @@ public class AuthenticatorFragment extends RoboFragment {
         AccountServerData serverData = new AccountServerData()
                 .setServerCookie(response.getCookie())
                 .setAlias(AccountServerData.Demo.ALIAS)
-                .setServerUrl(AccountServerData.Demo.SERVER_URL)
+                .setServerUrl(demoServerUrl)
                 .setOrganization(AccountServerData.Demo.ORGANIZATION)
                 .setUsername(AccountServerData.Demo.USERNAME)
                 .setPassword(AccountServerData.Demo.PASSWORD)

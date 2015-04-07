@@ -153,7 +153,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<Navigati
     // We need long click on the item within big data list.
     // Then switch to the list with few items. As soon as we
     // kept reference to incorrect index position we received crash.
-    // Test asserts that adapter clear() method resets old reference
+    // Test asserts that adapter deleteSavedItems() method resets old reference
     @Test
     public void testCurrentPositionResetAfterNewFilterSelected() {
         FakeHttpLayerManager.addHttpResponseRule(

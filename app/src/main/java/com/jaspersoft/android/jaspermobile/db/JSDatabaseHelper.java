@@ -99,7 +99,7 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
 
     private void seedProfiles() {
         boolean noAccounts = JasperAccountManager.get(mContext).getAccounts().length == 0;
-        if (noAccounts && BuildConfig.DEBUG) {
+        if (noAccounts && (BuildConfig.DEBUG || BuildConfig.FLAVOR.equalsIgnoreCase("qa"))) {
             new AccountSeed(mContext).seed();
         }
     }

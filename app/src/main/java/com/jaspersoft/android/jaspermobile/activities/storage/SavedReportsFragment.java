@@ -33,6 +33,7 @@ import android.support.v7.app.ActionBarActivity;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
@@ -42,6 +43,7 @@ import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItem
 import com.jaspersoft.android.jaspermobile.dialog.FilterSavedItemsDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
@@ -57,7 +59,7 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment
 @OptionsMenu(R.menu.saved_items_menu)
-public class SavedReportsFragment extends RoboFragment {
+public class SavedReportsFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener{
     public static final String TAG = SavedReportsFragment.class.getSimpleName();
 
     private SavedItemsControllerFragment savedItemsController;
@@ -65,8 +67,8 @@ public class SavedReportsFragment extends RoboFragment {
     @InstanceState
     FileAdapter.FileType filterType;
 
-    @InstanceState
-    SortOrder sortOrder;
+    @Bean
+    protected SortOptions sortOptions;
 
     @Pref
     LibraryPref_ pref;
@@ -90,7 +92,7 @@ public class SavedReportsFragment extends RoboFragment {
 
             savedItemsController = SavedItemsControllerFragment_.builder()
                     .filterType(filterType)
-                    .sortOrder(sortOrder)
+                    .sortOrder(sortOptions.getOrder())
                     .build();
             transaction.replace(R.id.resource_controller, savedItemsController, SavedItemsControllerFragment.TAG);
 
@@ -134,15 +136,17 @@ public class SavedReportsFragment extends RoboFragment {
 
     @OptionsItem(R.id.sort)
     final void startSorting() {
-        SortDialogFragment.show(getFragmentManager(), new SortDialogFragment.SortDialogListener() {
-            @Override
-            public void onOptionSelected(SortOrder _sortOrder) {
-                if (savedItemsController != null) {
-                    savedItemsController.loadItemsBySortOrder(_sortOrder);
-                    sortOrder = _sortOrder;
-                }
-            }
-        });
+        SortDialogFragment.createBuilder(getFragmentManager())
+                .setInitialSortOption(sortOptions.getOrder())
+                .setTargetFragment(this)
+                .show();
     }
 
+    @Override
+    public void onOptionSelected(SortOrder sortOrder) {
+        if (savedItemsController != null) {
+            savedItemsController.loadItemsBySortOrder(sortOrder);
+            sortOptions.putOrder(sortOrder);
+        }
+    }
 }

@@ -173,6 +173,7 @@
     <string name="sdr_ab_list_msg" translatable="false">No saved items</string>
 
     <!-- Context Menu -->
+    <string name="action_mode_title" translatable="false">Selected item</string>
     <string name="sdr_cm_rename">Rename</string>
     <string name="sdr_cm_delete">Delete</string>
 
@@ -247,6 +248,7 @@
 
     <!-- Accounts activity -->
     <string name="add_account" translatable="false">Add account</string>
+    <string name="try_demo" translatable="false">Try demo</string>
     <string name="hint_alias" translatable="false">Account name</string>
     <string name="hint_server_url" translatable="false">Server url</string>
     <string name="hint_organization" translatable="false">Organization</string>

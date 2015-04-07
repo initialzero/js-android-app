@@ -31,7 +31,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.EActivity;
@@ -40,8 +40,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
 import java.io.File;
-
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -53,7 +51,7 @@ import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 @EActivity
 @OptionsMenu(R.menu.saved_report)
 public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
-        implements WebViewFragment.OnWebViewCreated, ISimpleDialogListener {
+        implements WebViewFragment.OnWebViewCreated, DeleteDialogFragment.DeleteDialogClickListener {
 
     @Extra
     File reportFile;
@@ -86,7 +84,12 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void deleteItem() {
-        AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
+        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                String.valueOf(reportId));
+
+        DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setFile(reportFile)
+                .setRecordUri(uri)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -96,20 +99,17 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     }
 
     //---------------------------------------------------------------------
-    // Implements ISimpleDialogListener
+    // Implements Implements DeleteDialogFragment.DeleteDialogClickListener
     //---------------------------------------------------------------------
 
     @Override
-    public void onPositiveButtonClicked(int i) {
-        File reportFolderFile = reportFile.getParentFile();
-        if (reportFolderFile.isDirectory()) {
-            FileUtils.deleteFilesInDirectory(reportFolderFile);
+    public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete) {
+        if (fileToDelete.isDirectory()) {
+            FileUtils.deleteFilesInDirectory(fileToDelete);
         }
 
-        if (reportFolderFile.delete() || !reportFolderFile.exists()) {
-            Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                    String.valueOf(reportId));
-           getContentResolver().delete(uri, null, null);
+        if (fileToDelete.delete() || !fileToDelete.exists()) {
+            getContentResolver().delete(itemToDelete, null, null);
         } else {
             Toast.makeText(this, R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
         }
@@ -118,10 +118,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     }
 
     @Override
-    public void onNegativeButtonClicked(int i) {
-    }
+    public void onDeleteCanceled() {
 
-    @Override
-    public void onNeutralButtonClicked(int i) {
     }
 }

@@ -8,9 +8,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
-import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -40,15 +37,6 @@ public class PaginationBarView extends AbstractPaginationView {
     @ViewById
     protected View progressLayout;
 
-    private final OnPageSelectedListener onPageSelectedListener =
-            new OnPageSelectedListener() {
-                @Override
-                public void onPageSelected(int page) {
-                    setCurrentPage(page);
-                    dispatchChangeListener();
-                }
-            };
-
     public PaginationBarView(Context context) {
         super(context);
     }
@@ -75,14 +63,14 @@ public class PaginationBarView extends AbstractPaginationView {
     @Click
     final void firstPage() {
         setCurrentPage(FIRST_PAGE);
-        dispatchChangeListener();
+        onPageChangeListener.onPageSelected(getCurrentPage());
     }
 
     @Click
     final void previousPage() {
         if (getCurrentPage() != FIRST_PAGE) {
             setCurrentPage(getCurrentPage() - 1);
-            dispatchChangeListener();
+            onPageChangeListener.onPageSelected(getCurrentPage());
         }
     }
 
@@ -90,30 +78,19 @@ public class PaginationBarView extends AbstractPaginationView {
     final void nextPage() {
         if (getCurrentPage() != getTotalPages()) {
             setCurrentPage(getCurrentPage() + 1);
-            dispatchChangeListener();
+            onPageChangeListener.onPageSelected(getCurrentPage());
         }
     }
 
     @Click
     final void lastPage() {
         setCurrentPage(getTotalPages());
-        dispatchChangeListener();
+        onPageChangeListener.onPageSelected(getCurrentPage());
     }
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        if (isTotalPagesLoaded()) {
-            NumberDialogFragment.builder(getFragmentManager())
-                    .selectListener(onPageSelectedListener)
-                    .value(getCurrentPage())
-                    .minValue(1)
-                    .maxValue(getTotalPages())
-                    .show();
-        } else {
-            PageDialogFragment.configure()
-                    .setOnPageSelectedListener(onPageSelectedListener)
-                    .show(getFragmentManager());
-        }
+        onPageChangeListener.onPickerSelected(!isTotalPagesLoaded());
     }
 
     @Override

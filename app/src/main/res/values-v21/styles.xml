@@ -43,4 +43,34 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
+    <style name="CardView.Auth">
+        <item name="cardBackgroundColor">@null</item>
+        <item name="cardCornerRadius">0dp</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardElevation">2dp</item>
+    </style>
+
+    <style name="CardView.Auth.AddAccount">
+        <item name="android:layout_marginRight">2dp</item>
+    </style>
+
+    <style name="CardView.Auth.TryDemo">
+        <item name="android:layout_marginLeft">2dp</item>
+    </style>
+
+    <style name="CardView.Auth.Container">
+        <item name="android:layout_marginLeft">-2dp</item>
+        <item name="android:layout_marginRight">-2dp</item>
+    </style>
+
+    <style name="Theme.JasperMobile.Dialog.Alert" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
+
+        <item name="colorPrimary">@color/js_blue</item>
+        <item name="colorAccent">@color/js_blue</item>
+        <item name="colorPrimaryDark">@color/js_blue</item>
+    </style>
+
 </resources>

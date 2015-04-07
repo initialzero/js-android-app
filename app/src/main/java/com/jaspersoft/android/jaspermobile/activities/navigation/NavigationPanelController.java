@@ -5,5 +5,5 @@ package com.jaspersoft.android.jaspermobile.activities.navigation;
  * @since 1.9
  */
 public interface NavigationPanelController {
-    public void swipeToOpenEnabled(boolean enabled);
+    public void onActionModeEnabled(boolean enabled);
 }

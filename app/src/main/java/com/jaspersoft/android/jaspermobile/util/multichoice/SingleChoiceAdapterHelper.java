@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationPanelController;
 import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapter;
 import com.manuelpeinado.multichoiceadapter.extras.actionbarcompat.MultiChoiceAdapterHelper;
@@ -102,14 +103,14 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
 
     @Override
     public String getActionModeTitle(int count) {
-        return String.valueOf(count);
+        return getContext().getString(R.string.action_mode_title);
     }
 
     @Override
     protected void startActionMode() {
         super.startActionMode();
         ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
-        ((NavigationPanelController) activity).swipeToOpenEnabled(false);
+        ((NavigationPanelController) activity).onActionModeEnabled(true);
     }
 
     @Override
@@ -121,6 +122,6 @@ public class SingleChoiceAdapterHelper extends MultiChoiceAdapterHelper {
     public void onDestroyActionMode() {
         super.onDestroyActionMode();
         ActionBarActivity activity = (ActionBarActivity) adapterView.getContext();
-        ((NavigationPanelController) activity).swipeToOpenEnabled(true);
+        ((NavigationPanelController) activity).onActionModeEnabled(false);
     }
 }

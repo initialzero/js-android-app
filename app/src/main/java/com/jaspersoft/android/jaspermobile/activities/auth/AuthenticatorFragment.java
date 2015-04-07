@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
 import android.widget.EditText;
@@ -41,7 +42,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler2;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
@@ -93,6 +94,8 @@ public class AuthenticatorFragment extends RoboFragment {
     protected EditText serverUrlEdit;
     @ViewById
     protected EditText passwordEdit;
+    @ViewById(R.id.tryDemoContainer)
+    protected ViewGroup tryDemoLayout;
     @InstanceState
     protected boolean mFetching;
 
@@ -100,7 +103,9 @@ public class AuthenticatorFragment extends RoboFragment {
     protected InputMethodManager inputMethodManager;
 
     private Observable<LoginResponse> loginDemoTask;
+    private Observable<LoginResponse> tryDemoTask;
     private Subscription loginSubscription = Subscriptions.empty();
+    private Subscription demoSubscription = Subscriptions.empty();
     private Subscription addAccountSubscription = Subscriptions.empty();
 
     private final Action1<Throwable> onError = new Action1<Throwable>() {
@@ -109,7 +114,7 @@ public class AuthenticatorFragment extends RoboFragment {
             Timber.e(throwable, "Login failed");
 
             String exceptionMessage;
-            int statusCode = RequestExceptionHandler2.extractStatusCode((Exception) throwable);
+            int statusCode = RequestExceptionHandler.extractStatusCode((Exception) throwable);
             if (statusCode == HttpStatus.NOT_FOUND.value()) {
                 exceptionMessage = getString(R.string.r_error_server_not_found);
             } else if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
@@ -140,9 +145,20 @@ public class AuthenticatorFragment extends RoboFragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        if (demoAccountExist()) {
+            tryDemoLayout.setVisibility(View.GONE);
+        }
+        else {
+            tryDemoLayout.setVisibility(View.VISIBLE);
+        }
+
         setProgressEnabled(mFetching);
         if (loginDemoTask != null && mFetching) {
             addAccount();
+        }
+        if (tryDemoTask != null && mFetching) {
+            tryDemo();
         }
     }
 
@@ -150,10 +166,11 @@ public class AuthenticatorFragment extends RoboFragment {
     public void onDestroyView() {
         addAccountSubscription.unsubscribe();
         loginSubscription.unsubscribe();
+        demoSubscription.unsubscribe();
         super.onDestroyView();
     }
 
-    @Click
+    @Click(R.id.addAccount)
     public void addAccount() {
         hideKeyboard();
         if (!isFormValid()) return;
@@ -166,6 +183,8 @@ public class AuthenticatorFragment extends RoboFragment {
 
         String endpoint = trimUrl(serverUrlEdit.getText().toString())
                 + JasperSettings.DEFAULT_REST_VERSION;
+        final String alias = aliasEdit.getText().toString();
+
         JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
         Observable<LoginResponse> loginObservable = restClient.login(
                 organizationEdit.getText().toString(),
@@ -184,9 +203,48 @@ public class AuthenticatorFragment extends RoboFragment {
                 .subscribe(onSuccess, onError);
     }
 
+    @Click(R.id.tryDemo)
+    public void tryDemo() {
+        hideKeyboard();
+
+        setProgressEnabled(true);
+
+        if (demoSubscription != null) {
+            demoSubscription.unsubscribe();
+        }
+
+        String endpoint = trimUrl(AccountServerData.Demo.SERVER_URL)
+                + JasperSettings.DEFAULT_REST_VERSION;
+        JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
+        Observable<LoginResponse> tryDemoObservable = restClient.login(
+                AccountServerData.Demo.ORGANIZATION,
+                AccountServerData.Demo.USERNAME,
+                AccountServerData.Demo.PASSWORD
+        ).subscribeOn(Schedulers.io());
+
+        tryDemoTask = bindFragment(this, tryDemoObservable.cache());
+        demoSubscription = tryDemoTask
+                .flatMap(new Func1<LoginResponse, Observable<AccountServerData>>() {
+                    @Override
+                    public Observable<AccountServerData> call(LoginResponse response) {
+                        return createDemoAccountData(response);
+                    }
+                })
+                .subscribe(onSuccess, onError);
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private boolean demoAccountExist(){
+        Account[] accounts = JasperAccountManager.get(getActivity()).getAccounts();
+        for (Account account : accounts) {
+            if (account.name.equals( AccountServerData.Demo.ALIAS))
+                return true;
+        }
+        return false;
+    }
 
     private Observable<AccountServerData> createUserAccountData(LoginResponse response) {
         ServerInfo serverInfo = response.getServerInfo();
@@ -198,6 +256,22 @@ public class AuthenticatorFragment extends RoboFragment {
                 .setOrganization(organizationEdit.getText().toString())
                 .setUsername(usernameEdit.getText().toString())
                 .setPassword(passwordEdit.getText().toString())
+                .setEdition(serverInfo.getEdition())
+                .setVersionName(serverInfo.getVersion());
+
+        return Observable.just(serverData);
+    }
+
+    private Observable<AccountServerData> createDemoAccountData(LoginResponse response) {
+        ServerInfo serverInfo = response.getServerInfo();
+
+        AccountServerData serverData = new AccountServerData()
+                .setServerCookie(response.getCookie())
+                .setAlias(AccountServerData.Demo.ALIAS)
+                .setServerUrl(AccountServerData.Demo.SERVER_URL)
+                .setOrganization(AccountServerData.Demo.ORGANIZATION)
+                .setUsername(AccountServerData.Demo.USERNAME)
+                .setPassword(AccountServerData.Demo.PASSWORD)
                 .setEdition(serverInfo.getEdition())
                 .setVersionName(serverInfo.getVersion());
 

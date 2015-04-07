@@ -29,8 +29,9 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -39,8 +40,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
 import java.io.File;
-
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -52,7 +51,7 @@ import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 @EActivity
 @OptionsMenu(R.menu.saved_report)
 public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
-        implements WebViewFragment.OnWebViewCreated, ISimpleDialogListener {
+        implements WebViewFragment.OnWebViewCreated, DeleteDialogFragment.DeleteDialogClickListener {
 
     @Extra
     protected File reportFile;
@@ -88,7 +87,12 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void deleteItem() {
-        AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
+        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                String.valueOf(reportId));
+
+        DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setFile(reportFile)
+                .setRecordUri(uri)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -98,20 +102,17 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     }
 
     //---------------------------------------------------------------------
-    // Implements ISimpleDialogListener
+    // Implements Implements DeleteDialogFragment.DeleteDialogClickListener
     //---------------------------------------------------------------------
 
     @Override
-    public void onPositiveButtonClicked(int i) {
-        savedItemHelper.deleteSavedItem(reportFile, reportId);
+    public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete) {
+        long id = Long.valueOf(itemToDelete.getLastPathSegment());
+        savedItemHelper.deleteSavedItem(reportFile, id);
         finish();
     }
 
     @Override
-    public void onNegativeButtonClicked(int i) {
-    }
-
-    @Override
-    public void onNeutralButtonClicked(int i) {
+    public void onDeleteCanceled() {
     }
 }

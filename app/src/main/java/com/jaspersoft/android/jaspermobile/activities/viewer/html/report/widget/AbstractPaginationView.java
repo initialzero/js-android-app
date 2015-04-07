@@ -21,7 +21,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     private static final String CURRENT_PAGE = "CURRENT_PAGE";
     private static final String TOTAL_PAGE = "TOTAL_PAGE";
 
-    private OnPageChangeListener onPageChangeListener;
+    protected OnPageChangeListener onPageChangeListener;
 
     private int currentPage = FIRST_PAGE;
     private int mTotalPages;
@@ -69,12 +69,6 @@ public abstract class AbstractPaginationView extends RelativeLayout {
         return mTotalPages;
     }
 
-    protected void dispatchChangeListener() {
-        if (onPageChangeListener != null) {
-            onPageChangeListener.onPageSelected(currentPage);
-        }
-    }
-
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         Bundle bundle = (Bundle) state;
@@ -114,5 +108,6 @@ public abstract class AbstractPaginationView extends RelativeLayout {
 
     public static interface OnPageChangeListener {
         void onPageSelected(int currentPage);
+        void onPickerSelected(boolean pickExactPage);
     }
 }

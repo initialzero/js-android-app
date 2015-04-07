@@ -32,7 +32,7 @@
         android:id="@+id/firstPage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ic_first_page"
+        android:background="@drawable/ic_pagination_first"
         android:clickable="true" />
 
     <com.jaspersoft.android.jaspermobile.widget.AutoLayerTextView
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@+id/firstPage"
         android:layout_toRightOf="@+id/firstPage"
-        android:background="@drawable/ic_previous_page"
+        android:background="@drawable/ic_pagination_previous"
         android:clickable="true" />
 
     <LinearLayout
@@ -86,7 +86,7 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/lastPage"
         android:layout_toStartOf="@+id/lastPage"
-        android:background="@drawable/ic_next_page"
+        android:background="@drawable/ic_pagination_next"
         android:clickable="true" />
 
     <com.jaspersoft.android.jaspermobile.widget.AutoLayerTextView
@@ -95,7 +95,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:background="@drawable/ic_last_page"
+        android:background="@drawable/ic_pagination_last"
         android:clickable="true" />
 
 </merge>

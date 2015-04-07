@@ -89,11 +89,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             ViewServer.get(this).addWindow(this);
         }
 
-//        boolean needInfo = DefaultPrefHelper_.getInstance_(this).needToShowIntro();
-//        if (needInfo) {
-//            IntroPageActivity_.intent(this).start();
-//        }
-
         // Listen to account changes
         mJasperAccountManager.setOnAccountsUpdatedListener(accountsUpdateListener);
     }

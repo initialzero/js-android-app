@@ -9,7 +9,7 @@
         android:id="@+id/tb_navigation"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/ab_background"/>
+        android:background="@color/js_gray"/>
 
     <View
         android:layout_width="match_parent"

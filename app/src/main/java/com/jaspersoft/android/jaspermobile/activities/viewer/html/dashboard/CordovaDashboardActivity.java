@@ -49,6 +49,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -78,8 +79,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
  * Activity that performs dashboard viewing in HTML format through Cordova native component.
@@ -210,7 +209,7 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_star_outline : R.drawable.ic_star);
+        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
 
         if (BuildConfig.DEBUG) {
@@ -237,7 +236,7 @@ public class CordovaDashboardActivity extends RoboToolbarActivity implements Cor
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
-                .setNegativeButtonText(android.R.string.ok)
+                .setPositiveButtonText(android.R.string.ok)
                 .show();
     }
 

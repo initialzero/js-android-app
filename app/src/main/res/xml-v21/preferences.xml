@@ -48,10 +48,6 @@
             android:title="@string/st_send_crashes"
             android:summary="@string/st_send_crashes_note"/>
 
-        <Preference
-            android:key="show_intro"
-            android:title="@string/st_show_intro" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>

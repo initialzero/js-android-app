@@ -45,22 +45,21 @@ import roboguice.fragment.RoboDialogFragment;
  * @author Tom Koptel
  * @since 1.9
  */
-public class PasswordDialogFragment extends RoboDialogFragment {
+public class PasswordDialogFragment extends RoboDialogFragment implements DialogInterface.OnShowListener {
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
 
-    private OnPasswordChangedListener onPasswordChangedListener;
+    private EditText etPassword;
 
     //---------------------------------------------------------------------
     // Static methods
     //---------------------------------------------------------------------
 
-    public static void show(FragmentManager fm, OnPasswordChangedListener onPasswordChanged) {
+    public static void show(FragmentManager fm) {
         PasswordDialogFragment dialogFragment = (PasswordDialogFragment)
                 fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
             dialogFragment = new PasswordDialogFragment();
-            dialogFragment.setOnPasswordChangedListener(onPasswordChanged);
             dialogFragment.show(fm, TAG);
         }
     }
@@ -68,10 +67,6 @@ public class PasswordDialogFragment extends RoboDialogFragment {
     //---------------------------------------------------------------------
     // Public methods
     //---------------------------------------------------------------------
-
-    public void setOnPasswordChangedListener(OnPasswordChangedListener onPasswordChangedListener) {
-        this.onPasswordChangedListener = onPasswordChangedListener;
-    }
 
     @NonNull
     @Override
@@ -91,50 +86,35 @@ public class PasswordDialogFragment extends RoboDialogFragment {
                 .setNegativeButton(android.R.string.cancel, null);
 
         AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(new OnPasswordDialogShowListener());
+        dialog.setOnShowListener(this);
 
         return dialog;
+    }
+
+    @Override
+    public void onShow(DialogInterface dialogInterface) {
+        AlertDialog dialog = ((AlertDialog) getDialog());
+        etPassword = (EditText) dialog.findViewById(R.id.et_new_password);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(new PasswordDialogOkClickListener());
     }
 
     //---------------------------------------------------------------------
     // Nested classes
     //---------------------------------------------------------------------
 
-    private class OnPasswordDialogShowListener implements DialogInterface.OnShowListener{
-
-        @Override
-        public void onShow(DialogInterface dialogInterface) {
-            AlertDialog dialog = ((AlertDialog) getDialog());
-            EditText etPassword = (EditText) dialog.findViewById(R.id.et_new_password);
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    .setOnClickListener(new PasswordDialogOkClickListener(etPassword));
-        }
-    }
-
     private class PasswordDialogOkClickListener implements View.OnClickListener {
-
-        private EditText mPasswordEdit;
-
-        private PasswordDialogOkClickListener(EditText mPasswordEdit) {
-            this.mPasswordEdit = mPasswordEdit;
-        }
 
         @Override
         public void onClick(View v) {
-            String password = mPasswordEdit.getText().toString();
+            String password = etPassword.getText().toString();
             if (TextUtils.isEmpty(password)) {
-                mPasswordEdit.setError(getString(R.string.sp_error_field_required));
+                etPassword.setError(getString(R.string.sp_error_field_required));
             } else {
-                dismiss();
+                JasperAccountManager.get(getActivity()).updateActiveAccountPassword(password);
 
-                if (onPasswordChangedListener != null) {
-                    onPasswordChangedListener.onPasswordChanged(password);
-                }
+                dismiss();
             }
         }
-    }
-
-    public static interface OnPasswordChangedListener {
-        void onPasswordChanged(String newPassword);
     }
 }

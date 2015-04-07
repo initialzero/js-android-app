@@ -26,10 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,8 +44,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import java.util.Collection;
 import java.util.Comparator;
 
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
-
 
 public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     private final FavoritesHelper_ favoriteHelper;
@@ -56,15 +51,9 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
     private final ViewType mViewType;
     private MenuItem favoriteActionItem;
+    private ResourceInteractionListener mResourceInteractionListener;
 
-    public static Builder builder(Context context, Bundle savedInstanceState) {
-        if (context == null) {
-            throw new IllegalArgumentException("Context is null");
-        }
-        return new Builder(context, savedInstanceState);
-    }
-
-    private ResourceAdapter(Context context,
+    public ResourceAdapter(Context context,
                             Bundle savedInstanceState, ViewType viewType) {
         super(savedInstanceState, context, 0);
         favoriteHelper = FavoritesHelper_.getInstance_(context);
@@ -73,6 +62,10 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         }
         mViewType = viewType;
         viewHelper = new ResourceViewHelper(context);
+    }
+
+    public void setResourcesInteractionListener(ResourceInteractionListener resourceInteractionListener) {
+        mResourceInteractionListener = resourceInteractionListener;
     }
 
     @Override
@@ -132,7 +125,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
         try {
             boolean alreadyFavorite = (cursor.getCount() > 0);
-            favoriteActionItem.setIcon(alreadyFavorite ? R.drawable.ic_star : R.drawable.ic_star_outline);
+            favoriteActionItem.setIcon(alreadyFavorite ? R.drawable.ic_menu_star : R.drawable.ic_menu_star_outline);
             favoriteActionItem.setTitle(alreadyFavorite ? R.string.r_cm_remove_from_favorites : R.string.r_cm_add_to_favorites);
         } finally {
             if (cursor != null) cursor.close();
@@ -144,16 +137,14 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         ResourceLookup resource = getItem(getCurrentPosition());
         switch (item.getItemId()) {
             case R.id.favoriteAction:
-                Uri uri = favoriteHelper.queryFavoriteUri(resource);
-                favoriteHelper.handleFavoriteMenuAction(uri, resource, null);
+                if(mResourceInteractionListener != null) {
+                    mResourceInteractionListener.onFavorite(resource);
+                }
                 break;
             case R.id.showAction:
-                FragmentManager fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
-                SimpleDialogFragment.createBuilder(getContext(), fm)
-                        .setTitle(resource.getLabel())
-                        .setMessage(resource.getDescription())
-                        .setNegativeButtonText(android.R.string.ok)
-                        .show();
+                if(mResourceInteractionListener != null) {
+                    mResourceInteractionListener.onInfo(resource.getLabel(), resource.getDescription());
+                }
                 break;
         }
         mode.invalidate();
@@ -177,24 +168,12 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         }
     }
 
-    public static class Builder {
-        private final Context context;
-        private final Bundle savedInstanceState;
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
 
-        private ViewType viewType;
-
-        public Builder(Context context, Bundle savedInstanceState) {
-            this.context = context;
-            this.savedInstanceState = savedInstanceState;
-        }
-
-        public Builder viewType(ViewType viewType) {
-            this.viewType = viewType;
-            return this;
-        }
-
-        public ResourceAdapter create() {
-            return new ResourceAdapter(context, savedInstanceState, viewType);
-        }
+    public static interface ResourceInteractionListener {
+        void onFavorite(ResourceLookup resource);
+        void onInfo(String temTitle, String itemDescription);
     }
 }

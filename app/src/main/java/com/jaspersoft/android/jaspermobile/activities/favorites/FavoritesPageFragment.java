@@ -36,11 +36,13 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
@@ -55,7 +57,7 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment
 @OptionsMenu(R.menu.saved_items_menu)
-public class FavoritesPageFragment extends RoboFragment {
+public class FavoritesPageFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
     public static final String TAG = FavoritesPageFragment.class.getSimpleName();
 
     private FavoritesControllerFragment favoriteController;
@@ -63,8 +65,8 @@ public class FavoritesPageFragment extends RoboFragment {
     @InstanceState
     ResourceLookup.ResourceType filterType;
 
-    @InstanceState
-    SortOrder sortOrder;
+    @Bean
+    protected SortOptions sortOptions;
 
     @Pref
     LibraryPref_ pref;
@@ -87,6 +89,8 @@ public class FavoritesPageFragment extends RoboFragment {
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             favoriteController = FavoritesControllerFragment_.builder()
+                    .filterType(filterType)
+                    .sortOrder(sortOptions.getOrder())
                     .build();
 
             transaction.replace(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG);
@@ -95,8 +99,7 @@ public class FavoritesPageFragment extends RoboFragment {
             transaction.replace(R.id.search_controller, searchFragment, FavoritesSearchFragment.TAG);
 
             transaction.commit();
-        }
-        else {
+        } else {
             favoriteController = (FavoritesControllerFragment) getFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
         }
@@ -132,15 +135,17 @@ public class FavoritesPageFragment extends RoboFragment {
 
     @OptionsItem(R.id.sort)
     final void startSorting() {
-        SortDialogFragment.show(getFragmentManager(), new SortDialogFragment.SortDialogListener() {
-            @Override
-            public void onOptionSelected(SortOrder _sortOrder) {
-                if (favoriteController != null) {
-                    favoriteController.loadItemsBySortOrder(_sortOrder);
-                    sortOrder = _sortOrder;
-                }
-            }
-        });
+        SortDialogFragment.createBuilder(getFragmentManager())
+                .setInitialSortOption(sortOptions.getOrder())
+                .setTargetFragment(this)
+                .show();
     }
 
+    @Override
+    public void onOptionSelected(SortOrder sortOrder) {
+        if (favoriteController != null) {
+            favoriteController.loadItemsBySortOrder(sortOrder);
+            sortOptions.putOrder(sortOrder);
+        }
+    }
 }

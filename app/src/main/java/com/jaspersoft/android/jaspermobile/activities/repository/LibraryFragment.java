@@ -69,7 +69,7 @@ import roboguice.fragment.RoboFragment;
  */
 @OptionsMenu(R.menu.libraries_menu)
 @EFragment
-public class LibraryFragment extends RoboFragment {
+public class LibraryFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
     public static final String TAG = LibraryFragment.class.getSimpleName();
 
     @Inject
@@ -179,14 +179,10 @@ public class LibraryFragment extends RoboFragment {
 
     @OptionsItem(R.id.sort)
     final void startSorting() {
-        SortDialogFragment.show(getFragmentManager(), new SortDialogFragment.SortDialogListener() {
-            @Override
-            public void onOptionSelected(SortOrder sortOrder) {
-                if (resourcesController != null) {
-                    resourcesController.loadResourcesBySortOrder(sortOrder);
-                }
-            }
-        });
+        SortDialogFragment.createBuilder(getFragmentManager())
+                .setInitialSortOption(sortOptions.getOrder())
+                .setTargetFragment(this)
+                .show();
     }
 
     @OnActivityResult(SearchControllerFragment.SEARCH_ACTION)
@@ -194,4 +190,12 @@ public class LibraryFragment extends RoboFragment {
         resourcesController.replacePreviewOnDemand();
     }
 
+    @Override
+    public void onOptionSelected(SortOrder sortOrder) {
+        sortOptions.putOrder(sortOrder);
+
+        if (resourcesController != null) {
+            resourcesController.loadResourcesBySortOrder(sortOrder);
+        }
+    }
 }

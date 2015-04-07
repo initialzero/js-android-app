@@ -75,8 +75,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
         PreferenceApiAdapter.init(getApplication())
                 .setCacheEnabled(false)
-                .setInAppAnimationEnabled(false)
-                .setIntroEnabled(false);
+                .setInAppAnimationEnabled(false);
     }
 
     @After

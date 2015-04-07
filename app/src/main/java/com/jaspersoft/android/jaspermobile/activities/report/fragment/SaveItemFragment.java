@@ -45,8 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
@@ -88,9 +87,12 @@ import timber.log.Timber;
  */
 @EFragment(R.layout.save_report_layout)
 @OptionsMenu(R.menu.save_item_menu)
-public class SaveItemFragment extends RoboSpiceFragment {
+public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogFragment.NumberDialogClickListener{
 
     public static final String TAG = SaveItemFragment.class.getSimpleName();
+
+    private final static int FROM_PAGE_REQUEST_CODE = 1243;
+    private final static int TO_PAGE_REQUEST_CODE = 2243;
 
     @ViewById(R.id.output_format_spinner)
     Spinner formatSpinner;
@@ -221,21 +223,23 @@ public class SaveItemFragment extends RoboSpiceFragment {
 
     @Click(R.id.fromPageControl)
     void clickOnFromPage() {
-        NumberDialogFragment.builder(getFragmentManager())
-                .selectListener(onFromPageSelectedListener)
-                .minValue(1)
-                .maxValue(pageCount)
-                .value(mFromPage)
+        NumberDialogFragment.createBuilder(getFragmentManager())
+                .setMinValue(1)
+                .setCurrentValue(mFromPage)
+                .setMaxValue(pageCount)
+                .setRequestCode(FROM_PAGE_REQUEST_CODE)
+                .setTargetFragment(this)
                 .show();
     }
 
     @Click(R.id.toPageControl)
     void clickOnToPage() {
-        NumberDialogFragment.builder(getFragmentManager())
-                .selectListener(onToPageSelectedListener)
-                .minValue(mFromPage)
-                .maxValue(pageCount)
-                .value(mToPage)
+        NumberDialogFragment.createBuilder(getFragmentManager())
+                .setMinValue(mFromPage)
+                .setCurrentValue(mToPage)
+                .setMaxValue(pageCount)
+                .setRequestCode(TO_PAGE_REQUEST_CODE)
+                .setTargetFragment(this)
                 .show();
     }
 
@@ -249,7 +253,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         boolean nameValid = isReportNameValid();
         reportNameInput.setError(null);
         if (saveAction != null) {
-            saveAction.setIcon(nameValid ? R.drawable.ic_action_submit : R.drawable.ic_action_submit_disabled);
+            saveAction.setIcon(nameValid ? R.drawable.ic_menu_save : R.drawable.ic_menu_save_disabled);
         }
     }
 
@@ -341,39 +345,33 @@ public class SaveItemFragment extends RoboSpiceFragment {
     // Page Select Listeners
     //---------------------------------------------------------------------
 
-    private final OnPageSelectedListener onFromPageSelectedListener =
-            new OnPageSelectedListener() {
-                @Override
-                public void onPageSelected(int page) {
-                    boolean isPagePositive = (page > 1);
-                    boolean isRangeCorrect = (page <= mToPage);
-                    if (isPagePositive && isRangeCorrect) {
-                        boolean enableComponent = (page != pageCount);
-                        toPageControl.setEnabled(enableComponent);
+    @Override
+    public void onPageSelected(int page, int requestCode) {
+        if(requestCode == FROM_PAGE_REQUEST_CODE) {
+            boolean isPagePositive = (page > 1);
+            boolean isRangeCorrect = (page <= mToPage);
+            if (isPagePositive && isRangeCorrect) {
+                boolean enableComponent = (page != pageCount);
+                toPageControl.setEnabled(enableComponent);
 
-                        mFromPage = page;
-                        fromPageControl.setText(String.valueOf(mFromPage));
-                    }
-                }
-            };
-
-    private final OnPageSelectedListener onToPageSelectedListener =
-            new OnPageSelectedListener() {
-                @Override
-                public void onPageSelected(int page) {
-                    boolean isRangeCorrect = (page >= mFromPage);
-                    if (isRangeCorrect) {
-                        mToPage = page;
-                        toPageControl.setText(String.valueOf(mToPage));
-                    }
-                }
-            };
+                mFromPage = page;
+                fromPageControl.setText(String.valueOf(mFromPage));
+            }
+        }
+        else {
+            boolean isRangeCorrect = (page >= mFromPage);
+            if (isRangeCorrect) {
+                mToPage = page;
+                toPageControl.setText(String.valueOf(mToPage));
+            }
+        }
+    }
 
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class RunReportExecutionListener extends SimpleRequestListener2<ReportExecutionResponse> {
+    private class RunReportExecutionListener extends SimpleRequestListener<ReportExecutionResponse> {
         private OutputFormat outputFormat;
 
         private RunReportExecutionListener(OutputFormat outputFormat) {
@@ -422,7 +420,7 @@ public class SaveItemFragment extends RoboSpiceFragment {
         }
     }
 
-    private class AttachmentFileSaveListener extends SimpleRequestListener2<File> {
+    private class AttachmentFileSaveListener extends SimpleRequestListener<File> {
 
         private AttachmentFileSaveListener() {
             runningRequests++;
@@ -471,7 +469,5 @@ public class SaveItemFragment extends RoboSpiceFragment {
             addSavedItemRecord(reportFile, outputFormat);
             super.onRequestSuccess(outputFile);
         }
-
     }
-
 }

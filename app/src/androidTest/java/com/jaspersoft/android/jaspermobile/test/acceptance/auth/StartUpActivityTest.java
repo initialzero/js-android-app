@@ -38,7 +38,6 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,8 +101,7 @@ public class StartUpActivityTest {
         )).check(matches(isDisplayed()));
     }
 
-    // TODO broken fix it
-    @Ignore
+    @Test
     public void testTryDemoAction() {
         mockHttpResponses();
         activityRule.saveStart();

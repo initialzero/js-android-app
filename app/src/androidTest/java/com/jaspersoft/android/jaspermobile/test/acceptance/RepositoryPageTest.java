@@ -219,7 +219,8 @@ public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationA
 
     public class TestModule extends CommonTestModule {
         @Override
-        protected void semanticConfigure() {
+        protected void configure() {
+            super.configure();
             bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
         }
     }

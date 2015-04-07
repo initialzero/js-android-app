@@ -337,6 +337,7 @@ public class SavedItemsFragment extends RoboFragment
         SimpleDialogFragment.createBuilder(getActivity(), fm)
                 .setTitle(title)
                 .setMessage(description)
+                .setPositiveButtonText(android.R.string.ok)
                 .setTargetFragment(this)
                 .show();
     }

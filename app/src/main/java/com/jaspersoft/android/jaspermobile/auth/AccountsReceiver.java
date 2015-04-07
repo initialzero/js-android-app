@@ -28,6 +28,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.jaspersoft.android.jaspermobile.util.account.AccountResources;
+
 /**
  * @author Tom Koptel
  * @since 2.0
@@ -36,6 +38,6 @@ public class AccountsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO This peace of logic awfully buggy. Fix broken tests. Check Migrations after fixes
-//        AccountResources.get(context).flushOnDemand();
+        AccountResources.get(context).flushOnDemand();
     }
 }

@@ -156,17 +156,10 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items})
     final void navigationMenuItemSelect(View newSelectItem) {
-        setItemSelected(newSelectItem, true);
         if (selectedItemView != null) {
-            if (selectedItemView == newSelectItem) {
-                if (mListener != null) {
-                    mListener.onNavigate(0);
-                }
-                return;
-            }
             setItemSelected(selectedItemView, false);
         }
-
+        setItemSelected(newSelectItem, true);
         selectedItemView = newSelectItem;
 
         if (mListener != null) {

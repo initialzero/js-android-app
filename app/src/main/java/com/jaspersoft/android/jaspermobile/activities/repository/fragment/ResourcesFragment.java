@@ -142,8 +142,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     protected boolean mLoading;
     @InstanceState
-    protected boolean mRequestUnfinished;
-    @InstanceState
     protected int mLoaderState = LOAD_FROM_CACHE;
 
     @Bean
@@ -207,18 +205,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onStart() {
         super.onStart();
 
-        if(mRequestUnfinished) {
+        boolean isResourceLoaded = (mAdapter.getCount() == 0);
+        if (!mLoading && isResourceLoaded) {
             loadPage();
-            mRequestUnfinished = false;
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        if(mLoading) {
-            mRequestUnfinished = true;
         }
     }
 
@@ -375,7 +364,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
-    private void loadPage(){
+    private void loadPage() {
         boolean isRepository = !recursiveLookup;
         boolean isRoot = TextUtils.isEmpty(resourceUri);
         boolean isProJrs = mServerData.getEdition().equals("PRO");

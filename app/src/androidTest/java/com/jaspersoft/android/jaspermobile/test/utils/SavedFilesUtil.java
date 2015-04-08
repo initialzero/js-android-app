@@ -32,7 +32,7 @@ public class SavedFilesUtil {
     public static void deleteSavedItems(Context context) throws IOException {
         File savedReportsDir = getSavedReportsDirectory(context);
         if (savedReportsDir.exists()) {
-            org.apache.commons.io.FileUtils.cleanDirectory(savedReportsDir);
+            org.apache.commons.io.FileUtils.deleteDirectory(savedReportsDir);
         }
     }
 
@@ -41,7 +41,10 @@ public class SavedFilesUtil {
         if (appFilesDir == null) {
             throw new IllegalStateException("Configure external storage on emulator");
         }
-        return new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
+        File savedRepo = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
+        if (!savedRepo.exists()) savedRepo.mkdir();
+
+        return savedRepo;
     }
 
     public boolean hasSavedItem(String reportFolderName, String fileFormat) {

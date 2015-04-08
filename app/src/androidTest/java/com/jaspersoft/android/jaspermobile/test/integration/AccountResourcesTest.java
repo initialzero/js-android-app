@@ -38,9 +38,11 @@ import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.SavedFilesUtil;
 import com.jaspersoft.android.jaspermobile.util.account.AccountResources;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Random;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -154,6 +156,9 @@ public class AccountResourcesTest extends AndroidTestCase {
             savedItems.setName("Saved items " + random);
             savedItems.setAccountName(account.name);
             savedItems.setFilePath(file.getPath());
+            savedItems.setFileFormat("TXT");
+            savedItems.setCreationTime(new Date().getTime());
+            savedItems.setWstype(ResourceLookup.ResourceType.reportUnit.toString());
 
             Uri uri = getContext().getContentResolver()
                     .insert(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, savedItems.getContentValues());

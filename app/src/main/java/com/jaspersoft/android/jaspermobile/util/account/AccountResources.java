@@ -68,7 +68,7 @@ public class AccountResources {
     }
 
     public void flushOnDemand() {
-        if (accounts.length > 1) {
+        if (accounts.length != 0) {
             flushFavorites();
             flushSavedItems();
         }

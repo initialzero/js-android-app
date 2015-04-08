@@ -21,12 +21,6 @@ public class PreferenceApiAdapter implements PreferenceApi {
     }
 
     @Override
-    public PreferenceApi setIntroEnabled(boolean value) {
-        helper.needToShowIntro(value);
-        return this;
-    }
-
-    @Override
     public PreferenceApi setInAppAnimationEnabled(boolean value) {
         helper.setAnimationEnabled(value);
         return this;

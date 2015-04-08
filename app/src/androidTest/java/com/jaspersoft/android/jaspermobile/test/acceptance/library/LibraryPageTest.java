@@ -106,7 +106,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(DASHBOARD_ITEM_POSITION).perform(click());
-        onView(withText("Cordova")).perform(click());
         onView(withText(dashboardResource.getLabel())).check(matches(isDisplayed()));
         pressBack();
     }
@@ -152,8 +151,8 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
 
         onView(withId(R.id.showAction)).perform(click());
 
-        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(resource.getLabel())));
-        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(resource.getDescription())));
+        onOverflowView(getActivity(), withText(resource.getLabel())).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withId(android.R.id.message)).check(matches(withText(resource.getDescription())));
     }
 
     @Test

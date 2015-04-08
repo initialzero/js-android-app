@@ -30,6 +30,8 @@ import android.content.Context;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
 import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;
@@ -70,6 +72,9 @@ public class JasperMobileModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("LIMIT")).to(100);
         bindConstant().annotatedWith(Names.named("MAX_PAGE_ALLOWED")).to(10);
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
+
+        String endpoint = AccountServerData.Demo.SERVER_URL + JasperSettings.DEFAULT_REST_VERSION;
+        bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(endpoint);
     }
 
 }

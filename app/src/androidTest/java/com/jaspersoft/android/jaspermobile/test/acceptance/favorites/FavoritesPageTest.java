@@ -117,8 +117,8 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
                 .atPosition(0).perform(longClick());
 
         onView(withId(R.id.showAction)).perform(click());
-        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(resource.getLabel())));
-        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(resource.getDescription())));
+        onOverflowView(getActivity(), withText(resource.getLabel())).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withId(android.R.id.message)).check(matches(withText(resource.getDescription())));
     }
 
     @Test
@@ -168,7 +168,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(1).perform(click());
-        onView(withText("Cordova")).perform(click());
 
         // Add to favorite
         onView(withId(R.id.favoriteAction)).perform(click());
@@ -181,7 +180,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
 
         // Remove from favorite
         onView(withId(R.id.removeFromFavorites)).perform(click());
-        onOverflowView(getActivity(), withId(R.id.sdl__positive_button)).perform(click());
+        onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));
@@ -552,7 +551,7 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(0).perform(longClick());
         onView(withId(R.id.removeFromFavorites)).perform(click());
-        onOverflowView(getActivity(), withId(R.id.sdl__positive_button)).perform(click());
+        onOverflowView(getActivity(), withId(android.R.id.button1)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(0));
         onView(withId(android.R.id.empty)).check(matches(allOf(withText(R.string.f_empty_list_msg), isDisplayed())));

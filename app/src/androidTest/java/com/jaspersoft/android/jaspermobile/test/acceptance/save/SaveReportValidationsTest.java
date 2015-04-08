@@ -157,7 +157,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
     }
 
     @Test
-    public void testRightMarginAlwaysBiggerOrEqaualThanLeftOne() {
+    public void testRightMarginAlwaysBiggerOrEqualThanLeftOne() {
         int numberPickerInputId = getActivity().getResources().getIdentifier("numberpicker_input", "id", "android");
 
         // Select 43

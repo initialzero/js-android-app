@@ -107,10 +107,12 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     @Override
-    public void swipeToOpenEnabled(boolean enabled) {
-        if(enabled) {
+    public void onActionModeEnabled(boolean enabled) {
+        if (!enabled) {
+            getToolbar().setVisibility(View.VISIBLE);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         } else {
+            getToolbar().setVisibility(View.INVISIBLE);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
     }
@@ -161,7 +163,6 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     private void navigateToCurrentSelection() {
-        handleNavigationAction(currentSelection);
         navigationPanelLayout.setItemSelected(currentSelection);
     }
 
@@ -199,7 +200,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
                 sendFeedback();
                 break;
             case R.id.tv_about:
-                new AboutDialogFragment().show(getSupportFragmentManager(), AboutDialogFragment.class.getSimpleName());
+                AboutDialogFragment.createBuilder(this, getSupportFragmentManager()).show();
         }
     }
 
@@ -233,7 +234,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
         }
     }
 
-    private void sendFeedback(){
+    private void sendFeedback() {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("message/rfc822");
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"js.testdevice@gmail.com"});

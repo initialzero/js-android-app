@@ -121,7 +121,7 @@ public class ResourcesControllerFragment extends ControllerFragment
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG + resourceUri;
+        return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
     }
 
     @Override
@@ -138,10 +138,6 @@ public class ResourcesControllerFragment extends ControllerFragment
         if (contentFragment != null) {
             contentFragment.loadResourcesBySortOrder(order);
         }
-    }
-
-    public String getContentTag() {
-        return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
     }
 
     @Override

@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -37,11 +38,11 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterM
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 
 import roboguice.fragment.RoboFragment;
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -54,13 +55,16 @@ public class RepositoryFragment extends RoboFragment {
     @Bean
     protected FilterManagerBean filterManager;
 
+    // It is hack to force saved instance state not to be null after rotate
+    @InstanceState
+    protected boolean initialStart;
+
     private ResourcesControllerFragment resourcesController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        Timber.tag(TAG);
     }
 
     @Override
@@ -84,8 +88,17 @@ public class RepositoryFragment extends RoboFragment {
             transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
             transaction.commit();
         } else {
-            resourcesController = (ResourcesControllerFragment)
-                    getFragmentManager().findFragmentByTag(ResourcesControllerFragment.TAG + TAG);
+            FragmentManager fragmentManager = getFragmentManager();
+            int count = fragmentManager.getBackStackEntryCount();
+
+            if (count == 0) {
+                resourcesController = (ResourcesControllerFragment)
+                        fragmentManager.findFragmentByTag(ResourcesControllerFragment.TAG + TAG);
+            } else {
+                FragmentManager.BackStackEntry entry = fragmentManager.getBackStackEntryAt(count - 1);
+                resourcesController = (ResourcesControllerFragment)
+                        fragmentManager.findFragmentByTag(ResourcesControllerFragment.TAG + entry.getName());
+            }
         }
     }
 

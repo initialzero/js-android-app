@@ -154,7 +154,8 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<Navigation
 
     private class TestModule extends CommonTestModule {
         @Override
-        protected void semanticConfigure() {
+        protected void configure() {
+            super.configure();
             bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
             bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }

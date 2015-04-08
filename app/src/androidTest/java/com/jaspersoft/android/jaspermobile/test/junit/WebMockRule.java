@@ -29,6 +29,7 @@ import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 
 import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -112,10 +113,14 @@ public class WebMockRule extends ExternalResource {
         }
 
         @Override
-        protected void semanticConfigure() {
+        protected void configure() {
+            commonConfigurations();
+
             bind(JsRestClient.class).in(Singleton.class);
             Timber.plant(new Timber.DebugTree());
             endpoint = "http://localhost:" + mPort;
+
+            bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(endpoint);
         }
     }
 }

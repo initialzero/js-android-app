@@ -67,7 +67,6 @@ public class SettingsActivityTest {
     @Before
     public void before() {
         prefHelper = DefaultPrefHelper_.getInstance_(activityRule.getApplicationContext());
-        prefHelper.needToShowIntro(false);
     }
 
     @Test

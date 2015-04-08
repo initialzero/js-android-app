@@ -37,7 +37,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -120,7 +120,7 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         mListener.onShowControls();
     }
 
-    private class GetInputControlsListener extends SimpleRequestListener2<InputControlsList> {
+    private class GetInputControlsListener extends SimpleRequestListener<InputControlsList> {
         @Override
         protected Context getContext() {
             return getActivity();

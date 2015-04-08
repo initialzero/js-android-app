@@ -83,21 +83,21 @@ public class FavoritesAdapter extends SingleChoiceCursorAdapter {
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         Cursor cursor = getCursor();
         cursor.moveToPosition(getCurrentPosition());
-        String title = cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE));
+        String itemTitle = cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE));
 
         switch (item.getItemId()) {
             case R.id.removeFromFavorites:
                 if (mFavoritesInteractionListener != null) {
-                    long itemId = cursor.getLong(cursor.getColumnIndex(FavoritesTable._ID));
-                    Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
-                            String.valueOf(itemId));
-                    mFavoritesInteractionListener.onDelete(title, uri);
+                    long recordId = cursor.getLong(cursor.getColumnIndex(FavoritesTable._ID));
+                    Uri recordUri = Uri.withAppendedPath(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
+                            String.valueOf(recordId));
+                    mFavoritesInteractionListener.onDelete(itemTitle, recordUri);
                 }
                 return true;
             case R.id.showAction:
                 if (mFavoritesInteractionListener != null) {
-                    String description = cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION));
-                    mFavoritesInteractionListener.onInfo(title, description);
+                    String itemDescription = cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION));
+                    mFavoritesInteractionListener.onInfo(itemTitle, itemDescription);
                 }
                 return true;
             default:
@@ -137,8 +137,8 @@ public class FavoritesAdapter extends SingleChoiceCursorAdapter {
     //---------------------------------------------------------------------
 
     public static interface FavoritesInteractionListener {
-        void onDelete(String title, Uri itemToDelete);
-        void onInfo(String title, String description);
+        void onDelete(String itemTitle, Uri recordUri);
+        void onInfo(String temTitle, String itemDescription);
     }
 
 }

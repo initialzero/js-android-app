@@ -130,6 +130,7 @@ public class JasperAccountManager {
 
     public void updateActiveAccountPassword(String newPassword){
         AccountManager accountManager = AccountManager.get(mContext);
+        invalidateActiveToken();
         accountManager.setPassword(getActiveAccount(), newPassword);
     }
 

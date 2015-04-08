@@ -51,7 +51,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 import com.jaspersoft.android.jaspermobile.widget.MultiSelectSpinner;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -545,7 +545,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetInputControlsValuesListener extends SimpleRequestListener2<InputControlStatesList> {
+    private class GetInputControlsValuesListener extends SimpleRequestListener<InputControlStatesList> {
 
         @Override
         protected Context getContext() {
@@ -618,7 +618,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
     }
 
-    private class ValidateInputControlsValuesListener extends SimpleRequestListener2<InputControlStatesList> {
+    private class ValidateInputControlsValuesListener extends SimpleRequestListener<InputControlStatesList> {
 
         @Override
         protected Context getContext() {

@@ -163,7 +163,6 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     private void navigateToCurrentSelection() {
-        handleNavigationAction(currentSelection);
         navigationPanelLayout.setItemSelected(currentSelection);
     }
 

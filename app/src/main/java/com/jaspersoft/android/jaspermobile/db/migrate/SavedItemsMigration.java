@@ -134,6 +134,7 @@ public class SavedItemsMigration implements Migration {
             contentValues.put("name", fileName);
             contentValues.put("file_format", fileFormat);
             contentValues.put("creation_time", creationTime);
+            contentValues.put("account_name", "com.jaspersoft.account.none");
 
             db.insert("saved_items", null, contentValues);
         }

@@ -168,7 +168,6 @@ public class FavoritesPageTest extends ProtoActivityInstrumentation<NavigationAc
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(1).perform(click());
-        onView(withText("Cordova")).perform(click());
 
         // Add to favorite
         onView(withId(R.id.favoriteAction)).perform(click());

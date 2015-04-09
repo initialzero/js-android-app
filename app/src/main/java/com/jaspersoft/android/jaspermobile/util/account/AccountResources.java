@@ -35,6 +35,7 @@ import android.os.RemoteException;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import java.io.File;
@@ -48,19 +49,24 @@ import timber.log.Timber;
  */
 public class AccountResources {
     private final Context context;
-    private final String[] accounts;
+    private final String[] accountNames;
 
     private AccountResources(Context context) {
         this.context = context;
+        this.accountNames = prepareAccountNames(context);
+        Timber.tag(AccountResources.class.getSimpleName());
+    }
 
+    private String[] prepareAccountNames(Context context) {
         Account[] accounts = JasperAccountManager.get(context).getAccounts();
         int count = accounts.length;
-        this.accounts = new String[accounts.length];
+        String[] accountNames = new String[count + 1];
         for (int i = 0; i < count; i++) {
-            this.accounts[i] = accounts[i].name;
+            accountNames[i] = accounts[i].name;
         }
-
-        Timber.tag(AccountResources.class.getSimpleName());
+        // Manually add internal account
+        accountNames[count] = SavedItemsMigration.SHARED_DIR;
+        return accountNames;
     }
 
     public static AccountResources get(Context context) {
@@ -68,23 +74,21 @@ public class AccountResources {
     }
 
     public void flushOnDemand() {
-        if (accounts.length != 0) {
-            flushFavorites();
-            flushSavedItems();
-        }
+        flushFavorites();
+        flushSavedItems();
     }
 
     private void flushFavorites() {
         context.getContentResolver().delete(
                 MobileDbProvider.FAVORITES_CONTENT_URI,
-                FavoritesTable.ACCOUNT_NAME + " NOT IN (" + makePlaceholders(accounts.length) + ")",
-                accounts);
+                FavoritesTable.ACCOUNT_NAME + " NOT IN (" + makePlaceholders(accountNames.length) + ")",
+                accountNames);
     }
 
     private void flushSavedItems() {
         Cursor cursor = context.getContentResolver().query(
                 MobileDbProvider.SAVED_ITEMS_CONTENT_URI, new String[]{SavedItemsTable._ID, SavedItemsTable.FILE_PATH},
-                SavedItemsTable.ACCOUNT_NAME + " NOT IN (" + makePlaceholders(accounts.length) + " )", accounts, null);
+                SavedItemsTable.ACCOUNT_NAME + " NOT IN (" + makePlaceholders(accountNames.length) + " )", accountNames, null);
         File file;
         Uri uriForDelete;
         String filePath, id;

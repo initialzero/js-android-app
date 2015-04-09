@@ -32,12 +32,14 @@ import android.test.AndroidTestCase;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.SavedFilesUtil;
 import com.jaspersoft.android.jaspermobile.util.account.AccountResources;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.io.File;
@@ -112,6 +114,24 @@ public class AccountResourcesTest extends AndroidTestCase {
         cursor.close();
 
         cursor = querySavedItemsForAccount(account2);
+        assertThat(cursor.getCount(), is(3));
+        cursor.close();
+    }
+
+    public void testShouldNotFlushItemsForInternalAccount() throws IOException {
+        SavedFilesUtil.deleteSavedItems(getContext());
+        getContext().getContentResolver().delete(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, null, null);
+
+        Account account = new Account(SavedItemsMigration.SHARED_DIR, JasperSettings.JASPER_ACCOUNT_TYPE);
+        createSavedItemsInstances(account);
+
+        Cursor cursor = querySavedItemsForAccount(account);
+        assertThat(cursor.getCount(), is(3));
+        cursor.close();
+
+        AccountUtil.get(getContext()).removeAccount(account1);
+        AccountResources.get(getContext()).flushOnDemand();
+        cursor = querySavedItemsForAccount(account);
         assertThat(cursor.getCount(), is(3));
         cursor.close();
     }

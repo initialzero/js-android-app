@@ -106,7 +106,6 @@ public class LibraryPageTest extends ProtoActivityInstrumentation<NavigationActi
         onData(is(instanceOf(ResourceLookup.class)))
                 .inAdapterView(withId(android.R.id.list))
                 .atPosition(DASHBOARD_ITEM_POSITION).perform(click());
-        onView(withText("Cordova")).perform(click());
         onView(withText(dashboardResource.getLabel())).check(matches(isDisplayed()));
         pressBack();
     }

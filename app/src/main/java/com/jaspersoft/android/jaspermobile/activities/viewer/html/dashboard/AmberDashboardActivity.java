@@ -91,14 +91,6 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         if (mMaximized && webView != null) {
             webView.loadUrl(MobileDashboardApi.minimizeDashlet());
             scrollableTitleHelper.injectTitle(resource.getLabel());
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mMaximized && webView != null) {
-            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
-            scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();
         }

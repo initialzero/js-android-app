@@ -4,12 +4,28 @@
     return AndroidCallback = (function() {
       function AndroidCallback() {}
 
-      AndroidCallback.prototype.onMaximize = function(title) {
-        Android.onMaximize(title);
+      AndroidCallback.prototype.onMaximizeStart = function(title) {
+        Android.onMaximizeStart(title);
       };
 
-      AndroidCallback.prototype.onMinimize = function() {
-        Android.onMinimize();
+      AndroidCallback.prototype.onMaximizeEnd = function(title) {
+        Android.onMaximizeEnd(title);
+      };
+
+      AndroidCallback.prototype.onMaximizeFailed = function(error) {
+        Android.onMaximizeFailed(error);
+      };
+
+      AndroidCallback.prototype.onMinimizeStart = function() {
+        Android.onMinimizeStart();
+      };
+
+      AndroidCallback.prototype.onMinimizeEnd = function() {
+        Android.onMinimizeEnd();
+      };
+
+      AndroidCallback.prototype.onMinimizeFailed = function(error) {
+        Android.onMinimizeFailed(error);
       };
 
       AndroidCallback.prototype.onScriptLoaded = function() {
@@ -26,6 +42,10 @@
 
       AndroidCallback.prototype.onLoadError = function(error) {
         Android.onLoadError(error);
+      };
+
+      AndroidCallback.prototype.onReportExecution = function(data) {
+        Android.onReportExecution(data);
       };
 
       return AndroidCallback;
@@ -138,31 +158,9 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.scaler', [],function() {
-    var Scaler;
-    return Scaler = (function() {
-      function Scaler() {}
-
-      Scaler.prototype.scale = function(factor) {
-        var originalDashletInScaledCanvasCss, scaledCanvasCss;
-        jQuery("#scale_style").remove();
-        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
-        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
-        jQuery('<style id="scale_style"></style').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
-      };
-
-      return Scaler;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.amber.dashboard.controller', ['require','js.mobile.amber.dashboard.view','js.mobile.scaler'],function(require) {
-    var DashboardController, Scaler, View;
+  define('js.mobile.amber.dashboard.controller', ['require','js.mobile.amber.dashboard.view'],function(require) {
+    var DashboardController, View;
     View = require('js.mobile.amber.dashboard.view');
-    Scaler = require('js.mobile.scaler');
     return DashboardController = (function() {
       function DashboardController(context) {
         this.context = context;
@@ -172,7 +170,6 @@
           el: jQuery('#frame'),
           context: this.context
         });
-        this.scaler = new Scaler;
       }
 
       DashboardController.prototype.initialize = function() {
@@ -188,7 +185,7 @@
         jQuery(".dashboardCanvas > .content > .body div.canvasOverlay").removeClass("originalDashletInScaledCanvas");
         jQuery("div.dashboardCanvas > div.content > div.body > div").find(".minimizeDashlet")[0].click();
         this._disableDashlets();
-        return this.callback.onMinimize();
+        return this.callback.onMinimizeStart();
       };
 
       DashboardController.prototype._injectViewport = function() {
@@ -275,7 +272,7 @@
           context: this.context
         });
         dashlets.enable();
-        this.callback.onMaximize(title);
+        this.callback.onMaximizeStart(title);
         button = jQuery(jQuery(dashlet).find('div.dashletToolbar > div.content div.buttons > .maximizeDashletButton')[0]);
         button.click();
         this.logger.log("Add original scale");

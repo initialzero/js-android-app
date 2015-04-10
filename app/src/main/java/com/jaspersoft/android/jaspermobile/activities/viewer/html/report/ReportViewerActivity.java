@@ -68,6 +68,7 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.samskivert.mustache.Mustache;
@@ -135,6 +136,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Extra
     protected ResourceLookup resource;
+    @Extra
+    protected ArrayList<ReportParameter> reportParameters;
 
     @InstanceState
     protected Uri favoriteEntryUri;
@@ -143,13 +146,23 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
+    @OptionsMenuItem
+    protected MenuItem saveReport;
 
     private SimpleChromeClient chromeClient;
     private AccountServerData accountServerData;
+    private boolean mShowSavedMenuItem;
+    private boolean mHasInitialParameters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mHasInitialParameters = (reportParameters != null);
+        if (mHasInitialParameters) {
+            reportModel.setReportParameters(reportParameters);
+        }
+
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         if (savedInstanceState == null) {
@@ -185,8 +198,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_star_outline : R.drawable.ic_star);
+        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        saveReport.setVisible(mShowSavedMenuItem);
 
         if (BuildConfig.FLAVOR.equals("qa") || BuildConfig.FLAVOR.equals("dev")) {
             MenuInflater inflater = getMenuInflater();
@@ -231,28 +245,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .show();
     }
 
-    //---------------------------------------------------------------------
-    // Input controls loading callbacks
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onLoaded(List<InputControl> inputControls) {
-        boolean noControls = inputControls.isEmpty();
-
-        if (noControls) {
-            loadFlow();
-        } else {
-            showInputControlsPage(inputControls);
-        }
-    }
-
-    @Override
-    public void onShowControls() {
-        showInputControlsPage(reportModel.getInputControls());
-    }
-
-    @Override
-    public void onSaveReport() {
+    @OptionsItem
+    public void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
             SaveReportActivity_.intent(this)
                     .reportParameters(reportModel.getReportParameters())
@@ -265,16 +259,46 @@ public class ReportViewerActivity extends RoboToolbarActivity
         }
     }
 
+    //---------------------------------------------------------------------
+    // Input controls loading callbacks
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onLoaded(List<InputControl> inputControls) {
+        boolean noControls = inputControls.isEmpty();
+
+        if (noControls) {
+            loadFlow();
+        } else {
+            if (mHasInitialParameters) {
+                loadFlow();
+            } else {
+                showInputControlsPage(inputControls);
+            }
+        }
+    }
+
+    @Override
+    public void onShowControls() {
+        showInputControlsPage(reportModel.getInputControls());
+    }
+
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadFlowWithControls(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             ArrayList<InputControl> inputControl = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
             reportModel.setInputControls(inputControl);
+            reportModel.updateReportParameters();
+
+            mShowSavedMenuItem = false;
+            supportInvalidateOptionsMenu();
             loadFlow();
         } else {
+            // By default we make webview invisible
+            // If any report run successful we will have this condition to be falsy
             boolean isFirstReportMissing = (webView.getVisibility() == View.INVISIBLE);
             if (isFirstReportMissing) {
-                emptyView.setVisibility(View.VISIBLE);
+                super.onBackPressed();
             }
         }
     }
@@ -286,6 +310,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void onPageSelected(int currentPage) {
         webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", currentPage));
+    }
+
+    @Override
+    public void onPickerSelected(boolean pickExactPage) {
     }
 
     //---------------------------------------------------------------------
@@ -320,7 +348,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onTotalPagesLoaded(int pages) {
-        if (pages == 0) {
+        boolean noPages = (pages == 0);
+        mShowSavedMenuItem = !noPages;
+        supportInvalidateOptionsMenu();
+
+        if (noPages) {
             emptyView.setVisibility(View.VISIBLE);
         } else {
             emptyView.setVisibility(View.GONE);

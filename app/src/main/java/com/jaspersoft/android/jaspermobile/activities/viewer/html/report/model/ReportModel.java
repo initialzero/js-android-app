@@ -27,8 +27,8 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.InputControlsSerializer;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.InputControlSerializerImpl;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializerImpl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
@@ -40,35 +40,37 @@ import java.util.List;
  * @since 2.0
  */
 public class ReportModel implements Parcelable {
-    private final InputControlsSerializer serializer = new InputControlSerializerImpl();
-    private List<InputControl> inputControls;
-
-    public static ReportModel copy(ReportModel original) {
-        ReportModel copy = new ReportModel();
-        copy.setInputControls(original.getInputControls());
-        return copy;
-    }
+    private final ReportParamsSerializer serializer = new ReportParamsSerializerImpl();
+    private List<InputControl> inputControls = new ArrayList<InputControl>();
+    private List<ReportParameter> reportParameters = new ArrayList<ReportParameter>();
 
     public List<InputControl> getInputControls() {
         return inputControls;
     }
 
     public ArrayList<ReportParameter> getReportParameters() {
+        return new ArrayList<ReportParameter>(reportParameters);
+    }
+
+    public void setReportParameters(ArrayList<ReportParameter> reportParameters) {
+        this.reportParameters = reportParameters;
+    }
+
+    public String getJsonReportParameters() {
+        return serializer.toJson(reportParameters);
+    }
+
+    public void updateReportParameters() {
         ArrayList<ReportParameter> parameters = new ArrayList<ReportParameter>();
         if (inputControls != null) {
             for (InputControl inputControl : inputControls) {
                 parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
             }
         }
-        return parameters;
+        this.reportParameters = parameters;
     }
 
-
-    public String getJsonReportParameters() {
-        return serializer.toJson(inputControls);
-    }
-
-    public void setInputControls(List<InputControl> inputControls) {
+    public void setInputControls(ArrayList<InputControl> inputControls) {
         this.inputControls = inputControls;
     }
 
@@ -80,6 +82,7 @@ public class ReportModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(inputControls);
+        dest.writeTypedList(reportParameters);
     }
 
     public ReportModel() {
@@ -87,6 +90,7 @@ public class ReportModel implements Parcelable {
 
     private ReportModel(Parcel in) {
         in.readTypedList(inputControls, InputControl.CREATOR);
+        in.readTypedList(reportParameters, ReportParameter.CREATOR);
     }
 
     public static final Parcelable.Creator<ReportModel> CREATOR = new Parcelable.Creator<ReportModel>() {

@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboardApi;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -64,6 +65,8 @@ import java.util.Map;
 public class Amber2DashboardActivity extends DashboardCordovaActivity implements DashboardCallback {
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
+    @Bean
+    protected HyperlinkHelper hyperlinkHelper;
     @Extra
     protected ResourceLookup resource;
 
@@ -78,7 +81,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
+        mToast = Toast.makeText (this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
@@ -88,23 +91,22 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     }
 
     @Override
-    public void onBackPressed() {
-        if (mMaximized && webView != null) {
-            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
-            scrollableTitleHelper.injectTitle(resource.getLabel());
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public void setupWebView(WebView webView) {
         DashboardWebInterface.inject(this, webView);
     }
 
     @UiThread
     @Override
-    public void onMaximize(String title) {
+    public void onMaximizeStart(String title) {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+    }
+
+    @UiThread
+    @Override
+    public void onMaximizeEnd(String title) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
         resetZoom();
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
@@ -112,9 +114,25 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
 
     @UiThread
     @Override
-    public void onMinimize() {
+    public void onMaximizeFailed(String error) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
+    @UiThread
+    @Override
+    public void onMinimizeStart() {
+    }
+
+    @UiThread
+    @Override
+    public void onMinimizeEnd() {
         resetZoom();
         mMaximized = false;
+    }
+
+    @UiThread
+    @Override
+    public void onMinimizeFailed(String error) {
     }
 
     @UiThread
@@ -144,6 +162,12 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
         mToast.show();
     }
 
+    @UiThread
+    @Override
+    public void onReportExecution(String data) {
+        hyperlinkHelper.executeReport(data);
+    }
+
     @Override
     public void onPageFinished() {
     }
@@ -158,8 +182,11 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     }
 
     @Override
-    public void onHomeAsUpEnabled() {
-        onBackPressed();
+    public void onHomeAsUpCalled() {
+        if (mMaximized && webView != null) {
+            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
+            scrollableTitleHelper.injectTitle(resource.getLabel());
+        }
     }
 
     private void loadFlow() {

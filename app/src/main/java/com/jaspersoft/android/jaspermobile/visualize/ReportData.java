@@ -22,15 +22,10 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params;
+package com.jaspersoft.android.jaspermobile.visualize;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.google.gson.annotations.Expose;
 
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,21 +33,17 @@ import java.util.Set;
  * @author Tom Koptel
  * @since 2.0
  */
-public class InputControlSerializerImpl implements InputControlsSerializer {
-    private static final String EMPTY_JSON = "{}";
+public class ReportData {
+    @Expose
+    private String resource;
+    @Expose
+    private Map<String, Set<String>> params;
 
-    @Override
-    public String toJson(List<InputControl> reportParameters) {
-        Map<String, Set<String>> params = new HashMap<String, Set<String>>();
-        if (reportParameters == null) {
-            return EMPTY_JSON;
-        } else {
-            Gson gson = new Gson();
-            Type mapType = new TypeToken<Map<String,Set<String>>>() {}.getType();
-            for (InputControl inputControl : reportParameters) {
-                params.put(inputControl.getId(), inputControl.getSelectedValues());
-            }
-            return gson.toJson(params, mapType);
-        }
+    public String getResource() {
+        return resource;
+    }
+
+    public Map<String, Set<String>> getParams() {
+        return params;
     }
 }

@@ -27,8 +27,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
-
 /**
  * Populating 'account_name' field with data from server profiles.
  *

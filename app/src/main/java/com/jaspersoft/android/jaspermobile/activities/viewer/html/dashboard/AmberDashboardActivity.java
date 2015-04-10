@@ -87,8 +87,11 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     }
 
     @Override
-    public void onHomeAsUpEnabled() {
-        onBackPressed();
+    public void onHomeAsUpCalled() {
+        if (mMaximized && webView != null) {
+            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
+            scrollableTitleHelper.injectTitle(resource.getLabel());
+        }
     }
 
     @Override
@@ -103,7 +106,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @UiThread
     @Override
-    public void onMaximize(String title) {
+    public void onMaximizeStart(String title) {
         resetZoom();
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
@@ -111,9 +114,29 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @UiThread
     @Override
-    public void onMinimize() {
+    public void onMaximizeEnd(String title) {
+    }
+
+    @UiThread
+    @Override
+    public void onMaximizeFailed(String error) {
+    }
+
+    @UiThread
+    @Override
+    public void onMinimizeStart() {
         resetZoom();
         mMaximized = false;
+    }
+
+    @UiThread
+    @Override
+    public void onMinimizeEnd() {
+    }
+
+    @UiThread
+    @Override
+    public void onMinimizeFailed(String error) {
     }
 
     @UiThread
@@ -140,6 +163,11 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
         mToast.setText(error);
         mToast.show();
+    }
+
+    @UiThread
+    @Override
+    public void onReportExecution(String data) {
     }
 
     private void loadFlow() {

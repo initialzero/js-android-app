@@ -74,7 +74,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 public class RepositoryPageTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private static final String REPORTS_QUERY = "Reports";
-    private static final String CLASS_NAME = "activities.navigation.NavigationActivity_";
 
     public RepositoryPageTest() {
         super(NavigationActivity_.class);

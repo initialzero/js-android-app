@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -19,8 +20,6 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
-
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
  * @author Tom Koptel
@@ -55,7 +54,7 @@ public class ReportActionFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_star_outline : R.drawable.ic_star);
+        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
     }
 
@@ -71,6 +70,7 @@ public class ReportActionFragment extends Fragment {
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
                 .setNegativeButtonText(android.R.string.ok)
+                .setTargetFragment(this)
                 .show();
     }
 }

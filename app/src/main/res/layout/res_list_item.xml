@@ -44,7 +44,7 @@
         android:layout_toEndOf="@android:id/icon"
         android:layout_toRightOf="@android:id/icon"
         android:ellipsize="end"
-        android:textColor="@color/list_label_light_grey"
+        android:textColor="@color/list_label_grey"
         tools:text="Large Text" />
 
     <CheckedTextView
@@ -61,7 +61,7 @@
         android:layout_toRightOf="@android:id/icon"
         android:layout_toStartOf="@+id/miscStub"
         android:ellipsize="end"
-        android:textColor="@color/list_label_grey"
+        android:textColor="@color/list_label_light_grey"
         tools:text="Small Text" />
 
     <ViewStub

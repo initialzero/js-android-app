@@ -156,17 +156,10 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items})
     final void navigationMenuItemSelect(View newSelectItem) {
-        setItemSelected(newSelectItem, true);
         if (selectedItemView != null) {
-            if (selectedItemView == newSelectItem) {
-                if (mListener != null) {
-                    mListener.onNavigate(0);
-                }
-                return;
-            }
             setItemSelected(selectedItemView, false);
         }
-
+        setItemSelected(newSelectItem, true);
         selectedItemView = newSelectItem;
 
         if (mListener != null) {
@@ -299,7 +292,10 @@ public class NavigationPanelLayout extends RelativeLayout {
             AccountServerData serverData = getItem(position);
             //We need to show only 2 digits of version
             String serverVersion = serverData.getVersionName().substring(0, 3);
-            mViewHolder.tvAccountVersion.setText(serverVersion);
+            // This possible due to migration issues from version 1.8 to 2.0
+            // Some instances will have missing version names
+            boolean versionNotDefined = Double.parseDouble(serverVersion) == 0d;
+            mViewHolder.tvAccountVersion.setText(versionNotDefined ? "?" : serverVersion);
 
             return convertView;
         }

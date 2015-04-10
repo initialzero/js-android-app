@@ -33,6 +33,6 @@
     <item
         android:id="@+id/favoriteAction"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_star"
+        android:icon="@drawable/ic_menu_star"
         android:title="@string/r_cm_remove_from_favorites" />
 </menu>

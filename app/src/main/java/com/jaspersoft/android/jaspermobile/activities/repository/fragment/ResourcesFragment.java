@@ -26,9 +26,11 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -47,8 +49,9 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.Resourc
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
@@ -84,7 +87,7 @@ import roboguice.inject.InjectView;
  */
 @EFragment
 public class ResourcesFragment extends RoboSpiceFragment
-        implements SwipeRefreshLayout.OnRefreshListener, ResourcesLoader {
+        implements SwipeRefreshLayout.OnRefreshListener, ResourcesLoader, ResourceAdapter.ResourceInteractionListener {
 
     public static final String ROOT_URI = "/";
     // Loader actions
@@ -139,8 +142,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     @InstanceState
     protected boolean mLoading;
     @InstanceState
-    protected boolean mRequestUnfinished;
-    @InstanceState
     protected int mLoaderState = LOAD_FROM_CACHE;
 
     @Bean
@@ -189,10 +190,10 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-                R.color.holo_blue_light,
-                R.color.holo_blue_dark,
-                R.color.holo_blue_light,
-                R.color.holo_blue_bright);
+                R.color.js_blue,
+                R.color.js_dark_blue,
+                R.color.js_blue,
+                R.color.js_dark_blue);
 
         listView.setOnScrollListener(new ScrollListener());
         setDataAdapter(savedInstanceState);
@@ -204,18 +205,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onStart() {
         super.onStart();
 
-        if(mRequestUnfinished) {
+        boolean isResourceLoaded = (mAdapter.getCount() == 0);
+        if (!mLoading && isResourceLoaded) {
             loadPage();
-            mRequestUnfinished = false;
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        if(mLoading) {
-            mRequestUnfinished = true;
         }
     }
 
@@ -295,9 +287,8 @@ public class ResourcesFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
 
     private void setDataAdapter(Bundle savedInstanceState) {
-        mAdapter = ResourceAdapter.builder(getActivity(), savedInstanceState)
-                .viewType(viewType)
-                .create();
+        mAdapter = new ResourceAdapter(getActivity(), savedInstanceState, viewType);
+        mAdapter.setResourcesInteractionListener(this);
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);
     }
@@ -373,7 +364,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 
-    private void loadPage(){
+    private void loadPage() {
         boolean isRepository = !recursiveLookup;
         boolean isRoot = TextUtils.isEmpty(resourceUri);
         boolean isProJrs = mServerData.getEdition().equals("PRO");
@@ -385,10 +376,31 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     //---------------------------------------------------------------------
+    // Implements FavoritesAdapter.FavoritesInteractionListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onFavorite(ResourceLookup resource) {
+        Uri uri = favoritesHelper.queryFavoriteUri(resource);
+        favoritesHelper.handleFavoriteMenuAction(uri, resource, null);
+    }
+
+    @Override
+    public void onInfo(String resourceTitle, String resourceDescription) {
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        SimpleDialogFragment.createBuilder(getActivity(), fm)
+                .setTitle(resourceTitle)
+                .setMessage(resourceDescription)
+                .setNegativeButtonText(android.R.string.ok)
+                .setTargetFragment(this)
+                .show();
+    }
+
+    //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetRootFolderDataRequestListener extends SimpleRequestListener2<FolderDataResponse> {
+    private class GetRootFolderDataRequestListener extends SimpleRequestListener<FolderDataResponse> {
 
         @Override
         protected Context getContext() {
@@ -426,7 +438,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-    private class GetResourceLookupsListener extends SimpleRequestListener2<ResourceLookupsList> {
+    private class GetResourceLookupsListener extends SimpleRequestListener<ResourceLookupsList> {
 
         @Override
         protected Context getContext() {

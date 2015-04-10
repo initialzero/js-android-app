@@ -42,14 +42,12 @@ import java.util.concurrent.TimeUnit;
  */
 @EBean(scope = EBean.Scope.Singleton)
 public class DefaultPrefHelper {
-    public static final String KEY_PREF_INTRO_SHOWN = "pref_intro_shown";
     public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
     public static final String KEY_PREF_READ_TIMEOUT = "pref_read_timeout";
     public static final String KEY_PREF_ANIMATION_ENABLED = "pref_animation_enabled";
     public static final String KEY_PREF_SEND_CRASHES = "pref_crash_reports";
-    public static final String KEY_PREF_SHOW_INTRO = "show_intro";
 
     public static final boolean DEFAULT_REPO_CACHE_ENABLED = true;
     public static final String DEFAULT_REPO_CACHE_EXPIRATION = "48";
@@ -58,16 +56,6 @@ public class DefaultPrefHelper {
 
     @RootContext
     Context context;
-
-    public boolean needToShowIntro() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(KEY_PREF_INTRO_SHOWN, true);
-    }
-
-    public void needToShowIntro(boolean value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        preferences.edit().putBoolean(KEY_PREF_INTRO_SHOWN, value).apply();
-    }
 
     public int getConnectTimeoutValue() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

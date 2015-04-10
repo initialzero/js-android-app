@@ -27,7 +27,7 @@
     style="@style/list2.item.layout"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_item_height"
-    android:background="@drawable/custom_list_item_bg">
+    android:background="@drawable/bg_item_resource">
 
     <include layout="@layout/res_list_item" />
 

@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.intro.IntroPageActivity_;
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -112,15 +111,6 @@ public class SettingsFragment extends RoboPreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (!(boolean) newValue)
                     BugSenseWrapper.closeSession(getActivity());
-                return true;
-            }
-        });
-
-        Preference showIntro = getPreferenceScreen().findPreference(DefaultPrefHelper.KEY_PREF_SHOW_INTRO);
-        showIntro.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                IntroPageActivity_.intent(getActivity()).start();
                 return true;
             }
         });

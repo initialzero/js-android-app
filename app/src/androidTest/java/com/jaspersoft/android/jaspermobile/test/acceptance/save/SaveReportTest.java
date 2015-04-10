@@ -53,6 +53,8 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  */
 public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity_> {
 
+    private SavedFilesUtil savedFilesUtil;
+
     public SaveReportTest() {
         super(ReportHtmlViewerActivity_.class);
     }
@@ -67,9 +69,13 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     public void setUp() throws Exception {
         super.setUp();
         registerTestModule(new HackedTestModule());
-        setDefaultCurrentProfile();
 
-        SavedFilesUtil.clear(getApplication());
+        savedFilesUtil = SavedFilesUtil.builder()
+                .context(getApplication())
+                .setAccount(getActiveAccount())
+                .build();
+        SavedFilesUtil.deleteSavedItems(getApplication());
+
         DatabaseUtils.deleteAllSavedItems(getContentResolver());
 
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
@@ -87,8 +93,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         unregisterTestModule();
         FakeHttpLayerManager.clearHttpResponseRules();
 
-        SavedFilesUtil.clear(getApplication());
-        DatabaseUtils.deleteAllSavedItems(getApplication().getContentResolver());
+        SavedFilesUtil.deleteSavedItems(getApplication());
+        DatabaseUtils.deleteAllSavedItems(getContentResolver());
 
         super.tearDown();
     }
@@ -96,13 +102,13 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     //---------------------------------------------------------------------
     // Save test methods
     //---------------------------------------------------------------------
+
     @Test
     public void testSaveWithDifferentNames() throws IOException {
         prepareSaveReportActivity(resource);
 
         String reportName = resource.getLabel();
         String differReportName = "Test name";
-        long profileId = getServerProfile().getId();
 
         // Save reports with different names
         saveReport(reportName, OutputFormat.PDF);
@@ -113,8 +119,8 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         assertTrue(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), differReportName, "PDF"));
 
         //Check if files are saved proper in file system
-        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "PDF", profileId));
-        assertTrue(SavedFilesUtil.contains(getActivity(), differReportName, "PDF", profileId));
+        assertTrue(savedFilesUtil.hasSavedItem(reportName, "PDF"));
+        assertTrue(savedFilesUtil.hasSavedItem(differReportName, "PDF"));
 
         //Check if files are properly displayed in list
         openSavePage();
@@ -134,9 +140,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     @Test
     public void testSaveWithDifferentFormats() throws Throwable {
         prepareSaveReportActivity(resource);
-
         String reportName = resource.getLabel();
-        long profileId = getServerProfile().getId();
 
         // Save reports in different format
         saveReport(reportName, OutputFormat.HTML);
@@ -149,9 +153,9 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         assertTrue(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), reportName, "XLS"));
 
         //Check if files are saved proper in file system
-        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "HTML", profileId));
-        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "PDF", profileId));
-        assertTrue(SavedFilesUtil.contains(getActivity(), reportName, "XLS", profileId));
+        assertTrue(savedFilesUtil.hasSavedItem(reportName, "HTML"));
+        assertTrue(savedFilesUtil.hasSavedItem(reportName, "PDF"));
+        assertTrue(savedFilesUtil.hasSavedItem(reportName, "XLS"));
 
         //Check if files are properly displayed in list
         openSavePage();
@@ -184,7 +188,6 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         String oldReportName = resource.getLabel();
         String newReportName = "Renamed - " + oldReportName;
-        long profileId = getServerProfile().getId();
 
         saveReport(oldReportName, OutputFormat.PDF);
         openSavePage();
@@ -197,7 +200,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if file is renamed in db and in file system
         assertTrue(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), newReportName, "PDF"));
-        assertTrue(SavedFilesUtil.contains(getActivity(), newReportName, "PDF", profileId));
+        assertTrue(savedFilesUtil.hasSavedItem(newReportName, "PDF"));
 
         // Check if file is renamed in UI
         onData(is(instanceOf(Cursor.class)))
@@ -207,7 +210,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if there is no file with old file name
         assertFalse(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), oldReportName, "PDF"));
-        assertFalse(SavedFilesUtil.contains(getActivity(), oldReportName, "PDF", profileId));
+        assertFalse(savedFilesUtil.hasSavedItem(oldReportName, "PDF"));
     }
 
     @Test
@@ -238,9 +241,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
     @Test
     public void testDelete() throws IOException {
         prepareSaveReportActivity(resource);
-
         String reportName = resource.getLabel();
-        long profileId = getServerProfile().getId();
 
         saveReport(reportName, OutputFormat.PDF);
         openSavePage();
@@ -254,7 +255,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if file is deleted from DB and file system
         assertFalse(AssertDatabaseUtil.containsSavedReport(getActivity().getContentResolver(), reportName, "PDF"));
-        assertFalse(SavedFilesUtil.contains(getActivity(), reportName, "PDF", profileId));
+        assertFalse(savedFilesUtil.hasSavedItem(reportName, "PDF"));
     }
 
     //---------------------------------------------------------------------
@@ -550,7 +551,6 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
             onView(withText(R.string.s_ab_filter_by)).perform(click());
-            ;
         }
     }
 
@@ -561,7 +561,6 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
             try {
                 onView(withText(R.string.s_ab_sort_by)).perform(click());
-                ;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }

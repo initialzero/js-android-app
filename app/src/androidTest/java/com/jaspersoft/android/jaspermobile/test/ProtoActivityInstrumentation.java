@@ -62,6 +62,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
     protected T mActivity;
     protected JsRestClient jsRestClient;
     private Application mApplication;
+    private Account activeAccount;
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
         super(activityClass);
@@ -74,8 +75,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
         PreferenceApiAdapter.init(getApplication())
                 .setCacheEnabled(false)
-                .setInAppAnimationEnabled(false)
-                .setIntroEnabled(false);
+                .setInAppAnimationEnabled(false);
     }
 
     @After
@@ -95,11 +95,12 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 .setPassword(AccountServerData.Demo.PASSWORD)
                 .setEdition("PRO")
                 .setVersionName("5.5");
-        AccountUtil.get(getApplication())
+        activeAccount = AccountUtil.get(getApplication())
                 .removeAllAccounts()
                 .addAccount(serverData)
                 .setAuthToken()
-                .activate();
+                .activate()
+                .getAccount();
         JsServerProfile profile = new JsServerProfile();
         profile.setAlias(serverData.getAlias());
         profile.setServerUrl(serverData.getServerUrl());
@@ -107,6 +108,13 @@ public class ProtoActivityInstrumentation<T extends Activity>
         profile.setUsername(serverData.getUsername());
         profile.setPassword(serverData.getPassword());
         getJsRestClient().setServerProfile(profile);
+    }
+
+    public Account getActiveAccount() {
+        if (activeAccount == null) {
+            setDefaultCurrentProfile();
+        }
+        return activeAccount;
     }
 
     public void startActivityUnderTest() {

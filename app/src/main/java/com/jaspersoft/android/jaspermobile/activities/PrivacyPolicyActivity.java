@@ -11,7 +11,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivit
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.network.PrivacyRequest;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener2;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 
 import org.androidannotations.annotations.Bean;
@@ -58,7 +58,7 @@ public class PrivacyPolicyActivity extends RoboSpiceActivity implements WebViewF
                 new PrivacyRequestListener());
     }
 
-    private class PrivacyRequestListener extends SimpleRequestListener2<String> {
+    private class PrivacyRequestListener extends SimpleRequestListener<String> {
 
         @Override
         protected Context getContext() {

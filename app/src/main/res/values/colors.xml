@@ -24,47 +24,24 @@
 -->
 
 <resources>
+
+    <color name="light_shadow">#55000000</color>
+    <color name="dark_shadow">#cc000000</color>
+
     <!-- Primary Palette -->
-    <color name="js_blue">#0480ba</color>
-    <color name="js_light_grey">#949494</color>
-    <color name="js_grey">#7d7d7d</color>
+    <color name="js_blue_with_opacity">#990099cc</color>
+    <color name="js_light_blue">#33b5e5</color>
+    <color name="js_blue">#0099cc</color>
+    <color name="js_dark_blue">#0582b9</color>
+    <color name="js_night_blue">#145a82</color>
 
-    <!-- Home screen -->
-    <color name="card_title_txt">#4b4b4b</color>
-    <color name="card_subtitle_txt">#9c9c9c</color>
-    <color name="js_blue_50">#500480ba</color>
-    <color name="dashboard_item_bg">#428ec0</color>
-    <color name="holo_blue_light">#ff33b5e5</color>
-    <color name="holo_blue_bright">#ff00ddff</color>
-    <color name="holo_blue_dark">#ff0099cc</color>
+    <color name="js_lightest_gray">#ff5f626b</color>
+    <color name="js_light_gray">#4b4e57</color>
+    <color name="js_gray">#373a43</color>
+    <color name="js_dark_gray">#2e3136</color>
+    <color name="js_night_gray">#23262c</color>
 
-    <color name="card_header_config">#484a4f</color>
-
-    <color name="card_login_bg">#2e3136</color>
-    <color name="btn_demo_bg">#124f78</color>
-    <color name="btn_demo_bg_pressed">#ff08456e</color>
-    <color name="btn_login_bg">#33373d</color>
-    <color name="btn_login_bg_pressed">#ff2e3238</color>
-    <color name="text_login_bg">#f0f0f0</color>
-
-    <!-- Navigation Drawer -->
-    <color name="ab_background">#363942</color>
-    <color name="ab_action_mode_background">#4b4e57</color>
-    <color name="shadow_light">#55000000</color>
-    <color name="shadow_dark">#cc000000</color>
-    <color name="profile_bg">#9939abe7</color>
-    <color name="navigation_profile_separator">#444444</color>
-    <color name="navigation_menu_bg">#292b30</color>
-    <color name="navigation_item_bg">#373b42</color>
-    <color name="navigation_account_icon_bg">#464952</color>
-
-    <!--Dialog-->
-    <color name="dialog_title_txt_color">#0185c3</color>
-
-    <integer-array name="holo_colors">
-        <item>@color/holo_blue_dark</item>
-        <item>@color/holo_blue_light</item>
-        <item>@color/holo_blue_bright</item>
-    </integer-array>
+    <color name="js_text_gray">#7d7d7d</color>
+    <color name="js_text_light_gray">#949494</color>
 
 </resources>

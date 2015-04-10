@@ -80,6 +80,20 @@ public final class AccountUtil {
         return new AccountUnit(account);
     }
 
+    public void removeAccount(Account account) {
+        AccountManager accountManager = AccountManager.get(mContext);
+        AccountManagerFuture<Boolean> future = accountManager.removeAccount(account, null, null);
+        try {
+            future.getResult();
+        } catch (OperationCanceledException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } catch (AuthenticatorException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
     public class AccountUnit {
         private final Account mAccount;
 

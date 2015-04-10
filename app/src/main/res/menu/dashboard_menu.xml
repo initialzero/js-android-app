@@ -28,7 +28,7 @@
 
     <item
         android:id="@+id/favoriteAction"
-        android:icon="@drawable/ic_star_outline"
+        android:icon="@drawable/ic_menu_star_outline"
         android:title="@string/r_cm_add_to_favorites"
         app:showAsAction="always" />
 

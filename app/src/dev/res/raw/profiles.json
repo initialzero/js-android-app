@@ -1,67 +1,13 @@
 {
 	"profiles" : [
-	    {
-			"alias" : "MobileDemo JasperAdmin",
-			"serverUrl" : "http://mobiledemo.jaspersoft.com/jasperserver-pro",
-			"organization" : "organization_1",
-			"username" : "jasperadmin",
-			"password" : "jasperadmin",
-			"edition": "PRO",
-			"versionName": "5.5"
-		},
-	    {
-			"alias" : "MobileDemo Superuser",
-			"serverUrl" : "http://mobiledemo.jaspersoft.com/jasperserver-pro",
-			"organization" : "",
-			"username" : "superuser",
-			"password" : "superuser",
-			"edition": "PRO",
-			"versionName": "5.5"
-		}
-		,{
-			"alias" : "Broken 5.6.0",
-			"serverUrl" : "http://172.17.10.70:8080/jasperserver-pro-56",
-			"organization" : "",
-			"username" : "superuser",
-			"password" : "superuser",
-			"edition": "PRO",
-			"versionName": "5.6"
-		},
-		{
-			"alias" : "PRO TRUNK Superuser",
-			"serverUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
-			"organization" : "",
-			"username" : "superuser",
-			"password" : "superuser",
-			"edition": "PRO",
-			"versionName": "6.1"
-		},
-		{
-			"alias" : "Improved mobile",
-			"serverUrl" : "http://build-master.jaspersoft.com:8580/jrs-pro-feature-dashboard-improvements-for-jasper-mobile",
-			"organization" : "",
-			"username" : "superuser",
-			"password" : "superuser",
-			"edition": "PRO",
-			"versionName": "6.1"
-		},
-		{
-			"alias" : "PRO TRUNK Adminuser",
-			"serverUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
-			"organization" : "organization_1",
-			"username" : "jasperadmin",
-			"password" : "jasperadmin",
-			"edition": "PRO",
-			"versionName": "6.1"
-		},
-		{
-			"alias" : "PRO TRUNK JoeUser",
-			"serverUrl" : "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
-			"organization" : "organization_1",
-			"username" : "joeuser",
-			"password" : "joeuser",
-			"edition": "PRO",
-			"versionName": "6.1"
-		}
+        {
+            "alias" : "6.0.1 Build Master",
+            "serverUrl" : "http://172.17.10.125:8080/jasperserver-pro-601",
+            "organization" : "",
+            "username" : "superuser",
+            "password" : "superuser",
+            "edition": "PRO",
+            "versionName": "6.0.1"
+        }
 	]
 }

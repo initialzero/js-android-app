@@ -45,7 +45,7 @@ import java.util.Collection;
 import java.util.Comparator;
 
 
-public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
+public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceAdapter.KpiResourceLookup> {
     private final FavoritesHelper_ favoriteHelper;
     private final ResourceViewHelper viewHelper;
 
@@ -80,7 +80,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
             }
         }
 
-        viewHelper.populateView(itemView, getItem(position));
+        viewHelper.populateView(itemView, getItem(position).getResource());
         return (View) itemView;
     }
 
@@ -102,7 +102,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     }
 
     @Override
-    public void addAll(Collection<? extends ResourceLookup> collection) {
+    public void addAll(Collection<? extends KpiResourceLookup> collection) {
         super.addAll(collection);
         // Because of rotation we are loosing content of adapter. For that
         // reason we are altering ActionMode icon if it visible state to
@@ -120,7 +120,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     }
 
     private void alterFavoriteIcon() {
-        ResourceLookup resource = getItem(getCurrentPosition());
+        ResourceLookup resource = getItem(getCurrentPosition()).getResource();
         Cursor cursor = favoriteHelper.queryFavoriteByResource(resource);
 
         try {
@@ -134,7 +134,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        ResourceLookup resource = getItem(getCurrentPosition());
+        ResourceLookup resource = getItem(getCurrentPosition()).getResource();
         switch (item.getItemId()) {
             case R.id.favoriteAction:
                 if(mResourceInteractionListener != null) {
@@ -155,11 +155,11 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         super.sort(new OrderingByType());
     }
 
-    private static class OrderingByType implements Comparator<ResourceLookup> {
+    private static class OrderingByType implements Comparator<KpiResourceLookup> {
         @Override
-        public int compare(ResourceLookup res1, ResourceLookup res2) {
-            ResourceLookup.ResourceType resType1 = res1.getResourceType();
-            ResourceLookup.ResourceType resType2 = res2.getResourceType();
+        public int compare(KpiResourceLookup res1, KpiResourceLookup res2) {
+            ResourceLookup.ResourceType resType1 = res1.getResource().getResourceType();
+            ResourceLookup.ResourceType resType2 = res2.getResource().getResourceType();
             return compare(resType1.ordinal(), resType2.ordinal());
         }
 
@@ -175,5 +175,23 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     public static interface ResourceInteractionListener {
         void onFavorite(ResourceLookup resource);
         void onInfo(String temTitle, String itemDescription);
+    }
+
+    public static class KpiResourceLookup {
+        private final String kpiUri;
+        private final ResourceLookup resource;
+
+        public KpiResourceLookup(String kpiUri, ResourceLookup resource) {
+            this.kpiUri = kpiUri;
+            this.resource = resource;
+        }
+
+        public String getKpiUri() {
+            return kpiUri;
+        }
+
+        public ResourceLookup getResource() {
+            return resource;
+        }
     }
 }

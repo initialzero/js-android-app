@@ -40,6 +40,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -58,7 +59,9 @@ import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.rest.service.KpiModule;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
@@ -70,16 +73,24 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.UiThread;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import roboguice.inject.InjectView;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -154,6 +165,7 @@ public class ResourcesFragment extends RoboSpiceFragment
     private ResourceAdapter mAdapter;
     private PaginationPolicy mPaginationPolicy;
     private AccountServerData mServerData;
+    private ResourceLookupsList resourceLookupsList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -422,12 +434,17 @@ public class ResourcesFragment extends RoboSpiceFragment
                 mAdapter.clear();
             }
 
-            mAdapter.add(folderDataResponse);
+            ResourceAdapter.KpiResourceLookup lookup =
+                    new ResourceAdapter.KpiResourceLookup(null, folderDataResponse);
+            mAdapter.add(lookup);
 
-            ResourceLookup publicLookup = new ResourceLookup();
-            publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
-            publicLookup.setLabel("Public");
-            publicLookup.setUri("/public");
+            ResourceLookup publicFolder = new ResourceLookup();
+            publicFolder.setResourceType(ResourceLookup.ResourceType.folder);
+            publicFolder.setLabel("Public");
+            publicFolder.setUri("/public");
+
+            ResourceAdapter.KpiResourceLookup publicLookup =
+                    new ResourceAdapter.KpiResourceLookup(null, publicFolder);
             mAdapter.add(publicLookup);
 
             mAdapter.setNotifyOnChange(true);
@@ -454,30 +471,75 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
-            // set pagination data
-            mPaginationPolicy.handleLookup(resourceLookupsList);
-
-            // set data
-            List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
-            // Do this for explicit refresh during pull to refresh interaction
-            if (mLoaderState == LOAD_FROM_NETWORK) {
-                mAdapter.setNotifyOnChange(false);
-                mAdapter.clear();
-            }
-            mAdapter.addAll(datum);
-            // We won`t sort by type in Library section
-            if (resourceTypes != null &&
-                    resourceTypes.contains(ResourceLookup.ResourceType.folder.toString())) {
-                mAdapter.sortByType();
-            }
-            mAdapter.setNotifyOnChange(true);
-            mAdapter.notifyDataSetChanged();
-
-            // set refresh states
-            setRefreshState(false);
-            // If need we show 'empty' message
-            showEmptyText(emptyMessage);
+            ResourcesFragment.this.resourceLookupsList = resourceLookupsList;
+            downloadKpiCacheProperties();
         }
+    }
+
+    @Background
+    protected void downloadKpiCacheProperties() {
+        JasperAccountManager accountManager = JasperAccountManager.get(getActivity());
+        AccountServerData serverData = AccountServerData.get(getActivity(), accountManager.getActiveAccount());
+
+        try {
+            String cookie = accountManager.getActiveAuthToken();
+            String endpoint = serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION;
+            RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(endpoint).build();
+            KpiModule module = restAdapter.create(KpiModule.class);
+            Response response = module.getKpiCache(cookie);
+            Properties properties = new Properties();
+            try {
+                properties.load(response.getBody().in());
+            } catch (IOException e) {
+                Toast.makeText(getActivity(), "Failed to decode kpi properties cache", Toast.LENGTH_SHORT).show();
+            }
+            populateUi(properties);
+        } catch (RetrofitError error) {
+            Timber.e(error, error.getMessage());
+            Toast.makeText(getActivity(), "Failed to extract cache", Toast.LENGTH_SHORT).show();
+        } catch (JasperAccountManager.TokenException e) {
+            // Ignoring error that is POC
+        }
+    }
+
+    @UiThread
+    protected void populateUi(Properties properties) {
+        // set pagination data
+        mPaginationPolicy.handleLookup(resourceLookupsList);
+
+        // set data
+        List<ResourceLookup> lookups = resourceLookupsList.getResourceLookups();
+        List<ResourceAdapter.KpiResourceLookup> datum = new ArrayList<>(lookups.size());
+
+        for (ResourceLookup lookup : lookups) {
+            String resultKpiUri = null;
+            for (String kpiUri : properties.stringPropertyNames()) {
+                if (lookup.getUri().equals(properties.get(kpiUri))) {
+                    resultKpiUri = kpiUri;
+                    break;
+                }
+            }
+            datum.add(new ResourceAdapter.KpiResourceLookup(resultKpiUri, lookup));
+        }
+
+        // Do this for explicit refresh during pull to refresh interaction
+        if (mLoaderState == LOAD_FROM_NETWORK) {
+            mAdapter.setNotifyOnChange(false);
+            mAdapter.clear();
+        }
+        mAdapter.addAll(datum);
+        // We won`t sort by type in Library section
+        if (resourceTypes != null &&
+                resourceTypes.contains(ResourceLookup.ResourceType.folder.toString())) {
+            mAdapter.sortByType();
+        }
+        mAdapter.setNotifyOnChange(true);
+        mAdapter.notifyDataSetChanged();
+
+        // set refresh states
+        setRefreshState(false);
+        // If need we show 'empty' message
+        showEmptyText(emptyMessage);
     }
 
     //---------------------------------------------------------------------

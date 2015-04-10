@@ -148,6 +148,8 @@
     <string name="rv_select_page">Select page</string>
     <string name="rv_out_of_range">Requested page out of range</string>
     <string name="rv_dialog_reload">Reload</string>
+    <string name="rv_open_link_chooser" translatable="false">Open link in</string>
+
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">The external memory card is not available. Please mount the card and try again.</string>
 
@@ -266,6 +268,7 @@
 
     <!--Dashboard activity-->
     <string name="da_session_expired" translatable="false">Session expired</string>
+    <string name="da_loading" translatable="false">Loading dashboard...</string>
 
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all" translatable="false">Check all</string>

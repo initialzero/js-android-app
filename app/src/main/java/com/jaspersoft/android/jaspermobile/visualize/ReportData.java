@@ -22,19 +22,28 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
+package com.jaspersoft.android.jaspermobile.visualize;
 
-import android.annotation.SuppressLint;
-import android.webkit.WebView;
+import com.google.gson.annotations.Expose;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-final class AmberJsInterfaceInjector implements JsInterfaceInjector {
-    @SuppressLint({"JavascriptInterface", "AddJavascriptInterface"})
-    @Override
-    public void inject(WebView webView, Object bridge) {
-        webView.addJavascriptInterface(bridge, "Android");
+public class ReportData {
+    @Expose
+    private String resource;
+    @Expose
+    private Map<String, Set<String>> params;
+
+    public String getResource() {
+        return resource;
+    }
+
+    public Map<String, Set<String>> getParams() {
+        return params;
     }
 }

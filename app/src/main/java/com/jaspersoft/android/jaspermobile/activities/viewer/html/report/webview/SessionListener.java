@@ -22,17 +22,32 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
+package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview;
 
-import android.webkit.WebView;
+import android.app.Activity;
+import android.widget.Toast;
+
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
+
+import java.lang.ref.WeakReference;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-final class EmeraldJsInterfaceInjector implements JsInterfaceInjector {
+public class SessionListener implements JSWebViewClient.SessionListener {
+    private final WeakReference<Activity> weakReference;
+
+    public SessionListener(Activity activity) {
+        this.weakReference = new WeakReference<Activity>(activity);
+    }
+
     @Override
-    public void inject(WebView webView, Object bridge) {
-        // Ignore. Do nothing for lower versions of app
+    public void onSessionExpired() {
+        if (weakReference.get() != null) {
+            Toast.makeText(weakReference.get(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
+            weakReference.get().finish();
+        }
     }
 }

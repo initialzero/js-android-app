@@ -26,6 +26,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
+        classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
     }
 }
 
@@ -134,7 +135,6 @@ apt {
 
 dependencies {
     provided project(':database-generator')
-
     compile project(':sdk')
     compile project(':cordova')
 
@@ -167,6 +167,9 @@ dependencies {
 
     // Dependency for image loading management
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+
+    // Template rendering
+    compile 'com.samskivert:jmustache:1.10'
 
     // Unit tests dependencies
     testCompile 'junit:junit:4.12'

@@ -25,39 +25,91 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
 
 import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class DashboardWebInterface implements DashboardCallback {
+public class DashboardWebInterface extends WebInterface implements DashboardCallback {
     private final DashboardCallback dashboardCallback;
 
-    public DashboardWebInterface(DashboardCallback dashboardCallback) {
+    private DashboardWebInterface(DashboardCallback dashboardCallback) {
         this.dashboardCallback = dashboardCallback;
     }
 
-    @JavascriptInterface
-    @Override
-    public void onMaximize(String title) {
-        dashboardCallback.onMaximize(title);
+    public static void inject(DashboardCallback dashboardCallback, WebView webView) {
+        new DashboardWebInterface(dashboardCallback).injectJavascriptInterface(webView);
     }
 
     @JavascriptInterface
     @Override
-    public void onMinimize() {
-        dashboardCallback.onMinimize();
+    public void onMaximizeStart(String title) {
+        dashboardCallback.onMaximizeStart(title);
     }
 
     @JavascriptInterface
     @Override
-    public void onWrapperLoaded() {
-        dashboardCallback.onWrapperLoaded();
+    public void onMaximizeEnd(String title) {
+        dashboardCallback.onMaximizeEnd(title);
     }
 
     @JavascriptInterface
     @Override
-    public void onDashletsLoaded() {
-        dashboardCallback.onDashletsLoaded();
+    public void onMaximizeFailed(String error) {
+        dashboardCallback.onMaximizeFailed(error);
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onMinimizeStart() {
+        dashboardCallback.onMinimizeStart();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onMinimizeEnd() {
+        dashboardCallback.onMinimizeEnd();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onMinimizeFailed(String error) {
+        dashboardCallback.onMinimizeFailed(error);
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onScriptLoaded() {
+        dashboardCallback.onScriptLoaded();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onLoadStart() {
+        dashboardCallback.onLoadStart();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onLoadDone() {
+        dashboardCallback.onLoadDone();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onLoadError(String error) {
+        dashboardCallback.onLoadError(error);
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onReportExecution(String data) {
+        dashboardCallback.onReportExecution(data);
+    }
+
+    @Override
+    void injectJavascriptInterface(WebView webView) {
+        webView.addJavascriptInterface(this, "Android");
     }
 }

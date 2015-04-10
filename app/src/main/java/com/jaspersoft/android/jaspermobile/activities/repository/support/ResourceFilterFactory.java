@@ -24,26 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.support;
 
-import android.accounts.Account;
-import android.support.v4.app.FragmentActivity;
-
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.RootContext;
-import org.androidannotations.annotations.sharedpreferences.Pref;
-
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
 
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.dashboard;
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.folder;
@@ -51,59 +36,51 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.reportUnit;
 
 /**
+ * Encapsulates business logic of filtering options across different JRS releases.
+ *
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
-@EBean
-public class FilterManager {
+public class ResourceFilterFactory {
 
-    @RootContext
-    FragmentActivity activity;
-    @Pref
-    LibraryPref_ pref;
-    private ServerRelease serverRelease;
+    private final ServerRelease serverRelease;
 
-    @AfterInject
-    void injectRoboGuiceDependencies() {
-        final RoboInjector injector = RoboGuice.getInjector(activity);
-        injector.injectMembersWithoutViews(this);
-
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(activity, account);
-        serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+    private ResourceFilterFactory(ServerRelease serverRelease) {
+        this.serverRelease = serverRelease;
     }
 
-    public ArrayList<String> getFilters() {
-        Set<String> initialTypes = pref.filterTypes().get();
-        if (initialTypes == null || initialTypes.isEmpty()) {
-            putFilters(getFiltersByType(Type.ALL_FOR_LIBRARY));
-        }
-        return new ArrayList<String>(pref.filterTypes().get());
+    public static ResourceFilterFactory create(ServerRelease release) {
+        return new ResourceFilterFactory(release);
     }
 
-    public void putFilters(List<String> filters) {
-        pref.filterTypes().put(new HashSet<String>(filters));
+    public List<String> createFiltersForLibrary() {
+        return getFiltersByType(Type.ALL_FOR_LIBRARY);
     }
 
-    public ArrayList<String> getFiltersByType(Type value) {
+    public List<String> createFiltersForRepository() {
+        return getFiltersByType(Type.ALL_FOR_REPOSITORY);
+    }
+
+    public List<String> createOnlyReportFilters() {
+        return getFiltersByType(Type.ONLY_REPORT);
+    }
+
+    public List<String> createOnlyDashboardFilters() {
+        return getFiltersByType(Type.ONLY_DASHBOARD);
+    }
+
+    private List<String> getFiltersByType(Type value) {
         if (serverRelease.code() >= ServerRelease.AMBER.code()) {
             return value.typesForAmber().getAsList();
+        } else {
+            return value.typesForPreAmber().getAsList();
         }
-        return value.typesForPreAmber().getAsList();
     }
 
-    public boolean isOnlyReport(ArrayList<String> filters) {
-        return filters.equals(getFiltersByType(Type.ONLY_REPORT));
-    }
-
-    public boolean isOnlyDashboard(ArrayList<String> filters) {
-        return filters.equals(getFiltersByType(Type.ONLY_DASHBOARD));
-    }
-
-    public static enum Type {
+    private static enum Type {
         ALL_FOR_REPOSITORY, ALL_FOR_LIBRARY, ONLY_DASHBOARD, ONLY_REPORT;
 
-        public Filter typesForAmber() {
+        Filter typesForAmber() {
             switch (this) {
                 case ALL_FOR_REPOSITORY:
                     return Filter.ALL_AMBER;
@@ -118,7 +95,7 @@ public class FilterManager {
             }
         }
 
-        public Filter typesForPreAmber() {
+        Filter typesForPreAmber() {
             switch (this) {
                 case ALL_FOR_REPOSITORY:
                     return Filter.ALL_PRE_AMBER;
@@ -151,7 +128,7 @@ public class FilterManager {
             }
         }
 
-        public ArrayList<String> getAsList() {
+        ArrayList<String> getAsList() {
             return mTypes;
         }
     }

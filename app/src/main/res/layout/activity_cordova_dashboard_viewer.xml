@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:orientation="vertical">
+    android:background="@android:color/white">
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -14,7 +13,29 @@
         android:layout_marginTop="-6dp" />
 
     <org.apache.cordova.CordovaWebView
-        android:id="@+id/cordova"
+        android:id="@+id/webView"
+        android:visibility="invisible"
+        android:layout_below="@id/progressBar"
+        android:layout_above="@+id/paginationControl"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-</LinearLayout>
+
+    <TextView
+        android:id="@android:id/empty"
+        android:text="@string/rv_error_empty_report"
+        android:textColor="@android:color/black"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView_
+        android:id="@+id/paginationControl"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="#454850"
+        android:padding="4dp"
+        />
+</RelativeLayout>

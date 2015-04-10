@@ -35,6 +35,7 @@
     <ProgressBar
         style="@style/Widget.AppCompat.ProgressBar"
         android:id="@+id/progressBar"
+        android:layout_centerInParent="true"
         android:visibility="gone"
         android:padding="2dp"
         android:layout_height="36dp"

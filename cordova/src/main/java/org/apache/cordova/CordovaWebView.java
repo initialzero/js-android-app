@@ -184,9 +184,9 @@ public class CordovaWebView extends WebView {
         this.setInitialScale(0);
         this.setVerticalScrollBarEnabled(false);
         // TODO: The Activity is the one that should call requestFocus().
-        if (shouldRequestFocusOnInit()) {
-			this.requestFocusFromTouch();
-		}
+//        if (shouldRequestFocusOnInit()) {
+//			this.requestFocusFromTouch();
+//		}
 		// Enable JavaScript
         WebSettings settings = this.getSettings();
         settings.setJavaScriptEnabled(true);

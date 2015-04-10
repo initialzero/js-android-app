@@ -81,6 +81,16 @@
             android:label="@string/ro_page_title"
             android:windowSoftInputMode="stateHidden" />
 
+        <!-- Activity that performs report viewing in HTML format through visualize -->
+        <activity
+            android:name=".activities.viewer.html.report.ReportViewerActivity_"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.navigation.NavigationActivity_" />
+        </activity>
+
         <!-- Activity that performs report viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
@@ -98,24 +108,19 @@
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.dashboard.DashboardViewerActivity_"
+            android:name=".activities.viewer.html.dashboard.Amber2DashboardActivity_"
             android:windowSoftInputMode="adjustPan"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
-        </activity>
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <activity
-            android:name=".activities.viewer.html.dashboard.CordovaDashboardActivity_"
+            android:name=".activities.viewer.html.dashboard.AmberDashboardActivity_"
             android:windowSoftInputMode="adjustPan"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
-        </activity>
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+
+        <activity
+            android:name=".activities.viewer.html.dashboard.LegacyDashboardViewerActivity_"
+            android:windowSoftInputMode="adjustPan"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <!-- Activity that performs report saving to the local storage -->
         <activity

@@ -4,9 +4,9 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -35,9 +35,9 @@ class FolderResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void bindView(ResourceView resourceView, ResourceLookup item) {
+    public void bindView(ResourceView resourceView, ResourceAdapter.KpiResourceLookup item) {
         super.bindView(resourceView, item);
-        resourceView.setTimeStamp(formatDateString(item.getCreationDate()));
+        resourceView.setTimeStamp(formatDateString(item.getResource().getCreationDate()));
     }
 
     @Override

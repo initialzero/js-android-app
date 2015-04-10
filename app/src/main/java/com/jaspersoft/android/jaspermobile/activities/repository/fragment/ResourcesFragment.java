@@ -40,7 +40,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -490,13 +489,12 @@ public class ResourcesFragment extends RoboSpiceFragment
             Properties properties = new Properties();
             try {
                 properties.load(response.getBody().in());
-            } catch (IOException e) {
-                Toast.makeText(getActivity(), "Failed to decode kpi properties cache", Toast.LENGTH_SHORT).show();
+            } catch (IOException error) {
+                Timber.e(error, "Failed to decode kpi properties cache");
             }
             populateUi(properties);
         } catch (RetrofitError error) {
             Timber.e(error, error.getMessage());
-            Toast.makeText(getActivity(), "Failed to extract cache", Toast.LENGTH_SHORT).show();
         } catch (JasperAccountManager.TokenException e) {
             // Ignoring error that is POC
         }

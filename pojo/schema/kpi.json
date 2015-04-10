@@ -1,0 +1,13 @@
+{
+    "description": "Represents KPI json export data.",
+    "type": "object",
+    "properties": {
+        "title": { "type": "string" },
+        "value": { "type": "integer" },
+        "target": { "type": "integer" },
+        "widget": { "type": "string" },
+        "lastUpdate": { "type": "string" },
+        "tresholdtype": { "type": "string" },
+        "targetPattern": { "type": "string" }
+    }
+}

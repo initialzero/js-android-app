@@ -80,7 +80,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceAdapter.Kp
             }
         }
 
-        viewHelper.populateView(itemView, getItem(position).getResource());
+        viewHelper.populateView(itemView, getItem(position));
         return (View) itemView;
     }
 

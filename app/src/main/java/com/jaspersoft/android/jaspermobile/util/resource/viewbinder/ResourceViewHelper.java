@@ -26,8 +26,8 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
  * @author Tom Koptel
@@ -41,8 +41,8 @@ public class ResourceViewHelper {
         mContext = context;
     }
 
-    public void populateView(ResourceView resourceView, ResourceLookup item) {
-        String type = item.getResourceType().toString();
+    public void populateView(ResourceView resourceView, ResourceAdapter.KpiResourceLookup item) {
+        String type = item.getResource().getResourceType().toString();
         ResourceBinder resourceBinder = ResourceBinderFactory.create(mContext, type);
         resourceBinder.bindView(resourceView, item);
     }

@@ -11,31 +11,20 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.ojm.Kpi;
-import com.jaspersoft.android.retrofit.sdk.rest.service.KpiModule;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import retrofit.Callback;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import roboguice.RoboGuice;
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-class ReportResourceBinder extends ResourceBinder {
+class ReportResourceBinder extends SimpleResourceBinder {
     private final int mAnimationSpeed;
     private final boolean isAmberOrHigher;
 
@@ -59,44 +48,13 @@ class ReportResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(ImageView imageView, String uri) {
-        if (isKpi()) {
-            imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
+        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
 
-            final Context context = imageView.getContext();
-            JasperAccountManager accountManager = JasperAccountManager.get(context);
-            AccountServerData serverData = AccountServerData.get(context, accountManager.getActiveAccount());
-
-            try {
-                String cookie = accountManager.getActiveAuthToken();
-                String endpoint = serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION;
-                RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(endpoint).build();
-                KpiModule module = restAdapter.create(KpiModule.class);
-
-                module.getKpi(cookie,
-                        String.format("%s%s", uri, "_files/KPI.json"),
-                        new Callback<Collection<Kpi>>() {
-                    @Override
-                    public void success(Collection<Kpi> kpiResponse, Response response) {
-                        Kpi kpi = new ArrayList<Kpi>(kpiResponse).get(0);
-                        Timber.i("KPI SUCCESS");
-                    }
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Timber.e(error, error.getMessage());
-                    }
-                });
-            } catch (JasperAccountManager.TokenException e) {
-                // Ignoring error that is POC
-            }
+        if (isAmberOrHigher) {
+            loadFromNetwork(imageView, uri);
         } else {
-            imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-
-            if (isAmberOrHigher) {
-                loadFromNetwork(imageView, uri);
-            } else {
-                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                imageView.setImageResource(R.drawable.placeholder_report);
-            }
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            imageView.setImageResource(R.drawable.placeholder_report);
         }
     }
 

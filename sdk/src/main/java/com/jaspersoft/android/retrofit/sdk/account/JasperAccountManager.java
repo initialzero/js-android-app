@@ -182,6 +182,21 @@ public class JasperAccountManager {
         return getAuthToken(activeAccount);
     }
 
+    public Observable<String> getNonBlockingActiveAuthToken() {
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                Account activeAccount = getActiveAccount();
+                try {
+                    subscriber.onNext(getAuthToken(activeAccount));
+                    subscriber.onCompleted();
+                } catch (TokenException e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
+    }
+
     public void invalidateActiveToken() {
         AccountManager accountManager = AccountManager.get(mContext);
         String tokenToInvalidate = accountManager.peekAuthToken(getActiveAccount(), JasperSettings.JASPER_AUTH_TOKEN_TYPE);

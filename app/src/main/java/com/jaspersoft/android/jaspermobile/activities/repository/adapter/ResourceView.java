@@ -24,7 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * @author Tom Koptel
@@ -32,13 +35,21 @@ import android.widget.ImageView;
  */
 public interface ResourceView {
 
-    void setTitle(CharSequence title);
+    @NonNull
+    TextView getTitleView();
 
-    void setSubTitle(CharSequence subTitle);
+    @Nullable
+    TextView getSubTitleView();
 
-    void setTimeStamp(CharSequence timestamp);
+    @Nullable
+    TextView getTimeStampView();
 
-    void setMisc(CharSequence misc);
+    @Nullable
+    TextView getMiscView();
 
+    @Nullable
+    ImageView getKpiImage();
+
+    @NonNull
     ImageView getImageView();
 }

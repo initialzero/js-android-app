@@ -10,7 +10,7 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
  * @author Tom Koptel
  * @since 1.9
  */
-class DashboardResourceBinder extends ResourceBinder {
+class DashboardResourceBinder extends SimpleResourceBinder {
     public DashboardResourceBinder(Context context) {
         super(context);
     }

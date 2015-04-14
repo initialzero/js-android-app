@@ -20,7 +20,7 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-class FolderResourceBinder extends ResourceBinder {
+class FolderResourceBinder extends SimpleResourceBinder {
 
     private static final String FIRST_INITIAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String SECOND_INITIAL_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -37,7 +37,7 @@ class FolderResourceBinder extends ResourceBinder {
     @Override
     public void bindView(ResourceView resourceView, ResourceAdapter.KpiResourceLookup item) {
         super.bindView(resourceView, item);
-        resourceView.setTimeStamp(formatDateString(item.getResource().getCreationDate()));
+        resourceView.getTimeStampView().setText(formatDateString(item.getResource().getCreationDate()));
     }
 
     @Override

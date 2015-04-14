@@ -8,6 +8,7 @@
         "widget": { "type": "string" },
         "lastUpdate": { "type": "string" },
         "tresholdtype": { "type": "string" },
-        "targetPattern": { "type": "string" }
+        "targetPattern": { "type": "string" },
+        "valuePattern": { "type": "string" }
     }
 }

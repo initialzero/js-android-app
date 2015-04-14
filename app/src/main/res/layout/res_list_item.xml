@@ -25,13 +25,26 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
-        android:id="@android:id/icon"
+    <FrameLayout
+        android:id="@+id/iconContainer"
         android:layout_width="@dimen/list_item_image_width"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:contentDescription="@string/img_cd_list_item"
-        android:scaleType="fitXY" />
+        android:layout_height="match_parent">
+
+        <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
+            android:id="@android:id/icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:contentDescription="@string/img_cd_list_item"
+            android:scaleType="fitXY" />
+
+        <ImageView
+            android:id="@+id/kpiImage"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp" />
+    </FrameLayout>
 
     <CheckedTextView
         android:id="@android:id/text1"
@@ -41,8 +54,8 @@
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginTop="8dp"
-        android:layout_toEndOf="@android:id/icon"
-        android:layout_toRightOf="@android:id/icon"
+        android:layout_toEndOf="@id/iconContainer"
+        android:layout_toRightOf="@id/iconContainer"
         android:ellipsize="end"
         android:textColor="@color/list_label_grey"
         tools:text="Large Text" />
@@ -56,9 +69,9 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
-        android:layout_toEndOf="@android:id/icon"
+        android:layout_toEndOf="@id/iconContainer"
         android:layout_toLeftOf="@+id/miscStub"
-        android:layout_toRightOf="@android:id/icon"
+        android:layout_toRightOf="@id/iconContainer"
         android:layout_toStartOf="@+id/miscStub"
         android:ellipsize="end"
         android:textColor="@color/list_label_light_grey"

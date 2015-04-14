@@ -251,9 +251,9 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     @ItemClick(android.R.id.list)
-    public void onItemClick(ResourceLookup resource) {
+    public void onItemClick(ResourceAdapter.KpiResourceLookup item) {
         mAdapter.finishActionMode();
-        resourceOpener.openResource(this, resource);
+        resourceOpener.openResource(this, item.getResource());
     }
 
     //---------------------------------------------------------------------
@@ -510,12 +510,9 @@ public class ResourcesFragment extends RoboSpiceFragment
         List<ResourceAdapter.KpiResourceLookup> datum = new ArrayList<>(lookups.size());
 
         for (ResourceLookup lookup : lookups) {
-            String resultKpiUri = null;
-            for (String kpiUri : properties.stringPropertyNames()) {
-                if (lookup.getUri().equals(properties.get(kpiUri))) {
-                    resultKpiUri = kpiUri;
-                    break;
-                }
+            String resultKpiUri = lookup.getUri() + "_files/KPI";
+            if (!properties.keySet().contains(resultKpiUri)) {
+                resultKpiUri = null;
             }
             datum.add(new ResourceAdapter.KpiResourceLookup(resultKpiUri, lookup));
         }

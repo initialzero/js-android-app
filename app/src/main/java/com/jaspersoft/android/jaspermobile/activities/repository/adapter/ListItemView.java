@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.ViewStub;
 import android.widget.AbsListView;
@@ -46,6 +48,8 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;
+    @ViewById
+    protected ImageView kpiImage;
     @ViewById(android.R.id.text1)
     protected TextView mTitleTxt;
     @ViewById(android.R.id.text2)
@@ -80,23 +84,23 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
         setLayoutParams(params);
     }
 
+    @NonNull
     @Override
-    public void setTitle(CharSequence title) {
-        mTitleTxt.setText(title);
+    public TextView getTitleView() {
+        return mTitleTxt;
     }
 
+    @Nullable
     @Override
-    public void setSubTitle(CharSequence subTitle) {
-        mSubTitle.setText(subTitle);
+    public TextView getSubTitleView() {
+        return mSubTitle;
     }
 
+    @Nullable
     @Override
-    public void setTimeStamp(CharSequence timestamp) {
-        if (mTimestampStub != null) {
-            if (mTimestampTxt == null) {
-                mTimestampTxt = (TextView) mTimestampStub.inflate();
-            }
-            mTimestampTxt.setText(timestamp);
+    public TextView getTimeStampView() {
+        if (mTimestampStub != null && mTimestampTxt == null) {
+            mTimestampTxt = (TextView) mTimestampStub.inflate();
 
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mTitleTxt.getLayoutParams();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -105,15 +109,14 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
             params.addRule(LEFT_OF, mTimestampTxt.getId());
             mTitleTxt.setLayoutParams(params);
         }
+        return mTimestampTxt;
     }
 
+    @Nullable
     @Override
-    public void setMisc(CharSequence misc) {
-        if (mMiscStub != null) {
-            if (mMiscTxt == null) {
-                mMiscTxt = (TextView) mMiscStub.inflate();
-            }
-            mMiscTxt.setText(misc);
+    public TextView getMiscView() {
+        if (mMiscStub != null && mMiscTxt == null) {
+            mMiscTxt = (TextView) mMiscStub.inflate();
 
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mSubTitle.getLayoutParams();
             params.addRule(LEFT_OF, mMiscTxt.getId());
@@ -122,8 +125,16 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
             }
             mSubTitle.setLayoutParams(params);
         }
+        return mMiscTxt;
     }
 
+    @Nullable
+    @Override
+    public ImageView getKpiImage() {
+        return kpiImage;
+    }
+
+    @NonNull
     @Override
     public ImageView getImageView() {
         return mImageIcon;

@@ -25,6 +25,8 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.ViewStub;
 import android.widget.AbsListView;
@@ -77,34 +79,44 @@ public class GridItemView extends CheckedRelativeLayout implements ResourceView 
         setLayoutParams(params);
     }
 
-    public void setTitle(CharSequence title) {
-        mTitleTxt.setText(title);
+    @NonNull
+    @Override
+    public TextView getTitleView() {
+        return mTitleTxt;
     }
 
-    public void setSubTitle(CharSequence subTitle) {
-        if (mSubTitle != null) {
-            mSubTitle.setText(subTitle);
+    @Nullable
+    @Override
+    public TextView getSubTitleView() {
+        return mSubTitle;
+    }
+
+    @Nullable
+    @Override
+    public TextView getTimeStampView() {
+        if (mTimestampStub != null && mTimestampTxt == null) {
+            mTimestampTxt = (TextView) mTimestampStub.inflate();
         }
+        return mTimestampTxt;
     }
 
-    public void setTimeStamp(CharSequence timestamp) {
-        if (mTimestampStub != null) {
-            if (mTimestampTxt == null) {
-                mTimestampTxt = (TextView) mTimestampStub.inflate();
-            }
-            mTimestampTxt.setText(timestamp);
+    @Nullable
+    @Override
+    public TextView getMiscView() {
+        if (mMiscStub != null && mMiscTxt == null) {
+            mMiscTxt = (TextView) mMiscStub.inflate();
         }
+        return mMiscTxt;
     }
 
-    public void setMisc(CharSequence misc) {
-        if (mMiscStub != null) {
-            if (mMiscTxt == null) {
-                mMiscTxt = (TextView) mMiscStub.inflate();
-            }
-            mMiscTxt.setText(misc);
-        }
+    @Nullable
+    @Override
+    public ImageView getKpiImage() {
+        return null;
     }
 
+    @NonNull
+    @Override
     public ImageView getImageView() {
         return mImageIcon;
     }

@@ -42,9 +42,8 @@ public class ResourceViewHelper {
     }
 
     public void populateView(ResourceView resourceView, ResourceAdapter.KpiResourceLookup item) {
-        String type = item.getResource().getResourceType().toString();
-        ResourceBinder resourceBinder = ResourceBinderFactory.create(mContext, type);
+        ResourceBinderFactory factory = ResourceBinderFactory.newInstance();
+        ResourceBinder resourceBinder = factory.create(mContext, item);
         resourceBinder.bindView(resourceView, item);
     }
-
 }

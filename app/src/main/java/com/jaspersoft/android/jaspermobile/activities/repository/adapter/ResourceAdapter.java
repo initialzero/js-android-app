@@ -39,6 +39,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewTyp
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceAdapterHelper;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewHelper;
+import com.jaspersoft.android.retrofit.sdk.ojm.Kpi;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;
@@ -179,6 +180,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceAdapter.Kp
 
     public static class KpiResourceLookup {
         private final String kpiUri;
+        private Kpi kpiCache;
         private final ResourceLookup resource;
 
         public KpiResourceLookup(String kpiUri, ResourceLookup resource) {
@@ -192,6 +194,14 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceAdapter.Kp
 
         public ResourceLookup getResource() {
             return resource;
+        }
+
+        public Kpi getKpiCache() {
+            return kpiCache;
+        }
+
+        public void setKpiCache(Kpi kpiCache) {
+            this.kpiCache = kpiCache;
         }
     }
 }

@@ -110,15 +110,17 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         String fileName = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
 
         TopCropImageView iconView = (TopCropImageView) itemView.getImageView();
-        if (iconView != null) {
-            iconView.setImageResource(getFileIconByExtension(fileFormat));
-            iconView.setBackgroundResource(R.drawable.bg_gradient_grey);
-            iconView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
-        }
+        iconView.setImageResource(getFileIconByExtension(fileFormat));
+        iconView.setBackgroundResource(R.drawable.bg_gradient_grey);
+        iconView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
 
-        itemView.setTitle(fileName);
-        itemView.setTimeStamp(getHumanReadableFileSize(file));
-        itemView.setSubTitle(getFormattedDateModified(creationTime));
+        itemView.getTitleView().setText(fileName);
+        if (itemView.getTimeStampView() != null) {
+            itemView.getTimeStampView().setText(getHumanReadableFileSize(file));
+        }
+        if (itemView.getSubTitleView() != null) {
+            itemView.getSubTitleView().setText(getFormattedDateModified(creationTime));
+        }
 
         return (View) itemView;
     }

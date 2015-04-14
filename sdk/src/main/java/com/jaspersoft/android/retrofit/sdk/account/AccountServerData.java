@@ -195,10 +195,10 @@ public class AccountServerData {
 
     public static class Demo {
         public static final String ALIAS = "Mobile Demo";
-        public static final String SERVER_URL = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
-        public static final String ORGANIZATION = "organization_1";
-        public static final String USERNAME = "phoneuser";
-        public static final String PASSWORD = "phoneuser";
+        public static final String SERVER_URL = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
+        public static final String ORGANIZATION = "";
+        public static final String USERNAME = "superuser";
+        public static final String PASSWORD = "superuser";
 
         private Demo() {
             throw new AssertionError();

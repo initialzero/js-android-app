@@ -215,7 +215,7 @@ public class AuthenticatorFragment extends RoboFragment {
             demoSubscription.unsubscribe();
         }
 
-        JsRestClient2 restClient = JsRestClient2.forEndpoint(demoServerUrl);
+        JsRestClient2 restClient = JsRestClient2.forEndpoint(demoServerUrl + JasperSettings.DEFAULT_REST_VERSION);
         Observable<LoginResponse> tryDemoObservable = restClient.login(
                 AccountServerData.Demo.ORGANIZATION,
                 AccountServerData.Demo.USERNAME,

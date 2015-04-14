@@ -1,13 +1,13 @@
 {
 	"profiles" : [
 	    {
-			"alias" : "MobileDemo 6.0.1",
-			"serverUrl" : "http://mobiledemo2.jaspersoft.com/jasperserver-pro",
-			"organization" : "",
-			"username" : "superuser",
-			"password" : "superuser",
+			"alias" : "Legacy MobileDemo 5.5",
+			"serverUrl" : "http://mobiledemo.jaspersoft.com/jasperserver-pro",
+			"organization" : "organization_1",
+			"username" : "phoneuser",
+			"password" : "phoneuser",
 			"edition": "PRO",
-			"versionName": "6.0.1"
+			"versionName": "5.5"
 		}
 	]
 }

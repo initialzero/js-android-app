@@ -166,11 +166,21 @@
 			"alias" : "PRO 5.5 JoeUser",
 			"serverUrl" : "http://192.168.88.44:8084/jasperserver-pro-5.5",
 			"organization" : "organization_1",
+
 			"username" : "joeuser",
 			"password" : "joeuser",
             "edition": "PRO",
             "versionName": "5.5"
 		},
+        {
+            "alias" : "Legacy MobileDemo 5.5",
+            "serverUrl" : "http://mobiledemo.jaspersoft.com/jasperserver-pro",
+            "organization" : "organization_1",
+            "username" : "phoneuser",
+            "password" : "phoneuser",
+            "edition": "PRO",
+            "versionName": "5.5"
+        },
 		{
             "alias" : "CE TRUNK Adminuser", 
             "serverUrl" : "http://build-master.jaspersoft.com:6080/jrs-ce-trunk-ce",

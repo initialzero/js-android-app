@@ -36,7 +36,7 @@
         Android.onLoadStart();
       };
 
-      AndroidCallback.prototype.onLoadDone = function() {
+      AndroidCallback.prototype.onLoadDone = function(components) {
         Android.onLoadDone();
       };
 
@@ -220,6 +220,7 @@
       };
 
       DashboardController.prototype._configureDashboard = function() {
+        this._createCustomOverlays();
         this._scaleDashboard();
         this._overrideDashletTouches();
         this._disableDashlets();
@@ -229,30 +230,41 @@
       DashboardController.prototype._removeRedundantArtifacts = function() {
         var customStyle;
         this.logger.log("remove artifacts");
-        customStyle = ".header, .dashletToolbar, .show_chartTypeSelector_wrapper { display: none !important; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } #mainNavigation{ display: none !important; }";
+        customStyle = ".header, .dashletToolbar, .show_chartTypeSelector_wrapper { display: none !important; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } #mainNavigation{ display: none !important; } .customOverlay { position: absolute; width: 100%; height: 100%; z-index: 1000; }";
         return jQuery('<style id="custom_mobile"></style').text(customStyle).appendTo('head');
       };
 
-      DashboardController.prototype._disableDashlets = function() {
-        var dashletElements, dashlets;
-        this.logger.log("disable dashlet touches");
+      DashboardController.prototype._createCustomOverlays = function() {
+        var dashletElements;
         dashletElements = jQuery('.dashlet').not(jQuery('.inputControlWrapper').parentsUntil('.dashlet').parent());
-        dashlets = new View({
-          el: dashletElements,
-          context: this.context
+        return jQuery.each(dashletElements, function(key, value) {
+          var dashlet, overlay;
+          dashlet = jQuery(value);
+          overlay = jQuery("<div></div>");
+          overlay.addClass("customOverlay");
+          return dashlet.prepend(overlay);
         });
-        return dashlets.disable();
+      };
+
+      DashboardController.prototype._disableDashlets = function() {
+        this.logger.log("disable dashlet touches");
+        return jQuery('.customOverlay').css('display', 'block');
+      };
+
+      DashboardController.prototype._enableDashlets = function() {
+        this.logger.log("enable dashlet touches");
+        return jQuery('.customOverlay').css('display', 'none');
       };
 
       DashboardController.prototype._overrideDashletTouches = function() {
         var dashlets, self;
         this.logger.log("override dashlet touches");
-        dashlets = jQuery('div.dashboardCanvas > div.content > div.body > div');
+        dashlets = jQuery('.customOverlay');
         dashlets.unbind();
         self = this;
         return dashlets.click(function() {
           var dashlet, innerLabel, title;
-          dashlet = jQuery(this);
+          dashlet = jQuery(this).parent();
           innerLabel = dashlet.find('.innerLabel > p');
           if ((innerLabel != null) && (innerLabel.text != null)) {
             title = innerLabel.text();
@@ -264,14 +276,9 @@
       };
 
       DashboardController.prototype._maximizeDashlet = function(dashlet, title) {
-        var button, dashletElements, dashlets;
+        var button;
         this.logger.log("maximizing dashlet");
-        dashletElements = jQuery('.dashlet').not(jQuery('.inputControlWrapper').parentsUntil('.dashlet').parent());
-        dashlets = new View({
-          el: dashletElements,
-          context: this.context
-        });
-        dashlets.enable();
+        this._enableDashlets();
         this.callback.onMaximizeStart(title);
         button = jQuery(jQuery(dashlet).find('div.dashletToolbar > div.content div.buttons > .maximizeDashletButton')[0]);
         button.click();

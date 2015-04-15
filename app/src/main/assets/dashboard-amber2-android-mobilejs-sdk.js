@@ -98,6 +98,10 @@
         this.scaler = new Scaler;
       }
 
+      DashboardController.prototype.destroyDashboard = function() {
+        return this.dashboard.destroy();
+      };
+
       DashboardController.prototype.refreshDashlet = function() {
         if (this.maximizedComponent) {
           return this.dashboard.refresh(this.maximizedComponent.id);
@@ -139,7 +143,7 @@
         self = this;
         return visualize(this.session.authOptions(), function(v) {
           self.v = v;
-          self.scaler.scale(0.25);
+          self.scaler.scale(0.5);
           return self.dashboard = v.dashboard({
             report: {
               chart: {
@@ -157,7 +161,7 @@
               self._scaleContainer();
               self._configureComponents();
               self._defineComponentsClickEvent();
-              return self.callback.onLoadDone();
+              return self.callback.onLoadDone(self.components);
             },
             linkOptions: {
               events: {
@@ -295,6 +299,10 @@
         return this._instance.run(options);
       };
 
+      MobileDashboard.destroy = function() {
+        return this._instance.destroy();
+      };
+
       MobileDashboard.minimizeDashlet = function() {
         return this._instance.minimizeDashlet();
       };
@@ -307,13 +315,25 @@
         return this._instance.refresh();
       };
 
+      MobileDashboard.prototype.authorize = function(options) {
+        return this.session = new Session(options);
+      };
+
+      MobileDashboard.authorize = function(options) {
+        return this._instance.authorize(options);
+      };
+
       function MobileDashboard(context1) {
         this.context = context1;
         this.context.callback.onScriptLoaded();
       }
 
+      MobileDashboard.prototype.destroy = function() {
+        return this.dashboardController.destroyDashboard();
+      };
+
       MobileDashboard.prototype.run = function(options) {
-        options.session = new Session(options);
+        options.session = this.session;
         options.context = this.context;
         this.dashboardController = new DashboardController(options);
         return this.dashboardController.runDashboard();
@@ -378,7 +398,7 @@
         Android.onLoadStart();
       };
 
-      AndroidCallback.prototype.onLoadDone = function() {
+      AndroidCallback.prototype.onLoadDone = function(components) {
         Android.onLoadDone();
       };
 

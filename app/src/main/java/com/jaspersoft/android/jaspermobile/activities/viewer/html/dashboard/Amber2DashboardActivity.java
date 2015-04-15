@@ -216,20 +216,27 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     private void runDashboard() {
         String organization = TextUtils.isEmpty(accountServerData.getOrganization())
                 ? "" : accountServerData.getOrganization();
+
         StringBuilder builder = new StringBuilder();
-        builder.append("javascript:MobileDashboard.run")
+        builder.append("javascript:MobileDashboard.authorize")
                 .append("({")
-                .append("\"uri\": \"%s\",")
                 .append("\"username\": \"%s\",")
                 .append("\"password\": \"%s\",")
                 .append("\"organization\": \"%s\"")
                 .append("})");
-
-        String executeScript = String.format(builder.toString(),
-                resource.getUri(),
+        String authScript = String.format(builder.toString(),
                 accountServerData.getUsername(),
                 accountServerData.getPassword(),
                 organization);
+        webView.loadUrl(authScript);
+
+        builder = new StringBuilder();
+        builder.append("javascript:MobileDashboard.run")
+                .append("({")
+                .append("\"uri\": \"%s\",")
+                .append("})");
+        String executeScript = String.format(builder.toString(),
+                resource.getUri());
         webView.loadUrl(executeScript);
     }
 }

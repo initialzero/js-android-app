@@ -38,7 +38,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -567,8 +566,8 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
                         if (slaveControl.isVisible()) {
                             switch (slaveControl.getType()) {
                                 case bool:
-                                    CheckBox checkBox = (CheckBox) slaveControl.getInputView();
-                                    checkBox.setChecked(Boolean.parseBoolean(state.getValue()));
+                                    Switch icBool = (Switch) slaveControl.getInputView();
+                                    icBool.setChecked(Boolean.parseBoolean(state.getValue()));
                                     break;
                                 case singleValueText:
                                 case singleValueNumber:

@@ -34,6 +34,7 @@ public enum ServerRelease {
     EMERALD_MR1(5.2d),
     EMERALD_MR2(5.5d),
     EMERALD_MR3(5.6d),
+    EMERALD_MR4(5.61d),
     AMBER(6.0d),
     AMBER_MR1(6.01d),
     AMBER_MR2(6.1d),

@@ -29,6 +29,7 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
@@ -141,7 +142,9 @@ public class KpiResourceBinder extends ReportResourceBinder {
                 .append(String.format("%.2f", resultTarget))
                 .append("%</font>")
                 .append("<font style=\"color: grey\">");
-        for (int i = 0; i < 30; i++) {
+
+        int count = resourceView.getMiscView() == null ? 30 : 10;
+        for (int i = 0; i < count; i++) {
             resultHtml.append("&nbsp;");
         }
         resultHtml
@@ -149,8 +152,17 @@ public class KpiResourceBinder extends ReportResourceBinder {
                 .append("</font>")
                 .append("</span>")
                 .toString();
-        if (resourceView.getSubTitleView() != null) {
-            resourceView.getSubTitleView().setText(Html.fromHtml(resultHtml.toString()));
+
+        if (resourceView.getMiscView() == null) {
+            TextView subTextView = resourceView.getSubTitleView();
+            if (subTextView != null) {
+                subTextView.setText("");
+                subTextView.setText(Html.fromHtml(resultHtml.toString()));
+            }
+        } else {
+            TextView miscView = resourceView.getMiscView();
+            miscView.setVisibility(View.VISIBLE);
+            miscView.setText(Html.fromHtml(resultHtml.toString()));
         }
     }
 

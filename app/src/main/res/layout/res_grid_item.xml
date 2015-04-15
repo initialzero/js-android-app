@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright © 2014 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -30,24 +29,57 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
-            android:contentDescription="@string/img_cd_grid_item"
-            android:id="@android:id/icon"
+        <FrameLayout
+            android:id="@+id/iconContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            tools:background="@drawable/bg_gradient_grey"
-            android:layout_above="@android:id/text1"
-            android:background="@android:color/white"/>
+            android:layout_above="@+id/title">
 
-        <CheckedTextView
-            android:id="@android:id/text1"
-            style="@style/grid.item.title"
+            <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
+                android:id="@android:id/icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@android:id/text1"
+                android:background="@android:color/white"
+                android:contentDescription="@string/img_cd_grid_item"
+                android:scaleType="fitXY"
+                tools:background="@drawable/bg_gradient_grey" />
+
+            <ImageView
+                android:id="@+id/kpiImage"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            tools:text="Large Text"
-            android:layout_alignParentBottom="true" />
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+            <CheckedTextView
+                android:id="@android:id/text1"
+                style="@style/grid.item.title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                tools:text="Large Text" />
+
+            <CheckedTextView
+                android:id="@+id/misc"
+                style="@style/list2.item.subTitle"
+                android:layout_margin="4dp"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:textColor="@color/list_label_light_grey"
+                tools:text="new text" />
+        </LinearLayout>
 
     </RelativeLayout>
 

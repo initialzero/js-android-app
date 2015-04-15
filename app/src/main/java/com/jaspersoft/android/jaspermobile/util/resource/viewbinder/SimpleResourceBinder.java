@@ -38,6 +38,10 @@ abstract class SimpleResourceBinder implements ResourceBinder {
         if (resourceView.getSubTitleView() != null) {
             resourceView.getSubTitleView().setText(item.getDescription());
         }
+
+        if (resourceView.getMiscView() != null) {
+            resourceView.getMiscView().setVisibility(View.GONE);
+        }
     }
 
     public Context getContext() {

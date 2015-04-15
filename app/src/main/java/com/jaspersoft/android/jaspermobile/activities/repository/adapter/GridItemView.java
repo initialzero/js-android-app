@@ -46,6 +46,8 @@ public class GridItemView extends CheckedRelativeLayout implements ResourceView 
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;
+    @ViewById(R.id.kpiImage)
+    protected ImageView kpiImage;
     @ViewById(android.R.id.text1)
     protected TextView mTitleTxt;
     @ViewById(android.R.id.text2)
@@ -54,6 +56,8 @@ public class GridItemView extends CheckedRelativeLayout implements ResourceView 
     protected ViewStub mTimestampStub;
     @ViewById(R.id.miscStub)
     protected ViewStub mMiscStub;
+    @ViewById(R.id.misc)
+    protected TextView mMiscTextView;
 
     protected TextView mTimestampTxt;
     protected TextView mMiscTxt;
@@ -103,6 +107,9 @@ public class GridItemView extends CheckedRelativeLayout implements ResourceView 
     @Nullable
     @Override
     public TextView getMiscView() {
+        if (mMiscTextView != null) {
+            return mMiscTextView;
+        }
         if (mMiscStub != null && mMiscTxt == null) {
             mMiscTxt = (TextView) mMiscStub.inflate();
         }
@@ -112,7 +119,7 @@ public class GridItemView extends CheckedRelativeLayout implements ResourceView 
     @Nullable
     @Override
     public ImageView getKpiImage() {
-        return null;
+        return kpiImage;
     }
 
     @NonNull

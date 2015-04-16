@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -86,6 +87,15 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
 
     private Uri favoriteEntryUri;
     private FavoritesHelper_ favoritesHelper;
+    private final Handler mHandler = new Handler();
+    private final Runnable mZoomOutTask = new Runnable() {
+        @Override
+        public void run() {
+            if (webView.zoomOut()) {
+                mHandler.postDelayed(this, 100);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +179,12 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     }
 
     @Override
+    protected void onPause() {
+        mHandler.removeCallbacks(mZoomOutTask);
+        super.onPause();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
 
@@ -178,9 +194,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     }
 
     protected void resetZoom() {
-        while (webView.zoomOut()) {
-            webView.zoomOut();
-        }
+        mZoomOutTask.run();
     }
 
     private void favoriteAction() {

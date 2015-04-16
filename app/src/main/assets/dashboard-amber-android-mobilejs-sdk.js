@@ -162,8 +162,9 @@
     var DashboardController, View;
     View = require('js.mobile.amber.dashboard.view');
     return DashboardController = (function() {
-      function DashboardController(context) {
+      function DashboardController(context, viewport) {
         this.context = context;
+        this.viewport = viewport;
         this.logger = this.context.logger;
         this.callback = this.context.callback;
         this.container = new View({
@@ -189,9 +190,7 @@
       };
 
       DashboardController.prototype._injectViewport = function() {
-        var viewPort;
-        viewPort = document.querySelector('meta[name=viewport]');
-        return viewPort.setAttribute('content', "target-densitydpi=device-dpi, height=device-height, width=device-width, user-scalable=yes");
+        return this.viewport.configure();
       };
 
       DashboardController.prototype._scaleDashboard = function() {
@@ -317,8 +316,8 @@
     MobileDashboard = (function() {
       MobileDashboard._instance = null;
 
-      MobileDashboard.getInstance = function(context) {
-        return this._instance || (this._instance = new MobileDashboard(context));
+      MobileDashboard.getInstance = function(context, viewport) {
+        return this._instance || (this._instance = new MobileDashboard(context, viewport));
       };
 
       MobileDashboard.run = function() {
@@ -329,8 +328,9 @@
         return this._instance.minimizeDashlet();
       };
 
-      function MobileDashboard(context1) {
+      function MobileDashboard(context1, viewport1) {
         this.context = context1;
+        this.viewport = viewport1;
         this.context.callback.onScriptLoaded();
       }
 
@@ -338,7 +338,7 @@
         var window;
         window = new DashboardWindow('100%', '100%');
         this.context.setWindow(window);
-        this.dashboardController = new DashboardController(this.context);
+        this.dashboardController = new DashboardController(this.context, this.viewport);
         return this.dashboardController.initialize();
       };
 
@@ -356,22 +356,43 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.android.dashboard.callback','js.mobile.android.logger','js.mobile.context','js.mobile.amber.dashboard'],function(require) {
-    var AndroidCallback, AndroidClient, AndroidLogger, Context, MobileDashboard;
+  define('js.mobile.android.viewport.dashboard.amber', [],function() {
+    var Viewport;
+    return Viewport = (function() {
+      function Viewport() {}
+
+      Viewport.prototype.configure = function() {
+        var viewPort;
+        viewPort = document.querySelector('meta[name=viewport]');
+        return viewPort.setAttribute('content', "target-densitydpi=device-dpi, height=device-height, width=device-width, user-scalable=yes");
+      };
+
+      return Viewport;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.android.dashboard.callback','js.mobile.android.logger','js.mobile.context','js.mobile.amber.dashboard','js.mobile.android.viewport.dashboard.amber'],function(require) {
+    var AndroidCallback, AndroidClient, AndroidLogger, Context, MobileDashboard, Viewport;
     AndroidCallback = require('js.mobile.android.dashboard.callback');
     AndroidLogger = require('js.mobile.android.logger');
     Context = require('js.mobile.context');
     MobileDashboard = require('js.mobile.amber.dashboard');
+    Viewport = require('js.mobile.android.viewport.dashboard.amber');
     return AndroidClient = (function() {
       function AndroidClient() {}
 
       AndroidClient.prototype.run = function() {
-        var context;
+        var context, viewport;
         context = new Context({
           callback: new AndroidCallback(),
           logger: new AndroidLogger()
         });
-        MobileDashboard.getInstance(context);
+        viewport = new Viewport();
+        MobileDashboard.getInstance(context, viewport);
         return MobileDashboard.run();
       };
 

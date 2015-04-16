@@ -36,6 +36,10 @@
         Android.onReportExecutionClick(reportUri, params);
       };
 
+      ReportCallback.prototype.onExportGetResourcePath = function(link) {
+        return Android.onExportGetResourcePath(link);
+      };
+
       return ReportCallback;
 
     })();
@@ -133,6 +137,7 @@
     var ReportController;
     return ReportController = (function() {
       function ReportController(options) {
+        this._exportResource = bind(this._exportResource, this);
         this._notifyPageChange = bind(this._notifyPageChange, this);
         this._openRemoteLink = bind(this._openRemoteLink, this);
         this._navigateToPage = bind(this._navigateToPage, this);
@@ -143,12 +148,13 @@
         this._processSuccess = bind(this._processSuccess, this);
         this._processChangeTotalPages = bind(this._processChangeTotalPages, this);
         this._executeReport = bind(this._executeReport, this);
-        this.context = options.context, this.session = options.session, this.uri = options.uri, this.params = options.params;
+        this.context = options.context, this.session = options.session, this.uri = options.uri, this.params = options.params, this.pages = options.pages;
         this.callback = this.context.callback;
         this.logger = this.context.logger;
         this.logger.log(this.uri);
         this.params || (this.params = {});
         this.totalPages = 0;
+        this.pages || (this.pages = '1');
       }
 
       ReportController.prototype.selectPage = function(page) {
@@ -162,14 +168,22 @@
         return visualize(this.session.authOptions(), this._executeReport);
       };
 
+      ReportController.prototype.exportReport = function(format) {
+        return this.loader["export"]({
+          outputFormat: format
+        }).done(this._exportResource);
+      };
+
       ReportController.prototype.destroyReport = function() {
+        console.log("destroy");
         return this.loader.destroy();
       };
 
       ReportController.prototype._executeReport = function(visualize) {
-        return this.loader = visualize.report({
+        this.loader = visualize.report({
           resource: this.uri,
           params: this.params,
+          pages: this.pages,
           container: "#container",
           scale: "width",
           linkOptions: {
@@ -183,6 +197,7 @@
           },
           success: this._processSuccess
         });
+        return window.loader = this.loader;
       };
 
       ReportController.prototype._processChangeTotalPages = function(totalPages) {
@@ -251,6 +266,17 @@
         return this.callback.onPageChange(this.loader.pages());
       };
 
+      ReportController.prototype._exportReport = function(format) {
+        console.log("export with format: " + format);
+        return this.loader["export"]({
+          outputFormat: format
+        }).done(this._exportResource);
+      };
+
+      ReportController.prototype._exportResource = function(link) {
+        return this.callback.onExportGetResourcePath(link.href);
+      };
+
       return ReportController;
 
     })();
@@ -270,8 +296,8 @@
         return this._instance || (this._instance = new MobileReport(context));
       };
 
-      MobileReport.setCredentials = function(options) {
-        return this._instance.setCredentials(options);
+      MobileReport.authorize = function(options) {
+        return this._instance.authorize(options);
       };
 
       MobileReport.destroy = function() {
@@ -286,12 +312,16 @@
         return this._instance.selectPage(page);
       };
 
+      MobileReport.exportReport = function(format) {
+        return this._instance.exportReport(format);
+      };
+
       function MobileReport(context1) {
         this.context = context1;
         this.context.callback.onScriptLoaded();
       }
 
-      MobileReport.prototype.setCredentials = function(options) {
+      MobileReport.prototype.authorize = function(options) {
         return this.session = new Session(options);
       };
 
@@ -302,10 +332,15 @@
       };
 
       MobileReport.prototype.run = function(options) {
+        console.log("run report with options" + options);
         options.session = this.session;
         options.context = this.context;
         this.reportController = new ReportController(options);
         return this.reportController.runReport();
+      };
+
+      MobileReport.prototype.exportReport = function(format) {
+        return this.reportController.exportReport(format);
       };
 
       MobileReport.prototype.destroyReport = function() {

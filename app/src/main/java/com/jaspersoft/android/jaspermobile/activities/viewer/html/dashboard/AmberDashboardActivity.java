@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -78,6 +79,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     @Override
     public void setupWebView(WebView webView) {
         DashboardWebInterface.inject(this, webView);
+        showInitialLoader();
     }
 
     @Override
@@ -138,23 +140,18 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     @UiThread
     @Override
     public void onScriptLoaded() {
-        String runScript = String.format(
-                "javascript:MobileDashboard.configure({\"diagonal\": %f}).run()",
-                screenUtil.getDiagonal());
-        webView.loadUrl(runScript);
+        runDashboard();
     }
 
     @UiThread
     @Override
     public void onLoadStart() {
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.da_loading).show();
     }
 
     @UiThread
     @Override
     public void onLoadDone() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideInitialLoader();
     }
 
     @UiThread
@@ -174,4 +171,21 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
     }
 
+    private void runDashboard() {
+        String runScript = String.format(
+                "javascript:MobileDashboard.configure({\"diagonal\": %f}).run()",
+                screenUtil.getDiagonal());
+        webView.loadUrl(runScript);
+    }
+
+    private void showInitialLoader() {
+        webView.setVisibility(View.INVISIBLE);
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.da_loading).show();
+    }
+
+    private void hideInitialLoader() {
+        webView.setVisibility(View.VISIBLE);
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
 }

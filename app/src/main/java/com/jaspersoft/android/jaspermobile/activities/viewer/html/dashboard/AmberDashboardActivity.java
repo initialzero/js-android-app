@@ -36,6 +36,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -54,6 +55,9 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
+    @Bean
+    protected ScreenUtil screenUtil;
+
     @Extra
     protected ResourceLookup resource;
 
@@ -134,6 +138,10 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     @UiThread
     @Override
     public void onScriptLoaded() {
+        String runScript = String.format(
+                "javascript:MobileDashboard.configure({\"diagonal\": %f}).run()",
+                screenUtil.getDiagonal());
+        webView.loadUrl(runScript);
     }
 
     @UiThread

@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.annotation.SuppressLint;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebView;
@@ -66,6 +67,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     protected boolean mMaximized;
 
     private Toast mToast;
+    private int mOrientation;
 
     @SuppressLint("ShowToast")
     @Override
@@ -181,15 +183,23 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     @UiThread
     @Override
     public void onWindowResizeStart() {
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
     }
 
     @UiThread
     @Override
     public void onWindowResizeEnd() {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation != mOrientation && mOrientation != -1) {
+            mOrientation = newConfig.orientation;
+            ProgressDialogFragment.builder(getSupportFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .show();
+        }
     }
 
     private void loadFlow() {

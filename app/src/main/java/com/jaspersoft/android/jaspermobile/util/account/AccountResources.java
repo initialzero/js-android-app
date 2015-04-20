@@ -44,6 +44,9 @@ import java.util.ArrayList;
 import timber.log.Timber;
 
 /**
+ * Utility responsible for flushing resources like favorites and saved items associated with deleted account.
+ * This class will query accounts for changes except 'com.jaspersoft.account.none' which is reserved for internal use.
+ *
  * @author Tom Koptel
  * @since 2.0
  */

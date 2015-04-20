@@ -180,11 +180,13 @@
             if (timeout != null) {
               window.clearInterval(timeout);
             }
-            return timeout = window.setTimeout(function() {
+            timeout = window.setTimeout(function() {
+              console.log("2");
               window.clearInterval(timeout);
               jQuery("body").unbind();
               return _this.callback.call(_this);
             }, 1000);
+            return console.log("1");
           };
         })(this));
       };
@@ -197,12 +199,15 @@
 }).call(this);
 
 (function() {
+  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
   define('js.mobile.amber.dashboard.controller', ['require','js.mobile.amber.dashboard.view','js.mobile.dom_tree_observer'],function(require) {
     var DOMTreeObserver, DashboardController, View;
     View = require('js.mobile.amber.dashboard.view');
     DOMTreeObserver = require('js.mobile.dom_tree_observer');
     return DashboardController = (function() {
       function DashboardController(options) {
+        this._configureDashboard = bind(this._configureDashboard, this);
         this.context = options.context, this.viewport = options.viewport, this.scaler = options.scaler;
         this.logger = this.context.logger;
         this.callback = this.context.callback;
@@ -241,24 +246,7 @@
       };
 
       DashboardController.prototype._attachDashletLoadListeners = function() {
-        var timeInterval;
-        return timeInterval = window.setInterval((function(_this) {
-          return function() {
-            var timeIntervalDashletContent;
-            window.clearInterval(timeInterval);
-            return timeIntervalDashletContent = window.setInterval(function() {
-              var dashletContent, dashlets;
-              dashlets = jQuery('.dashlet');
-              if (dashlets.length > 0) {
-                dashletContent = jQuery('.dashletContent > div.content');
-                if (dashletContent.length === dashlets.length) {
-                  _this._configureDashboard();
-                  return window.clearInterval(timeIntervalDashletContent);
-                }
-              }
-            }, 100);
-          };
-        })(this), 100);
+        return DOMTreeObserver.lastModify(this._configureDashboard).wait();
       };
 
       DashboardController.prototype._configureDashboard = function() {

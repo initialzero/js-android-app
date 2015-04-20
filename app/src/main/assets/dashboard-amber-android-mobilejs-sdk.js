@@ -48,6 +48,14 @@
         Android.onReportExecution(data);
       };
 
+      AndroidCallback.prototype.onWindowResizeStart = function() {
+        Android.onWindowResizeStart();
+      };
+
+      AndroidCallback.prototype.onWindowResizeEnd = function() {
+        Android.onWindowResizeEnd();
+      };
+
       return AndroidCallback;
 
     })();
@@ -180,13 +188,11 @@
             if (timeout != null) {
               window.clearInterval(timeout);
             }
-            timeout = window.setTimeout(function() {
-              console.log("2");
+            return timeout = window.setTimeout(function() {
               window.clearInterval(timeout);
               jQuery("body").unbind();
               return _this.callback.call(_this);
             }, 1000);
-            return console.log("1");
           };
         })(this));
       };
@@ -216,25 +222,29 @@
       DashboardController.prototype.initialize = function() {
         this.callback.onLoadStart();
         this.scaler.initialize();
+        this._setupResizeListener();
         this._removeRedundantArtifacts();
         this._injectViewport();
         return this._attachDashletLoadListeners();
       };
 
       DashboardController.prototype.minimizeDashlet = function() {
-        var endListener;
         this.logger.log("minimize dashlet");
         this.logger.log("Remove original scale");
         this.scaler.removeOriginalScale();
         this._disableDashlets();
         this.callback.onMinimizeStart();
-        endListener = (function(_this) {
-          return function() {
-            return _this.callback.onMinimizeEnd();
-          };
-        })(this);
-        DOMTreeObserver.lastModify(endListener).wait();
+        DOMTreeObserver.lastModify(this.callback.onMinimizeEnd).wait();
         return jQuery("div.dashboardCanvas > div.content > div.body > div").find(".minimizeDashlet")[0].click();
+      };
+
+      DashboardController.prototype._setupResizeListener = function() {
+        return jQuery(window).resize((function(_this) {
+          return function() {
+            DOMTreeObserver.lastModify(_this.callback.onWindowResizeEnd).wait();
+            return _this.callback.onWindowResizeStart();
+          };
+        })(this));
       };
 
       DashboardController.prototype._injectViewport = function() {

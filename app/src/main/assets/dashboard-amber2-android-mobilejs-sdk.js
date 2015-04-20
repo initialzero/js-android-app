@@ -439,6 +439,14 @@
         Android.onReportExecution(data);
       };
 
+      AndroidCallback.prototype.onWindowResizeStart = function() {
+        Android.onWindowResizeStart();
+      };
+
+      AndroidCallback.prototype.onWindowResizeEnd = function() {
+        Android.onWindowResizeEnd();
+      };
+
       return AndroidCallback;
 
     })();

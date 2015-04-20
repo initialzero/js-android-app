@@ -169,6 +169,14 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     }
 
     @Override
+    public void onWindowResizeStart() {
+    }
+
+    @Override
+    public void onWindowResizeEnd() {
+    }
+
+    @Override
     public void onPageFinished() {
     }
 

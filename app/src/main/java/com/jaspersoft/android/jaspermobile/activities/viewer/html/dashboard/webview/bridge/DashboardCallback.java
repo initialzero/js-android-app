@@ -16,4 +16,6 @@ public interface DashboardCallback {
     void onLoadDone();
     void onLoadError(String error);
     void onReportExecution(String data);
+    void onWindowResizeStart();
+    void onWindowResizeEnd();
 }

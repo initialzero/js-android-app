@@ -178,6 +178,20 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     public void onReportExecution(String data) {
     }
 
+    @UiThread
+    @Override
+    public void onWindowResizeStart() {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+    }
+
+    @UiThread
+    @Override
+    public void onWindowResizeEnd() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
     private void loadFlow() {
         WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
     }

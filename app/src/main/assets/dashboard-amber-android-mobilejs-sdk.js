@@ -158,9 +158,49 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.amber.dashboard.controller', ['require','js.mobile.amber.dashboard.view'],function(require) {
-    var DashboardController, View;
+  define('js.mobile.dom_tree_observer', [],function() {
+    var DOMTreeObserver;
+    return DOMTreeObserver = (function() {
+      function DOMTreeObserver() {}
+
+      DOMTreeObserver._instance = null;
+
+      DOMTreeObserver.lastModify = function(callback) {
+        this._instance = new DOMTreeObserver;
+        this._instance.callback = callback;
+        return this._instance;
+      };
+
+      DOMTreeObserver.prototype.wait = function() {
+        var timeout;
+        timeout = null;
+        jQuery("body").unbind();
+        return jQuery("body").bind("DOMSubtreeModified", (function(_this) {
+          return function() {
+            if (timeout != null) {
+              window.clearInterval(timeout);
+            }
+            return timeout = window.setTimeout(function() {
+              window.clearInterval(timeout);
+              jQuery("body").unbind();
+              return _this.callback.call(_this);
+            }, 1000);
+          };
+        })(this));
+      };
+
+      return DOMTreeObserver;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.amber.dashboard.controller', ['require','js.mobile.amber.dashboard.view','js.mobile.dom_tree_observer'],function(require) {
+    var DOMTreeObserver, DashboardController, View;
     View = require('js.mobile.amber.dashboard.view');
+    DOMTreeObserver = require('js.mobile.dom_tree_observer');
     return DashboardController = (function() {
       function DashboardController(options) {
         this.context = options.context, this.viewport = options.viewport, this.scaler = options.scaler;
@@ -177,12 +217,19 @@
       };
 
       DashboardController.prototype.minimizeDashlet = function() {
+        var endListener;
         this.logger.log("minimize dashlet");
         this.logger.log("Remove original scale");
         this.scaler.removeOriginalScale();
-        jQuery("div.dashboardCanvas > div.content > div.body > div").find(".minimizeDashlet")[0].click();
         this._disableDashlets();
-        return this.callback.onMinimizeStart();
+        this.callback.onMinimizeStart();
+        endListener = (function(_this) {
+          return function() {
+            return _this.callback.onMinimizeEnd();
+          };
+        })(this);
+        DOMTreeObserver.lastModify(endListener).wait();
+        return jQuery("div.dashboardCanvas > div.content > div.body > div").find(".minimizeDashlet")[0].click();
       };
 
       DashboardController.prototype._injectViewport = function() {
@@ -271,10 +318,16 @@
       };
 
       DashboardController.prototype._maximizeDashlet = function(dashlet, title) {
-        var button;
+        var button, endListener;
         this.logger.log("maximizing dashlet");
         this._enableDashlets();
         this.callback.onMaximizeStart(title);
+        endListener = (function(_this) {
+          return function() {
+            return _this.callback.onMaximizeEnd(title);
+          };
+        })(this);
+        DOMTreeObserver.lastModify(endListener).wait();
         button = jQuery(jQuery(dashlet).find('div.dashletToolbar > div.content div.buttons > .maximizeDashletButton')[0]);
         button.click();
         this.logger.log("Add original scale");
@@ -356,7 +409,7 @@
 
 (function() {
   define('js.mobile.amber.dashboard', ['require','js.mobile.amber.dashboard.controller','js.mobile.amber.dashboard.window','js.mobile.scaler'],function(require) {
-    var DashboardController, DashboardWindow, MobileDashboard, Scaler;
+    var DashboardController, DashboardWindow, MobileDashboard, Scaler, root;
     DashboardController = require('js.mobile.amber.dashboard.controller');
     DashboardWindow = require('js.mobile.amber.dashboard.window');
     Scaler = require('js.mobile.scaler');
@@ -416,6 +469,7 @@
       return MobileDashboard;
 
     })();
+    root = typeof window !== "undefined" && window !== null ? window : exports;
     return window.MobileDashboard = MobileDashboard;
   });
 

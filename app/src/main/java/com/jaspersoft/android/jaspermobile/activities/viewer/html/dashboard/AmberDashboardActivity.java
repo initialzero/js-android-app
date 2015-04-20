@@ -84,6 +84,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @Override
     public void onPageFinished() {
+        webView.setVisibility(View.INVISIBLE);
         webView.loadUrl("javascript:" + ScriptTagFactory.getInstance(this).getTagCreator().createTag());
     }
 
@@ -106,35 +107,45 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     @Override
     public void onMaximizeStart(String title) {
         resetZoom();
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+    }
+
+    @UiThread
+    @Override
+    public void onMaximizeEnd(String title) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
     }
 
     @UiThread
     @Override
-    public void onMaximizeEnd(String title) {
-    }
-
-    @UiThread
-    @Override
     public void onMaximizeFailed(String error) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @UiThread
     @Override
     public void onMinimizeStart() {
         resetZoom();
-        mMaximized = false;
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
     }
 
     @UiThread
     @Override
     public void onMinimizeEnd() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        mMaximized = false;
     }
 
     @UiThread
     @Override
     public void onMinimizeFailed(String error) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @UiThread

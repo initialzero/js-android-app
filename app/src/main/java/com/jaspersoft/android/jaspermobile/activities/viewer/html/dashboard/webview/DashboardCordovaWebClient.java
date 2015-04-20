@@ -56,9 +56,7 @@ public class DashboardCordovaWebClient extends CordovaWebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        boolean defaultResult = super.shouldOverrideUrlLoading(view, url);
-        boolean decoratedResult = decoratedWebViewClient.shouldOverrideUrlLoading(view, url);
-        return defaultResult && decoratedResult;
+        return decoratedWebViewClient.shouldOverrideUrlLoading(view, url);
     }
 
     @Override

@@ -29,14 +29,17 @@
       };
 
       AndroidCallback.prototype.onScriptLoaded = function() {
+        console.log("onScriptLoaded");
         Android.onScriptLoaded();
       };
 
       AndroidCallback.prototype.onLoadStart = function() {
+        console.log("onLoadStart");
         Android.onLoadStart();
       };
 
       AndroidCallback.prototype.onLoadDone = function(components) {
+        console.log("onLoadDone");
         Android.onLoadDone();
       };
 
@@ -179,7 +182,7 @@
         return this._instance;
       };
 
-      DOMTreeObserver.prototype.wait = function() {
+      DOMTreeObserver.prototype.wait = function(target) {
         var timeout;
         timeout = null;
         jQuery("body").unbind();
@@ -191,7 +194,7 @@
             return timeout = window.setTimeout(function() {
               window.clearInterval(timeout);
               jQuery("body").unbind();
-              return _this.callback.call(_this);
+              return _this.callback.call(target);
             }, 1000);
           };
         })(this));
@@ -213,7 +216,7 @@
     DOMTreeObserver = require('js.mobile.dom_tree_observer');
     return DashboardController = (function() {
       function DashboardController(options) {
-        this._configureDashboard = bind(this._configureDashboard, this);
+        this._overrideDashletTouches = bind(this._overrideDashletTouches, this);
         this.context = options.context, this.viewport = options.viewport, this.scaler = options.scaler;
         this.logger = this.context.logger;
         this.callback = this.context.callback;
@@ -222,7 +225,6 @@
       DashboardController.prototype.initialize = function() {
         this.callback.onLoadStart();
         this.scaler.initialize();
-        this._setupResizeListener();
         this._removeRedundantArtifacts();
         this._injectViewport();
         return this._attachDashletLoadListeners();
@@ -234,37 +236,8 @@
         this.scaler.removeOriginalScale();
         this._disableDashlets();
         this.callback.onMinimizeStart();
-        DOMTreeObserver.lastModify(this.callback.onMinimizeEnd).wait();
+        DOMTreeObserver.lastModify(this.callback.onMinimizeEnd).wait(this);
         return jQuery("div.dashboardCanvas > div.content > div.body > div").find(".minimizeDashlet")[0].click();
-      };
-
-      DashboardController.prototype._setupResizeListener = function() {
-        return jQuery(window).resize((function(_this) {
-          return function() {
-            DOMTreeObserver.lastModify(_this.callback.onWindowResizeEnd).wait();
-            return _this.callback.onWindowResizeStart();
-          };
-        })(this));
-      };
-
-      DashboardController.prototype._injectViewport = function() {
-        return this.viewport.configure();
-      };
-
-      DashboardController.prototype._scaleDashboard = function() {
-        return jQuery('.dashboardCanvas').addClass('scaledCanvas');
-      };
-
-      DashboardController.prototype._attachDashletLoadListeners = function() {
-        return DOMTreeObserver.lastModify(this._configureDashboard).wait();
-      };
-
-      DashboardController.prototype._configureDashboard = function() {
-        this._createCustomOverlays();
-        this._scaleDashboard();
-        this._overrideDashletTouches();
-        this._disableDashlets();
-        return this.callback.onLoadDone();
       };
 
       DashboardController.prototype._removeRedundantArtifacts = function() {
@@ -274,8 +247,29 @@
         return jQuery('<style id="custom_mobile"></style').text(customStyle).appendTo('head');
       };
 
+      DashboardController.prototype._injectViewport = function() {
+        this.logger.log("inject custom viewport");
+        return this.viewport.configure();
+      };
+
+      DashboardController.prototype._attachDashletLoadListeners = function() {
+        this.logger.log("attaching dashlet listener");
+        return DOMTreeObserver.lastModify(this._configureDashboard).wait(this);
+      };
+
+      DashboardController.prototype._configureDashboard = function() {
+        this.logger.log("_configureDashboard");
+        this._createCustomOverlays();
+        this._scaleDashboard();
+        this._overrideDashletTouches();
+        this._disableDashlets();
+        this.callback.onLoadDone();
+        return this._setupResizeListener();
+      };
+
       DashboardController.prototype._createCustomOverlays = function() {
         var dashletElements;
+        this.logger.log("_createCustomOverlays");
         dashletElements = jQuery('.dashlet').not(jQuery('.inputControlWrapper').parentsUntil('.dashlet').parent());
         return jQuery.each(dashletElements, function(key, value) {
           var dashlet, overlay;
@@ -284,6 +278,21 @@
           overlay.addClass("customOverlay");
           return dashlet.prepend(overlay);
         });
+      };
+
+      DashboardController.prototype._scaleDashboard = function() {
+        this.logger.log("_scaleDashboard");
+        return jQuery('.dashboardCanvas').addClass('scaledCanvas');
+      };
+
+      DashboardController.prototype._setupResizeListener = function() {
+        this.logger.log("set resizer listener");
+        return jQuery(window).resize((function(_this) {
+          return function() {
+            DOMTreeObserver.lastModify(_this.callback.onWindowResizeEnd).wait(_this);
+            return _this.callback.onWindowResizeStart();
+          };
+        })(this));
       };
 
       DashboardController.prototype._disableDashlets = function() {
@@ -325,7 +334,7 @@
             return _this.callback.onMaximizeEnd(title);
           };
         })(this);
-        DOMTreeObserver.lastModify(endListener).wait();
+        DOMTreeObserver.lastModify(endListener).wait(this);
         button = jQuery(jQuery(dashlet).find('div.dashletToolbar > div.content div.buttons > .maximizeDashletButton')[0]);
         button.click();
         this.logger.log("Add original scale");

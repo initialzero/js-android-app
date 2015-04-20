@@ -420,14 +420,17 @@
       };
 
       AndroidCallback.prototype.onScriptLoaded = function() {
+        console.log("onScriptLoaded");
         Android.onScriptLoaded();
       };
 
       AndroidCallback.prototype.onLoadStart = function() {
+        console.log("onLoadStart");
         Android.onLoadStart();
       };
 
       AndroidCallback.prototype.onLoadDone = function(components) {
+        console.log("onLoadDone");
         Android.onLoadDone();
       };
 

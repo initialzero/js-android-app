@@ -182,7 +182,7 @@
         return this._instance;
       };
 
-      DOMTreeObserver.prototype.wait = function(target) {
+      DOMTreeObserver.prototype.wait = function() {
         var timeout;
         timeout = null;
         jQuery("body").unbind();
@@ -194,7 +194,7 @@
             return timeout = window.setTimeout(function() {
               window.clearInterval(timeout);
               jQuery("body").unbind();
-              return _this.callback.call(target);
+              return _this.callback.call(_this);
             }, 1000);
           };
         })(this));
@@ -217,6 +217,7 @@
     return DashboardController = (function() {
       function DashboardController(options) {
         this._overrideDashletTouches = bind(this._overrideDashletTouches, this);
+        this._configureDashboard = bind(this._configureDashboard, this);
         this.context = options.context, this.viewport = options.viewport, this.scaler = options.scaler;
         this.logger = this.context.logger;
         this.callback = this.context.callback;
@@ -236,7 +237,7 @@
         this.scaler.removeOriginalScale();
         this._disableDashlets();
         this.callback.onMinimizeStart();
-        DOMTreeObserver.lastModify(this.callback.onMinimizeEnd).wait(this);
+        DOMTreeObserver.lastModify(this.callback.onMinimizeEnd).wait();
         return jQuery("div.dashboardCanvas > div.content > div.body > div").find(".minimizeDashlet")[0].click();
       };
 
@@ -254,7 +255,7 @@
 
       DashboardController.prototype._attachDashletLoadListeners = function() {
         this.logger.log("attaching dashlet listener");
-        return DOMTreeObserver.lastModify(this._configureDashboard).wait(this);
+        return DOMTreeObserver.lastModify(this._configureDashboard).wait();
       };
 
       DashboardController.prototype._configureDashboard = function() {
@@ -289,7 +290,7 @@
         this.logger.log("set resizer listener");
         return jQuery(window).resize((function(_this) {
           return function() {
-            DOMTreeObserver.lastModify(_this.callback.onWindowResizeEnd).wait(_this);
+            DOMTreeObserver.lastModify(_this.callback.onWindowResizeEnd).wait();
             return _this.callback.onWindowResizeStart();
           };
         })(this));
@@ -334,7 +335,7 @@
             return _this.callback.onMaximizeEnd(title);
           };
         })(this);
-        DOMTreeObserver.lastModify(endListener).wait(this);
+        DOMTreeObserver.lastModify(endListener).wait();
         button = jQuery(jQuery(dashlet).find('div.dashletToolbar > div.content div.buttons > .maximizeDashletButton')[0]);
         button.click();
         this.logger.log("Add original scale");

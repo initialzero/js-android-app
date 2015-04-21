@@ -208,7 +208,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     private void runDashboard() {
         String runScript = String.format(
-                "javascript:MobileDashboard.configure({\"diagonal\": %f}).run()",
+                "javascript:MobileDashboard.configure({\"diagonal\": \"%s\"}).run()",
                 screenUtil.getDiagonal());
         webView.loadUrl(runScript);
     }

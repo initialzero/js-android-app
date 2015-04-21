@@ -159,7 +159,7 @@ public class CordovaWebView extends WebView {
 
         pluginManager.addService(App.PLUGIN_NAME, "org.apache.cordova.App");
         // This will be removed in 4.0.x in favour of the plugin not being bundled.
-        pluginManager.addService(new PluginEntry("SplashScreenInternal", "org.apache.cordova.SplashScreenInternal", true));
+//        pluginManager.addService(new PluginEntry("SplashScreenInternal", "org.apache.cordova.SplashScreenInternal", true));
         pluginManager.init();
         initWebViewSettings();
         exposeJsInterface();

@@ -123,7 +123,6 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @Override
     public void onPageFinished() {
-        webView.setVisibility(View.INVISIBLE);
         webView.loadUrl("javascript:" + ScriptTagFactory.getInstance(this).getTagCreator().createTag());
     }
 

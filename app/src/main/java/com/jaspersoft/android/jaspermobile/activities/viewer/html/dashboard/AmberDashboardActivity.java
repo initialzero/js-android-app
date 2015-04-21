@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -68,6 +70,9 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     private Toast mToast;
     private int mOrientation;
+    private boolean mFavoriteItemVisible, mRefresItemVisible;
+    private MenuItem favoriteAction;
+    private MenuItem refreshAction;
 
     @SuppressLint("ShowToast")
     @Override
@@ -76,7 +81,39 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
         loadFlow();
+        showMenuItems();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        favoriteAction = menu.findItem(R.id.favoriteAction);
+        refreshAction = menu.findItem(R.id.refreshAction);
+        return result;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean result = super.onPrepareOptionsMenu(menu);
+        favoriteAction.setVisible(mFavoriteItemVisible);
+        refreshAction.setVisible(mRefresItemVisible);
+        return result;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation != mOrientation && mOrientation != -1) {
+            mOrientation = newConfig.orientation;
+            ProgressDialogFragment.builder(getSupportFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .show();
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Abstract methods implementations
+    //---------------------------------------------------------------------
 
     @Override
     public void setupWebView(WebView webView) {
@@ -105,10 +142,15 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         }
     }
 
+    //---------------------------------------------------------------------
+    // DashboardCallback implementations
+    //---------------------------------------------------------------------
+
     @UiThread
     @Override
     public void onMaximizeStart(String title) {
         resetZoom();
+        hideMenuItems();
         ProgressDialogFragment.builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.loading_msg)
                 .show();
@@ -132,6 +174,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     @Override
     public void onMinimizeStart() {
         resetZoom();
+        showMenuItems();
         ProgressDialogFragment.builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.loading_msg)
                 .show();
@@ -191,16 +234,10 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if (newConfig.orientation != mOrientation && mOrientation != -1) {
-            mOrientation = newConfig.orientation;
-            ProgressDialogFragment.builder(getSupportFragmentManager())
-                    .setLoadingMessage(R.string.loading_msg)
-                    .show();
-        }
-    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void loadFlow() {
         WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
@@ -222,5 +259,15 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     private void hideInitialLoader() {
         webView.setVisibility(View.VISIBLE);
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
+    private void showMenuItems() {
+        mFavoriteItemVisible = mRefresItemVisible = true;
+        supportInvalidateOptionsMenu();
+    }
+
+    private void hideMenuItems() {
+        mFavoriteItemVisible = mRefresItemVisible = false;
+        supportInvalidateOptionsMenu();
     }
 }

@@ -101,7 +101,6 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cordova_dashboard_viewer);
-        restoreSavedInstanceState(savedInstanceState);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -123,19 +122,6 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
 
         setupSettings();
         initCordovaWebView();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle bundle) {
-        super.onSaveInstanceState(bundle);
-        bundle.putParcelable("favoriteEntryUri", favoriteEntryUri);
-    }
-
-    private void restoreSavedInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState == null) {
-            return;
-        }
-        favoriteEntryUri = savedInstanceState.getParcelable("favoriteEntryUri");
     }
 
     @Override

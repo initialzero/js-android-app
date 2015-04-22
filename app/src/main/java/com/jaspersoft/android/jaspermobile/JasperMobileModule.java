@@ -28,8 +28,12 @@ import android.app.Application;
 import android.content.Context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.name.Names;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializerImpl;
 import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
@@ -74,6 +78,9 @@ public class JasperMobileModule extends AbstractModule {
 
         String endpoint = AccountServerData.Demo.SERVER_URL;
         bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(endpoint);
+
+        bind(ReportParamsStorage.class).in(Singleton.class);
+        bind(ReportParamsSerializer.class).to(ReportParamsSerializerImpl.class);
     }
 
 }

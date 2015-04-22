@@ -50,7 +50,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsHolder;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 import com.jaspersoft.android.jaspermobile.widget.MultiSelectSpinner;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -65,7 +65,6 @@ import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatVa
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
-import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -91,10 +90,11 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
     public static final String EXTRA_REPORT_URI = "ReportOptionsActivity.EXTRA_REPORT_URI";
-    public static final String EXTRA_REPORT_CONTROLS = "ReportOptionsActivity.EXTRA_REPORT_CONTROLS";
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected ReportParamsStorage paramsStorage;
 
     protected Menu optionsMenu;
     protected String reportUri;
@@ -211,9 +211,8 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     }
 
     private void runReport() {
-        String reportTitle = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
-        runReportViewer(reportUri, reportTitle, parameters);
+        runReportViewer(reportUri, parameters);
     }
 
     private ArrayList<ReportParameter> initParametersUsingSelectedValues() {
@@ -224,10 +223,11 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         return parameters;
     }
 
-    private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
+    private void runReportViewer(String reportUri, ArrayList<ReportParameter> parameters) {
+        paramsStorage.putReportParameters(reportUri, parameters);
+        paramsStorage.putInputControls(reportUri, inputControls);
+
         Intent htmlViewer = new Intent();
-        ReportParamsHolder.reportParams.put(reportUri, new WeakReference<ArrayList<ReportParameter>>(parameters));
-        ReportParamsHolder.inputControls.put(reportUri, new WeakReference<ArrayList<InputControl>>(inputControls));
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();
     }
@@ -267,7 +267,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     }
 
     private void initInputControls() {
-        inputControls = ReportParamsHolder.inputControls.get(reportUri).get();
+        inputControls = paramsStorage.getInputControls(reportUri);
 
         // init UI components for ICs
         for (final InputControl inputControl : inputControls) {

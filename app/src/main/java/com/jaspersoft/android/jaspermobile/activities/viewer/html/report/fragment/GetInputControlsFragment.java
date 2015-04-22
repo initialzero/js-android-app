@@ -38,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -50,7 +51,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Tom Koptel
@@ -64,6 +65,9 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected ReportParamsStorage paramsStorage;
+
     @FragmentArg
     protected String resourceUri;
     @OptionsMenuItem
@@ -141,13 +145,15 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
             mShowFilterMenuItem = !controlsList.getInputControls().isEmpty();
             getActivity().supportInvalidateOptionsMenu();
             ProgressDialogFragment.dismiss(getFragmentManager());
-            mListener.onLoaded(controlsList.getInputControls());
+
+            paramsStorage.putInputControls(resourceUri, new ArrayList<InputControl>(controlsList.getInputControls()));
+            mListener.onLoaded();
         }
     }
 
     public static class NullListener implements OnInputControlsListener {
         @Override
-        public void onLoaded(List<InputControl> inputControls) {
+        public void onLoaded() {
         }
 
         @Override
@@ -156,7 +162,7 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     }
 
     public static interface OnInputControlsListener {
-        void onLoaded(List<InputControl> inputControls);
+        void onLoaded();
         void onShowControls();
     }
 }

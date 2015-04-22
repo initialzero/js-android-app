@@ -18,7 +18,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsHolder;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -36,7 +36,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
@@ -52,6 +51,8 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    ReportParamsStorage paramsStorage;
 
     @FragmentArg
     ResourceLookup resource;
@@ -140,15 +141,15 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
 
-        ReportParamsHolder.inputControls.put(resource.getUri(), new WeakReference<ArrayList<InputControl>>(inputControls));
+        paramsStorage.putInputControls(resource.getUri(),inputControls);
         startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
     }
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadReportParameters(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            reportParameters = ReportParamsHolder.reportParams.get(resource.getUri()).get();
-            cachedInputControls = ReportParamsHolder.inputControls.get(resource.getUri()).get();
+            reportParameters = paramsStorage.getReportParameters(resource.getUri());
+            cachedInputControls = paramsStorage.getInputControls(resource.getUri());
 
             getReportExecutionFragment().executeReport(reportParameters);
         } else {

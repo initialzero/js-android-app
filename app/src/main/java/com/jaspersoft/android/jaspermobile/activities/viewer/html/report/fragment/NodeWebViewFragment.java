@@ -33,6 +33,7 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
@@ -69,13 +70,15 @@ import org.springframework.web.client.HttpClientErrorException;
  */
 @EFragment(R.layout.report_html_viewer)
 @OptionsMenu(R.menu.webview_menu)
-public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDialogFragment.SimpleDialogClickListener{
+public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDialogFragment.SimpleDialogClickListener {
     public static final String TAG = NodeWebViewFragment.class.getSimpleName();
 
     @ViewById
     protected JSWebView webView;
     @ViewById
     protected ProgressBar progressBar;
+    @ViewById(android.R.id.empty)
+    protected TextView errorText;
 
     @InstanceState
     @FragmentArg
@@ -216,6 +219,29 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
     }
 
+    private void showErrorText() {
+        if (errorText.getVisibility() != View.VISIBLE) {
+            errorText.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideErrorText() {
+        if (errorText.getVisibility() == View.VISIBLE) {
+            errorText.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Caching 404 error for later use in lifecycle events of fragment
+     */
+    private void cacheNotFoundHttpException(Exception exception) {
+        if (exception.getCause() instanceof HttpClientErrorException) {
+            HttpClientErrorException httpError = (HttpClientErrorException) exception.getCause();
+            HttpStatus status = httpError.getStatusCode();
+            mReportNotFound = (status == HttpStatus.NOT_FOUND);
+        }
+    }
+
     //---------------------------------------------------------------------
     // Implementing SimpleDialogFragment.SimpleDialogClickListener
     //---------------------------------------------------------------------
@@ -257,19 +283,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         public void onFailure(Exception exception) {
             cacheNotFoundHttpException(exception);
             progressBar.setVisibility(View.GONE);
+            showErrorText();
             if (onPageLoadListener != null) {
                 onPageLoadListener.onFailure(exception);
-            }
-        }
-
-        /**
-         * Caching 404 error for later use in lifecycle events of fragment
-         */
-        private void cacheNotFoundHttpException(Exception exception) {
-            if (exception instanceof HttpClientErrorException) {
-                HttpClientErrorException httpError = (HttpClientErrorException) exception.getCause();
-                HttpStatus status = httpError.getStatusCode();
-                mReportNotFound = (status == HttpStatus.NOT_FOUND);
             }
         }
 
@@ -277,6 +293,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         public void onSuccess(ExportOutputData output) {
             progressBar.setVisibility(View.GONE);
             outputFinal = output.isFinal();
+            hideErrorText();
             loadHtml(output.getData());
             if (onPageLoadListener != null) {
                 onPageLoadListener.onSuccess(page);
@@ -284,7 +301,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         }
 
         @Override
-        public void onOutOfRange(boolean isOutOfRange, ErrorDescriptor errorDescriptor ) {
+        public void onOutOfRange(boolean isOutOfRange, ErrorDescriptor errorDescriptor) {
             if (isOutOfRange) {
                 SimpleDialogFragment.createBuilder(getActivity(), getActivity().getSupportFragmentManager())
                         .setIcon(android.R.drawable.ic_dialog_alert)

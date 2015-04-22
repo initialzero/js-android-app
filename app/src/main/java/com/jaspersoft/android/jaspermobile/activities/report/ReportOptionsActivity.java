@@ -226,7 +226,9 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
     private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
         Intent htmlViewer = new Intent();
-        ReportParamsHolder.reportParams.put(reportUri, new WeakReference<ArrayList<ReportParameter>>(parameters));
+        ArrayList<ReportParameter> reportParameterArrayList = ReportParamsHolder.reportParams.get(reportUri).get();
+        reportParameterArrayList.clear();
+        reportParameterArrayList.addAll(parameters);
         ReportParamsHolder.inputControls.put(reportUri, new WeakReference<ArrayList<InputControl>>(inputControls));
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();

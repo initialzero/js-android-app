@@ -64,7 +64,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @InstanceState
     ArrayList<InputControl> cachedInputControls;
     @InstanceState
-    ArrayList<ReportParameter> reportParameters;
+    ArrayList<ReportParameter> reportParameters = new ArrayList<ReportParameter>();
     @InstanceState
     ArrayList<InputControl> validInputControls;
     @InstanceState
@@ -141,6 +141,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
 
         ReportParamsHolder.inputControls.put(resource.getUri(), new WeakReference<ArrayList<InputControl>>(inputControls));
+        ReportParamsHolder.reportParams.put(resource.getUri(), new WeakReference<ArrayList<ReportParameter>>(reportParameters));
         startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
     }
 

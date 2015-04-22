@@ -70,9 +70,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import roboguice.util.Ln;
 
@@ -267,10 +270,39 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     }
 
     private void initInputControls() {
+        ArrayList<ReportParameter> reportParams = paramsStorage.getReportParameters(reportUri);
         inputControls = paramsStorage.getInputControls(reportUri);
+
+        Map<String, Set<String>> hashMap = new HashMap<String, Set<String>>(reportParams.size());
+        for (ReportParameter reportParameter : reportParams) {
+            hashMap.put(reportParameter.getName(), reportParameter.getValues());
+        }
 
         // init UI components for ICs
         for (final InputControl inputControl : inputControls) {
+            InputControlState state = inputControl.getState();
+            Set<String> values = hashMap.get(state.getId());
+
+            switch (inputControl.getType()) {
+                case bool:
+                case singleValueText:
+                case singleValueNumber:
+                case singleValueTime:
+                case singleValueDate:
+                case singleValueDatetime:
+                    String value = new ArrayList<String>(values).get(0);
+                    state.setValue(value);
+                    break;
+                case multiSelect:
+                case multiSelectCheckbox:
+                case singleSelect:
+                case singleSelectRadio:
+                    for (InputControlOption option : state.getOptions()) {
+                        option.setSelected(values.contains(option.getValue()));
+                    }
+                    break;
+            }
+
             if (inputControl.isVisible()) {
                 switch (inputControl.getType()) {
                     case bool:

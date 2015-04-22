@@ -17,7 +17,8 @@ import java.util.Map;
  * @since 2.0
  */
 public class ReportParamsStorage {
-    private final Map<String, WeakReference<ParamHolder>> cache = new HashMap<String, WeakReference<ParamHolder>>();
+    private final Map<String, WeakReference<ArrayList<ReportParameter>>> paramsCache = new HashMap<String, WeakReference<ArrayList<ReportParameter>>>();
+    private final Map<String, WeakReference<ArrayList<InputControl>>> inputControlCache = new HashMap<String, WeakReference<ArrayList<InputControl>>>();
 
     @Inject
     public ReportParamsStorage() {
@@ -25,92 +26,52 @@ public class ReportParamsStorage {
 
     @NonNull
     public ArrayList<ReportParameter> getReportParameters(@NonNull String resourceUri) {
-        WeakReference<ParamHolder> weakReference = cache.get(resourceUri);
-        ParamHolder holder = weakReference.get();
-        if (holder == null) {
+        WeakReference<ArrayList<ReportParameter>> weakReference = paramsCache.get(resourceUri);
+        ArrayList<ReportParameter> params = weakReference.get();
+        if (params == null) {
             return new ArrayList<ReportParameter>();
         } else {
-            return holder.getReportParameters();
+            return params;
         }
     }
 
     @NonNull
     public ArrayList<InputControl> getInputControls(@NonNull String resourceUri) {
-        WeakReference<ParamHolder> weakReference = cache.get(resourceUri);
-        ParamHolder holder = weakReference.get();
-        if (holder == null) {
+        WeakReference<ArrayList<InputControl>> weakReference = inputControlCache.get(resourceUri);
+        ArrayList<InputControl> controls = weakReference.get();
+        if (controls == null) {
             return new ArrayList<InputControl>();
         } else {
-            return holder.getInputControls();
+            return controls;
         }
     }
 
     public void putReportParameters(@NonNull String resourceUri, @NonNull ArrayList<ReportParameter> reportParameters) {
-        ParamHolder holder = getHolder(resourceUri);
-        holder.putReportParameters(reportParameters);
+        WeakReference<ArrayList<ReportParameter>> weakReference = paramsCache.get(resourceUri);
+        if (weakReference == null) {
+            weakReference = new WeakReference<ArrayList<ReportParameter>>(reportParameters);
+            paramsCache.put(resourceUri, weakReference);
+        } else {
+            if (weakReference.get() == null) {
+                throw new IllegalStateException("Cache for report parameters was GC");
+            } else {
+                weakReference.get().clear();
+                weakReference.get().addAll(reportParameters);
+            }
+        }
     }
 
     public void putInputControls(@NonNull String resourceUri, @NonNull ArrayList<InputControl> inputControls) {
-        ParamHolder holder = getHolder(resourceUri);
-        holder.putInputControls(inputControls);
-    }
-
-    private ParamHolder getHolder(@NonNull String resourceUri) {
-        ParamHolder holder;
-        WeakReference<ParamHolder> weakReference = cache.get(resourceUri);
-
+        WeakReference<ArrayList<InputControl>> weakReference = inputControlCache.get(resourceUri);
         if (weakReference == null) {
-            holder = putEmptyHolderInCache(resourceUri);
+            weakReference = new WeakReference<ArrayList<InputControl>>(inputControls);
+            inputControlCache.put(resourceUri, weakReference);
         } else {
-            holder = weakReference.get();
-            if (holder == null) {
-                holder = putEmptyHolderInCache(resourceUri);
-            }
-        }
-
-        return holder;
-    }
-
-    private ParamHolder putEmptyHolderInCache(String resourceUri) {
-        ParamHolder holder = new ParamHolder();
-        WeakReference<ParamHolder> weakReference = new WeakReference<ParamHolder>(holder);
-        cache.put(resourceUri, weakReference);
-        return holder;
-    }
-
-    private static class ParamHolder {
-        private ArrayList<ReportParameter> reportParameters;
-        private ArrayList<InputControl> inputControls;
-
-        public ArrayList<ReportParameter> getReportParameters() {
-            return reportParameters;
-        }
-
-        public void putReportParameters(ArrayList<ReportParameter> reportParameters) {
-            if (reportParameters == null) {
-                throw new IllegalArgumentException("Report parameters should not be null");
-            }
-            if (this.reportParameters == null) {
-                this.reportParameters = reportParameters;
+            if (weakReference.get() == null) {
+                throw new IllegalStateException("Cache for report parameters was GC");
             } else {
-                this.reportParameters.clear();
-                this.reportParameters.addAll(reportParameters);
-            }
-        }
-
-        public ArrayList<InputControl> getInputControls() {
-            return inputControls;
-        }
-
-        public void putInputControls(ArrayList<InputControl> inputControls) {
-            if (inputControls == null) {
-                throw new IllegalArgumentException("Input controls should not be null");
-            }
-            if (this.inputControls == null) {
-                this.inputControls = inputControls;
-            } else {
-                this.inputControls.clear();
-                this.inputControls.addAll(inputControls);
+                weakReference.get().clear();
+                weakReference.get().addAll(inputControls);
             }
         }
     }

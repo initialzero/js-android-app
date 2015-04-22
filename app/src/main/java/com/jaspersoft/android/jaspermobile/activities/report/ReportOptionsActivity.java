@@ -49,8 +49,8 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsHolder;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 import com.jaspersoft.android.jaspermobile.widget.MultiSelectSpinner;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -65,6 +65,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatVa
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -225,8 +226,8 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
     private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
         Intent htmlViewer = new Intent();
-        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS, parameters);
-        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS, inputControls);
+        ReportParamsHolder.reportParams.put(reportUri, new WeakReference<ArrayList<ReportParameter>>(parameters));
+        ReportParamsHolder.inputControls.put(reportUri, new WeakReference<ArrayList<InputControl>>(inputControls));
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();
     }
@@ -266,7 +267,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     }
 
     private void initInputControls() {
-        inputControls = getIntent().getExtras().getParcelableArrayList(EXTRA_REPORT_CONTROLS);
+        inputControls = ReportParamsHolder.inputControls.get(reportUri).get();
 
         // init UI components for ICs
         for (final InputControl inputControl : inputControls) {

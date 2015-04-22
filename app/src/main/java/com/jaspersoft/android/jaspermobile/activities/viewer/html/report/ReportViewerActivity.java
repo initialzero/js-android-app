@@ -63,6 +63,7 @@ import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsHolder;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
@@ -104,7 +105,6 @@ import java.util.Map;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
 /**
@@ -286,7 +286,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadFlowWithControls(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            ArrayList<InputControl> inputControl = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
+            ArrayList<InputControl> inputControl = ReportParamsHolder.inputControls.get(resource.getUri()).get();
             reportModel.setInputControls(inputControl);
             reportModel.updateReportParameters();
 

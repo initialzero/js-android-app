@@ -68,6 +68,8 @@ public class ResourceOpener {
         Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(activity, account);
         serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+
+        resourceTypes = filterManager.getFiltersForRepository();
     }
 
     public void setResourceTypes(ArrayList<String> resourceTypes) {

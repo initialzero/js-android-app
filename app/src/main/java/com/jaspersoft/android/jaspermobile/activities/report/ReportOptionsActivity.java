@@ -398,6 +398,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         updateLabelView(inputControl, layoutView);
 
         final EditText editText = (EditText) layoutView.findViewById(R.id.ic_date_text);
+        final ImageButton clearDate = (ImageButton) layoutView.findViewById(R.id.ic_date_clear);
 
         String format = DEFAULT_DATE_FORMAT;
         for (DateTimeFormatValidationRule validationRule : inputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
@@ -454,6 +455,19 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
                 @Override
                 public void afterTextChanged(Editable editable) {
                     onStringValueChanged(inputControl, editable.toString());
+                    if(editable.length() != 0) {
+                        clearDate.setVisibility(View.VISIBLE);
+                    } else {
+                        clearDate.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+            // add listener for clearing text
+            clearDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editText.setText("");
                 }
             });
         }

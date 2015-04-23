@@ -42,7 +42,7 @@ public class JsServerProfileCompat {
 
     public static void initLegacyJsRestClient(Context context, JsRestClient jsRestClient) {
         Account account = JasperAccountManager.get(context).getActiveAccount();
-        jsRestClient.setServerProfile(getServerProfile(AccountServerData.get(context, account)));
+        jsRestClient.updateServerProfile(getServerProfile(AccountServerData.get(context, account)));
     }
 
     public static JsServerProfile getServerProfile(Context context) {
@@ -52,7 +52,7 @@ public class JsServerProfileCompat {
     }
 
     public static void initLegacyJsRestClient(Context context, Account account, JsRestClient jsRestClient) {
-        jsRestClient.setServerProfile(getServerProfile(AccountServerData.get(context, account)));
+        jsRestClient.updateServerProfile(getServerProfile(AccountServerData.get(context, account)));
     }
 
     public static JsServerProfile getServerProfile(AccountServerData serverData) {

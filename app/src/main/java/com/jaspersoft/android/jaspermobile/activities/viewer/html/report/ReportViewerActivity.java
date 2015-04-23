@@ -467,7 +467,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 ? "" : accountServerData.getOrganization();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("javascript:MobileReport.setCredentials")
+        builder.append("javascript:MobileReport.authorize")
                 .append("({")
                 .append("\"username\": \"%s\",")
                 .append("\"password\": \"%s\",")

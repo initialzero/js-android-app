@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboardApi;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -67,6 +69,8 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
     protected HyperlinkHelper hyperlinkHelper;
+    @Bean
+    protected ScreenUtil screenUtil;
     @Extra
     protected ResourceLookup resource;
 
@@ -151,6 +155,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onLoadDone() {
+        webView.setVisibility(View.VISIBLE);
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
@@ -241,10 +246,11 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
         builder = new StringBuilder();
         builder.append("javascript:MobileDashboard.run")
                 .append("({")
-                .append("\"uri\": \"%s\",")
+                .append("\"diagonal\": \"%s\",")
+                .append("\"uri\": \"%s\"")
                 .append("})");
         String executeScript = String.format(builder.toString(),
-                resource.getUri());
+                screenUtil.getDiagonal(), resource.getUri());
         webView.loadUrl(executeScript);
     }
 }

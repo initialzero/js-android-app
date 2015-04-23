@@ -234,7 +234,7 @@
       DashboardController.prototype.minimizeDashlet = function() {
         this.logger.log("minimize dashlet");
         this.logger.log("Remove original scale");
-        this.scaler.removeOriginalScale();
+        this._removeOriginalScale();
         this._disableDashlets();
         this.callback.onMinimizeStart();
         DOMTreeObserver.lastModify(this.callback.onMinimizeEnd).wait();
@@ -244,8 +244,8 @@
       DashboardController.prototype._removeRedundantArtifacts = function() {
         var customStyle;
         this.logger.log("remove artifacts");
-        customStyle = ".header, .dashletToolbar, .show_chartTypeSelector_wrapper { display: none !important; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } #mainNavigation{ display: none !important; } .customOverlay { position: absolute; width: 100%; height: 100%; z-index: 1000; }";
-        return jQuery('<style id="custom_mobile"></style').text(customStyle).appendTo('head');
+        customStyle = ".header, .dashletToolbar, .show_chartTypeSelector_wrapper { display: none !important; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } #mainNavigation{ display: none !important; } .customOverlay { position: absolute; width: 100%; height: 100%; z-index: 1000; } .dashboardCanvas .dashlet > .dashletContent > .content { -webkit-overflow-scrolling : auto !important; }";
+        return jQuery('<style id="custom_mobile"></style>').text(customStyle).appendTo('head');
       };
 
       DashboardController.prototype._injectViewport = function() {
@@ -254,18 +254,49 @@
       };
 
       DashboardController.prototype._attachDashletLoadListeners = function() {
+        var dashboardElInterval, timeInterval;
         this.logger.log("attaching dashlet listener");
-        return DOMTreeObserver.lastModify(this._configureDashboard).wait();
+        dashboardElInterval = window.setInterval((function(_this) {
+          return function() {
+            var dashboardContainer;
+            dashboardContainer = jQuery('.dashboardCanvas');
+            if (dashboardContainer.length > 0) {
+              window.clearInterval(dashboardElInterval);
+              return _this._scaleDashboard();
+            }
+          };
+        })(this), 100);
+        return timeInterval = window.setInterval((function(_this) {
+          return function() {
+            var timeIntervalDashletContent;
+            window.clearInterval(timeInterval);
+            return timeIntervalDashletContent = window.setInterval(function() {
+              var dashletContent, dashlets;
+              dashlets = jQuery('.dashlet');
+              if (dashlets.length > 0) {
+                dashletContent = jQuery('.dashletContent > div.content');
+                if (dashletContent.length === dashlets.length) {
+                  DOMTreeObserver.lastModify(_this._configureDashboard).wait();
+                  return window.clearInterval(timeIntervalDashletContent);
+                }
+              }
+            }, 100);
+          };
+        })(this), 100);
       };
 
       DashboardController.prototype._configureDashboard = function() {
         this.logger.log("_configureDashboard");
         this._createCustomOverlays();
-        this._scaleDashboard();
         this._overrideDashletTouches();
         this._disableDashlets();
         this.callback.onLoadDone();
         return this._setupResizeListener();
+      };
+
+      DashboardController.prototype._scaleDashboard = function() {
+        this.logger.log("_scaleDashboard");
+        return jQuery('.dashboardCanvas').addClass('scaledCanvas');
       };
 
       DashboardController.prototype._createCustomOverlays = function() {
@@ -279,11 +310,6 @@
           overlay.addClass("customOverlay");
           return dashlet.prepend(overlay);
         });
-      };
-
-      DashboardController.prototype._scaleDashboard = function() {
-        this.logger.log("_scaleDashboard");
-        return jQuery('.dashboardCanvas').addClass('scaledCanvas');
       };
 
       DashboardController.prototype._setupResizeListener = function() {
@@ -339,7 +365,19 @@
         button = jQuery(jQuery(dashlet).find('div.dashletToolbar > div.content div.buttons > .maximizeDashletButton')[0]);
         button.click();
         this.logger.log("Add original scale");
-        return this.scaler.addOriginalScale();
+        return this._addOriginalScale();
+      };
+
+      DashboardController.prototype._addOriginalScale = function() {
+        return this._getOverlay().addClass("originalDashletInScaledCanvas");
+      };
+
+      DashboardController.prototype._removeOriginalScale = function() {
+        return this._getOverlay().removeClass("originalDashletInScaledCanvas");
+      };
+
+      DashboardController.prototype._getOverlay = function() {
+        return jQuery(".dashboardCanvas > .content > .body div.canvasOverlay");
       };
 
       return DashboardController;
@@ -376,20 +414,7 @@
       Scaler.prototype.initialize = function() {
         var factor;
         factor = this._calculateFactor();
-        this._generateStyles(factor);
-        return this._applyScaleToDOM();
-      };
-
-      Scaler.prototype.addOriginalScale = function() {
-        return this._getOverlay().addClass("originalDashletInScaledCanvas");
-      };
-
-      Scaler.prototype.removeOriginalScale = function() {
-        return this._getOverlay().removeClass("originalDashletInScaledCanvas");
-      };
-
-      Scaler.prototype._getOverlay = function() {
-        return jQuery(".dashboardCanvas > .content > .body div.canvasOverlay");
+        return this._generateStyles(factor);
       };
 
       Scaler.prototype._calculateFactor = function() {
@@ -401,11 +426,7 @@
         jQuery("#scale_style").remove();
         scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
         originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
-        jQuery('<style id="scale_style"></style').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
-      };
-
-      Scaler.prototype._applyScaleToDOM = function() {
-        return jQuery('.dashboardCanvas').addClass('scaledCanvas');
+        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
       };
 
       return Scaler;

@@ -286,7 +286,7 @@
 
 (function() {
   define('js.mobile.report', ['require','js.mobile.session','js.mobile.report.controller'],function(require) {
-    var MobileReport, ReportController, Session, root;
+    var MobileReport, ReportController, Session;
     Session = require('js.mobile.session');
     ReportController = require('js.mobile.report.controller');
     MobileReport = (function() {
@@ -332,7 +332,6 @@
       };
 
       MobileReport.prototype.run = function(options) {
-        console.log("run report with options" + options);
         options.session = this.session;
         options.context = this.context;
         this.reportController = new ReportController(options);
@@ -350,8 +349,7 @@
       return MobileReport;
 
     })();
-    root = typeof window !== "undefined" && window !== null ? window : exports;
-    return root.MobileReport = MobileReport;
+    return window.MobileReport = MobileReport;
   });
 
 }).call(this);

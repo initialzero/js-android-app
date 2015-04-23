@@ -30,6 +30,7 @@ import android.content.Context;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
@@ -61,6 +62,8 @@ public class JasperMobileModule extends AbstractModule {
         interceptors.add(new TokenHttpRequestInterceptor(mContext));
         interceptors.add(new KeepAliveHttpRequestInterceptor());
         jsRestClient.setRequestInterceptors(interceptors);
+        jsRestClient.setConnectTimeout(DefaultPrefHelper_.getInstance_(mContext).getConnectTimeoutValue());
+        jsRestClient.setReadTimeout(DefaultPrefHelper_.getInstance_(mContext).getReadTimeoutValue());
         bind(JsRestClient.class).toInstance(jsRestClient);
 
         int animationSpeed = mContext.getResources().getInteger(

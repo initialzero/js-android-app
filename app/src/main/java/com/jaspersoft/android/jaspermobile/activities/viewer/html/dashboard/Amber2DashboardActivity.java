@@ -28,6 +28,8 @@ import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -77,6 +79,8 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @InstanceState
     protected boolean mMaximized;
 
+    private boolean mFavoriteItemVisible, mInfoItemVisible;
+    private MenuItem favoriteAction, aboutAction;
     private AccountServerData accountServerData;
     private Toast mToast;
 
@@ -85,7 +89,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mToast = Toast.makeText (this, "", Toast.LENGTH_LONG);
+        mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
@@ -95,6 +99,26 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        favoriteAction = menu.findItem(R.id.favoriteAction);
+        aboutAction = menu.findItem(R.id.aboutAction);
+        return result;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean result = super.onPrepareOptionsMenu(menu);
+        favoriteAction.setVisible(mFavoriteItemVisible);
+        aboutAction.setVisible(mInfoItemVisible);
+        return result;
+    }
+
+    //---------------------------------------------------------------------
+    // Abstract methods implementations
+    //---------------------------------------------------------------------
+
+    @Override
     public void setupWebView(WebView webView) {
         DashboardWebInterface.inject(this, webView);
     }
@@ -102,6 +126,8 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onMaximizeStart(String title) {
+        resetZoom();
+        hideMenuItems();
         ProgressDialogFragment.builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.loading_msg)
                 .show();
@@ -125,12 +151,17 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onMinimizeStart() {
+        resetZoom();
+        showMenuItems();
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
     }
 
     @UiThread
     @Override
     public void onMinimizeEnd() {
-        resetZoom();
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
         mMaximized = false;
     }
 
@@ -204,6 +235,10 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
         }
     }
 
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void loadFlow() {
         InputStream stream = null;
         try {
@@ -252,5 +287,15 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
         String executeScript = String.format(builder.toString(),
                 screenUtil.getDiagonal(), resource.getUri());
         webView.loadUrl(executeScript);
+    }
+
+    private void showMenuItems() {
+        mFavoriteItemVisible = mInfoItemVisible = true;
+        supportInvalidateOptionsMenu();
+    }
+
+    private void hideMenuItems() {
+        mFavoriteItemVisible = mInfoItemVisible = false;
+        supportInvalidateOptionsMenu();
     }
 }

@@ -70,9 +70,8 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     private Toast mToast;
     private int mOrientation;
-    private boolean mFavoriteItemVisible, mRefresItemVisible;
-    private MenuItem favoriteAction;
-    private MenuItem refreshAction;
+    private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
+    private MenuItem favoriteAction, refreshAction, aboutAction;
 
     @SuppressLint("ShowToast")
     @Override
@@ -89,6 +88,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         boolean result = super.onCreateOptionsMenu(menu);
         favoriteAction = menu.findItem(R.id.favoriteAction);
         refreshAction = menu.findItem(R.id.refreshAction);
+        aboutAction = menu.findItem(R.id.aboutAction);
         return result;
     }
 
@@ -96,7 +96,8 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean result = super.onPrepareOptionsMenu(menu);
         favoriteAction.setVisible(mFavoriteItemVisible);
-        refreshAction.setVisible(mRefresItemVisible);
+        refreshAction.setVisible(mRefreshItemVisible);
+        aboutAction.setVisible(mInfoItemVisible);
         return result;
     }
 
@@ -233,7 +234,6 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
-
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -261,12 +261,12 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     }
 
     private void showMenuItems() {
-        mFavoriteItemVisible = mRefresItemVisible = true;
+        mFavoriteItemVisible = mRefreshItemVisible = mInfoItemVisible = true;
         supportInvalidateOptionsMenu();
     }
 
     private void hideMenuItems() {
-        mFavoriteItemVisible = mRefresItemVisible = false;
+        mFavoriteItemVisible = mRefreshItemVisible = mInfoItemVisible = false;
         supportInvalidateOptionsMenu();
     }
 }

@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.inject.Inject;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
 import java.lang.reflect.Type;
@@ -40,6 +41,10 @@ import java.util.Set;
  */
 public class ReportParamsSerializerImpl implements ReportParamsSerializer {
     private static final String EMPTY_JSON = "{}";
+
+    @Inject
+    public ReportParamsSerializerImpl() {
+    }
 
     @Override
     public String toJson(List<ReportParameter> reportParameters) {

@@ -28,7 +28,6 @@ import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
@@ -81,7 +80,6 @@ public class ResourceOpener {
                 openFolder(fragment, resource);
                 break;
             case reportUnit:
-                JasperMobileApplication.removeAllCookies();
                 runReport(resource);
                 break;
             case legacyDashboard:
@@ -114,6 +112,7 @@ public class ResourceOpener {
             case EMERALD_MR1:
             case EMERALD_MR2:
             case EMERALD_MR3:
+            case EMERALD_MR4:
                 ReportHtmlViewerActivity_.intent(activity)
                         .resource(resource).start();
                 break;

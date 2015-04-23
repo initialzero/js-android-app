@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class ReportParamsStorage {
     private final Map<String, WeakReference<ArrayList<ReportParameter>>> paramsCache = new HashMap<String, WeakReference<ArrayList<ReportParameter>>>();
-    private final Map<String, WeakReference<ArrayList<InputControl>>> inputControlCache = new HashMap<String, WeakReference<ArrayList<InputControl>>>();
+    private final Map<String, WeakReference<ArrayList<InputControl>>> inputControlsCache = new HashMap<String, WeakReference<ArrayList<InputControl>>>();
 
     @Inject
     public ReportParamsStorage() {
@@ -27,33 +27,40 @@ public class ReportParamsStorage {
     @NonNull
     public ArrayList<ReportParameter> getReportParameters(@NonNull String resourceUri) {
         WeakReference<ArrayList<ReportParameter>> weakReference = paramsCache.get(resourceUri);
-        ArrayList<ReportParameter> params = weakReference.get();
-        if (params == null) {
+        if (weakReference == null) {
             return new ArrayList<ReportParameter>();
         } else {
-            return params;
+            ArrayList<ReportParameter> params = weakReference.get();
+            if (params == null) {
+                return new ArrayList<ReportParameter>();
+            } else {
+                return params;
+            }
         }
     }
 
     @NonNull
     public ArrayList<InputControl> getInputControls(@NonNull String resourceUri) {
-        WeakReference<ArrayList<InputControl>> weakReference = inputControlCache.get(resourceUri);
-        ArrayList<InputControl> controls = weakReference.get();
-        if (controls == null) {
+        WeakReference<ArrayList<InputControl>> weakReference = inputControlsCache.get(resourceUri);
+        if (weakReference == null) {
             return new ArrayList<InputControl>();
         } else {
-            return controls;
+            ArrayList<InputControl> controls = weakReference.get();
+            if (controls == null) {
+                return new ArrayList<InputControl>();
+            } else {
+                return controls;
+            }
         }
     }
 
     public void putReportParameters(@NonNull String resourceUri, @NonNull ArrayList<ReportParameter> reportParameters) {
         WeakReference<ArrayList<ReportParameter>> weakReference = paramsCache.get(resourceUri);
         if (weakReference == null) {
-            weakReference = new WeakReference<ArrayList<ReportParameter>>(reportParameters);
-            paramsCache.put(resourceUri, weakReference);
+            createReportParametersReference(resourceUri, reportParameters);
         } else {
             if (weakReference.get() == null) {
-                throw new IllegalStateException("Cache for report parameters was GC");
+                createReportParametersReference(resourceUri, reportParameters);
             } else {
                 weakReference.get().clear();
                 weakReference.get().addAll(reportParameters);
@@ -62,17 +69,28 @@ public class ReportParamsStorage {
     }
 
     public void putInputControls(@NonNull String resourceUri, @NonNull ArrayList<InputControl> inputControls) {
-        WeakReference<ArrayList<InputControl>> weakReference = inputControlCache.get(resourceUri);
+        WeakReference<ArrayList<InputControl>> weakReference = inputControlsCache.get(resourceUri);
         if (weakReference == null) {
-            weakReference = new WeakReference<ArrayList<InputControl>>(inputControls);
-            inputControlCache.put(resourceUri, weakReference);
+            createInputControlsWeakReference(resourceUri, inputControls);
         } else {
             if (weakReference.get() == null) {
-                throw new IllegalStateException("Cache for report parameters was GC");
+                createInputControlsWeakReference(resourceUri, inputControls);
             } else {
                 weakReference.get().clear();
                 weakReference.get().addAll(inputControls);
             }
         }
+    }
+
+    private void createReportParametersReference(String resourceUri, ArrayList<ReportParameter> reportParameters) {
+        WeakReference<ArrayList<ReportParameter>> weakReference;
+        weakReference = new WeakReference<ArrayList<ReportParameter>>(reportParameters);
+        paramsCache.put(resourceUri, weakReference);
+    }
+
+    private void createInputControlsWeakReference(String resourceUri, ArrayList<InputControl> inputControls) {
+        WeakReference<ArrayList<InputControl>> weakReference;
+        weakReference = new WeakReference<ArrayList<InputControl>>(inputControls);
+        inputControlsCache.put(resourceUri, weakReference);
     }
 }

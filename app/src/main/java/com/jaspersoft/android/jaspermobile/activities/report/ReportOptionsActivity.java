@@ -215,7 +215,8 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
     private void runReport() {
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
-        runReportViewer(reportUri, parameters);
+        paramsStorage.putReportParameters(reportUri, parameters);
+        runReportViewer();
     }
 
     private ArrayList<ReportParameter> initParametersUsingSelectedValues() {
@@ -226,10 +227,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         return parameters;
     }
 
-    private void runReportViewer(String reportUri, ArrayList<ReportParameter> parameters) {
-        paramsStorage.putReportParameters(reportUri, parameters);
-        paramsStorage.putInputControls(reportUri, inputControls);
-
+    private void runReportViewer() {
         Intent htmlViewer = new Intent();
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();
@@ -244,7 +242,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         }
     }
 
-    private void hideValidationMessage(InputControl control){
+    private void hideValidationMessage(InputControl control) {
         TextView textView = (TextView) control.getErrorView();
         if (textView != null) {
             textView.setVisibility(View.GONE);
@@ -280,28 +278,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
         // init UI components for ICs
         for (final InputControl inputControl : inputControls) {
-            InputControlState state = inputControl.getState();
-            Set<String> values = hashMap.get(state.getId());
-
-            switch (inputControl.getType()) {
-                case bool:
-                case singleValueText:
-                case singleValueNumber:
-                case singleValueTime:
-                case singleValueDate:
-                case singleValueDatetime:
-                    String value = new ArrayList<String>(values).get(0);
-                    state.setValue(value);
-                    break;
-                case multiSelect:
-                case multiSelectCheckbox:
-                case singleSelect:
-                case singleSelectRadio:
-                    for (InputControlOption option : state.getOptions()) {
-                        option.setSelected(values.contains(option.getValue()));
-                    }
-                    break;
-            }
+            updateInputControlState(hashMap, inputControl);
 
             if (inputControl.isVisible()) {
                 switch (inputControl.getType()) {
@@ -326,6 +303,37 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
                         initMultiSelectControl(inputControl);
                         break;
                 }
+            }
+        }
+    }
+
+    private void updateInputControlState(Map<String, Set<String>> hashMap, InputControl inputControl) {
+        InputControlState state = inputControl.getState();
+        List<InputControlOption> options = state.getOptions();
+        Set<String> valueSet = hashMap.get(state.getId());
+        List<String> valueList = new ArrayList<String>();
+        if (valueSet != null) {
+            valueList.addAll(valueSet);
+        }
+
+        if (!valueList.isEmpty()) {
+            switch (inputControl.getType()) {
+                case bool:
+                case singleValueText:
+                case singleValueNumber:
+                case singleValueTime:
+                case singleValueDate:
+                case singleValueDatetime:
+                    state.setValue(valueList.get(0));
+                    break;
+                case multiSelect:
+                case multiSelectCheckbox:
+                case singleSelect:
+                case singleSelectRadio:
+                    for (InputControlOption option : options) {
+                        option.setSelected(valueList.contains(option.getValue()));
+                    }
+                    break;
             }
         }
     }

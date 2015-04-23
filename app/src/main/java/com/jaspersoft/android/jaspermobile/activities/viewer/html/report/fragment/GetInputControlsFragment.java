@@ -73,11 +73,10 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     @OptionsMenuItem
     protected MenuItem showFilters;
 
-    private RequestExecutor requestExecutor;
     private OnInputControlsListener mListener = new NullListener();
-    private boolean mLoading;
-    private boolean mLoaded;
-    private boolean mShowFilterMenuItem;
+    private ArrayList<InputControl> inputControls;
+    private RequestExecutor requestExecutor;
+    private boolean mShowFilterMenuItem, mLoading, mLoaded;
 
     @Override
     public void onAttach(Activity activity) {
@@ -125,6 +124,7 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     }
 
     private class GetInputControlsListener extends SimpleRequestListener<InputControlsList> {
+
         @Override
         protected Context getContext() {
             return getActivity();
@@ -142,11 +142,14 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         public void onRequestSuccess(InputControlsList controlsList) {
             mLoading = false;
             mLoaded = true;
-            mShowFilterMenuItem = !controlsList.getInputControls().isEmpty();
+
+            inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+            mShowFilterMenuItem = !inputControls.isEmpty();
+
             getActivity().supportInvalidateOptionsMenu();
             ProgressDialogFragment.dismiss(getFragmentManager());
 
-            paramsStorage.putInputControls(resourceUri, new ArrayList<InputControl>(controlsList.getInputControls()));
+            paramsStorage.putInputControls(resourceUri, inputControls);
             mListener.onLoaded();
         }
     }

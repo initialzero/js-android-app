@@ -42,15 +42,16 @@ import java.util.List;
 public class SystemWebViewClient extends WebViewClient {
     private JasperWebViewClientListener jasperWebViewClientListener;
     private final List<JasperRequestInterceptor> requestInterceptors;
+    private final List<UrlPolicy> urlPolicies;
 
     private SystemWebViewClient() {
-        this.jasperWebViewClientListener = new EmptyWebClientCallbackDelegate();
-        this.requestInterceptors = new ArrayList<JasperRequestInterceptor>();
+        this(new EmptyWebClientCallbackDelegate());
     }
 
     private SystemWebViewClient(JasperWebViewClientListener jasperWebViewClientListener) {
         this.jasperWebViewClientListener = jasperWebViewClientListener;
         this.requestInterceptors = new ArrayList<JasperRequestInterceptor>();
+        this.urlPolicies = new ArrayList<UrlPolicy>();
     }
 
     public static SystemWebViewClient newInstance() {
@@ -68,12 +69,34 @@ public class SystemWebViewClient extends WebViewClient {
         return this;
     }
 
+    public SystemWebViewClient withUrlPolicy(UrlPolicy urlPolicy) {
+        registerUrlPolicy(urlPolicy);
+        return this;
+    }
+
     public void registerInterceptor(JasperRequestInterceptor requestInterceptor) {
         requestInterceptors.add(requestInterceptor);
     }
 
     public void unregisterInterceptor(JasperRequestInterceptor requestInterceptor) {
         requestInterceptors.remove(requestInterceptor);
+    }
+
+    public void registerUrlPolicy(UrlPolicy urlPolicy) {
+        urlPolicies.add(urlPolicy);
+    }
+
+    public void unregisterUrlPolicy(UrlPolicy urlPolicy) {
+        urlPolicies.remove(urlPolicy);
+    }
+
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        boolean defaultResult = super.shouldOverrideUrlLoading(view, url);
+        for (UrlPolicy urlPolicy : urlPolicies) {
+            defaultResult &= urlPolicy.shouldOverrideUrlLoading(view, url);
+        }
+        return defaultResult;
     }
 
     @Override

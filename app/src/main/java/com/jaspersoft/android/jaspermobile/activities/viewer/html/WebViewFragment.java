@@ -36,13 +36,13 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
@@ -98,13 +98,7 @@ public class WebViewFragment extends RoboFragment {
     final void init() {
         initWebView();
         scrollableTitleHelper.injectTitle(resourceLabel);
-        jsWebViewClient.setSessionListener(new JSWebViewClient.SessionListener() {
-            @Override
-            public void onSessionExpired() {
-                Toast.makeText(getActivity(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
-                getActivity().finish();
-            }
-        });
+        jsWebViewClient.setSessionListener(DefaultSessionListener.from(getActivity()));
     }
 
     private void initWebView() {

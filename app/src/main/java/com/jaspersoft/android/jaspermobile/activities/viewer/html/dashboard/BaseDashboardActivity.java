@@ -38,10 +38,13 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
+import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
+import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
+import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -204,11 +207,15 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
     private void initWebView() {
         chromeClientListener = new JasperChromeClientListenerImpl(progressBar);
 
+        DefaultUrlPolicy.SessionListener sessionListener = DefaultSessionListener.from(this);
+        UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(sessionListener);
+
         SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
                 .withDelegateListener(chromeClientListener);
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
                 .withDelegateListener(this)
-                .withInterceptor(DashboardRequestInterceptor.newInstance());
+                .withInterceptor(DashboardRequestInterceptor.newInstance())
+                .withUrlPolicy(defaultPolicy);
 
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()
@@ -221,7 +228,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
         favoriteEntryUri = favoritesHelper.
                 handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
     }
-
 
     private void aboutAction() {
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())

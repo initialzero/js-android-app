@@ -57,9 +57,12 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
+import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
+import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
@@ -382,9 +385,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private void initWebView() {
         chromeClientListener = new JasperChromeClientListenerImpl(progressBar);
 
+        DefaultUrlPolicy.SessionListener sessionListener = DefaultSessionListener.from(this);
+        UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(sessionListener);
+
         SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
                 .withDelegateListener(chromeClientListener);
-        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance();
+        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+                .withUrlPolicy(defaultPolicy);
 
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()

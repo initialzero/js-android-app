@@ -43,23 +43,22 @@ import android.widget.ProgressBar;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardCordovaWebClient;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.SessionListener;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient_;
+import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListener;
+import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
+import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
+import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
+import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaPreferences;
 import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.CordovaWebViewClient;
-import org.apache.cordova.PluginEntry;
-import org.apache.cordova.Whitelist;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -266,20 +265,55 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     }
 
     private void initCordovaWebView() {
-        Whitelist whitelist = new Whitelist();
-        whitelist.addWhiteListEntry("http://*/*", true);
-        whitelist.addWhiteListEntry("https://*/*", true);
-        CordovaPreferences cordovaPreferences = new CordovaPreferences();
+        JasperChromeClientListener chromeClientListener = new JasperChromeClientListener() {
+            @Override
+            public void onProgressChanged(WebView view, int progress) {
 
-        jsWebViewClient.setSessionListener(new SessionListener(getActivity()));
-        CordovaWebViewClient webViewClient2 = new DashboardCordovaWebClient(this, webView, jsWebViewClient);
+            }
 
-        chromeClient = new ChromeClient(this, webView);
+            @Override
+            public void onConsoleMessage(ConsoleMessage consoleMessage) {
 
-        List<PluginEntry> pluginEntries = (List<PluginEntry>) Collections.EMPTY_LIST;
+            }
+        };
+        JasperWebViewClientListener webClientListener = new JasperWebViewClientListener() {
+            @Override
+            public void onPageStarted(String newUrl) {
+            }
 
-        setupWebView(webView);
-        webView.init(this, webViewClient2, chromeClient, pluginEntries, whitelist, whitelist, cordovaPreferences);
+            @Override
+            public void onReceivedError(int errorCode, String description, String failingUrl) {
+            }
+
+            @Override
+            public void onPageFinishedLoading(String url) {
+            }
+        };
+
+        SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
+                .withDelegateListener(chromeClientListener);
+        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+                .withDelegateListener(webClientListener)
+                .withInterceptor(DashboardRequestInterceptor.newInstance());
+
+        WebViewEnvironment.configure(webView)
+                .withChromeClient(systemChromeClient)
+                .withWebClient(systemWebViewClient);
+
+//        Whitelist whitelist = new Whitelist();
+//        whitelist.addWhiteListEntry("http://*/*", true);
+//        whitelist.addWhiteListEntry("https://*/*", true);
+//        CordovaPreferences cordovaPreferences = new CordovaPreferences();
+//
+//        jsWebViewClient.setSessionListener(new SessionListener(getActivity()));
+//        CordovaWebViewClient webViewClient2 = new DashboardCordovaWebClient(this, webView, jsWebViewClient);
+//
+//        this.chromeClient = new ChromeClient(this, webView);
+//
+//        List<PluginEntry> pluginEntries = (List<PluginEntry>) Collections.EMPTY_LIST;
+//
+//        setupWebView(webView);
+//        webView.init(this, webViewClient2, chromeClientListener, pluginEntries, whitelist, whitelist, cordovaPreferences);
     }
 
     //---------------------------------------------------------------------

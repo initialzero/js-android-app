@@ -39,7 +39,7 @@ import java.io.IOException;
 
 import timber.log.Timber;
 
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagCreator.INJECTION_TOKEN;
+import static com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator.INJECTION_TOKEN;
 
 /**
  * @author Tom Koptel

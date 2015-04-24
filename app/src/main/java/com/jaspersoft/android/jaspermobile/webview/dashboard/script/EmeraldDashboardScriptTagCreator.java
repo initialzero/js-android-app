@@ -22,16 +22,16 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
+package com.jaspersoft.android.jaspermobile.webview.dashboard.script;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-final class AmberDashboardScriptTagCreator extends DashboardScriptTagCreator {
-    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-amber-android-mobilejs-sdk.js";
+final class EmeraldDashboardScriptTagCreator extends DashboardScriptTagCreator {
+    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-legacy-mobilejs-sdk.js";
 
-    public AmberDashboardScriptTagCreator() {
+    public EmeraldDashboardScriptTagCreator() {
         super(CLIENT_SCRIPT_SRC);
     }
 }

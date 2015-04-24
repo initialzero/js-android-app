@@ -22,26 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
+package com.jaspersoft.android.jaspermobile.webview;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public abstract class DashboardScriptTagCreator implements ScriptTagCreator {
-    private final String source;
-
-    protected DashboardScriptTagCreator(String source) {
-        this.source = source;
-    }
-
-    @Override
-    public String createTag() {
-        return new StringBuilder()
-                .append("var head= document.getElementsByTagName('head')[0];")
-                .append("var script= document.createElement('script');")
-                .append("script.type= 'text/javascript';")
-                .append("script.src= '" + source + "';")
-                .append("head.appendChild(script)").toString();
-    }
+public interface JasperWebViewClientListener {
+    void onPageStarted(String newUrl);
+    void onReceivedError(int errorCode, String description, String failingUrl);
+    void onPageFinishedLoading(String url);
 }

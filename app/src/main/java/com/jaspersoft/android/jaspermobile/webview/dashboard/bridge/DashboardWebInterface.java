@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
+package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;

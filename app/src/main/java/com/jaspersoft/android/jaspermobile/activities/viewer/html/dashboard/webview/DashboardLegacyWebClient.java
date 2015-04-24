@@ -31,19 +31,19 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagFactory;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 
 import java.io.IOException;
 
 import timber.log.Timber;
-
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagCreator.INJECTION_TOKEN;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public class DashboardLegacyWebClient extends WebViewClient {
+    public static final String INJECTION_TOKEN = "**injection**";
+
     private final WebViewClient mDecoratedClient;
 
     public DashboardLegacyWebClient(WebViewClient decoratedClient) {

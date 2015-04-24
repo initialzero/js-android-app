@@ -22,16 +22,16 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script;
+package com.jaspersoft.android.jaspermobile.webview;
+
+import android.webkit.ConsoleMessage;
+import android.webkit.WebView;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-final class Amber2DashboardScriptTagCreator extends DashboardScriptTagCreator {
-    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-amber2-android-mobilejs-sdk.js";
-
-    public Amber2DashboardScriptTagCreator() {
-        super(CLIENT_SCRIPT_SRC);
-    }
+public interface JasperChromeClientListener {
+    void onProgressChanged(WebView view, int progress);
+    void onConsoleMessage(ConsoleMessage consoleMessage);
 }

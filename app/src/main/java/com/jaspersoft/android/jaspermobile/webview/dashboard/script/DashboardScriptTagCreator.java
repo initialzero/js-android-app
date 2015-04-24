@@ -22,27 +22,28 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge;
+package com.jaspersoft.android.jaspermobile.webview.dashboard.script;
+
+import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
 
 /**
- * Introduces hardcoded Javascript calls.
- *
  * @author Tom Koptel
  * @since 2.0
  */
-public class MobileDashboardApi {
-    private MobileDashboardApi() {
+public abstract class DashboardScriptTagCreator implements ScriptTagCreator {
+    private final String source;
+
+    protected DashboardScriptTagCreator(String source) {
+        this.source = source;
     }
 
-    public static String refreshDashlet() {
-        return "javascript:MobileDashboard.refresh()";
-    }
-
-    public static String refresh() {
-        return "javascript:MobileDashboard.refresh()";
-    }
-
-    public static String minimizeDashlet() {
-        return "javascript:MobileDashboard.minimizeDashlet()";
+    @Override
+    public String createTag() {
+        return new StringBuilder()
+                .append("var head= document.getElementsByTagName('head')[0];")
+                .append("var script= document.createElement('script');")
+                .append("script.type= 'text/javascript';")
+                .append("script.src= '" + source + "';")
+                .append("head.appendChild(script)").toString();
     }
 }

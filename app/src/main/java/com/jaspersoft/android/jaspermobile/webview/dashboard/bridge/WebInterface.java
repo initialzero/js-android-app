@@ -2,6 +2,6 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 
 import android.webkit.WebView;
 
-abstract class WebInterface {
-    abstract void injectJavascriptInterface(WebView webView);
+public abstract class WebInterface {
+    public abstract void exposeJavascriptInterface(WebView webView);
 }

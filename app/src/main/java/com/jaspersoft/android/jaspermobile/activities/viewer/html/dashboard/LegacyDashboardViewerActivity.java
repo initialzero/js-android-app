@@ -58,7 +58,7 @@ public class LegacyDashboardViewerActivity extends DashboardCordovaActivity {
     }
 
     @Override
-    public void setupWebView(WebView webView) {
+    public void onWebviewConfigured(WebView webView) {
     }
 
     @Override

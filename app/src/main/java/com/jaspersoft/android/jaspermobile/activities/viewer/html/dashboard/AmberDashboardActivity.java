@@ -34,6 +34,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
@@ -117,8 +118,10 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     //---------------------------------------------------------------------
 
     @Override
-    public void setupWebView(WebView webView) {
-        DashboardWebInterface.inject(this, webView);
+    public void onWebviewConfigured(WebView webView) {
+        WebViewEnvironment
+                .configure(webView)
+                .withWebInterface(DashboardWebInterface.from(this));
         showInitialLoader();
     }
 

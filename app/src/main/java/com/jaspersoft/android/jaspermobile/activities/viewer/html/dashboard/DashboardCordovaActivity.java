@@ -54,7 +54,6 @@ import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
@@ -78,7 +77,6 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     protected CordovaWebView webView;
     private ProgressBar progressBar;
     private JSWebViewClient_ jsWebViewClient;
-    private ChromeClient chromeClient;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     protected ResourceLookup resource;
@@ -95,6 +93,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
             }
         }
     };
+    private JasperChromeClientListenerImpl chromeClientListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,8 +196,8 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     }
 
     private void showLog() {
-        if (chromeClient != null) {
-            LogDialog.create(getSupportFragmentManager(), chromeClient.messages);
+        if (chromeClientListener != null) {
+            LogDialog.create(getSupportFragmentManager(), chromeClientListener.getMessages());
         }
     }
 
@@ -228,7 +227,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         return executorService;
     }
 
-    public abstract void setupWebView(WebView webView);
+    public abstract void onWebviewConfigured(WebView webView);
 
     public abstract void onPageFinished();
 
@@ -265,17 +264,7 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     }
 
     private void initCordovaWebView() {
-        JasperChromeClientListener chromeClientListener = new JasperChromeClientListener() {
-            @Override
-            public void onProgressChanged(WebView view, int progress) {
-
-            }
-
-            @Override
-            public void onConsoleMessage(ConsoleMessage consoleMessage) {
-
-            }
-        };
+        chromeClientListener = new JasperChromeClientListenerImpl();
         JasperWebViewClientListener webClientListener = new JasperWebViewClientListener() {
             @Override
             public void onPageStarted(String newUrl) {
@@ -297,35 +286,19 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
                 .withInterceptor(DashboardRequestInterceptor.newInstance());
 
         WebViewEnvironment.configure(webView)
+                .withDefaultSettings()
                 .withChromeClient(systemChromeClient)
                 .withWebClient(systemWebViewClient);
+        onWebviewConfigured(webView);
 
-//        Whitelist whitelist = new Whitelist();
-//        whitelist.addWhiteListEntry("http://*/*", true);
-//        whitelist.addWhiteListEntry("https://*/*", true);
-//        CordovaPreferences cordovaPreferences = new CordovaPreferences();
-//
-//        jsWebViewClient.setSessionListener(new SessionListener(getActivity()));
-//        CordovaWebViewClient webViewClient2 = new DashboardCordovaWebClient(this, webView, jsWebViewClient);
-//
-//        this.chromeClient = new ChromeClient(this, webView);
-//
-//        List<PluginEntry> pluginEntries = (List<PluginEntry>) Collections.EMPTY_LIST;
-//
-//        setupWebView(webView);
-//        webView.init(this, webViewClient2, chromeClientListener, pluginEntries, whitelist, whitelist, cordovaPreferences);
     }
 
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class ChromeClient extends CordovaChromeClient {
+    private class JasperChromeClientListenerImpl implements JasperChromeClientListener {
         private final List<ConsoleMessage> messages = new LinkedList<ConsoleMessage>();
-
-        public ChromeClient(CordovaInterface ctx, CordovaWebView app) {
-            super(ctx, app);
-        }
 
         @Override
         public void onProgressChanged(WebView view, int progress) {
@@ -337,9 +310,12 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         }
 
         @Override
-        public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+        public void onConsoleMessage(ConsoleMessage consoleMessage) {
             messages.add(consoleMessage);
-            return super.onConsoleMessage(consoleMessage);
+        }
+
+        public List<ConsoleMessage> getMessages() {
+            return messages;
         }
     }
 }

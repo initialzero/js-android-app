@@ -35,6 +35,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.WebInterface;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -50,7 +52,6 @@ public class WebViewEnvironment {
 
     private WebViewEnvironment(WebView webView) {
         this.webView = webView;
-        configureWebViewSettings();
     }
 
     public static WebViewEnvironment configure(WebView webView) {
@@ -67,9 +68,14 @@ public class WebViewEnvironment {
         return this;
     }
 
+    public WebViewEnvironment withWebInterface(WebInterface webInterface) {
+        webInterface.exposeJavascriptInterface(webView);
+        return this;
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     @SuppressWarnings("deprecation")
-    private void configureWebViewSettings() {
+    public WebViewEnvironment withDefaultSettings() {
         webView.setInitialScale(0);
         webView.setVerticalScrollBarEnabled(false);
         // Enable JavaScript
@@ -152,6 +158,8 @@ public class WebViewEnvironment {
         // Fix for CB-1405
         // Google issue 4641
         settings.getUserAgentString();
+
+        return this;
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)

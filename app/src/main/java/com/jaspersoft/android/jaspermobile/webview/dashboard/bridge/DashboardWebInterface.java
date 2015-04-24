@@ -38,8 +38,8 @@ public class DashboardWebInterface extends WebInterface implements DashboardCall
         this.dashboardCallback = dashboardCallback;
     }
 
-    public static void inject(DashboardCallback dashboardCallback, WebView webView) {
-        new DashboardWebInterface(dashboardCallback).injectJavascriptInterface(webView);
+    public static WebInterface from(DashboardCallback dashboardCallback) {
+        return new DashboardWebInterface(dashboardCallback);
     }
 
     @JavascriptInterface
@@ -121,7 +121,7 @@ public class DashboardWebInterface extends WebInterface implements DashboardCall
     }
 
     @Override
-    void injectJavascriptInterface(WebView webView) {
+    public void exposeJavascriptInterface(WebView webView) {
         webView.addJavascriptInterface(this, "Android");
     }
 }

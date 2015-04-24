@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview;
+package com.jaspersoft.android.jaspermobile.webview;
 
 import android.app.Activity;
 import android.widget.Toast;

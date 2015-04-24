@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="-6dp" />
 
-    <org.apache.cordova.CordovaWebView
+    <com.jaspersoft.android.jaspermobile.widget.JSWebView
         android:id="@+id/webView"
         android:visibility="invisible"
         android:layout_below="@id/progressBar"

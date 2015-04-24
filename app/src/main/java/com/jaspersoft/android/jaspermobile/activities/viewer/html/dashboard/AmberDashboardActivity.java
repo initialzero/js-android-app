@@ -38,7 +38,7 @@ import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
@@ -56,7 +56,7 @@ import org.androidannotations.annotations.UiThread;
  * @since 2.0
  */
 @EActivity
-public class AmberDashboardActivity extends DashboardCordovaActivity implements DashboardCallback {
+public class AmberDashboardActivity extends BaseDashboardActivity implements DashboardCallback {
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
@@ -118,7 +118,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     //---------------------------------------------------------------------
 
     @Override
-    public void onWebviewConfigured(WebView webView) {
+    public void onWebViewConfigured(WebView webView) {
         WebViewEnvironment
                 .configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
@@ -127,7 +127,7 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @Override
     public void onPageFinished() {
-        webView.loadUrl("javascript:" + ScriptTagFactory.getInstance(this).getTagCreator().createTag());
+        webView.loadUrl(ScriptTagFactory.getInstance(this).getTagCreator().createTag());
     }
 
     @Override

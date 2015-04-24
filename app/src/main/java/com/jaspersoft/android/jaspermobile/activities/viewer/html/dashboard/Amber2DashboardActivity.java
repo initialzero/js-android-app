@@ -67,7 +67,7 @@ import java.util.Map;
  * @since 2.0
  */
 @EActivity
-public class Amber2DashboardActivity extends DashboardCordovaActivity implements DashboardCallback {
+public class Amber2DashboardActivity extends BaseDashboardActivity implements DashboardCallback {
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
@@ -120,7 +120,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     //---------------------------------------------------------------------
 
     @Override
-    public void onWebviewConfigured(WebView webView) {
+    public void onWebViewConfigured(WebView webView) {
         WebViewEnvironment.configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
     }

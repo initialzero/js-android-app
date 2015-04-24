@@ -22,18 +22,13 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview;
+package com.jaspersoft.android.jaspermobile.webview;
 
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 
-import org.apache.cordova.CordovaChromeClient;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaWebView;
-
-import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,32 +36,26 @@ import java.util.List;
  * @author Tom Koptel
  * @since 2.0
  */
-public class SimpleChromeClient extends CordovaChromeClient {
+public class JasperChromeClientListenerImpl implements JasperChromeClientListener {
     private final List<ConsoleMessage> messages = new LinkedList<ConsoleMessage>();
-    private final WeakReference<ProgressBar> weakReference;
+    private final ProgressBar progressBar;
 
-    public SimpleChromeClient(CordovaInterface ctx, CordovaWebView app, ProgressBar progressBar) {
-        super(ctx, app);
-        this.weakReference = new WeakReference<ProgressBar>(progressBar);
+    public JasperChromeClientListenerImpl(ProgressBar progressBar) {
+        this.progressBar = progressBar;
     }
-
 
     @Override
     public void onProgressChanged(WebView view, int progress) {
-        ProgressBar progressBar = weakReference.get();
-        if (progressBar != null) {
-            int maxProgress = progressBar.getMax();
-            progressBar.setProgress((maxProgress / 100) * progress);
-            if (progress == maxProgress) {
-                progressBar.setVisibility(View.GONE);
-            }
+        int maxProgress = progressBar.getMax();
+        progressBar.setProgress((maxProgress / 100) * progress);
+        if (progress == maxProgress) {
+            progressBar.setVisibility(View.GONE);
         }
     }
 
     @Override
-    public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+    public void onConsoleMessage(ConsoleMessage consoleMessage) {
         messages.add(consoleMessage);
-        return super.onConsoleMessage(consoleMessage);
     }
 
     public List<ConsoleMessage> getMessages() {

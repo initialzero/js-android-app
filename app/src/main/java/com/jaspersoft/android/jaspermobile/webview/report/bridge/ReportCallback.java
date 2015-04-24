@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.bridge;
+package com.jaspersoft.android.jaspermobile.webview.report.bridge;
 
 /**
  * @author Tom Koptel

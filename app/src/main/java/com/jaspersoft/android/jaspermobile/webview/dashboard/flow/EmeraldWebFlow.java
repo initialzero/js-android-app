@@ -22,32 +22,17 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview;
-
-import android.app.Activity;
-import android.widget.Toast;
-
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
-
-import java.lang.ref.WeakReference;
+package com.jaspersoft.android.jaspermobile.webview.dashboard.flow;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class SessionListener implements JSWebViewClient.SessionListener {
-    private final WeakReference<Activity> weakReference;
-
-    public SessionListener(Activity activity) {
-        this.weakReference = new WeakReference<Activity>(activity);
-    }
+final class EmeraldWebFlow implements WebFlow {
+    private static final String FLOW_URI = "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource=";
 
     @Override
-    public void onSessionExpired() {
-        if (weakReference.get() != null) {
-            Toast.makeText(weakReference.get(), R.string.da_session_expired, Toast.LENGTH_LONG).show();
-            weakReference.get().finish();
-        }
+    public String getFlowUri() {
+        return FLOW_URI;
     }
 }

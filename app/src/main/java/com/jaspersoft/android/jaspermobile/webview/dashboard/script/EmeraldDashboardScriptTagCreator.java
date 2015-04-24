@@ -29,9 +29,9 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.script;
  * @since 2.0
  */
 final class EmeraldDashboardScriptTagCreator extends DashboardScriptTagCreator {
-    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-legacy-mobilejs-sdk.js";
+    public static final String CLIENT_SCRIPT_SRC = "dashboard-legacy-mobilejs-sdk.js";
 
-    public EmeraldDashboardScriptTagCreator() {
-        super(CLIENT_SCRIPT_SRC);
+    public EmeraldDashboardScriptTagCreator(String token) {
+        super(token, CLIENT_SCRIPT_SRC);
     }
 }

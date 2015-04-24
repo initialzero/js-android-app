@@ -29,9 +29,9 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.script;
  * @since 2.0
  */
 final class AmberDashboardScriptTagCreator extends DashboardScriptTagCreator {
-    public static final String CLIENT_SCRIPT_SRC = INJECTION_TOKEN + "dashboard-amber-android-mobilejs-sdk.js";
+    public static final String CLIENT_SCRIPT_SRC = "dashboard-amber-android-mobilejs-sdk.js";
 
-    public AmberDashboardScriptTagCreator() {
-        super(CLIENT_SCRIPT_SRC);
+    public AmberDashboardScriptTagCreator(String token) {
+        super(token, CLIENT_SCRIPT_SRC);
     }
 }

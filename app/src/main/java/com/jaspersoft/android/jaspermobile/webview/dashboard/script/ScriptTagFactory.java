@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -48,6 +49,7 @@ public class ScriptTagFactory {
     }
 
     public ScriptTagCreator getTagCreator() {
+        String token = DashboardRequestInterceptor.INJECTION_TOKEN;
         Account account = JasperAccountManager.get(mContext).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(mContext, account);
         String versionName = accountServerData.getVersionName();
@@ -58,12 +60,12 @@ public class ScriptTagFactory {
             case EMERALD_MR1:
             case EMERALD_MR2:
             case EMERALD_MR3:
-                return new EmeraldDashboardScriptTagCreator();
+                return new EmeraldDashboardScriptTagCreator(token);
             case AMBER:
             case AMBER_MR1:
-                return new AmberDashboardScriptTagCreator();
+                return new AmberDashboardScriptTagCreator(token);
             case AMBER_MR2:
-                return new Amber2DashboardScriptTagCreator();
+                return new Amber2DashboardScriptTagCreator(token);
             default:
                 throw new UnsupportedOperationException("Could not script creator for current versionName: " + versionName);
         }

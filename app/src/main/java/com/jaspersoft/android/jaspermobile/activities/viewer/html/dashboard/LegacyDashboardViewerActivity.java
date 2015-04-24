@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 import android.os.Bundle;
 import android.webkit.WebView;
 
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -43,7 +43,7 @@ import org.androidannotations.annotations.Extra;
  * @since 1.4
  */
 @EActivity
-public class LegacyDashboardViewerActivity extends DashboardCordovaActivity {
+public class LegacyDashboardViewerActivity extends BaseDashboardActivity {
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
@@ -58,12 +58,12 @@ public class LegacyDashboardViewerActivity extends DashboardCordovaActivity {
     }
 
     @Override
-    public void onWebviewConfigured(WebView webView) {
+    public void onWebViewConfigured(WebView webView) {
     }
 
     @Override
     public void onPageFinished() {
-        webView.loadUrl("javascript:" + ScriptTagFactory.getInstance(this).getTagCreator().createTag());
+        webView.loadUrl(ScriptTagFactory.getInstance(this).getTagCreator().createTag());
     }
 
     @Override

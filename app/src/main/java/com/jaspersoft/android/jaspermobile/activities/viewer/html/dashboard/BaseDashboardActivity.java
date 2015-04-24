@@ -24,19 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.webkit.ConsoleMessage;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 
@@ -45,23 +38,13 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.JSWebViewClient_;
-import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListener;
+import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
@@ -71,19 +54,19 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
  * @author Tom Koptel
  * @since 2.0
  */
-public abstract class DashboardCordovaActivity extends RoboToolbarActivity implements CordovaInterface {
+public abstract class BaseDashboardActivity extends RoboToolbarActivity implements JasperWebViewClientListener {
     public final static String RESOURCE_EXTRA = "resource";
 
-    protected CordovaWebView webView;
+    protected WebView webView;
     private ProgressBar progressBar;
-    private JSWebViewClient_ jsWebViewClient;
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
     protected ResourceLookup resource;
     private MenuItem favoriteAction;
 
     private Uri favoriteEntryUri;
     private FavoritesHelper_ favoritesHelper;
+    private JasperChromeClientListenerImpl chromeClientListener;
+
     private final Handler mHandler = new Handler();
     private final Runnable mZoomOutTask = new Runnable() {
         @Override
@@ -93,7 +76,6 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
             }
         }
     };
-    private JasperChromeClientListenerImpl chromeClientListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,12 +96,10 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
         }
 
-        webView = (CordovaWebView) findViewById(R.id.webView);
+        webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        jsWebViewClient = JSWebViewClient_.getInstance_(this);
 
-        setupSettings();
-        initCordovaWebView();
+        initWebView();
     }
 
     @Override
@@ -171,14 +151,70 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (this.webView != null) {
-            webView.handleDestroy();
+        if (webView != null) {
+            webView.destroy();
         }
     }
 
+    //---------------------------------------------------------------------
+    // Protected Util method
+    //---------------------------------------------------------------------
+
     protected void resetZoom() {
         mZoomOutTask.run();
+    }
+
+    //---------------------------------------------------------------------
+    // JasperWebViewClientListener callbacks
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onPageStarted(String newUrl) {
+    }
+
+    @Override
+    public void onReceivedError(int errorCode, String description, String failingUrl) {
+    }
+
+    @Override
+    public void onPageFinishedLoading(String url) {
+        onPageFinished();
+    }
+
+    //---------------------------------------------------------------------
+    // Abstract methods
+    //---------------------------------------------------------------------
+
+    public abstract void onWebViewConfigured(WebView webView);
+
+    public abstract void onPageFinished();
+
+    public abstract void onRefresh();
+
+    public abstract void onHomeAsUpCalled();
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private boolean isDebugOrQa() {
+        return BuildConfig.FLAVOR.equals("qa") || BuildConfig.DEBUG;
+    }
+
+    private void initWebView() {
+        chromeClientListener = new JasperChromeClientListenerImpl(progressBar);
+
+        SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
+                .withDelegateListener(chromeClientListener);
+        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+                .withDelegateListener(this)
+                .withInterceptor(DashboardRequestInterceptor.newInstance());
+
+        WebViewEnvironment.configure(webView)
+                .withDefaultSettings()
+                .withChromeClient(systemChromeClient)
+                .withWebClient(systemWebViewClient);
+        onWebViewConfigured(webView);
     }
 
     private void favoriteAction() {
@@ -201,121 +237,4 @@ public abstract class DashboardCordovaActivity extends RoboToolbarActivity imple
         }
     }
 
-    @Override
-    public void startActivityForResult(CordovaPlugin command, Intent intent, int requestCode) {
-    }
-
-    @Override
-    public void setActivityResultCallback(CordovaPlugin plugin) {
-    }
-
-    @Override
-    public Activity getActivity() {
-        return this;
-    }
-
-    @Override
-    public final Object onMessage(String message, Object data) {
-        if ("onPageFinished".equals(message)) {
-            onPageFinished();
-        }
-        return null;
-    }
-
-    @Override
-    public final ExecutorService getThreadPool() {
-        return executorService;
-    }
-
-    public abstract void onWebviewConfigured(WebView webView);
-
-    public abstract void onPageFinished();
-
-    public abstract void onRefresh();
-
-    public abstract void onHomeAsUpCalled();
-
-    private void setupSettings() {
-        WebSettings settings = webView.getSettings();
-        settings.setUseWideViewPort(true);
-        settings.setSupportZoom(true);
-        settings.setLoadWithOverviewMode(true);
-        settings.setBuiltInZoomControls(true);
-        settings.setDisplayZoomControls(true);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        }
-
-        if (isDebugOrQa()) {
-            enableDebug();
-        }
-    }
-
-    private boolean isDebugOrQa() {
-        return BuildConfig.FLAVOR.equals("qa") || BuildConfig.DEBUG;
-    }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void enableDebug() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
-    }
-
-    private void initCordovaWebView() {
-        chromeClientListener = new JasperChromeClientListenerImpl();
-        JasperWebViewClientListener webClientListener = new JasperWebViewClientListener() {
-            @Override
-            public void onPageStarted(String newUrl) {
-            }
-
-            @Override
-            public void onReceivedError(int errorCode, String description, String failingUrl) {
-            }
-
-            @Override
-            public void onPageFinishedLoading(String url) {
-            }
-        };
-
-        SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
-                .withDelegateListener(chromeClientListener);
-        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
-                .withDelegateListener(webClientListener)
-                .withInterceptor(DashboardRequestInterceptor.newInstance());
-
-        WebViewEnvironment.configure(webView)
-                .withDefaultSettings()
-                .withChromeClient(systemChromeClient)
-                .withWebClient(systemWebViewClient);
-        onWebviewConfigured(webView);
-
-    }
-
-    //---------------------------------------------------------------------
-    // Inner classes
-    //---------------------------------------------------------------------
-
-    private class JasperChromeClientListenerImpl implements JasperChromeClientListener {
-        private final List<ConsoleMessage> messages = new LinkedList<ConsoleMessage>();
-
-        @Override
-        public void onProgressChanged(WebView view, int progress) {
-            int maxProgress = progressBar.getMax();
-            progressBar.setProgress((maxProgress / 100) * progress);
-            if (progress == maxProgress) {
-                progressBar.setVisibility(View.GONE);
-            }
-        }
-
-        @Override
-        public void onConsoleMessage(ConsoleMessage consoleMessage) {
-            messages.add(consoleMessage);
-        }
-
-        public List<ConsoleMessage> getMessages() {
-            return messages;
-        }
-    }
 }

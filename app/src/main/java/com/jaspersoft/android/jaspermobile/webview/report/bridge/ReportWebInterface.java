@@ -22,20 +22,28 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.bridge;
+package com.jaspersoft.android.jaspermobile.webview.report.bridge;
 
+import android.annotation.SuppressLint;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
+
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.WebInterface;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class ReportWebInterface implements ReportCallback {
+public class ReportWebInterface extends WebInterface implements ReportCallback {
 
     private final ReportCallback decoratedCallback;
 
-    public ReportWebInterface(ReportCallback decoratedCallback) {
+    private ReportWebInterface(ReportCallback decoratedCallback) {
         this.decoratedCallback = decoratedCallback;
+    }
+
+    public static WebInterface from(ReportCallback decoratedCallback) {
+        return new ReportWebInterface(decoratedCallback);
     }
 
     @JavascriptInterface
@@ -84,6 +92,12 @@ public class ReportWebInterface implements ReportCallback {
     @Override
     public void onReportExecutionClick(String report, String params) {
         decoratedCallback.onReportExecutionClick(report, params);
+    }
+
+    @SuppressLint("AddJavascriptInterface")
+    @Override
+    public void exposeJavascriptInterface(WebView webView) {
+        webView.addJavascriptInterface(this, "Android");
     }
 
 }

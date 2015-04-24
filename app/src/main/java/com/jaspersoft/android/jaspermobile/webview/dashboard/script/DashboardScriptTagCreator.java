@@ -33,13 +33,14 @@ import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
 public abstract class DashboardScriptTagCreator implements ScriptTagCreator {
     private final String source;
 
-    protected DashboardScriptTagCreator(String source) {
-        this.source = source;
+    protected DashboardScriptTagCreator(String token, String source) {
+        this.source = token + source;
     }
 
     @Override
     public String createTag() {
         return new StringBuilder()
+                .append("javascript:")
                 .append("var head= document.getElementsByTagName('head')[0];")
                 .append("var script= document.createElement('script');")
                 .append("script.type= 'text/javascript';")

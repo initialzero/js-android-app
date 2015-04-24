@@ -28,6 +28,9 @@ import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -36,6 +39,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboardApi;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -67,12 +71,16 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
     protected HyperlinkHelper hyperlinkHelper;
+    @Bean
+    protected ScreenUtil screenUtil;
     @Extra
     protected ResourceLookup resource;
 
     @InstanceState
     protected boolean mMaximized;
 
+    private boolean mFavoriteItemVisible, mInfoItemVisible;
+    private MenuItem favoriteAction, aboutAction;
     private AccountServerData accountServerData;
     private Toast mToast;
 
@@ -81,7 +89,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mToast = Toast.makeText (this, "", Toast.LENGTH_LONG);
+        mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
@@ -91,6 +99,26 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        favoriteAction = menu.findItem(R.id.favoriteAction);
+        aboutAction = menu.findItem(R.id.aboutAction);
+        return result;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean result = super.onPrepareOptionsMenu(menu);
+        favoriteAction.setVisible(mFavoriteItemVisible);
+        aboutAction.setVisible(mInfoItemVisible);
+        return result;
+    }
+
+    //---------------------------------------------------------------------
+    // Abstract methods implementations
+    //---------------------------------------------------------------------
+
+    @Override
     public void setupWebView(WebView webView) {
         DashboardWebInterface.inject(this, webView);
     }
@@ -98,6 +126,8 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onMaximizeStart(String title) {
+        resetZoom();
+        hideMenuItems();
         ProgressDialogFragment.builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.loading_msg)
                 .show();
@@ -121,12 +151,17 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onMinimizeStart() {
+        resetZoom();
+        showMenuItems();
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
     }
 
     @UiThread
     @Override
     public void onMinimizeEnd() {
-        resetZoom();
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
         mMaximized = false;
     }
 
@@ -151,6 +186,7 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @UiThread
     @Override
     public void onLoadDone() {
+        webView.setVisibility(View.VISIBLE);
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
@@ -166,6 +202,14 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     @Override
     public void onReportExecution(String data) {
         hyperlinkHelper.executeReport(data);
+    }
+
+    @Override
+    public void onWindowResizeStart() {
+    }
+
+    @Override
+    public void onWindowResizeEnd() {
     }
 
     @Override
@@ -190,6 +234,10 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
             super.onBackPressed();
         }
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void loadFlow() {
         InputStream stream = null;
@@ -216,20 +264,38 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     private void runDashboard() {
         String organization = TextUtils.isEmpty(accountServerData.getOrganization())
                 ? "" : accountServerData.getOrganization();
+
         StringBuilder builder = new StringBuilder();
-        builder.append("javascript:MobileDashboard.run")
+        builder.append("javascript:MobileDashboard.authorize")
                 .append("({")
-                .append("\"uri\": \"%s\",")
                 .append("\"username\": \"%s\",")
                 .append("\"password\": \"%s\",")
                 .append("\"organization\": \"%s\"")
                 .append("})");
-
-        String executeScript = String.format(builder.toString(),
-                resource.getUri(),
+        String authScript = String.format(builder.toString(),
                 accountServerData.getUsername(),
                 accountServerData.getPassword(),
                 organization);
+        webView.loadUrl(authScript);
+
+        builder = new StringBuilder();
+        builder.append("javascript:MobileDashboard.run")
+                .append("({")
+                .append("\"diagonal\": \"%s\",")
+                .append("\"uri\": \"%s\"")
+                .append("})");
+        String executeScript = String.format(builder.toString(),
+                screenUtil.getDiagonal(), resource.getUri());
         webView.loadUrl(executeScript);
+    }
+
+    private void showMenuItems() {
+        mFavoriteItemVisible = mInfoItemVisible = true;
+        supportInvalidateOptionsMenu();
+    }
+
+    private void hideMenuItems() {
+        mFavoriteItemVisible = mInfoItemVisible = false;
+        supportInvalidateOptionsMenu();
     }
 }

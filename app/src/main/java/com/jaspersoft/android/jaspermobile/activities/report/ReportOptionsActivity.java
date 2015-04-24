@@ -49,8 +49,8 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 import com.jaspersoft.android.jaspermobile.widget.MultiSelectSpinner;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -70,9 +70,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import roboguice.util.Ln;
 
@@ -90,10 +93,11 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
     public static final String EXTRA_REPORT_URI = "ReportOptionsActivity.EXTRA_REPORT_URI";
-    public static final String EXTRA_REPORT_CONTROLS = "ReportOptionsActivity.EXTRA_REPORT_CONTROLS";
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected ReportParamsStorage paramsStorage;
 
     protected Menu optionsMenu;
     protected String reportUri;
@@ -210,9 +214,9 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     }
 
     private void runReport() {
-        String reportTitle = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
-        runReportViewer(reportUri, reportTitle, parameters);
+        paramsStorage.putReportParameters(reportUri, parameters);
+        runReportViewer();
     }
 
     private ArrayList<ReportParameter> initParametersUsingSelectedValues() {
@@ -223,10 +227,8 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         return parameters;
     }
 
-    private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
+    private void runReportViewer() {
         Intent htmlViewer = new Intent();
-        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS, parameters);
-        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS, inputControls);
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();
     }
@@ -240,7 +242,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         }
     }
 
-    private void hideValidationMessage(InputControl control){
+    private void hideValidationMessage(InputControl control) {
         TextView textView = (TextView) control.getErrorView();
         if (textView != null) {
             textView.setVisibility(View.GONE);
@@ -266,10 +268,18 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     }
 
     private void initInputControls() {
-        inputControls = getIntent().getExtras().getParcelableArrayList(EXTRA_REPORT_CONTROLS);
+        ArrayList<ReportParameter> reportParams = paramsStorage.getReportParameters(reportUri);
+        inputControls = paramsStorage.getInputControls(reportUri);
+
+        Map<String, Set<String>> hashMap = new HashMap<String, Set<String>>(reportParams.size());
+        for (ReportParameter reportParameter : reportParams) {
+            hashMap.put(reportParameter.getName(), reportParameter.getValues());
+        }
 
         // init UI components for ICs
         for (final InputControl inputControl : inputControls) {
+            updateInputControlState(hashMap, inputControl);
+
             if (inputControl.isVisible()) {
                 switch (inputControl.getType()) {
                     case bool:
@@ -293,6 +303,37 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
                         initMultiSelectControl(inputControl);
                         break;
                 }
+            }
+        }
+    }
+
+    private void updateInputControlState(Map<String, Set<String>> hashMap, InputControl inputControl) {
+        InputControlState state = inputControl.getState();
+        List<InputControlOption> options = state.getOptions();
+        Set<String> valueSet = hashMap.get(state.getId());
+        List<String> valueList = new ArrayList<String>();
+        if (valueSet != null) {
+            valueList.addAll(valueSet);
+        }
+
+        if (!valueList.isEmpty()) {
+            switch (inputControl.getType()) {
+                case bool:
+                case singleValueText:
+                case singleValueNumber:
+                case singleValueTime:
+                case singleValueDate:
+                case singleValueDatetime:
+                    state.setValue(valueList.get(0));
+                    break;
+                case multiSelect:
+                case multiSelectCheckbox:
+                case singleSelect:
+                case singleSelectRadio:
+                    for (InputControlOption option : options) {
+                        option.setSelected(valueList.contains(option.getValue()));
+                    }
+                    break;
             }
         }
     }

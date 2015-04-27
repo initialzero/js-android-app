@@ -86,4 +86,16 @@ public class ReportWebInterface implements ReportCallback {
         decoratedCallback.onReportExecutionClick(report, params);
     }
 
+    @JavascriptInterface
+    @Override
+    public void onRefreshSuccess() {
+        decoratedCallback.onRefreshSuccess();
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onRefreshError(String error) {
+        decoratedCallback.onRefreshError(error);
+    }
+
 }

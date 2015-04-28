@@ -144,11 +144,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:cardview-v7:21.0.3'
 
-    // For sugar instantiate of dialogs
-    compile('eu.inmite.android.lib:android-styled-dialogs:1.2.0:') {
-        exclude group: 'com.android.support'
-    }
-
     compile("org.androidannotations:androidannotations-api:3.2")
     apt "org.androidannotations:androidannotations:3.2"
     apt 'org.roboguice:roboblender:3.0.1'

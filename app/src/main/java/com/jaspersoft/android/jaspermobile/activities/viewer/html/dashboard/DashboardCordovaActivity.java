@@ -46,6 +46,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardCordovaWebClient;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.SessionListener;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -64,8 +65,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
  * Activity that performs dashboard viewing in HTML format through Cordova native component.

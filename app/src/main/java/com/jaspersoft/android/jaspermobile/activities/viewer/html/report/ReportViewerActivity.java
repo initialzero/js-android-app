@@ -61,6 +61,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -102,8 +103,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 

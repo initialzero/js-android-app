@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -57,10 +58,13 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     private final Handler mHandler = new Handler();
     private RequestExecutor requestExecutor;
     private String requestId;
+    private ReportView reportView;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        reportView = (ReportView) getActivity();
         requestExecutor = RequestExecutor.builder()
                 .setExecutionMode(RequestExecutor.Mode.VISIBLE)
                 .setFragmentManager(getFragmentManager())
@@ -152,6 +156,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             super.onRequestFailure(exception);
             getFilterMangerFragment().disableSaveOption();
             ProgressDialogFragment.dismiss(getFragmentManager());
+            reportView.showEmptyView();
         }
 
         public void onRequestSuccess(ReportExecutionResponse response) {
@@ -160,6 +165,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 ProgressDialogFragment.dismiss(getFragmentManager());
                 return;
             }
+            reportView.hideEmptyView();
 
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             requestId = response.getRequestId();
@@ -225,6 +231,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
             } else if (status == ReportStatus.failed) {
                 getFilterMangerFragment().disableSaveOption();
+                reportView.showEmptyView();
             }
         }
     }

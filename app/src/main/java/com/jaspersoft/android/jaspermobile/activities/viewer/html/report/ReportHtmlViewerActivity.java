@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
@@ -43,6 +45,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.ViewById;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -52,7 +55,7 @@ import org.androidannotations.annotations.Extra;
  * @since 1.4
  */
 @EActivity(R.layout.report_viewer_layout)
-public class ReportHtmlViewerActivity extends RoboToolbarActivity {
+public class ReportHtmlViewerActivity extends RoboToolbarActivity implements ReportView {
 
     // Result Code
     public static final int REQUEST_REPORT_PARAMETERS = 100;
@@ -61,6 +64,19 @@ public class ReportHtmlViewerActivity extends RoboToolbarActivity {
     protected ResourceLookup resource;
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
+
+    @ViewById(android.R.id.empty)
+    protected TextView emptyView;
+
+    @Override
+    public void showEmptyView() {
+        emptyView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideEmptyView() {
+        emptyView.setVisibility(View.GONE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,5 +107,6 @@ public class ReportHtmlViewerActivity extends RoboToolbarActivity {
             transaction.commit();
         }
     }
+
 
 }

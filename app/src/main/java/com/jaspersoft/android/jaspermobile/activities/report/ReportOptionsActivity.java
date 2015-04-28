@@ -373,6 +373,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
             try {
                 startDate.setTime(formatter.parse(defaultValue));
                 editText.setText(defaultValue);
+                clearDate.setVisibility(View.VISIBLE);
             } catch (ParseException e) {
                 Ln.w("Unparseable date: %s", defaultValue);
             }

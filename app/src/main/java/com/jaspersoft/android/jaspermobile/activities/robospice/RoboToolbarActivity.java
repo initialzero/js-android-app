@@ -156,7 +156,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Checks change of localization
-        // We are removing cookies as soon as they persist locale
         // New Basic Auth call we be triggered
         if (!currentLocale.equals(newConfig.locale)) {
             currentLocale = newConfig.locale;

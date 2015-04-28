@@ -15,7 +15,7 @@ import android.widget.RelativeLayout;
  * @since 2.0
  */
 public abstract class AbstractPaginationView extends RelativeLayout {
-    protected static final int FIRST_PAGE = 1;
+    public static final int FIRST_PAGE = 1;
 
     private static final String INSTANCE_STATE = "INSTANCE_STATE";
     private static final String CURRENT_PAGE = "CURRENT_PAGE";

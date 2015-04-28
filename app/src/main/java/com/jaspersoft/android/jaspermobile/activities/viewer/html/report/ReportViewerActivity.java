@@ -59,6 +59,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
+import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -160,6 +161,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CookieManagerFactory.syncCookies(this);
 
         mHasInitialParameters = (reportParameters != null);
         if (mHasInitialParameters) {
@@ -328,6 +330,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onLoadStart() {
+        paginationControl.setCurrentPage(AbstractPaginationView.FIRST_PAGE);
         ProgressDialogFragment.builder(getSupportFragmentManager()).show();
     }
 

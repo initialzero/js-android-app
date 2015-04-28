@@ -156,6 +156,11 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         mPageWasLoadedAtLeastOnce = true;
     }
 
+    public void disableSaveOption() {
+        mShowSaveOption = false;
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -181,7 +186,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;
             mShowSaveOption = true;
-            getActivity().invalidateOptionsMenu();
+            getActivity().supportInvalidateOptionsMenu();
 
             if (showFilterActionVisible) {
                 ProgressDialogFragment.dismiss(getFragmentManager());

@@ -150,6 +150,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
+            getFilterMangerFragment().disableSaveOption();
             ProgressDialogFragment.dismiss(getFragmentManager());
         }
 
@@ -222,6 +223,8 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 getSpiceManager().execute(reportDetailsRequest, new ReportDetailsRequestListener());
             } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            } else if (status == ReportStatus.failed) {
+                getFilterMangerFragment().disableSaveOption();
             }
         }
     }

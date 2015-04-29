@@ -111,7 +111,7 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu({R.menu.retrofit_report_menu})
+@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu})
 @EActivity(R.layout.activity_cordova_dashboard_viewer)
 public class ReportViewerActivity extends RoboToolbarActivity
         implements ReportCallback,
@@ -146,6 +146,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected MenuItem favoriteAction;
     @OptionsMenuItem
     protected MenuItem saveReport;
+    @OptionsMenuItem
+    protected MenuItem refreshAction;
 
     @Inject
     protected ReportParamsStorage paramsStorage;
@@ -154,7 +156,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     private SimpleChromeClient chromeClient;
     private AccountServerData accountServerData;
-    private boolean mShowSavedMenuItem;
+    private boolean mShowSavedMenuItem, mShowRefreshMenuItem;
     private boolean mHasInitialParameters;
 
     @Override
@@ -204,6 +206,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
         saveReport.setVisible(mShowSavedMenuItem);
+        refreshAction.setVisible(mShowRefreshMenuItem);
 
         if (BuildConfig.FLAVOR.equals("qa") || BuildConfig.FLAVOR.equals("dev")) {
             MenuInflater inflater = getMenuInflater();
@@ -260,6 +263,15 @@ public class ReportViewerActivity extends RoboToolbarActivity
             Toast.makeText(this,
                     R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @OptionsItem
+    public void refreshAction() {
+        webView.loadUrl("javascript:MobileReport.refresh()");
+        ProgressDialogFragment
+                .builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.r_ab_refresh)
+                .show();
     }
 
     //---------------------------------------------------------------------
@@ -348,7 +360,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void onTotalPagesLoaded(int pages) {
         boolean noPages = (pages == 0);
-        mShowSavedMenuItem = !noPages;
+        mShowSavedMenuItem = mShowRefreshMenuItem = !noPages;
         supportInvalidateOptionsMenu();
 
         if (noPages) {
@@ -381,6 +393,22 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public void onReportExecutionClick(String reportUri, String params) {
+    }
+
+    @UiThread
+    @Override
+    public void onRefreshSuccess() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        if (paginationControl.isTotalPagesLoaded()) {
+            paginationControl.setCurrentPage(AbstractPaginationView.FIRST_PAGE);
+        }
+    }
+
+    @UiThread
+    @Override
+    public void onRefreshError(String error) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
     }
 
     //---------------------------------------------------------------------

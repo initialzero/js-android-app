@@ -38,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -50,7 +51,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Tom Koptel
@@ -64,16 +65,18 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected ReportParamsStorage paramsStorage;
+
     @FragmentArg
     protected String resourceUri;
     @OptionsMenuItem
     protected MenuItem showFilters;
 
-    private RequestExecutor requestExecutor;
     private OnInputControlsListener mListener = new NullListener();
-    private boolean mLoading;
-    private boolean mLoaded;
-    private boolean mShowFilterMenuItem;
+    private ArrayList<InputControl> inputControls;
+    private RequestExecutor requestExecutor;
+    private boolean mShowFilterMenuItem, mLoading, mLoaded;
 
     @Override
     public void onAttach(Activity activity) {
@@ -121,6 +124,7 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     }
 
     private class GetInputControlsListener extends SimpleRequestListener<InputControlsList> {
+
         @Override
         protected Context getContext() {
             return getActivity();
@@ -138,16 +142,21 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         public void onRequestSuccess(InputControlsList controlsList) {
             mLoading = false;
             mLoaded = true;
-            mShowFilterMenuItem = !controlsList.getInputControls().isEmpty();
+
+            inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+            mShowFilterMenuItem = !inputControls.isEmpty();
+
             getActivity().supportInvalidateOptionsMenu();
             ProgressDialogFragment.dismiss(getFragmentManager());
-            mListener.onLoaded(controlsList.getInputControls());
+
+            paramsStorage.putInputControls(resourceUri, inputControls);
+            mListener.onLoaded();
         }
     }
 
     public static class NullListener implements OnInputControlsListener {
         @Override
-        public void onLoaded(List<InputControl> inputControls) {
+        public void onLoaded() {
         }
 
         @Override
@@ -156,7 +165,7 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     }
 
     public static interface OnInputControlsListener {
-        void onLoaded(List<InputControl> inputControls);
+        void onLoaded();
         void onShowControls();
     }
 }

@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
@@ -160,7 +159,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         // We are removing cookies as soon as they persist locale
         // New Basic Auth call we be triggered
         if (!currentLocale.equals(newConfig.locale)) {
-            JasperMobileApplication.removeAllCookies();
             currentLocale = newConfig.locale;
         }
     }

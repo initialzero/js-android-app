@@ -39,23 +39,20 @@ import java.util.concurrent.TimeUnit;
  * @since 1.9
  */
 @EFragment
-public class ReportExecutionFragment extends RoboSpiceFragment implements SimpleDialogFragment.SimpleDialogClickListener {
+public class ReportExecutionFragment extends RoboSpiceFragment {
     public static final String TAG = ReportExecutionFragment.class.getSimpleName();
 
-    private final int EMPTY_REPORT_DIALOG_WITH_SNAPSHOT = 121;
-    private final int EMPTY_REPORT_DIALOG_WITHOUT_SNAPSHOT = 122;
-
     @FragmentArg
-    ResourceLookup resource;
+    protected ResourceLookup resource;
 
     @Inject
-    JsRestClient jsRestClient;
+    protected JsRestClient jsRestClient;
 
     @Bean
-    ReportExecutionUtil reportExecutionUtil;
+    protected ReportExecutionUtil reportExecutionUtil;
 
     @Bean
-    ReportSession reportSession;
+    protected ReportSession reportSession;
 
     private final Handler mHandler = new Handler();
     private RequestExecutor requestExecutor;
@@ -89,29 +86,13 @@ public class ReportExecutionFragment extends RoboSpiceFragment implements Simple
     }
 
     public void showEmptyReportOptionsDialog() {
-        FilterManagerFragment filterManagerFragment = getFilterMangerFragment();
-        if (!filterManagerFragment.hasSnapshot()) {
-            SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(R.string.warning_msg)
-                    .setMessage(R.string.rv_error_empty_report)
-                    .setNegativeButtonText(android.R.string.ok)
-                    .setTargetFragment(this)
-                    .setCancelableOnTouchOutside(false)
-                    .setRequestCode(EMPTY_REPORT_DIALOG_WITH_SNAPSHOT)
-                    .show();
-            return;
-        }
-
         SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setNegativeButtonText(android.R.string.cancel)
                 .setPositiveButtonText(android.R.string.ok)
                 .setTitle(R.string.rv_error_empty_report_title)
-                .setMessage(R.string.rv_error_empty_report_message)
+                .setMessage(R.string.rv_error_empty_report)
                 .setTargetFragment(this)
                 .setCancelableOnTouchOutside(false)
-                .setRequestCode(EMPTY_REPORT_DIALOG_WITHOUT_SNAPSHOT)
                 .show();
     }
 
@@ -154,33 +135,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment implements Simple
         return (status == ReportStatus.queued || status == ReportStatus.execution);
     }
 
-    //---------------------------------------------------------------------
-    // Implements DeleteDialogFragment.DeleteDialogClickListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onPositiveClick(int requestCode) {
-        FilterManagerFragment filterManagerFragment =
-                (FilterManagerFragment) getFragmentManager()
-                        .findFragmentByTag(FilterManagerFragment.TAG);
-        if (filterManagerFragment != null) {
-            filterManagerFragment.showFilters();
-        }
-    }
-
-    @Override
-    public void onNegativeClick(int requestCode) {
-        FilterManagerFragment filterManagerFragment =
-                (FilterManagerFragment) getFragmentManager()
-                        .findFragmentByTag(FilterManagerFragment.TAG);
-        if (filterManagerFragment != null) {
-            if (requestCode == EMPTY_REPORT_DIALOG_WITH_SNAPSHOT) {
-                filterManagerFragment.showFilters();
-            } else {
-                filterManagerFragment.showPreviousReport();
-            }
-        }
-    }
 
     //---------------------------------------------------------------------
     // Inner classes
@@ -273,7 +227,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment implements Simple
     }
 
     private class ReportDetailsRequestListener extends SimpleRequestListener<ReportExecutionResponse> {
-
         @Override
         protected Context getContext() {
             return getActivity();

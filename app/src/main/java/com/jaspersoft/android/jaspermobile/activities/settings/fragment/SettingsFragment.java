@@ -16,6 +16,8 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 
+import java.util.concurrent.TimeUnit;
+
 import roboguice.fragment.provided.RoboPreferenceFragment;
 
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_CONNECT_TIMEOUT;
@@ -79,7 +81,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 try {
                     int value = Integer.parseInt(String.valueOf(newValue));
-                    mJsRestClient.setConnectTimeout(value);
+                    mJsRestClient.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(value));
                     updateSummary(preference, newValue, R.string.st_summary_sec);
                     return true;
                 } catch (NumberFormatException ex) {
@@ -95,7 +97,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 try {
                     int value = Integer.parseInt(String.valueOf(newValue));
-                    mJsRestClient.setReadTimeout(value);
+                    mJsRestClient.setReadTimeout((int) TimeUnit.SECONDS.toMillis(value));
                     updateSummary(preference, newValue, R.string.st_summary_sec);
                     return true;
                 } catch (NumberFormatException ex) {

@@ -22,21 +22,38 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.auth;
+package com.jaspersoft.android.jaspermobile.util;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
+import android.app.Activity;
+import android.util.DisplayMetrics;
 
-import com.jaspersoft.android.jaspermobile.util.account.AccountResources;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class AccountsReceiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        AccountResources.get(context).flushOnDemand();
+@EBean
+public class ScreenUtil {
+    @RootContext
+    protected Activity context;
+
+    public double getDiagonal() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        context.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        int widthPixels = metrics.widthPixels;
+        int heightPixels = metrics.heightPixels;
+
+        float widthDpi = metrics.xdpi;
+        float heightDpi = metrics.ydpi;
+
+        float widthInches = widthPixels / widthDpi;
+        float heightInches = heightPixels / heightDpi;
+
+        return Math.sqrt(
+                (widthInches * widthInches)
+                        + (heightInches * heightInches));
     }
 }

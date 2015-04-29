@@ -28,7 +28,6 @@ import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
@@ -69,6 +68,8 @@ public class ResourceOpener {
         Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(activity, account);
         serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+
+        resourceTypes = filterManager.getFiltersForRepository();
     }
 
     public void setResourceTypes(ArrayList<String> resourceTypes) {
@@ -81,7 +82,6 @@ public class ResourceOpener {
                 openFolder(fragment, resource);
                 break;
             case reportUnit:
-                JasperMobileApplication.removeAllCookies();
                 runReport(resource);
                 break;
             case legacyDashboard:

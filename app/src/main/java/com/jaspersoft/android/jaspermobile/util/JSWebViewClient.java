@@ -29,7 +29,6 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.net.UrlQuerySanitizer;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -37,13 +36,10 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
-
-import java.util.List;
 
 /**
  * @author Tom Koptel
@@ -69,25 +65,14 @@ public class JSWebViewClient extends WebViewClient {
         String jasperHost = Uri.parse(serverUrl).getHost();
         String linkHost = Uri.parse(url).getHost();
 
-        // This is my Jasper site, let WebView load the page with additional parameter
+        // This is my Jasper site, let WebView check page for 401 page
         if (linkHost != null && linkHost.equals(jasperHost)) {
             if (url.contains("login.html")) {
-                Intent intent = new Intent(JasperSettings.ACTION_TOKEN_EXPIRED);
-                activity.sendBroadcast(intent);
-
                 if (sessionListener != null) {
                     sessionListener.onSessionExpired();
                 }
                 return true;
             }
-            List<UrlQuerySanitizer.ParameterValuePair> parametersList
-                    = new UrlQuerySanitizer(url).getParameterList();
-            if (parametersList.isEmpty()) {
-                url += "?";
-            }
-            url += "&sessionDecorator=no";
-            view.loadUrl(url);
-            return true;
         }
 
         // Otherwise, the link is not for us, so launch another Activity that handles URLs

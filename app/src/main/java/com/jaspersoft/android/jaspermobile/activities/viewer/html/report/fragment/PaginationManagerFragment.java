@@ -252,7 +252,6 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
                     // This means that we have 2 page loaded
                     // and that is enough to show pagination control
                     if (page == 2) {
-                        viewPager.setSwipeable(true);
                         showPaginationControl();
                     }
                 }

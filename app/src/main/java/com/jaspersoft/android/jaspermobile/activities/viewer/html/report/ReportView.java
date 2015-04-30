@@ -7,4 +7,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 public interface ReportView {
     void showEmptyView();
     void hideEmptyView();
+    void showErrorView(CharSequence error);
+    void hideErrorView();
 }

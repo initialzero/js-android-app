@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -75,6 +76,19 @@ public class ReportHtmlViewerActivity extends RoboToolbarActivity implements Rep
 
     @Override
     public void hideEmptyView() {
+        emptyView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showErrorView(CharSequence error) {
+        if (!TextUtils.isEmpty(error)) {
+            emptyView.setVisibility(View.VISIBLE);
+            emptyView.setText(error);
+        }
+    }
+
+    @Override
+    public void hideErrorView() {
         emptyView.setVisibility(View.GONE);
     }
 

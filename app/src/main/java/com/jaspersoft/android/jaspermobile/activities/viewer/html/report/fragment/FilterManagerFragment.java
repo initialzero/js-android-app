@@ -15,8 +15,10 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -74,11 +76,13 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     private ReportExecutionFragment reportExecutionFragment;
     private RequestExecutor requestExecutor;
+    private ReportView reportView;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        reportView = (ReportView) getActivity();
         requestExecutor = RequestExecutor.builder()
                 .setExecutionMode(RequestExecutor.Mode.VISIBLE)
                 .setFragmentManager(getFragmentManager())
@@ -175,13 +179,18 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
+
             ProgressDialogFragment.dismiss(getFragmentManager());
+
+            String errorMessage = RequestExceptionHandler.extractMessage(getActivity(), exception);
+            reportView.showErrorView(errorMessage);
         }
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
             reportParameters = new ArrayList<ReportParameter>();
             inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+            reportView.hideErrorView();
 
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;

@@ -110,7 +110,7 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
 public class ReportViewerActivity extends RoboToolbarActivity
         implements ReportCallback,
         AbstractPaginationView.OnPageChangeListener,
-        GetInputControlsFragment.OnInputControlsListener {
+        GetInputControlsFragment.OnInputControlsListener, ReportView {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -406,6 +406,34 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     //---------------------------------------------------------------------
+    // ReportView callbacks
+    //---------------------------------------------------------------------
+
+
+    @Override
+    public void showEmptyView() {
+        emptyView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideEmptyView() {
+        emptyView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showErrorView(CharSequence error) {
+        if (!TextUtils.isEmpty(error)) {
+            emptyView.setVisibility(View.VISIBLE);
+            emptyView.setText(error);
+        }
+    }
+
+    @Override
+    public void hideErrorView() {
+        emptyView.setVisibility(View.GONE);
+    }
+
+    //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
@@ -503,4 +531,5 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private ArrayList<ReportParameter> getReportParameters() {
         return paramsStorage.getReportParameters(resource.getUri());
     }
+
 }

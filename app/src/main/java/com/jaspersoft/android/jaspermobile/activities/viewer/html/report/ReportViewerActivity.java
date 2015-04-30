@@ -108,7 +108,7 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  * @since 2.0
  */
 @OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu})
-@EActivity(R.layout.activity_cordova_dashboard_viewer)
+@EActivity(R.layout.activity_report_viewer)
 public class ReportViewerActivity extends RoboToolbarActivity
         implements ReportCallback,
         AbstractPaginationView.OnPageChangeListener,

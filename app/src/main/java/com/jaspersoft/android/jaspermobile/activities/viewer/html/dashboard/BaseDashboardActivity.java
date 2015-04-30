@@ -52,7 +52,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 /**
- * Activity that performs dashboard viewing in HTML format through Cordova native component.
+ * Activity that performs dashboard viewing in HTML format through native component.
  *
  * @author Tom Koptel
  * @since 2.0
@@ -83,7 +83,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cordova_dashboard_viewer);
+        setContentView(R.layout.activity_dashboard_viewer);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

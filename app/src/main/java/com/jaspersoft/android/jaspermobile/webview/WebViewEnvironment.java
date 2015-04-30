@@ -47,6 +47,7 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class WebViewEnvironment {
+
     private static final String TAG = WebViewEnvironment.class.getSimpleName();
     private final WebView webView;
 
@@ -171,17 +172,5 @@ public class WebViewEnvironment {
             e.printStackTrace();
         }
     }
-
-//    private static void exposeJsInterface(WebView webView, CordovaBridge bridge) {
-//        if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)) {
-//            Timber.i(TAG, "Disabled addJavascriptInterface() bridge since Android version is old.");
-//            // Bug being that Java Strings do not get converted to JS strings automatically.
-//            // This isn't hard to work-around on the JS side, but it's easier to just
-//            // use the prompt bridge instead.
-//            return;
-//        }
-//        SystemExposedJsApi exposedJsApi = new SystemExposedJsApi(bridge);
-//        webView.addJavascriptInterface(exposedJsApi, "_cordovaNative");
-//    }
 
 }

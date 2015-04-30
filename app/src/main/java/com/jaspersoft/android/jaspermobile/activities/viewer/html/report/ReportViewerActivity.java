@@ -53,6 +53,8 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
+import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
@@ -110,7 +112,9 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
 public class ReportViewerActivity extends RoboToolbarActivity
         implements ReportCallback,
         AbstractPaginationView.OnPageChangeListener,
-        GetInputControlsFragment.OnInputControlsListener, ReportView {
+        GetInputControlsFragment.OnInputControlsListener,
+        ReportView, PageDialogFragment.PageDialogClickListener,
+        NumberDialogFragment.NumberDialogClickListener {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -312,12 +316,29 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onPageSelected(int currentPage) {
-        webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", currentPage));
+    public void onPageSelected(int page, int requestCode) {
+        selectPageInWebView(page);
+        paginationControl.setCurrentPage(page);
     }
 
     @Override
-    public void onPickerSelected(boolean pickExactPage) {
+    public void onPageSelected(int currentPage) {
+        selectPageInWebView(currentPage);
+    }
+
+    @Override
+    public void onPagePickerRequested() {
+        if (paginationControl.isTotalPagesLoaded()) {
+            NumberDialogFragment.createBuilder(getSupportFragmentManager())
+                    .setMinValue(1)
+                    .setCurrentValue(paginationControl.getCurrentPage())
+                    .setMaxValue(paginationControl.getTotalPages())
+                    .show();
+        } else {
+            PageDialogFragment.createBuilder(getSupportFragmentManager())
+                    .setMaxValue(Integer.MAX_VALUE)
+                    .show();
+        }
     }
 
     //---------------------------------------------------------------------
@@ -532,4 +553,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         return paramsStorage.getReportParameters(resource.getUri());
     }
 
+    private void selectPageInWebView(int page) {
+        webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", page));
+    }
 }

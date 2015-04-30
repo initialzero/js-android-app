@@ -123,17 +123,17 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
             }
 
             @Override
-            public void onPickerSelected(boolean pickExactPage) {
-                if (pickExactPage) {
-                    PageDialogFragment.createBuilder(getFragmentManager())
-                            .setMaxValue(paginationControl.isTotalPagesLoaded() ? paginationControl.getTotalPages() : Integer.MAX_VALUE)
-                            .setTargetFragment(PaginationManagerFragment.this)
-                            .show();
-                } else {
+            public void onPagePickerRequested() {
+                if (paginationControl.isTotalPagesLoaded()) {
                     NumberDialogFragment.createBuilder(getFragmentManager())
                             .setMinValue(1)
                             .setCurrentValue(paginationControl.getCurrentPage())
                             .setMaxValue(paginationControl.getTotalPages())
+                            .setTargetFragment(PaginationManagerFragment.this)
+                            .show();
+                } else {
+                    PageDialogFragment.createBuilder(getFragmentManager())
+                            .setMaxValue(Integer.MAX_VALUE)
                             .setTargetFragment(PaginationManagerFragment.this)
                             .show();
                 }

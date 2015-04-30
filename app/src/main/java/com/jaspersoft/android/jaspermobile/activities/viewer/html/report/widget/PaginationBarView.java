@@ -90,7 +90,7 @@ public class PaginationBarView extends AbstractPaginationView {
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        onPageChangeListener.onPickerSelected(!isTotalPagesLoaded());
+        onPageChangeListener.onPagePickerRequested();
     }
 
     @Override

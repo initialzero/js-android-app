@@ -68,7 +68,7 @@ public class SeekPaginationView extends AbstractPaginationView {
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        onPageChangeListener.onPickerSelected(true);
+        onPageChangeListener.onPagePickerRequested();
     }
 
     @Override

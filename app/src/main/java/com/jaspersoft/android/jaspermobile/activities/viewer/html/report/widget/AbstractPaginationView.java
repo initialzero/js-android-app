@@ -108,6 +108,6 @@ public abstract class AbstractPaginationView extends RelativeLayout {
 
     public static interface OnPageChangeListener {
         void onPageSelected(int currentPage);
-        void onPickerSelected(boolean pickExactPage);
+        void onPagePickerRequested();
     }
 }

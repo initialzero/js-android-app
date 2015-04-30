@@ -25,11 +25,9 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
 import android.accounts.Account;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
@@ -37,7 +35,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,15 +46,9 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.DashboardCordovaWebClient;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.CordovaInterfaceImpl;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.SessionListener;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.SimpleChromeClient;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.bridge.ReportCallback;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.webview.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
@@ -66,6 +58,15 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
+import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
+import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
+import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
+import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
+import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
+import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
+import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -88,20 +89,12 @@ import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.apache.commons.io.IOUtils;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPreferences;
-import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.CordovaWebViewClient;
-import org.apache.cordova.PluginEntry;
-import org.apache.cordova.Whitelist;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
@@ -127,7 +120,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected FavoritesHelper favoritesHelper;
 
     @ViewById
-    protected CordovaWebView webView;
+    protected WebView webView;
     @ViewById(android.R.id.empty)
     protected TextView emptyView;
     @ViewById
@@ -155,10 +148,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Inject
     protected ReportParamsSerializer paramsSerializer;
 
-    private SimpleChromeClient chromeClient;
     private AccountServerData accountServerData;
     private boolean mShowSavedMenuItem, mShowRefreshMenuItem;
     private boolean mHasInitialParameters;
+    private JasperChromeClientListenerImpl chromeClientListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,9 +176,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @AfterViews
     final void init() {
         setupPaginationControl();
-        setupSettings();
-        setupJsInterface();
-        initCordovaWebView();
+        initWebView();
         loadInputControls();
     }
 
@@ -223,7 +214,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         super.onDestroy();
 
         if (this.webView != null) {
-            webView.handleDestroy();
+            webView.destroy();
         }
     }
 
@@ -233,8 +224,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void showLog() {
-        if (chromeClient != null) {
-            LogDialog.create(getSupportFragmentManager(), chromeClient.getMessages());
+        if (chromeClientListener != null) {
+            LogDialog.create(getSupportFragmentManager(), chromeClientListener.getMessages());
         }
     }
 
@@ -422,40 +413,22 @@ public class ReportViewerActivity extends RoboToolbarActivity
         paginationControl.setOnPageChangeListener(this);
     }
 
-    private void setupSettings() {
-        WebSettings settings = webView.getSettings();
-        settings.setUseWideViewPort(true);
-        settings.setSupportZoom(true);
-        settings.setLoadWithOverviewMode(true);
-        settings.setBuiltInZoomControls(true);
-        settings.setDisplayZoomControls(true);
+    private void initWebView() {
+        chromeClientListener = new JasperChromeClientListenerImpl(progressBar);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        }
-    }
+        DefaultUrlPolicy.SessionListener sessionListener = DefaultSessionListener.from(this);
+        UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(sessionListener);
 
-    @SuppressLint({"AddJavascriptInterface"})
-    private void setupJsInterface() {
-        webView.addJavascriptInterface(new ReportWebInterface(this), "Android");
-    }
+        SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
+                .withDelegateListener(chromeClientListener);
+        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+                .withUrlPolicy(defaultPolicy);
 
-    private void initCordovaWebView() {
-        Whitelist whitelist = new Whitelist();
-        whitelist.addWhiteListEntry("http://*/*", true);
-        whitelist.addWhiteListEntry("https://*/*", true);
-        CordovaPreferences cordovaPreferences = new CordovaPreferences();
-
-        jsWebViewClient.setSessionListener(new SessionListener(this));
-
-        CordovaInterface cordovaInterface = new CordovaInterfaceImpl(this);
-        CordovaWebViewClient webViewClient2 = new DashboardCordovaWebClient(cordovaInterface, webView, jsWebViewClient);
-
-        chromeClient = new SimpleChromeClient(cordovaInterface, webView, progressBar);
-
-        List<PluginEntry> pluginEntries = (List<PluginEntry>) Collections.EMPTY_LIST;
-
-        webView.init(cordovaInterface, webViewClient2, chromeClient, pluginEntries, whitelist, whitelist, cordovaPreferences);
+        WebViewEnvironment.configure(webView)
+                .withDefaultSettings()
+                .withChromeClient(systemChromeClient)
+                .withWebClient(systemWebViewClient)
+                .withWebInterface(ReportWebInterface.from(this));
     }
 
     private void loadFlow() {

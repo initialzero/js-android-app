@@ -136,7 +136,6 @@ apt {
 dependencies {
     provided project(':database-generator')
     compile project(':sdk')
-    compile project(':cordova')
 
     compile 'org.roboguice:roboguice:3.0.1'
     provided 'org.roboguice:roboblender:3.0.1'

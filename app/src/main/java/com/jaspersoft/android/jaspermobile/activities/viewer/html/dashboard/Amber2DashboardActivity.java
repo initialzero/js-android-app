@@ -35,9 +35,10 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.bridge.MobileDashboardApi;
+import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -66,7 +67,7 @@ import java.util.Map;
  * @since 2.0
  */
 @EActivity
-public class Amber2DashboardActivity extends DashboardCordovaActivity implements DashboardCallback {
+public class Amber2DashboardActivity extends BaseDashboardActivity implements DashboardCallback {
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
@@ -119,8 +120,9 @@ public class Amber2DashboardActivity extends DashboardCordovaActivity implements
     //---------------------------------------------------------------------
 
     @Override
-    public void setupWebView(WebView webView) {
-        DashboardWebInterface.inject(this, webView);
+    public void onWebViewConfigured(WebView webView) {
+        WebViewEnvironment.configure(webView)
+                .withWebInterface(DashboardWebInterface.from(this));
     }
 
     @UiThread

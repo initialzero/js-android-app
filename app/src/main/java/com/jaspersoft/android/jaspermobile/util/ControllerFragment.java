@@ -36,7 +36,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 
 import roboguice.fragment.RoboFragment;
 
@@ -48,9 +47,6 @@ import static com.jaspersoft.android.jaspermobile.activities.repository.support.
  * @since 1.9
  */
 public abstract class ControllerFragment extends RoboFragment {
-
-    public static final String CONTENT_TAG = "CONTENT_TAG";
-
     private MenuItem switchLayoutMenuItem;
     protected ControllerPref controllerPref;
 
@@ -98,20 +94,20 @@ public abstract class ControllerFragment extends RoboFragment {
 
     private void toggleSwitcher() {
         if (getViewType() == LIST) {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_grid);
+            switchLayoutMenuItem.setIcon(R.drawable.ic_menu_module);
         } else {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_list);
+            switchLayoutMenuItem.setIcon(R.drawable.ic_menu_list);
         }
     }
 
     protected void commitContentFragment() {
-        boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
+        boolean animationEnabled = DefaultPrefHelper_.getInstance_(getActivity()).isAnimationEnabled();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         if (animationEnabled) {
             transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
         }
         transaction
-                .replace(android.R.id.content, getContentFragment(), CONTENT_TAG)
+                .replace(R.id.content_frame, getContentFragment(), getContentFragmentTag())
                 .commit();
     }
 
@@ -136,6 +132,7 @@ public abstract class ControllerFragment extends RoboFragment {
         controllerPref = new ControllerPref(getActivity(), prefTag);
     }
 
-    public abstract Fragment getContentFragment();
+    protected abstract Fragment getContentFragment();
+    protected abstract String getContentFragmentTag();
 
 }

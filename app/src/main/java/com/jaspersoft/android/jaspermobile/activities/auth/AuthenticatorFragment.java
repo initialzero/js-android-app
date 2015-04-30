@@ -29,19 +29,23 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
@@ -51,8 +55,13 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
+import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +83,10 @@ import static rx.android.app.AppObservable.bindFragment;
 @EFragment(R.layout.add_account_layout)
 public class AuthenticatorFragment extends RoboFragment {
     @Inject
-    protected JsRestClient jsRestClient;
+    protected JsRestClient legacyRestClient;
+    @Inject
+    @Named("DEMO_ENDPOINT")
+    protected String demoServerUrl;
 
     @ViewById
     protected EditText aliasEdit;
@@ -86,22 +98,36 @@ public class AuthenticatorFragment extends RoboFragment {
     protected EditText serverUrlEdit;
     @ViewById
     protected EditText passwordEdit;
+    @ViewById(R.id.tryDemoContainer)
+    protected ViewGroup tryDemoLayout;
     @InstanceState
     protected boolean mFetching;
-    @Inject
-    protected JsRestClient legacyRestClient;
+
+    @SystemService
+    protected InputMethodManager inputMethodManager;
 
     private Observable<LoginResponse> loginDemoTask;
+    private Observable<LoginResponse> tryDemoTask;
     private Subscription loginSubscription = Subscriptions.empty();
+    private Subscription demoSubscription = Subscriptions.empty();
     private Subscription addAccountSubscription = Subscriptions.empty();
 
     private final Action1<Throwable> onError = new Action1<Throwable>() {
         @Override
         public void call(Throwable throwable) {
             Timber.e(throwable, "Login failed");
-            Toast.makeText(getActivity(),
-                    getString(R.string.failure_add_account, throwable.getMessage()),
-                    Toast.LENGTH_LONG).show();
+
+            String exceptionMessage;
+            int statusCode = RequestExceptionHandler.extractStatusCode((Exception) throwable);
+            if (statusCode == HttpStatus.NOT_FOUND.value()) {
+                exceptionMessage = getString(R.string.r_error_server_not_found);
+            } else if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
+                exceptionMessage = getString(R.string.r_error_incorrect_credentials);
+            } else {
+                exceptionMessage = getString(R.string.failure_add_account, throwable.getMessage());
+            }
+
+            Toast.makeText(getActivity(), exceptionMessage, Toast.LENGTH_LONG).show();
             setProgressEnabled(false);
         }
     };
@@ -123,9 +149,20 @@ public class AuthenticatorFragment extends RoboFragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        if (demoAccountExist()) {
+            tryDemoLayout.setVisibility(View.GONE);
+        }
+        else {
+            tryDemoLayout.setVisibility(View.VISIBLE);
+        }
+
         setProgressEnabled(mFetching);
         if (loginDemoTask != null && mFetching) {
             addAccount();
+        }
+        if (tryDemoTask != null && mFetching) {
+            tryDemo();
         }
     }
 
@@ -133,11 +170,13 @@ public class AuthenticatorFragment extends RoboFragment {
     public void onDestroyView() {
         addAccountSubscription.unsubscribe();
         loginSubscription.unsubscribe();
+        demoSubscription.unsubscribe();
         super.onDestroyView();
     }
 
-    @Click
+    @Click(R.id.addAccount)
     public void addAccount() {
+        hideKeyboard();
         if (!isFormValid()) return;
 
         setProgressEnabled(true);
@@ -166,9 +205,46 @@ public class AuthenticatorFragment extends RoboFragment {
                 .subscribe(onSuccess, onError);
     }
 
+    @Click(R.id.tryDemo)
+    public void tryDemo() {
+        hideKeyboard();
+
+        setProgressEnabled(true);
+
+        if (demoSubscription != null) {
+            demoSubscription.unsubscribe();
+        }
+
+        JsRestClient2 restClient = JsRestClient2.forEndpoint(demoServerUrl + JasperSettings.DEFAULT_REST_VERSION);
+        Observable<LoginResponse> tryDemoObservable = restClient.login(
+                AccountServerData.Demo.ORGANIZATION,
+                AccountServerData.Demo.USERNAME,
+                AccountServerData.Demo.PASSWORD
+        ).subscribeOn(Schedulers.io());
+
+        tryDemoTask = bindFragment(this, tryDemoObservable.cache());
+        demoSubscription = tryDemoTask
+                .flatMap(new Func1<LoginResponse, Observable<AccountServerData>>() {
+                    @Override
+                    public Observable<AccountServerData> call(LoginResponse response) {
+                        return createDemoAccountData(response);
+                    }
+                })
+                .subscribe(onSuccess, onError);
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private boolean demoAccountExist(){
+        Account[] accounts = JasperAccountManager.get(getActivity()).getAccounts();
+        for (Account account : accounts) {
+            if (account.name.equals( AccountServerData.Demo.ALIAS))
+                return true;
+        }
+        return false;
+    }
 
     private Observable<AccountServerData> createUserAccountData(LoginResponse response) {
         ServerInfo serverInfo = response.getServerInfo();
@@ -186,15 +262,29 @@ public class AuthenticatorFragment extends RoboFragment {
         return Observable.just(serverData);
     }
 
-    private void addAccount(final AccountServerData serverData) {
-        legacyRestClient.setServerProfile(ProfileManager.getServerProfile(serverData));
+    private Observable<AccountServerData> createDemoAccountData(LoginResponse response) {
+        ServerInfo serverInfo = response.getServerInfo();
 
-        addAccountSubscription = AccountManagerUtil.get(getActivity())
+        AccountServerData serverData = new AccountServerData()
+                .setServerCookie(response.getCookie())
+                .setAlias(AccountServerData.Demo.ALIAS)
+                .setServerUrl(demoServerUrl)
+                .setOrganization(AccountServerData.Demo.ORGANIZATION)
+                .setUsername(AccountServerData.Demo.USERNAME)
+                .setPassword(AccountServerData.Demo.PASSWORD)
+                .setEdition(serverInfo.getEdition())
+                .setVersionName(serverInfo.getVersion());
+
+        return Observable.just(serverData);
+    }
+
+    private void addAccount(final AccountServerData serverData) {
+        addAccountSubscription = JasperAccountManager.get(getActivity())
                 .addAccountExplicitly(serverData)
                 .subscribe(new Action1<Account>() {
                     @Override
                     public void call(Account account) {
-                        BasicAccountProvider.get(getActivity()).putAccount(account);
+                        JasperAccountManager.get(getActivity()).activateAccount(account);
                         activateAccount(serverData.getServerCookie());
                         setProgressEnabled(false);
                     }
@@ -203,7 +293,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
     private void activateAccount(String authToken) {
         AccountManager accountManager = AccountManager.get(getActivity());
-        Account account = BasicAccountProvider.get(getActivity()).getAccount();
+        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
 
         Bundle data = new Bundle();
@@ -213,7 +303,7 @@ public class AuthenticatorFragment extends RoboFragment {
         getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
 
         // Sync with legacy sdk
-        ProfileManager.initLegacyJsRestClient(getActivity(), account, jsRestClient);
+        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), account, legacyRestClient);
         JsRestClient.flushCookies();
 
         Toast.makeText(getActivity(),
@@ -230,7 +320,7 @@ public class AuthenticatorFragment extends RoboFragment {
         mFetching = enabled;
         if (mFetching) {
             ProgressDialogFragment.builder(getFragmentManager())
-                    .setLoadingMessage(R.string.adding_account)
+                    .setLoadingMessage(R.string.account_add)
                     .show();
         } else {
             ProgressDialogFragment.dismiss(getFragmentManager());
@@ -250,7 +340,7 @@ public class AuthenticatorFragment extends RoboFragment {
         String serverUrl = serverUrlEdit.getText().toString();
         String alias = aliasEdit.getText().toString();
 
-        Map<EditText, String> valueMap = Maps.newHashMap();
+        Map<EditText, String> valueMap = new HashMap<EditText, String>();
         valueMap.put(aliasEdit, alias);
         valueMap.put(serverUrlEdit, serverUrl);
         valueMap.put(usernameEdit, usernameEdit.getText().toString());
@@ -278,8 +368,8 @@ public class AuthenticatorFragment extends RoboFragment {
 
         if (!TextUtils.isEmpty(alias)) {
             Account account = new Account(alias, JasperSettings.JASPER_ACCOUNT_TYPE);
-            List<Account> accountList = AccountManagerUtil.get(getActivity())
-                    .listAccounts().toBlocking().first();
+            List<Account> accountList = new ArrayList<Account>();
+            Collections.addAll(accountList, JasperAccountManager.get(getActivity()).getAccounts());
             if (accountList.contains(account)) {
                 aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
                 aliasEdit.requestFocus();
@@ -293,7 +383,6 @@ public class AuthenticatorFragment extends RoboFragment {
             }
         }
 
-
         return formValid;
     }
 
@@ -302,5 +391,15 @@ public class AuthenticatorFragment extends RoboFragment {
             url = url.substring(0, url.length() - 1);
         }
         return url;
+    }
+
+    private void hideKeyboard() {
+        View focus = getActivity().getCurrentFocus();
+        if (focus != null) {
+            IBinder token = focus.getWindowToken();
+            if (token != null) {
+                inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+            }
+        }
     }
 }

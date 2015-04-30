@@ -29,8 +29,9 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,28 +48,16 @@ import org.androidannotations.annotations.SystemService;
  * @since 1.9
  */
 @EFragment
-public class PageDialogFragment extends DialogFragment {
-    private static final String TAG = PageDialogFragment.class.getSimpleName();
+public class PageDialogFragment extends BaseDialogFragment implements DialogInterface.OnShowListener {
+
+    private final static String MAX_VALUE_ARG = "max_value";
+
+    private int mMaxValue;
+
+    private EditText numberEditText;
 
     @SystemService
-    InputMethodManager inputMethodManager;
-
-    private OnPageSelectedListener onPageSelectedListener;
-
-    public static void show(FragmentManager fm, OnPageSelectedListener onPageSelectedListener) {
-        PageDialogFragment dialogFragment = (PageDialogFragment)
-                fm.findFragmentByTag(TAG);
-
-        if (dialogFragment == null) {
-            dialogFragment = PageDialogFragment_.builder().build();
-            dialogFragment.setPageSelectedListener(onPageSelectedListener);
-            dialogFragment.show(fm, TAG);
-        }
-    }
-
-    public void setPageSelectedListener(OnPageSelectedListener onPageSelectedListener) {
-        this.onPageSelectedListener = onPageSelectedListener;
-    }
+    protected InputMethodManager inputMethodManager;
 
     @NonNull
     @Override
@@ -78,45 +67,126 @@ public class PageDialogFragment extends DialogFragment {
         ViewGroup customView = (ViewGroup) layoutInflater
                 .inflate(R.layout.page_dialog_layout,
                         (ViewGroup) getActivity().getWindow().getDecorView(), false);
-        final EditText numberEditText = (EditText) customView.findViewById(R.id.customNumber);
+        numberEditText = (EditText) customView.findViewById(R.id.customNumber);
+        numberEditText.setFilters(new InputFilter[]{new InputFilterMinMax(1, mMaxValue)});
 
         builder.setTitle(R.string.rv_select_page);
         builder.setView(customView);
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.setPositiveButton(android.R.string.ok, null);
 
-        final AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                numberEditText.requestFocus();
-                inputMethodManager.showSoftInput(numberEditText, 0);
+        Dialog pageDialog = builder.create();
+        pageDialog.setOnShowListener(this);
+        return pageDialog;
+    }
 
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (numberEditText.length() == 0) {
-                                    numberEditText.setError(
-                                            getString(R.string.sp_error_field_required));
-                                } else {
-                                    int page;
-                                    try {
-                                        page = Integer.valueOf(numberEditText.getText().toString());
-                                    } catch (NumberFormatException ex) {
-                                        page = Integer.MAX_VALUE;
-                                        numberEditText.setText(String.valueOf(page));
-                                    }
+    @Override
+    public void onShow(DialogInterface dialogInterface) {
+        numberEditText.requestFocus();
+        inputMethodManager.showSoftInput(numberEditText, 0);
 
-                                    if (onPageSelectedListener != null) {
-                                        onPageSelectedListener.onPageSelected(page);
-                                        dismiss();
-                                    }
-                                }
-                            }
-                        });
+        AlertDialog dialog = ((AlertDialog) getDialog());
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new OnPositiveCLickListener());
+    }
+
+    @Override
+    protected Class<PageDialogClickListener> getDialogCallbackClass() {
+        return PageDialogClickListener.class;
+    }
+
+    protected void initDialogParams() {
+        super.initDialogParams();
+
+        Bundle args = getArguments();
+        if (args != null) {
+            if (args.containsKey(MAX_VALUE_ARG)) {
+                mMaxValue = args.getInt(MAX_VALUE_ARG);
             }
-        });
-        return dialog;
+        }
+    }
+
+    public static PageDialogFragmentBuilder createBuilder(FragmentManager fragmentManager) {
+        return new PageDialogFragmentBuilder(fragmentManager);
+    }
+
+    //---------------------------------------------------------------------
+    // Dialog Builder
+    //---------------------------------------------------------------------
+
+    public static class PageDialogFragmentBuilder extends BaseDialogFragmentBuilder<PageDialogFragment> {
+
+        public PageDialogFragmentBuilder(FragmentManager fragmentManager) {
+            super(fragmentManager);
+        }
+
+        public PageDialogFragmentBuilder setMaxValue(int maxValue) {
+            args.putInt(MAX_VALUE_ARG, maxValue);
+            return this;
+        }
+
+        @Override
+        protected PageDialogFragment build() {
+            return new PageDialogFragment_();
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Dialog Callback
+    //---------------------------------------------------------------------
+
+    public interface PageDialogClickListener extends DialogClickListener {
+        public void onPageSelected(int page);
+    }
+
+    //---------------------------------------------------------------------
+    // Nested classes
+    //---------------------------------------------------------------------
+
+    private static class InputFilterMinMax implements InputFilter {
+        private int min, max;
+
+        public InputFilterMinMax(int min, int max) {
+            this.min = min;
+            this.max = max;
+        }
+
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end,
+                                   Spanned dest, int dstart, int dend) {
+            try {
+                int input = Integer.parseInt(dest.toString() + source.toString());
+                if (isInRange(min, max, input))
+                    return null;
+            } catch (NumberFormatException nfe) {
+            }
+            return "";
+        }
+
+        private boolean isInRange(int a, int b, int c) {
+            return b > a ? c >= a && c <= b : c >= b && c <= a;
+        }
+    }
+
+    private class OnPositiveCLickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (numberEditText.length() == 0) {
+                numberEditText.setError(
+                        getString(R.string.sp_error_field_required));
+            } else {
+                int page;
+                try {
+                    page = Integer.valueOf(numberEditText.getText().toString());
+                } catch (NumberFormatException ex) {
+                    page = Integer.MAX_VALUE;
+                    numberEditText.setText(String.valueOf(page));
+                }
+
+                if (mDialogListener != null) {
+                    ((PageDialogClickListener) mDialogListener).onPageSelected(page);
+                }
+                dismiss();
+            }
+        }
     }
 }

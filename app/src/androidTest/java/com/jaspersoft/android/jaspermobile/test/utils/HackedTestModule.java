@@ -35,7 +35,8 @@ import org.apache.http.hacked.HackedJsRestClient;
  */
 public class HackedTestModule extends CommonTestModule {
     @Override
-    protected void semanticConfigure() {
+    protected void configure() {
+        super.configure();
         bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
         bind(JsSpiceManager.class).toInstance(new SyncSpiceManager());
     }

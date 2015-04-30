@@ -25,19 +25,21 @@
 package com.jaspersoft.android.jaspermobile.db.seed;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.List;
 
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -45,15 +47,17 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class AccountSeed implements Seed {
+    private final JasperAccountManager jasperAccountManager;
     private final Context mContext;
 
     public AccountSeed(Context context) {
-        this.mContext = context;
+        mContext = context;
+        jasperAccountManager = JasperAccountManager.get(context);
         Timber.tag(AccountSeed.class.getSimpleName());
     }
 
     @Override
-    public void seed(SQLiteDatabase database) {
+    public void seed() {
         populateDefaultServer();
         populateTestServers();
     }
@@ -67,9 +71,10 @@ public class AccountSeed implements Seed {
                 .setUsername(AccountServerData.Demo.USERNAME)
                 .setPassword(AccountServerData.Demo.PASSWORD)
                 .setEdition("PRO")
-                .setVersionName("5.5");
-        AccountManagerUtil.get(mContext)
+                .setVersionName("6.0.1");
+        jasperAccountManager
                 .addAccountExplicitly(serverData)
+                .subscribeOn(Schedulers.io())
                 .subscribe();
     }
 
@@ -84,22 +89,19 @@ public class AccountSeed implements Seed {
         try {
             String json = IOUtils.toString(is);
             Gson gson = new Gson();
-            Profiles profiles = gson.fromJson(json, Profiles.class);
-            AccountManagerUtil util = AccountManagerUtil.get(mContext);
-            for (AccountServerData serverData : profiles.getData()) {
-                util.addAccountExplicitly(serverData).subscribe();
+
+            Type listType = new TypeToken<List<AccountServerData>>() {}.getType();
+            List<AccountServerData> datum = gson.fromJson(json, listType);
+            for (AccountServerData serverData : datum) {
+                Timber.d("Add server explicitly" + serverData);
+                jasperAccountManager.addAccountExplicitly(serverData)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe();
             }
         } catch (IOException e) {
             Timber.w("Ignoring population of data");
         } finally {
             IOUtils.closeQuietly(is);
-        }
-    }
-
-    private static class Profiles {
-        private List<AccountServerData> profiles;
-        public List<AccountServerData> getData() {
-            return profiles;
         }
     }
 }

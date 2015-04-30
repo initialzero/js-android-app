@@ -27,12 +27,16 @@ package com.jaspersoft.android.jaspermobile.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
 import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesRemoveColumnMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -49,7 +53,7 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
     @Override
     public void onCreate(SQLiteDatabase db) {
         super.onCreate(db);
-        new AccountSeed(mContext).seed(db);
+        seedProfiles();
     }
 
     @Override
@@ -81,11 +85,22 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                         " select name, title, uri, description, wstype, username, organization, server_profile_id from tmp_favorites;");
                 db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
             case 3:
+                Timber.d("Start migrating accounts");
                 new ProfileAccountMigration(mContext).migrate(db);
+                Timber.d("Start migrating profiles");
                 new ProfileFavoritesMigration().migrate(db);
+                Timber.d("Start migrating saved items");
                 new SavedItemsMigration(mContext).migrate(db);
+                Timber.d("Start migrating favorite items");
                 new FavoritesRemoveColumnMigration().migrate(db);
                 break;
+        }
+    }
+
+    private void seedProfiles() {
+        boolean noAccounts = JasperAccountManager.get(mContext).getAccounts().length == 0;
+        if (noAccounts && (BuildConfig.DEBUG || BuildConfig.FLAVOR.equalsIgnoreCase("qa"))) {
+            new AccountSeed(mContext).seed();
         }
     }
 

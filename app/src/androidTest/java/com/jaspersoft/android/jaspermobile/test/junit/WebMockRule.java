@@ -28,19 +28,19 @@ import android.app.Application;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 
+import com.google.inject.Singleton;
 import com.google.inject.name.Names;
-import com.google.inject.util.Modules;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;
-import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 
 import org.junit.Before;
 import org.junit.rules.ExternalResource;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import retrofit.ErrorHandler;
-import retrofit.RetrofitError;
 import roboguice.RoboGuice;
 import timber.log.Timber;
 
@@ -53,29 +53,35 @@ public class WebMockRule extends ExternalResource {
     private MockWebServer server;
     private String endpoint;
 
+    private Logger logger = Logger.getLogger(WebMockRule.class.getName());
+
     @Before
     public void before() throws Throwable {
         super.before();
+
         // Create a MockWebServer. These are lean enough that you can create a new
         // instance for every unit test.
         server = new MockWebServer();
         try {
             server.play();
         } catch (IOException e) {
+            logger.log(Level.INFO, "Failed to start MockWebServer");
             throw new RuntimeException(e);
         }
 
         Application application = (Application) fetchInstrumentation().getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(new MyTestModule(server.getPort())));
+        RoboGuice.overrideApplicationInjector(application, new MyTestModule(server.getPort()));
     }
 
     @Override
     protected void after() {
         super.after();
-        RoboGuice.util.reset();
+        try {
+            server.shutdown();
+        } catch (IOException e) {
+            logger.log(Level.INFO, "Failed to shutdown MockWebServer", e);
+        }
+        RoboGuice.Util.reset();
     }
 
     public MockWebServer get() {
@@ -107,9 +113,14 @@ public class WebMockRule extends ExternalResource {
         }
 
         @Override
-        protected void semanticConfigure() {
+        protected void configure() {
+            commonConfigurations();
+
+            bind(JsRestClient.class).in(Singleton.class);
             Timber.plant(new Timber.DebugTree());
             endpoint = "http://localhost:" + mPort;
+
+            bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(endpoint);
         }
     }
 }

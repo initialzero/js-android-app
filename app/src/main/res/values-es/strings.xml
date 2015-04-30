@@ -22,11 +22,13 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <resources>
+    <!-- Images content description -->
+    <string name="img_cd_list_item">Vista previa de lista de ítems</string>
+    <string name="img_cd_grid_item">Vista previa de cuadrícula de ítems</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">Repositorio</string>
     <string name="h_library_label">Biblioteca</string>
-    <string name="h_server_profile_label">"Perfil del servidor: "</string>
-    <string name="h_server_switched_toast">El servidor se ha conmutado a \"%s\"</string>
 
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">Sin conexión</string>
@@ -34,23 +36,7 @@
 
     <!-- Password Dialog -->
     <string name="h_ad_title_enter_password">Introduzca una contraseña</string>
-    <string name="h_ad_label_server_profile">Perfil del servidor:</string>
-    <string name="h_ad_label_organization">Organización:</string>
-    <string name="h_ad_label_username">Nombre de usuario:</string>
-
-    <!-- Server Profiles Manager Activity -->
-    <string name="spm_list_title">Perfiles del servidor</string>
-
-    <!-- Toasts -->
-    <string name="spm_profile_created_toast">El nuevo perfil del servidor \'%s\' se ha creado correctamente.</string>
-    <string name="spm_profile_updated_toast">El perfil del servidor \'%s\' se ha actualizado correctamente.</string>
-    <string name="spm_profile_deleted_toast">El perfil del servidor se ha eliminado correctamente.</string>
-    <string name="toast_select_profile">Seleccione su perfil</string>
-
-    <!-- Context Menu -->
-    <string name="spm_cm_switch">Conectar</string>
-    <string name="spm_cm_edit">Editar</string>
-    <string name="spm_cm_delete">Eliminar</string>
+    <string name="h_ad_label_server_profile">Perfil del servidor</string>
 
     <!-- Action Bar -->
     <string name="spm_ab_add_profile">Añadir perfil del servidor</string>
@@ -61,20 +47,8 @@
     <string name="spm_cancel_btn">Cancelar</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_bc_add_profile">Nuevo perfil del servidor</string>
-    <string name="sp_bc_edit_profile">Editar perfil del servidor</string>
-    <string name="sp_url_label">URL del servidor:</string>
-    <string name="sp_url_hint">http://myserver.com</string>
-    <string name="sp_org_label">Organización:</string>
-    <string name="sp_organization_hint">ID de la organización</string>
-    <string name="sp_username_label">Nombre de usuario:</string>
-    <string name="sp_username_hint">mi nombre de usuario</string>
-    <string name="sp_password_label">Contraseña:</string>
     <string name="sp_password_hint">mi contraseña</string>
     <string name="sp_save_btn">Guardar</string>
-    <string name="sp_active_item">Activo: %s</string>
-    <string name="sp_label_general">General</string>
-    <string name="sp_label_auth">Autenticación</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">Este campo es obligatorio.</string>
@@ -117,16 +91,23 @@
     <string name="s_fd_sort_label">Por etiqueta</string>
     <string name="s_fd_sort_date">Por fecha de creación</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">Acerca de</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nHerramienta de gestión y visualización de informes para JasperReports Server 5.5 y superior.\n\nPara mayor información visite:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">\nhttp://community.jaspersoft.com/project/jaspermobile-android</a>\n\nPara información de la política de privacidad, visite:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nDerechos reservados © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy">Política de Privacidad</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Ejecutar informe</string>
+    <string name="ro_page_title">Opciones de filtro</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Guardar informe</string>
     <string name="rv_ab_show_filters">Mostrar filtros</string>
     <string name="rv_error_empty_report">No hay ningún dato de informe.</string>
+    <string name="rv_select_page">Seleccionar página</string>
+    <string name="rv_out_of_range">Página solicitada fuera de rango</string>
+    <string name="rv_dialog_reload">Actualizar</string>
+
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">La tarjeta de memoria externa no está disponible. Monte la tarjeta e inténtelo de nuevo.</string>
 
@@ -179,11 +160,11 @@
     <string name="st_title_read_timeout">Tiempo de espera de lectura de datos</string>
     <string name="st_title_animations">Animaciones de la aplicación</string>
     <string name="st_send_crashes">Enviar informes de errores</string>
-    <string name="st_send_crashes_summary">ADVERTENCIA: Esta opción reinicia la aplicación.</string>
     <string name="st_summary_cache_enable">Solicitudes de repositorio de la caché para el periodo especificado</string>
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Formato de número no válido</string>
+    <string name="st_category_more">Más</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Solicitud errónea. La solicitud no es válida.</string>
@@ -202,21 +183,15 @@
     <string name="error_msg">Error</string>
     <string name="warning_msg">Advertencia</string>
     <string name="cancelled_msg">Cancelado</string>
-
-    <!-- New Home Page Labels -->
-    <string name="library_card_label">Biblioteca</string>
-    <string name="library_card_desc">Examine la biblioteca de JR Server.</string>
-    <string name="saved_items_card_desc">Vea los elementos guardados en este dispositivo.</string>
-    <string name="repository_card_label">Repositorio</string>
-    <string name="repository_card_desc">Examine el repositorio de JR Server.</string>
-    <string name="favorites_card_label">Favoritos</string>
-    <string name="favorites_card_desc">Vea favoritos en el dispositivo.</string>
-    <string name="servers_card_label">Servidores</string>
-    <string name="servers_card_desc">Seleccione el perfil de JR Server.</string>
-    <string name="settings_card_label">Configuración</string>
-    <string name="settings_card_desc">Configure la aplicación para dispositivos móviles de TIBCO Jaspersoft.</string>
     <string name="search_result_format">Buscar resultados para \'%s\'</string>
     <string name="failed_load_data">Error al cargar los datos.</string>
+
+    <!-- Navigation panel -->
+    <string name="library_card_label">Biblioteca</string>
+    <string name="repository_card_label">Repositorio</string>
+    <string name="favorites_card_label">Favoritos</string>
+    <string name="settings_card_label">Configuración</string>
+
 
     <!-- Pagination controll -->
     <string name="of"><![CDATA[de %d]]></string>

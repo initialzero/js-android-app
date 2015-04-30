@@ -38,6 +38,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.hamcrest.core.AllOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,9 +51,11 @@ import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasMinValue;
@@ -119,7 +122,10 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
 
     @Test
     public void testValidateFieldShouldNotBeEmpty() throws IOException {
-        onView(withId(getActionBarTitleId())).check(matches(withText(R.string.sr_ab_title)));
+        onView(AllOf.allOf(
+                withParent(withId(R.id.tb_navigation)),
+                withText(R.string.sr_ab_title)
+        )).check(matches(isDisplayed()));
 
         onView(withId(R.id.report_name_input)).perform(clearText());
         onView(withId(R.id.saveAction)).perform(click());
@@ -151,7 +157,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
     }
 
     @Test
-    public void testRightMarginAlwaysBiggerOrEqaualThanLeftOne() {
+    public void testRightMarginAlwaysBiggerOrEqualThanLeftOne() {
         int numberPickerInputId = getActivity().getResources().getIdentifier("numberpicker_input", "id", "android");
 
         // Select 43

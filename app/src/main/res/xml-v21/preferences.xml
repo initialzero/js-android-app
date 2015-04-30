@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/st_category_repo_cache">
+
+        <SwitchPreference
+            android:key="pref_repo_cache_enabled"
+            android:defaultValue="true"
+            android:title="@string/st_title_cache_enable"
+            android:summary="@string/st_summary_cache_enable"/>
+
+        <EditTextPreference
+            android:key="pref_repo_cache_expiration"
+            android:defaultValue="48"
+            android:dependency="pref_repo_cache_enabled"
+            android:inputType="number"
+            android:title="@string/st_title_cache_expiration"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/st_category_connection">
+
+        <EditTextPreference
+            android:key="pref_connect_timeout"
+            android:defaultValue="15"
+            android:title="@string/st_title_connect_timeout"
+            android:inputType="number"/>
+
+        <EditTextPreference
+            android:key="pref_read_timeout"
+            android:defaultValue="120"
+            android:inputType="number"
+            android:title="@string/st_title_read_timeout" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/st_category_more">
+
+        <SwitchPreference
+            android:key="pref_animation_enabled"
+            android:defaultValue="true"
+            android:title="@string/st_title_animations" />
+
+        <SwitchPreference
+            android:key="pref_crash_reports"
+            android:defaultValue="true"
+            android:title="@string/st_send_crashes"
+            android:summary="@string/st_send_crashes_note"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

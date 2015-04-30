@@ -27,7 +27,9 @@ package com.jaspersoft.android.jaspermobile.test.utils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
-import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 
 /**
  * @author Tom Koptel
@@ -35,14 +37,21 @@ import com.jaspersoft.android.jaspermobile.info.ServerInfoSnapshot;
  */
 public abstract class CommonTestModule extends AbstractModule {
     @Override
-    protected final void configure() {
-        bind(ServerInfoSnapshot.class).in(Singleton.class);
+    protected void configure() {
+        commonConfigurations();
+        commonStrictConfigurations();
+    }
+
+    protected void commonStrictConfigurations() {
+        bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(AccountServerData.Demo.SERVER_URL);
+    }
+
+    protected void commonConfigurations() {
         bindConstant().annotatedWith(Names.named("animationSpeed")).to(0);
         bindConstant().annotatedWith(Names.named("LIMIT")).to(40);
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
         bindConstant().annotatedWith(Names.named("MAX_PAGE_ALLOWED")).to(1);
-        semanticConfigure();
+        bind(ReportParamsStorage.class).in(Singleton.class);
+        bind(ReportParamsSerializer.class).to(ReportParamsSerializer.class);
     }
-
-    protected abstract void semanticConfigure();
 }

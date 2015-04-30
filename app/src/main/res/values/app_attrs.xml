@@ -28,17 +28,7 @@
     <declare-styleable name="Theme.JasperMobile">
         <attr name="listLayoutStyle" format="reference" />
         <attr name="gridLayoutStyle" format="reference" />
-    </declare-styleable>
-
-    <declare-styleable name="AutoLayerLayout">
-        <attr name="foregroundSelector" format="integer" />
-    </declare-styleable>
-
-    <declare-styleable name="LinearCardView">
-        <attr name="header_icon" format="integer" />
-        <attr name="header_background" format="color" />
-        <attr name="body_title" format="integer" />
-        <attr name="body_subtitle" format="integer" />
+        <attr name="windowToolbar" format="boolean" />
     </declare-styleable>
 
 </resources>

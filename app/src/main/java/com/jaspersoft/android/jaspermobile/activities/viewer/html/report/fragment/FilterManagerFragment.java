@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,7 +10,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
@@ -17,7 +17,8 @@ import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -25,9 +26,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
-import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -39,8 +38,6 @@ import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
 
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS;
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
 /**
@@ -53,28 +50,27 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     public static final String TAG = FilterManagerFragment.class.getSimpleName();
 
     @Inject
-    JsRestClient jsRestClient;
+    protected JsRestClient jsRestClient;
+    @Inject
+    protected ReportParamsStorage paramsStorage;
 
     @FragmentArg
-    ResourceLookup resource;
+    protected ResourceLookup resource;
 
     @OptionsMenuItem
-    MenuItem saveReport;
+    protected MenuItem saveReport;
     @OptionsMenuItem
-    MenuItem showFilters;
+    protected MenuItem showFilters;
 
     @InstanceState
-    ArrayList<InputControl> cachedInputControls;
+    protected boolean mShowFilterOption;
     @InstanceState
-    ArrayList<ReportParameter> reportParameters;
-    @InstanceState
-    ArrayList<InputControl> validInputControls;
-    @InstanceState
-    ArrayList<ReportParameter> validReportParameters;
-    @InstanceState
-    boolean mShowFilterOption;
-    @InstanceState
-    boolean mShowSaveOption;
+    protected boolean mShowSaveOption;
+
+    private boolean mPageWasLoadedAtLeastOnce;
+
+    private ArrayList<ReportParameter> reportParameters;
+    private ArrayList<InputControl> inputControls;
 
     private ReportExecutionFragment reportExecutionFragment;
     private RequestExecutor requestExecutor;
@@ -106,7 +102,6 @@ public class FilterManagerFragment extends RoboSpiceFragment {
             PaginationManagerFragment manager = (PaginationManagerFragment) getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
 
             SaveReportActivity_.intent(this)
-                    .reportParameters(reportParameters)
                     .resource(resource)
                     .pageCount(manager.mTotalPage)
                     .start();
@@ -118,46 +113,24 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsItem
     public void showFilters() {
-        showReportOptions(cachedInputControls);
+        showReportOptions();
     }
 
-    public void showPreviousReport() {
-        reportParameters = validReportParameters;
-        cachedInputControls = validInputControls;
-        getReportExecutionFragment().executeReport(reportParameters);
-    }
-
-    public boolean hasSnapshot() {
-        return validInputControls != null && validReportParameters != null;
-    }
-
-    public void makeSnapshot() {
-        validReportParameters = reportParameters;
-        validInputControls = cachedInputControls;
-    }
-
-    private void showReportOptions(ArrayList<InputControl> inputControls) {
-        // Run Report Options activity
+    private void showReportOptions() {
         Intent intent = new Intent(getActivity(), ReportOptionsActivity.class);
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
-        intent.putParcelableArrayListExtra(ReportOptionsActivity.EXTRA_REPORT_CONTROLS, inputControls);
         startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
     }
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadReportParameters(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
-            cachedInputControls = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
-
-            getReportExecutionFragment().executeReport(reportParameters);
+            getReportExecutionFragment().executeReport(getReportParameters());
         } else {
             // Check if user has experienced report loading. Otherwise remove him from this page.
             if (!hasSnapshot()) {
                 getActivity().finish();
-            } else {
-                showPreviousReport();
             }
         }
     }
@@ -170,33 +143,50 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         return reportExecutionFragment;
     }
 
+    private ArrayList<ReportParameter> getReportParameters() {
+        return paramsStorage.getReportParameters(resource.getUri());
+    }
+
+    public boolean hasSnapshot() {
+        return mPageWasLoadedAtLeastOnce;
+    }
+
+    public void makeSnapshot() {
+        mPageWasLoadedAtLeastOnce = true;
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetInputControlsListener implements RequestListener<InputControlsList> {
+    private class GetInputControlsListener extends SimpleRequestListener<InputControlsList> {
+
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
         @Override
         public void onRequestFailure(SpiceException exception) {
-            if (exception instanceof RequestCancelledException) {
-                Toast.makeText(getActivity(), R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-            } else {
-                RequestExceptionHandler.handle(exception, getActivity(), false);
-            }
+            super.onRequestFailure(exception);
             ProgressDialogFragment.dismiss(getFragmentManager());
         }
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
-            ArrayList<InputControl> inputControls = Lists.newArrayList(controlsList.getInputControls());
+            reportParameters = new ArrayList<ReportParameter>();
+            inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;
             mShowSaveOption = true;
             getActivity().invalidateOptionsMenu();
 
             if (showFilterActionVisible) {
-                cachedInputControls = inputControls;
-                showReportOptions(inputControls);
                 ProgressDialogFragment.dismiss(getFragmentManager());
+                paramsStorage.putReportParameters(resource.getUri(), reportParameters);
+                paramsStorage.putInputControls(resource.getUri(), inputControls);
+                showReportOptions();
             } else {
                 getReportExecutionFragment().executeReport();
             }

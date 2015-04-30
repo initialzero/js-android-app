@@ -42,6 +42,7 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class SavedItemsControllerFragment extends ControllerFragment {
+    public static final String CONTENT_TAG = "SavedItemsControllerFragment.CONTENT_TAG";
 
     public static final String TAG = SavedItemsControllerFragment.class.getSimpleName();
 
@@ -82,6 +83,11 @@ public class SavedItemsControllerFragment extends ControllerFragment {
                 .searchQuery(searchQuery)
                 .build();
         return contentFragment;
+    }
+
+    @Override
+    protected String getContentFragmentTag() {
+        return CONTENT_TAG;
     }
 
     public void loadItemsByTypes(FileAdapter.FileType _filterType) {

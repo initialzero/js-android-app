@@ -24,14 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.activities;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
@@ -43,8 +43,8 @@ import java.util.ArrayList;
  * @author Tom Koptel
  * @since 1.9
  */
-@EActivity(R.layout.repositories_layout)
-public class SearchableActivity extends RoboSpiceFragmentActivity {
+@EActivity(R.layout.content_layout)
+public class SearchableActivity extends RoboSpiceActivity {
 
     @Extra
     ArrayList<String> resourceTypes;
@@ -59,7 +59,7 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
@@ -67,7 +67,6 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
         // Get the intent, verify the action and get the query
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-
             if (savedInstanceState == null) {
                 ResourcesControllerFragment resourcesController =
                         ResourcesControllerFragment_.builder()
@@ -80,7 +79,7 @@ public class SearchableActivity extends RoboSpiceFragmentActivity {
                                 .query(query)
                                 .build();
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.controller, resourcesController, ResourcesControllerFragment.TAG)
+                        .add(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG)
                         .commit();
             }
         }

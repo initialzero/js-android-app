@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 import android.support.test.espresso.NoMatchingViewException;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
@@ -60,15 +60,16 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 2.0
  */
-public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageFilterTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     public LibraryPageFilterTest() {
-        super(LibraryActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
@@ -152,7 +153,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     // We need long click on the item within big data list.
     // Then switch to the list with few items. As soon as we
     // kept reference to incorrect index position we received crash.
-    // Test asserts that adapter clear() method resets old reference
+    // Test asserts that adapter deleteSavedItems() method resets old reference
     @Test
     public void testCurrentPositionResetAfterNewFilterSelected() {
         FakeHttpLayerManager.addHttpResponseRule(
@@ -180,12 +181,8 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         try {
             onView(withId(R.id.filter)).perform(click());
         } catch (NoMatchingViewException ex) {
-            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_filter_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            openActionBarOverflowOrOptionsMenu(getApplication());
+            onView(withText(R.string.s_ab_filter_by)).perform(click());
         }
     }
 

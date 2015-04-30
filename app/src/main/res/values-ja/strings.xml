@@ -22,11 +22,13 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <resources>
+    <!-- Images content description -->
+    <string name="img_cd_list_item">リスト項目プレビュー</string>
+    <string name="img_cd_grid_item">グリッド項目プレビュー</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">リポジトリ</string>
     <string name="h_library_label">ライブラリ</string>
-    <string name="h_server_profile_label">"サーバープロファイル："</string>
-    <string name="h_server_switched_toast">サーバーが「%s」に切り替えられました</string>
 
     <!-- Connection Dialog -->
     <string name="h_ad_title_no_connection">接続がありません</string>
@@ -34,23 +36,7 @@
 
     <!-- Password Dialog -->
     <string name="h_ad_title_enter_password">パスワードを入力</string>
-    <string name="h_ad_label_server_profile">サーバープロファイル：</string>
-    <string name="h_ad_label_organization">組織：</string>
-    <string name="h_ad_label_username">ユーザー名：</string>
-
-    <!-- Server Profiles Manager Activity -->
-    <string name="spm_list_title">サーバープロファイル</string>
-
-    <!-- Toasts -->
-    <string name="spm_profile_created_toast">新しいサーバープロファイル「%s」が正常に作成されました。</string>
-    <string name="spm_profile_updated_toast">サーバープロファイル「%s」が正常に更新されました。</string>
-    <string name="spm_profile_deleted_toast">サーバープロファイルが正常に削除されました。</string>
-    <string name="toast_select_profile">ご自分のプロファイルを選択してください</string>
-
-    <!-- Context Menu -->
-    <string name="spm_cm_switch">接続</string>
-    <string name="spm_cm_edit">編集</string>
-    <string name="spm_cm_delete">削除</string>
+    <string name="h_ad_label_server_profile">サーバープロファイル</string>
 
     <!-- Action Bar -->
     <string name="spm_ab_add_profile">サーバープロファイルを追加</string>
@@ -61,20 +47,8 @@
     <string name="spm_cancel_btn">キャンセル</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_bc_add_profile">新しいサーバープロファイル</string>
-    <string name="sp_bc_edit_profile">サーバープロファイルを編集</string>
-    <string name="sp_url_label">サーバー URL：</string>
-    <string name="sp_url_hint">http://myserver.com</string>
-    <string name="sp_org_label">組織：</string>
-    <string name="sp_organization_hint">組織 ID</string>
-    <string name="sp_username_label">ユーザー名：</string>
-    <string name="sp_username_hint">私のユーザー名</string>
-    <string name="sp_password_label">パスワード:</string>
     <string name="sp_password_hint">私のパスワード</string>
     <string name="sp_save_btn">保存</string>
-    <string name="sp_active_item">アクティブ：%s</string>
-    <string name="sp_label_general">全般</string>
-    <string name="sp_label_auth">認証</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">このフィールドは必須項目です。</string>
@@ -117,11 +91,14 @@
     <string name="s_fd_sort_label">ラベル</string>
     <string name="s_fd_sort_date">作成日</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">バージョン情報</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nJasperReports Server 5.5以上向けの管理ツールおよびレポートビューア\n\n詳細について：\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\n個人情報保護方針について：\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy">個人情報保護方針</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">レポートの実行</string>
+    <string name="ro_page_title">フィルターオプション</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">レポートの保存</string>
@@ -134,6 +111,10 @@
     <string name="sr_ab_title">レポートの保存</string>
     <string name="sr_report_name">レポート名</string>
     <string name="sr_output_format">出力フォーマット</string>
+    <string name="rv_select_page">ページを選択</string>
+    <string name="rv_out_of_range">範囲外で要求されたページ</string>
+    <string name="rv_dialog_reload">リロード</string>
+
     <!-- Toasts -->
     <string name="sr_t_report_saved">レポートは正常に保存されました</string>
     <!-- Error messages -->
@@ -179,11 +160,11 @@
     <string name="st_title_read_timeout">データ読み込みタイムアウト</string>
     <string name="st_title_animations">アプリケーションアニメーション</string>
     <string name="st_send_crashes">クラッシュレポートを送信</string>
-    <string name="st_send_crashes_summary">警告：このオプションは、アプリケーションを再起動します。</string>
     <string name="st_summary_cache_enable">指定した時間のキャッシュリポジトリリクエスト</string>
     <string name="st_summary_sec">%s 秒</string>
     <string name="st_summary_h">%s 時間</string>
     <string name="st_invalid_number_format">無効な数値フォーマット</string>
+    <string name="st_category_more">詳細</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - 要求が正しくありません。リクエストは無効です。</string>
@@ -202,21 +183,14 @@
     <string name="error_msg">エラー</string>
     <string name="warning_msg">警告</string>
     <string name="cancelled_msg">キャンセルされました</string>
-
-    <!-- New Home Page Labels -->
-    <string name="library_card_label">ライブラリ</string>
-    <string name="library_card_desc">JR サーバーライブラリを参照します。</string>
-    <string name="saved_items_card_desc">このデバイスに保存されているアイテムを表示します。</string>
-    <string name="repository_card_label">リポジトリ</string>
-    <string name="repository_card_desc">JR サーバーリポジトリを参照します。</string>
-    <string name="favorites_card_label">お気に入り</string>
-    <string name="favorites_card_desc">このデバイスのお気に入りを表示します。</string>
-    <string name="servers_card_label">サーバー</string>
-    <string name="servers_card_desc">JR サーバープロファイルを選択してください。</string>
-    <string name="settings_card_label">設定</string>
-    <string name="settings_card_desc">TIBCO Jaspersoft Mobile アプリを設定します。</string>
     <string name="search_result_format">「%s」のサーチ結果</string>
     <string name="failed_load_data">データの読み込みが失敗しました。</string>
+
+    <!-- Navigation panel -->
+    <string name="library_card_label">ライブラリ</string>
+    <string name="repository_card_label">リポジトリ</string>
+    <string name="favorites_card_label">お気に入り</string>
+    <string name="settings_card_label">設定</string>
 
     <!-- Pagination controll -->
     <string name="of"><![CDATA[/%d]]></string>

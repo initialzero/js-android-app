@@ -26,8 +26,9 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
 import android.content.Context;
-import android.view.ViewConfiguration;
 
+import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
+import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
@@ -38,8 +39,6 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import org.androidannotations.annotations.EApplication;
-
-import java.lang.reflect.Field;
 
 import timber.log.Timber;
 
@@ -52,13 +51,10 @@ public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
     private Tracker jsTracker;
 
-    public static void removeAllCookies() {
-        JsRestClient.flushCookies();
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
+        forceDatabaseUpdate();
 
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
@@ -70,8 +66,11 @@ public class JasperMobileApplication extends Application {
         System.setProperty("http.keepAlive", "false");
 
         getTracker();
-        forceOverFlowMenu();
         initImageLoader(getApplicationContext());
+    }
+
+    private void forceDatabaseUpdate() {
+        getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[] {"_id"}, null, null, null);
     }
 
     private void initImageLoader(Context context) {
@@ -80,34 +79,15 @@ public class JasperMobileApplication extends Application {
         //  ImageLoaderConfiguration.createDefault(this);
         // method.
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-                .imageDownloader(new CustomImageDownaloder(context))
+                .imageDownloader(new TokenImageDownloader(context))
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .diskCacheSize(50 * 1024 * 1024) // 50 Mb
                 .tasksProcessingOrder(QueueProcessingType.LIFO)
-                .writeDebugLogs() // Remove for release app
                 .build();
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config);
-    }
-
-    /**
-     * We are forcing OS to show overflow menu for the devices which expose hardware implementation.
-     * WARNING: This is considered to be bad practice though we decide to violate rules.
-     * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
-     */
-    private void forceOverFlowMenu() {
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if(menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
-        } catch (Exception ex) {
-            // Ignore
-        }
     }
 
     public synchronized Tracker getTracker() {

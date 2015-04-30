@@ -24,31 +24,35 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
-import android.animation.ObjectAnimator;
+import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ExportOutputData;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportExportOutputLoader;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -56,6 +60,8 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * @author Tom Koptel
@@ -63,102 +69,105 @@ import org.androidannotations.annotations.ViewById;
  */
 @EFragment(R.layout.report_html_viewer)
 @OptionsMenu(R.menu.webview_menu)
-public class NodeWebViewFragment extends RoboSpiceFragment {
+public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDialogFragment.SimpleDialogClickListener{
     public static final String TAG = NodeWebViewFragment.class.getSimpleName();
 
     @ViewById
     protected JSWebView webView;
-    @ViewById(R.id.htmlViewer_webView_progressBar)
+    @ViewById
     protected ProgressBar progressBar;
 
+    @InstanceState
     @FragmentArg
-    String currentHtml;
+    protected int page;
 
     @InstanceState
-    @FragmentArg
-    double versionCode;
+    protected String currentHtml;
     @InstanceState
-    @FragmentArg
-    int page;
-    @InstanceState
-    @FragmentArg
-    String requestId;
-    @FragmentArg
-    @InstanceState
-    String executionId;
-
-    @FragmentArg
-    @InstanceState
-    boolean outputFinal;
+    protected boolean outputFinal;
 
     @Inject
     protected JsRestClient jsRestClient;
 
     @Bean
-    JSWebViewClient jsWebViewClient;
+    protected JSWebViewClient jsWebViewClient;
+    @Bean
+    protected ReportSession reportSession;
+    @Bean
+    protected ReportExportOutputLoader reportExportOutputLoader;
 
-    public static int getPage(NodeWebViewFragment fragment) {
-        Bundle args = fragment.getArguments();
-        return args.getInt(NodeWebViewFragment_.PAGE_ARG);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        initWebView();
-    }
+    private ExportResultListener exportResultListener;
+    private OnPageLoadListener onPageLoadListener;
+    private RequestExecutor requestExecutor;
+    private ServerRelease mRelease;
+    private boolean mReportNotFound;
 
     @OptionsItem
     final void refreshAction() {
         fetchReport();
     }
 
+    @AfterViews
+    final void init() {
+        setHasOptionsMenu(true);
+
+        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
+        AccountServerData serverData = AccountServerData.get(getActivity(), account);
+        mRelease = ServerRelease.parseVersion(serverData.getVersionName());
+
+        exportResultListener = new ExportResultListener();
+        requestExecutor = RequestExecutor.builder()
+                .setSpiceManager(getSpiceManager())
+                .setFragmentManager(getFragmentManager())
+                .setExecutionMode(RequestExecutor.Mode.SILENT)
+                .create();
+        reportSession.registerObserver(sessionObserver);
+        prepareWebView();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!mReportNotFound) {
+            if (TextUtils.isEmpty(currentHtml)) {
+                fetchReport();
+            } else {
+                loadHtml(currentHtml);
+            }
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        reportSession.removeObserver(sessionObserver);
+    }
+
     @Override
     public void onDestroy() {
-        super.onDestroy();
         webView.destroy();
         webView = null;
+        super.onDestroy();
     }
 
-    public boolean needUpdate() {
-        PaginationManagerFragment paginationManagerFragment = (PaginationManagerFragment)
-                getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
-        String currentRequestId = paginationManagerFragment.getRequestId();
-        return (!getRequestId().equals(currentRequestId));
-    }
-
-    public void refreshForNewRequestId() {
-        PaginationManagerFragment paginationManagerFragment = (PaginationManagerFragment)
-                getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
-        requestId = paginationManagerFragment.getRequestId();
-        fetchReport();
-    }
-
-    public void loadFinalOutput() {
-        if (!outputFinal) fetchReport();
+    public void setOnPageLoadListener(OnPageLoadListener onPageLoadListener) {
+        this.onPageLoadListener = onPageLoadListener;
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void initWebView() {
-        CookieManagerFactory.syncCookies(getActivity(), jsRestClient);
-        prepareWebView();
-        setWebViewClient();
-        loadHtml(currentHtml);
-    }
-
     private void loadHtml(String html) {
-        Preconditions.checkNotNull(html);
-        Preconditions.checkNotNull(webView);
-        Preconditions.checkNotNull(jsRestClient);
+        if (html == null) {
+            throw new IllegalStateException("Html can`t be null");
+        }
+        if (webView == null) {
+            throw new IllegalStateException("WebView can`t be null");
+        }
+        if (jsRestClient == null) {
+            throw new IllegalStateException("Client can`t be null");
+        }
 
         if (!html.equals(currentHtml)) {
             currentHtml = html;
@@ -170,82 +179,138 @@ public class NodeWebViewFragment extends RoboSpiceFragment {
                 currentHtml, mime, encoding, null);
     }
 
-    private void setWebViewClient() {
-        webView.setWebChromeClient(new WebChromeClient() {
-            public void onProgressChanged(WebView view, int progress) {
-                // fade in
-                if (progressBar.getAlpha() == 0) {
-                    ObjectAnimator.ofFloat(progressBar, "alpha", 0f, 1f)
-                            .setDuration(500).start();
-                }
-                // update value
-                int maxProgress = progressBar.getMax();
-                progressBar.setProgress((maxProgress / 100) * progress);
-                // fade out
-                if (progress == maxProgress) {
-                    ObjectAnimator.ofFloat(progressBar, "alpha", 1f, 0f)
-                            .setDuration(1000).start();
-                }
-            }
-        });
+    @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
+    private void prepareWebView() {
+        WebSettings settings = webView.getSettings();
+
+        // disable hardware acceleration
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        }
+        if (BuildConfig.DEBUG) {
+            enableDebug();
+        }
+
+        // configure additional settings
+        settings.setJavaScriptEnabled(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        settings.setLoadWithOverviewMode(true);
+        settings.setUseWideViewPort(true);
+
+        webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        webView.setWebViewClient(jsWebViewClient);
+
+        CookieManagerFactory.syncCookies(getActivity());
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
-    private void prepareWebView() {
-        // disable hardware acceleration
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        }
-        // configure additional settings
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webView.setWebViewClient(jsWebViewClient);
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.getSettings().setDisplayZoomControls(false);
-        webView.getSettings().setLoadWithOverviewMode(true);
-        webView.getSettings().setUseWideViewPort(true);
-
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    private void enableDebug() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
     }
 
     private void fetchReport() {
-        ReportExportOutputLoader.builder()
-                .setControlFragment(this)
-                .setExecutionMode(RequestExecutor.Mode.VISIBLE)
-                .setJSRestClient(jsRestClient)
-                .setRequestId(requestId)
-                .setVersionCode(versionCode)
-                .setResultListener(new ExportResultListener())
-                .create()
-                .loadByPage(page);
+        progressBar.setVisibility(View.VISIBLE);
+        reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
     }
 
-    private String getRequestId() {
-        if (requestId == null) {
-            Bundle args = getArguments();
-            requestId = args.getString(NodeWebViewFragment_.REQUEST_ID_ARG);
-        }
-        return requestId;
+    //---------------------------------------------------------------------
+    // Implementing SimpleDialogFragment.SimpleDialogClickListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onPositiveClick(int requestCode) {
+        PaginationManagerFragment paginationManagerFragment =
+                (PaginationManagerFragment) getFragmentManager()
+                        .findFragmentByTag(PaginationManagerFragment.TAG);
+        paginationManagerFragment.paginateTo(1);
+    }
+
+    @Override
+    public void onNegativeClick(int requestCode) {
+        getActivity().finish();
     }
 
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
+    private final ReportSession.ExecutionObserver sessionObserver =
+            new ReportSession.ExecutionObserver() {
+                @Override
+                public void onRequestIdChanged(String requestId) {
+                    fetchReport();
+                }
+
+                @Override
+                public void onPagesLoaded(int totalPage) {
+                    if (!outputFinal && mRelease.code() >= ServerRelease.EMERALD_MR3.code()) {
+                        fetchReport();
+                    }
+                }
+            };
+
     private class ExportResultListener implements ReportExportOutputLoader.ResultListener {
         @Override
-        public void onFailure() {
+        public void onFailure(Exception exception) {
+            cacheNotFoundHttpException(exception);
+            progressBar.setVisibility(View.GONE);
+            if (onPageLoadListener != null) {
+                onPageLoadListener.onFailure(exception);
+            }
+        }
+
+        /**
+         * Caching 404 error for later use in lifecycle events of fragment
+         */
+        private void cacheNotFoundHttpException(Exception exception) {
+            if (exception instanceof HttpClientErrorException) {
+                HttpClientErrorException httpError = (HttpClientErrorException) exception.getCause();
+                HttpStatus status = httpError.getStatusCode();
+                mReportNotFound = (status == HttpStatus.NOT_FOUND);
+            }
         }
 
         @Override
         public void onSuccess(ExportOutputData output) {
-            executionId = output.getExecutionId();
+            progressBar.setVisibility(View.GONE);
             outputFinal = output.isFinal();
             loadHtml(output.getData());
+            if (onPageLoadListener != null) {
+                onPageLoadListener.onSuccess(page);
+            }
         }
+
+        @Override
+        public void onOutOfRange(boolean isOutOfRange, ErrorDescriptor errorDescriptor ) {
+            if (isOutOfRange) {
+                SimpleDialogFragment.createBuilder(getActivity(), getActivity().getSupportFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(R.string.rv_out_of_range)
+                        .setMessage(errorDescriptor.getMessage())
+                        .setNegativeButtonText(android.R.string.cancel)
+                        .setPositiveButtonText(R.string.rv_dialog_reload)
+                        .setTargetFragment(NodeWebViewFragment.this)
+                        .setCancelableOnTouchOutside(false)
+                        .show();
+            } else {
+                SimpleDialogFragment.createBuilder(getActivity(), getActivity().getSupportFragmentManager())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(errorDescriptor.getErrorCode())
+                        .setMessage(errorDescriptor.getMessage())
+                        .setCancelableOnTouchOutside(false)
+                        .setTargetFragment(NodeWebViewFragment.this)
+                        .show();
+            }
+        }
+    }
+
+    public static interface OnPageLoadListener {
+        void onFailure(Exception exception);
+
+        void onSuccess(int page);
     }
 
 }

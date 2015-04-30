@@ -1,124 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:foregroundGravity="center_vertical">
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="vertical">
 
-    <RelativeLayout
+    <android.support.v7.widget.CardView
+        style="@style/CardView.Auth.Container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical">
+        android:layout_centerVertical="true"
+        card_view:cardBackgroundColor="@color/js_dark_gray"
+        card_view:contentPadding="20dp">
 
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="-5dp"
-            android:layout_marginRight="-5dp"
-            card_view:cardBackgroundColor="@color/card_login_bg"
-            card_view:cardCornerRadius="0dp"
-            card_view:cardElevation="5dp"
-            card_view:cardUseCompatPadding="true"
-            card_view:contentPadding="20dp">
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:paddingRight="10dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/im_logo_blue" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:orientation="horizontal"
-                android:paddingRight="10dp">
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="30dp"
+                android:descendantFocusability="beforeDescendants"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/imageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/im_logo_blue" />
+                    android:src="@drawable/im_full_name" />
+
+                <EditText
+                    android:id="@+id/aliasEdit"
+                    style="@style/editTextAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:hint="@string/hint_alias"
+                    android:inputType="textUri" />
+
+                <EditText
+                    android:id="@+id/serverUrlEdit"
+                    style="@style/editTextAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/hint_server_url"
+                    android:inputType="textUri" />
+
+                <EditText
+                    android:id="@+id/organizationEdit"
+                    style="@style/editTextAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/hint_organization"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/usernameEdit"
+                    style="@style/editTextAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/hint_username"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/passwordEdit"
+                    style="@style/editTextAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/hint_password"
+                    android:inputType="textPassword" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="30dp"
-                    android:descendantFocusability="beforeDescendants"
-                    android:focusableInTouchMode="true"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:id="@+id/imageView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/im_full_name" />
-
-                    <EditText
-                        android:id="@+id/aliasEdit"
-                        style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="@string/hint_alias"
-                        android:inputType="textUri" />
-
-                    <EditText
-                        android:id="@+id/serverUrlEdit"
-                        style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="@string/hint_server_url"
-                        android:inputType="textUri" />
-
-                    <EditText
-                        android:id="@+id/organizationEdit"
-                        style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="@string/hint_organization"
-                        android:inputType="textPersonName" />
-
-                    <EditText
-                        android:id="@+id/usernameEdit"
-                        style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="@string/hint_username"
-                        android:inputType="textPersonName" />
-
-                    <EditText
-                        android:id="@+id/passwordEdit"
-                        style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="@string/hint_password"
-                        android:inputType="textPassword" />
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp">
 
                     <android.support.v7.widget.CardView
+                        style="@style/CardView.Auth.AddAccount"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        style="@style/addAccountCard"
-                        >
+                        android:layout_weight="1">
 
                         <Button
                             android:id="@+id/addAccount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/bg_login_btn_grey"
-                            android:fontFamily="sans-serif-light"
+                            android:background="@drawable/bg_login_btn_gray"
                             android:text="@string/add_account"
-                            android:textColor="@color/text_login_bg" />
+                            android:textColor="@android:color/white" />
+                    </android.support.v7.widget.CardView>
+
+                    <android.support.v7.widget.CardView
+                        android:id="@+id/tryDemoContainer"
+                        style="@style/CardView.Auth.TryDemo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/tryDemo"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_login_btn_blue"
+                            android:text="@string/try_demo"
+                            android:textColor="@android:color/white" />
                     </android.support.v7.widget.CardView>
 
                 </LinearLayout>
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </LinearLayout>
 
-    </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
-</ScrollView>
+</RelativeLayout>

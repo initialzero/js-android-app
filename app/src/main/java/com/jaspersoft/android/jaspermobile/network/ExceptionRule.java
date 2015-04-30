@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.network;
 
 
-import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
 
 import org.springframework.http.HttpStatus;
@@ -40,7 +39,7 @@ public enum ExceptionRule {
 
     public static EnumMap<HttpStatus, ExceptionRule> all() {
         EnumMap<HttpStatus, ExceptionRule> collection =
-                Maps.newEnumMap(HttpStatus.class);
+                new EnumMap<HttpStatus, ExceptionRule>(HttpStatus.class);
         for (ExceptionRule rule : values()) {
             collection.put(rule.getHttpStatus(), rule);
         }

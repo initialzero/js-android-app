@@ -42,13 +42,20 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
+    public static final String CONTENT_TAG = "FavoritesControllerFragment.CONTENT_TAG";
     public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
 
     private FavoritesFragment contentFragment;
 
     @FragmentArg
     @InstanceState
-    String searchQuery;
+    protected String searchQuery;
+    @FragmentArg
+    @InstanceState
+    protected SortOrder sortOrder;
+    @FragmentArg
+    @InstanceState
+    protected ResourceLookup.ResourceType filterType;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -68,18 +75,27 @@ public class FavoritesControllerFragment extends ControllerFragment {
     public Fragment getContentFragment() {
         contentFragment = FavoritesFragment_.builder()
                 .viewType(getViewType())
+                .sortOrder(sortOrder)
+                .filterType(filterType)
                 .searchQuery(searchQuery)
                 .build();
         return contentFragment;
     }
 
+    @Override
+    protected String getContentFragmentTag() {
+        return CONTENT_TAG;
+    }
+
     public void loadItemsByTypes(ResourceLookup.ResourceType newFilterType) {
+        filterType = newFilterType;
         if (contentFragment != null) {
             contentFragment.showSavedItemsByFilter(newFilterType);
         }
     }
 
     public void loadItemsBySortOrder(SortOrder newSortOrder) {
+        sortOrder = newSortOrder;
         if (contentFragment != null) {
             contentFragment.showSavedItemsBySortOrder(newSortOrder);
         }

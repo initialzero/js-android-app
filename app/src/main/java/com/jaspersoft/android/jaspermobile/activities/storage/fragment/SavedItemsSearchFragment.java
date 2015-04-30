@@ -25,9 +25,10 @@
 package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
 
 import android.content.Intent;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_;
@@ -55,9 +56,11 @@ public class SavedItemsSearchFragment extends RoboFragment implements SearchView
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        SearchView searchView = (SearchView) searchMenuItem.getActionView();
-        searchView.setQueryHint(getString(R.string.s_saved_items_hint));
-        searchView.setOnQueryTextListener(this);
+        if (!isDetached()) {
+            SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+            searchView.setQueryHint(getString(R.string.s_saved_items_hint));
+            searchView.setOnQueryTextListener(this);
+        }
     }
 
     @Override

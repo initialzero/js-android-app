@@ -33,6 +33,9 @@ package com.jaspersoft.android.retrofit.sdk.util;
 public class JasperSettings {
     // Intent actions
     public static final String ACTION_AUTHORIZE = "jaspersoft.intent.action.AUTHORIZE";
+    public static final String ACTION_TOKEN_EXPIRED = "jaspersoft.intent.action.TOKEN_EXPIRED";
+    public static final String ACTION_INVALID_PASSWORD = "jaspersoft.intent.action.INVALID_PASSWORD";
+    public static final String ACTION_REST_ERROR = "jaspersoft.intent.action.REST_ERROR";
 
     // Auth constants
     public static final String RESERVED_ACCOUNT_NAME = "com.jaspersoft.account.none";

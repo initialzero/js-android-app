@@ -24,13 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
-import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
-import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
@@ -46,13 +43,13 @@ import org.apache.http.fake.FakeHttpLayerManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllFavorites;
@@ -65,7 +62,6 @@ import static org.hamcrest.Matchers.not;
  * @author Tom Koptel
  * @since 1.9
  */
-@RunWith(AndroidJUnit4.class)
 public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlViewerActivity_> {
     protected static final String RESOURCE_URI = "/Reports/2_Sales_Mix_by_Demographic_Report";
     protected static final String RESOURCE_LABEL = "02. Sales Mix by Demographic Report";
@@ -80,14 +76,10 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
-        favoritesHelper = FavoritesHelper_.getInstance_(application);
+        favoritesHelper = FavoritesHelper_.getInstance_(getApplication());
 
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
         mResource = resourceLookupsList.getResourceLookups().get(0);
@@ -110,8 +102,8 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
 
         clickAboutMenuItem();
 
-        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(mResource.getLabel())));
-        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(mResource.getDescription())));
+        onOverflowView(getActivity(), withText(mResource.getLabel())).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withId(android.R.id.message)).check(matches(withText(mResource.getDescription())));
     }
 
     @Test
@@ -160,11 +152,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
             onView(withId(R.id.aboutAction)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.r_cm_view_details)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            onView(withText(R.string.r_cm_view_details)).perform(click());
         }
     }
 

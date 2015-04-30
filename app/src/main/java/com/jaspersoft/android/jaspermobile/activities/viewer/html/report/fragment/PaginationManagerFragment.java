@@ -198,6 +198,10 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
         }
     }
 
+    private void hidePaginationControl() {
+        rootContainer.setVisibility(View.GONE);
+    }
+
     private void changePage(int page) {
         int count = mAdapter.getCount();
         int item = page - 1;
@@ -251,8 +255,10 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
                 public void onSuccess(int page) {
                     // This means that we have 2 page loaded
                     // and that is enough to show pagination control
-                    if (page == 2) {
+                    if (page == 2 && paginationControl.getTotalPages() > 1) {
                         showPaginationControl();
+                    } else {
+                        hidePaginationControl();
                     }
                 }
             };

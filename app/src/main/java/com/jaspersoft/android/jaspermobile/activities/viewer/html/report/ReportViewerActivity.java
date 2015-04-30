@@ -251,7 +251,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     public void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
             SaveReportActivity_.intent(this)
-                    .reportParameters(getReportParameters())
                     .resource(resource)
                     .pageCount(paginationControl.getTotalPages())
                     .start();

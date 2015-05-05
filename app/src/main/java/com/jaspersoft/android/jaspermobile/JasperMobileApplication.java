@@ -25,14 +25,12 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
-import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
-import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
-import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
+import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -40,6 +38,7 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import org.androidannotations.annotations.EApplication;
 
+import roboguice.RoboGuice;
 import timber.log.Timber;
 
 /**
@@ -51,9 +50,13 @@ public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
     private Tracker jsTracker;
 
+    @Inject
+    AppConfigurator appConfigurator;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        RoboGuice.getInjector(this).injectMembers(this);
         forceDatabaseUpdate();
 
         if (BuildConfig.DEBUG) {
@@ -65,21 +68,22 @@ public class JasperMobileApplication extends Application {
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
+        appConfigurator.configCrashAnalytics(this);
         getTracker();
-        initImageLoader(getApplicationContext());
+        initImageLoader();
     }
 
     private void forceDatabaseUpdate() {
-        getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[] {"_id"}, null, null, null);
+        getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[]{"_id"}, null, null, null);
     }
 
-    private void initImageLoader(Context context) {
+    private void initImageLoader() {
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by
         //  ImageLoaderConfiguration.createDefault(this);
         // method.
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-                .imageDownloader(new TokenImageDownloader(context))
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .imageDownloader(new TokenImageDownloader(this))
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())

@@ -22,6 +22,15 @@
  *  <http://www.gnu.org/licenses/lgpl>.
  */
 
+/*
+    In order to run build with and increment use flag -PincrementBuild=true
+    In order to have timestamp in build name use flag -PneedTimeStamp=true
+    For e.g. gradlew assembleQaRelease -PincrementBuild=true -PneedTimeStamp=true
+
+    P.S. gradlew assembleQaRelease -PneedTimeStamp=true
+         will increment build event without appropriate flag
+ */
+
 buildscript {
     repositories {
         jcenter()
@@ -65,8 +74,10 @@ ext {
                 versionName += "-SNAPSHOT"
             }
 
-            //    def needTimeStamp = true
             def needTimeStamp = false
+            if (project.hasProperty("needTimeStamp")) {
+                needTimeStamp = project.needTimeStamp
+            }
             if (needTimeStamp) {
                 TimeZone.setDefault(TimeZone.getTimeZone('UTC'))
                 def now = new Date().format("yyyy_MM_dd-HH_mm_ss")
@@ -155,25 +166,32 @@ if (plugins.hasPlugin('android') || plugins.hasPlugin('android-library')) {
             versionCode = calculateVersionCode(null)
         }
 
-        afterEvaluate {
-            def renameApk = { targetVariant ->
-                def buildType = targetVariant.buildType
-                def mergedFlavor = targetVariant.mergedFlavor
-                targetVariant.outputs.each { output ->
-                    def versionSuffix = buildType.versionNameSuffix ? buildType.versionNameSuffix : ""
-                    def apkName = versionSuffix + mergedFlavor.versionName
+        def shouldIncrementBuild = false
+        if (project.hasProperty("incrementBuild")) {
+            shouldIncrementBuild = project.incrementBuild
+        }
+        if (project.hasProperty("needTimeStamp")) {
+            shouldIncrementBuild = true
+        }
 
-                    def file = output.packageApplication.outputFile
-                    def fileName = file.name.replace(".apk", "-" + apkName + ".apk")
+        if (shouldIncrementBuild) {
+            afterEvaluate {
+                def renameApk = { targetVariant ->
+                    def buildType = targetVariant.buildType
+                    def mergedFlavor = targetVariant.mergedFlavor
+                    targetVariant.outputs.each { output ->
+                        def versionSuffix = buildType.versionNameSuffix ? buildType.versionNameSuffix : ""
+                        def apkName = versionSuffix + mergedFlavor.versionName
 
-                    if (output.zipAlign) {
-                        output.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""))
+                        def file = output.packageApplication.outputFile
+                        def fileName = file.name.replace(".apk", "-" + apkName + ".apk")
+
+                        if (output.zipAlign) {
+                            output.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""))
+                        }
                     }
                 }
-            }
-            def autoIncrementVariant = { variant ->
-                // don't increment on debug builds
-                if (variant.buildType.name == buildTypes.release.name) {
+                def autoIncrementVariant = { variant ->
                     variant.preBuild.dependsOn incrementVersion
                     incrementVersion.doLast {
                         variant.mergedFlavor.versionName = calculateVersionName(variant)
@@ -181,16 +199,17 @@ if (plugins.hasPlugin('android') || plugins.hasPlugin('android-library')) {
                         renameApk(variant)
                     }
                 }
-            }
 
-            if (plugins.hasPlugin('android')) {
-                applicationVariants.all { variant ->
-                    autoIncrementVariant(variant)
+                if (plugins.hasPlugin('android')) {
+                    applicationVariants.all { variant ->
+                        autoIncrementVariant(variant)
+                    }
                 }
-            }
-            if (plugins.hasPlugin('android-library')) {
-                libraryVariants.all { variant ->
-                    autoIncrementVariant(variant)
+
+                if (plugins.hasPlugin('android-library')) {
+                    libraryVariants.all { variant ->
+                        autoIncrementVariant(variant)
+                    }
                 }
             }
         }

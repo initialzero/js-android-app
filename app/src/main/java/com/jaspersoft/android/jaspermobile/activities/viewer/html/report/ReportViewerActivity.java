@@ -135,7 +135,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Extra
     protected ResourceLookup resource;
     @Extra
-    protected ArrayList<ReportParameter> reportParameters;
+    protected ArrayList<ReportParameter> reportParameters = new ArrayList<ReportParameter>();
 
     @InstanceState
     protected Uri favoriteEntryUri;
@@ -162,10 +162,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
         super.onCreate(savedInstanceState);
         CookieManagerFactory.syncCookies(this);
 
-        mHasInitialParameters = (reportParameters != null);
-        if (mHasInitialParameters) {
-            paramsStorage.putReportParameters(resource.getUri(), reportParameters);
-        }
+        mHasInitialParameters = (reportParameters.isEmpty());
+        paramsStorage.putReportParameters(resource.getUri(), reportParameters);
 
         scrollableTitleHelper.injectTitle(resource.getLabel());
 

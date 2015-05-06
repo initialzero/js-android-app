@@ -31,30 +31,22 @@
     <string name="h_library_label">Libreria</string>
 
     <!-- Connection Dialog -->
-    <string name="h_ad_title_no_connection">Nessuna connessione</string>
-    <string name="h_ad_msg_no_connection">Verificare le impostazioni della rete mobile e riprovare.</string>
 
     <!-- Password Dialog -->
-    <string name="h_ad_title_enter_password">Immetti password</string>
     <string name="h_ad_label_server_profile">Profilo server</string>
 
     <!-- Action Bar -->
-    <string name="spm_ab_add_profile">Aggiungi profilo server</string>
 
     <!-- Delete Dialog -->
-    <string name="spm_ad_delete_profile_msg">Eliminare il profilo server?</string>
     <string name="spm_delete_btn">Elimina</string>
-    <string name="spm_cancel_btn">Annulla</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_password_hint">password personale</string>
     <string name="sp_save_btn">Salva</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">Questo campo è obbligatorio.</string>
     <string name="sp_error_url_not_valid">URL non valido.</string>
     <string name="sp_error_duplicate_alias">Duplica alias.</string>
-    <string name="sp_error_unique_alias">Server con alias \'%s\' già esiste. </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">Non sono presenti risorse nella cartella.</string>
@@ -180,9 +172,6 @@
 
     <!-- Others -->
     <string name="loading_msg">Caricamento in corso...</string>
-    <string name="error_msg">Errore</string>
-    <string name="warning_msg">Avviso</string>
-    <string name="cancelled_msg">Annullato</string>
     <string name="search_result_format">Cerca risultato per \'%s\'</string>
     <string name="failed_load_data">Impossibile caricare i dati.</string>
 
@@ -196,7 +185,6 @@
     <string name="of"><![CDATA[di %d]]></string>
     <string name="dialog_current_page">Imposta pagina corrente</string>
     <string name="rv_error_empty_report_title">Report è vuoto</string>
-    <string name="rv_error_empty_report_message">Toccare \"Ok\" se si desidera modificare le opzioni di filtro oppure \"Annulla\" per ritornare al report precedente.</string>
 
 
     <!-- Rate Dialog -->

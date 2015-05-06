@@ -40,41 +40,21 @@
     <string name="h_repository_label">Repository</string>
     <string name="h_library_label">Library</string>
 
-    <!-- Connection Dialog -->
-    <string name="h_ad_title_no_connection">No connection</string>
-    <string name="h_ad_msg_no_connection">Please check your mobile network settings and try again.</string>
-
     <!-- Password Dialog -->
-    <string name="h_ad_title_enter_password">Server sign-in</string>
     <string name="h_ad_title_server_sign_in" translatable="false">Server sign-in</string>
-    <string name="h_ad_label_wrong_password" translatable="false">You entered wrong password or your account has changed. Please re-enter your password.</string>
+    <string name="h_ad_label_wrong_password" translatable="false">The username or password is incorrect. Re-enter your credentials.</string>
     <string name="h_ad_label_server_profile">Server Profile</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">If you enjoy using TIBCO JasperMobile, would you mind taking a moment to rate it? It won\'t take more than a minute. Thanks for your support!</string>
+    <string name="h_rd_description">If you enjoy using TIBCO JasperMobile, please take a moment to rate it. It won\'t take more than a minute. Thanks for your support!</string>
     <string name="h_rd_rate">Rate</string>
     <string name="h_rd_never">No, thanks</string>
     <string name="h_rd_later">Remind me later</string>
 
-    <!-- Action Bar -->
-    <string name="spm_ab_add_profile">Add Server Profile</string>
-
     <!-- Delete Dialog -->
-    <string name="spm_ad_delete_profile_msg">Are you sure you want to delete this server profile?</string>
     <string name="spm_delete_btn">Delete</string>
-    <string name="spm_cancel_btn">Cancel</string>
-
-    <!-- Intro Page Activity -->
-    <string name="ip_skip_btn" translatable="false">Skip Intro</string>
-    <string name="ip_next_btn" translatable="false">Next</string>
-    <string name="ip_start_btn" translatable="false">Start using TIBCO JasperMobile</string>
-    <string name="ip_first_text" translatable="false">Copyright \u00A9 2005-2015 TIBCO Software, Inc.</string>
-    <string name="ip_second_text" translatable="false">TIBCO JasperMobile keeps you connected to your business wherever you are</string>
-    <string name="ip_third_text" translatable="false">Get access to live interactive reports driven from your operational applications.</string>
-    <string name="ip_fourth_text" translatable="false">View and interact with your TIBCO JasperReport Server v5.6.0 or greater environment</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_password_hint">my password</string>
     <string name="sp_save_btn">Save</string>
 
     <!-- Error messages -->
@@ -82,11 +62,10 @@
     <string name="sp_error_url_not_valid">URL is not valid.</string>
     <string name="sp_error_duplicate_alias">Duplicate account name.</string>
     <string name="sp_error_reserved_alias" translatable="false">Alias reserved.</string>
-    <string name="sp_error_unique_alias">Server with such account name \'%s\' already exists. </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">There are no resources in this folder.</string>
-    <string name="r_search_nothing_to_display">No results from search.</string>
+    <string name="r_search_nothing_to_display">No items match your search.</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">Switch view</string>
@@ -94,19 +73,19 @@
     <string name="r_ab_refresh">Refresh</string>
     <!-- Context Menu -->
     <string name="r_cm_view_details">View Details</string>
-    <string name="r_cm_add_to_favorites_failed">Failed add to favorites</string>
+    <string name="r_cm_add_to_favorites_failed">Failed to add to favorites.</string>
     <string name="r_cm_add_to_favorites">Add to favorites</string>
-    <string name="r_cm_added_to_favorites" translatable="false">Added to favorites</string>
+    <string name="r_cm_added_to_favorites" translatable="false">Added to favorites.</string>
     <string name="r_cm_remove_from_favorites">Remove from favorites</string>
-    <string name="r_cm_removed_from_favorites" translatable="false">Removed from favorites</string>
-    <string name="r_cm_remove_from_favorites_failed">Failed to remove from favorites</string>
+    <string name="r_cm_removed_from_favorites" translatable="false">Removed from favorites.</string>
+    <string name="r_cm_remove_from_favorites_failed">Failed to remove from favorites.</string>
 
     <!-- Progress Dialog -->
-    <string name="r_pd_running_report_msg">Running report…</string>
+    <string name="r_pd_running_report_msg">Running report...</string>
 
     <!-- Search Activity -->
     <string name="s_hint">Search resources</string>
-    <string name="s_saved_items_hint" translatable="false">Search in saved items</string>
+    <string name="s_saved_items_hint" translatable="false">Search saved files</string>
 
     <!-- Action Bar -->
     <string name="s_ab_filter_by">Filter by</string>
@@ -130,74 +109,75 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">About</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nManagement tool and report viewer for JasperReports Server 5.5 and greater.\n\nFor more information visit:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nFor privacy policy information visit:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nManagement tool and report viewer for TIBCO JasperReports Server 5.6.0 and greater.\n\nFor more information visit:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nFor privacy policy information visit:\n<a href="http://www.tibco.com/privacy-policies/jaspermobile-android">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2015 TIBCO Software, Inc.</string>
     <string name="sa_about_privacy">Privacy Policy</string>
     <string name="sa_show_feedback" translatable="false">Feedback</string>
-    <string name="sa_feedback_info" translatable="false">Leave feedback with mail</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
-    <string name="ro_page_title">Filter options</string>
+    <string name="ro_page_title">Filter Options</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
-    <string name="rv_ab_show_filters">Show filters</string>
-    <string name="rv_error_empty_report">There is no report data</string>
-    <string name="rv_error_empty_report_title">Report is empty</string>
-    <string name="rv_error_empty_report_message">Tap \"Ok\" if you want to change filter options or tap \"Cancel\" for returning to old report.</string>
+    <string name="rv_ab_show_filters">Show Filters</string>
+    <string name="rv_error_empty_report">There is no report data.</string>
+    <string name="rv_error_empty_report_title">The report is empty.</string>
     <string name="rv_select_page">Select page</string>
-    <string name="rv_out_of_range">Requested page out of range</string>
+    <string name="rv_out_of_range">The requested page is out of range.</string>
     <string name="rv_dialog_reload">Reload</string>
     <string name="rv_open_link_chooser" translatable="false">Open link in</string>
 
     <!-- Toasts -->
-    <string name="rv_t_external_storage_not_available">The external memory card is not available. Please mount the card and try again.</string>
+    <string name="rv_t_external_storage_not_available">The external memory card is not available. Please insert the card and try again.</string>
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">Save Report</string>
-    <string name="sr_report_name">Report Name</string>
-    <string name="sr_output_format">Output Format</string>
-    <string name="sr_from" translatable="false">"From page"</string>
-    <string name="sr_to" translatable="false">"To page"</string>
-    <string name="sr_failed_to_create_local_repo" translatable="false">Failed to create local repository.</string>
+    <string name="sr_report_name">File name</string>
+    <string name="sr_output_format">Output format</string>
+    <string name="sr_from" translatable="false">From page</string>
+    <string name="sr_to" translatable="false">To page</string>
+    <string name="sr_failed_to_create_local_repo" translatable="false">Failed to create local file storage.</string>
 
     <!-- Toasts -->
-    <string name="sr_t_report_saved">Report saved successfully</string>
+    <string name="sr_t_report_saved">Report saved to file successfully.</string>
     <!-- Error messages -->
-    <string name="sr_error_field_is_empty">Can\'t be empty</string>
-    <string name="sr_error_characters_not_allowed">Can\'t contain any of the following characters * \\ / \" \' : ? | &lt; > + [ ]</string>
-    <string name="sr_error_report_exists">A report with this name already exists</string>
+    <string name="sr_error_field_is_empty">This field is required.</string>
+    <string name="sr_error_characters_not_allowed">The following characters are not allowed: * \\ / \" \' : ? | &lt; > + [ ]</string>
+    <string name="sr_error_report_exists">A file with this name already exists.</string>
 
     <!-- Favorites activity -->
     <string name="f_title">Favorites</string>
-    <string name="f_empty_list_msg">No favorites entries</string>
+    <string name="f_empty_list_msg">No favorite items</string>
 
-    <!-- Saved Reports Activity -->
-    <string name="sdr_ab_title">Saved Items</string>
-    <string name="sdr_ab_list_msg" translatable="false">No saved items</string>
+    <!-- Saved Files Activity -->
+    <string name="sdr_ab_title">Saved Files</string>
+    <string name="sdr_ab_list_msg" translatable="false">No saved files</string>
 
     <!-- Context Menu -->
     <string name="action_mode_title" translatable="false">Selected item</string>
     <string name="sdr_cm_rename">Rename</string>
     <string name="sdr_cm_delete">Delete</string>
 
-    <!-- Rename Report Dialog -->
-    <string name="sdr_rrd_title">Rename report</string>
+    <!-- Rename File Dialog -->
+    <string name="sdr_rrd_title">Rename file</string>
     <string name="sdr_rrd_msg">Enter new name:</string>
-    <string name="sdr_rrd_hint">Report name</string>
-    <string name="sdr_rrd_error_name_is_empty">Can\'t be empty</string>
-    <string name="sdr_rrd_error_characters_not_allowed">Can\'t contain any of the following characters * \\ / \" \' : ? | &lt; > + [ ]</string>
-    <string name="sdr_rrd_error_report_exists">A report with this name already exists</string>
+    <string name="sdr_rrd_hint">File name</string>
+    <string name="sdr_rrd_error_name_is_empty">This field is required.</string>
+    <string name="sdr_rrd_error_characters_not_allowed">>The following characters are not allowed: * \\ / \" \' : ? | &lt; > + [ ]</string>
+    <string name="sdr_rrd_error_report_exists">A file with this name already exists.</string>
 
     <!-- Delete Report Dialog -->
-    <string name="sdr_drd_title">Delete report</string>
-    <string name="sdr_dfd_title" translatable="false">Delete item</string>
+    <string name="sdr_drd_title">Delete File</string>
     <string name="sdr_drd_msg">Do you really want to delete \"%s\"?</string>
+
+    <!-- Remove Favorites Dialog -->
+    <string name="sdr_dfd_title" translatable="false">Remove from Favorites</string>
+    <string name="sdr_dfd_msg" translatable="false">Do you really want to remove \"%s\"?</string>
 
     <!-- Toasts -->
     <string name="sdr_t_no_app_available">No \"%s\" viewer installed.</string>
-    <string name="sdr_t_report_renaming_error">Cannot rename report</string>
-    <string name="sdr_t_report_deletion_error">Cannot delete report</string>
+    <string name="sdr_t_report_renaming_error">Cannot rename report.</string>
+    <string name="sdr_t_report_deletion_error">Cannot delete report.</string>
 
     <!-- Settings activity -->
     <string name="st_title">Settings</string>
@@ -207,18 +187,17 @@
     <string name="st_title_cache_expiration">Cache expiration</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
     <string name="st_title_read_timeout">Data read timeout</string>
-    <string name="st_title_animations">Application animations</string>
+    <string name="st_title_animations">Animations</string>
     <string name="st_send_crashes">Send crash reports</string>
-    <string name="st_send_crashes_note" translatable="false">NOTE: This option will be applied on next app launch!</string>
+    <string name="st_send_crashes_note" translatable="false">NOTE: Restart the app after changing this setting.</string>
     <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Invalid number format</string>
     <string name="st_category_more">More</string>
-    <string name="st_show_intro" translatable="false">Show Intro</string>
 
     <!-- Error messages -->
-    <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
+    <string name="r_error_server_not_supported">Server version is either older than 5.6 (not supported) or URL is incorrect.</string>
     <string name="r_error_server_not_found" translatable="false">Server not found.</string>
     <string name="r_error_incorrect_credentials" translatable="false">Login or password is incorrect.</string>
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
@@ -234,11 +213,8 @@
 
     <!-- Others -->
     <string name="loading_msg">Loading…</string>
-    <string name="error_msg">Error</string>
-    <string name="warning_msg">Warning</string>
-    <string name="cancelled_msg">Cancelled</string>
-    <string name="search_result_format">Search result for \'%s\'</string>
-    <string name="failed_load_data">Failed load data!</string>
+    <string name="search_result_format">Search results for \'%s\'</string>
+    <string name="failed_load_data">Failed to load data!</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>
@@ -246,29 +222,27 @@
     <string name="favorites_card_label">Favorites</string>
     <string name="settings_card_label">Settings</string>
 
-    <!-- Pagination controll -->
-    <string name="of"><![CDATA[of %d]]></string>
+    <!-- Pagination control -->
+    <string name="of">of %d</string>
     <string name="dialog_current_page">Set current page</string>
 
     <!-- Accounts activity -->
     <string name="add_account" translatable="false">Add account</string>
     <string name="try_demo" translatable="false">Try demo</string>
     <string name="hint_alias" translatable="false">Account name</string>
-    <string name="hint_server_url" translatable="false">Server url</string>
+    <string name="hint_server_url" translatable="false">Server URL</string>
     <string name="hint_organization" translatable="false">Organization</string>
     <string name="hint_username" translatable="false">Username</string>
     <string name="hint_password" translatable="false">Password</string>
-    <string name="success_add_account" translatable="false"><![CDATA[Add account with name %s]]></string>
-    <string name="failure_add_account" translatable="false"><![CDATA[Failed to add account. Reason: %s]]></string>
+    <string name="success_add_account" translatable="false">Add account with name %s</string>
+    <string name="failure_add_account" translatable="false">Failed to add account. Reason: %s</string>
     <string name="account_add" translatable="false">Adding account</string>
-    <string name="account_activating" translatable="false">Activating account</string>
-    <string name="account_password_changed" translatable="false"><![CDATA[Invalid password for \"%s\"]]></string>
     <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
     <string name="jasper_account_authority" translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
 
     <!--Dashboard activity-->
     <string name="da_session_expired" translatable="false">Session expired</string>
-    <string name="da_loading" translatable="false">Loading dashboard...</string>
+    <string name="da_loading" translatable="false">Loading dashboard…</string>
 
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all" translatable="false">Check all</string>

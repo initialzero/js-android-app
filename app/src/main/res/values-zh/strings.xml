@@ -31,30 +31,22 @@
     <string name="h_library_label">库</string>
 
     <!-- Connection Dialog -->
-    <string name="h_ad_title_no_connection">无连接</string>
-    <string name="h_ad_msg_no_connection">请检查您的移动网络设置，然后重试。</string>
 
     <!-- Password Dialog -->
-    <string name="h_ad_title_enter_password">输入密码</string>
     <string name="h_ad_label_server_profile">服务器配置文件</string>
 
     <!-- Action Bar -->
-    <string name="spm_ab_add_profile">添加服务器配置文件</string>
 
     <!-- Delete Dialog -->
-    <string name="spm_ad_delete_profile_msg">您想要删除此服务器配置文件吗？</string>
     <string name="spm_delete_btn">删除</string>
-    <string name="spm_cancel_btn">取消</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_password_hint">我的密码</string>
     <string name="sp_save_btn">保存</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">此字段是必填字段。</string>
     <string name="sp_error_url_not_valid">URL 无效。</string>
     <string name="sp_error_duplicate_alias">重复别名。</string>
-    <string name="sp_error_unique_alias">具有别名 \'%s\' 的服务器已存在。 </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">此文件夹中没有资源。</string>
@@ -180,9 +172,6 @@
 
     <!-- Others -->
     <string name="loading_msg">正在加载...</string>
-    <string name="error_msg">错误</string>
-    <string name="warning_msg">警告</string>
-    <string name="cancelled_msg">已取消</string>
     <string name="search_result_format">搜索 \'%s\' 的结果</string>
     <string name="failed_load_data">加载数据失败！</string>
 
@@ -195,7 +184,6 @@
     <!-- Pagination controll -->
     <string name="of"><![CDATA[/%d]]></string>
     <string name="dialog_current_page">设置当前页</string>
-    <string name="rv_error_empty_report_message">如果您要更改过滤器选项则敲击“确定”，或者敲击“取消”返回至原报告。</string>
     <string name="rv_error_empty_report_title">报告为空</string>
     <string name="h_rd_description">如果你喜欢使用TIBCO JasperMobile，你介意花一点时间给它评分吗？不会超过一分钟。感谢您的支持！</string>
     <string name="h_rd_later">稍后提醒我</string>

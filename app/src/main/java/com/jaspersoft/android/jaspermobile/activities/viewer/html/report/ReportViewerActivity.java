@@ -365,8 +365,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onLoadError(String error) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+        exposeError(error);
     }
 
     @UiThread
@@ -420,8 +419,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onRefreshError(String error) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+        exposeError(error);
     }
 
     //---------------------------------------------------------------------
@@ -553,5 +551,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     private void selectPageInWebView(int page) {
         webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", page));
+    }
+
+    private void exposeError(String error) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        showErrorView(error);
     }
 }

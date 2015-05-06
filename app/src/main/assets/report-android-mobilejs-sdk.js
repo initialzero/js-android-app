@@ -291,7 +291,7 @@
           this.callback.onLoadStart();
           return this._runReportWithAuth(error);
         } else {
-          return this.callback.onLoadError(error);
+          return this.callback.onLoadError(error.message);
         }
       };
 

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/mobile-sdk-android
 
@@ -25,41 +24,56 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/inputControl.layout"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/ic_text_label"
-        style="@style/inputControl.label"
-    />
+        style="@style/inputControl.label" />
 
     <LinearLayout
-       style="@style/inputControl.date.inputContainer.layout"
-       android:orientation="horizontal" >
+        style="@style/inputControl.date.inputContainer.layout"
+        android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/ic_date_text"
-            style="@style/inputControl.date.inputContainer.editText"
-            android:editable="false"
-            android:focusable="false"
-        />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <EditText
+                android:id="@+id/ic_date_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:editable="false"
+                android:focusable="false"
+                android:paddingRight="34dp"
+                android:singleLine="true" />
+
+            <ImageButton
+                android:id="@+id/ic_date_clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dp"
+                android:background="@null"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:visibility="gone" />
+
+        </RelativeLayout>
 
         <ImageButton
             android:id="@+id/ic_date_picker_button"
-            style="@style/inputControl.date.inputContainer.picker.date"
-        />
+            style="@style/inputControl.date.inputContainer.picker.date" />
 
         <ImageButton
             android:id="@+id/ic_time_picker_button"
             style="@style/inputControl.date.inputContainer.picker.time"
-            android:visibility="gone"
-        />
+            android:visibility="gone" />
 
     </LinearLayout>
 
     <TextView
         android:id="@+id/ic_error_text"
         style="@style/inputControl.errorText"
-        android:visibility="gone"
-    />
+        android:visibility="gone" />
 
 </LinearLayout>

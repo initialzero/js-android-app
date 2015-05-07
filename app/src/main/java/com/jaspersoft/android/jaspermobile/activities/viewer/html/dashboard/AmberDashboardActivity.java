@@ -25,7 +25,11 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.annotation.SuppressLint;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -36,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webv
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.webview.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -54,6 +59,9 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
+    @Bean
+    protected ScreenUtil screenUtil;
+
     @Extra
     protected ResourceLookup resource;
 
@@ -61,6 +69,9 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     protected boolean mMaximized;
 
     private Toast mToast;
+    private int mOrientation;
+    private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
+    private MenuItem favoriteAction, refreshAction, aboutAction;
 
     @SuppressLint("ShowToast")
     @Override
@@ -69,11 +80,46 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
         loadFlow();
+        showMenuItems();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        favoriteAction = menu.findItem(R.id.favoriteAction);
+        refreshAction = menu.findItem(R.id.refreshAction);
+        aboutAction = menu.findItem(R.id.aboutAction);
+        return result;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean result = super.onPrepareOptionsMenu(menu);
+        favoriteAction.setVisible(mFavoriteItemVisible);
+        refreshAction.setVisible(mRefreshItemVisible);
+        aboutAction.setVisible(mInfoItemVisible);
+        return result;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation != mOrientation && mOrientation != -1) {
+            mOrientation = newConfig.orientation;
+            ProgressDialogFragment.builder(getSupportFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .show();
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Abstract methods implementations
+    //---------------------------------------------------------------------
 
     @Override
     public void setupWebView(WebView webView) {
         DashboardWebInterface.inject(this, webView);
+        showInitialLoader();
     }
 
     @Override
@@ -96,57 +142,72 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
         }
     }
 
+    //---------------------------------------------------------------------
+    // DashboardCallback implementations
+    //---------------------------------------------------------------------
+
     @UiThread
     @Override
     public void onMaximizeStart(String title) {
         resetZoom();
+        hideMenuItems();
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+    }
+
+    @UiThread
+    @Override
+    public void onMaximizeEnd(String title) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
     }
 
     @UiThread
     @Override
-    public void onMaximizeEnd(String title) {
-    }
-
-    @UiThread
-    @Override
     public void onMaximizeFailed(String error) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @UiThread
     @Override
     public void onMinimizeStart() {
         resetZoom();
-        mMaximized = false;
+        showMenuItems();
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
     }
 
     @UiThread
     @Override
     public void onMinimizeEnd() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        mMaximized = false;
     }
 
     @UiThread
     @Override
     public void onMinimizeFailed(String error) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @UiThread
     @Override
     public void onScriptLoaded() {
+        runDashboard();
     }
 
     @UiThread
     @Override
     public void onLoadStart() {
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.da_loading).show();
     }
 
     @UiThread
     @Override
     public void onLoadDone() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideInitialLoader();
     }
 
     @UiThread
@@ -162,8 +223,50 @@ public class AmberDashboardActivity extends DashboardCordovaActivity implements 
     public void onReportExecution(String data) {
     }
 
+    @UiThread
+    @Override
+    public void onWindowResizeStart() {
+    }
+
+    @UiThread
+    @Override
+    public void onWindowResizeEnd() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void loadFlow() {
         WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
     }
 
+    private void runDashboard() {
+        String runScript = String.format(
+                "javascript:MobileDashboard.configure({\"diagonal\": \"%s\"}).run()",
+                screenUtil.getDiagonal());
+        webView.loadUrl(runScript);
+    }
+
+    private void showInitialLoader() {
+        webView.setVisibility(View.INVISIBLE);
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.da_loading).show();
+    }
+
+    private void hideInitialLoader() {
+        webView.setVisibility(View.VISIBLE);
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
+    private void showMenuItems() {
+        mFavoriteItemVisible = mRefreshItemVisible = mInfoItemVisible = true;
+        supportInvalidateOptionsMenu();
+    }
+
+    private void hideMenuItems() {
+        mFavoriteItemVisible = mRefreshItemVisible = mInfoItemVisible = false;
+        supportInvalidateOptionsMenu();
+    }
 }

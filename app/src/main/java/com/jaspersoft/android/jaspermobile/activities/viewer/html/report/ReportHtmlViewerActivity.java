@@ -85,6 +85,7 @@ public class ReportHtmlViewerActivity extends RoboToolbarActivity {
 
             FilterManagerFragment filterManagerFragment = FilterManagerFragment_.builder()
                     .resource(resource).build();
+            filterManagerFragment.setRetainInstance(true);
             transaction.add(filterManagerFragment, FilterManagerFragment.TAG);
 
             transaction.commit();

@@ -31,30 +31,22 @@
     <string name="h_library_label">Biblioteca</string>
 
     <!-- Connection Dialog -->
-    <string name="h_ad_title_no_connection">Sem conexão</string>
-    <string name="h_ad_msg_no_connection">Verifique as configurações da rede móvel e tente novamente.</string>
 
     <!-- Password Dialog -->
-    <string name="h_ad_title_enter_password">Insira a senha</string>
     <string name="h_ad_label_server_profile">Perfil do servidor</string>
 
     <!-- Action Bar -->
-    <string name="spm_ab_add_profile">Adicionar perfil do servidor</string>
 
     <!-- Delete Dialog -->
-    <string name="spm_ad_delete_profile_msg">Tem certeza de que deseja excluir este perfil do servidor?</string>
     <string name="spm_delete_btn">Excluir</string>
-    <string name="spm_cancel_btn">Cancelar</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_password_hint">minha senha</string>
     <string name="sp_save_btn">Salvar</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">Este campo é obrigatório.</string>
     <string name="sp_error_url_not_valid">O URL não é válido.</string>
     <string name="sp_error_duplicate_alias">Alias duplicado.</string>
-    <string name="sp_error_unique_alias">Um servidor com esse alias \'%s\' já existe. </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">Não há recursos nesta pasta.</string>
@@ -180,9 +172,6 @@
 
     <!-- Others -->
     <string name="loading_msg">Carregando...</string>
-    <string name="error_msg">Erro</string>
-    <string name="warning_msg">Atenção</string>
-    <string name="cancelled_msg">Cancelado</string>
     <string name="search_result_format">Procurar resultados para \'%s\'</string>
     <string name="failed_load_data">Falha ao carregar dados!</string>
 
@@ -196,7 +185,6 @@
     <string name="of"><![CDATA[de %d]]></string>
     <string name="dialog_current_page">Definir página atual</string>
     <string name="rv_error_empty_report_title">O relatório está vazio</string>
-    <string name="rv_error_empty_report_message">Toque em \"Ok\" se desejar alterar as opções de filtro ou toque em \"Cancelar\" para retornar ao relatório antigo.</string>
 
     <!-- Rate Dialog -->
     <string name="h_rd_description">Se você gosta de usar o TIBCO JasperMobile, que tal avaliá-lo? Não levará mais de um minuto. Agradecemos o seu apoio!</string>

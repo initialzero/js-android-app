@@ -1,13 +1,20 @@
-{
-	"profiles" : [
-	    {
-			"alias" : "Legacy MobileDemo 5.5",
-			"serverUrl" : "http://mobiledemo.jaspersoft.com/jasperserver-pro",
-			"organization" : "organization_1",
-			"username" : "phoneuser",
-			"password" : "phoneuser",
-			"edition": "PRO",
-			"versionName": "5.5"
-		}
-	]
-}
+[
+    {
+        "alias": "Legacy MobileDemo 5.5",
+        "serverUrl": "http://mobiledemo.jaspersoft.com/jasperserver-pro",
+        "organization": "organization_1",
+        "username": "phoneuser",
+        "password": "phoneuser",
+        "edition": "PRO",
+        "versionName": "5.5"
+    },
+    {
+        "alias": "6.0.1 Build Master",
+        "serverUrl": "http://172.17.10.125:8080/jasperserver-pro-601",
+        "organization": "",
+        "username": "superuser",
+        "password": "superuser",
+        "edition": "PRO",
+        "versionName": "6.0.1"
+    }
+]

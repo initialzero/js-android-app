@@ -68,12 +68,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Activity that shows intro page -->
-        <activity
-            android:name=".activities.intro.IntroPageActivity_"
-            android:configChanges="locale"
-            android:screenOrientation="portrait" />
-
         <!-- Activity that allows to specify the report options before running it -->
         <activity
             android:name=".activities.report.ReportOptionsActivity"
@@ -188,6 +182,14 @@
                 <action android:name="jaspersoft.intent.action.AUTHORIZE" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="9d425447d513077d94708723fd9cf72803a745bc" />
 
         <receiver
             android:name=".auth.AccountsReceiver"

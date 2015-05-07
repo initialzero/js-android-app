@@ -271,7 +271,7 @@ public class FavoritesFragment extends RoboFragment
                 .setRecordUri(recordUri)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_dfd_title)
-                .setMessage(getActivity().getString(R.string.sdr_drd_msg, itemTitle))
+                .setMessage(getActivity().getString(R.string.sdr_dfd_msg, itemTitle))
                 .setPositiveButtonText(R.string.spm_delete_btn)
                 .setNegativeButtonText(android.R.string.cancel)
                 .setTargetFragment(this)

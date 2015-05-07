@@ -30,31 +30,19 @@
     <string name="h_repository_label">Repository</string>
     <string name="h_library_label">Bibliothek</string>
 
-    <!-- Connection Dialog -->
-    <string name="h_ad_title_no_connection">Keine Verbindung</string>
-    <string name="h_ad_msg_no_connection">Prüfen Sie die Einstellungen Ihres mobilen Netzwerks, und versuchen Sie es erneut.</string>
-
     <!-- Password Dialog -->
-    <string name="h_ad_title_enter_password">Passwort eingeben</string>
     <string name="h_ad_label_server_profile">Serverprofil</string>
 
-    <!-- Action Bar -->
-    <string name="spm_ab_add_profile">Serverprofil hinzufügen</string>
-
     <!-- Delete Dialog -->
-    <string name="spm_ad_delete_profile_msg">Möchten Sie dieses Serverprofil wirklich löschen?</string>
     <string name="spm_delete_btn">Löschen</string>
-    <string name="spm_cancel_btn">Abbrechen</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_password_hint">mein Passwort</string>
     <string name="sp_save_btn">Speichern</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">Dieses Feld muss ausgefüllt werden.</string>
     <string name="sp_error_url_not_valid">Die URL ist ungültig.</string>
     <string name="sp_error_duplicate_alias">Doppelter Alias.</string>
-    <string name="sp_error_unique_alias">Ein Server mit dem Alias \'%s\' ist bereits vorhanden. </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">Dieser Ordner enthält keine Ressourcen.</string>
@@ -180,9 +168,6 @@
 
     <!-- Others -->
     <string name="loading_msg">Laden&#8230;</string>
-    <string name="error_msg">Fehler</string>
-    <string name="warning_msg">Warnung</string>
-    <string name="cancelled_msg">Abgebrochen</string>
     <string name="search_result_format">Suchergebnis für \'%s\'</string>
     <string name="failed_load_data">Die Daten konnten nicht geladen werden.</string>
 
@@ -196,7 +181,6 @@
     <string name="of"><![CDATA[von %d]]></string>
     <string name="dialog_current_page">Aktuelle Seite festlegen</string>
     <string name="rv_error_empty_report_title">Der Bericht ist leer</string>
-    <string name="rv_error_empty_report_message">Tippen Sie auf \"OK\", wenn Sie die Filteroptionen ändern möchten, oder auf \"Abbrechen\", um zum alten Bericht zurückzukehren.</string>
 
     <!-- Rate Dialog -->
     <string name="h_rd_description">Sie nutzen TIBCO JasperMobile gerne? Dann nehmen Sie sich bitte für eine Bewertung einen Moment Zeit! Es dauert nicht länger als eine Minute. Vielen Dank!</string>

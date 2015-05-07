@@ -31,30 +31,22 @@
     <string name="h_library_label">ライブラリ</string>
 
     <!-- Connection Dialog -->
-    <string name="h_ad_title_no_connection">接続がありません</string>
-    <string name="h_ad_msg_no_connection">モバイルネットワーク設定を確認の上、もう一度お試しください。</string>
 
     <!-- Password Dialog -->
-    <string name="h_ad_title_enter_password">パスワードを入力</string>
     <string name="h_ad_label_server_profile">サーバープロファイル</string>
 
     <!-- Action Bar -->
-    <string name="spm_ab_add_profile">サーバープロファイルを追加</string>
 
     <!-- Delete Dialog -->
-    <string name="spm_ad_delete_profile_msg">このサーバープロファイルを削除しますか？</string>
     <string name="spm_delete_btn">削除</string>
-    <string name="spm_cancel_btn">キャンセル</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_password_hint">私のパスワード</string>
     <string name="sp_save_btn">保存</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">このフィールドは必須項目です。</string>
     <string name="sp_error_url_not_valid">URL が有効ではありません。</string>
     <string name="sp_error_duplicate_alias">重複するエイリアス。</string>
-    <string name="sp_error_unique_alias">エイリアス「%s」を持つサーバーがすでに存在しています。 </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">このフォルダにリソースはありません。</string>
@@ -180,9 +172,6 @@
 
     <!-- Others -->
     <string name="loading_msg">読み込み中...</string>
-    <string name="error_msg">エラー</string>
-    <string name="warning_msg">警告</string>
-    <string name="cancelled_msg">キャンセルされました</string>
     <string name="search_result_format">「%s」のサーチ結果</string>
     <string name="failed_load_data">データの読み込みが失敗しました。</string>
 
@@ -196,7 +185,6 @@
     <string name="of"><![CDATA[/%d]]></string>
     <string name="dialog_current_page">現在のページを設定</string>
     <string name="rv_error_empty_report_title">レポートが空です</string>
-    <string name="rv_error_empty_report_message">フィルタオプションを変更する場合は、[Ok] を、古いレポートに戻る場合は [キャンセル] をタップします。</string>
 
     <!-- Rate Dialog -->
     <string name="h_rd_description">楽しんでいただけたならば簡単なご意見をお願いします。TIBCO JasperMobileを評価しますか？</string>

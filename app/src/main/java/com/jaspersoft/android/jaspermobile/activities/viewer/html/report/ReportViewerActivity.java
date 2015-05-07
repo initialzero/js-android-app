@@ -56,6 +56,7 @@ import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -98,8 +99,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
@@ -250,7 +249,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     public void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
             SaveReportActivity_.intent(this)
-                    .reportParameters(getReportParameters())
                     .resource(resource)
                     .pageCount(paginationControl.getTotalPages())
                     .start();

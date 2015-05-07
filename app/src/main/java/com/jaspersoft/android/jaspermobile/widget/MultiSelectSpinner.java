@@ -283,11 +283,9 @@ public class MultiSelectSpinner<T> extends Spinner implements DialogInterface.On
 
     @Override
     public void setSelection(int position) {
-        throw new UnsupportedOperationException();
     }
 
     public void setSelection(int position, boolean animate) {
-        throw new UnsupportedOperationException();
     }
 
     //---------------------------------------------------------------------

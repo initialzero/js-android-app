@@ -214,9 +214,11 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     }
 
     private void runReport() {
+        Intent htmlViewer = new Intent();
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
         paramsStorage.putReportParameters(reportUri, parameters);
-        runReportViewer();
+        setResult(Activity.RESULT_OK, htmlViewer);
+        finish();
     }
 
     private ArrayList<ReportParameter> initParametersUsingSelectedValues() {
@@ -225,12 +227,6 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
             parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
         }
         return parameters;
-    }
-
-    private void runReportViewer() {
-        Intent htmlViewer = new Intent();
-        setResult(Activity.RESULT_OK, htmlViewer);
-        finish();
     }
 
     private void hideAllValidationMessages() {
@@ -414,6 +410,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
             try {
                 startDate.setTime(formatter.parse(defaultValue));
                 editText.setText(defaultValue);
+                clearDate.setVisibility(View.VISIBLE);
             } catch (ParseException e) {
                 Ln.w("Unparseable date: %s", defaultValue);
             }

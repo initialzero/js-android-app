@@ -46,6 +46,7 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
@@ -109,8 +110,6 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     @FragmentArg
     ResourceLookup resource;
     @FragmentArg
-    ArrayList<ReportParameter> reportParameters;
-    @FragmentArg
     int pageCount;
 
     @OptionsMenuItem
@@ -118,6 +117,9 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
 
     @Inject
     JsRestClient jsRestClient;
+
+    @Inject
+    protected ReportParamsStorage paramsStorage;
 
     @InstanceState
     int runningRequests;
@@ -186,7 +188,9 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                         }
                     }
 
-                    if (reportParameters != null && !reportParameters.isEmpty()) {
+                    ArrayList<ReportParameter> reportParameters = paramsStorage.getReportParameters(resource.getUri());
+
+                    if (!reportParameters.isEmpty()) {
                         executionData.setParameters(reportParameters);
                     }
 

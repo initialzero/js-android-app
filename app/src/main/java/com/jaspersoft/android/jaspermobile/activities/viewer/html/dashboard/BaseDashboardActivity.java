@@ -50,22 +50,6 @@ import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
-import org.apache.cordova.CordovaChromeClient;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaPreferences;
-import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.CordovaWebViewClient;
-import org.apache.cordova.PluginEntry;
-import org.apache.cordova.Whitelist;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * Activity that performs dashboard viewing in HTML format through native component.
  *

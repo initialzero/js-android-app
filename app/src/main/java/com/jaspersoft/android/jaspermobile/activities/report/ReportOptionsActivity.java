@@ -216,9 +216,6 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     private void runReport() {
         Intent htmlViewer = new Intent();
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
-        ArrayList<ReportParameter> reportParameterArrayList = paramsStorage.getReportParameters(reportUri);
-        reportParameterArrayList.clear();
-        reportParameterArrayList.addAll(parameters);
         paramsStorage.putReportParameters(reportUri, parameters);
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();

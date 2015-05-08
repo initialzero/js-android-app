@@ -115,6 +115,18 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         return result;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        webView.loadUrl("javascript:MobileDashboard.pause()");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onPause();
+        webView.loadUrl("javascript:MobileDashboard.resume()");
+    }
+
     //---------------------------------------------------------------------
     // Abstract methods implementations
     //---------------------------------------------------------------------

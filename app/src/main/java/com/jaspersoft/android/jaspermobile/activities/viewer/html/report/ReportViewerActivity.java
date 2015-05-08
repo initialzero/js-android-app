@@ -138,6 +138,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @InstanceState
     protected Uri favoriteEntryUri;
+    @InstanceState
+    protected boolean mScriptReady;
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -208,6 +210,22 @@ public class ReportViewerActivity extends RoboToolbarActivity
         }
 
         return result;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mScriptReady) {
+            webView.loadUrl("javascript:MobileReport.pause()");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onPause();
+        if (mScriptReady) {
+            webView.loadUrl("javascript:MobileReport.resume()");
+        }
     }
 
     @Override
@@ -344,6 +362,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onScriptLoaded() {
+        mScriptReady = true;
         runReport(paramsSerializer.toJson(getReportParameters()));
     }
 

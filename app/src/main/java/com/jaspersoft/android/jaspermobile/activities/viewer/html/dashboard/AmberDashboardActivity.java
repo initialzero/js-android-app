@@ -113,6 +113,18 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        webView.loadUrl("javascript:MobileDashboard.pause()");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onPause();
+        webView.loadUrl("javascript:MobileDashboard.resume()");
+    }
+
     //---------------------------------------------------------------------
     // Abstract methods implementations
     //---------------------------------------------------------------------

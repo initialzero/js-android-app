@@ -253,16 +253,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
 
                 @Override
                 public void onSuccess(int page) {
-                    boolean controlHasPages = paginationControl.isTotalPagesLoaded() && paginationControl.getTotalPages() > 1;
-                    if (controlHasPages) {
+                    boolean hasTotalPages = paginationControl.isTotalPagesLoaded();
+                    // This means that we have 2 page loaded and that is enough to show pagination control
+                    boolean isSecondPageLoaded = (page == 2);
+
+                    if (hasTotalPages && isSecondPageLoaded) {
                         showPaginationControl();
                     } else {
-                        // This means that we have 2 page loaded and that is enough to show pagination control
-                        if (page == 2) {
-                            showPaginationControl();
-                        } else {
-                            hidePaginationControl();
-                        }
+                        hidePaginationControl();
                     }
                 }
             };

@@ -7,13 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -90,14 +88,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     }
 
     public void showEmptyReportOptionsDialog() {
-        SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButtonText(android.R.string.ok)
-                .setTitle(R.string.rv_error_empty_report_title)
-                .setMessage(R.string.rv_error_empty_report)
-                .setTargetFragment(this)
-                .setCancelableOnTouchOutside(false)
-                .show();
+        reportView.showEmptyView();
     }
 
     //---------------------------------------------------------------------

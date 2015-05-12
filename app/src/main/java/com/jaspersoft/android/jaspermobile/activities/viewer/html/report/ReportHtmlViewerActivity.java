@@ -71,6 +71,7 @@ public class ReportHtmlViewerActivity extends RoboToolbarActivity implements Rep
 
     @Override
     public void showEmptyView() {
+        emptyView.setText(R.string.rv_error_empty_report);
         emptyView.setVisibility(View.VISIBLE);
     }
 

@@ -26,8 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -77,7 +75,7 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
 
     private OnInputControlsListener mListener = new NullListener();
     private ArrayList<InputControl> inputControls;
-    private RequestExecutor requestExecutor;
+
     private boolean mShowFilterMenuItem, mLoading, mLoaded;
     private ReportView reportView;
 
@@ -93,17 +91,6 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        requestExecutor = RequestExecutor.builder()
-                .setExecutionMode(RequestExecutor.Mode.VISIBLE)
-                .setFragmentManager(getFragmentManager())
-                .setSpiceManager(getSpiceManager())
-                .create();
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
 
@@ -112,6 +99,11 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
 
             GetInputControlsRequest request =
                     new GetInputControlsRequest(jsRestClient, resourceUri);
+            RequestExecutor requestExecutor = RequestExecutor.builder()
+                    .setExecutionMode(RequestExecutor.Mode.VISIBLE)
+                    .setFragmentManager(getFragmentManager())
+                    .setSpiceManager(getSpiceManager())
+                    .create();
             requestExecutor.execute(request, new GetInputControlsListener());
         }
     }

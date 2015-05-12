@@ -9,10 +9,11 @@ public interface ReportCallback {
     void onLoadStart();
     void onLoadDone(String parameters);
     void onLoadError(String error);
-    void onTotalPagesLoaded(int pages);
+    void onReportCompleted(String status, int pages, String errorMessage);
     void onPageChange(int page);
     void onReferenceClick(String location);
     void onReportExecutionClick(String report, String params);
     void onRefreshSuccess();
     void onRefreshError(String error);
+    void onEmptyReportEvent();
 }

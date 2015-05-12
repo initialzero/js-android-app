@@ -95,11 +95,17 @@ public class PaginationBarView extends AbstractPaginationView {
 
     @Override
     protected void alterTotalCount() {
-        progressLayout.setVisibility(View.GONE);
-        totalPageLabel.setVisibility(View.VISIBLE);
-        lastPage.setEnabled(true);
-
-        totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
+        if(getTotalPages() != -1) {
+            progressLayout.setVisibility(View.GONE);
+            totalPageLabel.setVisibility(View.VISIBLE);
+            totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
+            lastPage.setEnabled(true);
+        }
+        else {
+            progressLayout.setVisibility(View.VISIBLE);
+            totalPageLabel.setVisibility(View.GONE);
+            lastPage.setEnabled(false);
+        }
     }
 
     @Override

@@ -78,8 +78,8 @@ public class ReportWebInterface extends WebInterface implements ReportCallback {
 
     @JavascriptInterface
     @Override
-    public void onTotalPagesLoaded(int pages) {
-        decoratedCallback.onTotalPagesLoaded(pages);
+    public void onReportCompleted(String status, int pages, String errorMessage) {
+        decoratedCallback.onReportCompleted(status, pages, errorMessage);
     }
 
     @JavascriptInterface
@@ -110,6 +110,12 @@ public class ReportWebInterface extends WebInterface implements ReportCallback {
     @Override
     public void onRefreshError(String error) {
         decoratedCallback.onRefreshError(error);
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onEmptyReportEvent() {
+        decoratedCallback.onEmptyReportEvent();
     }
 
 }

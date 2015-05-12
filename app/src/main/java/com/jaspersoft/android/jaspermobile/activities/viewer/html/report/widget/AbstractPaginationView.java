@@ -8,6 +8,7 @@ import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 /**
@@ -24,7 +25,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     protected OnPageChangeListener onPageChangeListener;
 
     private int currentPage = FIRST_PAGE;
-    private int mTotalPages;
+    private int mTotalPages = -1;
 
     public AbstractPaginationView(Context context) {
         super(context);
@@ -62,11 +63,33 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     }
 
     public boolean isTotalPagesLoaded() {
-        return (mTotalPages != 0);
+        return mTotalPages != -1;
     }
 
     public int getTotalPages() {
         return mTotalPages;
+    }
+
+    public void showPaginationIfNeed() {
+        boolean pagesCountIsLoading = !isTotalPagesLoaded();
+        boolean isMultiPageReport = mTotalPages > 1;
+
+        if (pagesCountIsLoading || isMultiPageReport) {
+            setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hidePaginationIfNeed() {
+        boolean isSinglePageReport = mTotalPages == 1;
+
+        if (isSinglePageReport) {
+            setVisibility(View.GONE);
+        }
+    }
+
+    public void reset() {
+        mTotalPages = -1;
+        setCurrentPage(AbstractPaginationView.FIRST_PAGE);
     }
 
     @Override
@@ -106,7 +129,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
      */
     protected abstract void alterControlStates();
 
-    public static interface OnPageChangeListener {
+    public interface OnPageChangeListener {
         void onPageSelected(int currentPage);
         void onPagePickerRequested();
     }

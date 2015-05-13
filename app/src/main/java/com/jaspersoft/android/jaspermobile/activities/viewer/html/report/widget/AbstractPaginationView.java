@@ -48,7 +48,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
         this.onPageChangeListener = onPageChangeListener;
     }
 
-    public void setCurrentPage(int page) {
+    public void updateCurrentPage(int page) {
         currentPage = page;
         alterControlStates();
     }
@@ -57,7 +57,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
         return currentPage;
     }
 
-    public void setTotalCount(int totalPage) {
+    public void updateTotalCount(int totalPage) {
         mTotalPages = totalPage;
         alterTotalCount();
     }
@@ -70,26 +70,9 @@ public abstract class AbstractPaginationView extends RelativeLayout {
         return mTotalPages;
     }
 
-    public void showPaginationIfNeed() {
-        boolean pagesCountIsLoading = !isTotalPagesLoaded();
-        boolean isMultiPageReport = mTotalPages > 1;
-
-        if (pagesCountIsLoading || isMultiPageReport) {
-            setVisibility(View.VISIBLE);
-        }
-    }
-
-    public void hidePaginationIfNeed() {
-        boolean isSinglePageReport = mTotalPages == 1;
-
-        if (isSinglePageReport) {
-            setVisibility(View.GONE);
-        }
-    }
-
     public void reset() {
-        mTotalPages = -1;
-        setCurrentPage(AbstractPaginationView.FIRST_PAGE);
+        updateTotalCount(-1);
+        updateCurrentPage(AbstractPaginationView.FIRST_PAGE);
     }
 
     @Override

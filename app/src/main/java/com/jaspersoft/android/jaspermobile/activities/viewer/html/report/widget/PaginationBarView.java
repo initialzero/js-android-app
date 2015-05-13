@@ -62,14 +62,14 @@ public class PaginationBarView extends AbstractPaginationView {
 
     @Click
     final void firstPage() {
-        setCurrentPage(FIRST_PAGE);
+        updateCurrentPage(FIRST_PAGE);
         onPageChangeListener.onPageSelected(getCurrentPage());
     }
 
     @Click
     final void previousPage() {
         if (getCurrentPage() != FIRST_PAGE) {
-            setCurrentPage(getCurrentPage() - 1);
+            updateCurrentPage(getCurrentPage() - 1);
             onPageChangeListener.onPageSelected(getCurrentPage());
         }
     }
@@ -77,14 +77,14 @@ public class PaginationBarView extends AbstractPaginationView {
     @Click
     final void nextPage() {
         if (getCurrentPage() != getTotalPages()) {
-            setCurrentPage(getCurrentPage() + 1);
+            updateCurrentPage(getCurrentPage() + 1);
             onPageChangeListener.onPageSelected(getCurrentPage());
         }
     }
 
     @Click
     final void lastPage() {
-        setCurrentPage(getTotalPages());
+        updateCurrentPage(getTotalPages());
         onPageChangeListener.onPageSelected(getCurrentPage());
     }
 

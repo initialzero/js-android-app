@@ -86,7 +86,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
             @Override
             public void onPageSelected(int position) {
                 int currentPage = position + 1;
-                paginationControl.setCurrentPage(currentPage);
+                paginationControl.updateCurrentPage(currentPage);
 
                 boolean showNext = (currentPage == mAdapter.getCount());
                 if (paginationControl.isTotalPagesLoaded()) {
@@ -141,7 +141,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
         });
 
         if (mTotalPage != 0) {
-            paginationControl.setTotalCount(mTotalPage);
+            paginationControl.updateTotalCount(mTotalPage);
             showPaginationControl();
         }
     }
@@ -164,7 +164,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
     }
 
     public void showTotalPageCount(int totalPageCount) {
-        paginationControl.setTotalCount(totalPageCount);
+        paginationControl.updateTotalCount(totalPageCount);
     }
 
     public void loadNextPageInBackground() {
@@ -174,13 +174,13 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
 
     @Override
     public void onPageSelected(int page, int requestCode) {
-        paginationControl.setCurrentPage(page);
+        paginationControl.updateCurrentPage(page);
         changePage(page);
     }
 
     @Override
     public void onPageSelected(int page) {
-        paginationControl.setCurrentPage(page);
+        paginationControl.updateCurrentPage(page);
         changePage(page);
     }
 
@@ -223,14 +223,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
                     mAdapter.clear();
                     mAdapter.addPage();
                     mAdapter.notifyDataSetChanged();
-                    paginationControl.setCurrentPage(1);
+                    paginationControl.updateCurrentPage(1);
                     viewPager.setCurrentItem(0);
                 }
 
                 @Override
                 public void onPagesLoaded(int totalPage) {
                     mTotalPage = totalPage;
-                    paginationControl.setTotalCount(mTotalPage);
+                    paginationControl.updateTotalCount(mTotalPage);
                     if (totalPage > 1) {
                         showTotalPageCount(totalPage);
                     }

@@ -267,6 +267,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .setLoadingMessage(R.string.r_ab_refresh)
                 .show();
         webView.setVisibility(View.INVISIBLE);
+        paginationControl.setVisibility(View.GONE);
         paginationControl.reset();
     }
 
@@ -321,7 +322,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void onPageSelected(int page, int requestCode) {
         onPageSelected(page);
-        paginationControl.setCurrentPage(page);
+        paginationControl.updateCurrentPage(page);
     }
 
     @Override
@@ -367,7 +368,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void onLoadDone(String parameters) {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        paginationControl.showPaginationIfNeed();
         webView.setVisibility(View.VISIBLE);
     }
 
@@ -386,15 +386,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
             supportInvalidateOptionsMenu();
 
             emptyView.setVisibility(noPages ? View.VISIBLE : View.GONE);
-            paginationControl.setTotalCount(pages);
-            paginationControl.hidePaginationIfNeed();
+            paginationControl.updateTotalCount(pages);
         }
     }
 
     @UiThread
     @Override
     public void onPageChange(int page) {
-        paginationControl.setCurrentPage(page);
+        paginationControl.updateCurrentPage(page);
     }
 
     @UiThread
@@ -414,19 +413,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
-    public void onRefreshSuccess() {
-        onLoadDone("");
+    public void onEmptyReportEvent() {
+        showEmptyView();
     }
 
     @UiThread
     @Override
-    public void onRefreshError(String error) {
-        exposeError(error);
-    }
-
-    @Override
-    public void onEmptyReportEvent() {
-        showEmptyView();
+    public void onMultiPageStateObtained(boolean isMultiPage) {
+        paginationControl.setVisibility(isMultiPage ? View.VISIBLE : View.GONE);
     }
 
     //---------------------------------------------------------------------

@@ -88,7 +88,7 @@ public class SeekPaginationView extends AbstractPaginationView {
 
     @SeekBarTouchStop(R.id.seekBar)
     final void onProgressChangeOnSeekBar() {
-        setCurrentPage(currentPageFromProgress());
+        updateCurrentPage(currentPageFromProgress());
         onPageChangeListener.onPageSelected(getCurrentPage());
     }
 

@@ -62,14 +62,14 @@ public class ResourceOpener {
 
     private ArrayList<String> resourceTypes;
     private ServerRelease serverRelease;
-    private boolean isProJrs;
+    private boolean isCeJrs;
 
     @AfterInject
     final void init() {
         Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(activity, account);
         serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
-        isProJrs = accountServerData.getEdition().equals("PRO");
+        isCeJrs = accountServerData.getEdition().equals("CE");
 
         resourceTypes = filterManager.getFiltersForRepository();
     }
@@ -111,7 +111,7 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        if (!isProJrs) {
+        if (isCeJrs) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
             return;

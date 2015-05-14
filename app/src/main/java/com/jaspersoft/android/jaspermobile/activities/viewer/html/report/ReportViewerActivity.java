@@ -157,13 +157,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private boolean mShowSavedMenuItem, mShowRefreshMenuItem;
     private boolean mHasInitialParameters;
     private JasperChromeClientListenerImpl chromeClientListener;
+    private boolean isFlowLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         CookieManagerFactory.syncCookies(this);
 
-        mHasInitialParameters = (reportParameters.isEmpty());
+        mHasInitialParameters = !reportParameters.isEmpty();
         paramsStorage.putReportParameters(resource.getUri(), reportParameters);
 
         scrollableTitleHelper.injectTitle(resource.getLabel());
@@ -283,6 +284,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.r_ab_refresh)
                 .show();
+        webView.setVisibility(View.INVISIBLE);
+        paginationControl.setVisibility(View.GONE);
+        paginationControl.reset();
     }
 
     //---------------------------------------------------------------------
@@ -314,7 +318,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (resultCode == Activity.RESULT_OK) {
             mShowSavedMenuItem = false;
             supportInvalidateOptionsMenu();
-            loadFlow();
+            if (isFlowLoaded) {
+                applyReportParams();
+            } else {
+                loadFlow();
+            }
         } else {
             // By default we make webview invisible
             // If any report run successful we will have this condition to be falsy
@@ -331,8 +339,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public void onPageSelected(int page, int requestCode) {
-        selectPageInWebView(page);
-        paginationControl.setCurrentPage(page);
+        onPageSelected(page);
+        paginationControl.updateCurrentPage(page);
     }
 
     @Override
@@ -369,14 +377,17 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onLoadStart() {
-        paginationControl.setCurrentPage(AbstractPaginationView.FIRST_PAGE);
+        paginationControl.reset();
+        paginationControl.setVisibility(View.GONE);
         ProgressDialogFragment.builder(getSupportFragmentManager()).show();
+        webView.setVisibility(View.INVISIBLE);
     }
 
     @UiThread
     @Override
     public void onLoadDone(String parameters) {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        webView.setVisibility(View.VISIBLE);
     }
 
     @UiThread
@@ -387,26 +398,21 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
-    public void onTotalPagesLoaded(int pages) {
-        boolean noPages = (pages == 0);
-        mShowSavedMenuItem = mShowRefreshMenuItem = !noPages;
-        supportInvalidateOptionsMenu();
+    public void onReportCompleted(String status, int pages, String errorMessage) {
+        if (status.equals("ready")) {
+            boolean noPages = (pages == 0);
+            mShowSavedMenuItem = mShowRefreshMenuItem = !noPages;
+            supportInvalidateOptionsMenu();
 
-        if (noPages) {
-            emptyView.setVisibility(View.VISIBLE);
-        } else {
-            emptyView.setVisibility(View.GONE);
-            if (pages > 1) {
-                paginationControl.setVisibility(View.VISIBLE);
-                paginationControl.setTotalCount(pages);
-            }
+            emptyView.setVisibility(noPages ? View.VISIBLE : View.GONE);
+            paginationControl.updateTotalCount(pages);
         }
     }
 
     @UiThread
     @Override
     public void onPageChange(int page) {
-        paginationControl.setCurrentPage(page);
+        paginationControl.updateCurrentPage(page);
     }
 
     @UiThread
@@ -426,17 +432,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
-    public void onRefreshSuccess() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        if (paginationControl.isTotalPagesLoaded()) {
-            paginationControl.setCurrentPage(AbstractPaginationView.FIRST_PAGE);
-        }
+    public void onEmptyReportEvent() {
+        showEmptyView();
     }
 
     @UiThread
     @Override
-    public void onRefreshError(String error) {
-        exposeError(error);
+    public void onMultiPageStateObtained(boolean isMultiPage) {
+        paginationControl.setVisibility(isMultiPage ? View.VISIBLE : View.GONE);
     }
 
     //---------------------------------------------------------------------
@@ -510,6 +513,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             Template tmpl = Mustache.compiler().compile(writer.toString());
             String html = tmpl.execute(data);
 
+            isFlowLoaded = true;
             webView.setVisibility(View.VISIBLE);
             webView.loadDataWithBaseURL(accountServerData.getServerUrl(), html, "text/html", "utf-8", null);
         } catch (IOException e) {
@@ -556,6 +560,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 resource.getUri(),
                 params);
         webView.loadUrl(executeScript);
+    }
+
+    private void applyReportParams() {
+        String reportParams = paramsSerializer.toJson(getReportParameters());
+        webView.loadUrl(String.format("javascript:MobileReport.applyReportParams(%s)", reportParams));
     }
 
     private ArrayList<InputControl> getInputControls() {

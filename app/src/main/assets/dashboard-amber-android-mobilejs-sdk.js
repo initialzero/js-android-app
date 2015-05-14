@@ -1,24 +1,27 @@
 (function() {
+  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
   define('js.mobile.callback_dispatcher', [],function() {
     var CallbackDispatcher;
     return CallbackDispatcher = (function() {
       function CallbackDispatcher() {
+        this._processQueue = bind(this._processQueue, this);
         this.queue = [];
         this.paused = false;
       }
 
       CallbackDispatcher.prototype.dispatch = function(task) {
         if (!this.paused) {
-          return task.call(this);
+          this.queue.push(task);
+          return this._processEventLoop();
         } else {
           return this.queue.push(task);
         }
       };
 
       CallbackDispatcher.prototype.firePendingTasks = function() {
-        var hasPendingTasks, results;
-        hasPendingTasks = this.queue.length > 0;
-        if (!this.paused && hasPendingTasks) {
+        var results;
+        if (!this.paused) {
           results = [];
           while (this.queue.length > 0) {
             results.push(this.queue.pop().call(this));
@@ -27,8 +30,35 @@
         }
       };
 
-      CallbackDispatcher.prototype.setPause = function(paused) {
-        this.paused = paused;
+      CallbackDispatcher.prototype.pause = function() {
+        return this.paused = true;
+      };
+
+      CallbackDispatcher.prototype.resume = function() {
+        return this.paused = false;
+      };
+
+      CallbackDispatcher.prototype._processEventLoop = function() {
+        if (this.dispatchTimeInterval == null) {
+          return this._createInterval(this._processQueue);
+        }
+      };
+
+      CallbackDispatcher.prototype._processQueue = function() {
+        if (this.queue.length === 0) {
+          return this._removeInterval();
+        } else {
+          return this.queue.pop().call(this);
+        }
+      };
+
+      CallbackDispatcher.prototype._createInterval = function(eventLoop) {
+        return this.dispatchTimeInterval = window.setInterval(eventLoop, 200);
+      };
+
+      CallbackDispatcher.prototype._removeInterval = function() {
+        window.clearInterval(this.dispatchTimeInterval);
+        return this.dispatchTimeInterval = null;
       };
 
       return CallbackDispatcher;
@@ -241,10 +271,10 @@
       dashboardController: {
         instanceMethods: {
           pause: function() {
-            return this.callback.setPause(true);
+            return this.callback.pause();
           },
           resume: function() {
-            this.callback.setPause(false);
+            this.callback.resume();
             return this.callback.firePendingTasks();
           }
         }
@@ -402,8 +432,8 @@
             dashboardContainer = jQuery('.dashboardCanvas');
             if (dashboardContainer.length > 0) {
               window.clearInterval(dashboardElInterval);
-              _this._scaleDashboard();
-              return DOMTreeObserver.lastModify(_this._configureDashboard).wait();
+              DOMTreeObserver.lastModify(_this._configureDashboard).wait();
+              return _this._scaleDashboard();
             }
           };
         })(this), 500);

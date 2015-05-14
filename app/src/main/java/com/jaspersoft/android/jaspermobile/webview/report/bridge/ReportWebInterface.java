@@ -102,12 +102,6 @@ public class ReportWebInterface extends WebInterface implements ReportCallback {
 
     @JavascriptInterface
     @Override
-    public void onEmptyReportEvent() {
-        decoratedCallback.onEmptyReportEvent();
-    }
-
-    @JavascriptInterface
-    @Override
     public void onMultiPageStateObtained(boolean isMultiPage) {
         decoratedCallback.onMultiPageStateObtained(isMultiPage);
     }

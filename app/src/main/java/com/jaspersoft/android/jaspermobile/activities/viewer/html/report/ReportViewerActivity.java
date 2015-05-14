@@ -404,8 +404,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
             mShowSavedMenuItem = mShowRefreshMenuItem = !noPages;
             supportInvalidateOptionsMenu();
 
-            emptyView.setVisibility(noPages ? View.VISIBLE : View.GONE);
             paginationControl.updateTotalCount(pages);
+            paginationControl.setVisibility(pages > 1 ? View.VISIBLE : View.GONE);
+            if (noPages) showEmptyView();
+            else hideEmptyView();
         }
     }
 
@@ -432,12 +434,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
-    public void onEmptyReportEvent() {
-        showEmptyView();
-    }
-
-    @UiThread
-    @Override
     public void onMultiPageStateObtained(boolean isMultiPage) {
         paginationControl.setVisibility(isMultiPage ? View.VISIBLE : View.GONE);
     }
@@ -445,7 +441,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
     // ReportView callbacks
     //---------------------------------------------------------------------
-
 
     @Override
     public void showEmptyView() {

@@ -460,7 +460,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         params = {
           chart: {
             animation: false,
-            zoom: "x"
+            zoom: false
           }
         };
         return this._executeReport(visualize, params);
@@ -509,13 +509,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           pages: "2"
         }).done((function(_this) {
           return function(params) {
-            return _this._fetchHTMLPage(params.href, function(isPageExists) {
-              return _this._processMultipageState(isPageExists);
-            });
+            return _this._processMultipageState(true);
           };
         })(this)).fail((function(_this) {
           return function(error) {
-            _this.logger.log("multipage error: " + (JSON.stringify(error)));
             return _this._processMultipageState(false);
           };
         })(this));
@@ -590,29 +587,6 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           })(this)
         };
         return jQuery.ajax(window.location.href + "/rest_v2/serverInfo", params);
-      };
-
-      ReportController.prototype._fetchHTMLPage = function(pageURL, callback) {
-        var params;
-        this.logger.log("_fetchHTMLPage");
-        params = {
-          dataType: 'html',
-          success: (function(_this) {
-            return function(response, status) {
-              if (response.length > 0) {
-                return callback(true);
-              } else {
-                return callback(false);
-              }
-            };
-          })(this),
-          error: (function(_this) {
-            return function(error, status) {
-              return callback(false);
-            };
-          })(this)
-        };
-        return jQuery.ajax(pageURL, params);
       };
 
       ReportController.prototype._parseServerVersion = function(response) {

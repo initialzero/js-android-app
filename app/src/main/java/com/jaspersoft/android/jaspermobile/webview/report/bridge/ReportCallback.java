@@ -13,6 +13,5 @@ public interface ReportCallback {
     void onPageChange(int page);
     void onReferenceClick(String location);
     void onReportExecutionClick(String report, String params);
-    void onEmptyReportEvent();
     void onMultiPageStateObtained(boolean isMultiPage);
 }

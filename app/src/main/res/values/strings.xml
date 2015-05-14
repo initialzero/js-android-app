@@ -46,7 +46,7 @@
     <string name="h_ad_label_server_profile">Server Profile</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">If you enjoy using TIBCO JasperMobile, please take a moment to rate it. It won\'t take more than a minute. Thanks for your support!</string>
+    <string name="h_rd_description" translatable="false">If you enjoy using TIBCO JasperMobile, please take a moment to rate it. It won\'t take more than a minute. Thanks for your support!</string>
     <string name="h_rd_rate">Rate</string>
     <string name="h_rd_never">No, thanks</string>
     <string name="h_rd_later">Remind me later</string>
@@ -65,7 +65,7 @@
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">There are no resources in this folder.</string>
-    <string name="r_search_nothing_to_display">No items match your search.</string>
+    <string name="r_search_nothing_to_display" translatable="false">No items match your search.</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">Switch view</string>
@@ -123,7 +123,7 @@
     <string name="rv_error_empty_report">There is no report data.</string>
     <string name="rv_error_empty_report_title">The report is empty.</string>
     <string name="rv_select_page">Select page</string>
-    <string name="rv_out_of_range">The requested page is out of range.</string>
+    <string name="rv_out_of_range" translatable="false">The requested page is out of range.</string>
     <string name="rv_dialog_reload">Reload</string>
     <string name="rv_open_link_chooser" translatable="false">Open link in</string>
 
@@ -132,7 +132,7 @@
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">Save Report</string>
-    <string name="sr_report_name">File name</string>
+    <string name="sr_report_name" translatable="false">File name</string>
     <string name="sr_output_format">Output format</string>
     <string name="sr_from" translatable="false">From page</string>
     <string name="sr_to" translatable="false">To page</string>
@@ -141,16 +141,16 @@
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report saved to file successfully.</string>
     <!-- Error messages -->
-    <string name="sr_error_field_is_empty">This field is required.</string>
-    <string name="sr_error_characters_not_allowed">The following characters are not allowed: * \\ / \" \' : ? | &lt; > + [ ]</string>
-    <string name="sr_error_report_exists">A file with this name already exists.</string>
+    <string name="sr_error_field_is_empty" translatable="false">This field is required.</string>
+    <string name="sr_error_characters_not_allowed" translatable="false">The following characters are not allowed: * \\ / \" \' : ? | &lt; > + [ ]</string>
+    <string name="sr_error_report_exists" translatable="false">A file with this name already exists.</string>
 
     <!-- Favorites activity -->
     <string name="f_title">Favorites</string>
-    <string name="f_empty_list_msg">No favorite items</string>
+    <string name="f_empty_list_msg" translatable="false">No favorite items</string>
 
     <!-- Saved Files Activity -->
-    <string name="sdr_ab_title">Saved Files</string>
+    <string name="sdr_ab_title" translatable="false">Saved Files</string>
     <string name="sdr_ab_list_msg" translatable="false">No saved files</string>
 
     <!-- Context Menu -->
@@ -159,12 +159,12 @@
     <string name="sdr_cm_delete">Delete</string>
 
     <!-- Rename File Dialog -->
-    <string name="sdr_rrd_title">Rename file</string>
+    <string name="sdr_rrd_title" translatable="false">Rename file</string>
     <string name="sdr_rrd_msg">Enter new name:</string>
-    <string name="sdr_rrd_hint">File name</string>
-    <string name="sdr_rrd_error_name_is_empty">This field is required.</string>
-    <string name="sdr_rrd_error_characters_not_allowed">>The following characters are not allowed: * \\ / \" \' : ? | &lt; > + [ ]</string>
-    <string name="sdr_rrd_error_report_exists">A file with this name already exists.</string>
+    <string name="sdr_rrd_hint" translatable="false">File name</string>
+    <string name="sdr_rrd_error_name_is_empty"> translatable="false"This field is required.</string>
+    <string name="sdr_rrd_error_characters_not_allowed" translatable="false">The following characters are not allowed: * \\ / \" \' : ? | &lt; > + [ ]</string>
+    <string name="sdr_rrd_error_report_exists" translatable="false">A file with this name already exists.</string>
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">Delete File</string>
@@ -187,7 +187,7 @@
     <string name="st_title_cache_expiration">Cache expiration</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
     <string name="st_title_read_timeout">Data read timeout</string>
-    <string name="st_title_animations">Animations</string>
+    <string name="st_title_animations" translatable="false">Animations</string>
     <string name="st_send_crashes">Send crash reports</string>
     <string name="st_send_crashes_note" translatable="false">NOTE: Restart the app after changing this setting.</string>
     <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>

@@ -50,7 +50,6 @@
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">Non sono presenti risorse nella cartella.</string>
-    <string name="r_search_nothing_to_display">La ricerca non ha riportato alcun risultato.</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">Commuta visualizzazione</string>
@@ -97,7 +96,6 @@
     <string name="rv_ab_show_filters">Mostra filtri</string>
     <string name="rv_error_empty_report">Nessun dati report presenti</string>
     <string name="rv_select_page">Selezionare la pagina</string>
-    <string name="rv_out_of_range">La pagina richiesta non è disponibile</string>
     <string name="rv_dialog_reload">Ricaricare</string>
 
     <!-- Toasts -->
@@ -105,33 +103,23 @@
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">Salva report</string>
-    <string name="sr_report_name">Nome report</string>
     <string name="sr_output_format">Formato dell\'output</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report salvato correttamente</string>
     <!-- Error messages -->
-    <string name="sr_error_field_is_empty">Non può essere vuoto</string>
-    <string name="sr_error_characters_not_allowed">Non può contenere nessuno dei seguenti caratteri * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sr_error_report_exists">Un report con questo nome esiste già</string>
 
     <!-- Favorites activity -->
     <string name="f_title">Preferiti</string>
-    <string name="f_empty_list_msg">Nessuna voce preferita</string>
 
     <!-- Saved Reports Activity -->
-    <string name="sdr_ab_title">Elementi salvati</string>
 
     <!-- Context Menu -->
     <string name="sdr_cm_rename">Rinomina</string>
     <string name="sdr_cm_delete">Elimina</string>
 
     <!-- Rename Report Dialog -->
-    <string name="sdr_rrd_title">Rinomina report</string>
     <string name="sdr_rrd_msg">Immetti nuovo nome:</string>
-    <string name="sdr_rrd_hint">Nome report</string>
     <string name="sdr_rrd_error_name_is_empty">Non può essere vuoto</string>
-    <string name="sdr_rrd_error_characters_not_allowed">Non può contenere nessuno dei seguenti caratteri * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sdr_rrd_error_report_exists">Un report con questo nome esiste già</string>
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">Elimina report</string>
@@ -150,7 +138,6 @@
     <string name="st_title_cache_expiration">Scadenza cache</string>
     <string name="st_title_connect_timeout">Timeout connessione</string>
     <string name="st_title_read_timeout">Timeout lettura dati</string>
-    <string name="st_title_animations">Animazioni applicazione</string>
     <string name="st_send_crashes">Invia report di arresto anomalo</string>
     <string name="st_summary_cache_enable">Richieste di cache di archivio per la quantità di tempo specificata</string>
     <string name="st_summary_sec">%s sec</string>
@@ -188,7 +175,6 @@
 
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">Se ti piace TIBCO JasperMobile, perché non dedichi qualche istante a darne una valutazione sull\'App Store? Non richiederà più di un minuto. Grazie per il supporto!</string>
     <string name="h_rd_later">Ricordamelo più tardi</string>
     <string name="h_rd_never">No, grazie</string>
     <string name="h_rd_rate">Valuta TIBCO JasperMobile</string>

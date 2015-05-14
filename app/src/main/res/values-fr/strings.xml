@@ -50,7 +50,6 @@
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">Ce dossier ne contient aucune ressource.</string>
-    <string name="r_search_nothing_to_display">Aucun résultat de recherche.</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">Changer d\'affichage</string>
@@ -97,7 +96,6 @@
     <string name="rv_ab_show_filters">Afficher les filtres</string>
     <string name="rv_error_empty_report">Aucune donnée de rapport.</string>
     <string name="rv_select_page">Sélectionnez la page</string>
-    <string name="rv_out_of_range">La page demandée est hors de portée</string>
     <string name="rv_dialog_reload">Recharger</string>
 
     <!-- Toasts -->
@@ -105,33 +103,23 @@
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">Enregistrer le rapport</string>
-    <string name="sr_report_name">Nom du rapport</string>
     <string name="sr_output_format">Format de sortie</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">Rapport enregistré avec succès.</string>
     <!-- Error messages -->
-    <string name="sr_error_field_is_empty">Ne peut pas être vide.</string>
-    <string name="sr_error_characters_not_allowed">Ne peut pas contenir l\'un des caractères suivants : * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sr_error_report_exists">Un rapport portant ce nom existe déjà.</string>
 
     <!-- Favorites activity -->
     <string name="f_title">Favoris</string>
-    <string name="f_empty_list_msg">Aucune entrée de favori</string>
 
     <!-- Saved Reports Activity -->
-    <string name="sdr_ab_title">Éléments enregistrés</string>
 
     <!-- Context Menu -->
     <string name="sdr_cm_rename">Renommer</string>
     <string name="sdr_cm_delete">Supprimer</string>
 
     <!-- Rename Report Dialog -->
-    <string name="sdr_rrd_title">Renommer le rapport</string>
     <string name="sdr_rrd_msg">Saisissez un nouveau nom :</string>
-    <string name="sdr_rrd_hint">Nom du rapport</string>
     <string name="sdr_rrd_error_name_is_empty">Ne peut pas être vide.</string>
-    <string name="sdr_rrd_error_characters_not_allowed">Ne peut pas contenir l\'un des caractères suivants : * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sdr_rrd_error_report_exists">Un rapport portant ce nom existe déjà.</string>
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">Supprimer le rapport</string>
@@ -150,7 +138,6 @@
     <string name="st_title_cache_expiration">Expiration du cache</string>
     <string name="st_title_connect_timeout">Délai de connexion</string>
     <string name="st_title_read_timeout">Délai de lecture des données</string>
-    <string name="st_title_animations">Animations de l\'application</string>
     <string name="st_send_crashes">Envoyer les rapports d\'incidents</string>
     <string name="st_summary_cache_enable">Mettre en cache les demandes du référentiel pour la durée spécifiée</string>
     <string name="st_summary_sec">%s s</string>
@@ -187,7 +174,6 @@
     <string name="rv_error_empty_report_title">Le rapport est vide</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">Si vous aimez TIBCO JasperMobile, voulez-vous prendre un moment pour l\'évaluer? Cela ne vous prendra pas plus d\'une minute. Merci de votre soutien!</string>
     <string name="h_rd_later">Me rappeler plus tard</string>
     <string name="h_rd_never">Non, merci</string>
     <string name="h_rd_rate">Évaluer TIBCO JasperMobile</string>

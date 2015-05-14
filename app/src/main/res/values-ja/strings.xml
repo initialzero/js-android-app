@@ -50,7 +50,6 @@
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">このフォルダにリソースはありません。</string>
-    <string name="r_search_nothing_to_display">検索結果はありません。</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">ビューの切り替え</string>
@@ -101,37 +100,26 @@
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">レポートの保存</string>
-    <string name="sr_report_name">レポート名</string>
     <string name="sr_output_format">出力フォーマット</string>
     <string name="rv_select_page">ページを選択</string>
-    <string name="rv_out_of_range">範囲外で要求されたページ</string>
     <string name="rv_dialog_reload">リロード</string>
 
     <!-- Toasts -->
     <string name="sr_t_report_saved">レポートは正常に保存されました</string>
     <!-- Error messages -->
-    <string name="sr_error_field_is_empty">空にはできません</string>
-    <string name="sr_error_characters_not_allowed">次の文字を使用することはできません * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sr_error_report_exists">この名前のレポートはすでに存在しています</string>
 
     <!-- Favorites activity -->
     <string name="f_title">お気に入り</string>
-    <string name="f_empty_list_msg">お気に入りの項目がありません</string>
 
     <!-- Saved Reports Activity -->
-    <string name="sdr_ab_title">保存済みアイテム</string>
 
     <!-- Context Menu -->
     <string name="sdr_cm_rename">名前変更</string>
     <string name="sdr_cm_delete">削除</string>
 
     <!-- Rename Report Dialog -->
-    <string name="sdr_rrd_title">レポート名の変更</string>
     <string name="sdr_rrd_msg">新しい名前を入力：</string>
-    <string name="sdr_rrd_hint">レポート名</string>
     <string name="sdr_rrd_error_name_is_empty">空にはできません</string>
-    <string name="sdr_rrd_error_characters_not_allowed">次の文字を使用することはできません * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sdr_rrd_error_report_exists">この名前のレポートはすでに存在しています</string>
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">レポートの削除</string>
@@ -150,7 +138,6 @@
     <string name="st_title_cache_expiration">キャッシュの有効期限</string>
     <string name="st_title_connect_timeout">接続タイムアウト</string>
     <string name="st_title_read_timeout">データ読み込みタイムアウト</string>
-    <string name="st_title_animations">アプリケーションアニメーション</string>
     <string name="st_send_crashes">クラッシュレポートを送信</string>
     <string name="st_summary_cache_enable">指定した時間のキャッシュリポジトリリクエスト</string>
     <string name="st_summary_sec">%s 秒</string>
@@ -187,7 +174,6 @@
     <string name="rv_error_empty_report_title">レポートが空です</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">楽しんでいただけたならば簡単なご意見をお願いします。TIBCO JasperMobileを評価しますか？</string>
     <string name="h_rd_later">後で見る</string>
     <string name="h_rd_never">いいえ</string>
     <string name="h_rd_rate">TIBCO JasperMobileの評価</string>

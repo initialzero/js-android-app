@@ -272,7 +272,10 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
 
                 @Override
                 public void onPagesLoaded(int totalPage) {
-                    if (!outputFinal && mRelease.code() >= ServerRelease.EMERALD_MR3.code()) {
+                    boolean notFinal = !outputFinal;
+                    boolean isEmerald3OrHigher = mRelease.code() >= ServerRelease.EMERALD_MR3.code();
+                    boolean hasPages = totalPage != 0;
+                    if (notFinal && isEmerald3OrHigher && hasPages) {
                         fetchReport();
                     }
                 }
@@ -324,9 +327,8 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         }
     }
 
-    public static interface OnPageLoadListener {
+    public interface OnPageLoadListener {
         void onFailure(Exception exception);
-
         void onSuccess(int page);
     }
 

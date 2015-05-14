@@ -29,4 +29,3 @@ include ':pojo'
 include ':sdk'
 // Dummy dependencies. We are planning to ged rid of.
 include ':database-generator'
-include ':cordova'

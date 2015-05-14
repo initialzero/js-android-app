@@ -68,7 +68,7 @@ public class SeekPaginationView extends AbstractPaginationView {
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        onPageChangeListener.onPickerSelected(true);
+        onPageChangeListener.onPagePickerRequested();
     }
 
     @Override
@@ -88,7 +88,7 @@ public class SeekPaginationView extends AbstractPaginationView {
 
     @SeekBarTouchStop(R.id.seekBar)
     final void onProgressChangeOnSeekBar() {
-        setCurrentPage(currentPageFromProgress());
+        updateCurrentPage(currentPageFromProgress());
         onPageChangeListener.onPageSelected(getCurrentPage());
     }
 

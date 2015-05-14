@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="@android:color/white">
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="@style/Widget.JasperMobile.ProgressBar.Horizontal"
-        android:layout_marginTop="-6dp"
-        android:background="@android:color/white"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-6dp" />
 
     <com.jaspersoft.android.jaspermobile.widget.JSWebView
         android:id="@+id/webView"
+        android:visibility="invisible"
+        android:layout_below="@id/progressBar"
+        android:layout_above="@+id/paginationControl"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-</LinearLayout>
+</RelativeLayout>

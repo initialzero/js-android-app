@@ -25,9 +25,11 @@
 package com.jaspersoft.android.jaspermobile.network;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -53,19 +55,38 @@ public class RequestExceptionHandler {
     }
 
     public static void handle(Exception exception, Context context) {
+        if (exception == null) {
+            throw new IllegalArgumentException("Exception should not be null");
+        }
+
         int statusCode = extractStatusCode(exception);
-        if (statusCode != 0 && statusCode == HttpStatus.UNAUTHORIZED.value()) {
+        if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
             showAuthErrorDialog(context);
         } else {
-            String errorMessage = extractMessage(exception, context, statusCode);
-            showCommonErrorMessage(errorMessage, context);
+            showCommonErrorMessage(context, exception);
+        }
+    }
+
+
+    @Nullable
+    public static String extractMessage(@NonNull Context context, @Nullable Exception exception) {
+        if (exception == null) {
+            throw new IllegalArgumentException("Exception should not be null");
+        }
+
+        int statusCode = extractStatusCode(exception);
+        String message = extractMessage(context, statusCode);
+        if (TextUtils.isEmpty(message)) {
+            return exception.getLocalizedMessage();
+        } else {
+            return extractMessage(context, statusCode);
         }
     }
 
     /**
      * Extracts HttpStatus code otherwise returns 0.
      */
-    public static int extractStatusCode(Exception exception) {
+    public static int extractStatusCode(@NonNull Exception exception) {
         if (exception instanceof NetworkException) {
             Throwable cause = exception.getCause();
             if (cause instanceof HttpStatusCodeException) {
@@ -91,32 +112,29 @@ public class RequestExceptionHandler {
      * Extracts Localized message otherwise returns null.
      */
     @Nullable
-    private static String extractMessage(Exception exception, Context context, int statusCode) {
-        if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
-            return context.getString(R.string.r_error_server_not_found);
+    private static String extractMessage(@NonNull Context context, int statusCode) {
+        if (statusCode == 0) {
+            return null;
+        } else {
+            if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
+                return context.getString(R.string.r_error_server_not_found);
+            } else {
+                HttpStatus httpStatus = HttpStatus.valueOf(statusCode);
+                ExceptionRule rule = ExceptionRule.all().get(httpStatus);
+                int messageId = rule.getMessage();
+                return context.getString(messageId);
+            }
         }
-
-        Throwable cause = exception.getCause();
-        if (cause == null) {
-            return exception.getLocalizedMessage();
-        }
-        if (cause instanceof HttpStatusCodeException) {
-            ExceptionRule rule = ExceptionRule.all().get(((HttpStatusCodeException) cause).getStatusCode());
-            int messageId = rule.getMessage();
-            return context.getString(messageId);
-        }
-        Throwable tokenCause = cause.getCause();
-        if (tokenCause instanceof JasperAccountManager.TokenException) {
-            return tokenCause.getLocalizedMessage();
-        }
-        return exception.getLocalizedMessage();
     }
 
-    private static void showCommonErrorMessage(String message, final Context context) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    private static void showCommonErrorMessage(@NonNull Context context, @NonNull Exception exception) {
+        String message = extractMessage(context, exception);
+        if (!TextUtils.isEmpty(message)) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private static void showAuthErrorDialog(final Context context) {
+    private static void showAuthErrorDialog(@NonNull Context context) {
         PasswordDialogFragment.show(getSupportFragmentManager(context));
     }
 

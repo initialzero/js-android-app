@@ -7,12 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportExecutionUtil;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -57,10 +56,13 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     private final Handler mHandler = new Handler();
     private RequestExecutor requestExecutor;
     private String requestId;
+    private ReportView reportView;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        reportView = (ReportView) getActivity();
         requestExecutor = RequestExecutor.builder()
                 .setExecutionMode(RequestExecutor.Mode.VISIBLE)
                 .setFragmentManager(getFragmentManager())
@@ -86,14 +88,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     }
 
     public void showEmptyReportOptionsDialog() {
-        SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButtonText(android.R.string.ok)
-                .setTitle(R.string.rv_error_empty_report_title)
-                .setMessage(R.string.rv_error_empty_report)
-                .setTargetFragment(this)
-                .setCancelableOnTouchOutside(false)
-                .show();
+        reportView.showEmptyView();
     }
 
     //---------------------------------------------------------------------
@@ -150,7 +145,9 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
+            getFilterMangerFragment().disableSaveOption();
             ProgressDialogFragment.dismiss(getFragmentManager());
+            reportView.showEmptyView();
         }
 
         public void onRequestSuccess(ReportExecutionResponse response) {
@@ -159,6 +156,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 ProgressDialogFragment.dismiss(getFragmentManager());
                 return;
             }
+            reportView.hideEmptyView();
 
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             requestId = response.getRequestId();
@@ -222,6 +220,9 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 getSpiceManager().execute(reportDetailsRequest, new ReportDetailsRequestListener());
             } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
+            } else if (status == ReportStatus.failed) {
+                getFilterMangerFragment().disableSaveOption();
+                reportView.showEmptyView();
             }
         }
     }

@@ -8,6 +8,7 @@ import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 /**
@@ -15,7 +16,7 @@ import android.widget.RelativeLayout;
  * @since 2.0
  */
 public abstract class AbstractPaginationView extends RelativeLayout {
-    protected static final int FIRST_PAGE = 1;
+    public static final int FIRST_PAGE = 1;
 
     private static final String INSTANCE_STATE = "INSTANCE_STATE";
     private static final String CURRENT_PAGE = "CURRENT_PAGE";
@@ -24,7 +25,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     protected OnPageChangeListener onPageChangeListener;
 
     private int currentPage = FIRST_PAGE;
-    private int mTotalPages;
+    private int mTotalPages = -1;
 
     public AbstractPaginationView(Context context) {
         super(context);
@@ -47,7 +48,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
         this.onPageChangeListener = onPageChangeListener;
     }
 
-    public void setCurrentPage(int page) {
+    public void updateCurrentPage(int page) {
         currentPage = page;
         alterControlStates();
     }
@@ -56,17 +57,22 @@ public abstract class AbstractPaginationView extends RelativeLayout {
         return currentPage;
     }
 
-    public void setTotalCount(int totalPage) {
+    public void updateTotalCount(int totalPage) {
         mTotalPages = totalPage;
         alterTotalCount();
     }
 
     public boolean isTotalPagesLoaded() {
-        return (mTotalPages != 0);
+        return mTotalPages != -1;
     }
 
     public int getTotalPages() {
         return mTotalPages;
+    }
+
+    public void reset() {
+        updateTotalCount(-1);
+        updateCurrentPage(AbstractPaginationView.FIRST_PAGE);
     }
 
     @Override
@@ -106,8 +112,8 @@ public abstract class AbstractPaginationView extends RelativeLayout {
      */
     protected abstract void alterControlStates();
 
-    public static interface OnPageChangeListener {
+    public interface OnPageChangeListener {
         void onPageSelected(int currentPage);
-        void onPickerSelected(boolean pickExactPage);
+        void onPagePickerRequested();
     }
 }

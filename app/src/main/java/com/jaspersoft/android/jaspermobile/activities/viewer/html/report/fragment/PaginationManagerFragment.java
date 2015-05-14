@@ -86,7 +86,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
             @Override
             public void onPageSelected(int position) {
                 int currentPage = position + 1;
-                paginationControl.setCurrentPage(currentPage);
+                paginationControl.updateCurrentPage(currentPage);
 
                 boolean showNext = (currentPage == mAdapter.getCount());
                 if (paginationControl.isTotalPagesLoaded()) {
@@ -123,17 +123,17 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
             }
 
             @Override
-            public void onPickerSelected(boolean pickExactPage) {
-                if (pickExactPage) {
-                    PageDialogFragment.createBuilder(getFragmentManager())
-                            .setMaxValue(paginationControl.isTotalPagesLoaded() ? paginationControl.getTotalPages() : Integer.MAX_VALUE)
-                            .setTargetFragment(PaginationManagerFragment.this)
-                            .show();
-                } else {
+            public void onPagePickerRequested() {
+                if (paginationControl.isTotalPagesLoaded()) {
                     NumberDialogFragment.createBuilder(getFragmentManager())
                             .setMinValue(1)
                             .setCurrentValue(paginationControl.getCurrentPage())
                             .setMaxValue(paginationControl.getTotalPages())
+                            .setTargetFragment(PaginationManagerFragment.this)
+                            .show();
+                } else {
+                    PageDialogFragment.createBuilder(getFragmentManager())
+                            .setMaxValue(Integer.MAX_VALUE)
                             .setTargetFragment(PaginationManagerFragment.this)
                             .show();
                 }
@@ -141,7 +141,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
         });
 
         if (mTotalPage != 0) {
-            paginationControl.setTotalCount(mTotalPage);
+            paginationControl.updateTotalCount(mTotalPage);
             showPaginationControl();
         }
     }
@@ -164,7 +164,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
     }
 
     public void showTotalPageCount(int totalPageCount) {
-        paginationControl.setTotalCount(totalPageCount);
+        paginationControl.updateTotalCount(totalPageCount);
     }
 
     public void loadNextPageInBackground() {
@@ -174,13 +174,13 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
 
     @Override
     public void onPageSelected(int page, int requestCode) {
-        paginationControl.setCurrentPage(page);
+        paginationControl.updateCurrentPage(page);
         changePage(page);
     }
 
     @Override
     public void onPageSelected(int page) {
-        paginationControl.setCurrentPage(page);
+        paginationControl.updateCurrentPage(page);
         changePage(page);
     }
 
@@ -196,6 +196,10 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
         if (htmlViewer != null) {
             htmlViewer.setPadding(0, 0, 0, paginationControl.getHeight());
         }
+    }
+
+    private void hidePaginationControl() {
+        rootContainer.setVisibility(View.GONE);
     }
 
     private void changePage(int page) {
@@ -219,14 +223,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
                     mAdapter.clear();
                     mAdapter.addPage();
                     mAdapter.notifyDataSetChanged();
-                    paginationControl.setCurrentPage(1);
+                    paginationControl.updateCurrentPage(1);
                     viewPager.setCurrentItem(0);
                 }
 
                 @Override
                 public void onPagesLoaded(int totalPage) {
                     mTotalPage = totalPage;
-                    paginationControl.setTotalCount(mTotalPage);
+                    paginationControl.updateTotalCount(mTotalPage);
                     if (totalPage > 1) {
                         showTotalPageCount(totalPage);
                     }
@@ -249,11 +253,14 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
 
                 @Override
                 public void onSuccess(int page) {
-                    // This means that we have 2 page loaded
-                    // and that is enough to show pagination control
-                    if (page == 2) {
-                        viewPager.setSwipeable(true);
+                    boolean hasTotalPages = paginationControl.isTotalPagesLoaded();
+                    // This means that we have 2 page loaded and that is enough to show pagination control
+                    boolean isSecondPageLoaded = (page == 2);
+
+                    if (hasTotalPages && isSecondPageLoaded) {
                         showPaginationControl();
+                    } else {
+                        hidePaginationControl();
                     }
                 }
             };

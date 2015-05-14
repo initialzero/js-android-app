@@ -26,8 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,8 +33,10 @@ import android.view.MenuItem;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -75,8 +75,9 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
 
     private OnInputControlsListener mListener = new NullListener();
     private ArrayList<InputControl> inputControls;
-    private RequestExecutor requestExecutor;
+
     private boolean mShowFilterMenuItem, mLoading, mLoaded;
+    private ReportView reportView;
 
     @Override
     public void onAttach(Activity activity) {
@@ -86,17 +87,7 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         if (activity instanceof OnInputControlsListener) {
             mListener = (OnInputControlsListener) activity;
         }
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        requestExecutor = RequestExecutor.builder()
-                .setExecutionMode(RequestExecutor.Mode.VISIBLE)
-                .setFragmentManager(getFragmentManager())
-                .setSpiceManager(getSpiceManager())
-                .create();
+        reportView = (ReportView) getActivity();
     }
 
     @Override
@@ -108,6 +99,11 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
 
             GetInputControlsRequest request =
                     new GetInputControlsRequest(jsRestClient, resourceUri);
+            RequestExecutor requestExecutor = RequestExecutor.builder()
+                    .setExecutionMode(RequestExecutor.Mode.VISIBLE)
+                    .setFragmentManager(getFragmentManager())
+                    .setSpiceManager(getSpiceManager())
+                    .create();
             requestExecutor.execute(request, new GetInputControlsListener());
         }
     }
@@ -133,13 +129,20 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
+
             mLoading = false;
             mLoaded = false;
+
             ProgressDialogFragment.dismiss(getFragmentManager());
+
+            String errorMessage = RequestExceptionHandler.extractMessage(getActivity(), exception);
+            reportView.showErrorView(errorMessage);
         }
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
+            reportView.hideErrorView();
+
             mLoading = false;
             mLoaded = true;
 

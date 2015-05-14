@@ -304,7 +304,6 @@ public class AuthenticatorFragment extends RoboFragment {
 
         // Sync with legacy sdk
         JsServerProfileCompat.initLegacyJsRestClient(getActivity(), account, legacyRestClient);
-        JsRestClient.flushCookies();
 
         Toast.makeText(getActivity(),
                 getString(R.string.success_add_account, account.name),

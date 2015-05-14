@@ -62,14 +62,14 @@ public class PaginationBarView extends AbstractPaginationView {
 
     @Click
     final void firstPage() {
-        setCurrentPage(FIRST_PAGE);
+        updateCurrentPage(FIRST_PAGE);
         onPageChangeListener.onPageSelected(getCurrentPage());
     }
 
     @Click
     final void previousPage() {
         if (getCurrentPage() != FIRST_PAGE) {
-            setCurrentPage(getCurrentPage() - 1);
+            updateCurrentPage(getCurrentPage() - 1);
             onPageChangeListener.onPageSelected(getCurrentPage());
         }
     }
@@ -77,29 +77,35 @@ public class PaginationBarView extends AbstractPaginationView {
     @Click
     final void nextPage() {
         if (getCurrentPage() != getTotalPages()) {
-            setCurrentPage(getCurrentPage() + 1);
+            updateCurrentPage(getCurrentPage() + 1);
             onPageChangeListener.onPageSelected(getCurrentPage());
         }
     }
 
     @Click
     final void lastPage() {
-        setCurrentPage(getTotalPages());
+        updateCurrentPage(getTotalPages());
         onPageChangeListener.onPageSelected(getCurrentPage());
     }
 
     @Click(R.id.currentPageLabel)
     final void selectCurrentPage() {
-        onPageChangeListener.onPickerSelected(!isTotalPagesLoaded());
+        onPageChangeListener.onPagePickerRequested();
     }
 
     @Override
     protected void alterTotalCount() {
-        progressLayout.setVisibility(View.GONE);
-        totalPageLabel.setVisibility(View.VISIBLE);
-        lastPage.setEnabled(true);
-
-        totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
+        if(getTotalPages() != -1) {
+            progressLayout.setVisibility(View.GONE);
+            totalPageLabel.setVisibility(View.VISIBLE);
+            totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
+            lastPage.setEnabled(true);
+        }
+        else {
+            progressLayout.setVisibility(View.VISIBLE);
+            totalPageLabel.setVisibility(View.GONE);
+            lastPage.setEnabled(false);
+        }
     }
 
     @Override

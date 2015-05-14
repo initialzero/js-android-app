@@ -34,6 +34,7 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
@@ -42,16 +43,19 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
 /**
+ * Use {@link com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy} together with {@link com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient}
+ *
  * @author Tom Koptel
  * @since 1.9
  */
+@Deprecated
 @EBean
 public class JSWebViewClient extends WebViewClient {
     @RootContext
     protected Activity activity;
 
     private String serverUrl;
-    private SessionListener sessionListener;
+    private DefaultUrlPolicy.SessionListener sessionListener;
 
     @AfterInject
     final void initServerUrl() {
@@ -87,12 +91,8 @@ public class JSWebViewClient extends WebViewClient {
         return true;
     }
 
-    public void setSessionListener(SessionListener sessionListener) {
+    public void setSessionListener(DefaultUrlPolicy.SessionListener sessionListener) {
         this.sessionListener = sessionListener;
-    }
-
-    public static interface SessionListener {
-        void onSessionExpired();
     }
 
 }

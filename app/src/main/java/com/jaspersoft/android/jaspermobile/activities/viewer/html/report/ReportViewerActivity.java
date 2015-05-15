@@ -318,7 +318,16 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadFlowWithControls(int resultCode, Intent data) {
+        // By default we make webview invisible
+        // If any report run successful we will have this condition to be falsy
+        boolean isFirstReportMissing = (webView.getVisibility() == View.INVISIBLE);
+        boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
+
         if (resultCode == Activity.RESULT_OK) {
+            if (isNewParamsEqualOld && !isFirstReportMissing) {
+                return;
+            }
+
             mShowSavedMenuItem = false;
             supportInvalidateOptionsMenu();
             if (isFlowLoaded) {
@@ -326,13 +335,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
             } else {
                 loadFlow();
             }
-        } else {
-            // By default we make webview invisible
-            // If any report run successful we will have this condition to be falsy
-            boolean isFirstReportMissing = (webView.getVisibility() == View.INVISIBLE);
-            if (isFirstReportMissing) {
-                super.onBackPressed();
-            }
+        } else if (isFirstReportMissing) {
+            super.onBackPressed();
         }
     }
 

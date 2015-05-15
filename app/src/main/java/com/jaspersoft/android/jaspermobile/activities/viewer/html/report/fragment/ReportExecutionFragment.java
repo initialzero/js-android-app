@@ -147,7 +147,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             super.onRequestFailure(exception);
             getFilterMangerFragment().disableSaveOption();
             ProgressDialogFragment.dismiss(getFragmentManager());
-            reportView.showEmptyView();
+            showEmptyReportOptionsDialog();
         }
 
         public void onRequestSuccess(ReportExecutionResponse response) {
@@ -222,7 +222,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
             } else if (status == ReportStatus.failed) {
                 getFilterMangerFragment().disableSaveOption();
-                reportView.showEmptyView();
+                showEmptyReportOptionsDialog();
             }
         }
     }

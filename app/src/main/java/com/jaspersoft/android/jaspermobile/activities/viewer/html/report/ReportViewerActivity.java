@@ -318,9 +318,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
         // By default we make webview invisible
         // If any report run successful we will have this condition to be falsy
         boolean isFirstReportMissing = (webView.getVisibility() == View.INVISIBLE);
-        boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
 
         if (resultCode == Activity.RESULT_OK) {
+            boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
             if (isNewParamsEqualOld && !isFirstReportMissing) {
                 return;
             }

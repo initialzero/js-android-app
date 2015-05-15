@@ -89,7 +89,7 @@ public class WebViewEnvironment {
         settings.setSupportZoom(true);
         settings.setLoadWithOverviewMode(true);
         settings.setBuiltInZoomControls(true);
-        settings.setDisplayZoomControls(true);
+        settings.setDisplayZoomControls(false);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
             webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);

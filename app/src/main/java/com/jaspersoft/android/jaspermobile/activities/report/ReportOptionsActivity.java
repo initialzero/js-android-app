@@ -93,6 +93,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
     public static final String EXTRA_REPORT_URI = "ReportOptionsActivity.EXTRA_REPORT_URI";
+    public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -205,6 +206,20 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
+    private boolean isNewParamsEqualOld(ArrayList<ReportParameter> newParams) {
+        ArrayList<ReportParameter> oldParams = paramsStorage.getReportParameters(reportUri);
+
+        if (oldParams.size() != newParams.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < oldParams.size(); i++) {
+            if (!oldParams.get(i).getValues().equals(newParams.get(i).getValues())) return false;
+        }
+
+        return true;
+    }
+
     private void updateDependentControls(InputControl inputControl) {
         if (!inputControl.getSlaveDependencies().isEmpty()) {
             setRefreshActionButtonState(true);
@@ -216,6 +231,9 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     private void runReport() {
         Intent htmlViewer = new Intent();
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
+        if (isNewParamsEqualOld(parameters)) {
+            htmlViewer.putExtra(RESULT_SAME_PARAMS, true);
+        }
         paramsStorage.putReportParameters(reportUri, parameters);
         setResult(Activity.RESULT_OK, htmlViewer);
         finish();
@@ -452,7 +470,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
                 @Override
                 public void afterTextChanged(Editable editable) {
                     onStringValueChanged(inputControl, editable.toString());
-                    if(editable.length() != 0) {
+                    if (editable.length() != 0) {
                         clearDate.setVisibility(View.VISIBLE);
                     } else {
                         clearDate.setVisibility(View.GONE);

@@ -60,6 +60,7 @@ import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
@@ -121,6 +122,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
     protected FavoritesHelper favoritesHelper;
+    @Bean
+    protected ScreenUtil screenUtil;
 
     @ViewById
     protected WebView webView;
@@ -532,28 +535,27 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 ? "" : accountServerData.getOrganization();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("javascript:MobileReport.authorize")
-                .append("({")
+        builder.append("javascript:MobileReport.configure")
+                .append("({ \"auth\": ")
+                .append("{")
                 .append("\"username\": \"%s\",")
                 .append("\"password\": \"%s\",")
                 .append("\"organization\": \"%s\"")
-                .append("})");
-        String authScript = String.format(builder.toString(),
-                accountServerData.getUsername(),
-                accountServerData.getPassword(),
-                organization);
-        webView.loadUrl(authScript);
-
-        builder = new StringBuilder();
-        builder.append("javascript:MobileReport.run")
-                .append("({")
+                .append("}, ")
+                .append("\"diagonal\": %s ")
+                .append("})")
+                .append(".run({")
                 .append("\"uri\": \"%s\",")
                 .append("\"params\": %s")
                 .append("})");
-
         String executeScript = String.format(builder.toString(),
+                accountServerData.getUsername(),
+                accountServerData.getPassword(),
+                organization,
+                screenUtil.getDiagonal(),
                 resource.getUri(),
-                params);
+                params
+                );
         webView.loadUrl(executeScript);
     }
 

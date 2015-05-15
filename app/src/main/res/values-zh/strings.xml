@@ -50,7 +50,6 @@
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">此文件夹中没有资源。</string>
-    <string name="r_search_nothing_to_display">没有搜索到任何结果。</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">切换视图</string>
@@ -97,7 +96,6 @@
     <string name="rv_ab_show_filters">显示过滤器</string>
     <string name="rv_error_empty_report">不存在报告数据</string>
     <string name="rv_select_page">选择页面</string>
-    <string name="rv_out_of_range">所请求页面超出范围</string>
     <string name="rv_dialog_reload">重新加载</string>
 
     <!-- Toasts -->
@@ -105,33 +103,23 @@
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">保存报告</string>
-    <string name="sr_report_name">报告名称</string>
     <string name="sr_output_format">输出格式</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">成功保存报告</string>
     <!-- Error messages -->
-    <string name="sr_error_field_is_empty">不能为空</string>
-    <string name="sr_error_characters_not_allowed">不能包含以下任何字符 * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sr_error_report_exists">已存在具有该名称的报告</string>
 
     <!-- Favorites activity -->
     <string name="f_title">收藏夹</string>
-    <string name="f_empty_list_msg">无收藏夹条目</string>
 
     <!-- Saved Reports Activity -->
-    <string name="sdr_ab_title">已保存项目</string>
 
     <!-- Context Menu -->
     <string name="sdr_cm_rename">重命名</string>
     <string name="sdr_cm_delete">删除</string>
 
     <!-- Rename Report Dialog -->
-    <string name="sdr_rrd_title">重命名报告</string>
     <string name="sdr_rrd_msg">输入新名称:</string>
-    <string name="sdr_rrd_hint">报告名称</string>
     <string name="sdr_rrd_error_name_is_empty">不能为空</string>
-    <string name="sdr_rrd_error_characters_not_allowed">不能包含以下任何字符 * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sdr_rrd_error_report_exists">已存在具有该名称的报告</string>
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">删除报告</string>
@@ -150,7 +138,6 @@
     <string name="st_title_cache_expiration">缓存过期</string>
     <string name="st_title_connect_timeout">连接超时</string>
     <string name="st_title_read_timeout">数据读取超时</string>
-    <string name="st_title_animations">应用程序动画</string>
     <string name="st_send_crashes">发送崩溃报告</string>
     <string name="st_summary_cache_enable">缓存存储库要求指定的时间量</string>
     <string name="st_summary_sec">%s 秒</string>
@@ -185,7 +172,6 @@
     <string name="of"><![CDATA[/%d]]></string>
     <string name="dialog_current_page">设置当前页</string>
     <string name="rv_error_empty_report_title">报告为空</string>
-    <string name="h_rd_description">如果你喜欢使用TIBCO JasperMobile，你介意花一点时间给它评分吗？不会超过一分钟。感谢您的支持！</string>
     <string name="h_rd_later">稍后提醒我</string>
     <string name="h_rd_never">不，谢谢</string>
     <string name="h_rd_rate">给TIBCO JasperMobile评分</string>

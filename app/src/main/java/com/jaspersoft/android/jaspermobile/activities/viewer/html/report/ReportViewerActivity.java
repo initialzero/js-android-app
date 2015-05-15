@@ -100,6 +100,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import rx.functions.Action1;
+
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
 /**
@@ -179,9 +181,15 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @AfterViews
     final void init() {
-        setupPaginationControl();
-        initWebView();
-        loadInputControls();
+        CookieManagerFactory.syncCookies(this)
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean aBoolean) {
+                        setupPaginationControl();
+                        initWebView();
+                        loadInputControls();
+                    }
+                });
     }
 
     private void loadInputControls() {

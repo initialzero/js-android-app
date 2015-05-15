@@ -204,7 +204,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         webView.setWebViewClient(jsWebViewClient);
 
-        CookieManagerFactory.syncCookies(getActivity());
+        CookieManagerFactory.syncCookies(getActivity()).subscribe();
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)

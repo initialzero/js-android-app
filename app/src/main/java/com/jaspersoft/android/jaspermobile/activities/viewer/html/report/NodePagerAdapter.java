@@ -4,13 +4,13 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class NodePagerAdapter extends FragmentPagerAdapter {
+public class NodePagerAdapter extends FragmentStatePagerAdapter {
     private final FragmentCreator<Fragment, Integer> mCreator;
     private int mCount;
 

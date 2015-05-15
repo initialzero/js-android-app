@@ -103,7 +103,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     private OnPageLoadListener onPageLoadListener;
     private RequestExecutor requestExecutor;
     private ServerRelease mRelease;
-    private boolean mReportNotFound;
+    private boolean mPageNotFound;
 
     @OptionsItem
     final void refreshAction() {
@@ -126,12 +126,11 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                 .create();
         reportSession.registerObserver(sessionObserver);
         prepareWebView();
+        showReportPage();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (!mReportNotFound) {
+    public void showReportPage() {
+        if (!mPageNotFound) {
             if (TextUtils.isEmpty(currentHtml)) {
                 fetchReport();
             } else {
@@ -238,7 +237,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         if (exception.getCause() instanceof HttpClientErrorException) {
             HttpClientErrorException httpError = (HttpClientErrorException) exception.getCause();
             HttpStatus status = httpError.getStatusCode();
-            mReportNotFound = (status == HttpStatus.NOT_FOUND);
+            mPageNotFound = (status == HttpStatus.NOT_FOUND);
         }
     }
 

@@ -29,7 +29,6 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.FragmentCreator;
@@ -41,7 +40,6 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.widget.JSViewPager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -59,16 +57,13 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
 
     public static final String TAG = PaginationManagerFragment.class.getSimpleName();
 
-    @Inject
-    private JsRestClient jsRestClient;
-
     @ViewById
     protected View rootContainer;
     @ViewById
     protected AbstractPaginationView paginationControl;
 
     @InstanceState
-    protected int mTotalPage;
+    protected int mTotalPage = -1;
 
     @Bean
     protected ReportSession reportSession;
@@ -140,7 +135,7 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
             }
         });
 
-        if (mTotalPage != 0) {
+        if (mTotalPage != -1) {
             paginationControl.updateTotalCount(mTotalPage);
             showPaginationControl();
         }
@@ -220,10 +215,11 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
             new ReportSession.ExecutionObserver() {
                 @Override
                 public void onRequestIdChanged(String requestId) {
+                    mTotalPage = -1;
                     mAdapter.clear();
                     mAdapter.addPage();
                     mAdapter.notifyDataSetChanged();
-                    paginationControl.updateCurrentPage(1);
+                    paginationControl.reset();
                     viewPager.setCurrentItem(0);
                 }
 
@@ -233,6 +229,9 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
                     paginationControl.updateTotalCount(mTotalPage);
                     if (totalPage > 1) {
                         showTotalPageCount(totalPage);
+                        showPaginationControl();
+                    } else {
+                        hidePaginationControl();
                     }
                 }
             };
@@ -253,14 +252,10 @@ public class PaginationManagerFragment extends RoboSpiceFragment implements Numb
 
                 @Override
                 public void onSuccess(int page) {
-                    boolean hasTotalPages = paginationControl.isTotalPagesLoaded();
-                    // This means that we have 2 page loaded and that is enough to show pagination control
                     boolean isSecondPageLoaded = (page == 2);
-
-                    if (hasTotalPages && isSecondPageLoaded) {
+                    boolean isMultiPage = isSecondPageLoaded || mTotalPage > 1;
+                    if (isMultiPage) {
                         showPaginationControl();
-                    } else {
-                        hidePaginationControl();
                     }
                 }
             };

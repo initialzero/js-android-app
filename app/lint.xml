@@ -28,6 +28,7 @@
     <issue id="MergeRootFrame" severity="Warning" />
     <issue id="RtlEnabled" severity="Warning" />
     <issue id="InvalidPackage" severity="Warning" />
+    <issue id="LongLogTag" severity="Warning" />
 
     <!-- Ignore the ObsoleteLayoutParam issue in the given files -->
     <issue id="UselessParent">

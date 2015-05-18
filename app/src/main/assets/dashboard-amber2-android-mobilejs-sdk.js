@@ -103,14 +103,14 @@
 
       DashboardController.include(lifecycle.dashboardController.instanceMethods);
 
-      function DashboardController(callback, scaler, options) {
+      function DashboardController(callback, scaler, params) {
         this.callback = callback;
         this.scaler = scaler;
         this._clickCallback = bind(this._clickCallback, this);
         this._processSuccess = bind(this._processSuccess, this);
         this._executeDashboard = bind(this._executeDashboard, this);
-        this.uri = options.uri;
-        this.scaler.initialize();
+        this.uri = params.uri, this.session = params.session;
+        this.scaler.applyScale();
       }
 
       DashboardController.prototype.destroyDashboard = function() {
@@ -155,7 +155,11 @@
       DashboardController.prototype.runDashboard = function() {
         this._scaleDashboard();
         this.callback.onLoadStart();
-        return visualize(this._executeDashboard, this._processErrors);
+        if (this.session != null) {
+          return visualize(this.session.authOptions(), this._executeDashboard, this._processErrors);
+        } else {
+          return visualize(this._executeDashboard, this._processErrors);
+        }
       };
 
       DashboardController.prototype._executeDashboard = function(v) {
@@ -305,25 +309,52 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.scaler', [],function() {
-    var Scaler;
-    return Scaler = (function() {
-      function Scaler(options) {
-        this.diagonal = options.diagonal;
+  define('js.mobile.scale.calculator', [],function() {
+    var ScaleCalculator;
+    return ScaleCalculator = (function() {
+      function ScaleCalculator(diagonal) {
+        this.diagonal = diagonal;
         this.diagonal || (this.diagonal = 10.1);
       }
 
-      Scaler.prototype.initialize = function() {
-        var factor;
-        factor = this._calculateFactor();
-        return this._generateStyles(factor);
-      };
-
-      Scaler.prototype._calculateFactor = function() {
+      ScaleCalculator.prototype.calculateFactor = function() {
         return this.diagonal / 10.1;
       };
 
-      Scaler.prototype._generateStyles = function(factor) {
+      return ScaleCalculator;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.scale.style.report', [],function() {
+    var ScaleStyleReport;
+    return ScaleStyleReport = (function() {
+      function ScaleStyleReport() {}
+
+      ScaleStyleReport.prototype.applyFor = function(factor) {
+        var scaledCanvasCss;
+        jQuery("#scale_style").remove();
+        scaledCanvasCss = "#container { position: absolute; width: " + (100 / factor) + "%; height: " + (100 / factor) + "%; }";
+        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss).appendTo('head');
+      };
+
+      return ScaleStyleReport;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.scale.style.dashboard', [],function() {
+    var ScaleStyleDashboard;
+    return ScaleStyleDashboard = (function() {
+      function ScaleStyleDashboard() {}
+
+      ScaleStyleDashboard.prototype.applyFor = function(factor) {
         var originalDashletInScaledCanvasCss, scaledCanvasCss;
         jQuery("#scale_style").remove();
         scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
@@ -331,7 +362,40 @@
         jQuery('<style id="scale_style"></style>').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
       };
 
-      return Scaler;
+      return ScaleStyleDashboard;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.scale.manager', ['require','js.mobile.scale.calculator','js.mobile.scale.style.report','js.mobile.scale.style.dashboard'],function(require) {
+    var ScaleCalculator, ScaleManager, ScaleStyleDashboard, ScaleStyleReport;
+    ScaleCalculator = require('js.mobile.scale.calculator');
+    ScaleStyleReport = require('js.mobile.scale.style.report');
+    ScaleStyleDashboard = require('js.mobile.scale.style.dashboard');
+    return ScaleManager = (function() {
+      ScaleManager.getReportManager = function(diagonal) {
+        return new ScaleManager(diagonal, new ScaleStyleReport());
+      };
+
+      ScaleManager.getDashboardManager = function(diagonal) {
+        return new ScaleManager(diagonal, new ScaleStyleDashboard());
+      };
+
+      function ScaleManager(diagonal, scaleStyle) {
+        this.scaleStyle = scaleStyle;
+        this.calculator = new ScaleCalculator(diagonal);
+      }
+
+      ScaleManager.prototype.applyScale = function() {
+        var factor;
+        factor = this.calculator.calculateFactor();
+        return this.scaleStyle.applyFor(factor);
+      };
+
+      return ScaleManager;
 
     })();
   });
@@ -342,11 +406,11 @@
   var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  define('js.mobile.amber2.dashboard', ['require','js.mobile.amber2.dashboard.controller','js.mobile.session','js.mobile.scaler','js.mobile.lifecycle','js.mobile.module'],function(require) {
-    var DashboardController, MobileDashboard, Module, Scaler, Session, lifecycle;
+  define('js.mobile.amber2.dashboard', ['require','js.mobile.amber2.dashboard.controller','js.mobile.session','js.mobile.scale.manager','js.mobile.lifecycle','js.mobile.module'],function(require) {
+    var DashboardController, MobileDashboard, Module, ScaleManager, Session, lifecycle;
     DashboardController = require('js.mobile.amber2.dashboard.controller');
     Session = require('js.mobile.session');
-    Scaler = require('js.mobile.scaler');
+    ScaleManager = require('js.mobile.scale.manager');
     lifecycle = require('js.mobile.lifecycle');
     Module = require('js.mobile.module');
     MobileDashboard = (function(superClass) {
@@ -362,19 +426,33 @@
         return this._instance || (this._instance = new MobileDashboard(args));
       };
 
+      MobileDashboard.authorize = function(options) {
+        return this._instance._authorize(options);
+      };
+
+      MobileDashboard.prototype._authorize = function(options) {
+        return this.session = new Session(options);
+      };
+
       MobileDashboard.configure = function(configs) {
         this._instance._configure(configs);
         return this._instance;
       };
 
       MobileDashboard.prototype._configure = function(configs) {
-        return this.scaler = new Scaler({
-          diagonal: configs.diagonal
-        });
+        return this.scaler = ScaleManager.getDashboardManager(options.diagonal);
       };
 
       MobileDashboard.run = function(params) {
-        return this._instance.run(params);
+        return this._instance._legacyRun(params);
+      };
+
+      MobileDashboard.prototype._legacyRun = function(params) {
+        var scaler;
+        params.session = this.session;
+        scaler = ScaleManager.getDashboardManager(options.diagonal);
+        this._controller = new DashboardController(this.callback, scaler, params);
+        return this._controller.runDashboard();
       };
 
       MobileDashboard.prototype.run = function(params) {
@@ -400,7 +478,7 @@
 
       function MobileDashboard(args) {
         this.callback = args.callback;
-        this.scaler = new Scaler({});
+        this.scaler = ScaleManager.getDashboardManager;
         this.callback.onScriptLoaded();
       }
 

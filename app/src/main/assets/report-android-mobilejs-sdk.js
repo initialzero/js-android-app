@@ -291,7 +291,9 @@
 
       ReportController.include(lifecycle.reportController.instanceMethods);
 
-      function ReportController(options) {
+      function ReportController(callback1, scaler, options) {
+        this.callback = callback1;
+        this.scaler = scaler;
         this._processLinkClicks = bind(this._processLinkClicks, this);
         this._processErrors = bind(this._processErrors, this);
         this._processSuccess = bind(this._processSuccess, this);
@@ -314,7 +316,7 @@
         this._runReportWithoutAuth = bind(this._runReportWithoutAuth, this);
         this._runReportOnTheVersionBasis = bind(this._runReportOnTheVersionBasis, this);
         this.refresh = bind(this.refresh, this);
-        this.callback = options.callback, this.uri = options.uri, this.session = options.session, this.params = options.params, this.pages = options.pages;
+        this.session = options.session, this.uri = options.uri, this.params = options.params, this.pages = options.pages;
         js_mobile.log(this.uri);
         this.params || (this.params = {});
         this.totalPages = 0;
@@ -323,6 +325,7 @@
 
       ReportController.prototype.runReport = function() {
         js_mobile.log("runReport");
+        this.scaler.applyScale();
         this.callback.onLoadStart();
         return this._getServerVersion(this._runReportOnTheVersionBasis);
       };
@@ -591,13 +594,108 @@
 }).call(this);
 
 (function() {
+  define('js.mobile.scale.calculator', [],function() {
+    var ScaleCalculator;
+    return ScaleCalculator = (function() {
+      function ScaleCalculator(diagonal) {
+        this.diagonal = diagonal;
+        this.diagonal || (this.diagonal = 10.1);
+      }
+
+      ScaleCalculator.prototype.calculateFactor = function() {
+        return this.diagonal / 10.1;
+      };
+
+      return ScaleCalculator;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.scale.style.report', [],function() {
+    var ScaleStyleReport;
+    return ScaleStyleReport = (function() {
+      function ScaleStyleReport() {}
+
+      ScaleStyleReport.prototype.applyFor = function(factor) {
+        var scaledCanvasCss;
+        jQuery("#scale_style").remove();
+        scaledCanvasCss = "#container { position: absolute; width: " + (100 / factor) + "%; height: " + (100 / factor) + "%; }";
+        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss).appendTo('head');
+      };
+
+      return ScaleStyleReport;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.scale.style.dashboard', [],function() {
+    var ScaleStyleDashboard;
+    return ScaleStyleDashboard = (function() {
+      function ScaleStyleDashboard() {}
+
+      ScaleStyleDashboard.prototype.applyFor = function(factor) {
+        var originalDashletInScaledCanvasCss, scaledCanvasCss;
+        jQuery("#scale_style").remove();
+        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
+        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
+        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
+      };
+
+      return ScaleStyleDashboard;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.scale.manager', ['require','js.mobile.scale.calculator','js.mobile.scale.style.report','js.mobile.scale.style.dashboard'],function(require) {
+    var ScaleCalculator, ScaleManager, ScaleStyleDashboard, ScaleStyleReport;
+    ScaleCalculator = require('js.mobile.scale.calculator');
+    ScaleStyleReport = require('js.mobile.scale.style.report');
+    ScaleStyleDashboard = require('js.mobile.scale.style.dashboard');
+    return ScaleManager = (function() {
+      ScaleManager.getReportManager = function(diagonal) {
+        return new ScaleManager(diagonal, new ScaleStyleReport());
+      };
+
+      ScaleManager.getDashboardManager = function(diagonal) {
+        return new ScaleManager(diagonal, new ScaleStyleDashboard());
+      };
+
+      function ScaleManager(diagonal, scaleStyle) {
+        this.scaleStyle = scaleStyle;
+        this.calculator = new ScaleCalculator(diagonal);
+      }
+
+      ScaleManager.prototype.applyScale = function() {
+        var factor;
+        factor = this.calculator.calculateFactor();
+        return this.scaleStyle.applyFor(factor);
+      };
+
+      return ScaleManager;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
   var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  define('js.mobile.report', ['require','js.mobile.session','js.mobile.report.controller','js.mobile.lifecycle','js.mobile.module'],function(require) {
-    var MobileReport, Module, ReportController, Session, lifecycle;
+  define('js.mobile.report', ['require','js.mobile.session','js.mobile.report.controller','js.mobile.scale.manager','js.mobile.lifecycle','js.mobile.module'],function(require) {
+    var MobileReport, Module, ReportController, ScaleManager, Session, lifecycle;
     Session = require('js.mobile.session');
     ReportController = require('js.mobile.report.controller');
+    ScaleManager = require('js.mobile.scale.manager');
     lifecycle = require('js.mobile.lifecycle');
     Module = require('js.mobile.module');
     MobileReport = (function(superClass) {
@@ -617,12 +715,23 @@
         return this._instance._authorize(options);
       };
 
-      MobileReport.destroy = function() {
-        return this._instance._destroyReport();
+      MobileReport.configure = function(options) {
+        this._instance._configure(options);
+        return this._instance;
+      };
+
+      MobileReport.prototype.run = function(options) {
+        options.session = this.session;
+        this._controller = new ReportController(this.callback, this.scaler, options);
+        return this._controller.runReport();
       };
 
       MobileReport.run = function(options) {
-        return this._instance._run(options);
+        return this._instance.run(options);
+      };
+
+      MobileReport.destroy = function() {
+        return this._instance._destroyReport();
       };
 
       MobileReport.selectPage = function(page) {
@@ -641,24 +750,23 @@
         return this._instance._applyReportParams(params);
       };
 
-      function MobileReport(args1) {
-        this.args = args1;
-        this.args.callback.onScriptLoaded();
+      function MobileReport(args) {
+        this.callback = args.callback;
+        this.scaler = ScaleManager.getReportManager;
+        this.callback.onScriptLoaded();
       }
 
       MobileReport.prototype._authorize = function(options) {
         return this.session = new Session(options);
       };
 
-      MobileReport.prototype._destroyReport = function() {
-        return this._controller.destroyReport();
+      MobileReport.prototype._configure = function(options) {
+        this.scaler = ScaleManager.getReportManager(options.diagonal);
+        return this.session = new Session(options.auth);
       };
 
-      MobileReport.prototype._run = function(options) {
-        options.session = this.session;
-        options.callback = this.args.callback;
-        this._controller = new ReportController(options);
-        return this._controller.runReport();
+      MobileReport.prototype._destroyReport = function() {
+        return this._controller.destroyReport();
       };
 
       MobileReport.prototype._selectPage = function(page) {

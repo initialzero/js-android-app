@@ -80,7 +80,6 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         super.onCreate(savedInstanceState);
         mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
-        loadFlow();
         showMenuItems();
     }
 
@@ -135,6 +134,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
                 .configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
         showInitialLoader();
+        loadFlow();
     }
 
     @Override

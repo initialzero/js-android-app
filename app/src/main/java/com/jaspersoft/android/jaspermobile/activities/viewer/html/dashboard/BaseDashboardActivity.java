@@ -36,6 +36,7 @@ import android.widget.ProgressBar;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
@@ -49,6 +50,8 @@ import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+
+import rx.functions.Action1;
 
 /**
  * Activity that performs dashboard viewing in HTML format through native component.
@@ -101,9 +104,13 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
         webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-
-
-        initWebView();
+        CookieManagerFactory.syncCookies(this)
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean aBoolean) {
+                        initWebView();
+                    }
+                });
     }
 
     @Override

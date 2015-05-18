@@ -28,7 +28,7 @@ import android.annotation.SuppressLint;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.WebInterface;
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 
 /**
  * @author Tom Koptel

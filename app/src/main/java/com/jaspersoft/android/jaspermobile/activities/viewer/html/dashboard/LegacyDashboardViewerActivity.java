@@ -54,11 +54,11 @@ public class LegacyDashboardViewerActivity extends BaseDashboardActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         scrollableTitleHelper.injectTitle(resource.getLabel());
-        loadFlow();
     }
 
     @Override
     public void onWebViewConfigured(WebView webView) {
+        loadFlow();
     }
 
     @Override

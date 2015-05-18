@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
+
 /**
  * @author Tom Koptel
  * @since 2.0

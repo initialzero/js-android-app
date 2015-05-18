@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
+package com.jaspersoft.android.jaspermobile.webview;
 
 import android.webkit.WebView;
 

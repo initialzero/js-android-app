@@ -139,7 +139,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Override
     public void onPageFinished() {
-        webView.loadUrl(ScriptTagFactory.getInstance(this).getTagCreator().createTag());
+        webView.loadUrl(ScriptTagFactory.getInstance(this).getTagCreator(resource).createTag());
     }
 
     @Override

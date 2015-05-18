@@ -6,9 +6,9 @@
 
     <com.jaspersoft.android.jaspermobile.widget.JSViewPager
         android:id="@+id/viewPager"
-        android:background="@android:color/white"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@android:color/white" />
 
     <FrameLayout
         android:id="@+id/control"
@@ -17,11 +17,13 @@
 
     <TextView
         android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:background="@android:color/white"
+        android:gravity="center"
         android:text="@string/rv_error_empty_report"
         android:textColor="@android:color/black"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:visibility="gone" />
 
 </FrameLayout>

@@ -28,8 +28,8 @@ import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.text.TextUtils;
 import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
@@ -61,8 +61,6 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * @author Tom Koptel
@@ -85,8 +83,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     protected int page;
 
     @InstanceState
-    protected String currentHtml;
-    @InstanceState
     protected boolean outputFinal;
 
     @Inject
@@ -103,7 +99,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     private OnPageLoadListener onPageLoadListener;
     private RequestExecutor requestExecutor;
     private ServerRelease mRelease;
-    private boolean mPageNotFound;
 
     @OptionsItem
     final void refreshAction() {
@@ -126,17 +121,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                 .create();
         reportSession.registerObserver(sessionObserver);
         prepareWebView();
-        showReportPage();
-    }
-
-    public void showReportPage() {
-        if (!mPageNotFound) {
-            if (TextUtils.isEmpty(currentHtml)) {
-                fetchReport();
-            } else {
-                loadHtml(currentHtml);
-            }
-        }
+        fetchReport();
     }
 
     @Override
@@ -171,14 +156,12 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
             throw new IllegalStateException("Client can`t be null");
         }
 
-        if (!html.equals(currentHtml)) {
-            currentHtml = html;
-        }
         String mime = "text/html";
         String encoding = "utf-8";
+        attachDataLoadListener();
         webView.loadDataWithBaseURL(
                 jsRestClient.getServerProfile().getServerUrl(),
-                currentHtml, mime, encoding, null);
+                html, mime, encoding, null);
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
@@ -202,7 +185,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
 
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         webView.setWebViewClient(jsWebViewClient);
-
         CookieManagerFactory.syncCookies(getActivity());
     }
 
@@ -215,6 +197,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
 
     private void fetchReport() {
         progressBar.setVisibility(View.VISIBLE);
+        webView.setVisibility(View.INVISIBLE);
         reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
     }
 
@@ -230,15 +213,22 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         }
     }
 
-    /**
-     * Caching 404 error for later use in lifecycle events of fragment
-     */
-    private void cacheNotFoundHttpException(Exception exception) {
-        if (exception.getCause() instanceof HttpClientErrorException) {
-            HttpClientErrorException httpError = (HttpClientErrorException) exception.getCause();
-            HttpStatus status = httpError.getStatusCode();
-            mPageNotFound = (status == HttpStatus.NOT_FOUND);
-        }
+    private void attachDataLoadListener() {
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+                if (newProgress == 100) {
+                    detachDataLoadListener();
+                    webView.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    private void detachDataLoadListener(){
+        webView.setWebChromeClient(null);
     }
 
     //---------------------------------------------------------------------
@@ -283,7 +273,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     private class ExportResultListener implements ReportExportOutputLoader.ResultListener {
         @Override
         public void onFailure(Exception exception) {
-            cacheNotFoundHttpException(exception);
             progressBar.setVisibility(View.GONE);
             showErrorText();
             if (onPageLoadListener != null) {
@@ -293,7 +282,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
 
         @Override
         public void onSuccess(ExportOutputData output) {
-            progressBar.setVisibility(View.GONE);
             outputFinal = output.isFinal();
             hideErrorText();
             loadHtml(output.getData());
@@ -328,6 +316,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
 
     public interface OnPageLoadListener {
         void onFailure(Exception exception);
+
         void onSuccess(int page);
     }
 

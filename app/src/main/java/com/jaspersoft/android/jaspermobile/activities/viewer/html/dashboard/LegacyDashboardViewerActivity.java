@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
@@ -54,16 +55,17 @@ public class LegacyDashboardViewerActivity extends BaseDashboardActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         scrollableTitleHelper.injectTitle(resource.getLabel());
-        loadFlow();
     }
 
     @Override
     public void onWebViewConfigured(WebView webView) {
+        loadFlow();
     }
 
     @Override
     public void onPageFinished() {
-        webView.loadUrl(ScriptTagFactory.getInstance(this).getTagCreator().createTag());
+        webView.loadUrl(ScriptTagFactory.getInstance(this).getTagCreator(resource).createTag());
+        webView.setVisibility(View.VISIBLE);
     }
 
     @Override

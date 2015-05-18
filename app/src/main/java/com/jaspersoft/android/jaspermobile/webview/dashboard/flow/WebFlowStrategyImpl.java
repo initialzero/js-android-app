@@ -30,10 +30,7 @@ import android.webkit.WebView;
 
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-
-import java.util.HashMap;
 
 /**
  * @author Tom Koptel
@@ -56,17 +53,7 @@ class WebFlowStrategyImpl implements WebFlowStrategy {
     public void load(WebView webView) {
         String serverUrl = mServerData.getServerUrl();
         String flow = serverUrl + mWebFlow.getFlowUri() + mUri;
-        webView.loadUrl(flow, getDefaultHeaders());
+        webView.loadUrl(flow);
     }
 
-    private HashMap<String, String> getDefaultHeaders() {
-        BasicAccessTokenEncoder tokenEncoder = BasicAccessTokenEncoder.builder()
-                .setUsername(mServerData.getUsername())
-                .setOrganization(mServerData.getOrganization())
-                .setPassword(mServerData.getPassword())
-                .build();
-        HashMap<String, String> map = new HashMap<String, String>();
-        map.put("Authorization", tokenEncoder.encodeToken());
-        return map;
-    }
 }

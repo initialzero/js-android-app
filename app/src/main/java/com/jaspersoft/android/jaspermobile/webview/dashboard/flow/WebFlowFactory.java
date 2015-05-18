@@ -63,24 +63,24 @@ public final class WebFlowFactory {
         WebFlow webFlow;
         ServerRelease serverRelease = ServerRelease.parseVersion(versionName);
 
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-                webFlow = new EmeraldWebFlow();
-                break;
-            case AMBER:
-            case AMBER_MR1:
-            case AMBER_MR2:
-                if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
+        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
+            webFlow = new EmeraldWebFlow();
+        } else {
+            switch (serverRelease) {
+                case EMERALD:
+                case EMERALD_MR1:
+                case EMERALD_MR2:
+                case EMERALD_MR3:
                     webFlow = new EmeraldWebFlow();
-                } else {
+                    break;
+                case AMBER:
+                case AMBER_MR1:
+                case AMBER_MR2:
                     webFlow = new AmberWebFlow();
-                }
-                break;
-            default:
-                throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);
+            }
         }
 
         return new WebFlowStrategyImpl(mContext, webFlow, resource);

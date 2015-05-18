@@ -32,6 +32,7 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInt
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
  * @author Tom Koptel
@@ -48,8 +49,12 @@ public class ScriptTagFactory {
         return new ScriptTagFactory(context);
     }
 
-    public ScriptTagCreator getTagCreator() {
+    public ScriptTagCreator getTagCreator(ResourceLookup resource) {
         String token = DashboardRequestInterceptor.INJECTION_TOKEN;
+        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
+            return new EmeraldDashboardScriptTagCreator(token);
+        }
+
         Account account = JasperAccountManager.get(mContext).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(mContext, account);
         String versionName = accountServerData.getVersionName();

@@ -34,7 +34,6 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -61,8 +60,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-
-import rx.functions.Action1;
 
 /**
  * @author Tom Koptel
@@ -97,14 +94,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
         accountServerData = AccountServerData.get(this, account);
-
-        CookieManagerFactory.syncCookies(this)
-                .subscribe(new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        loadFlow();
-                    }
-                });
     }
 
     @Override
@@ -143,6 +132,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onWebViewConfigured(WebView webView) {
         WebViewEnvironment.configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
+        loadFlow();
     }
 
     @UiThread

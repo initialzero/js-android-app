@@ -35,8 +35,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.WebInterface;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 

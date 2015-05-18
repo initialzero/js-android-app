@@ -75,11 +75,11 @@ public class RequestExceptionHandler {
         }
 
         int statusCode = extractStatusCode(exception);
-        String message = extractMessage(context, statusCode);
+        String message = extractMessage(context, exception, statusCode);
         if (TextUtils.isEmpty(message)) {
             return exception.getLocalizedMessage();
         } else {
-            return extractMessage(context, statusCode);
+            return extractMessage(context, exception, statusCode);
         }
     }
 
@@ -112,18 +112,30 @@ public class RequestExceptionHandler {
      * Extracts Localized message otherwise returns null.
      */
     @Nullable
-    private static String extractMessage(@NonNull Context context, int statusCode) {
+    private static String extractMessage(@NonNull Context context, @NonNull Exception exception, int statusCode) {
         if (statusCode == 0) {
             return null;
         } else {
             if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
                 return context.getString(R.string.r_error_server_not_found);
-            } else {
-                HttpStatus httpStatus = HttpStatus.valueOf(statusCode);
-                ExceptionRule rule = ExceptionRule.all().get(httpStatus);
+            }
+
+            Throwable cause = exception.getCause();
+            if (cause == null) {
+                return exception.getLocalizedMessage();
+            }
+
+            if (cause instanceof HttpStatusCodeException) {
+                ExceptionRule rule = ExceptionRule.all().get(((HttpStatusCodeException) cause).getStatusCode());
                 int messageId = rule.getMessage();
                 return context.getString(messageId);
             }
+            Throwable tokenCause = cause.getCause();
+            if (tokenCause instanceof JasperAccountManager.TokenException) {
+                return tokenCause.getLocalizedMessage();
+            }
+
+            return exception.getLocalizedMessage();
         }
     }
 

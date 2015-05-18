@@ -129,11 +129,18 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadReportParameters(int resultCode, Intent data) {
+        boolean isFirstReportMissing = !hasSnapshot();
+
         if (resultCode == Activity.RESULT_OK) {
+            boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
+            if (isNewParamsEqualOld && !isFirstReportMissing) {
+                return;
+            }
+
             getReportExecutionFragment().executeReport(getReportParameters());
         } else {
             // Check if user has experienced report loading. Otherwise remove him from this page.
-            if (!hasSnapshot()) {
+            if (isFirstReportMissing) {
                 getActivity().finish();
             }
         }

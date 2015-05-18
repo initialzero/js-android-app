@@ -55,6 +55,9 @@ android {
         targetSdkVersion androidTargetSdkVersion
 
         testInstrumentationRunner INSTRUMENTATION_RUNNER
+
+        versionCode 15020000
+        versionName "2.0"
     }
 
     if (project.hasProperty('JMA_STORE_FILE')) {

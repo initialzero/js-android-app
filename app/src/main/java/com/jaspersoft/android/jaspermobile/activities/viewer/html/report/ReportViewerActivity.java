@@ -450,7 +450,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onMultiPageStateObtained(boolean isMultiPage) {
-        boolean needToShowPagination = isMultiPage && (!paginationControl.isTotalPagesLoaded() || paginationControl.getTotalPages() > 1);
+        // Because of bug on JRS (return true for empty report) we need to check that count != 0
+        boolean needToShowPagination = isMultiPage && paginationControl.getTotalPages() != 0;
         paginationControl.setVisibility(needToShowPagination ? View.VISIBLE : View.GONE);
     }
 

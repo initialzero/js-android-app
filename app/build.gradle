@@ -119,6 +119,10 @@ android {
             }
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 apt {

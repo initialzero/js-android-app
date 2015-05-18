@@ -3,8 +3,8 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.suppor
 
 import org.androidannotations.annotations.EBean;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Tom Koptel
@@ -14,7 +14,7 @@ import java.util.List;
 public class ReportSession {
     private String requestId;
     private int totalPage;
-    private final List<ExecutionObserver> observers = new ArrayList<ExecutionObserver>();
+    private final List<ExecutionObserver> observers = new CopyOnWriteArrayList<>();
 
     public void registerObserver(ExecutionObserver observer) {
         observers.add(observer);

@@ -101,6 +101,8 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
         webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
+
+
         initWebView();
     }
 

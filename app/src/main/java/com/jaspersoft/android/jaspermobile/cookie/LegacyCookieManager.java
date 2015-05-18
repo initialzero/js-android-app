@@ -27,12 +27,17 @@ package com.jaspersoft.android.jaspermobile.cookie;
 import android.content.Context;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.ValueCallback;
 
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
+import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -48,25 +53,40 @@ public class LegacyCookieManager implements JsCookieManager{
     }
 
     @Override
-    public void manage() {
-        JasperAccountManager.get(mContext)
+    public Observable<Boolean> manage() {
+        return JasperAccountManager.get(mContext)
                 .getAsyncActiveServerData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<AccountServerData>() {
+                .flatMap(new Func1<AccountServerData, Observable<Boolean>>() {
                     @Override
-                    public void call(AccountServerData serverData) {
-                        CookieSyncManager.createInstance(mContext);
+                    public Observable<Boolean> call(final AccountServerData accountServerData) {
+                        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+                            @Override
+                            public void call(final Subscriber<? super Boolean> subscriber) {
+                                CookieSyncManager.createInstance(mContext);
 
-                        final CookieManager cookieManager = CookieManager.getInstance();
-                        cookieManager.removeSessionCookie();
-                        cookieManager.setCookie(serverData.getServerUrl(), serverData.getServerCookie());
-                        CookieSyncManager.getInstance().sync();
+                                final CookieManager cookieManager = CookieManager.getInstance();
+                                cookieManager.removeSessionCookie();
+                                cookieManager.setCookie(accountServerData.getServerUrl(), accountServerData.getServerCookie());
+                                CookieSyncManager.getInstance().sync();
+                                subscriber.onNext(true);
+                                subscriber.onCompleted();
+                            }
+                        });
                     }
-                }, new Action1<Throwable>() {
+                })
+                .doOnCompleted(new Action0() {
+                    @Override
+                    public void call() {
+                        CookieManager.getInstance().flush();
+                    }
+                })
+                .doOnError(new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
                         Timber.e(throwable, "Failed to sync cookies: error in obtaining token");
+
                     }
                 });
     }

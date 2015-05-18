@@ -54,6 +54,7 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
 import roboguice.fragment.RoboFragment;
+import rx.functions.Action1;
 
 /**
  * @author Tom Koptel
@@ -154,12 +155,17 @@ public class WebViewFragment extends RoboFragment {
 
     private void createWebView() {
         webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
-        CookieManagerFactory.syncCookies(getActivity());
-        prepareWebView();
-        setWebViewClient();
-        if (onWebViewCreated != null) {
-            onWebViewCreated.onWebViewCreated(this);
-        }
+        CookieManagerFactory.syncCookies(getActivity())
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean aBoolean) {
+                        prepareWebView();
+                        setWebViewClient();
+                        if (onWebViewCreated != null) {
+                            onWebViewCreated.onWebViewCreated(WebViewFragment.this);
+                        }
+                    }
+                });
     }
 
     private void setWebViewClient() {

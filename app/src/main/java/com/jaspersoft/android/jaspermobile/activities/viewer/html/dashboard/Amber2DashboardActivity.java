@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,14 +34,15 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
+import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
+import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -61,6 +61,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+
+import rx.functions.Action1;
 
 /**
  * @author Tom Koptel
@@ -96,7 +98,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         Account account = JasperAccountManager.get(this).getActiveAccount();
         accountServerData = AccountServerData.get(this, account);
 
-        loadFlow();
+        CookieManagerFactory.syncCookies(this)
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean aBoolean) {
+                        loadFlow();
+                    }
+                });
     }
 
     @Override
@@ -276,28 +284,10 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     }
 
     private void runDashboard() {
-        String organization = TextUtils.isEmpty(accountServerData.getOrganization())
-                ? "" : accountServerData.getOrganization();
-
         StringBuilder builder = new StringBuilder();
-        builder.append("javascript:MobileDashboard.authorize")
-                .append("({")
-                .append("\"username\": \"%s\",")
-                .append("\"password\": \"%s\",")
-                .append("\"organization\": \"%s\"")
-                .append("})");
-        String authScript = String.format(builder.toString(),
-                accountServerData.getUsername(),
-                accountServerData.getPassword(),
-                organization);
-        webView.loadUrl(authScript);
-
-        builder = new StringBuilder();
-        builder.append("javascript:MobileDashboard.run")
-                .append("({")
-                .append("\"diagonal\": \"%s\",")
-                .append("\"uri\": \"%s\"")
-                .append("})");
+        builder.append("javascript:MobileDashboard")
+                .append(".configure({ \"diagonal\": %s })")
+                .append(".run({ \"uri\": \"%s\" })");
         String executeScript = String.format(builder.toString(),
                 screenUtil.getDiagonal(), resource.getUri());
         webView.loadUrl(executeScript);

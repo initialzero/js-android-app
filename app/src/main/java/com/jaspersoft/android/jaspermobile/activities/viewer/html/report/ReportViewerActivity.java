@@ -450,7 +450,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onMultiPageStateObtained(boolean isMultiPage) {
-        paginationControl.setVisibility(isMultiPage ? View.VISIBLE : View.GONE);
+        boolean needToShowPagination = isMultiPage && (!paginationControl.isTotalPagesLoaded() || paginationControl.getTotalPages() > 1);
+        paginationControl.setVisibility(needToShowPagination ? View.VISIBLE : View.GONE);
     }
 
     //---------------------------------------------------------------------
@@ -567,7 +568,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 screenUtil.getDiagonal(),
                 resource.getUri(),
                 params
-                );
+        );
         webView.loadUrl(executeScript);
     }
 

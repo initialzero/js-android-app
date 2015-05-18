@@ -109,7 +109,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">About</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nManagement tool and report viewer for TIBCO JasperReports Server 5.6.0 and greater.\n\nFor more information visit:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nFor privacy policy information visit:\n<a href="http://www.tibco.com/privacy-policies/jaspermobile-android">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nManagement tool and report viewer for TIBCO JasperReports Server 5.5 and greater.\n\nFor more information visit:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nFor privacy policy information visit:\n<a href="http://www.tibco.com/privacy-policies/jaspermobile-android">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2015 TIBCO Software, Inc.</string>
     <string name="sa_about_privacy">Privacy Policy</string>
     <string name="sa_show_feedback" translatable="false">Feedback</string>
 
@@ -197,7 +197,7 @@
     <string name="st_category_more">More</string>
 
     <!-- Error messages -->
-    <string name="r_error_server_not_supported">Server version is either older than 5.6 (not supported) or URL is incorrect.</string>
+    <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
     <string name="r_error_server_not_found" translatable="false">Server not found.</string>
     <string name="r_error_incorrect_credentials" translatable="false">Login or password is incorrect.</string>
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>

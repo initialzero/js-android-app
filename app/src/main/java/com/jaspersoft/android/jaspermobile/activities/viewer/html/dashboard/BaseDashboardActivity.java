@@ -77,7 +77,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
         @Override
         public void run() {
             if (webView.zoomOut()) {
-                mHandler.postDelayed(this, 100);
+                mHandler.postDelayed(this, 25);
             }
         }
     };

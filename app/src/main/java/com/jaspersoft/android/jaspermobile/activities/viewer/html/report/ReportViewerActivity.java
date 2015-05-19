@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -164,6 +165,16 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
     private boolean isFlowLoaded;
 
+    private final Handler mHandler = new Handler();
+    private final Runnable mZoomOutTask = new Runnable() {
+        @Override
+        public void run() {
+            if (webView.zoomOut()) {
+                mHandler.postDelayed(this, 25);
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -226,6 +237,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     protected void onPause() {
+        mHandler.removeCallbacks(mZoomOutTask);
         super.onPause();
         if (mScriptReady) {
             webView.loadUrl("javascript:MobileReport.pause()");
@@ -290,6 +302,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     public void refreshAction() {
+        resetZoom();
         webView.loadUrl("javascript:MobileReport.refresh()");
         ProgressDialogFragment
                 .builder(getSupportFragmentManager())
@@ -360,6 +373,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public void onPageSelected(int currentPage) {
+        resetZoom();
         selectPageInWebView(currentPage);
     }
 
@@ -486,6 +500,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
     // Helper methods
     //---------------------------------------------------------------------
 
+    protected void resetZoom() {
+        mZoomOutTask.run();
+    }
+
     private void setupPaginationControl() {
         paginationControl.setOnPageChangeListener(this);
     }
@@ -575,6 +593,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     private void applyReportParams() {
         String reportParams = paramsSerializer.toJson(getReportParameters());
+        resetZoom();
         webView.loadUrl(String.format("javascript:MobileReport.applyReportParams(%s)", reportParams));
     }
 

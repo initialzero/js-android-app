@@ -228,6 +228,12 @@ public class ResourcesFragment extends RoboSpiceFragment
     }
 
     @Override
+    public void onPause() {
+        swipeRefreshLayout.clearAnimation();
+        super.onPause();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         if (mAdapter != null) {
             mAdapter.save(outState);

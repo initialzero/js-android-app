@@ -104,11 +104,17 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
         webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        CookieManagerFactory.syncCookies(this)
-                .subscribe(new Action1<Boolean>() {
+        CookieManagerFactory.syncCookies(this).subscribe(
+                new Action1<Boolean>() {
                     @Override
                     public void call(Boolean aBoolean) {
                         initWebView();
+                    }
+                },
+                new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        // ignore issue
                     }
                 });
     }

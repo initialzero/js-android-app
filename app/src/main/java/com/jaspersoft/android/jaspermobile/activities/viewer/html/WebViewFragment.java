@@ -155,17 +155,23 @@ public class WebViewFragment extends RoboFragment {
 
     private void createWebView() {
         webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
-        CookieManagerFactory.syncCookies(getActivity())
-                .subscribe(new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        prepareWebView();
-                        setWebViewClient();
-                        if (onWebViewCreated != null) {
-                            onWebViewCreated.onWebViewCreated(WebViewFragment.this);
-                        }
-                    }
-                });
+        CookieManagerFactory.syncCookies(getActivity()).subscribe(
+                        new Action1<Boolean>() {
+                            @Override
+                            public void call(Boolean aBoolean) {
+                                prepareWebView();
+                                setWebViewClient();
+                                if (onWebViewCreated != null) {
+                                    onWebViewCreated.onWebViewCreated(WebViewFragment.this);
+                                }
+                            }
+                        },
+                        new Action1<Throwable>() {
+                            @Override
+                            public void call(Throwable throwable) {
+                                // ignore issue
+                            }
+                        });
     }
 
     private void setWebViewClient() {

@@ -62,6 +62,8 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
+import rx.functions.Action1;
+
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -185,8 +187,6 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
 
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         webView.setWebViewClient(jsWebViewClient);
-
-        CookieManagerFactory.syncCookies(getActivity()).subscribe();
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -197,9 +197,21 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     }
 
     private void fetchReport() {
-        progressBar.setVisibility(View.VISIBLE);
-        webView.setVisibility(View.INVISIBLE);
-        reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
+        CookieManagerFactory.syncCookies(getActivity()).subscribe(
+                new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean aBoolean) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        webView.setVisibility(View.INVISIBLE);
+                        reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
+                    }
+                },
+                new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        // ignore issue
+                    }
+                });
     }
 
     private void showErrorText() {
@@ -228,13 +240,13 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         });
     }
 
-    private void detachDataLoadListener(){
+    private void detachDataLoadListener() {
         webView.setWebChromeClient(null);
     }
 
-    //---------------------------------------------------------------------
-    // Implementing SimpleDialogFragment.SimpleDialogClickListener
-    //---------------------------------------------------------------------
+//---------------------------------------------------------------------
+// Implementing SimpleDialogFragment.SimpleDialogClickListener
+//---------------------------------------------------------------------
 
     @Override
     public void onPositiveClick(int requestCode) {
@@ -249,9 +261,9 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         getActivity().finish();
     }
 
-    //---------------------------------------------------------------------
-    // Inner classes
-    //---------------------------------------------------------------------
+//---------------------------------------------------------------------
+// Inner classes
+//---------------------------------------------------------------------
 
     private final ReportSession.ExecutionObserver sessionObserver =
             new ReportSession.ExecutionObserver() {

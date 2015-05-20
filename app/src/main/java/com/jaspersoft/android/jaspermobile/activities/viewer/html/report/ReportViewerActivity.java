@@ -178,7 +178,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CookieManagerFactory.syncCookies(this);
 
         mHasInitialParameters = !reportParameters.isEmpty();
         paramsStorage.putReportParameters(resource.getUri(), reportParameters);

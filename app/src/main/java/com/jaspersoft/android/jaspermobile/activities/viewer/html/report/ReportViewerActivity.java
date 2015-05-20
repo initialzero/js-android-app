@@ -102,7 +102,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import rx.Subscription;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
@@ -174,6 +176,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             }
         }
     };
+    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,21 +197,24 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @AfterViews
     final void init() {
-        CookieManagerFactory.syncCookies(this).subscribe(
+        showErrorView(getString(R.string.authorizing_msg));
+
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
                 new Action1<Boolean>() {
                     @Override
                     public void call(Boolean aBoolean) {
+                        hideErrorView();
                         setupPaginationControl();
                         initWebView();
                         loadInputControls();
                     }
-                },
-                new Action1<Throwable>() {
+                }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        // ignore issue
+                        showErrorView(throwable.getMessage());
                     }
                 });
+        mCompositeSubscription.add(cookieSubscription);
     }
 
     private void loadInputControls() {
@@ -255,6 +261,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (mScriptReady) {
             webView.loadUrl("javascript:MobileReport.resume()");
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mCompositeSubscription.unsubscribe();
     }
 
     @Override

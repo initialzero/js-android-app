@@ -34,16 +34,14 @@ import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class LegacyCookieManager implements JsCookieManager{
+public class LegacyCookieManager implements JsCookieManager {
     private final Context mContext;
 
     public LegacyCookieManager(Context context) {
@@ -68,16 +66,12 @@ public class LegacyCookieManager implements JsCookieManager{
                                 cookieManager.removeSessionCookie();
                                 cookieManager.setCookie(accountServerData.getServerUrl(), accountServerData.getServerCookie());
                                 CookieSyncManager.getInstance().sync();
-                                subscriber.onNext(true);
-                                subscriber.onCompleted();
+                                if (!subscriber.isUnsubscribed()) {
+                                    subscriber.onNext(true);
+                                    subscriber.onCompleted();
+                                }
                             }
                         });
-                    }
-                })
-                .doOnError(new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Timber.e(throwable, "Failed to sync cookies: error in obtaining token");
                     }
                 });
     }

@@ -89,8 +89,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
     @InstanceState
     boolean mShowFilterOption;
-    @InstanceState
-    boolean mShowSortOption;
 
     private ResourcesControllerFragment resourcesController;
     private SearchControllerFragment searchControllerFragment;
@@ -149,7 +147,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
         Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
 
-        mShowSortOption = true;
         mShowFilterOption = accountServerData.getEdition().equals("PRO");
         getActivity().invalidateOptionsMenu();
     }
@@ -157,8 +154,12 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        filter.setVisible(mShowFilterOption);
-        sort.setVisible(mShowSortOption);
+        if (!mShowFilterOption) {
+            menu.removeItem(filter.getItemId());
+            sort.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        } else {
+            sort.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        }
     }
 
     @OptionsItem(R.id.filter)

@@ -112,7 +112,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         emptyView = (TextView) findViewById(android.R.id.empty);
 
-        showMessage(getString(R.string.authorizing_msg));
+        showMessage(getString(R.string.loading_msg));
         Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
                 new Action1<Boolean>() {
                     @Override

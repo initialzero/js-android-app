@@ -207,7 +207,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     }
 
     private void fetchReport() {
-        showMessage(getString(R.string.authorizing_msg));
+        showMessage(getString(R.string.loading_msg));
 
         Subscription cookieSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(
                 new Action1<Boolean>() {

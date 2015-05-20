@@ -197,7 +197,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @AfterViews
     final void init() {
-        showErrorView(getString(R.string.authorizing_msg));
+        showErrorView(getString(R.string.loading_msg));
 
         Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
                 new Action1<Boolean>() {

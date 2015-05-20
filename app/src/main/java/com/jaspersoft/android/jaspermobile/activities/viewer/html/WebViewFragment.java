@@ -39,7 +39,6 @@ import android.widget.ProgressBar;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
@@ -54,17 +53,18 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
 import roboguice.fragment.RoboFragment;
-import rx.functions.Action1;
 
 /**
+ * This fragment should be removed. We won`t utilize it in future.
+ *
  * @author Tom Koptel
  * @since 1.9
  */
+@Deprecated
 @EFragment(R.layout.html_viewer_layout)
 public class WebViewFragment extends RoboFragment {
 
     public static final String TAG = WebViewFragment.class.getSimpleName();
-    private static final String COOKIE_STORE = "cookieStore";
 
     @ViewById
     FrameLayout webViewPlaceholder;
@@ -155,23 +155,11 @@ public class WebViewFragment extends RoboFragment {
 
     private void createWebView() {
         webView = new JSWebView(getActivity(), null, R.style.htmlViewer_webView);
-        CookieManagerFactory.syncCookies(getActivity()).subscribe(
-                        new Action1<Boolean>() {
-                            @Override
-                            public void call(Boolean aBoolean) {
-                                prepareWebView();
-                                setWebViewClient();
-                                if (onWebViewCreated != null) {
-                                    onWebViewCreated.onWebViewCreated(WebViewFragment.this);
-                                }
-                            }
-                        },
-                        new Action1<Throwable>() {
-                            @Override
-                            public void call(Throwable throwable) {
-                                // ignore issue
-                            }
-                        });
+        prepareWebView();
+        setWebViewClient();
+        if (onWebViewCreated != null) {
+            onWebViewCreated.onWebViewCreated(WebViewFragment.this);
+        }
     }
 
     private void setWebViewClient() {

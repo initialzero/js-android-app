@@ -92,10 +92,15 @@ public class JasperAccountManager {
                 try {
                     Account activeAccount = getActiveAccount();
                     serverData = getServerData(activeAccount);
-                    subscriber.onNext(serverData);
-                    subscriber.onCompleted();
-                } catch (JasperAccountManager.TokenException e) {
-                    subscriber.onError(e);
+
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onNext(serverData);
+                        subscriber.onCompleted();
+                    }
+                } catch (TokenException e) {
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onError(e);
+                    }
                 }
             }
         });
@@ -168,10 +173,14 @@ public class JasperAccountManager {
                             JasperSettings.JASPER_ACCOUNT_TYPE);
                     accountManager.addAccountExplicitly(account,
                             serverData.getPassword(), serverData.toBundle());
-                    subscriber.onNext(account);
-                    subscriber.onCompleted();
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onNext(account);
+                        subscriber.onCompleted();
+                    }
                 } catch (Exception e) {
-                    subscriber.onError(e);
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onError(e);
+                    }
                 }
             }
         });

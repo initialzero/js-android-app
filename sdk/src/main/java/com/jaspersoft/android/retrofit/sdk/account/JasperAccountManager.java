@@ -128,7 +128,7 @@ public class JasperAccountManager {
         mPreference.edit().putString(ACCOUNT_NAME_KEY, "").apply();
     }
 
-    public void updateActiveAccountPassword(String newPassword){
+    public void updateActiveAccountPassword(String newPassword) {
         AccountManager accountManager = AccountManager.get(mContext);
         invalidateActiveToken();
         accountManager.setPassword(getActiveAccount(), newPassword);
@@ -204,7 +204,8 @@ public class JasperAccountManager {
      * @return token which in our case is cookie string for specified account. Can be <b>null</b> or empty if token is missing
      */
     private String getAuthToken(final Account account) throws TokenException {
-        if (account == null) throw new TokenException(TokenException.NO_ACCOUNTS_ERROR);
+        if (account == null)
+            throw new TokenException("No accounts", TokenException.NO_ACCOUNTS_ERROR);
 
         AccountManager accountManager = AccountManager.get(mContext);
         Bundle tokenOutput;
@@ -251,8 +252,8 @@ public class JasperAccountManager {
             mErrorCode = output.getInt(AccountManager.KEY_ERROR_CODE);
         }
 
-        public TokenException(int errorCode) {
-            super("");
+        public TokenException(String message, int errorCode) {
+            super(message);
             mErrorCode = errorCode;
         }
 

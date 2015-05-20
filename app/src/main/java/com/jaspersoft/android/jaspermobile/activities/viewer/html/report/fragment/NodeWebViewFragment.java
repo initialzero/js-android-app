@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -62,7 +63,9 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
+import rx.Subscription;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author Tom Koptel
@@ -78,7 +81,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     @ViewById
     protected ProgressBar progressBar;
     @ViewById(android.R.id.empty)
-    protected TextView errorText;
+    protected TextView emptyView;
 
     @InstanceState
     @FragmentArg
@@ -97,6 +100,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     @Bean
     protected ReportExportOutputLoader reportExportOutputLoader;
 
+    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private ExportResultListener exportResultListener;
     private OnPageLoadListener onPageLoadListener;
     private RequestExecutor requestExecutor;
@@ -124,6 +128,12 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         reportSession.registerObserver(sessionObserver);
         prepareWebView();
         fetchReport();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mCompositeSubscription.unsubscribe();
     }
 
     @Override
@@ -197,10 +207,13 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     }
 
     private void fetchReport() {
-        CookieManagerFactory.syncCookies(getActivity()).subscribe(
+        showMessage(getString(R.string.authorizing_msg));
+
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(
                 new Action1<Boolean>() {
                     @Override
                     public void call(Boolean aBoolean) {
+                        hideMessage();
                         progressBar.setVisibility(View.VISIBLE);
                         webView.setVisibility(View.INVISIBLE);
                         reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
@@ -209,20 +222,26 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                 new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        // ignore issue
+                        showMessage(throwable.getMessage());
                     }
                 });
+        mCompositeSubscription.add(cookieSubscription);
     }
 
-    private void showErrorText() {
-        if (errorText.getVisibility() != View.VISIBLE) {
-            errorText.setVisibility(View.VISIBLE);
+    private void showErrorMessage() {
+        showMessage(getString(R.string.failed_load_data));
+    }
+
+    private void showMessage(CharSequence message) {
+        if (!TextUtils.isEmpty(message) && emptyView != null) {
+            emptyView.setVisibility(View.VISIBLE);
+            emptyView.setText(message);
         }
     }
 
-    private void hideErrorText() {
-        if (errorText.getVisibility() == View.VISIBLE) {
-            errorText.setVisibility(View.GONE);
+    private void hideMessage() {
+        if (emptyView != null) {
+            emptyView.setVisibility(View.GONE);
         }
     }
 
@@ -287,7 +306,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         @Override
         public void onFailure(Exception exception) {
             progressBar.setVisibility(View.GONE);
-            showErrorText();
+            showErrorMessage();
             if (onPageLoadListener != null) {
                 onPageLoadListener.onFailure(exception);
             }
@@ -296,7 +315,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         @Override
         public void onSuccess(ExportOutputData output) {
             outputFinal = output.isFinal();
-            hideErrorText();
+            hideMessage();
             loadHtml(output.getData());
             if (onPageLoadListener != null) {
                 onPageLoadListener.onSuccess(page);

@@ -27,11 +27,14 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
@@ -51,7 +54,9 @@ import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import rx.Subscription;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Activity that performs dashboard viewing in HTML format through native component.
@@ -63,6 +68,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
     public final static String RESOURCE_EXTRA = "resource";
 
     protected WebView webView;
+    private TextView emptyView;
     private ProgressBar progressBar;
 
     protected ResourceLookup resource;
@@ -72,6 +78,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
     private FavoritesHelper_ favoritesHelper;
     private JasperChromeClientListenerImpl chromeClientListener;
 
+    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private final Handler mHandler = new Handler();
     private final Runnable mZoomOutTask = new Runnable() {
         @Override
@@ -103,20 +110,24 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
 
         webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        emptyView = (TextView) findViewById(android.R.id.empty);
 
-        CookieManagerFactory.syncCookies(this).subscribe(
+        showMessage(getString(R.string.loading_msg));
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
                 new Action1<Boolean>() {
                     @Override
                     public void call(Boolean aBoolean) {
+                        hideMessage();
                         initWebView();
                     }
                 },
                 new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        // ignore issue
+                        showMessage(throwable.getMessage());
                     }
                 });
+        mCompositeSubscription.add(cookieSubscription);
     }
 
     @Override
@@ -166,6 +177,12 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        mCompositeSubscription.unsubscribe();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if (webView != null) {
@@ -179,6 +196,19 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
 
     protected void resetZoom() {
         mZoomOutTask.run();
+    }
+
+    protected void showMessage(CharSequence message) {
+        if (!TextUtils.isEmpty(message) && emptyView != null) {
+            emptyView.setVisibility(View.VISIBLE);
+            emptyView.setText(message);
+        }
+    }
+
+    protected void hideMessage() {
+        if (emptyView != null) {
+            emptyView.setVisibility(View.GONE);
+        }
     }
 
     //---------------------------------------------------------------------

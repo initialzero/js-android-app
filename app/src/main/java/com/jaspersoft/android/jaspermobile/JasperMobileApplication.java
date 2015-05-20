@@ -35,6 +35,7 @@ import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.utils.L;
 
 import org.androidannotations.annotations.EApplication;
 
@@ -92,6 +93,8 @@ public class JasperMobileApplication extends Application {
                 .build();
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config);
+        // Ignoring all log from UIL
+        L.writeLogs(false);
     }
 
     public synchronized Tracker getTracker() {

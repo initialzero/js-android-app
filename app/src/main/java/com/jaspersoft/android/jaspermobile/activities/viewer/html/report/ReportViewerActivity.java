@@ -178,7 +178,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CookieManagerFactory.syncCookies(this);
 
         mHasInitialParameters = !reportParameters.isEmpty();
         paramsStorage.putReportParameters(resource.getUri(), reportParameters);
@@ -195,13 +194,19 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @AfterViews
     final void init() {
-        CookieManagerFactory.syncCookies(this)
-                .subscribe(new Action1<Boolean>() {
+        CookieManagerFactory.syncCookies(this).subscribe(
+                new Action1<Boolean>() {
                     @Override
                     public void call(Boolean aBoolean) {
                         setupPaginationControl();
                         initWebView();
                         loadInputControls();
+                    }
+                },
+                new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        // ignore issue
                     }
                 });
     }
@@ -246,7 +251,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     protected void onResume() {
-        super.onPause();
+        super.onResume();
         if (mScriptReady) {
             webView.loadUrl("javascript:MobileReport.resume()");
         }

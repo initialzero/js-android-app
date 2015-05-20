@@ -36,10 +36,8 @@ import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -72,18 +70,14 @@ public class LollipopCookieManager implements JsCookieManager {
                                         cookieManager.setCookie(accountServerData.getServerUrl(),
                                                 accountServerData.getServerCookie());
                                         CookieManager.getInstance().flush();
-                                        subscriber.onNext(value);
-                                        subscriber.onCompleted();
+                                        if (!subscriber.isUnsubscribed()) {
+                                            subscriber.onNext(value);
+                                            subscriber.onCompleted();
+                                        }
                                     }
                                 });
                             }
                         });
-                    }
-                })
-                .doOnError(new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Timber.e(throwable, "Failed to sync cookies: error in obtaining token");
                     }
                 });
     }

@@ -36,6 +36,7 @@ import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
@@ -93,8 +94,11 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             Timber.d(String.format("Password for account[%s] : %s", account.name, password));
 
             AccountServerData serverData = AccountServerData.get(mContext, account);
-            JsRestClient2 jsRestClient2 = JsRestClient2.forEndpoint(
-                    serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION);
+            JsRestClient2 jsRestClient2 = JsRestClient2
+                    .configure()
+                    .setEndpoint(serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION)
+                    .setClient(new DefaultUrlConnectionClient(mContext))
+                    .build();
             try {
                 LoginResponse loginResponse = jsRestClient2.login(
                         serverData.getOrganization(), serverData.getUsername(), password

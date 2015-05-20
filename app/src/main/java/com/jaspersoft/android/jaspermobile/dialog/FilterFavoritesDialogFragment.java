@@ -34,12 +34,10 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
@@ -53,9 +51,6 @@ import java.util.ArrayList;
 public class FilterFavoritesDialogFragment extends DialogFragment {
     public static final String TAG = FilterFavoritesDialogFragment.class.getSimpleName();
     private static ArrayList<ResourceLookup.ResourceType> availableFilters;
-
-    @Bean
-    FilterManagerBean filterManager;
 
     @FragmentArg
     ResourceLookup.ResourceType mType;
@@ -79,17 +74,23 @@ public class FilterFavoritesDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
+        // Improve: refactor/encapsulate population
+
         ArrayList<String> availableFilterTitles = new ArrayList<>();
         availableFilters = new ArrayList<>();
 
+        // null value refers to "All" option
         availableFilterTitles.add(getString(R.string.s_fd_option_all));
         availableFilters.add(null);
+
         availableFilterTitles.add(getString(R.string.s_fd_option_reports));
         availableFilters.add(ResourceLookup.ResourceType.reportUnit);
+
         if (isServerEditionPro()) {
             availableFilterTitles.add(2, getString(R.string.s_fd_option_dashboards));
             availableFilters.add(2, ResourceLookup.ResourceType.dashboard);
         }
+
         availableFilterTitles.add(getString(R.string.f_fd_option_folders));
         availableFilters.add(ResourceLookup.ResourceType.folder);
 

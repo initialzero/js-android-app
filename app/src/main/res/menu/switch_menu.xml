@@ -28,7 +28,7 @@
     <item
         android:id="@+id/switchLayout"
         android:icon="@drawable/ic_menu_module"
-        android:orderInCategory="100"
+        android:orderInCategory="55"
         android:title="@string/r_ab_switch"
         app:showAsAction="always" />
 

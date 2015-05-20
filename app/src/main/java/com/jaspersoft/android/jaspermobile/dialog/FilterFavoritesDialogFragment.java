@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.dialog;
 
+import android.accounts.Account;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -33,10 +34,16 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+
+import java.util.ArrayList;
 
 /**
  * @author Tom Koptel
@@ -45,10 +52,10 @@ import org.androidannotations.annotations.FragmentArg;
 @EFragment
 public class FilterFavoritesDialogFragment extends DialogFragment {
     public static final String TAG = FilterFavoritesDialogFragment.class.getSimpleName();
-    private static final int NO_FILTER_POSITION = 0;
-    private static final int BY_REPORTS_POSITION = 1;
-    private static final int BY_DASHBOARDS_POSITION = 2;
-    private static final int BY_FOLDER_POSITION = 3;
+    private static ArrayList<ResourceLookup.ResourceType> availableFilters;
+
+    @Bean
+    FilterManagerBean filterManager;
 
     @FragmentArg
     ResourceLookup.ResourceType mType;
@@ -63,7 +70,7 @@ public class FilterFavoritesDialogFragment extends DialogFragment {
                     .mType(mType)
                     .build();
             dialogFragment.setFilterSelectedListener(filterSelectedListener);
-            dialogFragment.show(fm ,TAG);
+            dialogFragment.show(fm, TAG);
         }
     }
 
@@ -72,43 +79,28 @@ public class FilterFavoritesDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setTitle(R.string.s_ab_filter_by);
-        CharSequence[] options = {
-                getString(R.string.s_fd_option_all),
-                getString(R.string.s_fd_option_reports),
-                getString(R.string.s_fd_option_dashboards),
-                getString(R.string.f_fd_option_folders)
-        };
+        ArrayList<String> availableFilterTitles = new ArrayList<>();
+        availableFilters = new ArrayList<>();
 
-        int position = NO_FILTER_POSITION;
-
-        if(mType != null) {
-            if (mType.equals(ResourceLookup.ResourceType.reportUnit)) {
-                position = BY_REPORTS_POSITION;
-            } else if (mType.equals(ResourceLookup.ResourceType.dashboard)) {
-                position = BY_DASHBOARDS_POSITION;
-            } else if (mType.equals(ResourceLookup.ResourceType.folder)) {
-                position = BY_FOLDER_POSITION;
-            }
+        availableFilterTitles.add(getString(R.string.s_fd_option_all));
+        availableFilters.add(null);
+        availableFilterTitles.add(getString(R.string.s_fd_option_reports));
+        availableFilters.add(ResourceLookup.ResourceType.reportUnit);
+        if (isServerEditionPro()) {
+            availableFilterTitles.add(2, getString(R.string.s_fd_option_dashboards));
+            availableFilters.add(2, ResourceLookup.ResourceType.dashboard);
         }
+        availableFilterTitles.add(getString(R.string.f_fd_option_folders));
+        availableFilters.add(ResourceLookup.ResourceType.folder);
 
-        builder.setSingleChoiceItems(options, position, new DialogInterface.OnClickListener() {
+        builder.setTitle(R.string.s_ab_filter_by);
+
+        int position = availableFilters.indexOf(mType);
+
+        builder.setSingleChoiceItems(availableFilterTitles.toArray(new String[availableFilterTitles.size()]), position, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case BY_REPORTS_POSITION:
-                        mType = ResourceLookup.ResourceType.reportUnit;
-                        break;
-                    case BY_DASHBOARDS_POSITION:
-                        mType = ResourceLookup.ResourceType.dashboard;
-                        break;
-                    case BY_FOLDER_POSITION:
-                        mType = ResourceLookup.ResourceType.folder;
-                        break;
-                    default:
-                        mType = null;
-                        break;
-                }
+                mType = availableFilters.get(which);
 
                 if (filterSelectedListener != null) {
                     filterSelectedListener.onDialogPositiveClick(mType);
@@ -128,5 +120,12 @@ public class FilterFavoritesDialogFragment extends DialogFragment {
 
     public static interface FilterFavoritesDialogListener {
         void onDialogPositiveClick(ResourceLookup.ResourceType type);
+    }
+
+    private boolean isServerEditionPro() {
+        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
+        AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
+
+        return accountServerData.getEdition().equals("PRO");
     }
 }

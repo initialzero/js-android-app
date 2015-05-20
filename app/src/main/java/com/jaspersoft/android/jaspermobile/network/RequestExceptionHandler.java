@@ -62,6 +62,8 @@ public class RequestExceptionHandler {
         int statusCode = extractStatusCode(exception);
         if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
             showAuthErrorDialog(context);
+        } else if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR) {
+            // do nothing, app will restart automatically
         } else {
             showCommonErrorMessage(context, exception);
         }
@@ -93,9 +95,9 @@ public class RequestExceptionHandler {
                 return ((HttpStatusCodeException) cause).getStatusCode().value();
             }
             Throwable tokenCause = cause.getCause();
-            if (tokenCause instanceof JasperAccountManager.TokenException) {
+            if (tokenCause instanceof JasperAccountManager.TokenException){
                 return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
-            } else if (tokenCause instanceof UnknownHostException) {
+            }else if (tokenCause instanceof UnknownHostException) {
                 return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
             }
         } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {

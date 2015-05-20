@@ -204,6 +204,8 @@ public class JasperAccountManager {
      * @return token which in our case is cookie string for specified account. Can be <b>null</b> or empty if token is missing
      */
     private String getAuthToken(final Account account) throws TokenException {
+        if (account == null) throw new TokenException(TokenException.NO_ACCOUNTS_ERROR);
+
         AccountManager accountManager = AccountManager.get(mContext);
         Bundle tokenOutput;
         try {
@@ -240,12 +242,18 @@ public class JasperAccountManager {
         public static final int OBTAIN_TOKEN_ERROR = 15;
         public static final int SERVER_NOT_FOUND = 16;
         public static final int INCORRECT_SERVER_VERSION_ERROR = 17;
+        public static final int NO_ACCOUNTS_ERROR = 18;
 
         private final int mErrorCode;
 
         public TokenException(Bundle output) {
             super(output.getString(AccountManager.KEY_ERROR_MESSAGE));
             mErrorCode = output.getInt(AccountManager.KEY_ERROR_CODE);
+        }
+
+        public TokenException(int errorCode) {
+            super("");
+            mErrorCode = errorCode;
         }
 
         public int getErrorCode() {

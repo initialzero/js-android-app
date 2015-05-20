@@ -251,7 +251,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     protected void onResume() {
-        super.onPause();
+        super.onResume();
         if (mScriptReady) {
             webView.loadUrl("javascript:MobileReport.resume()");
         }

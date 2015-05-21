@@ -158,9 +158,6 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-    // Splunk Mint(Bugsense)
-    compile "com.splunk.mint:mint:4.0.3"
-
     compile('com.crashlytics.sdk.android:crashlytics:2.2.1@aar') {
         transitive = true;
     }

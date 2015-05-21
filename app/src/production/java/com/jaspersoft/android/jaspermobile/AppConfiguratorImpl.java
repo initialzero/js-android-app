@@ -13,6 +13,9 @@ import io.fabric.sdk.android.Fabric;
 public class AppConfiguratorImpl implements AppConfigurator {
     @Override
     public void configCrashAnalytics(Context appContext) {
-        Fabric.with(appContext, new Crashlytics());
+        DefaultPrefHelper_ prefHelper = DefaultPrefHelper_.getInstance_(context);
+        if (prefHelper.sendCrashReports()) {
+            Fabric.with(appContext, new Crashlytics());
+        }
     }
 }

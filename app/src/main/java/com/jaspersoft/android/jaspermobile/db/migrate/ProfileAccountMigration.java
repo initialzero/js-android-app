@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.accounts.Account;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,6 +47,7 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class ProfileAccountMigration implements Migration {
+    private static final String LEGACY_MOBILE_DEMO = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
     private final Context mContext;
 
     public ProfileAccountMigration(Context context) {
@@ -54,8 +56,16 @@ public class ProfileAccountMigration implements Migration {
 
     @Override
     public void migrate(SQLiteDatabase database) {
+        updateOldMobileDemo(database);
         migrateOldProfiles(database);
         activateProfile(database);
+    }
+
+    private void updateOldMobileDemo(SQLiteDatabase database) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ServerProfilesTable.SERVER_URL, AccountServerData.Demo.SERVER_URL);
+        database.update(ServerProfilesTable.TABLE_NAME, contentValues,
+                ServerProfilesTable.SERVER_URL + "=?", new String[] {LEGACY_MOBILE_DEMO});
     }
 
     private void migrateOldProfiles(SQLiteDatabase db) {

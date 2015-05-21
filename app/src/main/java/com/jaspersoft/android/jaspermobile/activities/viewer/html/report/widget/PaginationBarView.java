@@ -95,13 +95,12 @@ public class PaginationBarView extends AbstractPaginationView {
 
     @Override
     protected void alterTotalCount() {
-        if(getTotalPages() != -1) {
+        if (isTotalPagesLoaded()) {
             progressLayout.setVisibility(View.GONE);
             totalPageLabel.setVisibility(View.VISIBLE);
             totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
-            lastPage.setEnabled(true);
-        }
-        else {
+            lastPage.setEnabled(getCurrentPage() != getTotalPages());
+        } else {
             progressLayout.setVisibility(View.VISIBLE);
             totalPageLabel.setVisibility(View.GONE);
             lastPage.setEnabled(false);
@@ -112,24 +111,13 @@ public class PaginationBarView extends AbstractPaginationView {
     protected void alterControlStates() {
         currentPageLabel.setText(String.valueOf(getCurrentPage()));
 
-        if (getCurrentPage() == getTotalPages()) {
-            previousPage.setEnabled(true);
-            firstPage.setEnabled(true);
-            nextPage.setEnabled(false);
-            lastPage.setEnabled(!isTotalPagesLoaded());
-            return;
-        }
-        if (getCurrentPage() == FIRST_PAGE) {
-            previousPage.setEnabled(false);
-            firstPage.setEnabled(false);
-            nextPage.setEnabled(true);
-            lastPage.setEnabled(isTotalPagesLoaded());
-            return;
-        }
-        previousPage.setEnabled(true);
-        firstPage.setEnabled(true);
-        nextPage.setEnabled(true);
-        lastPage.setEnabled(isTotalPagesLoaded());
+        boolean isCurrentPageFirst = getCurrentPage() == FIRST_PAGE;
+        boolean isCurrentPageLast = getCurrentPage() == getTotalPages();
+
+        previousPage.setEnabled(!isCurrentPageFirst);
+        firstPage.setEnabled(!isCurrentPageFirst);
+        nextPage.setEnabled(!isCurrentPageLast);
+        lastPage.setEnabled(!isCurrentPageLast && isTotalPagesLoaded());
     }
 
 }

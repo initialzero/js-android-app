@@ -4,12 +4,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
-import android.preference.TwoStatePreference;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
@@ -26,7 +24,6 @@ import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_REPO_CACHE_EXPIRATION;
-import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_SEND_CRASHES;
 
 /**
  * @author Andrew Tivodar
@@ -51,7 +48,6 @@ public class SettingsFragment extends RoboPreferenceFragment {
         EditTextPreference repoCacheExpirationPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_REPO_CACHE_EXPIRATION);
         EditTextPreference connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
         EditTextPreference readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
-        TwoStatePreference sendCrashesPref = (TwoStatePreference) getPreferenceScreen().findPreference(KEY_PREF_SEND_CRASHES);
 
         String repoCacheExpiration = sharedPreferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
         String connectTimeout = sharedPreferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
@@ -105,15 +101,6 @@ public class SettingsFragment extends RoboPreferenceFragment {
                             R.string.st_invalid_number_format, Toast.LENGTH_SHORT).show();
                     return false;
                 }
-            }
-        });
-
-        sendCrashesPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (!(boolean) newValue)
-                    BugSenseWrapper.closeSession(getActivity());
-                return true;
             }
         });
     }

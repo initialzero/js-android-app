@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.network.BugSenseWrapper;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
@@ -76,9 +75,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         super.onCreate(savedInstanceState);
         addToolbar();
         Timber.tag(TAG);
-
-        // Setup crash tracker
-        BugSenseWrapper.initAndStartSession(this);
 
         // Setup initial locale
         currentLocale = Locale.getDefault();

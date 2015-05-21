@@ -14,5 +14,8 @@ public class AppConfiguratorImpl implements AppConfigurator {
     @Override
     public void configCrashAnalytics(Context appContext) {
         Fabric.with(appContext, new Crashlytics());
+        if (prefHelper.sendCrashReports()) {
+            Fabric.with(appContext, new Crashlytics());
+        }
     }
 }

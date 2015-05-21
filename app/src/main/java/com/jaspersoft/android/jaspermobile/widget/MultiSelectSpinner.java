@@ -67,6 +67,7 @@ public class MultiSelectSpinner<T> extends Spinner implements DialogInterface.On
      * The listener that receives notifications when items are selected.
      */
     private OnItemsSelectedListener onItemsSelectedListener;
+    private Button negativeButton;
 
     public MultiSelectSpinner(Context context) {
         super(context);
@@ -91,6 +92,7 @@ public class MultiSelectSpinner<T> extends Spinner implements DialogInterface.On
     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
         checkedItems[which] = isChecked;
         updateState(false);
+        negativeButton.setText(ifAnyChecked() ? R.string.mss_btn_uncheck_all : R.string.mss_btn_check_all);
     }
 
     @Override
@@ -116,27 +118,26 @@ public class MultiSelectSpinner<T> extends Spinner implements DialogInterface.On
             @Override
             public void onShow(DialogInterface dialogInterface) {
                 dialog.getListView().setAdapter(initCustomAdapter(dialog));
-                Button button = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                button.setText(ifAnyChecked() ? R.string.mss_btn_uncheck_all : R.string.mss_btn_check_all);
+                negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                negativeButton.setText(ifAnyChecked() ? R.string.mss_btn_uncheck_all : R.string.mss_btn_check_all);
 
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                        .setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Button button = (Button) view;
-                                boolean ifAnyChecked = ifAnyChecked();
-                                button.setText(ifAnyChecked ? R.string.mss_btn_check_all : R.string.mss_btn_uncheck_all);
+                negativeButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Button button = (Button) view;
+                        boolean ifAnyChecked = ifAnyChecked();
+                        button.setText(ifAnyChecked ? R.string.mss_btn_check_all : R.string.mss_btn_uncheck_all);
 
-                                if (ifAnyChecked) {
-                                    unselectAll();
-                                } else {
-                                    selectAll();
-                                }
+                        if (ifAnyChecked) {
+                            deselectAll();
+                        } else {
+                            selectAll();
+                        }
 
-                                dialog.getListView().setAdapter(initCustomAdapter(dialog));
-                                updateState(false);
-                            }
-                        });
+                        dialog.getListView().setAdapter(initCustomAdapter(dialog));
+                        updateState(false);
+                    }
+                });
             }
         });
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -250,7 +251,7 @@ public class MultiSelectSpinner<T> extends Spinner implements DialogInterface.On
      * @param positions List of indexes (starting at 0) of the data items to be selected.
      */
     public void setSelection(List<Integer> positions) {
-        unselectAll();
+        deselectAll();
         for (int position : positions) {
             if (position < checkedItems.length) {
                 checkedItems[position] = true;
@@ -328,7 +329,7 @@ public class MultiSelectSpinner<T> extends Spinner implements DialogInterface.On
         setSelection(true);
     }
 
-    private void unselectAll() {
+    private void deselectAll() {
         setSelection(false);
     }
 

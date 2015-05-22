@@ -35,6 +35,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
@@ -43,7 +44,6 @@ import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
@@ -52,9 +52,11 @@ import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import rx.Subscription;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -64,7 +66,8 @@ import rx.subscriptions.CompositeSubscription;
  * @author Tom Koptel
  * @since 2.0
  */
-public abstract class BaseDashboardActivity extends RoboToolbarActivity implements JasperWebViewClientListener {
+public abstract class BaseDashboardActivity extends RoboToolbarActivity
+        implements JasperWebViewClientListener, DefaultUrlPolicy.SessionListener {
     public final static String RESOURCE_EXTRA = "resource";
 
     protected WebView webView;
@@ -229,6 +232,41 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
     }
 
     //---------------------------------------------------------------------
+    // DefaultUrlPolicy.SessionListener callback
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onSessionExpired() {
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this)
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        JasperAccountManager.get(BaseDashboardActivity.this).invalidateActiveToken();
+                    }
+                })
+                .subscribe(
+                        new Action1<Boolean>() {
+                            @Override
+                            public void call(Boolean isRefreshed) {
+                                if (isRefreshed){
+                                    onSessionRefreshed();
+                                } else {
+                                    Toast.makeText(BaseDashboardActivity.this,
+                                            R.string.da_session_refresh_failed, Toast.LENGTH_LONG).show();
+                                    finish();
+                                }
+                            }
+                        },
+                        new Action1<Throwable>() {
+                            @Override
+                            public void call(Throwable throwable) {
+                                showMessage(throwable.getMessage());
+                            }
+                        });
+        mCompositeSubscription.add(cookieSubscription);
+    }
+
+    //---------------------------------------------------------------------
     // Abstract methods
     //---------------------------------------------------------------------
 
@@ -239,6 +277,8 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
     public abstract void onRefresh();
 
     public abstract void onHomeAsUpCalled();
+
+    public abstract void onSessionRefreshed();
 
     //---------------------------------------------------------------------
     // Helper methods
@@ -251,8 +291,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity implemen
     private void initWebView() {
         chromeClientListener = new JasperChromeClientListenerImpl(progressBar);
 
-        DefaultUrlPolicy.SessionListener sessionListener = DefaultSessionListener.from(this);
-        UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(sessionListener);
+        UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(this);
 
         SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
                 .withDelegateListener(chromeClientListener);

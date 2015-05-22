@@ -157,6 +157,12 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         }
     }
 
+    @Override
+    public void onSessionRefreshed() {
+        showInitialLoader();
+        loadFlow();
+    }
+
     //---------------------------------------------------------------------
     // DashboardCallback implementations
     //---------------------------------------------------------------------

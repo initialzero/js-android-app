@@ -78,6 +78,11 @@ public class LegacyDashboardViewerActivity extends BaseDashboardActivity {
         super.onBackPressed();
     }
 
+    @Override
+    public void onSessionRefreshed() {
+        loadFlow();
+    }
+
     private void loadFlow() {
         WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
     }

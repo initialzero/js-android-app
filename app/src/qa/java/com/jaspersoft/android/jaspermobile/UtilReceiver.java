@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 /**
  * @author Tom Koptel
@@ -39,7 +40,11 @@ import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
  */
 public class UtilReceiver extends BroadcastReceiver {
     private static final String REMOVE_COOKIES = "jaspermobile.util.action.REMOVE_COOKIES";
+    private static final String DEPRECATE_COOKIES = "jaspermobile.util.action.DEPRECATE_COOKIES";
     private static final String REMOVE_ALL_ACCOUNTS = "jaspermobile.util.action.REMOVE_ALL_ACCOUNTS";
+
+    private static final String INVALID_COOKIE = "JSESSIONID=5513E1DE5437AE6B9F41CC5C8309B153; " +
+            "Path=/jasperserver-pro/; HttpOnlyuserLocale=en_US;Expires=Sat, 23-May-2015 09:15:46 GMT;HttpOnly";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -47,6 +52,15 @@ public class UtilReceiver extends BroadcastReceiver {
         if (action.equals(REMOVE_COOKIES)) {
             JasperAccountManager.get(context).invalidateActiveToken();
             Toast.makeText(context, "Cookies removed", Toast.LENGTH_LONG).show();
+        } else if (action.equals(DEPRECATE_COOKIES)) {
+            Account account = JasperAccountManager.get(context).getActiveAccount();
+            if (account != null) {
+                AccountManager accountManager = AccountManager.get(context);
+                accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, INVALID_COOKIE);
+                Toast.makeText(context, "Cookie was deprecated", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, "No active account. Nothing to deprecate.", Toast.LENGTH_LONG).show();
+            }
         } else if (action.equals(REMOVE_ALL_ACCOUNTS)) {
             Account[] accounts = JasperAccountManager.get(context).getAccounts();
             AccountManager accountManager = AccountManager.get(context);

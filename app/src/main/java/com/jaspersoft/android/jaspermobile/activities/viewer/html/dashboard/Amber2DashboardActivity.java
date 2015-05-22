@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.accounts.Account;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -83,6 +84,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private MenuItem favoriteAction, aboutAction;
     private AccountServerData accountServerData;
     private Toast mToast;
+
+    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            Amber2DashboardActivity.super.onBackPressed();
+        }
+    };
 
     @SuppressLint("ShowToast")
     @Override
@@ -192,7 +200,9 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onLoadStart() {
         ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.da_loading).show();
+                .setLoadingMessage(R.string.da_loading)
+                .setOnCancelListener(cancelListener)
+                .show();
     }
 
     @UiThread

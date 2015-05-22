@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
@@ -73,6 +74,13 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     private int mOrientation;
     private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, refreshAction, aboutAction;
+
+    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            AmberDashboardActivity.super.onBackPressed();
+        }
+    };
 
     @SuppressLint("ShowToast")
     @Override
@@ -273,7 +281,9 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     private void showInitialLoader() {
         webView.setVisibility(View.INVISIBLE);
         ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.da_loading).show();
+                .setLoadingMessage(R.string.da_loading)
+                .setOnCancelListener(cancelListener)
+                .show();
     }
 
     private void hideInitialLoader() {

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright (c) 2014 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,

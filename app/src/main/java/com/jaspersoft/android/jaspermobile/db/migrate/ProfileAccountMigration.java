@@ -29,6 +29,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
@@ -48,6 +49,7 @@ import timber.log.Timber;
  */
 public class ProfileAccountMigration implements Migration {
     private static final String LEGACY_MOBILE_DEMO = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
+    private static final String NEW_MOBILE_DEMO = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
     private final Context mContext;
 
     public ProfileAccountMigration(Context context) {
@@ -63,9 +65,24 @@ public class ProfileAccountMigration implements Migration {
 
     private void updateOldMobileDemo(SQLiteDatabase database) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ServerProfilesTable.SERVER_URL, AccountServerData.Demo.SERVER_URL);
-        database.update(ServerProfilesTable.TABLE_NAME, contentValues,
-                ServerProfilesTable.SERVER_URL + "=?", new String[] {LEGACY_MOBILE_DEMO});
+        contentValues.put("server_url", NEW_MOBILE_DEMO);
+
+        Cursor cursor = database.query("server_profiles", new String[]{BaseColumns._ID},
+                "server_url=?", new String[]{LEGACY_MOBILE_DEMO}, null, null, null);
+        try {
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    String id = cursor.getString(cursor.getColumnIndex(BaseColumns._ID));
+                    database.delete("favorites", "server_profile_id=?", new String[]{id});
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        database.update("server_profiles", contentValues, "server_url=?", new String[] {LEGACY_MOBILE_DEMO});
     }
 
     private void migrateOldProfiles(SQLiteDatabase db) {

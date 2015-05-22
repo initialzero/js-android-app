@@ -247,6 +247,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         }
     }
 
+    @Override
+    public void onSessionRefreshed() {
+        loadFlow();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------

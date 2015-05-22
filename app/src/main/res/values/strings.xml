@@ -243,7 +243,8 @@
 
     <!--Dashboard activity-->
     <string name="da_session_expired" translatable="false">Session expired</string>
-    <string name="da_loading" translatable="false">Loading dashboard…</string>
+    <string name="da_session_refresh_failed" translatable="false">Failed to refresh session</string>
+    <string name="da_loading" translatable="false">Loading dashboard...</string>
 
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all" translatable="false">Check all</string>

@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
 import android.accounts.Account;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -177,6 +178,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
         }
     };
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            ReportViewerActivity.super.onBackPressed();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -324,6 +331,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         ProgressDialogFragment
                 .builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.r_ab_refresh)
+                .setOnCancelListener(cancelListener)
                 .show();
         webView.setVisibility(View.INVISIBLE);
         paginationControl.setVisibility(View.GONE);
@@ -425,7 +433,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     public void onLoadStart() {
         paginationControl.reset();
         paginationControl.setVisibility(View.GONE);
-        ProgressDialogFragment.builder(getSupportFragmentManager()).show();
+        ProgressDialogFragment.builder(getSupportFragmentManager()).setOnCancelListener(cancelListener).show();
         webView.setVisibility(View.INVISIBLE);
     }
 

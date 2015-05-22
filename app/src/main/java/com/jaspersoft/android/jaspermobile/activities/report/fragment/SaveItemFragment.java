@@ -169,6 +169,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                     // save report
                     // run new report execution
                     setRefreshActionButtonState(true);
+                    disableAllViewsWhileSaving();
 
                     final ReportExecutionRequest executionData = new ReportExecutionRequest();
                     executionData.setReportUnitUri(resource.getUri());
@@ -264,6 +265,22 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void disableAllViewsWhileSaving(){
+        formatSpinner.setEnabled(false);
+        reportNameInput.setEnabled(false);
+        rangeControls.setEnabled(false);
+        fromPageControl.setEnabled(false);
+        toPageControl.setEnabled(false);
+    }
+
+    private void enableAllViewsAfterSaving(){
+        formatSpinner.setEnabled(true);
+        reportNameInput.setEnabled(true);
+        rangeControls.setEnabled(true);
+        fromPageControl.setEnabled(true);
+        toPageControl.setEnabled(true);
+    }
 
     private boolean isReportNameValid() {
         String reportName = reportNameInput.getText().toString();
@@ -392,6 +409,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
             setRefreshActionButtonState(false);
+            enableAllViewsAfterSaving();
             runningRequests--;
             removeTemplate();
         }
@@ -444,6 +462,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             }
             removeTemplate();
             setRefreshActionButtonState(false);
+            enableAllViewsAfterSaving();
         }
 
         @Override
@@ -453,6 +472,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             if (runningRequests == 0) {
                 // activity is done and should be closed
                 setRefreshActionButtonState(false);
+                enableAllViewsAfterSaving();
                 Toast.makeText(getActivity(), R.string.sr_t_report_saved, Toast.LENGTH_SHORT).show();
                 getActivity().finish();
             }

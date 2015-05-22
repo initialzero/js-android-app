@@ -50,24 +50,36 @@ public class UtilReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (action.equals(REMOVE_COOKIES)) {
-            JasperAccountManager.get(context).invalidateActiveToken();
-            Toast.makeText(context, "Cookies removed", Toast.LENGTH_LONG).show();
+            deleteToken(context);
         } else if (action.equals(DEPRECATE_COOKIES)) {
-            Account account = JasperAccountManager.get(context).getActiveAccount();
-            if (account != null) {
-                AccountManager accountManager = AccountManager.get(context);
-                accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, INVALID_COOKIE);
-                Toast.makeText(context, "Cookie was deprecated", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(context, "No active account. Nothing to deprecate.", Toast.LENGTH_LONG).show();
-            }
+            overrideTokenWithOldOne(context);
         } else if (action.equals(REMOVE_ALL_ACCOUNTS)) {
-            Account[] accounts = JasperAccountManager.get(context).getAccounts();
-            AccountManager accountManager = AccountManager.get(context);
-            for (Account account : accounts) {
-                accountManager.removeAccount(account, null, null);
-            }
-            Toast.makeText(context, "Accounts removed", Toast.LENGTH_LONG).show();
+            removeAccounts(context);
         }
+    }
+
+    private void deleteToken(Context context) {
+        JasperAccountManager.get(context).invalidateActiveToken();
+        Toast.makeText(context, "Cookies removed", Toast.LENGTH_LONG).show();
+    }
+
+    private void overrideTokenWithOldOne(Context context) {
+        Account account = JasperAccountManager.get(context).getActiveAccount();
+        if (account != null) {
+            AccountManager accountManager = AccountManager.get(context);
+            accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, INVALID_COOKIE);
+            Toast.makeText(context, "Cookie was deprecated", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(context, "No active account. Nothing to deprecate.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void removeAccounts(Context context) {
+        Account[] accounts = JasperAccountManager.get(context).getAccounts();
+        AccountManager accountManager = AccountManager.get(context);
+        for (Account account : accounts) {
+            accountManager.removeAccount(account, null, null);
+        }
+        Toast.makeText(context, "Accounts removed", Toast.LENGTH_LONG).show();
     }
 }

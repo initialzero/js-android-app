@@ -209,12 +209,12 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
             String reportName = reportNameEdit.getText().toString().trim();
             String newReportFolderName = reportNameEdit.getText().toString().trim() + "." + extension;
 
-            if (newReportFolderName.isEmpty()) {
+            if (reportName.isEmpty()) {
                 reportNameEdit.setError(getString(R.string.sdr_rrd_error_name_is_empty));
                 return;
             }
 
-            if (FileUtils.nameContainsReservedChars(newReportFolderName)) {
+            if (FileUtils.nameContainsReservedChars(reportName)) {
                 reportNameEdit.setError(getString(R.string.sdr_rrd_error_characters_not_allowed));
                 return;
             }

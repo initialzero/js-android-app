@@ -82,6 +82,12 @@ public class ResourcesControllerFragment extends ControllerFragment
     private ResourcesFragment contentFragment;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getArguments().putString(PREF_TAG_KEY, "resources_pref");
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -92,15 +98,6 @@ public class ResourcesControllerFragment extends ControllerFragment
             commitContentFragment();
         } else {
             contentFragment = inMemoryFragment;
-        }
-    }
-
-    public void replacePreviewOnDemand() {
-        String currentType = contentFragment.viewType.toString();
-        boolean previewHasChanged = !controllerPref.viewType().get().equals(currentType);
-        if (previewHasChanged) {
-            controllerPref.viewType().put(currentType);
-            switchLayout();
         }
     }
 
@@ -145,5 +142,4 @@ public class ResourcesControllerFragment extends ControllerFragment
         contentFragment.setQuery(query);
         contentFragment.loadFirstPage();
     }
-
 }

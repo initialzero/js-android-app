@@ -58,6 +58,12 @@ public class FavoritesControllerFragment extends ControllerFragment {
     protected ResourceLookup.ResourceType filterType;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getArguments().putString(PREF_TAG_KEY, "favorites_pref");
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 

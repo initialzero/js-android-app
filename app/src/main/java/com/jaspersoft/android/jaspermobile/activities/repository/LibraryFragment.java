@@ -52,7 +52,6 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -184,11 +183,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
                 .setInitialSortOption(sortOptions.getOrder())
                 .setTargetFragment(this)
                 .show();
-    }
-
-    @OnActivityResult(SearchControllerFragment.SEARCH_ACTION)
-    public void searchAction() {
-        resourcesController.replacePreviewOnDemand();
     }
 
     @Override

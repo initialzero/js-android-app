@@ -367,7 +367,9 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     private void setRefreshState(boolean refreshing) {
         mLoading = refreshing;
-        swipeRefreshLayout.setRefreshing(refreshing);
+        if (!refreshing) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void loadPage() {

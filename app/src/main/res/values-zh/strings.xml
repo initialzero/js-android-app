@@ -119,7 +119,6 @@
 
     <!-- Rename Report Dialog -->
     <string name="sdr_rrd_msg">输入新名称:</string>
-    <string name="sdr_rrd_error_name_is_empty">不能为空</string>
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">删除报告</string>

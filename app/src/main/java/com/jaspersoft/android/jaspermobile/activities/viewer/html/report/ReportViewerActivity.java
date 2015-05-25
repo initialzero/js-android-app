@@ -148,7 +148,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @InstanceState
     protected Uri favoriteEntryUri;
     @InstanceState
-    protected boolean mScriptReady;
+    protected boolean mPaused;
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -255,19 +255,17 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     protected void onPause() {
+        mPaused = true;
+        webView.loadUrl("javascript:MobileReport.pause()");
         mHandler.removeCallbacks(mZoomOutTask);
         super.onPause();
-        if (mScriptReady) {
-            webView.loadUrl("javascript:MobileReport.pause()");
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mScriptReady) {
-            webView.loadUrl("javascript:MobileReport.resume()");
-        }
+        mPaused = false;
+        webView.loadUrl("javascript:MobileReport.resume()");
     }
 
     @Override
@@ -424,16 +422,18 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onScriptLoaded() {
-        mScriptReady = true;
         runReport(paramsSerializer.toJson(getReportParameters()));
     }
 
     @UiThread
     @Override
     public void onLoadStart() {
+        if (mPaused) return;
         paginationControl.reset();
         paginationControl.setVisibility(View.GONE);
-        ProgressDialogFragment.builder(getSupportFragmentManager()).setOnCancelListener(cancelListener).show();
+        ProgressDialogFragment
+                .builder(getSupportFragmentManager())
+                .setOnCancelListener(cancelListener).show();
         webView.setVisibility(View.INVISIBLE);
     }
 

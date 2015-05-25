@@ -162,7 +162,7 @@
     <string name="sdr_rrd_title" translatable="false">Rename file</string>
     <string name="sdr_rrd_msg">Enter new name:</string>
     <string name="sdr_rrd_hint" translatable="false">File name</string>
-    <string name="sdr_rrd_error_name_is_empty"> translatable="false"This field is required.</string>
+    <string name="sdr_rrd_error_name_is_empty" translatable="false">This field is required.</string>
     <string name="sdr_rrd_error_characters_not_allowed" translatable="false">The following characters are not allowed: * \\ / \" \' : ? | &lt; > + [ ]</string>
     <string name="sdr_rrd_error_report_exists" translatable="false">A file with this name already exists.</string>
 

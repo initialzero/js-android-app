@@ -119,7 +119,6 @@
 
     <!-- Rename Report Dialog -->
     <string name="sdr_rrd_msg">Introduzca un nombre nuevo:</string>
-    <string name="sdr_rrd_error_name_is_empty">No puede estar vacío.</string>
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">Eliminar informe</string>

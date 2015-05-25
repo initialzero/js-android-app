@@ -36,6 +36,7 @@ import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
@@ -105,9 +106,18 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
                 ).toBlocking().firstOrDefault(null);
 
                 ServerInfo serverInfo = loginResponse.getServerInfo();
+
+                boolean serverInfoEditionUpdated = !serverInfo.getEdition().equals(serverData.getEdition());
+                boolean serverInfoVersionUpdated = !serverInfo.getVersion().equals(serverData.getVersionName());
+
                 Timber.d("Updating user data with server info: " + serverInfo);
                 accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
                 accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
+
+                if (serverInfoEditionUpdated || serverInfoVersionUpdated) {
+                    int flags = Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK;
+                    NavigationActivity_.intent(mContext).flags(flags).start();
+                }
 
                 if (!ServerRelease.satisfiesMinVersion(serverInfo.getVersion())) {
                     result.putString(AccountManager.KEY_ERROR_MESSAGE, mContext.getString(R.string.r_error_server_not_supported));

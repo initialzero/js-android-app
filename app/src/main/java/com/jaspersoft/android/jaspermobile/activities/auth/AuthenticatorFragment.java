@@ -189,7 +189,7 @@ public class AuthenticatorFragment extends RoboFragment {
                 + JasperSettings.DEFAULT_REST_VERSION;
         JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
         Observable<LoginResponse> loginObservable = restClient.login(
-                organizationEdit.getText().toString(),
+                organizationEdit.getText().toString().trim(),
                 usernameEdit.getText().toString(),
                 passwordEdit.getText().toString()
         ).subscribeOn(Schedulers.io());
@@ -253,7 +253,7 @@ public class AuthenticatorFragment extends RoboFragment {
                 .setServerCookie(response.getCookie())
                 .setAlias(aliasEdit.getText().toString())
                 .setServerUrl(trimUrl(serverUrlEdit.getText().toString()))
-                .setOrganization(organizationEdit.getText().toString())
+                .setOrganization(organizationEdit.getText().toString().trim())
                 .setUsername(usernameEdit.getText().toString())
                 .setPassword(passwordEdit.getText().toString())
                 .setEdition(serverInfo.getEdition())

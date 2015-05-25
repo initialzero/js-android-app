@@ -500,6 +500,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public void showEmptyView() {
+        emptyView.setText(R.string.rv_error_empty_report);
         emptyView.setVisibility(View.VISIBLE);
     }
 

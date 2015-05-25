@@ -40,6 +40,7 @@ import com.jaspersoft.android.sdk.util.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -62,6 +63,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
  * @author Tom Koptel
  * @since 2.0
  */
+@Ignore
 @RunWith(CustomRobolectricTestRunner.class)
 @Config(
         shadows = {ShadowApplicationImpl.class},

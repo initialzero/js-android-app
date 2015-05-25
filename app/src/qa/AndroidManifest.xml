@@ -37,6 +37,8 @@
                 <action android:name="jaspermobile.util.action.REMOVE_COOKIES" />
                 <action android:name="jaspermobile.util.action.DEPRECATE_COOKIES" />
                 <action android:name="jaspermobile.util.action.REMOVE_ALL_ACCOUNTS" />
+                <action android:name="jaspermobile.util.action.DOWNGRADE_SERVER_VERSION" />
+                <action android:name="jaspermobile.util.action.CHANGE_SERVER_EDITION" />
             </intent-filter>
         </receiver>
     </application>

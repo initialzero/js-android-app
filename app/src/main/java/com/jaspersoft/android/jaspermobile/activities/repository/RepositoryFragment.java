@@ -39,7 +39,6 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterM
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 
 import roboguice.fragment.RoboFragment;
@@ -105,12 +104,6 @@ public class RepositoryFragment extends RoboFragment {
     @OptionsItem(android.R.id.home)
     final void showHome() {
         getActivity().onBackPressed();
-    }
-
-
-    @OnActivityResult(SearchControllerFragment.SEARCH_ACTION)
-    public void searchAction() {
-        resourcesController.replacePreviewOnDemand();
     }
 
 }

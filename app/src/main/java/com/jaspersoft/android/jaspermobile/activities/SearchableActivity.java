@@ -54,6 +54,8 @@ public class SearchableActivity extends RoboSpiceActivity {
     String resourceUri;
     @Extra
     String controllerTag;
+    @Extra
+    String prefTag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,7 @@ public class SearchableActivity extends RoboSpiceActivity {
                                 .resourceUri(resourceUri)
                                 .controllerTag(controllerTag)
                                 .query(query)
+                                .prefTag(prefTag)
                                 .build();
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG)

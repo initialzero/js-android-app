@@ -72,6 +72,9 @@ public class ResourcesControllerFragment extends ControllerFragment
     @InstanceState
     @FragmentArg
     int emptyMessage;
+    @InstanceState
+    @FragmentArg
+    String prefTag;
 
     @FragmentArg
     boolean hideMenu;
@@ -80,12 +83,6 @@ public class ResourcesControllerFragment extends ControllerFragment
     public String controllerTag;
 
     private ResourcesFragment contentFragment;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getArguments().putString(PREF_TAG_KEY, "resources_pref");
-    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

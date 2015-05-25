@@ -91,8 +91,8 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
 
         if (!mLoading && !mLoaded) {
             mLoading = true;
@@ -106,6 +106,12 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
                     .create();
             requestExecutor.execute(request, new GetInputControlsListener());
         }
+    }
+
+    @Override
+    public void onPause() {
+        mLoading = false;
+        super.onPause();
     }
 
     @Override

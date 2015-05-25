@@ -54,7 +54,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     private ResourceInteractionListener mResourceInteractionListener;
 
     public ResourceAdapter(Context context,
-                            Bundle savedInstanceState, ViewType viewType) {
+                           Bundle savedInstanceState, ViewType viewType) {
         super(savedInstanceState, context, 0);
         favoriteHelper = FavoritesHelper_.getInstance_(context);
         if (viewType == null) {
@@ -114,6 +114,18 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     }
 
     @Override
+    public void add(ResourceLookup object) {
+        super.add(object);
+        // Because of rotation we are loosing content of adapter. For that
+        // reason we are altering ActionMode icon if it visible state to
+        // the required value.
+        if (favoriteActionItem != null && getCount() > getCurrentPosition()
+                && getCurrentPosition() != SingleChoiceAdapterHelper.NO_POSITION) {
+            alterFavoriteIcon();
+        }
+    }
+
+    @Override
     public void clear() {
         super.clear();
         resetCurrentPosition();
@@ -137,12 +149,12 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         ResourceLookup resource = getItem(getCurrentPosition());
         switch (item.getItemId()) {
             case R.id.favoriteAction:
-                if(mResourceInteractionListener != null) {
+                if (mResourceInteractionListener != null) {
                     mResourceInteractionListener.onFavorite(resource);
                 }
                 break;
             case R.id.showAction:
-                if(mResourceInteractionListener != null) {
+                if (mResourceInteractionListener != null) {
                     mResourceInteractionListener.onInfo(resource.getLabel(), resource.getDescription());
                 }
                 break;
@@ -174,6 +186,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
 
     public static interface ResourceInteractionListener {
         void onFavorite(ResourceLookup resource);
+
         void onInfo(String temTitle, String itemDescription);
     }
 }

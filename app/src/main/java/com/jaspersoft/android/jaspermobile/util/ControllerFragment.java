@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -53,6 +54,7 @@ public abstract class ControllerFragment extends RoboFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        restoreSavedInstanceState(savedInstanceState);
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
@@ -68,6 +70,19 @@ public abstract class ControllerFragment extends RoboFragment {
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         toggleSwitcher();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        bundle.putInt("switchMenuIcon", switchMenuIcon);
+    }
+
+    private void restoreSavedInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return;
+        }
+        switchMenuIcon = savedInstanceState.getInt("switchMenuIcon");
     }
 
     @Override
@@ -145,6 +160,9 @@ public abstract class ControllerFragment extends RoboFragment {
 
     private void initControllerPref() {
         String prefTag = getArguments().getString(PREF_TAG_KEY);
+        if (TextUtils.isEmpty(prefTag)) {
+            throw new IllegalStateException("Missing preference key for switch component");
+        }
         controllerPref = new ControllerPref(getActivity(), prefTag);
     }
 

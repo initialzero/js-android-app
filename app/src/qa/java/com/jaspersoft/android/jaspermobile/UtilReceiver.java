@@ -70,7 +70,7 @@ public class UtilReceiver extends BroadcastReceiver {
 
     private void deleteToken(Context context) {
         JasperAccountManager.get(context).invalidateActiveToken();
-        Toast.makeText(context, "Cookies removed", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Cookies removed", Toast.LENGTH_SHORT).show();
     }
 
     private void overrideTokenWithOldOne(Context context) {
@@ -78,9 +78,9 @@ public class UtilReceiver extends BroadcastReceiver {
         if (account != null) {
             AccountManager accountManager = AccountManager.get(context);
             accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, INVALID_COOKIE);
-            Toast.makeText(context, "Cookie was deprecated", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Cookie was deprecated", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(context, "No active account. Nothing to deprecate.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "No active account. Nothing to deprecate.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -90,21 +90,21 @@ public class UtilReceiver extends BroadcastReceiver {
         for (Account account : accounts) {
             accountManager.removeAccount(account, null, null);
         }
-        Toast.makeText(context, "Accounts removed", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Accounts removed", Toast.LENGTH_SHORT).show();
     }
 
     private void downgradeServerVersion(Context context, Intent intent) {
         Account account = JasperAccountManager.get(context).getActiveAccount();
         if (account == null) {
-            Toast.makeText(context, "No active account. Nothing to downgrade.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "No active account. Nothing to downgrade.", Toast.LENGTH_SHORT).show();
         } else {
             String versionName = intent.getStringExtra("target_version");
             if (TextUtils.isEmpty(versionName)) {
-                Toast.makeText(context, "Target version missing. Can't downgrade.", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Target version missing. Can't downgrade.", Toast.LENGTH_SHORT).show();
             } else {
                 AccountManager accountManager = AccountManager.get(context);
                 accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, versionName);
-                Toast.makeText(context, "Server was downgraded to version: " + versionName, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Server was downgraded to version: " + versionName, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -112,15 +112,15 @@ public class UtilReceiver extends BroadcastReceiver {
     private void changeServerVersion(Context context, Intent intent) {
         Account account = JasperAccountManager.get(context).getActiveAccount();
         if (account == null) {
-            Toast.makeText(context, "No active account. No way to change edition.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "No active account. No way to change edition.", Toast.LENGTH_SHORT).show();
         } else {
             String editionName = intent.getStringExtra("edition_version");
             if (TextUtils.isEmpty(editionName)) {
-                Toast.makeText(context, "Target server edition not found. Can't update server.", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Target server edition not found. Can't update server.", Toast.LENGTH_SHORT).show();
             } else {
                 AccountManager accountManager = AccountManager.get(context);
                 accountManager.setUserData(account, AccountServerData.EDITION_KEY, editionName);
-                Toast.makeText(context, "Server edition was changed: " + editionName, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Server edition was changed: " + editionName, Toast.LENGTH_SHORT).show();
             }
         }
     }

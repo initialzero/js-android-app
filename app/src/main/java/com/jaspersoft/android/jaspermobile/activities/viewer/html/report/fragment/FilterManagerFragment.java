@@ -171,6 +171,11 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         getActivity().supportInvalidateOptionsMenu();
     }
 
+    public void enableSaveOption() {
+        mShowSaveOption = true;
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------

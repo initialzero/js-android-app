@@ -36,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -267,7 +268,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
     public void onDestroy() {
         super.onDestroy();
 
-        if (this.webView != null) {
+        if (webView != null) {
+            ((ViewGroup) webView.getParent()).removeView(webView);
+            webView.removeAllViews();
             webView.destroy();
         }
     }

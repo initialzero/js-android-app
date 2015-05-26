@@ -50,6 +50,7 @@ import roboguice.fragment.RoboFragment;
 @EFragment
 public class RepositoryFragment extends RoboFragment {
     public static final String TAG = RepositoryFragment.class.getSimpleName();
+    private static final String PREF_TAG = "repo_pref";
 
     @Bean
     protected FilterManagerBean filterManager;
@@ -77,12 +78,14 @@ public class RepositoryFragment extends RoboFragment {
                             .emptyMessage(R.string.r_browser_nothing_to_display)
                             .recursiveLookup(false)
                             .resourceTypes(filterManager.getFiltersForRepository())
+                            .prefTag(PREF_TAG)
                             .build();
             transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG + TAG);
 
             SearchControllerFragment searchControllerFragment =
                     SearchControllerFragment_.builder()
                     .resourceTypes(filterManager.getFiltersForRepository())
+                    .prefTag(PREF_TAG)
                     .build();
             transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
             transaction.commit();

@@ -63,6 +63,9 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
+    @InstanceState
+    @FragmentArg
+    String prefTag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +94,7 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
                 .resourceUri(resourceUri)
                 .resourceTypes(resourceTypes)
                 .controllerTag(getActivity().getLocalClassName())
+                .prefTag(prefTag)
                 .get();
         searchIntent.setAction(Intent.ACTION_SEARCH);
         getActivity().startActivityForResult(searchIntent, SEARCH_ACTION);

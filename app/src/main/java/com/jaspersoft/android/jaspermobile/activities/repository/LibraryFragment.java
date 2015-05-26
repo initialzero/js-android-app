@@ -70,6 +70,7 @@ import roboguice.fragment.RoboFragment;
 @EFragment
 public class LibraryFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
     public static final String TAG = LibraryFragment.class.getSimpleName();
+    private static final String PREF_TAG = "library_pref";
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -114,12 +115,14 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
                             .resourceTypes(filterOptions.getFilters())
                             .sortOrder(sortOptions.getOrder())
                             .recursiveLookup(true)
+                            .prefTag(PREF_TAG)
                             .build();
             transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG + TAG);
 
             searchControllerFragment =
                     SearchControllerFragment_.builder()
                             .resourceTypes(filterOptions.getFilters())
+                            .prefTag(PREF_TAG)
                             .build();
             transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
             transaction.commit();

@@ -93,6 +93,18 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     private ResourcesControllerFragment resourcesController;
     private SearchControllerFragment searchControllerFragment;
 
+    private final FilterDialogFragment.FilterDialogListener mFilterDialogListener = new FilterDialogFragment.FilterDialogListener() {
+        @Override
+        public void onDialogPositiveClick(List<String> types) {
+            if (resourcesController != null) {
+                resourcesController.loadResourcesByTypes(types);
+            }
+            if (searchControllerFragment != null) {
+                searchControllerFragment.setResourceTypes(types);
+            }
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,6 +151,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     @Override
     public void onResume() {
         super.onResume();
+        FilterDialogFragment.attachListener(getFragmentManager(), mFilterDialogListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.h_library_label);
@@ -166,18 +179,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
     @OptionsItem(R.id.filter)
     final void startFiltering() {
-        FilterDialogFragment.show(getFragmentManager(),
-                new FilterDialogFragment.FilterDialogListener() {
-                    @Override
-                    public void onDialogPositiveClick(List<String> types) {
-                        if (resourcesController != null) {
-                            resourcesController.loadResourcesByTypes(types);
-                        }
-                        if (searchControllerFragment != null) {
-                            searchControllerFragment.setResourceTypes(types);
-                        }
-                    }
-                });
+        FilterDialogFragment.show(getFragmentManager(), mFilterDialogListener);
     }
 
     @OptionsItem(R.id.sort)

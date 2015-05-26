@@ -87,8 +87,9 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         mHandler.removeCallbacksAndMessages(null);
     }
 
-    public void showEmptyReportOptionsDialog() {
+    public void handleEmptyReportEvent() {
         reportView.showEmptyView();
+        getFilterMangerFragment().disableSaveOption();
     }
 
     //---------------------------------------------------------------------
@@ -145,9 +146,8 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
         @Override
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
-            getFilterMangerFragment().disableSaveOption();
             ProgressDialogFragment.dismiss(getFragmentManager());
-            showEmptyReportOptionsDialog();
+            handleEmptyReportEvent();
         }
 
         public void onRequestSuccess(ReportExecutionResponse response) {
@@ -161,6 +161,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             requestId = response.getRequestId();
             reportSession.setRequestId(requestId);
+            getFilterMangerFragment().enableSaveOption();
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
@@ -168,7 +169,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 reportSession.setTotalPage(totalPageCount);
 
                 if (totalPageCount == 0) {
-                    showEmptyReportOptionsDialog();
+                    handleEmptyReportEvent();
                 } else {
                     getFilterMangerFragment().makeSnapshot();
                     paginationManagerFragment.paginateToCurrentSelection();
@@ -221,8 +222,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             } else if (isStatusPending(status)) {
                 mHandler.postDelayed(new StatusCheckTask(requestId), TimeUnit.SECONDS.toMillis(1));
             } else if (status == ReportStatus.failed) {
-                getFilterMangerFragment().disableSaveOption();
-                showEmptyReportOptionsDialog();
+                handleEmptyReportEvent();
             }
         }
     }
@@ -239,7 +239,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             reportSession.setTotalPage(totalPageCount);
 
             if (totalPageCount == 0) {
-                showEmptyReportOptionsDialog();
+                handleEmptyReportEvent();
             } else {
                 getFilterMangerFragment().makeSnapshot();
             }

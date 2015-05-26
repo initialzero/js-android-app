@@ -45,6 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
@@ -65,7 +66,6 @@ import org.androidannotations.annotations.ViewById;
 
 import rx.Subscription;
 import rx.functions.Action1;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author Tom Koptel
@@ -100,15 +100,16 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     @Bean
     protected ReportExportOutputLoader reportExportOutputLoader;
 
-    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private ExportResultListener exportResultListener;
     private OnPageLoadListener onPageLoadListener;
     private RequestExecutor requestExecutor;
     private ServerRelease mRelease;
+    private Subscription fetchReportSubscription;
+    private boolean mIsFetching;
 
     @OptionsItem
     final void refreshAction() {
-        fetchReport();
+        subscribeFetchReport();
     }
 
     @AfterViews
@@ -127,13 +128,21 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                 .create();
         reportSession.registerObserver(sessionObserver);
         prepareWebView();
-        fetchReport();
+        subscribeFetchReport();
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        mCompositeSubscription.unsubscribe();
+    public void onResume() {
+        super.onResume();
+        if (mIsFetching) {
+            subscribeFetchReport();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        unSubscribeFetchReport();
+        super.onPause();
     }
 
     @Override
@@ -206,13 +215,15 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         }
     }
 
-    private void fetchReport() {
+    private void subscribeFetchReport() {
+        mIsFetching = true;
         showMessage(getString(R.string.loading_msg));
 
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(
+        fetchReportSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(
                 new Action1<Boolean>() {
                     @Override
                     public void call(Boolean aBoolean) {
+                        mIsFetching = false;
                         hideMessage();
                         progressBar.setVisibility(View.VISIBLE);
                         webView.setVisibility(View.INVISIBLE);
@@ -222,10 +233,17 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                 new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
+                        mIsFetching = false;
+                        ProgressDialogFragment.dismiss(getFragmentManager());
                         showMessage(throwable.getMessage());
                     }
                 });
-        mCompositeSubscription.add(cookieSubscription);
+    }
+
+    private void unSubscribeFetchReport() {
+        if (fetchReportSubscription != null) {
+            fetchReportSubscription.unsubscribe();
+        }
     }
 
     private void showErrorMessage() {
@@ -288,7 +306,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
             new ReportSession.ExecutionObserver() {
                 @Override
                 public void onRequestIdChanged(String requestId) {
-                    fetchReport();
+                    subscribeFetchReport();
                 }
 
                 @Override
@@ -297,7 +315,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                     boolean isEmerald3OrHigher = mRelease.code() >= ServerRelease.EMERALD_MR3.code();
                     boolean hasPages = totalPage != 0;
                     if (notFinal && isEmerald3OrHigher && hasPages) {
-                        fetchReport();
+                        subscribeFetchReport();
                     }
                 }
             };

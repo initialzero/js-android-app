@@ -29,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
@@ -102,6 +103,7 @@ public class ResourceOpener {
                         .resourceTypes(resourceTypes)
                         .resourceLabel(resource.getLabel())
                         .resourceUri(resource.getUri())
+                        .prefTag(RepositoryFragment.PREF_TAG)
                         .build();
         fragment.getFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())

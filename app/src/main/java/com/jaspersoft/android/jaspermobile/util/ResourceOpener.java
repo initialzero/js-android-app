@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment;
@@ -135,7 +136,8 @@ public class ResourceOpener {
                         .resource(resource).start();
                 break;
             default:
-                throw new UnsupportedOperationException("Could not open viewer for current versionName: " + serverRelease.code());
+                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
+                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -150,6 +152,7 @@ public class ResourceOpener {
             case EMERALD_MR1:
             case EMERALD_MR2:
             case EMERALD_MR3:
+            case EMERALD_MR4:
                 LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
                 break;
             case AMBER:
@@ -160,7 +163,8 @@ public class ResourceOpener {
                 Amber2DashboardActivity_.intent(activity).resource(resource).start();
                 break;
             default:
-                throw new UnsupportedOperationException("Could not identify dashboard view for: " + serverRelease.code());
+                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
+                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }
     }
 }

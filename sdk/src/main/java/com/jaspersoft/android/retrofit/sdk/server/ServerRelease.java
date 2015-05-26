@@ -37,13 +37,16 @@ public enum ServerRelease {
     EMERALD_MR4(5.61d),
     AMBER(6.0d),
     AMBER_MR1(6.01d),
-    AMBER_MR2(6.1d),
-    JADE(7.0d);
+    AMBER_MR2(6.1d);
 
-    private final double mVersionCode;
+    private double mVersionCode;
 
     ServerRelease(double versionCode) {
         this.mVersionCode = versionCode;
+    }
+
+    public void setVersionCode(double versionCode) {
+        mVersionCode = versionCode;
     }
 
     public double code() {
@@ -72,6 +75,7 @@ public enum ServerRelease {
                 return release;
             }
         }
+        UNKNOWN.setVersionCode(versionCode);
         return UNKNOWN;
     }
 }

@@ -71,6 +71,7 @@ public final class WebFlowFactory {
                 case EMERALD_MR1:
                 case EMERALD_MR2:
                 case EMERALD_MR3:
+                case EMERALD_MR4:
                     webFlow = new EmeraldWebFlow();
                     break;
                 case AMBER:

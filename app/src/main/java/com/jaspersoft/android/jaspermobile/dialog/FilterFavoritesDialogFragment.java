@@ -69,6 +69,17 @@ public class FilterFavoritesDialogFragment extends DialogFragment {
         }
     }
 
+    public static void attachListener(FragmentManager fm,
+                                      ResourceLookup.ResourceType filterType,
+                                      FilterFavoritesDialogListener filterSelectedListener) {
+        FilterFavoritesDialogFragment dialogFragment =
+                (FilterFavoritesDialogFragment) fm.findFragmentByTag(TAG);
+        if (dialogFragment != null) {
+            dialogFragment.setType(filterType);
+            dialogFragment.setFilterSelectedListener(filterSelectedListener);
+        }
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -117,6 +128,10 @@ public class FilterFavoritesDialogFragment extends DialogFragment {
 
     public void setFilterSelectedListener(FilterFavoritesDialogListener filterSelectedListener) {
         this.filterSelectedListener = filterSelectedListener;
+    }
+
+    public void setType(ResourceLookup.ResourceType mType) {
+        this.mType = mType;
     }
 
     public static interface FilterFavoritesDialogListener {

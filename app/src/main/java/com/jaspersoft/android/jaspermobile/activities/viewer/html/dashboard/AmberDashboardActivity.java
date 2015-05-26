@@ -70,6 +70,9 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @InstanceState
     protected boolean mMaximized;
 
+    @InstanceState
+    protected boolean mPaused;
+
     private Toast mToast;
     private int mOrientation;
     private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
@@ -112,7 +115,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (newConfig.orientation != mOrientation && mOrientation != -1) {
+        if (newConfig.orientation != mOrientation && mOrientation != -1 && !mPaused) {
             mOrientation = newConfig.orientation;
             ProgressDialogFragment.builder(getSupportFragmentManager())
                     .setLoadingMessage(R.string.loading_msg)
@@ -123,12 +126,14 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     protected void onPause() {
         super.onPause();
+        mPaused = true;
         webView.loadUrl("javascript:MobileDashboard.pause()");
     }
 
     @Override
     protected void onResume() {
         super.onPause();
+        mPaused = false;
         webView.loadUrl("javascript:MobileDashboard.resume()");
     }
 

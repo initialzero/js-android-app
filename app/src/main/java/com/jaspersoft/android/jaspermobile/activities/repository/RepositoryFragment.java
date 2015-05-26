@@ -50,7 +50,7 @@ import roboguice.fragment.RoboFragment;
 @EFragment
 public class RepositoryFragment extends RoboFragment {
     public static final String TAG = RepositoryFragment.class.getSimpleName();
-    private static final String PREF_TAG = "repo_pref";
+    public static final String PREF_TAG = "repo_pref";
 
     @Bean
     protected FilterManagerBean filterManager;

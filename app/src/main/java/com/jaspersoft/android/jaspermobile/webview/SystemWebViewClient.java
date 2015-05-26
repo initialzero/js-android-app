@@ -94,7 +94,7 @@ public class SystemWebViewClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         boolean defaultResult = super.shouldOverrideUrlLoading(view, url);
         for (UrlPolicy urlPolicy : urlPolicies) {
-            defaultResult &= urlPolicy.shouldOverrideUrlLoading(view, url);
+            defaultResult |= urlPolicy.shouldOverrideUrlLoading(view, url);
         }
         return defaultResult;
     }

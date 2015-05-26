@@ -527,7 +527,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     protected void resetZoom() {
-        mZoomOutTask.run();
+        while(webView.zoomOut());
     }
 
     private void setupPaginationControl() {

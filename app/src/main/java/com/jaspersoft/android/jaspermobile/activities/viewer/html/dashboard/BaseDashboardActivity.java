@@ -198,7 +198,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     protected void resetZoom() {
-        mZoomOutTask.run();
+        while(webView.zoomOut());
     }
 
     protected void showMessage(CharSequence message) {

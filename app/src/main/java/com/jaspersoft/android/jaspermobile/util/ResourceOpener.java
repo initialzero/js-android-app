@@ -134,7 +134,7 @@ public class ResourceOpener {
                         .resource(resource).start();
                 break;
             default:
-                String message = activity.getString(R.string.rv_no_viewer_for_report, String.valueOf(serverRelease.code()));
+                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
                 Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }
     }
@@ -161,7 +161,7 @@ public class ResourceOpener {
                 Amber2DashboardActivity_.intent(activity).resource(resource).start();
                 break;
             default:
-                String message = activity.getString(R.string.rv_no_viewer_for_dashboard, String.valueOf(serverRelease.code()));
+                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
                 Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }
     }

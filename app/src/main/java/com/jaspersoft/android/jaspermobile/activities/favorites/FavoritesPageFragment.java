@@ -71,6 +71,16 @@ public class FavoritesPageFragment extends RoboFragment implements SortDialogFra
     @Pref
     LibraryPref_ pref;
 
+    private final FilterFavoritesDialogFragment.FilterFavoritesDialogListener mFilterSelectedListener =
+            new FilterFavoritesDialogFragment.FilterFavoritesDialogListener() {
+        @Override
+        public void onDialogPositiveClick(ResourceLookup.ResourceType newFilterType) {
+            if (favoriteController != null) {
+                favoriteController.loadItemsByTypes(newFilterType);
+                filterType = newFilterType;
+            }
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,6 +118,7 @@ public class FavoritesPageFragment extends RoboFragment implements SortDialogFra
     @Override
     public void onResume() {
         super.onResume();
+        FilterFavoritesDialogFragment.attachListener(getFragmentManager(), filterType, mFilterSelectedListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.f_title);
@@ -121,16 +132,7 @@ public class FavoritesPageFragment extends RoboFragment implements SortDialogFra
 
     @OptionsItem(R.id.filter)
     final void startFiltering() {
-        FilterFavoritesDialogFragment.show(getFragmentManager(), filterType,
-                new FilterFavoritesDialogFragment.FilterFavoritesDialogListener() {
-                    @Override
-                    public void onDialogPositiveClick(ResourceLookup.ResourceType newFilterType) {
-                        if (favoriteController != null) {
-                            favoriteController.loadItemsByTypes(newFilterType);
-                            filterType = newFilterType;
-                        }
-                    }
-                });
+        FilterFavoritesDialogFragment.show(getFragmentManager(), filterType, mFilterSelectedListener);
     }
 
     @OptionsItem(R.id.sort)

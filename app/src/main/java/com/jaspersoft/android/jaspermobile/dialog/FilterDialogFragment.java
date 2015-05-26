@@ -63,7 +63,15 @@ public class FilterDialogFragment extends DialogFragment {
         if (dialogFragment == null) {
             dialogFragment = FilterDialogFragment_.builder().build();
             dialogFragment.setFilterSelectedListener(filterSelectedListener);
-            dialogFragment.show(fm ,TAG);
+            dialogFragment.show(fm, TAG);
+        }
+    }
+
+    public static void attachListener(FragmentManager fm, FilterDialogListener filterSelectedListener) {
+        FilterDialogFragment dialogFragment =
+                (FilterDialogFragment) fm.findFragmentByTag(TAG);
+        if (dialogFragment != null) {
+            dialogFragment.setFilterSelectedListener(filterSelectedListener);
         }
     }
 
@@ -120,7 +128,7 @@ public class FilterDialogFragment extends DialogFragment {
         this.filterSelectedListener = filterSelectedListener;
     }
 
-    public static interface FilterDialogListener {
+    public interface FilterDialogListener {
         void onDialogPositiveClick(List<String> types);
     }
 }

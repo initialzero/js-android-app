@@ -64,7 +64,18 @@ public class FilterSavedItemsDialogFragment extends DialogFragment {
                     .mType(mType)
                     .build();
             dialogFragment.setFilterSelectedListener(filterSelectedListener);
-            dialogFragment.show(fm ,TAG);
+            dialogFragment.show(fm, TAG);
+        }
+    }
+
+    public static void attachListener(FragmentManager fm,
+                                      FileAdapter.FileType type,
+                                      FilterSavedItemsDialogListener filterSelectedListener) {
+        FilterSavedItemsDialogFragment dialogFragment =
+                (FilterSavedItemsDialogFragment) fm.findFragmentByTag(TAG);
+        if (dialogFragment != null) {
+            dialogFragment.setType(type);
+            dialogFragment.setFilterSelectedListener(filterSelectedListener);
         }
     }
 
@@ -83,7 +94,7 @@ public class FilterSavedItemsDialogFragment extends DialogFragment {
 
         int position = NO_FILTER_POSITION;
 
-        if(mType != null) {
+        if (mType != null) {
             if (mType.equals(FileAdapter.FileType.HTML)) {
                 position = BY_HTML_POSITION;
             } else if (mType.equals(FileAdapter.FileType.PDF)) {
@@ -127,7 +138,11 @@ public class FilterSavedItemsDialogFragment extends DialogFragment {
         this.filterSelectedListener = filterSelectedListener;
     }
 
-    public static interface FilterSavedItemsDialogListener {
+    public void setType(FileAdapter.FileType mType) {
+        this.mType = mType;
+    }
+
+    public interface FilterSavedItemsDialogListener {
         void onDialogPositiveClick(FileAdapter.FileType type);
     }
 }

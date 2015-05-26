@@ -74,6 +74,17 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
     LibraryPref_ pref;
 
 
+    private final FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener mFilterSelectedListener =
+            new FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener() {
+        @Override
+        public void onDialogPositiveClick(FileAdapter.FileType _filterType) {
+            if (savedItemsController != null) {
+                savedItemsController.loadItemsByTypes(_filterType);
+                filterType = _filterType;
+            }
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,13 +113,14 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
             transaction.commit();
         } else {
             savedItemsController = (SavedItemsControllerFragment) getFragmentManager()
-                    .findFragmentByTag(SavedItemsControllerFragment.TAG + TAG);
+                    .findFragmentByTag(SavedItemsControllerFragment.TAG);
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        FilterSavedItemsDialogFragment.attachListener(getFragmentManager(), filterType, mFilterSelectedListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sdr_ab_title);
@@ -122,16 +134,7 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
 
     @OptionsItem(R.id.filter)
     final void startFiltering() {
-        FilterSavedItemsDialogFragment.show(getFragmentManager(), filterType,
-                new FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener() {
-                    @Override
-                    public void onDialogPositiveClick(FileAdapter.FileType _filterType) {
-                        if (savedItemsController != null) {
-                            savedItemsController.loadItemsByTypes(_filterType);
-                            filterType = _filterType;
-                        }
-                    }
-                });
+        FilterSavedItemsDialogFragment.show(getFragmentManager(), filterType, mFilterSelectedListener);
     }
 
     @OptionsItem(R.id.sort)

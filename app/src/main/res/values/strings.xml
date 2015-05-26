@@ -126,6 +126,8 @@
     <string name="rv_out_of_range" translatable="false">The requested page is out of range.</string>
     <string name="rv_dialog_reload">Reload</string>
     <string name="rv_open_link_chooser" translatable="false">Open link in</string>
+    <string name="rv_no_viewer_for_report" translatable="false">Could not open viewer for current versionName: %s</string>
+    <string name="rv_no_viewer_for_dashboard" translatable="false">Could not identify dashboard view for: %s</string>
 
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">The external memory card is not available. Please insert the card and try again.</string>

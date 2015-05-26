@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -82,15 +81,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-    private final Handler mHandler = new Handler();
-    private final Runnable mZoomOutTask = new Runnable() {
-        @Override
-        public void run() {
-            if (webView.zoomOut()) {
-                mHandler.postDelayed(this, 25);
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,12 +161,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
 
         return true;
-    }
-
-    @Override
-    protected void onPause() {
-        mHandler.removeCallbacks(mZoomOutTask);
-        super.onPause();
     }
 
     @Override

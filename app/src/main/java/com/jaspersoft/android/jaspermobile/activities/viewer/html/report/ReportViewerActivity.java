@@ -30,7 +30,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -168,15 +167,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
     private boolean isFlowLoaded;
 
-    private final Handler mHandler = new Handler();
-    private final Runnable mZoomOutTask = new Runnable() {
-        @Override
-        public void run() {
-            if (webView.zoomOut()) {
-                mHandler.postDelayed(this, 25);
-            }
-        }
-    };
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
         @Override
@@ -257,7 +247,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected void onPause() {
         mPaused = true;
         webView.loadUrl("javascript:MobileReport.pause()");
-        mHandler.removeCallbacks(mZoomOutTask);
         super.onPause();
     }
 

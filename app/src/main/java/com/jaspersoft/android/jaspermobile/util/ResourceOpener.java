@@ -148,6 +148,7 @@ public class ResourceOpener {
             case EMERALD_MR1:
             case EMERALD_MR2:
             case EMERALD_MR3:
+            case EMERALD_MR4:
                 LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
                 break;
             case AMBER:

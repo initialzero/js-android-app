@@ -65,6 +65,7 @@ public class ScriptTagFactory {
             case EMERALD_MR1:
             case EMERALD_MR2:
             case EMERALD_MR3:
+            case EMERALD_MR4:
                 return new EmeraldDashboardScriptTagCreator(token);
             case AMBER:
             case AMBER_MR1:

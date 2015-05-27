@@ -15,6 +15,7 @@ This software includes third party software subject to the associated copyrights
 - Retrofit 1.8.0 (Apache 2.0) - https://github.com/square/retrofit
 - jmustache 1.10 (New BSD License) - https://github.com/samskivert/jmustache
 - crashlytics 2.2.1 (Apache 2.0) - https://github.com/twitterdev/cannonball-android
+- Google Analytics 7.3.0 (Apache 2.0) - https://developers.google.com/analytics/devguides/collection/android/v4/
 
 * Software for testing case
 - Espresso 2.0 (Apache 2.0) - https://code.google.com/p/android-test-kit/

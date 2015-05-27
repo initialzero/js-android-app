@@ -28,9 +28,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -50,12 +48,6 @@ public class FavoritesControllerFragment extends ControllerFragment {
     @FragmentArg
     @InstanceState
     protected String searchQuery;
-    @FragmentArg
-    @InstanceState
-    protected SortOrder sortOrder;
-    @FragmentArg
-    @InstanceState
-    protected ResourceLookup.ResourceType filterType;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,8 +73,6 @@ public class FavoritesControllerFragment extends ControllerFragment {
     public Fragment getContentFragment() {
         contentFragment = FavoritesFragment_.builder()
                 .viewType(getViewType())
-                .sortOrder(sortOrder)
-                .filterType(filterType)
                 .searchQuery(searchQuery)
                 .build();
         return contentFragment;
@@ -91,20 +81,6 @@ public class FavoritesControllerFragment extends ControllerFragment {
     @Override
     protected String getContentFragmentTag() {
         return CONTENT_TAG;
-    }
-
-    public void loadItemsByTypes(ResourceLookup.ResourceType newFilterType) {
-        filterType = newFilterType;
-        if (contentFragment != null) {
-            contentFragment.showSavedItemsByFilter(newFilterType);
-        }
-    }
-
-    public void loadItemsBySortOrder(SortOrder newSortOrder) {
-        sortOrder = newSortOrder;
-        if (contentFragment != null) {
-            contentFragment.showSavedItemsBySortOrder(newSortOrder);
-        }
     }
 
 }

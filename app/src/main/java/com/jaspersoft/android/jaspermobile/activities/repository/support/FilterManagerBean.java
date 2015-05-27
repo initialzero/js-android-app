@@ -86,9 +86,11 @@ public class FilterManagerBean {
     }
 
     public boolean containsOnlyDashboard() {
-        List<String> filters = filterFactory.createOnlyDashboardFilters();
-        Collections.sort(filters);
-        return getFilters().equals(filters);
+        List<String> filtersRight = filterFactory.createOnlyDashboardFilters();
+        List<String> filtersLeft = getFilters();
+        Collections.sort(filtersRight);
+        Collections.sort(filtersLeft);
+        return filtersLeft.equals(filtersRight);
     }
 
     public ArrayList<String> getReportFilters() {

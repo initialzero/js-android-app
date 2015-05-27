@@ -236,7 +236,7 @@
     <string name="hint_organization" translatable="false">Organization</string>
     <string name="hint_username" translatable="false">Username</string>
     <string name="hint_password" translatable="false">Password</string>
-    <string name="success_add_account" translatable="false">Add account with name %s</string>
+    <string name="success_add_account" translatable="false">Account with name %s was added</string>
     <string name="failure_add_account" translatable="false">Failed to add account. Reason: %s</string>
     <string name="account_add" translatable="false">Adding account</string>
     <string name="jasper_account_type" translatable="false">com.jaspersoft</string>

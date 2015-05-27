@@ -41,12 +41,15 @@ import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
@@ -59,6 +62,8 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
@@ -76,16 +81,24 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @since 1.9
  */
 @EFragment
+@OptionsMenu(R.menu.saved_items_menu)
 public class FavoritesFragment extends RoboFragment
-        implements LoaderManager.LoaderCallbacks<Cursor>, FavoritesAdapter.FavoritesInteractionListener, DeleteDialogFragment.DeleteDialogClickListener {
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+        FavoritesAdapter.FavoritesInteractionListener,
+        DeleteDialogFragment.DeleteDialogClickListener,
+        SortDialogFragment.SortDialogClickListener {
 
     private final int FAVORITES_LOADER_ID = 20;
 
+
+    @InstanceState
+    protected ResourceLookup.ResourceType filterType;
+
+    @Bean
+    protected SortOptions sortOptions;
+
     @FragmentArg
     protected ViewType viewType;
-    @FragmentArg
-    @InstanceState
-    protected ResourceType filterType;
     @FragmentArg
     @InstanceState
     protected SortOrder sortOrder;
@@ -106,7 +119,21 @@ public class FavoritesFragment extends RoboFragment
     String searchQuery;
 
 
+    private final FilterFavoritesDialogFragment.FilterFavoritesDialogListener mFilterSelectedListener =
+            new FilterFavoritesDialogFragment.FilterFavoritesDialogListener() {
+                @Override
+                public void onDialogPositiveClick(ResourceLookup.ResourceType newFilterType) {
+                        showSavedItemsByFilter(newFilterType);
+                        filterType = newFilterType;
+                }
+            };
     private FavoritesAdapter mAdapter;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -131,6 +158,7 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onResume() {
         super.onResume();
+        FilterFavoritesDialogFragment.attachListener(getFragmentManager(), filterType, mFilterSelectedListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(searchQuery == null ? getString(R.string.f_title) : getString(R.string.search_result_format, searchQuery));
@@ -157,16 +185,6 @@ public class FavoritesFragment extends RoboFragment
         resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
 
         resourceOpener.openResource(this, resource);
-    }
-
-    public void showSavedItemsByFilter(ResourceType selectedFilter) {
-        filterType = selectedFilter;
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
-    }
-
-    public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
-        sortOrder = selectedSortOrder;
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
     @UiThread
@@ -300,5 +318,39 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onDeleteCanceled() {
+    }
+
+    @OptionsItem(android.R.id.home)
+    final void showHome() {
+        getActivity().onBackPressed();
+    }
+
+    @OptionsItem(R.id.filter)
+    final void startFiltering() {
+        FilterFavoritesDialogFragment.show(getFragmentManager(), filterType, mFilterSelectedListener);
+    }
+
+    @OptionsItem(R.id.sort)
+    final void startSorting() {
+        SortDialogFragment.createBuilder(getFragmentManager())
+                .setInitialSortOption(sortOptions.getOrder())
+                .setTargetFragment(this)
+                .show();
+    }
+
+    @Override
+    public void onOptionSelected(SortOrder sortOrder) {
+        showSavedItemsBySortOrder(sortOrder);
+        sortOptions.putOrder(sortOrder);
+    }
+
+    public void showSavedItemsByFilter(ResourceType selectedFilter) {
+        filterType = selectedFilter;
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
+        sortOrder = selectedSortOrder;
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 }

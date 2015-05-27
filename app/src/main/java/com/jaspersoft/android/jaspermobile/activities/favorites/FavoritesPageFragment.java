@@ -26,12 +26,9 @@ package com.jaspersoft.android.jaspermobile.activities.favorites;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
@@ -39,18 +36,9 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import roboguice.fragment.RoboFragment;
@@ -60,53 +48,16 @@ import roboguice.fragment.RoboFragment;
  * @since 1.9
  */
 @EFragment
-@OptionsMenu(R.menu.saved_items_menu)
-public class FavoritesPageFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener, FragmentManager.OnBackStackChangedListener {
+public class FavoritesPageFragment extends RoboFragment {
     public static final String TAG = FavoritesPageFragment.class.getSimpleName();
 
-    private FavoritesControllerFragment favoriteController;
-
+    // It is hack to force saved instance state not to be null after rotate
     @InstanceState
-    protected ResourceLookup.ResourceType filterType;
-
-    @Bean
-    protected SortOptions sortOptions;
+    protected boolean initialStart;
 
     @Pref
     protected LibraryPref_ pref;
-
-    @OptionsMenuItem(R.id.filter)
-    protected MenuItem filterMenuItem;
-    @OptionsMenuItem(R.id.sort)
-    protected MenuItem sortMenuItem;
-
-    private boolean mShowFilters;
-
-    private final FilterFavoritesDialogFragment.FilterFavoritesDialogListener mFilterSelectedListener =
-            new FilterFavoritesDialogFragment.FilterFavoritesDialogListener() {
-                @Override
-                public void onDialogPositiveClick(ResourceLookup.ResourceType newFilterType) {
-                    if (favoriteController != null) {
-                        favoriteController.loadItemsByTypes(newFilterType);
-                        filterType = newFilterType;
-                    }
-                }
-            };
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        calculateFilterCondition();
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        calculateFilterCondition();
-        filterMenuItem.setVisible(mShowFilters);
-        sortMenuItem.setVisible(mShowFilters);
-    }
+    private FavoritesControllerFragment favoriteController;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -119,8 +70,6 @@ public class FavoritesPageFragment extends RoboFragment implements SortDialogFra
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             favoriteController = FavoritesControllerFragment_.builder()
-                    .filterType(filterType)
-                    .sortOrder(sortOptions.getOrder())
                     .build();
 
             transaction.replace(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG);
@@ -138,53 +87,9 @@ public class FavoritesPageFragment extends RoboFragment implements SortDialogFra
     @Override
     public void onResume() {
         super.onResume();
-        getFragmentManager().addOnBackStackChangedListener(this);
-
-        FilterFavoritesDialogFragment.attachListener(getFragmentManager(), filterType, mFilterSelectedListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.f_title);
         }
-    }
-
-    @Override
-    public void onPause() {
-        getFragmentManager().removeOnBackStackChangedListener(this);
-        super.onPause();
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void showHome() {
-        getActivity().onBackPressed();
-    }
-
-    @OptionsItem(R.id.filter)
-    final void startFiltering() {
-        FilterFavoritesDialogFragment.show(getFragmentManager(), filterType, mFilterSelectedListener);
-    }
-
-    @OptionsItem(R.id.sort)
-    final void startSorting() {
-        SortDialogFragment.createBuilder(getFragmentManager())
-                .setInitialSortOption(sortOptions.getOrder())
-                .setTargetFragment(this)
-                .show();
-    }
-
-    @Override
-    public void onOptionSelected(SortOrder sortOrder) {
-        if (favoriteController != null) {
-            favoriteController.loadItemsBySortOrder(sortOrder);
-            sortOptions.putOrder(sortOrder);
-        }
-    }
-
-    @Override
-    public void onBackStackChanged() {
-        getActivity().supportInvalidateOptionsMenu();
-    }
-
-    private void calculateFilterCondition() {
-        mShowFilters = (getFragmentManager().getBackStackEntryCount() == 0);
     }
 }

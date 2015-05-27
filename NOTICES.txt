@@ -14,7 +14,7 @@ This software includes third party software subject to the associated copyrights
 - RxAndroid 0.24.0 (Apache 2.0) - https://github.com/ReactiveX/RxAndroid
 - Retrofit 1.8.0 (Apache 2.0) - https://github.com/square/retrofit
 - jmustache 1.10 (New BSD License) - https://github.com/samskivert/jmustache
-- crashlytics 2.2.1 (N/A) - http://try.crashlytics.com/terms/
+- crashlytics 2.2.1 (Apache 2.0) - https://github.com/twitterdev/cannonball-android
 
 * Software for testing case
 - Espresso 2.0 (Apache 2.0) - https://code.google.com/p/android-test-kit/

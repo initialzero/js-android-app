@@ -38,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import roboguice.fragment.RoboFragment;
@@ -49,6 +50,10 @@ import roboguice.fragment.RoboFragment;
 @EFragment
 public class FavoritesPageFragment extends RoboFragment {
     public static final String TAG = FavoritesPageFragment.class.getSimpleName();
+
+    // It is hack to force saved instance state not to be null after rotate
+    @InstanceState
+    protected boolean initialStart;
 
     @Pref
     protected LibraryPref_ pref;

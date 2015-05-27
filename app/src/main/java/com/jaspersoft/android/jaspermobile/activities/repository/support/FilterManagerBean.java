@@ -37,6 +37,7 @@ import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -85,7 +86,11 @@ public class FilterManagerBean {
     }
 
     public boolean containsOnlyDashboard() {
-        return getFilters().equals(filterFactory.createOnlyDashboardFilters());
+        List<String> filtersRight = filterFactory.createOnlyDashboardFilters();
+        List<String> filtersLeft = getFilters();
+        Collections.sort(filtersRight);
+        Collections.sort(filtersLeft);
+        return filtersLeft.equals(filtersRight);
     }
 
     public ArrayList<String> getReportFilters() {

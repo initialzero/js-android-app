@@ -254,9 +254,6 @@ public class FavoritesFragment extends RoboFragment
                 .append("'%" + ResourceType.folder + "%'")
                 .append(" THEN 1 ELSE 2 END")
                 .append(", ")
-                .append(FavoritesTable.WSTYPE)
-                .append(" COLLATE NOCASE")
-                .append(", ")
                 .append(sortOrderString);
 
         return new CursorLoader(getActivity(), JasperMobileDbProvider.FAVORITES_CONTENT_URI,

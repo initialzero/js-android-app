@@ -37,7 +37,6 @@ class FolderResourceBinder extends ResourceBinder {
     @Override
     public void bindView(ResourceView resourceView, ResourceLookup item) {
         super.bindView(resourceView, item);
-        resourceView.setTimeStamp(formatDateString(item.getCreationDate()));
     }
 
     @Override

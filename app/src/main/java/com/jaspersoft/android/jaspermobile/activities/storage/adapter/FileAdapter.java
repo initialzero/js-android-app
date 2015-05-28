@@ -117,7 +117,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         }
 
         itemView.setTitle(fileName);
-        itemView.setTimeStamp(getHumanReadableFileSize(file));
+        itemView.setInfo(getHumanReadableFileSize(file));
         itemView.setSubTitle(getFormattedDateModified(creationTime));
 
         return (View) itemView;

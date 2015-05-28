@@ -91,7 +91,7 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
     }
 
     @Override
-    public void setTimeStamp(CharSequence timestamp) {
+    public void setInfo(CharSequence timestamp) {
         if (mTimestampStub != null) {
             if (mTimestampTxt == null) {
                 mTimestampTxt = (TextView) mTimestampStub.inflate();
@@ -107,22 +107,6 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
         }
     }
 
-    @Override
-    public void setMisc(CharSequence misc) {
-        if (mMiscStub != null) {
-            if (mMiscTxt == null) {
-                mMiscTxt = (TextView) mMiscStub.inflate();
-            }
-            mMiscTxt.setText(misc);
-
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mSubTitle.getLayoutParams();
-            params.addRule(LEFT_OF, mMiscTxt.getId());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.addRule(START_OF, mMiscTxt.getId());
-            }
-            mSubTitle.setLayoutParams(params);
-        }
-    }
 
     @Override
     public ImageView getImageView() {

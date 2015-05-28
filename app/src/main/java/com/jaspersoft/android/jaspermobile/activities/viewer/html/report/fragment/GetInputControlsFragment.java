@@ -104,7 +104,12 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
                     .setFragmentManager(getFragmentManager())
                     .setSpiceManager(getSpiceManager())
                     .create();
-            requestExecutor.execute(request, new GetInputControlsListener());
+            requestExecutor.execute(request, new GetInputControlsListener(), new RequestExecutor.OnProgressDialogCancelListener() {
+                @Override
+                public void onCancel() {
+                    getActivity().finish();
+                }
+            });
         }
     }
 

@@ -200,7 +200,7 @@
     <!-- Error messages -->
     <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
     <string name="r_error_server_not_found" translatable="false">Server not found.</string>
-    <string name="r_error_incorrect_credentials" translatable="false">Login or password is incorrect.</string>
+    <string name="r_error_incorrect_credentials" translatable="false">Credentials are incorrect.</string>
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
     <string name="error_http_401">401 - Unauthorized.
                                   \nAuthentication credentials were missing or incorrect.

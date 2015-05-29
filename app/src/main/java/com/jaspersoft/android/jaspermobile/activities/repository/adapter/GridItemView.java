@@ -87,21 +87,12 @@ public class GridItemView extends CheckedRelativeLayout implements ResourceView 
         }
     }
 
-    public void setTimeStamp(CharSequence timestamp) {
+    public void setInfo(CharSequence timestamp) {
         if (mTimestampStub != null) {
             if (mTimestampTxt == null) {
                 mTimestampTxt = (TextView) mTimestampStub.inflate();
             }
             mTimestampTxt.setText(timestamp);
-        }
-    }
-
-    public void setMisc(CharSequence misc) {
-        if (mMiscStub != null) {
-            if (mMiscTxt == null) {
-                mMiscTxt = (TextView) mMiscStub.inflate();
-            }
-            mMiscTxt.setText(misc);
         }
     }
 

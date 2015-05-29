@@ -36,9 +36,7 @@ public interface ResourceView {
 
     void setSubTitle(CharSequence subTitle);
 
-    void setTimeStamp(CharSequence timestamp);
-
-    void setMisc(CharSequence misc);
+    void setInfo(CharSequence timestamp);
 
     ImageView getImageView();
 }

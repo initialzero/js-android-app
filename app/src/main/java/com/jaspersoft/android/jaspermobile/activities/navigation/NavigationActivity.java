@@ -124,6 +124,15 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(navigationPanelLayout)) {
+            drawerLayout.closeDrawer(navigationPanelLayout);
+            return;
+        }
+        super.onBackPressed();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------

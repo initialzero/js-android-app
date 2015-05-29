@@ -1,0 +1,19 @@
+{
+    "description": "Request execution data.",
+    "type": "object",
+    "properties": {
+        "reportUnitUri": { "type": "string" },
+        "markupType": { "type": "string" },
+        "baseUrl": { "type": "string" },
+        "outputFormat": { "type": "string" },
+        "pages": { "type": "string" },
+        "attachmentsPrefix": { "type": "string" },
+        "outputFormat": { "type": "string" },
+        "async": { "type": "boolean" },
+        "freshData": { "type": "boolean" },
+        "saveDataSnapshot": { "type": "boolean" },
+        "interactive": { "type": "boolean" },
+        "ignorePagination": { "type": "boolean" },
+        "allowInlineScripts": { "type": "boolean" }
+    }
+}

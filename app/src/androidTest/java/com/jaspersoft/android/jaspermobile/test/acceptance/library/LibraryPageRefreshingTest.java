@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,23 +24,28 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import com.google.common.collect.Queues;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResponses;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import java.util.ArrayDeque;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.refreshing;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.swipeDown;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
@@ -53,26 +58,28 @@ import static org.hamcrest.core.Is.is;
  * @author Tom Koptel
  * @since 1.9
  */
-public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     public LibraryPageRefreshingTest() {
-        super(LibraryActivity_.class);
+        super(NavigationActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
         FakeHttpLayerManager.clearHttpResponseRules();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testPullToRefresh() throws InterruptedException {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
@@ -82,7 +89,7 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         onView(allOf(withId(R.id.refreshLayout), is(not(refreshing()))));
 
         ResourceLookupsList smallLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.SMALL_LOOKUP);
-        String lastResourceLabel = Queues.newArrayDeque(smallLookUp.getResourceLookups()).getLast().getLabel();
+        String lastResourceLabel = new ArrayDeque<ResourceLookup>(smallLookUp.getResourceLookups()).getLast().getLabel();
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
@@ -92,6 +99,7 @@ public class LibraryPageRefreshingTest extends ProtoActivityInstrumentation<Libr
         onView(withId(android.R.id.empty)).check(matches(not(isDisplayed())));
     }
 
+    @Test
     public void testEmptyTextShouldBeInVisibleWhileContentExist() throws InterruptedException {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,

@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -42,7 +42,7 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 @EViewGroup(R.layout.res_list_item)
-public class ListItemView extends CheckedRelativeLayout implements IResourceView {
+public class ListItemView extends CheckedRelativeLayout implements ResourceView {
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;
@@ -80,14 +80,17 @@ public class ListItemView extends CheckedRelativeLayout implements IResourceView
         setLayoutParams(params);
     }
 
+    @Override
     public void setTitle(CharSequence title) {
         mTitleTxt.setText(title);
     }
 
+    @Override
     public void setSubTitle(CharSequence subTitle) {
         mSubTitle.setText(subTitle);
     }
 
+    @Override
     public void setTimeStamp(CharSequence timestamp) {
         if (mTimestampStub != null) {
             if (mTimestampTxt == null) {
@@ -104,6 +107,7 @@ public class ListItemView extends CheckedRelativeLayout implements IResourceView
         }
     }
 
+    @Override
     public void setMisc(CharSequence misc) {
         if (mMiscStub != null) {
             if (mMiscTxt == null) {
@@ -120,8 +124,9 @@ public class ListItemView extends CheckedRelativeLayout implements IResourceView
         }
     }
 
-    public void setImageIcon(int image) {
-        mImageIcon.setImageResource(image);
+    @Override
+    public ImageView getImageView() {
+        return mImageIcon;
     }
 
 }

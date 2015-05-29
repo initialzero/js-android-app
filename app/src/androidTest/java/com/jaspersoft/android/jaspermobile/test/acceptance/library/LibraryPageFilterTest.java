@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,9 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
+import android.support.test.espresso.NoMatchingViewException;
+
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
@@ -37,17 +38,20 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.longClick;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isChecked;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static android.support.test.espresso.Espresso.pressBack;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isChecked;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -56,30 +60,32 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 2.0
  */
-public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageFilterTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     public LibraryPageFilterTest() {
-        super(LibraryActivity_.class);
+        super(NavigationActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
         FakeHttpLayerManager.clearHttpResponseRules();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testDashboardAndAllFilterOption() throws InterruptedException {
         ResourceLookupsList onlyDashboardLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_DASHBOARD);
-        ResourceLookupsList allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ALL_RESOURCES);
+        ResourceLookupsList allLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.SMALL_LOOKUP);
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
@@ -95,12 +101,13 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
 
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.ALL_RESOURCES);
+                TestResponses.SMALL_LOOKUP);
         clickFilterMenuItem();
         onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
         onView(withId(android.R.id.list)).check(hasTotalCount(allLookUp.getResourceLookups().size()));
     }
 
+    @Test
     public void testReportFilterOption() {
         ResourceLookupsList onlyReportLookUp = TestResources.get().fromXML(ResourceLookupsList.class, TestResources.ONLY_REPORT);
 
@@ -117,6 +124,7 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         onView(withId(android.R.id.list)).check(hasTotalCount(onlyReportLookUp.getResourceLookups().size()));
     }
 
+    @Test
     public void testFilteringIsPersistent() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
@@ -145,7 +153,8 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
     // We need long click on the item within big data list.
     // Then switch to the list with few items. As soon as we
     // kept reference to incorrect index position we received crash.
-    // Test asserts that adapter clear() method resets old reference
+    // Test asserts that adapter deleteSavedItems() method resets old reference
+    @Test
     public void testCurrentPositionResetAfterNewFilterSelected() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
@@ -164,16 +173,16 @@ public class LibraryPageFilterTest extends ProtoActivityInstrumentation<LibraryA
         onOverflowView(getActivity(), withText(R.string.s_fd_option_dashboards)).perform(click());
     }
 
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void clickFilterMenuItem() {
         try {
             onView(withId(R.id.filter)).perform(click());
         } catch (NoMatchingViewException ex) {
-            openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_filter_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            openActionBarOverflowOrOptionsMenu(getApplication());
+            onView(withText(R.string.s_ab_filter_by)).perform(click());
         }
     }
 

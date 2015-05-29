@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,24 +24,22 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html;
 
+import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboAccentFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
-import com.jaspersoft.android.sdk.util.FileUtils;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
 import java.io.File;
-
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -52,15 +50,20 @@ import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 @EActivity
 @OptionsMenu(R.menu.saved_report)
-public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
-        implements WebViewFragment.OnWebViewCreated, ISimpleDialogListener {
+public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
+        implements WebViewFragment.OnWebViewCreated, DeleteDialogFragment.DeleteDialogClickListener {
 
     @Extra
-    File reportFile;
+    protected File reportFile;
+
     @Extra
-    String resourceUri;
+    protected long reportId;
+
     @Extra
-    String resourceLabel;
+    protected String resourceLabel;
+
+    @Bean
+    protected SavedItemHelper savedItemHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,19 +74,25 @@ public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
                     .resourceLabel(resourceLabel).build();
             webViewFragment.setOnWebViewCreated(this);
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, webViewFragment, WebViewFragment.TAG)
+                    .add(R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
         }
     }
 
     @Override
     public void onWebViewCreated(WebViewFragment webViewFragment) {
-        webViewFragment.loadUrl(resourceUri);
+        Uri reportOutputPath = Uri.fromFile(reportFile);
+        webViewFragment.loadUrl(reportOutputPath.toString());
     }
 
     @OptionsItem
     final void deleteItem() {
-        AlertDialogFragment.createBuilder(this, getSupportFragmentManager())
+        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                String.valueOf(reportId));
+
+        DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setFile(reportFile)
+                .setRecordUri(uri)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -93,26 +102,17 @@ public class SavedReportHtmlViewerActivity extends RoboAccentFragmentActivity
     }
 
     //---------------------------------------------------------------------
-    // Implements ISimpleDialogListener
+    // Implements Implements DeleteDialogFragment.DeleteDialogClickListener
     //---------------------------------------------------------------------
 
     @Override
-    public void onPositiveButtonClicked(int i) {
-        if (reportFile.isDirectory()) {
-            FileUtils.deleteFilesInDirectory(reportFile);
-        }
-
-        if (!reportFile.delete()) {
-            Toast.makeText(this, R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
-        }
+    public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete) {
+        long id = Long.valueOf(itemToDelete.getLastPathSegment());
+        savedItemHelper.deleteSavedItem(reportFile, id);
         finish();
     }
 
     @Override
-    public void onNegativeButtonClicked(int i) {
-    }
-
-    @Override
-    public void onNeutralButtonClicked(int i) {
+    public void onDeleteCanceled() {
     }
 }

@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,32 +25,37 @@
 package com.jaspersoft.android.jaspermobile.test.utils.espresso;
 
 import android.app.Activity;
+import android.content.res.Resources;
+import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.espresso.Root;
+import android.support.test.espresso.UiController;
+import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.ViewAssertion;
+import android.support.test.espresso.ViewInteraction;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.GeneralSwipeAction;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Swipe;
+import android.support.test.espresso.matcher.BoundedMatcher;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.EditText;
-
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
-import com.google.android.apps.common.testing.ui.espresso.Root;
-import com.google.android.apps.common.testing.ui.espresso.ViewAction;
-import com.google.android.apps.common.testing.ui.espresso.ViewAssertion;
-import com.google.android.apps.common.testing.ui.espresso.ViewInteraction;
-import com.google.android.apps.common.testing.ui.espresso.action.GeneralLocation;
-import com.google.android.apps.common.testing.ui.espresso.action.GeneralSwipeAction;
-import com.google.android.apps.common.testing.ui.espresso.action.Press;
-import com.google.android.apps.common.testing.ui.espresso.action.Swipe;
-import com.google.common.base.Optional;
+import android.widget.NumberPicker;
+import android.widget.TimePicker;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.RootMatchers.withDecorView;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
-import static com.google.common.base.Preconditions.checkNotNull;
+import javax.annotation.Nullable;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -111,9 +116,9 @@ public final class JasperMatcher {
     public static ViewAssertion hasTotalCount(final int totalCount) {
         return new ViewAssertion() {
             @Override
-            public void check(Optional<View> view, Optional<NoMatchingViewException> noView) {
+            public void check(@Nullable View view, @Nullable NoMatchingViewException e) {
                 @SuppressWarnings("rawtypes")
-                AbsListView adapter = ((AbsListView) view.get());
+                AbsListView adapter = ((AbsListView) view);
                 assertThat(adapter.getAdapter().getCount(), is(totalCount));
             }
         };
@@ -140,7 +145,9 @@ public final class JasperMatcher {
     }
 
     public static Matcher<Root> withNotDecorView(final Matcher<View> decorViewMatcher) {
-        checkNotNull(decorViewMatcher);
+        if (decorViewMatcher == null) {
+            throw new IllegalArgumentException("Decor view null");
+        }
         return new TypeSafeMatcher<Root>() {
 
             @Override
@@ -173,33 +180,124 @@ public final class JasperMatcher {
         };
     }
 
-    public static Matcher<? super View> hasErrorText(String expectedError) {
-        return new ErrorTextMatcher(expectedError);
-    }
-
-    private static class ErrorTextMatcher extends TypeSafeMatcher<View> {
-        private final String expectedError;
-
-        private ErrorTextMatcher(String expectedError) {
-            this.expectedError = checkNotNull(expectedError);
-        }
-
-        @Override
-        public boolean matchesSafely(View view) {
-            if (!(view instanceof EditText)) {
-                return false;
+    public static ViewAction setTime(final int hour, final int minute) {
+        return new ViewAction() {
+            @Override
+            public void perform(UiController uiController, View view) {
+                TimePicker tp = (TimePicker) view;
+                tp.setCurrentHour(hour);
+                tp.setCurrentMinute(minute);
             }
-            EditText editText = (EditText) view;
-            return expectedError.equals(editText.getError());
-        }
 
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("with error: " + expectedError);
-        }
+            @Override
+            public String getDescription() {
+                return "Set the passed time into the TimePicker";
+            }
+
+            @Override
+            public Matcher<View> getConstraints() {
+                return ViewMatchers.isAssignableFrom(TimePicker.class);
+            }
+        };
     }
 
-    public static Matcher<? super View> hasText(String expectedError) {
+    public static ViewAction selectCurrentNumber(final int number) {
+        return new ViewAction() {
+            @Override
+            public void perform(UiController uiController, View view) {
+                NumberPicker numberPicker = (NumberPicker) view;
+                numberPicker.setValue(number);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Set the passed value into the NumberPicker";
+            }
+
+            @Override
+            public Matcher<View> getConstraints() {
+                return ViewMatchers.isAssignableFrom(NumberPicker.class);
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasMinValue(final int minValue) {
+        return new TypeSafeMatcher<View>() {
+            public int assertedMinValue = Integer.MIN_VALUE;
+
+            @Override
+            public boolean matchesSafely(View view) {
+                NumberPicker numberPicker = (NumberPicker) view;
+                assertedMinValue = numberPicker.getMinValue();
+                return numberPicker.getMinValue() == minValue;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("expected minValue: "
+                        + minValue + " but it was: " + assertedMinValue);
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasErrorText(final String expectedError) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public boolean matchesSafely(View view) {
+                if (!(view instanceof EditText)) {
+                    return false;
+                }
+                EditText editText = (EditText) view;
+                return expectedError.equals(editText.getError());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with error: " + expectedError);
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasErrorText(final int resourceId) {
+        return new BoundedMatcher<View, EditText>(EditText.class) {
+            private String resourceName = null;
+            private String expectedText = null;
+
+            @Override
+            public boolean matchesSafely(EditText editText) {
+                if (null == expectedText) {
+                    try {
+                        expectedText = editText.getResources().getString(resourceId);
+                        resourceName = editText.getResources().getResourceEntryName(resourceId);
+                    } catch (Resources.NotFoundException ignored) {
+            /* view could be from a context unaware of the resource id. */
+                    }
+                }
+                if (null != expectedText) {
+                    return expectedText.equals(editText.getError());
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with string from resource id: ");
+                description.appendValue(resourceId);
+                if (null != resourceName) {
+                    description.appendText("[");
+                    description.appendText(resourceName);
+                    description.appendText("]");
+                }
+                if (null != expectedText) {
+                    description.appendText(" value: ");
+                    description.appendText(expectedText);
+                }
+            }
+        };
+    }
+
+    public static Matcher<? super View> hasTextError(String expectedError) {
         return new HasTextMatcher(expectedError);
     }
 
@@ -207,7 +305,10 @@ public final class JasperMatcher {
         private final String expectedText;
 
         private HasTextMatcher(String expectedError) {
-            this.expectedText = checkNotNull(expectedError);
+            if (expectedError == null) {
+                throw new IllegalArgumentException("Expected error should not be null");
+            }
+            this.expectedText = expectedError;
         }
 
         @Override

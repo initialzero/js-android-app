@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -40,15 +40,18 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.apache.http.fake.RequestMatcher;
 import org.apache.http.hacked.GetUriRegexMatcher;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onData;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.pressBack;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.isDisplayed;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.pressBack;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withAdaptedData;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.LongListMatchers.withItemContent;
 import static org.hamcrest.Matchers.is;
@@ -66,22 +69,24 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         super(SearchableActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
+
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
         configureSearchIntent();
         FakeHttpLayerManager.clearHttpResponseRules();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         getActivity().finish();
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testDashboardClick() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
@@ -94,6 +99,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         pressBack();
     }
 
+    @Test
     public void testFolderClick() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
@@ -128,6 +134,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_browser_nothing_to_display)));
     }
 
+    @Test
     public void testSearchResultsPersistedOnRotation() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
@@ -142,6 +149,7 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         onView(withId(android.R.id.list)).check(matches(not(withAdaptedData(withItemContent(firstLevelRepoLabel)))));
     }
 
+    @Test
     public void testSearchResultsWithNoResults() {
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.REPORTS_QUERY,
@@ -152,6 +160,10 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
         rotate();
         onView(withId(android.R.id.empty)).check(matches(withText(R.string.r_search_nothing_to_display)));
     }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
     private void configureSearchIntent() {
         Intent launchIntent = new Intent();

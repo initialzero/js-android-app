@@ -1,7 +1,31 @@
+/*
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ *  http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ *  Unless you have purchased a commercial license agreement from Jaspersoft,
+ *  the following license terms apply:
+ *
+ *  This program is part of Jaspersoft Mobile for Android.
+ *
+ *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Jaspersoft Mobile is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Jaspersoft Mobile for Android. If not, see
+ *  <http://www.gnu.org/licenses/lgpl>.
+ */
+
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
 import android.app.Activity;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,14 +34,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -25,9 +52,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
-import com.octo.android.robospice.exception.RequestCancelledException;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -39,8 +64,6 @@ import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
 
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS;
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS;
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
 /**
@@ -53,64 +76,46 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     public static final String TAG = FilterManagerFragment.class.getSimpleName();
 
     @Inject
-    JsRestClient jsRestClient;
+    protected JsRestClient jsRestClient;
+    @Inject
+    protected ReportParamsStorage paramsStorage;
 
     @FragmentArg
-    ResourceLookup resource;
+    protected ResourceLookup resource;
 
     @OptionsMenuItem
-    MenuItem saveReport;
+    protected MenuItem saveReport;
     @OptionsMenuItem
-    MenuItem showFilters;
+    protected MenuItem showFilters;
 
     @InstanceState
-    ArrayList<InputControl> cachedInputControls;
+    protected boolean mShowFilterOption;
     @InstanceState
-    ArrayList<ReportParameter> reportParameters;
-    @InstanceState
-    ArrayList<InputControl> validInputControls;
-    @InstanceState
-    ArrayList<ReportParameter> validReportParameters;
-    @InstanceState
-    boolean mShowFilterOption;
-    @InstanceState
-    boolean mShowSaveOption;
+    protected boolean mShowSaveOption;
+
+    private boolean mPageWasLoadedAtLeastOnce;
+
+    private ArrayList<ReportParameter> reportParameters;
+    private ArrayList<InputControl> inputControls;
 
     private ReportExecutionFragment reportExecutionFragment;
+    private RequestExecutor requestExecutor;
+    private ReportView reportView;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (savedInstanceState == null) {
-            final GetInputControlsRequest request =
-                    new GetInputControlsRequest(jsRestClient, resource.getUri());
+        reportView = (ReportView) getActivity();
+        requestExecutor = RequestExecutor.builder()
+                .setExecutionMode(RequestExecutor.Mode.VISIBLE)
+                .setFragmentManager(getFragmentManager())
+                .setSpiceManager(getSpiceManager())
+                .create();
 
-            DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    if (!request.isCancelled()) {
-                        getSpiceManager().cancel(request);
-                        getActivity().finish();
-                    }
-                }
-            };
-            DialogInterface.OnShowListener showListener = new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    getSpiceManager().execute(request, new GetInputControlsListener());
-                }
-            };
-
-            if (ProgressDialogFragment.isVisible(getFragmentManager())) {
-                ProgressDialogFragment.getInstance(getFragmentManager())
-                        .setOnCancelListener(cancelListener);
-                // Send request
-                showListener.onShow(null);
-            } else {
-                ProgressDialogFragment.show(getFragmentManager(), cancelListener, showListener);
-            }
-        }
+        final GetInputControlsRequest request =
+                new GetInputControlsRequest(jsRestClient, resource.getUri());
+        requestExecutor.execute(request, new GetInputControlsListener());
     }
 
     @Override
@@ -122,10 +127,11 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @OptionsItem
     final void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
+            PaginationManagerFragment manager = (PaginationManagerFragment) getFragmentManager().findFragmentByTag(PaginationManagerFragment.TAG);
+
             SaveReportActivity_.intent(this)
-                    .reportParameters(reportParameters)
-                    .resourceUri(resource.getUri())
-                    .resourceLabel(resource.getLabel())
+                    .resource(resource)
+                    .pageCount(manager.mTotalPage)
                     .start();
         } else {
             Toast.makeText(getActivity(),
@@ -135,46 +141,31 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsItem
     public void showFilters() {
-        showReportOptions(cachedInputControls);
+        showReportOptions();
     }
 
-    public void showPreviousReport() {
-        reportParameters = validReportParameters;
-        cachedInputControls = validInputControls;
-        getReportExecutionFragment().executeReport(reportParameters);
-    }
-
-    public boolean hasSnapshot() {
-        return validInputControls != null && validReportParameters != null;
-    }
-
-    public void makeSnapshot() {
-        validReportParameters = reportParameters;
-        validInputControls = cachedInputControls;
-    }
-
-    private void showReportOptions(ArrayList<InputControl> inputControls) {
-        // Run Report Options activity
+    private void showReportOptions() {
         Intent intent = new Intent(getActivity(), ReportOptionsActivity.class);
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
         intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
-        intent.putParcelableArrayListExtra(ReportOptionsActivity.EXTRA_REPORT_CONTROLS, inputControls);
         startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
     }
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadReportParameters(int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            reportParameters = data.getParcelableArrayListExtra(EXTRA_REPORT_PARAMETERS);
-            cachedInputControls = data.getParcelableArrayListExtra(EXTRA_REPORT_CONTROLS);
+        boolean isFirstReportMissing = !hasSnapshot();
 
-            getReportExecutionFragment().executeReport(reportParameters);
+        if (resultCode == Activity.RESULT_OK) {
+            boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
+            if (isNewParamsEqualOld && !isFirstReportMissing) {
+                return;
+            }
+
+            getReportExecutionFragment().executeReport(getReportParameters());
         } else {
             // Check if user has experienced report loading. Otherwise remove him from this page.
-            if (!hasSnapshot() && !getReportExecutionFragment().isResourceLoaded()) {
+            if (isFirstReportMissing) {
                 getActivity().finish();
-            } else {
-                showPreviousReport();
             }
         }
     }
@@ -187,33 +178,65 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         return reportExecutionFragment;
     }
 
+    private ArrayList<ReportParameter> getReportParameters() {
+        return paramsStorage.getReportParameters(resource.getUri());
+    }
+
+    public boolean hasSnapshot() {
+        return mPageWasLoadedAtLeastOnce;
+    }
+
+    public void makeSnapshot() {
+        mPageWasLoadedAtLeastOnce = true;
+    }
+
+    public void disableSaveOption() {
+        mShowSaveOption = false;
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
+    public void enableSaveOption() {
+        mShowSaveOption = true;
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetInputControlsListener implements RequestListener<InputControlsList> {
+    private class GetInputControlsListener extends SimpleRequestListener<InputControlsList> {
+
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
         @Override
         public void onRequestFailure(SpiceException exception) {
-            if (exception instanceof RequestCancelledException) {
-                Toast.makeText(getActivity(), R.string.cancelled_msg, Toast.LENGTH_SHORT).show();
-            } else {
-                RequestExceptionHandler.handle(exception, getActivity(), false);
-            }
+            super.onRequestFailure(exception);
+
             ProgressDialogFragment.dismiss(getFragmentManager());
+
+            String errorMessage = RequestExceptionHandler.extractMessage(getActivity(), exception);
+            reportView.showErrorView(errorMessage);
         }
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
-            ArrayList<InputControl> inputControls = Lists.newArrayList(controlsList.getInputControls());
+            reportParameters = new ArrayList<ReportParameter>();
+            inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+            reportView.hideErrorView();
+
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;
             mShowSaveOption = true;
-            getActivity().invalidateOptionsMenu();
+            getActivity().supportInvalidateOptionsMenu();
 
             if (showFilterActionVisible) {
-                cachedInputControls = inputControls;
-                showReportOptions(inputControls);
                 ProgressDialogFragment.dismiss(getFragmentManager());
+                paramsStorage.putReportParameters(resource.getUri(), reportParameters);
+                paramsStorage.putInputControls(resource.getUri(), inputControls);
+                showReportOptions();
             } else {
                 getReportExecutionFragment().executeReport();
             }

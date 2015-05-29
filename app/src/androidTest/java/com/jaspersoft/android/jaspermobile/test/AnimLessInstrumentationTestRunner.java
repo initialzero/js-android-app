@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,12 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test;
 
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.test.runner.AndroidJUnitRunner;
 import android.util.Log;
-
-import com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,7 +36,7 @@ import java.lang.reflect.Method;
  * @author Tom Koptel
  * @since 1.9
  */
-public class AnimLessInstrumentationTestRunner extends GoogleInstrumentationTestRunner {
+public class AnimLessInstrumentationTestRunner extends AndroidJUnitRunner {
     private static final String TAG = "Primer";
     private static final String ANIMATION_PERMISSION = "android.permission.SET_ANIMATION_SCALE";
 
@@ -50,15 +48,10 @@ public class AnimLessInstrumentationTestRunner extends GoogleInstrumentationTest
     }
 
     private void disableAnimation() {
-        int permStatus = getContext().checkCallingOrSelfPermission(ANIMATION_PERMISSION);
-        if (permStatus == PackageManager.PERMISSION_GRANTED) {
-            if (reflectivelyDisableAnimation()) {
-                Log.i(TAG, "All animations disabled.");
-            } else {
-                Log.i(TAG, "Could not disable animations.");
-            }
+        if (reflectivelyDisableAnimation()) {
+            Log.i(TAG, "All animations disabled.");
         } else {
-            Log.i(TAG, "Cannot disable animations due to lack of permission.");
+            Log.i(TAG, "Could not disable animations.");
         }
     }
 

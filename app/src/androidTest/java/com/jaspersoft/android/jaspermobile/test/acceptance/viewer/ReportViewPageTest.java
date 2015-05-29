@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,12 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.viewer;
 
-import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.test.espresso.NoMatchingViewException;
 
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
@@ -41,14 +40,18 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 import org.apache.http.fake.FakeHttpLayerManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.assertion.ViewAssertions.matches;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.deleteAllFavorites;
 import static com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils.getAllFavorites;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
@@ -70,16 +73,13 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         super(ReportHtmlViewerActivity_.class);
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
-
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();
 
-        favoritesHelper = FavoritesHelper_.getInstance_(application);
+        favoritesHelper = FavoritesHelper_.getInstance_(getApplication());
 
         ResourceLookupsList resourceLookupsList = TestResources.get().fromXML(ResourceLookupsList.class, "only_report");
         mResource = resourceLookupsList.getResourceLookups().get(0);
@@ -89,22 +89,24 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         FakeHttpLayerManager.setDefaultHttpResponse(TestResponses.get().noContent());
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         unregisterTestModule();
         super.tearDown();
     }
 
+    @Test
     public void testAboutAction() {
         createReportIntent();
         startActivityUnderTest();
 
         clickAboutMenuItem();
 
-        onOverflowView(getActivity(), withId(R.id.sdl__title)).check(matches(withText(mResource.getLabel())));
-        onOverflowView(getActivity(), withId(R.id.sdl__message)).check(matches(withText(mResource.getDescription())));
+        onOverflowView(getActivity(), withText(mResource.getLabel())).check(matches(isDisplayed()));
+        onOverflowView(getActivity(), withId(android.R.id.message)).check(matches(withText(mResource.getDescription())));
     }
 
+    @Test
     public void testRemoveFromFavorites() {
         ContentResolver contentResolver = getInstrumentation().getContext().getContentResolver();
         deleteAllFavorites(contentResolver);
@@ -121,6 +123,7 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
     }
 
 
+    @Test
     public void testToggleFavoritesState() {
         ContentResolver contentResolver = getInstrumentation().getContext().getContentResolver();
         deleteAllFavorites(contentResolver);
@@ -140,16 +143,16 @@ public class ReportViewPageTest extends ProtoActivityInstrumentation<ReportHtmlV
         }
     }
 
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void clickAboutMenuItem() {
         try {
             onView(withId(R.id.aboutAction)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.r_cm_view_details)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            onView(withText(R.string.r_cm_view_details)).perform(click());
         }
     }
 

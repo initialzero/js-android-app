@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,63 +25,73 @@
 package com.jaspersoft.android.jaspermobile.activities.storage.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import android.support.v7.view.ActionMode;
 import android.text.format.DateUtils;
-import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.SingleChoiceArrayAdapter;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
+import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceSimpleCursorAdapter;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;
-import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.Map;
-
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class FileAdapter extends SingleChoiceArrayAdapter<File> {
+public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
+
+    private static final String[] FROM = {SavedItemsTable.NAME, SavedItemsTable.CREATION_TIME, SavedItemsTable.FILE_FORMAT};
+    private static final int[] TO = {android.R.id.text1, android.R.id.text2, android.R.id.icon};
+
+    public static enum FileType {
+        HTML,
+        PDF,
+        XLS,
+        UNKNOWN
+    }
+
+    private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = new EnumMap<FileType, Integer>(FileType.class);
+
+    static {
+        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.bg_saved_html);
+        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.bg_saved_pdf);
+        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.bg_saved_xls);
+        DRAWABLE_IDS_MAP.put(FileType.UNKNOWN, R.drawable.bg_gradient_grey);
+    }
+
 
     private final ViewType mViewType;
-    private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = Maps.newEnumMap(FileType.class);
-    static {
-        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.ic_composed_html);
-        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.ic_composed_pdf);
-        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.ic_composed_xls);
-        DRAWABLE_IDS_MAP.put(FileType.UNKNOWN, R.drawable.js_grey_gradient);
-    }
     private FileInteractionListener fileInteractionListener;
 
-    public static Builder builder(Context context, Bundle savedInstanceState) {
-        checkNotNull(context);
-        return new Builder(context, savedInstanceState);
+    public FileAdapter(Context context, Bundle savedInstanceState, int layout, ViewType viewType) {
+        super(savedInstanceState, context, layout, null, FROM, TO, 0);
+        mViewType = viewType;
     }
 
-    private FileAdapter(Context context, Bundle savedInstanceState, ViewType viewType) {
-        super(savedInstanceState, context, 0);
-        mViewType = checkNotNull(viewType, "ViewType can`t be null");
-     }
+    public void setFileInteractionListener(FileInteractionListener fileInteractionListener) {
+        this.fileInteractionListener = fileInteractionListener;
+    }
 
     @Override
     public View getViewImpl(int position, View convertView, ViewGroup parent) {
-        IResourceView itemView = (IResourceView) convertView;
+        ResourceView itemView = (ResourceView) convertView;
 
         if (itemView == null) {
             if (mViewType == ViewType.LIST) {
@@ -91,19 +101,74 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
             }
         }
 
-        File file = getItem(position);
-        String extension = FileUtils.getExtension(file.getName());
-        itemView.setImageIcon(getFileIconByExtension(extension));
+        Cursor cursor = getCursor();
+        cursor.moveToPosition(position);
 
-        itemView.setTitle(FileUtils.getBaseName(file.getName()));
+        File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+        long creationTime = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.CREATION_TIME));
+        String fileFormat = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
+        String fileName = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
+
+        TopCropImageView iconView = (TopCropImageView) itemView.getImageView();
+        if (iconView != null) {
+            iconView.setImageResource(getFileIconByExtension(fileFormat));
+            iconView.setBackgroundResource(R.drawable.bg_gradient_grey);
+            iconView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+        }
+
+        itemView.setTitle(fileName);
         itemView.setTimeStamp(getHumanReadableFileSize(file));
-        itemView.setSubTitle(getFormattedDateModified(file));
+        itemView.setSubTitle(getFormattedDateModified(creationTime));
 
         return (View) itemView;
     }
 
-    public void setFileInteractionListener(FileInteractionListener fileInteractionListener) {
-        this.fileInteractionListener = fileInteractionListener;
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        MenuInflater inflater = mode.getMenuInflater();
+        inflater.inflate(R.menu.am_saved_items_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        Cursor cursor = getCursor();
+        cursor.moveToPosition(getCurrentPosition());
+
+        File itemFile = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+        long recordId = cursor.getLong(cursor.getColumnIndex(SavedItemsTable._ID));
+        Uri recordUri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI, String.valueOf(recordId));
+        switch (item.getItemId()) {
+            case R.id.renameItem:
+                if (fileInteractionListener != null) {
+                    String fileExtension = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
+                    fileInteractionListener.onRename(itemFile.getParentFile(), recordUri, fileExtension);
+                }
+                break;
+            case R.id.deleteItem:
+                if (fileInteractionListener != null) {
+                    fileInteractionListener.onDelete(itemFile, recordUri);
+                }
+                break;
+            case R.id.showAction:
+                if (fileInteractionListener != null) {
+                    String title = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
+                    long creationTime = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.CREATION_TIME));
+                    String description = String.format("%s \n %s", getFormattedDateModified(creationTime),
+                            getHumanReadableFileSize(itemFile));
+
+                    fileInteractionListener.onInfo(title, description);
+                }
+                break;
+            default:
+                return false;
+        }
+        return true;
     }
 
     //---------------------------------------------------------------------
@@ -123,8 +188,8 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
         }
     }
 
-    private String getFormattedDateModified(File file) {
-        return DateUtils.formatDateTime(getContext(), file.lastModified(),
+    private String getFormattedDateModified(long creationTime) {
+        return DateUtils.formatDateTime(getContext(), creationTime,
                 DateUtils.FORMAT_SHOW_DATE |
                         DateUtils.FORMAT_SHOW_TIME |
                         DateUtils.FORMAT_SHOW_YEAR |
@@ -134,104 +199,20 @@ public class FileAdapter extends SingleChoiceArrayAdapter<File> {
     }
 
     private String getHumanReadableFileSize(File file) {
-        long bytes = FileUtils.calculateFileSize(file);
-        return FileUtils.getHumanReadableByteCount(bytes);
-    }
-
-    public void sortByLstModified() {
-        sort(new LastModifiedComparator());
-    }
-
-    @Override
-    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.am_saved_items_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        return false;
-    }
-
-    @Override
-    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        File file = getItem(getCurrentPosition());
-        switch (item.getItemId()) {
-            case R.id.renameItem:
-                if (fileInteractionListener != null) {
-                    fileInteractionListener.onRename(file);
-                }
-                break;
-            case R.id.deleteItem:
-                if (fileInteractionListener != null) {
-                    fileInteractionListener.onDelete(getCurrentPosition(), file);
-                }
-                break;
-            case R.id.showAction:
-                showInfo(file);
-                break;
-            default:
-                return false;
-        }
-        return true;
-    }
-
-    private void showInfo(File file) {
-        String title = FileUtils.getBaseName(file.getName());
-        String description = String.format("%s \n %s", getFormattedDateModified(file),
-                getHumanReadableFileSize(file));
-
-        FragmentManager fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
-        SimpleDialogFragment.createBuilder(getContext(), fm)
-                .setTitle(title)
-                .setMessage(description)
-                .setNegativeButtonText(android.R.string.ok)
-                .show();
-    }
-
-    private static class LastModifiedComparator implements Comparator<File> {
-        @Override
-        public int compare(File f1, File f2) {
-            return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
-        }
+        long byteSize = FileUtils.calculateFileSize(file.getParentFile());
+        return FileUtils.getHumanReadableByteCount(byteSize);
     }
 
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private static enum FileType {
-        HTML,
-        PDF,
-        XLS,
-        UNKNOWN
-    }
-
     public static interface FileInteractionListener {
-        void onRename(File file);
-        void onDelete(int currentPosition, File file);
-    }
+        void onRename(File itemFile, Uri recordUri, String fileExtension);
 
-    public static class Builder {
-        private final Context context;
-        private final Bundle savedInstanceState;
+        void onDelete(File itemFile, Uri recordUri);
 
-        private ViewType viewType;
-
-        public Builder(Context context, Bundle savedInstanceState) {
-            this.context = context;
-            this.savedInstanceState = savedInstanceState;
-        }
-
-        public Builder setViewType(ViewType viewType) {
-            this.viewType = viewType;
-            return this;
-        }
-
-        public FileAdapter create() {
-            return new FileAdapter(context, savedInstanceState, viewType);
-        }
+        void onInfo(String itemTitle, String itemDescription);
     }
 
 }

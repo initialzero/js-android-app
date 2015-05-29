@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,7 +26,7 @@ buildscript {
     dependencies {
         classpath 'com.google.code.gson:gson:2.3'
         classpath 'org.apache.velocity:velocity:1.7'
-        classpath files('libs/robocop-library-0.6-20141210.124525-1.jar')
+        classpath files('libs/robocop-library-0.6-20150113.172629-1.jar')
     }
 }
 apply plugin: "java"

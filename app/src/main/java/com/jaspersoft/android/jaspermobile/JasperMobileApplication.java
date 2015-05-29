@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,15 +25,22 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
-import android.view.ViewConfiguration;
 
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
+import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.utils.L;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
-import java.lang.reflect.Field;
+import roboguice.RoboGuice;
+import timber.log.Timber;
 
 /**
  * @author Ivan Gadzhega
@@ -42,42 +49,60 @@ import java.lang.reflect.Field;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
-    @Bean
-    ProfileHelper profileHelper;
+    private Tracker jsTracker;
 
-    public static void removeAllCookies() {
-        JsRestClient.flushCookies();
-    }
+    @Inject
+    AppConfigurator appConfigurator;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        RoboGuice.getInjector(this).injectMembers(this);
+        forceDatabaseUpdate();
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new Timber.HollowTree());
+        }
 
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
-        forceOverFlowMenu();
-        profileHelper.initJsRestClient();
-        profileHelper.initServerInfoSnapshot();
-        profileHelper.seedProfilesIfNeed();
+        appConfigurator.configCrashAnalytics(this);
+        getTracker();
+        initImageLoader();
     }
 
-    /**
-     * We are forcing OS to show overflow menu for the devices which expose hardware implementation.
-     * WARNING: This is considered to be bad practice though we decide to violate rules.
-     * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
-     */
-    private void forceOverFlowMenu() {
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if(menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
-        } catch (Exception ex) {
-            // Ignore
+    private void forceDatabaseUpdate() {
+        getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[]{"_id"}, null, null, null);
+    }
+
+    private void initImageLoader() {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .imageDownloader(new TokenImageDownloader(this))
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .diskCacheSize(50 * 1024 * 1024) // 50 Mb
+                .tasksProcessingOrder(QueueProcessingType.LIFO)
+                .build();
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config);
+        // Ignoring all log from UIL
+        L.writeLogs(false);
+    }
+
+    public synchronized Tracker getTracker() {
+        if (jsTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            jsTracker = analytics.newTracker(R.xml.analytics_tracker);
         }
+        return jsTracker;
     }
 
 }

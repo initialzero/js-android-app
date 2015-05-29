@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -28,9 +28,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
+import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
+import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 
 /**
  * @author Tom Koptel
@@ -38,10 +42,29 @@ import org.androidannotations.annotations.EFragment;
  */
 @EFragment
 public class SavedItemsControllerFragment extends ControllerFragment {
+    public static final String CONTENT_TAG = "SavedItemsControllerFragment.CONTENT_TAG";
 
     public static final String TAG = SavedItemsControllerFragment.class.getSimpleName();
 
     private SavedItemsFragment contentFragment;
+
+    @FragmentArg
+    @InstanceState
+    FileAdapter.FileType filterType;
+
+    @FragmentArg
+    @InstanceState
+    SortOrder sortOrder;
+
+    @FragmentArg
+    @InstanceState
+    String searchQuery;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getArguments().putString(PREF_TAG_KEY, "saved_items_pref");
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -55,14 +78,36 @@ public class SavedItemsControllerFragment extends ControllerFragment {
         } else {
             contentFragment = inMemoryFragment;
         }
-
     }
 
     @Override
     public Fragment getContentFragment() {
         contentFragment = SavedItemsFragment_.builder()
-                .viewType(getViewType()).build();
+                .viewType(getViewType())
+                .filterType(filterType)
+                .sortOrder(sortOrder)
+                .searchQuery(searchQuery)
+                .build();
         return contentFragment;
+    }
+
+    @Override
+    protected String getContentFragmentTag() {
+        return CONTENT_TAG;
+    }
+
+    public void loadItemsByTypes(FileAdapter.FileType _filterType) {
+        if (contentFragment != null) {
+            contentFragment.showSavedItemsByFilter(_filterType);
+        }
+        filterType = _filterType;
+    }
+
+    public void loadItemsBySortOrder(SortOrder _sortOrder) {
+        if (contentFragment != null) {
+            contentFragment.showSavedItemsBySortOrder(_sortOrder);
+        }
+        sortOrder = _sortOrder;
     }
 
 }

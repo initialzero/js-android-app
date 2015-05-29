@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -30,16 +30,13 @@ import android.net.Uri;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -48,6 +45,8 @@ import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,20 +66,16 @@ public class FavoritesHelper {
     JsRestClient jsRestClient;
     private Toast mToast;
 
-    @SuppressWarnings("ShowToast")
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);
-        mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
     }
 
     public Uri addToFavorites(ResourceLookup resource) {
+        JsServerProfileCompat.initLegacyJsRestClient(context, jsRestClient);
         JsServerProfile profile = jsRestClient.getServerProfile();
         Favorites favoriteEntry = new Favorites();
-
-        // TODO: Migrated from old schema scheduled for the deletion in future
-        favoriteEntry.setName("");
 
         favoriteEntry.setUri(resource.getUri());
         favoriteEntry.setTitle(resource.getLabel());
@@ -88,21 +83,21 @@ public class FavoritesHelper {
         favoriteEntry.setWstype(resource.getResourceType().toString());
         favoriteEntry.setUsername(profile.getUsername());
         favoriteEntry.setOrganization(profile.getOrganization());
-        favoriteEntry.setServerProfileId(profile.getId());
+        favoriteEntry.setAccountName(JasperAccountManager.get(context).getActiveAccount().name);
+        favoriteEntry.setCreationTime(resource.getCreationDate());
 
         return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
                 favoriteEntry.getContentValues());
     }
 
     public Cursor queryFavoriteByResource(ResourceLookup resource) {
-        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
-        Map<String, String> mapValues = Maps.newHashMap();
+        Map<String, String> mapValues = new HashMap<String, String>();
         mapValues.put(FavoritesTable.TITLE, resource.getLabel());
         mapValues.put(FavoritesTable.URI, resource.getUri());
         mapValues.put(FavoritesTable.WSTYPE, resource.getResourceType().toString());
-        mapValues.put(FavoritesTable.SERVER_PROFILE_ID, jsServerProfile.getId() + "");
+        mapValues.put(FavoritesTable.ACCOUNT_NAME, JasperAccountManager.get(context).getActiveAccount().name);
 
-        List<String> conditions = Lists.newArrayList();
+        List<String> conditions = new ArrayList<String>();
         for (Map.Entry<String, String> entry : mapValues.entrySet()) {
             if (entry.getValue() == null) {
                 conditions.add(entry.getKey() + " IS NULL");
@@ -111,10 +106,19 @@ public class FavoritesHelper {
             }
         }
 
-        List<String> args = FluentIterable.from(mapValues.values())
-                .filter(Predicates.notNull())
-                .toList();
-        String selection = Joiner.on(" AND ").join(conditions);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        int count = conditions.size();
+        for (int i = 0; i < count; i++) {
+            stringBuilder.append(conditions.get(i));
+            if (i != conditions.size() - 1) {
+                stringBuilder.append(" AND ");
+            }
+        }
+
+        String selection = stringBuilder.toString();
+
+        List<String> args = new ArrayList<String>(mapValues.values());
         String[] selectionArgs = new String[mapValues.values().size()];
         args.toArray(selectionArgs);
 
@@ -130,26 +134,31 @@ public class FavoritesHelper {
             favoriteEntryUri = addToFavorites(resource);
             if (favoriteEntryUri == null) {
                 messageId = R.string.r_cm_add_to_favorites_failed;
-                iconId = R.drawable.ic_rating_not_favorite;
+                iconId = R.drawable.ic_menu_star_outline;
             } else {
-                messageId = R.string.r_cm_add_to_favorites;
-                iconId = R.drawable.ic_rating_favorite;
+                messageId = R.string.r_cm_added_to_favorites;
+                iconId = R.drawable.ic_menu_star;
             }
         } else {
             int count = context.getContentResolver().delete(favoriteEntryUri, null, null);
             if (count == 0) {
                 messageId = R.string.r_cm_remove_from_favorites_failed;
-                iconId = R.drawable.ic_rating_favorite;
+                iconId = R.drawable.ic_menu_star;
             } else {
                 favoriteEntryUri = null;
-                messageId = R.string.r_cm_remove_from_favorites;
-                iconId = R.drawable.ic_rating_not_favorite;
+                messageId = R.string.r_cm_removed_from_favorites;
+                iconId = R.drawable.ic_menu_star_outline;
             }
         }
 
-        if (favoriteAction != null) favoriteAction.setIcon(iconId);
-        mToast.setText(messageId);
-        mToast.show();
+        if (favoriteAction != null) {
+            favoriteAction.setIcon(iconId);
+            favoriteAction.setTitle(iconId == R.drawable.ic_menu_star_outline
+                    ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        }
+
+        getToast().setText(messageId);
+        getToast().show();
 
         return favoriteEntryUri;
     }
@@ -168,5 +177,13 @@ public class FavoritesHelper {
         }
 
         return favoriteEntryUri;
+    }
+
+    @SuppressWarnings("ShowToast")
+    private Toast getToast() {
+        if (mToast == null) {
+            mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+        }
+        return mToast;
     }
 }

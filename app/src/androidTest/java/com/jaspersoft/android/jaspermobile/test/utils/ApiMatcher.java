@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -40,6 +40,7 @@ public class ApiMatcher {
     public static final RequestMatcher REPORTS_QUERY = new GetUriRegexMatcher(".*(q=Reports).*");
     public static final RequestMatcher INPUT_CONTROLS = new PostUriRegexMatcher(".*/(inputControls)$");
     public static final RequestMatcher REPORT_EXECUTIONS = new PostUriRegexMatcher(".*/(reportExecutions)$");
+    public static final RequestMatcher OUTPUT_RESOURCE = new GetUriRegexMatcher(".*/(outputResource)$");
     public static final RequestMatcher REPORTS = new PostUriRegexMatcher(".*/(reports).*");
 
     private ApiMatcher() {}

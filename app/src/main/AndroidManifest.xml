@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,6 +22,7 @@
     along with Jaspersoft Mobile for Android. If not, see
     <http://www.gnu.org/licenses/lgpl>.
 -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile" >
 
@@ -32,12 +33,18 @@
     <!-- Allows an application to write to external storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- Allows an application to create accounts using Android infrastructure -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+
     <!--
      No need for project and is ignored at runtime. This is useful for Android Studio exclusively.
      As soon as you run tests from it, you should explicitly tell him here about your default instrumentation.
     -->
     <instrumentation
-        android:name="com.jaspersoft.android.jaspermobile.test.AnimLessInstrumentationTestRunner"
+        android:name=".test.AnimLessInstrumentationTestRunner"
         android:targetPackage="com.jaspersoft.android.jaspermobile.test.acceptance" />
 
     <application
@@ -45,55 +52,22 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
         android:theme="@style/Theme.JasperMobile" >
+        <meta-data
+            android:name="roboguice.modules"
+            android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule" />
+        <meta-data
+            android:name="roboguice.annotations.packages"
+            android:value="com.jaspersoft.android.jaspermobile" />
 
         <!-- Main activity -->
         <activity
-            android:name=".activities.HomeActivity_"
-            android:configChanges="locale" >
+            android:name=".activities.navigation.NavigationActivity_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="com.jaspersoft.android.samples.jaspermobile.action.EDIT_SERVER_PROFILE" />
-                <action android:name="com.jaspersoft.android.samples.jaspermobile.action.CLOSE_APPLICATION" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Activity that provides functionality for creating and modifying server profiles -->
-        <activity
-            android:name=".activities.profile.ServerProfileActivity_"
-            android:configChanges="locale"
-            android:label="@string/sp_bc_add_profile" />
-
-        <!-- Activity that provides the server profiles management -->
-        <activity
-            android:name=".activities.profile.ServersManagerActivity_"
-            android:configChanges="locale"
-            android:label="@string/spm_list_title" />
-
-        <!-- Activity that performs library view -->
-        <activity
-            android:name=".activities.repository.LibraryActivity_"
-            android:configChanges="locale"
-            android:label="@string/h_library_label" />
-
-        <!-- Activity that performs repository view -->
-        <activity
-            android:name=".activities.repository.RepositoryActivity_"
-            android:configChanges="locale"
-            android:label="@string/h_repository_label" />
-
-        <!-- Activity that performs viewing of the favorite items -->
-        <activity
-            android:name=".activities.favorites.FavoritesActivity_"
-            android:configChanges="locale"
-            android:label="@string/f_title" />
-
-        <!-- Activity that performs viewing of the saved reports -->
-        <activity
-            android:name=".activities.storage.SavedReportsActivity_"
-            android:configChanges="locale"
-            android:label="@string/sdr_ab_title" />
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity
@@ -102,10 +76,25 @@
             android:label="@string/ro_page_title"
             android:windowSoftInputMode="stateHidden" />
 
+        <!-- Activity that performs report viewing in HTML format through visualize -->
+        <activity
+            android:name=".activities.viewer.html.report.ReportViewerActivity_"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.navigation.NavigationActivity_" />
+        </activity>
+
         <!-- Activity that performs report viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.navigation.NavigationActivity_" />
+        </activity>
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
@@ -114,7 +103,18 @@
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.DashboardHtmlViewerActivity_"
+            android:name=".activities.viewer.html.dashboard.Amber2DashboardActivity_"
+            android:windowSoftInputMode="adjustPan"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+
+        <activity
+            android:name=".activities.viewer.html.dashboard.AmberDashboardActivity_"
+            android:windowSoftInputMode="adjustPan"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+
+        <activity
+            android:name=".activities.viewer.html.dashboard.LegacyDashboardViewerActivity_"
+            android:windowSoftInputMode="adjustPan"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <!-- Activity that performs report saving to the local storage -->
@@ -127,8 +127,13 @@
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
+            android:theme="@style/Theme.JasperMobile.Settings"
             android:configChanges="locale"
-            android:label="@string/st_title" />
+            android:label="@string/st_title" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.navigation.NavigationActivity_" />
+        </activity>
 
         <activity
             android:name=".activities.SearchableActivity_"
@@ -139,18 +144,61 @@
             </intent-filter>
         </activity>
 
+        <!-- Activity that allows to make search in Saved Items activity -->
+        <activity
+            android:name=".activities.storage.SavedItemsSearchableActivity_"
+            android:configChanges="locale"
+            android:launchMode="singleTop" />
+
+        <!-- Activity that allows to make search in Favorites activity -->
+        <activity
+            android:name=".activities.favorites.FavoritesSearchableActivity_"
+            android:configChanges="locale"
+            android:launchMode="singleTop" />
+
         <!-- Activity that shows Privacy Policy -->
         <activity
+            android:windowSoftInputMode="adjustPan"
             android:name=".activities.PrivacyPolicyActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" >
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.navigation.NavigationActivity_" />
 
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <action android:name="android.intent.action.VIEW" />
+
                 <data android:scheme="com.jaspersoft.android.privacy_policy" />
             </intent-filter>
+        </activity>
 
-            </activity>
+        <activity
+            android:name=".activities.auth.AuthenticatorActivity" >
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="jaspersoft.intent.action.AUTHORIZE" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="9d425447d513077d94708723fd9cf72803a745bc" />
+
+        <receiver
+            android:name=".auth.AccountsReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
@@ -161,6 +209,31 @@
             android:name=".db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
             android:exported="false" />
+
+        <!-- SDK external components -->
+        <service
+            android:name=".auth.JasperAuthenticatorService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/default_authenticator" />
+        </service>
+
+        <!-- The SyncAdapter service -->
+        <service
+            android:name=".auth.JasperSyncService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_adapter" />
+        </service>
 
     </application>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,296 +24,239 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
-import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.FragmentCreator;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.NodePagerAdapter;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.ReportSession;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.OnPageSelectedListener;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.CommonRequestListener;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.ReportDetailsRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.widget.JSViewPager;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
-
-import java.util.Map;
+import org.springframework.http.HttpStatus;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment(R.layout.pagination_bar_layout)
-public class PaginationManagerFragment extends RoboSpiceFragment {
+@EFragment(R.layout.fragment_pagination_manager)
+public class PaginationManagerFragment extends RoboSpiceFragment implements NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener {
 
     public static final String TAG = PaginationManagerFragment.class.getSimpleName();
-    private static final int FIRST_PAGE = 1;
-
-    @FragmentArg
-    double versionCode;
-
-    @Inject
-    JsRestClient jsRestClient;
-    @InstanceState
-    boolean mReportIsEmpty;
 
     @ViewById
-    TextView firstPage;
+    protected View rootContainer;
     @ViewById
-    TextView previousPage;
-    @ViewById
-    TextView nextPage;
-    @ViewById
-    TextView lastPage;
-    @ViewById
-    View rootContainer;
-    @ViewById
-    View paginationLayout;
-    @ViewById
-    View progressLayout;
-
-    @ViewById
-    TextView currentPageLabel;
-    @ViewById
-    TextView totalPageLabel;
+    protected AbstractPaginationView paginationControl;
 
     @InstanceState
-    int mTotalPage;
-    @InstanceState
-    String requestId;
+    protected int mTotalPage = -1;
 
-    @InstanceState
-    int currentPage = FIRST_PAGE;
+    @Bean
+    protected ReportSession reportSession;
 
-    private final Map<Integer, NodeWebViewFragment> pagesMap = Maps.newHashMap();
-
-    private final OnPageSelectedListener onPageSelectedListener =
-            new OnPageSelectedListener() {
-                @Override
-                public void onPageSelected(int page) {
-                    currentPage = page;
-                    paginateToCurrentSelection();
-                }
-            };
+    private JSViewPager viewPager;
+    private NodePagerAdapter mAdapter;
 
     @AfterViews
     final void init() {
-        currentPageLabel.setText(String.valueOf(currentPage));
-        alterControlStates();
+        reportSession.registerObserver(sessionObserver);
 
-        if (mTotalPage != 0) {
-            showTotalPageCount(mTotalPage);
-            setVisible(true);
+        viewPager = (JSViewPager) getActivity().findViewById(R.id.viewPager);
+        viewPager.setSwipeable(false);
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                int currentPage = position + 1;
+                paginationControl.updateCurrentPage(currentPage);
+
+                boolean showNext = (currentPage == mAdapter.getCount());
+                if (paginationControl.isTotalPagesLoaded()) {
+                    int totalPages = paginationControl.getTotalPages();
+                    showNext &= (currentPage + 1 <= totalPages);
+                }
+
+                if (showNext) {
+                    viewPager.setOnPageChangeListener(null);
+                    mAdapter.addPage();
+                    mAdapter.notifyDataSetChanged();
+                    viewPager.setOnPageChangeListener(this);
+                }
+            }
+        });
+
+        mAdapter = new NodePagerAdapter(getFragmentManager(), new FragmentCreator<Fragment, Integer>() {
+            @Override
+            public Fragment createFragment(Integer page) {
+                NodeWebViewFragment nodeWebViewFragment =
+                        NodeWebViewFragment_.builder()
+                                .page(page)
+                                .build();
+                nodeWebViewFragment.setOnPageLoadListener(nodeListener);
+                return nodeWebViewFragment;
+            }
+        });
+        viewPager.setAdapter(mAdapter);
+
+        paginationControl.setOnPageChangeListener(new PaginationBarView.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(final int page) {
+                changePage(page);
+            }
+
+            @Override
+            public void onPagePickerRequested() {
+                if (paginationControl.isTotalPagesLoaded()) {
+                    NumberDialogFragment.createBuilder(getFragmentManager())
+                            .setMinValue(1)
+                            .setCurrentValue(paginationControl.getCurrentPage())
+                            .setMaxValue(paginationControl.getTotalPages())
+                            .setTargetFragment(PaginationManagerFragment.this)
+                            .show();
+                } else {
+                    PageDialogFragment.createBuilder(getFragmentManager())
+                            .setMaxValue(Integer.MAX_VALUE)
+                            .setTargetFragment(PaginationManagerFragment.this)
+                            .show();
+                }
+            }
+        });
+
+        if (mTotalPage != -1) {
+            paginationControl.updateTotalCount(mTotalPage);
+            showPaginationControl();
         }
     }
 
-    public void showTotalPageCount(int totalPage) {
-        mTotalPage = totalPage;
-
-        progressLayout.setVisibility(View.GONE);
-        totalPageLabel.setVisibility(View.VISIBLE);
-        lastPage.setEnabled(true);
-
-        totalPageLabel.setText(getString(R.string.of, totalPage));
-    }
-
-    @Click
-    final void firstPage() {
-        currentPage = FIRST_PAGE;
-        paginateToCurrentSelection();
-    }
-
-    @Click
-    final void previousPage() {
-        if (currentPage != FIRST_PAGE) {
-            currentPage -= 1;
-        }
-        paginateToCurrentSelection();
-    }
-
-    @Click
-    final void nextPage() {
-        if (currentPage != mTotalPage) {
-            currentPage += 1;
-        }
-        paginateToCurrentSelection();
-    }
-
-    @Click
-    final void lastPage() {
-        currentPage = mTotalPage;
-        paginateToCurrentSelection();
-    }
-
-    @Click(R.id.currentPageLabel)
-    final void selectCurrentPage() {
-        boolean totalPagesLoaded = mTotalPage != 0;
-        if (totalPagesLoaded) {
-            NumberDialogFragment.show(getFragmentManager(),
-                    currentPage, mTotalPage, onPageSelectedListener);
-        } else {
-            PageDialogFragment.show(getFragmentManager(), onPageSelectedListener);
-        }
-    }
-
-    public void setVisible(boolean visible) {
-        rootContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
-
-        RelativeLayout htmlViewer = (RelativeLayout)
-                getActivity().findViewById(R.id.htmlViewer_layout);
-        if (htmlViewer != null) {
-            htmlViewer.setPadding(0, 0, 0, visible ? paginationLayout.getHeight() : 0);
-        }
-    }
-
-    public void paginateTo(int page) {
-        currentPage = page;
-        paginateToCurrentSelection();
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        reportSession.removeObserver(sessionObserver);
     }
 
     public void paginateToCurrentSelection() {
-        alterControlStates();
+        viewPager.setCurrentItem(paginationControl.getCurrentPage() - 1);
+    }
 
-        NodeWebViewFragment nodeWebViewFragment;
-        if (pagesMap.keySet().size() == 0) {
-            nodeWebViewFragment = createNodeWebViewFragment();
-        } else {
-            if (pagesMap.containsKey(currentPage)) {
-                nodeWebViewFragment = pagesMap.get(currentPage);
-            } else {
-                nodeWebViewFragment = createNodeWebViewFragment();
-            }
-        }
-        // We need refresh request id so that new exports data comes in proper way
-        nodeWebViewFragment.setRequestId(requestId);
-
-        if (nodeWebViewFragment.isVisible()) {
-            // This condition happens only in the case of input controls has changed their value
-            nodeWebViewFragment.fetchReport();
-        } else {
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.content, nodeWebViewFragment,
-                            NodeWebViewFragment.TAG + currentPage).commit();
+    public void paginateTo(int page) {
+        int maximumAllowed = mAdapter.getCount();
+        if (page <= maximumAllowed) {
+            viewPager.setCurrentItem(page - 1);
         }
     }
 
-    private NodeWebViewFragment createNodeWebViewFragment() {
-        NodeWebViewFragment nodeWebViewFragment =
-                NodeWebViewFragment_.builder().requestId(requestId)
-                        .page(currentPage).versionCode(versionCode)
-                        .build();
-        pagesMap.put(currentPage, nodeWebViewFragment);
-        return nodeWebViewFragment;
+    public void showTotalPageCount(int totalPageCount) {
+        paginationControl.updateTotalCount(totalPageCount);
     }
 
-    private void alterControlStates() {
-        boolean hasTotalCount = (mTotalPage > 0);
-        currentPageLabel.setText(String.valueOf(currentPage));
-
-        if (currentPage == mTotalPage) {
-            previousPage.setEnabled(true);
-            firstPage.setEnabled(true);
-            nextPage.setEnabled(false);
-            lastPage.setEnabled(!hasTotalCount);
-            return;
-        }
-        if (currentPage == FIRST_PAGE) {
-            previousPage.setEnabled(false);
-            firstPage.setEnabled(false);
-            nextPage.setEnabled(true);
-            lastPage.setEnabled(hasTotalCount);
-            return;
-        }
-        previousPage.setEnabled(true);
-        firstPage.setEnabled(true);
-        nextPage.setEnabled(true);
-        lastPage.setEnabled(hasTotalCount);
+    public void loadNextPageInBackground() {
+        mAdapter.addPage();
+        mAdapter.notifyDataSetChanged();
     }
 
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
+    @Override
+    public void onPageSelected(int page, int requestCode) {
+        paginationControl.updateCurrentPage(page);
+        changePage(page);
     }
 
-    public void update() {
-        boolean paginationLoaded = (mTotalPage != 0);
-        if (!paginationLoaded) {
-            ReportDetailsRequest reportDetailsRequest = new ReportDetailsRequest(jsRestClient, requestId);
-            ReportDetailsRequestListener requestListener = new ReportDetailsRequestListener();
-            getSpiceManager().execute(reportDetailsRequest, requestListener);
-        }
-
-        NodeWebViewFragment nodeWebViewFragment = getCurrentNodeWebViewFragment();
-        if (nodeWebViewFragment != null && nodeWebViewFragment.isResourceLoaded()) {
-            nodeWebViewFragment.loadFinalOutput();
-        }
-    }
-
-    public boolean isResourceLoaded() {
-        NodeWebViewFragment currentWebView = getCurrentNodeWebViewFragment();
-        if (currentWebView == null) return false;
-        return currentWebView.isResourceLoaded() && !mReportIsEmpty;
+    @Override
+    public void onPageSelected(int page) {
+        paginationControl.updateCurrentPage(page);
+        changePage(page);
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    @Nullable
-    private NodeWebViewFragment getCurrentNodeWebViewFragment() {
-        return (NodeWebViewFragment)
-                getFragmentManager().findFragmentByTag(NodeWebViewFragment.TAG + currentPage);
+    private void showPaginationControl() {
+        rootContainer.setVisibility(View.VISIBLE);
+
+        RelativeLayout htmlViewer = (RelativeLayout)
+                getActivity().findViewById(R.id.htmlViewer_layout);
+        if (htmlViewer != null) {
+            htmlViewer.setPadding(0, 0, 0, paginationControl.getHeight());
+        }
     }
 
-    @NonNull
-    private ReportExecutionFragment getReportExecutionFragment() {
-        return (ReportExecutionFragment)
-                getFragmentManager().findFragmentByTag(ReportExecutionFragment.TAG);
+    private void hidePaginationControl() {
+        rootContainer.setVisibility(View.GONE);
     }
 
-    @NonNull
-    private FilterManagerFragment getFilterMangerFragment() {
-        return (FilterManagerFragment)
-                getFragmentManager().findFragmentByTag(FilterManagerFragment.TAG);
+    private void changePage(int page) {
+        int count = mAdapter.getCount();
+        int item = page - 1;
+        if (count < page) {
+            mAdapter.setCount(page);
+            mAdapter.notifyDataSetChanged();
+        }
+        viewPager.setCurrentItem(item);
     }
 
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
-    private class ReportDetailsRequestListener extends CommonRequestListener<ReportExecutionResponse> {
-        @Override
-        public final void onSemanticSuccess(ReportExecutionResponse response) {
-            int totalPageCount = response.getTotalPages();
-            boolean needToShow = (totalPageCount > 1);
-            setVisible(needToShow);
 
-            if (needToShow) {
-                showTotalPageCount(response.getTotalPages());
-            }
+    private final ReportSession.ExecutionObserver sessionObserver =
+            new ReportSession.ExecutionObserver() {
+                @Override
+                public void onRequestIdChanged(String requestId) {
+                    mTotalPage = -1;
+                    mAdapter.clear();
+                    mAdapter.addPage();
+                    mAdapter.notifyDataSetChanged();
+                    paginationControl.reset();
+                    viewPager.setCurrentItem(0);
+                }
 
-            if (totalPageCount == 0) {
-                mReportIsEmpty = true;
-                getReportExecutionFragment().showEmptyReportOptionsDialog();
-            } else {
-                getFilterMangerFragment().makeSnapshot();
-            }
-        }
+                @Override
+                public void onPagesLoaded(int totalPage) {
+                    mTotalPage = totalPage;
+                    paginationControl.updateTotalCount(mTotalPage);
+                    if (totalPage > 1) {
+                        showTotalPageCount(totalPage);
+                        showPaginationControl();
+                    } else {
+                        hidePaginationControl();
+                    }
+                }
+            };
 
-        @Override
-        public Activity getCurrentActivity() {
-            return getActivity();
-        }
-    }
+    private final NodeWebViewFragment.OnPageLoadListener nodeListener =
+            new NodeWebViewFragment.OnPageLoadListener() {
+                @Override
+                public void onFailure(Exception exception) {
+                    int statusCode = RequestExceptionHandler.extractStatusCode(exception);
+                    if (statusCode != 0 && statusCode == HttpStatus.BAD_REQUEST.value()) {
+                        // Enforcing max page or first one
+                        // this situation possible due to the user has entered out of range page
+                        mAdapter.setCount(paginationControl.isTotalPagesLoaded() ?
+                                paginationControl.getTotalPages() : 2);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                @Override
+                public void onSuccess(int page) {
+                    boolean isSecondPageLoaded = (page == 2);
+                    boolean isMultiPage = isSecondPageLoaded || mTotalPage > 1;
+                    if (isMultiPage) {
+                        showPaginationControl();
+                    }
+                }
+            };
 }

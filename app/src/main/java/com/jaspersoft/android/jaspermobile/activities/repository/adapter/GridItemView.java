@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -40,7 +40,7 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 @EViewGroup(R.layout.res_grid_item)
-public class GridItemView extends CheckedRelativeLayout implements IResourceView {
+public class GridItemView extends CheckedRelativeLayout implements ResourceView {
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;
@@ -105,8 +105,8 @@ public class GridItemView extends CheckedRelativeLayout implements IResourceView
         }
     }
 
-    public void setImageIcon(int image) {
-        mImageIcon.setImageResource(image);
+    public ImageView getImageView() {
+        return mImageIcon;
     }
 
 }

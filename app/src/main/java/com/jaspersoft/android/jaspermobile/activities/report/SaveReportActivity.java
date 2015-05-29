@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,19 +24,18 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OptionsItem;
-
-import java.util.ArrayList;
 
 /**
  * @author Ivan Gadzhega
@@ -44,39 +43,27 @@ import java.util.ArrayList;
  * @since 1.8
  */
 @EActivity
-public class SaveReportActivity extends RoboSpiceFragmentActivity {
+public class SaveReportActivity extends RoboSpiceActivity {
 
     @Extra
-    String resourceLabel;
+    ResourceLookup resource;
     @Extra
-    String resourceUri;
-    @Extra
-    ArrayList<ReportParameter> reportParameters;
+    int pageCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         if (savedInstanceState == null) {
+
             SaveItemFragment saveItemFragment = SaveItemFragment_.builder()
-                    .resourceLabel(resourceLabel)
-                    .resourceUri(resourceUri)
-                    .reportParameters(reportParameters)
+                    .resource(resource)
+                    .pageCount(pageCount)
                     .build();
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, saveItemFragment, SaveItemFragment.TAG)
+                    .add(R.id.content, saveItemFragment, SaveItemFragment.TAG)
                     .commit();
         }
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void goBack() {
-        super.onBackPressed();
     }
 
 }

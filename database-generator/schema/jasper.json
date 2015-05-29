@@ -1,69 +1,123 @@
 {
-	"packageName" : "com.jaspersoft.android.jaspermobile.db",
-	"providerName" : "jasper_mobile_db",
-	"databaseVersion" : 3,
-	"tables" : [{
-			"name" : "server_profiles",
-			"members" : [{
-					"type" : "string",
-					"name" : "alias"
-				}, {
-					"type" : "string",
-					"name" : "server_url"
-				}, {
-					"type" : "string",
-					"name" : "organization"
-				}, {
-					"type" : "string",
-					"name" : "username"
-				}, {
-					"type" : "string",
-					"name" : "password"
-				}, {
-					"type" : "string",
-					"name" : "edition"
-				}, {
-					"type" : "double",
-					"name" : "versionCode"
-				}
-			]
-		}, {
-			"name" : "favorites",
-			"members" : [{
-					"type" : "string",
-					"name" : "name"
-				}, {
-					"type" : "string",
-					"name" : "title"
-				}, {
-					"type" : "string",
-					"name" : "uri"
-				}, {
-					"type" : "string",
-					"name" : "description"
-				}, {
-					"type" : "string",
-					"name" : "wstype"
-				}, {
-					"type" : "string",
-					"name" : "username"
-				}, {
-					"type" : "string",
-					"name" : "organization"
-				}
-			]
-		}
-	],
-	"relationships" : [{
-			"name" : "server_profiles_favorites",
-			"left_table" : "server_profiles",
-			"right_table" : "favorites",
-			"foreign_key" : "server_profile_id",
-			"modify_action": {
-                "type": "delete",
-                "action": "cascade"
-            },
-			"type" : "to_many"
-		}
-	]
+  "packageName": "com.jaspersoft.android.jaspermobile.db",
+  "providerName": "jasper_mobile_db",
+  "databaseVersion": 4,
+  "tables": [
+    {
+      "name": "server_profiles",
+      "members": [
+        {
+          "type": "string",
+          "name": "alias"
+        },
+        {
+          "type": "string",
+          "name": "server_url"
+        },
+        {
+          "type": "string",
+          "name": "organization"
+        },
+        {
+          "type": "string",
+          "name": "username"
+        },
+        {
+          "type": "string",
+          "name": "password"
+        },
+        {
+          "type": "string",
+          "name": "edition"
+        },
+        {
+          "type": "double",
+          "name": "versionCode"
+        }
+      ]
+    },
+    {
+      "name": "favorites",
+      "buildable": true,
+      "members": [
+        {
+          "type": "string",
+          "name": "title"
+        },
+        {
+          "type": "string",
+          "name": "uri"
+        },
+        {
+          "type": "string",
+          "name": "description"
+        },
+        {
+          "type": "string",
+          "name": "wstype"
+        },
+        {
+          "type": "string",
+          "name": "username"
+        },
+        {
+          "type": "string",
+          "name": "organization"
+        },
+        {
+          "type": "string",
+          "name": "account_name",
+          "not_null": true,
+          "default": "''"
+        },
+        {
+          "type": "string",
+          "name": "creation_time"
+        }
+      ]
+    },
+    {
+      "name": "saved_items",
+      "buildable": true,
+      "members": [
+        {
+          "type": "string",
+          "name": "file_path",
+          "not_null": true
+        },
+        {
+          "type": "string",
+          "name": "name",
+          "not_null": true
+        },
+        {
+          "type": "string",
+          "name": "file_format",
+          "not_null": true
+        },
+        {
+          "type": "string",
+          "name": "description"
+        },
+        {
+          "type": "string",
+          "name": "wstype",
+          "default": "'unknown'",
+          "not_null": true
+        },
+        {
+          "type": "string",
+          "name": "account_name",
+          "default": "'com.jaspersoft.account.none'",
+          "not_null": true
+        },
+        {
+          "type": "long",
+          "name": "creation_time",
+          "not_null": true
+        }
+      ]
+    }
+  ],
+  "relationships": []
 }

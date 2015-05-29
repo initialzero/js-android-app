@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -37,8 +37,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
-import fr.castorflex.android.circularprogressbar.CircularProgressDrawable;
-
 import static android.content.DialogInterface.OnCancelListener;
 import static android.content.DialogInterface.OnShowListener;
 
@@ -70,21 +68,15 @@ public class ProgressDialogFragment extends DialogFragment {
         progressDialog.setMessage(getString(loadingMessage));
         progressDialog.setOnShowListener(onShowListener);
         progressDialog.setCanceledOnTouchOutside(false);
-
-        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable
-                .Builder(getActivity())
-                .colors(getResources().getIntArray(R.array.holo_colors))
-                .sweepSpeed(1f)
-                .strokeWidth(6)
-                .style(CircularProgressDrawable.Style.ROUNDED).build();
-        progressDialog.setIndeterminateDrawable(circularProgressDrawable);
         return progressDialog;
     }
 
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
-        onCancelListener.onCancel(dialog);
+        if (onCancelListener != null) {
+            onCancelListener.onCancel(dialog);
+        }
     }
 
     @Deprecated

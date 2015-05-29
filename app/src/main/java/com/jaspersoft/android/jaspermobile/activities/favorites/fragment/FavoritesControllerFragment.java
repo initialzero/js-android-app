@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -31,6 +31,8 @@ import android.support.v4.app.Fragment;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 
 /**
  * @author Tom Koptel
@@ -38,10 +40,20 @@ import org.androidannotations.annotations.EFragment;
  */
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
+    public static final String CONTENT_TAG = "FavoritesControllerFragment.CONTENT_TAG";
     public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
 
-
     private FavoritesFragment contentFragment;
+
+    @FragmentArg
+    @InstanceState
+    protected String searchQuery;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getArguments().putString(PREF_TAG_KEY, "favorites_pref");
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -60,8 +72,15 @@ public class FavoritesControllerFragment extends ControllerFragment {
     @Override
     public Fragment getContentFragment() {
         contentFragment = FavoritesFragment_.builder()
-                .viewType(getViewType()).build();
+                .viewType(getViewType())
+                .searchQuery(searchQuery)
+                .build();
         return contentFragment;
+    }
+
+    @Override
+    protected String getContentFragmentTag() {
+        return CONTENT_TAG;
     }
 
 }

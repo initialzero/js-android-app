@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -60,7 +60,7 @@
         <item name="android:textColor">@color/list_label_grey</item>
         <item name="android:layout_margin">8dp</item>
         <item name="android:textAppearance">?android:attr/textAppearanceLargeInverse</item>
-        <item name="android:maxLines">2</item>
+        <item name="android:lines">2</item>
     </style>
 
     <style name="grid.item.subTitle">

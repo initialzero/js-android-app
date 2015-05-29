@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,36 +24,35 @@
 -->
 
 <resources>
-    <!-- Actionbar -->
-    <style name="Theme.JasperMobile" parent="Theme.HoloAccent.ColoredActionBar">
-        <item name="accentColor">#33B5E5</item>
-        <item name="android:windowBackground">@drawable/ic_resources_background</item>
-        <item name="android:actionBarStyle">@style/Widget.JasperMobile.ActionBar</item>
+    <style name="Theme.JasperMobile" parent="Base.Theme.AppCompat">
+        <item name="android:windowBackground">@drawable/bg_application_main</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:fontFamily">sans-serif-light</item>
 
-        <!--android-styled-dialogs reference style -->
-        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
+        <item name="colorAccent">@android:color/white</item>
+
+        <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
+        <item name="actionModeStyle">@style/Widget.JasperMobile.ActionMode</item>
+        <item name="android:textViewStyle">@style/Widget.JasperMobile.TextView</item>
+        <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
+        <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
+        <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
 
         <!--App reference styles-->
         <item name="listLayoutStyle">@style/list2.item.layout</item>
         <item name="gridLayoutStyle">@style/grid.item.layout</item>
+
+        <!-- For Action Mode http://stackoverflow.com/questions/26450936/actionmode-with-toolbar-offsetting-content-->
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="Widget.JasperMobile.ActionBar" parent="@android:style/Widget.Holo.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_solid_home</item>
+    <style name="Theme.JasperMobile.NoToolbar" parent="Widget.AppCompat.ProgressBar">
+       <item name="windowToolbar">false</item>
     </style>
 
-    <style name="Theme.JasperMobile.NoActionBar" parent="@android:style/Theme.Holo.Light.NoActionBar">
-        <item name="sdlDialogStyle">@style/Widget.JasperMobileDialog</item>
-        <item name="android:windowBackground">@drawable/ic_resources_background</item>
-    </style>
-
-    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
-
-    <style name="Widget.JasperMobileDialog" parent="@style/DialogStyleDark.Custom" />
-
-    <style name="DialogStyleDark.Custom">
-        <item name="titleTextColor">@color/dialog_title_txt_color</item>
-        <item name="dialogBackground">@drawable/ic_resources_background</item>
+    <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile">
+        <item name="android:editTextStyle">@android:style/Widget.Holo.EditText</item>
     </style>
 
 </resources>

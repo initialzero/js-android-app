@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,14 +26,14 @@ package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.view.ActionMode;
+import android.support.v7.view.ActionMode;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceAdapterHelper;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceAdapterHelper;
 import com.manuelpeinado.multichoiceadapter.ItemClickInActionModePolicy;
 import com.manuelpeinado.multichoiceadapter.MultiChoiceAdapter;
 
@@ -81,6 +81,9 @@ public abstract class SingleChoiceArrayAdapter<T> extends ArrayAdapter<T> implem
     }
 
     public void setAdapterView(AdapterView<? super BaseAdapter> adapterView) {
+        if (adapterView != null) {
+            setOnItemClickListener(adapterView.getOnItemClickListener());
+        }
         helper.setAdapterView(adapterView);
     }
 

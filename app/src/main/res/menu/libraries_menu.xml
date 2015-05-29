@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -23,17 +23,18 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/filter"
-        android:icon="@drawable/ic_action_filter"
+        android:icon="@drawable/ic_menu_filter"
         android:orderInCategory="65"
-        android:showAsAction="ifRoom"
+        app:showAsAction="never"
         android:title="@string/s_ab_filter_by"/>
     <item
         android:id="@+id/sort"
-        android:icon="@drawable/ic_action_sort"
+        android:icon="@drawable/ic_menu_sort"
         android:orderInCategory="70"
-        android:showAsAction="ifRoom"
+        app:showAsAction="never"
         android:title="@string/s_ab_sort_by"/>
 </menu>

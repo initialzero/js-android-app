@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,76 +24,97 @@
 
 package com.jaspersoft.android.jaspermobile.test;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.internal.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.test.runner.lifecycle.Stage;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.google.android.apps.common.testing.testrunner.ActivityLifecycleMonitorRegistry;
-import com.google.android.apps.common.testing.testrunner.Stage;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-import com.jaspersoft.android.jaspermobile.test.utils.DatabaseUtils;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.jaspermobile.util.ProfileHelper_;
+import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
+import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
 import java.util.Collection;
 
 import roboguice.RoboGuice;
 
-import static com.google.common.collect.Iterables.getOnlyElement;
-
+@RunWith(AndroidJUnit4.class)
 public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
-    protected static final String USERNAME = "phoneuser|organization_1";
-    protected static final String PASSWORD = "phoneuser";
 
     protected T mActivity;
-    private String pageName = "UNSPECIFIED";
-    private ProfileHelper_ profileHelper;
+    protected JsRestClient jsRestClient;
     private Application mApplication;
+    private Account activeAccount;
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
         super(activityClass);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
-        mApplication = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        DefaultPrefHelper helper = DefaultPrefHelper_
-                .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
-        helper.setAnimationEnabled(false);
-        helper.setRepoCacheEnabled(false);
+        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
+
+        PreferenceApiAdapter.init(getApplication())
+                .setCacheEnabled(false)
+                .setInAppAnimationEnabled(false);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        unregisterTestModule();
         mApplication = null;
         mActivity = null;
-        profileHelper = null;
-        super.tearDown();
     }
 
     protected void setDefaultCurrentProfile() {
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        profileHelper = ProfileHelper_.getInstance_(application);
+        AccountServerData serverData = new AccountServerData()
+                .setAlias(AccountServerData.Demo.ALIAS)
+                .setServerUrl(AccountServerData.Demo.SERVER_URL)
+                .setOrganization(AccountServerData.Demo.ORGANIZATION)
+                .setUsername(AccountServerData.Demo.USERNAME)
+                .setPassword(AccountServerData.Demo.PASSWORD)
+                .setEdition("PRO")
+                .setVersionName("5.5");
+        activeAccount = AccountUtil.get(getApplication())
+                .removeAllAccounts()
+                .addAccount(serverData)
+                .setAuthToken()
+                .activate()
+                .getAccount();
+        JsServerProfile profile = new JsServerProfile();
+        profile.setAlias(serverData.getAlias());
+        profile.setServerUrl(serverData.getServerUrl());
+        profile.setOrganization(serverData.getOrganization());
+        profile.setUsername(serverData.getUsername());
+        profile.setPassword(serverData.getPassword());
+        getJsRestClient().setServerProfile(profile);
+    }
 
-        ContentResolver cr = application.getContentResolver();
-        DatabaseUtils.deleteAllProfiles(cr);
-        long id = DatabaseUtils.createDefaultProfile(cr);
-        profileHelper.setCurrentServerProfile(id);
-        profileHelper.setCurrentInfoSnapshot(id);
+    public Account getActiveAccount() {
+        if (activeAccount == null) {
+            setDefaultCurrentProfile();
+        }
+        return activeAccount;
     }
 
     public void startActivityUnderTest() {
@@ -131,38 +152,17 @@ public class ProtoActivityInstrumentation<T extends Activity>
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    protected int getSearcFieldId() {
-        return mActivity.getResources().getIdentifier("search_src_text", "id", "android");
-    }
-
-    protected int getActionBarId() {
-        return mActivity.getResources().getIdentifier("action_bar", "id", "android");
-    }
-
-    protected int getActionBarTitleId() {
-        return mActivity.getResources().getIdentifier("action_bar_title", "id", "android");
-    }
-
-    protected int getActionBarSubTitleId() {
-        return mActivity.getResources().getIdentifier("action_bar_subtitle", "id", "android");
-    }
-
     protected View findViewById(int id) {
         return mActivity.findViewById(id);
     }
 
     protected void registerTestModule(AbstractModule module) {
         unregisterTestModule();
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(module));
+        RoboGuice.overrideApplicationInjector(mApplication, module);
     }
 
     protected void unregisterTestModule() {
-        RoboGuice.util.reset();
+        RoboGuice.Util.reset();
     }
 
     protected Activity getCurrentActivity() throws Throwable {
@@ -174,15 +174,18 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 Collection<Activity> activites =
                         ActivityLifecycleMonitorRegistry.getInstance()
                                 .getActivitiesInStage(Stage.RESUMED);
-                activity[0] = getOnlyElement(activites);
+                activity[0] = new ArrayList<Activity>(activites).get(0);
             }
         });
         return activity[0];
     }
 
     protected JsRestClient getJsRestClient() {
-        Injector injector = RoboGuice.getBaseApplicationInjector(mApplication);
-        return injector.getInstance(JsRestClient.class);
+        if (jsRestClient == null) {
+            Injector injector = RoboGuice.getInjector(getApplication());
+            jsRestClient = injector.getInstance(JsRestClient.class);
+        }
+        return jsRestClient;
     }
 
     protected JsServerProfile getServerProfile() {
@@ -190,10 +193,14 @@ public class ProtoActivityInstrumentation<T extends Activity>
     }
 
     protected Application getApplication() {
+        if (mApplication == null) {
+            mApplication = (Application) this.getInstrumentation()
+                    .getTargetContext().getApplicationContext();
+        }
         return mApplication;
     }
 
     protected ContentResolver getContentResolver() {
-        return mApplication.getContentResolver();
+        return getApplication().getContentResolver();
     }
 }

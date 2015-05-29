@@ -1,31 +1,52 @@
+/*
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ *  http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ *  Unless you have purchased a commercial license agreement from Jaspersoft,
+ *  the following license terms apply:
+ *
+ *  This program is part of Jaspersoft Mobile for Android.
+ *
+ *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Jaspersoft Mobile is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Jaspersoft Mobile for Android. If not, see
+ *  <http://www.gnu.org/licenses/lgpl>.
+ */
+
 package com.jaspersoft.android.jaspermobile.activities;
 
-import android.app.ActionBar;
+import android.content.Context;
 import android.os.Bundle;
 import android.webkit.WebViewClient;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment_;
 import com.jaspersoft.android.jaspermobile.network.PrivacyRequest;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.OptionsItem;
 
 /**
  * @author Andrew Tivodar
  * @since 1.9
  */
 @EActivity
-public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements WebViewFragment.OnWebViewCreated {
+public class PrivacyPolicyActivity extends RoboSpiceActivity implements WebViewFragment.OnWebViewCreated {
 
     private WebViewFragment webViewFragment;
 
@@ -39,11 +60,6 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         if (savedInstanceState == null) {
             webViewFragment = WebViewFragment_.builder()
                     .resourceLabel(getString(R.string.sa_about_privacy))
@@ -52,14 +68,9 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
             webViewFragment.setOnWebViewCreated(this);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, webViewFragment, ResourcesControllerFragment.TAG)
+                    .add(R.id.content, webViewFragment, ResourcesControllerFragment.TAG)
                     .commit();
         }
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void showHome() {
-        super.onBackPressed();
     }
 
     @Override
@@ -71,10 +82,11 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
                 new PrivacyRequestListener());
     }
 
-    private class PrivacyRequestListener implements RequestListener<String> {
+    private class PrivacyRequestListener extends SimpleRequestListener<String> {
+
         @Override
-        public void onRequestFailure(SpiceException e) {
-            RequestExceptionHandler.handle(e, PrivacyPolicyActivity.this, true);
+        protected Context getContext() {
+            return PrivacyPolicyActivity.this;
         }
 
         @Override
@@ -82,7 +94,6 @@ public class PrivacyPolicyActivity extends RoboSpiceFragmentActivity implements 
             if (privacy == null) {
                 return;
             }
-
             webViewFragment.loadHtml(PrivacyRequest.PRIVACY_URL, privacy);
         }
     }

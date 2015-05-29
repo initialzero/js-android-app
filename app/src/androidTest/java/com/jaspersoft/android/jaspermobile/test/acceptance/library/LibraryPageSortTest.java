@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,9 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import com.google.android.apps.common.testing.ui.espresso.NoMatchingViewException;
+import android.support.test.espresso.NoMatchingViewException;
+
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.acceptance.library.assertion.RequestAssert;
@@ -44,14 +45,17 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.apache.http.fake.FakeHttpLayerManager;
 import org.apache.http.hacked.HackedJsRestClient;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.onView;
-import static com.google.android.apps.common.testing.ui.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static com.google.android.apps.common.testing.ui.espresso.action.ViewActions.click;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.assertThat;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withId;
-import static com.google.android.apps.common.testing.ui.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.atLeastOnce;
@@ -62,16 +66,16 @@ import static org.mockito.Mockito.verify;
  * @author Tom Koptel
  * @since 1.9
  */
-public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageSortTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private final SpiceManagerRequestAssert mMockedSpiceManager = spy(new SpiceManagerRequestAssert());
 
     public LibraryPageSortTest() {
-        super(LibraryActivity_.class);
+        super(NavigationActivity_.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         registerTestModule(new TestModule());
@@ -81,13 +85,21 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
         FakeHttpLayerManager.clearHttpResponseRules();
         FakeHttpLayerManager.addHttpResponseRule(
                 ApiMatcher.RESOURCES,
-                TestResponses.ALL_RESOURCES);
+                TestResponses.SMALL_LOOKUP);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        unregisterTestModule();
+        super.tearDown();
+    }
+
+    @Test
     public void testSortByDate() {
         verifySortBy(SortOrder.CREATION_DATE, R.string.s_fd_sort_date);
     }
 
+    @Test
     public void testSortByLabel() {
         verifySortBy(SortOrder.LABEL, R.string.s_fd_sort_label);
     }
@@ -123,22 +135,27 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
                 argument3.capture(), argument4.capture());
     }
 
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
     private void clickSortMenuItem() {
         try {
             onView(withId(R.id.sort)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_sort_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            onView(withText(R.string.s_ab_sort_by)).perform(click());
         }
     }
 
+    //---------------------------------------------------------------------
+    // Inner classes
+    //---------------------------------------------------------------------
+
     private class TestModule extends CommonTestModule {
         @Override
-        protected void semanticConfigure() {
+        protected void configure() {
+            super.configure();
             bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
             bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }

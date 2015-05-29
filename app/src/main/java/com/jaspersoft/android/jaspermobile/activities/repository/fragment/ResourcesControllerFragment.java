@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -27,15 +27,11 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 
-import com.google.common.collect.Lists;
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourceSearchable;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
@@ -53,7 +49,7 @@ import java.util.List;
 public class ResourcesControllerFragment extends ControllerFragment
         implements ResourcesLoader, ResourceSearchable {
     public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
-    public static final String CONTENT_TAG = "CONTENT_TAG";
+    public static final String CONTENT_TAG = "ResourcesControllerFragment.CONTENT_TAG";
 
     @InstanceState
     @FragmentArg
@@ -76,42 +72,30 @@ public class ResourcesControllerFragment extends ControllerFragment
     @InstanceState
     @FragmentArg
     int emptyMessage;
+    @InstanceState
+    @FragmentArg
+    String prefTag;
 
     @FragmentArg
     boolean hideMenu;
+    @InstanceState
+    @FragmentArg
+    public String controllerTag;
 
     private ResourcesFragment contentFragment;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         ResourcesFragment inMemoryFragment = (ResourcesFragment)
-                getFragmentManager().findFragmentByTag(getContentTag());
+                getFragmentManager().findFragmentByTag(getContentFragmentTag());
 
         if (inMemoryFragment == null) {
             commitContentFragment();
         } else {
             contentFragment = inMemoryFragment;
         }
-    }
-
-    @Override
-    protected void commitContentFragment() {
-        boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (animationEnabled) {
-            transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        }
-        transaction
-                .replace(android.R.id.content, getContentFragment(), getContentTag())
-                .commit();
     }
 
     @Override
@@ -130,8 +114,13 @@ public class ResourcesControllerFragment extends ControllerFragment
     }
 
     @Override
+    protected String getContentFragmentTag() {
+        return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
+    }
+
+    @Override
     public void loadResourcesByTypes(List<String> types) {
-        resourceTypes = Lists.newArrayList(types);
+        resourceTypes = new ArrayList<String>(types);
         if (contentFragment != null) {
             contentFragment.loadResourcesByTypes(types);
         }
@@ -145,14 +134,9 @@ public class ResourcesControllerFragment extends ControllerFragment
         }
     }
 
-    public String getContentTag() {
-        return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
-    }
-
     @Override
     public void doSearch(String query) {
         contentFragment.setQuery(query);
         contentFragment.loadFirstPage();
     }
-
 }

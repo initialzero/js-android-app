@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,12 +25,13 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 
-import com.google.common.collect.Lists;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
 
@@ -54,6 +55,7 @@ import roboguice.fragment.RoboFragment;
 public class SearchControllerFragment extends RoboFragment implements SearchView.OnQueryTextListener {
 
     public static final String TAG = SearchControllerFragment.class.getSimpleName();
+    public static final int SEARCH_ACTION = 100;
 
     @OptionsMenuItem(R.id.search)
     public MenuItem searchMenuItem;
@@ -61,14 +63,25 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     @InstanceState
     @FragmentArg
     ArrayList<String> resourceTypes;
+    @InstanceState
+    @FragmentArg
+    String prefTag;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        SearchView searchView = (SearchView) searchMenuItem.getActionView();
-        searchView.setQueryHint(getString(R.string.s_hint));
-        searchView.setOnQueryTextListener(this);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+        if (!isDetached()) {
+            searchView.setQueryHint(getString(R.string.s_hint));
+            searchView.setOnQueryTextListener(this);
+        }
     }
 
     @Override
@@ -80,9 +93,11 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
                 .query(query)
                 .resourceUri(resourceUri)
                 .resourceTypes(resourceTypes)
+                .controllerTag(getActivity().getLocalClassName())
+                .prefTag(prefTag)
                 .get();
         searchIntent.setAction(Intent.ACTION_SEARCH);
-        startActivity(searchIntent);
+        getActivity().startActivityForResult(searchIntent, SEARCH_ACTION);
         return true;
     }
 
@@ -92,7 +107,7 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     }
 
     public void setResourceTypes(List<String> resourceTypes) {
-        this.resourceTypes = Lists.newArrayList(resourceTypes);
+        this.resourceTypes = new ArrayList<String>(resourceTypes);
     }
 
     public String getResourceUri() {

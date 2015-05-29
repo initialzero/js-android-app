@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,7 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.webkit.WebChromeClient;
 
@@ -35,8 +37,25 @@ import android.webkit.WebChromeClient;
 public class JSWebView extends android.webkit.WebView {
     private WebChromeClient webChromeCient;
 
+    public JSWebView(Context context) {
+        super(context);
+    }
+
+    public JSWebView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
     public JSWebView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public JSWebView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    public JSWebView(Context context, AttributeSet attrs, int defStyleAttr, boolean privateBrowsing) {
+        super(context, attrs, defStyleAttr, privateBrowsing);
     }
 
     @Override

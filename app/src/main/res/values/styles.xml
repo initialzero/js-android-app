@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,21 +25,135 @@
 
 <resources>
 
-    <!-- Default ListView Style -->
-    <style name="editText">
-        <item name="android:layout_marginLeft">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:ems">10</item>
+    <!-- Default Widget Style Style -->
+    <style name="Widget.JasperMobile.TextView" parent="android:Widget.Holo.TextView">
+        <item name="android:textColor">@color/default_text</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.EditText" parent="android:Widget.Holo.EditText">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.Spinner" parent="android:Widget.Holo.Spinner">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.Button" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
+    </style>
+
+    <style name="Widget.JasperMobile.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
+        <item name="background">@color/js_light_gray</item>
+    </style>
+
+    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
+
+    <style name="CardView.Auth">
+        <item name="cardBackgroundColor">@null</item>
+        <item name="cardCornerRadius">0dp</item>
+        <item name="cardElevation">4dp</item>
+    </style>
+
+    <style name="CardView.Auth.AddAccount">
+    </style>
+
+    <style name="CardView.Auth.TryDemo">
+    </style>
+
+    <style name="CardView.Auth.Container">
+        <item name="android:layout_marginLeft">-4dp</item>
+        <item name="android:layout_marginRight">-4dp</item>
+    </style>
+
+    <!-- Input Controls -->
+    <style name="inputControl" />
+
+    <style name="inputControl.layout">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:paddingBottom">7dp</item>
+    </style>
+
+    <style name="inputControl.label">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@color/js_dark_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="inputControl.errorText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@android:color/holo_red_dark</item>
+    </style>
+
+    <!-- Boolean -->
+    <style name="inputControl.boolean" />
+
+    <style name="inputControl.boolean.checkBox">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">@color/js_dark_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Single Value -->
+    <style name="inputControl.singleValue" />
+
+    <style name="inputControl.singleValue.editText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="label">
-        <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginLeft">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/js_blue</item>
+    <!-- Date -->
+    <style name="inputControl.date" />
+
+    <style name="inputControl.date.inputContainer" />
+
+    <style name="inputControl.date.inputContainer.layout">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="inputControl.date.inputContainer.editText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="inputControl.date.inputContainer.picker">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+
+    <style name="inputControl.date.inputContainer.picker.date">
+        <item name="android:src">@drawable/ic_date_picker</item>
+    </style>
+
+    <style name="inputControl.date.inputContainer.picker.time">
+        <item name="android:src">@drawable/ic_time_picker</item>
+    </style>
+
+    <!-- Single/Multi Select -->
+    <style name="inputControl.select" />
+
+    <style name="inputControl.select.spinner">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <!-- Report Options Layout -->
@@ -75,7 +189,7 @@
     <style name="reportOptions.switch">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">50dp</item>
-        <item name="android:background">@drawable/input_controls_divider</item>
+        <item name="android:background">@drawable/im_input_controls_divider</item>
         <item name="android:textSize">16sp</item>
         <item name="android:singleLine">true</item>
     </style>
@@ -116,123 +230,12 @@
 
     <style name="saveReport.outputFormat.label" parent="inputControl.label" />
 
-
-    <!-- Dialogs -->
-    <style name="dialog" />
-
-    <style name="dialog.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:padding">10dp</item>
-    </style>
-
-    <style name="dialog.editText">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
-    <style name="dialog.textView">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_marginTop">2dp</item>
-        <item name="android:layout_marginLeft">5dp</item>
-        <item name="android:layout_marginRight">5dp</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-    </style>
-
-    <style name="dialog.textView.label">
-        <item name="android:textStyle">bold</item>>
-    </style>
-
-    <style name="dialog.textView.error">
-        <item name="android:visibility">gone</item>
-        <item name="android:textColor">@color/red</item>
-    </style>
-
-    <!--New Home Styling-->
-    <style name="home" />
-
-    <style name="home.row">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:layout_weight">1</item>
-    </style>
-
-    <style name="home.row.bottom">
-        <item name="android:layout_marginBottom">16dp</item>
-    </style>
-
-    <style name="home.card" />
-
-    <style name="home.card.box">
-        <item name="foregroundSelector">@drawable/bs_white_blue_animated</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:orientation">vertical</item>
-    </style>
-
-    <style name="home.card.box.left">
-        <item name="android:layout_marginRight">16dp</item>
-    </style>
-
-    <style name="home.card.head">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:layout_weight">0.5</item>
-        <item name="android:padding">@dimen/card_composed_image_padding</item>
-    </style>
-
-    <style name="home.card.body">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:layout_weight">0.5</item>
-        <item name="android:orientation">vertical</item>
-        <item name="android:padding">@dimen/card_body_padding</item>
-        <item name="android:background">@android:color/white</item>
-    </style>
-
-    <style name="home.card.title">
-        <item name="android:textColor">@color/card_title_txt</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceLargeInverse</item>
-    </style>
-
-    <style name="home.card.subtitle">
-        <item name="android:textColor">@color/card_subtitle_txt</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
-    </style>
-
-    <style name="home.dialog" />
-
-    <style name="home.dialog.table" />
-
-    <style name="home.dialog.table.layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:shrinkColumns">1</item>
-        <item name="android:paddingBottom">10dp</item>
-    </style>
-
-    <style name="home.dialog.table.label">
-        <item name="android:textStyle">bold</item>
-        <item name="android:layout_marginLeft">5dp</item>
-        <item name="android:paddingRight">10dp</item>
-    </style>
-
-    <style name="home.dialog.passwordEdit">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:inputType">textPassword</item>
-    </style>
-
     <style name="list2" />
 
     <style name="list2.item" />
 
     <style name="list2.item.layout">
-        <item name="android:background">@drawable/custom_list_item_bg</item>
+        <item name="android:background">@drawable/bg_item_resource</item>
     </style>
 
     <style name="list2.item.title">
@@ -263,7 +266,7 @@
     </style>
 
     <style name="grid.item.layout">
-        <item name="android:background">@drawable/custom_list_item_bg</item>
+        <item name="android:background">@drawable/bg_item_resource</item>
     </style>
 
     <style name="grid.item.context">
@@ -274,13 +277,21 @@
         <item name="android:textColor">@color/list_label_grey</item>
         <item name="android:layout_margin">4dp</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:maxLines">2</item>
+        <item name="android:lines">2</item>
     </style>
 
     <style name="grid.item.subTitle">
         <item name="android:textColor">@color/list_label_light_grey</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:maxLines">2</item>
+    </style>
+
+    <!--Add account page-->
+
+    <style name="editTextAccount">
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/im_login_edit</item>
+        <item name="android:ems">10</item>
     </style>
 
 </resources>

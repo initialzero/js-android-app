@@ -227,7 +227,7 @@
         js_mobile.log("Apply click events");
         dashboardId = this.v.dashboard.componentIdDomAttribute;
         self = this;
-        return $(this.container).find("[" + dashboardId + "] > .dashlet").parent().on('click', function() {
+        return $(this.container).find("[" + dashboardId + "]").on('click', function() {
           var component, id;
           $('.show_chartTypeSelector_wrapper').show();
           id = $(this).attr(dashboardId);
@@ -579,8 +579,7 @@
 }).call(this);
 
 (function() {
-  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
   define('js.mobile.android.dashboard.callback', ['require','js.mobile.callback_dispatcher'],function(require) {
@@ -590,7 +589,6 @@
       extend(AndroidCallback, superClass);
 
       function AndroidCallback() {
-        this.onWindowResizeEnd = bind(this.onWindowResizeEnd, this);
         return AndroidCallback.__super__.constructor.apply(this, arguments);
       }
 

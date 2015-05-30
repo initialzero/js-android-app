@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
+import android.accounts.Account;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourceFilterFactory;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
@@ -52,7 +54,9 @@ import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
+import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -68,11 +72,14 @@ import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import roboguice.RoboGuice;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
+import roboguice.inject.RoboInjector;
 
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
@@ -123,8 +130,8 @@ public class FavoritesFragment extends RoboFragment
             new FilterFavoritesDialogFragment.FilterFavoritesDialogListener() {
                 @Override
                 public void onDialogPositiveClick(ResourceLookup.ResourceType newFilterType) {
-                        showSavedItemsByFilter(newFilterType);
-                        filterType = newFilterType;
+                    showSavedItemsByFilter(newFilterType);
+                    filterType = newFilterType;
                 }
             };
     private FavoritesAdapter mAdapter;
@@ -226,9 +233,18 @@ public class FavoritesFragment extends RoboFragment
         //Add filtration to WHERE params
         boolean withFiltering = filterType != null;
         if (withFiltering) {
-            selection.append(" AND ")
+            selection.append(" AND (")
                     .append(FavoritesTable.WSTYPE + " =?");
             selectionArgs.add(filterType.name());
+
+            // add "legacyDashboard" to selection args while filtering
+            if (filterType == ResourceType.dashboard) {
+                selection.append(" OR ")
+                        .append(FavoritesTable.WSTYPE + " =?");
+                selectionArgs.add(ResourceType.legacyDashboard.toString());
+            }
+
+            selection.append(")");
         }
 
         //Add sorting type to WHERE params

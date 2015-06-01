@@ -63,8 +63,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
     protected HyperlinkHelper hyperlinkHelper;
-    @Bean
-    protected ScreenUtil screenUtil;
     @Extra
     protected ResourceLookup resource;
 
@@ -132,7 +130,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         mDashboardView = AmberDashboardViewTranslator.builder()
                 .webView(webView)
                 .resource(resource)
-                .diagonal(screenUtil.getDiagonal())
                 .build();
         WebViewEnvironment.configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));

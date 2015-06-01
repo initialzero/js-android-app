@@ -62,8 +62,6 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
-    @Bean
-    protected ScreenUtil screenUtil;
 
     @Extra
     protected ResourceLookup resource;
@@ -154,7 +152,6 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         mDashboardView = AmberDashboardViewTranslator.builder()
                 .webView(webView)
                 .resource(resource)
-                .diagonal(screenUtil.getDiagonal())
                 .build();
         WebViewEnvironment
                 .configure(webView)

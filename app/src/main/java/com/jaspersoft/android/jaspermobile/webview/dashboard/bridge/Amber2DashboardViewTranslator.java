@@ -28,6 +28,8 @@ import android.accounts.Account;
 import android.content.Context;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -49,13 +51,11 @@ import java.util.Map;
 public final class Amber2DashboardViewTranslator implements DashboardViewTranslator {
     private final WebView webView;
     private final String uri;
-    private final double diagonal;
     private boolean mLoaded, mExecuted;
 
     private Amber2DashboardViewTranslator(Builder builder) {
         this.webView = builder.webView;
         this.uri = builder.resource.getUri();
-        this.diagonal = builder.diagonal;
     }
 
     public static Builder builder() {
@@ -93,14 +93,14 @@ public final class Amber2DashboardViewTranslator implements DashboardViewTransla
 
     @Override
     public void run() {
+        ScreenUtil screenUtil = ScreenUtil_.getInstance_(webView.getContext());
         StringBuilder builder = new StringBuilder();
         builder.append("javascript:MobileDashboard")
                 .append(".configure({ \"diagonal\": %s })")
                 .append(".run({ \"uri\": \"%s\" })");
-        String executeScript = String.format(builder.toString(), diagonal, uri);
+        String executeScript = String.format(builder.toString(), screenUtil.getDiagonal(), uri);
         webView.loadUrl(executeScript);
         mExecuted = true;
-
     }
 
     @Override
@@ -132,7 +132,6 @@ public final class Amber2DashboardViewTranslator implements DashboardViewTransla
     public static class Builder {
         private WebView webView;
         private ResourceLookup resource;
-        private double diagonal;
 
         public Builder webView(WebView webView) {
             this.webView = webView;
@@ -141,11 +140,6 @@ public final class Amber2DashboardViewTranslator implements DashboardViewTransla
 
         public Builder resource(ResourceLookup resource) {
             this.resource = resource;
-            return this;
-        }
-
-        public Builder diagonal(double diagonal) {
-            this.diagonal = diagonal;
             return this;
         }
 

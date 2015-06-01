@@ -11,6 +11,8 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 import android.content.Context;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
+import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -21,13 +23,11 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 public final class AmberDashboardViewTranslator implements DashboardViewTranslator {
     private final WebView webView;
     private final ResourceLookup resource;
-    private final double diagonal;
     private boolean mLoaded, mExecuted;
 
     private AmberDashboardViewTranslator(Builder builder) {
         this.webView = builder.webView;
         this.resource = builder.resource;
-        this.diagonal = builder.diagonal;
     }
 
     public static Builder builder() {
@@ -43,9 +43,10 @@ public final class AmberDashboardViewTranslator implements DashboardViewTranslat
 
     @Override
     public void run() {
+        ScreenUtil screenUtil = ScreenUtil_.getInstance_(webView.getContext());
         String runScript = String.format(
                 "javascript:MobileDashboard.configure({\"diagonal\": \"%s\"}).run()",
-                diagonal);
+                screenUtil.getDiagonal());
         webView.loadUrl(runScript);
         mExecuted = true;
     }
@@ -79,7 +80,6 @@ public final class AmberDashboardViewTranslator implements DashboardViewTranslat
     public static class Builder {
         private WebView webView;
         private ResourceLookup resource;
-        private double diagonal;
 
         public Builder webView(WebView webView) {
             this.webView = webView;
@@ -88,11 +88,6 @@ public final class AmberDashboardViewTranslator implements DashboardViewTranslat
 
         public Builder resource(ResourceLookup resource) {
             this.resource = resource;
-            return this;
-        }
-
-        public Builder diagonal(double diagonal) {
-            this.diagonal = diagonal;
             return this;
         }
 

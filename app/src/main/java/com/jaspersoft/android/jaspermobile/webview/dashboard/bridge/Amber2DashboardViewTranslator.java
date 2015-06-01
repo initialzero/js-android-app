@@ -44,6 +44,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import timber.log.Timber;
+
 /**
  * @author Tom Koptel
  * @since 2.1
@@ -106,10 +108,12 @@ public final class Amber2DashboardViewTranslator implements DashboardViewTransla
     @Override
     public void pause() {
         if (!mLoaded) {
-            throw new IllegalStateException("Dashboard is not loaded. Can't pause.");
+            Timber.d("Dashboard is not loaded. Can't pause.");
+            return;
         }
         if (!mExecuted) {
-            throw new IllegalStateException("Dashboard is not executed. Can't pause.");
+            Timber.d("Dashboard is not executed. Can't pause.");
+            return;
         }
         webView.loadUrl(assembleUri("MobileDashboard.pause()"));
     }
@@ -117,10 +121,12 @@ public final class Amber2DashboardViewTranslator implements DashboardViewTransla
     @Override
     public void resume() {
         if (!mLoaded) {
-            throw new IllegalStateException("Dashboard is not loaded. Can't resume.");
+            Timber.d("Dashboard is not loaded. Can't resume.");
+            return;
         }
         if (!mExecuted) {
-            throw new IllegalStateException("Dashboard is not executed. Can't resume.");
+            Timber.d("Dashboard is not executed. Can't resume.");
+            return;
         }
         webView.loadUrl(assembleUri("MobileDashboard.resume()"));
     }

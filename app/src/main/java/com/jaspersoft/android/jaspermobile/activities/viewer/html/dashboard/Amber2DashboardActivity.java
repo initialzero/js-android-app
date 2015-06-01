@@ -38,11 +38,11 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboardViewTranslator;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboard;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.Amber2DashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboard;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardImpl;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -126,7 +126,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardApi = JsDashboardImpl.with(webView);
-        mDashboardView = AmberDashboardViewTranslator.builder()
+        mDashboardView = Amber2DashboardViewTranslator.builder()
                 .webView(webView)
                 .resource(resource)
                 .build();

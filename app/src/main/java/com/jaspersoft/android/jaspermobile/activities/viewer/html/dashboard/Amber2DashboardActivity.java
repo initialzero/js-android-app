@@ -75,7 +75,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private MenuItem favoriteAction, aboutAction;
     private DashboardApi mDashboardApi;
     private DashboardViewTranslator mDashboardView;
-    private Toast mToast;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
         @Override
@@ -88,8 +87,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
     }
 
@@ -210,9 +207,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onLoadError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        mToast.setText(error);
-        mToast.show();
     }
 
     @UiThread

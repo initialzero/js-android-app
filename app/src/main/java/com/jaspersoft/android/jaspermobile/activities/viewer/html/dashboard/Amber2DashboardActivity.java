@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardApi;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
@@ -83,6 +84,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
     private AccountServerData accountServerData;
+    private DashboardApi mDashboardApi;
     private Toast mToast;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
@@ -138,6 +140,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     public void onWebViewConfigured(WebView webView) {
+        mDashboardApi = MobileDashboardApi.with(webView);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
         loadFlow();
@@ -248,16 +251,16 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onRefresh() {
         if (mMaximized) {
-            webView.loadUrl(MobileDashboardApi.refreshDashlet());
+            mDashboardApi.refreshDashlet();
         } else {
-            webView.loadUrl(MobileDashboardApi.refresh());
+            mDashboardApi.refreshDashboard();
         }
     }
 
     @Override
     public void onHomeAsUpCalled() {
         if (mMaximized && webView != null) {
-            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
+            mDashboardApi.minimizeDashlet();
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();

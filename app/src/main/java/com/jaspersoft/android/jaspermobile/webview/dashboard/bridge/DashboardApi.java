@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,39 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 
-import android.webkit.WebView;
-
 /**
- * Introduces hardcoded Javascript calls.
- *
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.1
  */
-public class MobileDashboardApi implements DashboardApi {
-    private final WebView webView;
-
-    private MobileDashboardApi(WebView webView) {
-        this.webView = webView;
-    }
-
-    public static MobileDashboardApi with(WebView webView) {
-        return new MobileDashboardApi(webView);
-    }
-
-    public void refreshDashlet() {
-        webView.loadUrl(assembleUri("MobileDashboard.refresh()"));
-    }
-
-    public void minimizeDashlet() {
-        webView.loadUrl(assembleUri("MobileDashboard.refreshDashlet()"));
-    }
-
-    @Override
-    public void refreshDashboard() {
-        webView.loadUrl(assembleUri("MobileDashboard.refresh()"));
-    }
-
-    private String assembleUri(String command) {
-        return "javascript:" + command;
-    }
+public interface DashboardApi {
+    void refreshDashlet();
+    void minimizeDashlet();
+    void refreshDashboard();
 }

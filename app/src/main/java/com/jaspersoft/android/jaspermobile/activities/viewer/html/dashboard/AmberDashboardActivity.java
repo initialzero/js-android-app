@@ -77,6 +77,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     private int mOrientation;
     private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, refreshAction, aboutAction;
+    private MobileDashboardApi mDashboardApi;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
         @Override
@@ -143,6 +144,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Override
     public void onWebViewConfigured(WebView webView) {
+        mDashboardApi = MobileDashboardApi.with(webView);
         WebViewEnvironment
                 .configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
@@ -163,7 +165,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     public void onHomeAsUpCalled() {
         if (mMaximized && webView != null) {
-            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
+            mDashboardApi.minimizeDashlet();
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();

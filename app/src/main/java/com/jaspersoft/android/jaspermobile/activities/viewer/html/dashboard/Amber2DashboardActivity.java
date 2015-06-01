@@ -39,7 +39,7 @@ import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.Amber2DashboardViewTranslator;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardApi;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardViewTranslator;
@@ -129,7 +129,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardApi = MobileDashboardApi.with(webView);
-        mDashboardView = Amber2DashboardViewTranslator.with(webView, resource);
+        mDashboardView = AmberDashboardViewTranslator.builder()
+                .webView(webView)
+                .resource(resource)
+                .diagonal(screenUtil.getDiagonal())
+                .build();
         WebViewEnvironment.configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
         loadFlow();
@@ -269,7 +273,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     }
 
     private void runDashboard() {
-        mDashboardView.run(screenUtil.getDiagonal());
+        mDashboardView.run();
     }
 
     private void showMenuItems() {

@@ -151,7 +151,11 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardApi = MobileDashboardApi.with(webView);
-        mDashboardView = AmberDashboardViewTranslator.with(webView, resource);
+        mDashboardView = AmberDashboardViewTranslator.builder()
+                .webView(webView)
+                .resource(resource)
+                .diagonal(screenUtil.getDiagonal())
+                .build();
         WebViewEnvironment
                 .configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
@@ -290,7 +294,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     }
 
     private void runDashboard() {
-        mDashboardView.run(screenUtil.getDiagonal());
+        mDashboardView.run();
     }
 
     private void showInitialLoader() {

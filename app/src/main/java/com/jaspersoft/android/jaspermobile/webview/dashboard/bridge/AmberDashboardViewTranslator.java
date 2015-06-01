@@ -21,21 +21,17 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 public final class AmberDashboardViewTranslator implements DashboardViewTranslator {
     private final WebView webView;
     private final ResourceLookup resource;
+    private final double diagonal;
     private boolean mLoaded, mExecuted;
 
-    private AmberDashboardViewTranslator(WebView webView, ResourceLookup resource) {
-        this.webView = webView;
-        this.resource = resource;
+    private AmberDashboardViewTranslator(Builder builder) {
+        this.webView = builder.webView;
+        this.resource = builder.resource;
+        this.diagonal = builder.diagonal;
     }
 
-    public static DashboardViewTranslator with(WebView webView, ResourceLookup resource) {
-        if (webView == null) {
-            throw new IllegalArgumentException("WebView reference should not be null");
-        }
-        if (resource == null) {
-            throw new IllegalArgumentException("ResourceLookup reference should not be null");
-        }
-        return new AmberDashboardViewTranslator(webView, resource);
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -46,7 +42,7 @@ public final class AmberDashboardViewTranslator implements DashboardViewTranslat
     }
 
     @Override
-    public void run(double diagonal) {
+    public void run() {
         String runScript = String.format(
                 "javascript:MobileDashboard.configure({\"diagonal\": \"%s\"}).run()",
                 diagonal);
@@ -78,5 +74,36 @@ public final class AmberDashboardViewTranslator implements DashboardViewTranslat
 
     private String assembleUri(String command) {
         return "javascript:" + command;
+    }
+
+    public static class Builder {
+        private WebView webView;
+        private ResourceLookup resource;
+        private double diagonal;
+
+        public Builder webView(WebView webView) {
+            this.webView = webView;
+            return this;
+        }
+
+        public Builder resource(ResourceLookup resource) {
+            this.resource = resource;
+            return this;
+        }
+
+        public Builder diagonal(double diagonal) {
+            this.diagonal = diagonal;
+            return this;
+        }
+
+        public DashboardViewTranslator build() {
+            if (webView == null) {
+                throw new IllegalArgumentException("WebView reference should not be null");
+            }
+            if (resource == null) {
+                throw new IllegalArgumentException("ResourceLookup reference should not be null");
+            }
+            return new AmberDashboardViewTranslator(this);
+        }
     }
 }

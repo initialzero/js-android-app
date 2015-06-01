@@ -18,4 +18,5 @@ public interface DashboardCallback {
     void onReportExecution(String data);
     void onWindowResizeStart();
     void onWindowResizeEnd();
+    void onAuthError(String message);
 }

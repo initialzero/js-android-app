@@ -122,6 +122,12 @@ public class DashboardWebInterface extends WebInterface implements DashboardCall
         dashboardCallback.onWindowResizeEnd();
     }
 
+    @JavascriptInterface
+    @Override
+    public void onAuthError(String message) {
+        dashboardCallback.onAuthError(message);
+    }
+
     @Override
     public void exposeJavascriptInterface(WebView webView) {
         webView.addJavascriptInterface(this, "Android");

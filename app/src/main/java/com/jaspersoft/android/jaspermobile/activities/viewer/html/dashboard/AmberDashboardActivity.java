@@ -268,6 +268,10 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
+    @Override
+    public void onAuthError(String message) {
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------

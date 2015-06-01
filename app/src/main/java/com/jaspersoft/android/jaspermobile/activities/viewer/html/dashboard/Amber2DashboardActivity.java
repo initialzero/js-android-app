@@ -234,6 +234,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onWindowResizeEnd() {
     }
 
+    @UiThread
+    @Override
+    public void onAuthError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        super.onSessionExpired();
+    }
+
     @Override
     public void onPageFinished() {
     }

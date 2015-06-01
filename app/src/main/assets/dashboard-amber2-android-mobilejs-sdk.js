@@ -200,7 +200,11 @@
 
       DashboardController.prototype._processErrors = function(error) {
         js_mobile.log(JSON.stringify(error));
-        return this.callback.onLoadError(error.message);
+        if (error.errorCode === "authentication.error") {
+          return this.callback.onAuthError(error.message);
+        } else {
+          return this.callback.onLoadError(error.message);
+        }
       };
 
       DashboardController.prototype._scaleDashboard = function() {
@@ -667,6 +671,12 @@
       AndroidCallback.prototype.onWindowResizeEnd = function() {
         this.dispatch(function() {
           return Android.onWindowResizeEnd();
+        });
+      };
+
+      AndroidCallback.prototype.onAuthError = function(message) {
+        this.dispatch(function() {
+          return Android.onAuthError(message);
         });
       };
 

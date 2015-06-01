@@ -160,6 +160,12 @@
         });
       };
 
+      AndroidCallback.prototype.onAuthError = function(message) {
+        this.dispatch(function() {
+          return Android.onAuthError(message);
+        });
+      };
+
       return AndroidCallback;
 
     })(CallbackDispatcher);

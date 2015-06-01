@@ -35,16 +35,15 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboardViewTranslator;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardApi;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboard;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardImpl;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -71,7 +70,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
-    private DashboardApi mDashboardApi;
+    private JsDashboard mDashboardApi;
     private DashboardViewTranslator mDashboardView;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
@@ -126,7 +125,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     public void onWebViewConfigured(WebView webView) {
-        mDashboardApi = MobileDashboardApi.with(webView);
+        mDashboardApi = JsDashboardImpl.with(webView);
         mDashboardView = AmberDashboardViewTranslator.builder()
                 .webView(webView)
                 .resource(resource)

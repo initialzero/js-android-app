@@ -36,14 +36,13 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardImpl;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -76,7 +75,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     private int mOrientation;
     private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, refreshAction, aboutAction;
-    private MobileDashboardApi mDashboardApi;
+    private JsDashboardImpl mDashboardApi;
     private DashboardViewTranslator mDashboardView;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
@@ -148,7 +147,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Override
     public void onWebViewConfigured(WebView webView) {
-        mDashboardApi = MobileDashboardApi.with(webView);
+        mDashboardApi = JsDashboardImpl.with(webView);
         mDashboardView = AmberDashboardViewTranslator.builder()
                 .webView(webView)
                 .resource(resource)

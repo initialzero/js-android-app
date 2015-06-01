@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
-import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -44,24 +43,13 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardApi
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.Template;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.UiThread;
-import org.apache.commons.io.IOUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Tom Koptel
@@ -83,7 +71,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
-    private AccountServerData accountServerData;
     private DashboardApi mDashboardApi;
     private Toast mToast;
 
@@ -101,9 +88,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
         mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
-
-        Account account = JasperAccountManager.get(this).getActiveAccount();
-        accountServerData = AccountServerData.get(this, account);
     }
 
     @Override
@@ -124,14 +108,18 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     protected void onPause() {
+        if (mDashboardApi != null) {
+            mDashboardApi.pause();
+        }
         super.onPause();
-        webView.loadUrl("javascript:MobileDashboard.pause()");
     }
 
     @Override
     protected void onResume() {
-        super.onPause();
-        webView.loadUrl("javascript:MobileDashboard.resume()");
+        super.onResume();
+        if (mDashboardApi != null) {
+            mDashboardApi.resume();
+        }
     }
 
     //---------------------------------------------------------------------
@@ -277,35 +265,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     //---------------------------------------------------------------------
 
     private void loadFlow() {
-        InputStream stream = null;
-        try {
-            stream = getAssets().open("dashboard.html");
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(stream, writer, "UTF-8");
-
-            Map<String, String> data = new HashMap<String, String>();
-            data.put("visualize_url", accountServerData.getServerUrl() + "/client/visualize.js?_opt=true&_showInputControls=true");
-            Template tmpl = Mustache.compiler().compile(writer.toString());
-            String html = tmpl.execute(data);
-
-            webView.loadDataWithBaseURL(accountServerData.getServerUrl(), html, "text/html", "utf-8", null);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (stream != null) {
-                IOUtils.closeQuietly(stream);
-            }
-        }
+        mDashboardApi.load();
     }
 
     private void runDashboard() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("javascript:MobileDashboard")
-                .append(".configure({ \"diagonal\": %s })")
-                .append(".run({ \"uri\": \"%s\" })");
-        String executeScript = String.format(builder.toString(),
-                screenUtil.getDiagonal(), resource.getUri());
-        webView.loadUrl(executeScript);
+        mDashboardApi.run(resource.getUri(), screenUtil.getDiagonal());
     }
 
     private void showMenuItems() {

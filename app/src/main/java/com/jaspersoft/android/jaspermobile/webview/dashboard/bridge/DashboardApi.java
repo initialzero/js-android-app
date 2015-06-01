@@ -29,7 +29,11 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
  * @since 2.1
  */
 public interface DashboardApi {
+    void load();
+    void run(String uri, double diagonal);
     void refreshDashlet();
-    void minimizeDashlet();
     void refreshDashboard();
+    void minimizeDashlet();
+    void pause();
+    void resume();
 }

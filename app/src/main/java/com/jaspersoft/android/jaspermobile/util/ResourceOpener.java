@@ -98,13 +98,17 @@ public class ResourceOpener {
     }
 
     private void openFolder(Fragment fragment, ResourceLookup resource) {
+        openFolder(fragment, RepositoryFragment.PREF_TAG, resource);
+    }
+
+    public void openFolder(Fragment fragment, String preftag, ResourceLookup resource) {
         ResourcesControllerFragment newControllerFragment =
                 ResourcesControllerFragment_.builder()
                         .emptyMessage(R.string.r_browser_nothing_to_display)
                         .resourceTypes(resourceTypes)
                         .resourceLabel(resource.getLabel())
                         .resourceUri(resource.getUri())
-                        .prefTag(RepositoryFragment.PREF_TAG)
+                        .prefTag(preftag)
                         .build();
         fragment.getFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())

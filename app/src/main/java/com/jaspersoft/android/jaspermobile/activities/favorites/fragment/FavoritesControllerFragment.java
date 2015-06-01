@@ -41,6 +41,7 @@ import org.androidannotations.annotations.InstanceState;
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
     public static final String CONTENT_TAG = "FavoritesControllerFragment.CONTENT_TAG";
+    public static final String PREF_TAG = "favorites_pref";
     public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
 
     private FavoritesFragment contentFragment;
@@ -52,7 +53,7 @@ public class FavoritesControllerFragment extends ControllerFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getArguments().putString(PREF_TAG_KEY, "favorites_pref");
+        getArguments().putString(PREF_TAG_KEY, PREF_TAG);
     }
 
     @Override

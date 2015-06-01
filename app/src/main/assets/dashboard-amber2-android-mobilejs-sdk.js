@@ -182,7 +182,7 @@
           },
           linkOptions: {
             events: {
-              click: self._clickCallback
+              click: this._clickCallback
             }
           },
           error: this._processErrors

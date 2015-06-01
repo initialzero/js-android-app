@@ -129,7 +129,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardApi = MobileDashboardApi.with(webView);
-        mDashboardView = Amber2DashboardViewTranslator.with(webView);
+        mDashboardView = Amber2DashboardViewTranslator.with(webView, resource);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
         loadFlow();
@@ -269,7 +269,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     }
 
     private void runDashboard() {
-        mDashboardView.run(resource.getUri(), screenUtil.getDiagonal());
+        mDashboardView.run(screenUtil.getDiagonal());
     }
 
     private void showMenuItems() {

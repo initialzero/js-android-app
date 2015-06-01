@@ -51,7 +51,7 @@ public final class MobileDashboardApi implements DashboardApi {
     }
 
     public void minimizeDashlet() {
-        webView.loadUrl(assembleUri("MobileDashboard.refreshDashlet()"));
+        webView.loadUrl(assembleUri("MobileDashboard.minimizeDashlet()"));
     }
 
     @Override

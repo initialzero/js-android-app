@@ -30,6 +30,7 @@ import android.webkit.WebView;
 
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 
@@ -47,17 +48,19 @@ import java.util.Map;
  */
 public final class Amber2DashboardViewTranslator implements DashboardViewTranslator {
     private final WebView webView;
+    private final String uri;
     private boolean mLoaded, mExecuted;
 
-    private Amber2DashboardViewTranslator(WebView webView) {
+    private Amber2DashboardViewTranslator(WebView webView, String uri) {
         this.webView = webView;
+        this.uri = uri;
     }
 
-    public static DashboardViewTranslator with(WebView webView) {
+    public static DashboardViewTranslator with(WebView webView, ResourceLookup resourceLookup) {
         if (webView == null) {
             throw new IllegalArgumentException("WebView reference should not be null");
         }
-        return new Amber2DashboardViewTranslator(webView);
+        return new Amber2DashboardViewTranslator(webView, resourceLookup.getUri());
     }
 
     @Override
@@ -90,7 +93,7 @@ public final class Amber2DashboardViewTranslator implements DashboardViewTransla
     }
 
     @Override
-    public void run(String uri, double diagonal) {
+    public void run(double diagonal) {
         StringBuilder builder = new StringBuilder();
         builder.append("javascript:MobileDashboard")
                 .append(".configure({ \"diagonal\": %s })")

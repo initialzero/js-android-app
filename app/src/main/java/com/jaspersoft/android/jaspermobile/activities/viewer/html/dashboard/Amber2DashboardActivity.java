@@ -39,8 +39,10 @@ import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.Amber2DashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardApi;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -72,6 +74,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
     private DashboardApi mDashboardApi;
+    private DashboardViewTranslator mDashboardView;
     private Toast mToast;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
@@ -108,8 +111,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     protected void onPause() {
-        if (mDashboardApi != null) {
-            mDashboardApi.pause();
+        if (mDashboardView != null) {
+            mDashboardView.pause();
         }
         super.onPause();
     }
@@ -117,8 +120,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     protected void onResume() {
         super.onResume();
-        if (mDashboardApi != null) {
-            mDashboardApi.resume();
+        if (mDashboardView != null) {
+            mDashboardView.resume();
         }
     }
 
@@ -129,6 +132,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardApi = MobileDashboardApi.with(webView);
+        mDashboardView = Amber2DashboardViewTranslator.with(webView);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(DashboardWebInterface.from(this));
         loadFlow();
@@ -265,11 +269,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     //---------------------------------------------------------------------
 
     private void loadFlow() {
-        mDashboardApi.load();
+        mDashboardView.load();
     }
 
     private void runDashboard() {
-        mDashboardApi.run(resource.getUri(), screenUtil.getDiagonal());
+        mDashboardView.run(resource.getUri(), screenUtil.getDiagonal());
     }
 
     private void showMenuItems() {

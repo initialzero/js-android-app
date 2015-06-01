@@ -28,8 +28,9 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
  * @author Tom Koptel
  * @since 2.1
  */
-public interface DashboardApi {
-    void refreshDashlet();
-    void refreshDashboard();
-    void minimizeDashlet();
+public interface DashboardViewTranslator {
+    void load();
+    void run(String uri, double diagonal);
+    void pause();
+    void resume();
 }

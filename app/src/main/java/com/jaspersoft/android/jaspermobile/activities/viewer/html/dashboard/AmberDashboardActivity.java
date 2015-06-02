@@ -43,7 +43,7 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboa
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardLoader;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardImpl;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -76,7 +76,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     private int mOrientation;
     private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, refreshAction, aboutAction;
-    private JsDashboardImpl mDashboardApi;
+    private JsDashboardTrigger mDashboardTrigger;
     private DashboardLoader mDashboardLoader;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
@@ -149,7 +149,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Override
     public void onWebViewConfigured(WebView webView) {
-        mDashboardApi = JsDashboardImpl.with(webView);
+        mDashboardTrigger = JsDashboardTrigger.with(webView);
         mDashboardLoader = AmberDashboardLoader.newInstance(webView, resource);
         webInterface = DashboardWebInterface.from(this);
         WebViewEnvironment
@@ -172,7 +172,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     public void onHomeAsUpCalled() {
         if (mMaximized && webView != null) {
-            mDashboardApi.minimizeDashlet();
+            mDashboardTrigger.minimizeDashlet();
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();

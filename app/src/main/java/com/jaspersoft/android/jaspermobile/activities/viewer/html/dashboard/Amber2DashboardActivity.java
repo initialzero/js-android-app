@@ -43,8 +43,8 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.Amber2Dashbo
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardLoader;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboard;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardImpl;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardTrigger;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -71,7 +71,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
-    private JsDashboard mDashboardApi;
+    private DashboardTrigger mDashboardTrigger;
     private WebInterface mWebInterface;
     private DashboardLoader mDashboardLoader;
 
@@ -127,7 +127,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     public void onWebViewConfigured(WebView webView) {
-        mDashboardApi = JsDashboardImpl.with(webView);
+        mDashboardTrigger = JsDashboardTrigger.with(webView);
         mDashboardLoader = Amber2DashboardLoader.newInstance(webView, resource);
         mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
@@ -239,16 +239,16 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onRefresh() {
         if (mMaximized) {
-            mDashboardApi.refreshDashlet();
+            mDashboardTrigger.refreshDashlet();
         } else {
-            mDashboardApi.refreshDashboard();
+            mDashboardTrigger.refreshDashboard();
         }
     }
 
     @Override
     public void onHomeAsUpCalled() {
         if (mMaximized && webView != null) {
-            mDashboardApi.minimizeDashlet();
+            mDashboardTrigger.minimizeDashlet();
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();

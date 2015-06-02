@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.report.fragment;
 import android.accounts.Account;
 import android.app.ActionBar;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.MenuItem;
@@ -126,6 +127,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
 
     private List<SpiceRequest<?>> requests = new ArrayList<SpiceRequest<?>>();
     private File reportFile;
+    private Uri recordUri;
 
     private int mFromPage;
     private int mToPage;
@@ -355,11 +357,18 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         Toast.makeText(getActivity(), "Failed to execute report", Toast.LENGTH_SHORT).show();
     }
 
+    private void removeRecord() {
+        if (recordUri == null) return;
+
+        getActivity().getContentResolver().delete(recordUri, null, null);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (runningRequests > 0) {
             removeTemplate();
+            removeRecord();
         }
     }
     //---------------------------------------------------------------------
@@ -412,6 +421,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             enableAllViewsAfterSaving();
             runningRequests--;
             removeTemplate();
+            removeRecord();
         }
 
         @Override
@@ -461,6 +471,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                 request.cancel();
             }
             removeTemplate();
+            removeRecord();
             setRefreshActionButtonState(false);
             enableAllViewsAfterSaving();
         }

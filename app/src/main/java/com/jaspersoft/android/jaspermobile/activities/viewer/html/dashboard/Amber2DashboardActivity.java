@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.Amber2DashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
@@ -71,6 +72,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
     private JsDashboard mDashboardApi;
+    private WebInterface mWebInterface;
     private DashboardViewTranslator mDashboardView;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
@@ -105,8 +107,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     protected void onPause() {
-        if (mDashboardView != null) {
-            mDashboardView.pause();
+        if (mWebInterface != null) {
+            mWebInterface.pause();
         }
         super.onPause();
     }
@@ -114,8 +116,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     protected void onResume() {
         super.onResume();
-        if (mDashboardView != null) {
-            mDashboardView.resume();
+        if (mWebInterface != null) {
+            mWebInterface.resume();
         }
     }
 
@@ -130,8 +132,9 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
                 .webView(webView)
                 .resource(resource)
                 .build();
+        mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
-                .withWebInterface(DashboardWebInterface.from(this));
+                .withWebInterface(mWebInterface);
         loadFlow();
     }
 

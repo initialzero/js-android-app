@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboardViewTranslator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
@@ -84,6 +85,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
             AmberDashboardActivity.super.onBackPressed();
         }
     };
+    private WebInterface webInterface;
 
     @SuppressLint("ShowToast")
     @Override
@@ -126,8 +128,8 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     protected void onPause() {
         mPaused = true;
-        if (mDashboardView != null) {
-            mDashboardView.pause();
+        if (webInterface != null) {
+            webInterface.pause();
         }
         super.onPause();
     }
@@ -136,8 +138,8 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     protected void onResume() {
         super.onResume();
         mPaused = false;
-        if (mDashboardView != null) {
-            mDashboardView.resume();
+        if (webInterface != null) {
+            webInterface.resume();
         }
     }
 
@@ -152,9 +154,10 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
                 .webView(webView)
                 .resource(resource)
                 .build();
+        webInterface = DashboardWebInterface.from(this);
         WebViewEnvironment
                 .configure(webView)
-                .withWebInterface(DashboardWebInterface.from(this));
+                .withWebInterface(webInterface);
         showInitialLoader();
         loadFlow();
     }

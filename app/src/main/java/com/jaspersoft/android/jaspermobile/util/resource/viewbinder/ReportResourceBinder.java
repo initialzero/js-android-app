@@ -70,8 +70,6 @@ class ReportResourceBinder extends ResourceBinder {
         if (displayImageOptions == null) {
             displayImageOptions = new DisplayImageOptions.Builder()
                     .showImageOnLoading(R.drawable.placeholder_report)
-                    .showImageForEmptyUri(R.drawable.placeholder_report)
-                    .showImageOnFail(R.drawable.placeholder_report)
                     .considerExifParams(true)
                     .cacheInMemory(true)
                     .cacheOnDisk(true)

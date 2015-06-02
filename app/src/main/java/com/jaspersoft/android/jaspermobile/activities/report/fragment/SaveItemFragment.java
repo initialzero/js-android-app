@@ -345,6 +345,11 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         }
     }
 
+    private void removeArtifacts() {
+        removeTemplate();
+        removeRecord();
+    }
+
     private void removeTemplate() {
         if (reportFile == null) return;
 
@@ -367,8 +372,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     public void onDestroy() {
         super.onDestroy();
         if (runningRequests > 0) {
-            removeTemplate();
-            removeRecord();
+            removeArtifacts();
         }
     }
     //---------------------------------------------------------------------
@@ -420,8 +424,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             setRefreshActionButtonState(false);
             enableAllViewsAfterSaving();
             runningRequests--;
-            removeTemplate();
-            removeRecord();
+            removeArtifacts();
         }
 
         @Override
@@ -470,8 +473,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                 runningRequests--;
                 request.cancel();
             }
-            removeTemplate();
-            removeRecord();
+            removeArtifacts();
             setRefreshActionButtonState(false);
             enableAllViewsAfterSaving();
         }

@@ -69,7 +69,8 @@
 }).call(this);
 
 (function() {
-  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
   define('js.mobile.android.report.callback', ['require','js.mobile.callback_dispatcher'],function(require) {
@@ -79,6 +80,19 @@
       extend(ReportCallback, superClass);
 
       function ReportCallback() {
+        this.onMultiPageStateObtained = bind(this.onMultiPageStateObtained, this);
+        this.onRefreshError = bind(this.onRefreshError, this);
+        this.onRefreshSuccess = bind(this.onRefreshSuccess, this);
+        this.onExportGetResourcePath = bind(this.onExportGetResourcePath, this);
+        this.onReportExecutionClick = bind(this.onReportExecutionClick, this);
+        this.onReferenceClick = bind(this.onReferenceClick, this);
+        this.onPageChange = bind(this.onPageChange, this);
+        this.onTotalPagesLoaded = bind(this.onTotalPagesLoaded, this);
+        this.onReportCompleted = bind(this.onReportCompleted, this);
+        this.onLoadError = bind(this.onLoadError, this);
+        this.onLoadDone = bind(this.onLoadDone, this);
+        this.onLoadStart = bind(this.onLoadStart, this);
+        this.onScriptLoaded = bind(this.onScriptLoaded, this);
         return ReportCallback.__super__.constructor.apply(this, arguments);
       }
 

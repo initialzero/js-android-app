@@ -128,10 +128,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardApi = JsDashboardImpl.with(webView);
-        mDashboardView = Amber2DashboardViewTranslator.builder()
-                .webView(webView)
-                .resource(resource)
-                .build();
+        mDashboardView = Amber2DashboardViewTranslator.newInstance(webView, resource);
         mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(mWebInterface);

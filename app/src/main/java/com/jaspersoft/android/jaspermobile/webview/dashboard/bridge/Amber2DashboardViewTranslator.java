@@ -44,8 +44,6 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import timber.log.Timber;
-
 /**
  * @author Tom Koptel
  * @since 2.1
@@ -53,15 +51,20 @@ import timber.log.Timber;
 public final class Amber2DashboardViewTranslator implements DashboardViewTranslator {
     private final WebView webView;
     private final String uri;
-    private boolean mLoaded, mExecuted;
 
-    private Amber2DashboardViewTranslator(Builder builder) {
-        this.webView = builder.webView;
-        this.uri = builder.resource.getUri();
+    private Amber2DashboardViewTranslator(WebView webView, ResourceLookup resource) {
+        this.webView = webView;
+        this.uri = resource.getUri();
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static DashboardViewTranslator newInstance(WebView webView, ResourceLookup resource) {
+        if (webView == null) {
+            throw new IllegalArgumentException("WebView should not be null");
+        }
+        if (resource == null) {
+            throw new IllegalArgumentException("ResourceLookup should not be null");
+        }
+        return new Amber2DashboardViewTranslator(webView, resource);
     }
 
     @Override
@@ -83,7 +86,6 @@ public final class Amber2DashboardViewTranslator implements DashboardViewTransla
             String html = tmpl.execute(data);
 
             webView.loadDataWithBaseURL(accountServerData.getServerUrl(), html, "text/html", "utf-8", null);
-            mLoaded = true;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -102,61 +104,5 @@ public final class Amber2DashboardViewTranslator implements DashboardViewTransla
                 .append(".run({ \"uri\": \"%s\" })");
         String executeScript = String.format(builder.toString(), screenUtil.getDiagonal(), uri);
         webView.loadUrl(executeScript);
-        mExecuted = true;
-    }
-
-    @Override
-    public void pause() {
-        if (!mLoaded) {
-            Timber.d("Dashboard is not loaded. Can't pause.");
-            return;
-        }
-        if (!mExecuted) {
-            Timber.d("Dashboard is not executed. Can't pause.");
-            return;
-        }
-        webView.loadUrl(assembleUri("MobileDashboard.pause()"));
-    }
-
-    @Override
-    public void resume() {
-        if (!mLoaded) {
-            Timber.d("Dashboard is not loaded. Can't resume.");
-            return;
-        }
-        if (!mExecuted) {
-            Timber.d("Dashboard is not executed. Can't resume.");
-            return;
-        }
-        webView.loadUrl(assembleUri("MobileDashboard.resume()"));
-    }
-
-    private String assembleUri(String command) {
-        return "javascript:" + command;
-    }
-
-    public static class Builder {
-        private WebView webView;
-        private ResourceLookup resource;
-
-        public Builder webView(WebView webView) {
-            this.webView = webView;
-            return this;
-        }
-
-        public Builder resource(ResourceLookup resource) {
-            this.resource = resource;
-            return this;
-        }
-
-        public DashboardViewTranslator build() {
-            if (webView == null) {
-                throw new IllegalArgumentException("WebView reference should not be null");
-            }
-            if (resource == null) {
-                throw new IllegalArgumentException("ResourceLookup reference should not be null");
-            }
-            return new Amber2DashboardViewTranslator(this);
-        }
     }
 }

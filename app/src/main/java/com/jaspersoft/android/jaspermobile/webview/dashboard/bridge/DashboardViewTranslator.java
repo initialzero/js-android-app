@@ -31,6 +31,4 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 public interface DashboardViewTranslator {
     void load();
     void run();
-    void pause();
-    void resume();
 }

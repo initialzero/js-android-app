@@ -583,7 +583,8 @@
 }).call(this);
 
 (function() {
-  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
   define('js.mobile.android.dashboard.callback', ['require','js.mobile.callback_dispatcher'],function(require) {
@@ -593,6 +594,20 @@
       extend(AndroidCallback, superClass);
 
       function AndroidCallback() {
+        this.onAuthError = bind(this.onAuthError, this);
+        this.onWindowResizeEnd = bind(this.onWindowResizeEnd, this);
+        this.onWindowResizeStart = bind(this.onWindowResizeStart, this);
+        this.onReportExecution = bind(this.onReportExecution, this);
+        this.onLoadError = bind(this.onLoadError, this);
+        this.onLoadDone = bind(this.onLoadDone, this);
+        this.onLoadStart = bind(this.onLoadStart, this);
+        this.onScriptLoaded = bind(this.onScriptLoaded, this);
+        this.onMinimizeFailed = bind(this.onMinimizeFailed, this);
+        this.onMinimizeEnd = bind(this.onMinimizeEnd, this);
+        this.onMinimizeStart = bind(this.onMinimizeStart, this);
+        this.onMaximizeFailed = bind(this.onMaximizeFailed, this);
+        this.onMaximizeEnd = bind(this.onMaximizeEnd, this);
+        this.onMaximizeStart = bind(this.onMaximizeStart, this);
         return AndroidCallback.__super__.constructor.apply(this, arguments);
       }
 

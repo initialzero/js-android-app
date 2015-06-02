@@ -16,7 +16,7 @@ public class AppConfiguratorImpl implements AppConfigurator {
     public void configCrashAnalytics(Context appContext) {
         DefaultPrefHelper_ prefHelper = DefaultPrefHelper_.getInstance_(appContext);
         Fabric.with(appContext, new Crashlytics());
-        if (prefHelper.sendCrashReports()) {
+        if (prefHelper.sendCrashReports() && !BuildConfig.DEBUG) {
             Fabric.with(appContext, new Crashlytics());
         }
     }

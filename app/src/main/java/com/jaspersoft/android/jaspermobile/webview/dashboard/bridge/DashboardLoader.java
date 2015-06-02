@@ -28,7 +28,7 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
  * @author Tom Koptel
  * @since 2.1
  */
-public interface DashboardViewTranslator {
+public interface DashboardLoader {
     void load();
     void run();
 }

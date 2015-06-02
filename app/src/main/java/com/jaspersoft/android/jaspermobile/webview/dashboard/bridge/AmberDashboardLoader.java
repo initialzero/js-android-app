@@ -19,23 +19,23 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
  * @author Tom Koptel
  * @since 2.1
  */
-public final class AmberDashboardViewTranslator implements DashboardViewTranslator {
+public final class AmberDashboardLoader implements DashboardLoader {
     private final WebView webView;
     private final ResourceLookup resource;
 
-    private AmberDashboardViewTranslator(WebView webView, ResourceLookup resource) {
+    private AmberDashboardLoader(WebView webView, ResourceLookup resource) {
         this.webView = webView;
         this.resource = resource;
     }
 
-    public static DashboardViewTranslator newInstance(WebView webView, ResourceLookup resource) {
+    public static DashboardLoader newInstance(WebView webView, ResourceLookup resource) {
         if (webView == null) {
             throw new IllegalArgumentException("WebView should not be null");
         }
         if (resource == null) {
             throw new IllegalArgumentException("ResourceLookup should not be null");
         }
-        return new AmberDashboardViewTranslator(webView, resource);
+        return new AmberDashboardLoader(webView, resource);
     }
 
     @Override

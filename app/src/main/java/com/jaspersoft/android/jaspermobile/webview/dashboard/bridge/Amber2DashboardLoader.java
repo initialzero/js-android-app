@@ -48,23 +48,23 @@ import java.util.Map;
  * @author Tom Koptel
  * @since 2.1
  */
-public final class Amber2DashboardViewTranslator implements DashboardViewTranslator {
+public final class Amber2DashboardLoader implements DashboardLoader {
     private final WebView webView;
     private final String uri;
 
-    private Amber2DashboardViewTranslator(WebView webView, ResourceLookup resource) {
+    private Amber2DashboardLoader(WebView webView, ResourceLookup resource) {
         this.webView = webView;
         this.uri = resource.getUri();
     }
 
-    public static DashboardViewTranslator newInstance(WebView webView, ResourceLookup resource) {
+    public static DashboardLoader newInstance(WebView webView, ResourceLookup resource) {
         if (webView == null) {
             throw new IllegalArgumentException("WebView should not be null");
         }
         if (resource == null) {
             throw new IllegalArgumentException("ResourceLookup should not be null");
         }
-        return new Amber2DashboardViewTranslator(webView, resource);
+        return new Amber2DashboardLoader(webView, resource);
     }
 
     @Override

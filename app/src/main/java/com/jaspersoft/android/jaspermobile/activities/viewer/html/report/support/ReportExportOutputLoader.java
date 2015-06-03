@@ -72,7 +72,12 @@ public class ReportExportOutputLoader {
 
         final RunReportExportsRequest request = new RunReportExportsRequest(jsRestClient,
                 executionData, reportSession.getRequestId());
-        requestExecutor.execute(request, new RunReportExportsRequestListener(page));
+        requestExecutor.execute(request, new RunReportExportsRequestListener(page), new RequestExecutor.OnProgressDialogCancelListener() {
+            @Override
+            public void onCancel() {
+                context.finish();
+            }
+        });
     }
 
     private class RunReportExportsRequestListener extends SimpleRequestListener<ExportExecution> {
@@ -101,7 +106,12 @@ public class ReportExportOutputLoader {
 
             RunReportExportOutputRequest request = new RunReportExportOutputRequest(jsRestClient,
                     reportSession.getRequestId(), executionId);
-            requestExecutor.execute(request, new RunReportExportOutputRequestListener(executionId));
+            requestExecutor.execute(request, new RunReportExportOutputRequestListener(executionId), new RequestExecutor.OnProgressDialogCancelListener() {
+                @Override
+                public void onCancel() {
+                    context.finish();
+                }
+            });
         }
     }
 

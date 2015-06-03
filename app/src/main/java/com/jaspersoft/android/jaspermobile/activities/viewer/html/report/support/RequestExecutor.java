@@ -55,11 +55,6 @@ public class RequestExecutor {
         this.executionMode = executionMode;
     }
 
-    public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-        final CachedSpiceRequest<T> cachedSpiceRequest = new CachedSpiceRequest<T>(request, null, DurationInMillis.ALWAYS_RETURNED);
-        execute(cachedSpiceRequest, requestListener, null);
-    }
-
     public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener, final OnProgressDialogCancelListener cancelListener) {
         final CachedSpiceRequest<T> cachedSpiceRequest = new CachedSpiceRequest<T>(request, null, DurationInMillis.ALWAYS_RETURNED);
         execute(cachedSpiceRequest, requestListener, cancelListener);

@@ -9,11 +9,18 @@
         android:id="@+id/tb_navigation"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/js_gray"/>
+        android:background="@color/js_gray">
+
+        <FrameLayout
+            android:id="@+id/tb_custom"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+    </android.support.v7.widget.Toolbar>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@drawable/shadow_light"/>
+        android:background="@drawable/shadow_light" />
 
 </LinearLayout>

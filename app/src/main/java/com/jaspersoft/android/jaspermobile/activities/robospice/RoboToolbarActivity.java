@@ -69,6 +69,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     /**
      * Set custom view instead of toolbar title. Can be used only after activity is created.
+     *
      * @param view custom view for Toolbar. Pass null to show default toolbar.
      */
     public void setCustomToolbarView(View view) {
@@ -91,7 +92,9 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             actionBar.setDisplayShowTitleEnabled(toolbarCustomView.getChildCount() == 0 || !enabled);
         }
 
-        toolbarCustomView.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+        for (int i = 0; i < toolbarCustomView.getChildCount(); i++) {
+            toolbarCustomView.getChildAt(i).setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+        }
     }
 
     @Override

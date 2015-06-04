@@ -34,6 +34,7 @@ import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 
@@ -59,6 +60,9 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     @Extra
     protected int currentSelection = R.id.vg_library;
 
+    @InstanceState
+    protected boolean customToolbarDisplayEnabled = true;
+
     @AfterViews
     final void setupNavigation() {
         if (getSupportActionBar() != null) {
@@ -75,6 +79,8 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
 
         if (savedInstanceState == null) {
             navigateToCurrentSelection();
+        } else {
+            setDisplayCustomToolbarEnable(customToolbarDisplayEnabled);
         }
     }
 
@@ -145,12 +151,16 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
                 super.onDrawerClosed(drawerView);
                 invalidateOptionsMenu();
                 navigationPanelLayout.notifyPanelClosed();
+                customToolbarDisplayEnabled = true;
+                setDisplayCustomToolbarEnable(true);
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 invalidateOptionsMenu();
+                customToolbarDisplayEnabled = false;
+                setDisplayCustomToolbarEnable(false);
             }
         };
         drawerLayout.setDrawerListener(mDrawerToggle);

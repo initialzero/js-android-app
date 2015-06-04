@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -43,7 +44,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     private ViewGroup contentLayout;
 
     private JasperAccountManager mJasperAccountManager;
-    JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
+    private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
     private boolean windowToolbar;
     private Locale currentLocale;
@@ -78,6 +79,19 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         if (view != null) {
             toolbarCustomView.addView(view);
         }
+    }
+
+    /**
+     * Set whether a custom toolbar view should be displayed, if set.
+     * If false, action bar title will be shown.
+     */
+    public void setDisplayCustomToolbarEnable(boolean enabled) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(toolbarCustomView.getChildCount() == 0 || !enabled);
+        }
+
+        toolbarCustomView.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override

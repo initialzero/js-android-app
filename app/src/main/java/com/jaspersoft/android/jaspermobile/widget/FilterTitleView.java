@@ -69,6 +69,7 @@ public class FilterTitleView extends Spinner {
             position = BY_DASHBOARDS_POSITION;
         }
 
+        setSelection(position);
         setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -100,7 +101,6 @@ public class FilterTitleView extends Spinner {
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         setAdapter(filterAdapter);
-        setSelection(position);
     }
 
     public void setFilterSelectedListener(FilterDialogListener filterSelectedListener) {

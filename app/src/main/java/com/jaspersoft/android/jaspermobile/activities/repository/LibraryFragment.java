@@ -150,6 +150,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
         FilterTitleView filterTitleView = FilterTitleView_.build(getActivity());
         filterTitleView.setFilterSelectedListener(new FilterChangeListener());
+        ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
         ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
 
         updateOptionsMenu();

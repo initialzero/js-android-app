@@ -30,6 +30,7 @@ public class FilterTitleView extends Spinner {
     @Bean
     FilterManagerBean filterManager;
     private ArrayList<String> mFilters;
+    private boolean initialSelectionDone = false;
 
     private FilterDialogListener filterSelectedListener;
 
@@ -69,25 +70,27 @@ public class FilterTitleView extends Spinner {
             position = BY_DASHBOARDS_POSITION;
         }
 
-        setSelection(position);
         setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case BY_REPORTS_POSITION:
-                        mFilters = filterManager.getReportFilters();
-                        break;
-                    case BY_DASHBOARDS_POSITION:
-                        mFilters = filterManager.getDashboardFilters();
-                        break;
-                    default:
-                        mFilters = filterManager.getFiltersForLibrary();
-                        break;
+                if (initialSelectionDone) {
+                    switch (position) {
+                        case BY_REPORTS_POSITION:
+                            mFilters = filterManager.getReportFilters();
+                            break;
+                        case BY_DASHBOARDS_POSITION:
+                            mFilters = filterManager.getDashboardFilters();
+                            break;
+                        default:
+                            mFilters = filterManager.getFiltersForLibrary();
+                            break;
+                    }
+                    filterManager.putFilters(mFilters);
+                    if (filterSelectedListener != null) {
+                        filterSelectedListener.onDialogPositiveClick(mFilters);
+                    }
                 }
-                filterManager.putFilters(mFilters);
-                if (filterSelectedListener != null) {
-                    filterSelectedListener.onDialogPositiveClick(mFilters);
-                }
+                initialSelectionDone = true;
             }
 
             @Override
@@ -101,6 +104,7 @@ public class FilterTitleView extends Spinner {
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         setAdapter(filterAdapter);
+        setSelection(position, false);
     }
 
     public void setFilterSelectedListener(FilterDialogListener filterSelectedListener) {

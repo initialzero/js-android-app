@@ -118,10 +118,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        FilterTitleView filterTitleView = FilterTitleView_.build(getActivity());
-        filterTitleView.setFilterSelectedListener(new FilterChangeListener());
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
-
         if (savedInstanceState == null) {
             // Reset all controls state
             pref.clear();
@@ -151,6 +147,10 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
             searchControllerFragment = (SearchControllerFragment) getFragmentManager()
                     .findFragmentByTag(SearchControllerFragment.TAG + TAG);
         }
+
+        FilterTitleView filterTitleView = FilterTitleView_.build(getActivity());
+        filterTitleView.setFilterSelectedListener(new FilterChangeListener());
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
 
         updateOptionsMenu();
     }

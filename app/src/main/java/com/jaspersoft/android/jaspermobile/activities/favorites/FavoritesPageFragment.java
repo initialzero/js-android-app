@@ -36,6 +36,7 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
@@ -82,6 +83,8 @@ public class FavoritesPageFragment extends RoboFragment {
             favoriteController = (FavoritesControllerFragment) getFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
         }
+
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 
     @Override

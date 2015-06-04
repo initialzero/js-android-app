@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -102,6 +103,8 @@ public class RepositoryFragment extends RoboFragment {
                         fragmentManager.findFragmentByTag(ResourcesControllerFragment.TAG + entry.getName());
             }
         }
+
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 
     @OptionsItem(android.R.id.home)

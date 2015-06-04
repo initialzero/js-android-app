@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Search
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
@@ -115,6 +116,8 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
             savedItemsController = (SavedItemsControllerFragment) getFragmentManager()
                     .findFragmentByTag(SavedItemsControllerFragment.TAG);
         }
+
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 
     @Override

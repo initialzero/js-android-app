@@ -52,9 +52,9 @@ public class FilterTitleView extends Spinner {
     }
 
     private void initTitleView() {
-        setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
-        CharSequence[] options = {
+        String[] options = {
                 getContext().getString(R.string.s_fd_option_all),
                 getContext().getString(R.string.s_fd_option_reports),
                 getContext().getString(R.string.s_fd_option_dashboards)
@@ -99,8 +99,15 @@ public class FilterTitleView extends Spinner {
             }
         });
 
-        ArrayAdapter<CharSequence> filterAdapter = new ArrayAdapter<CharSequence>(getContext(), R.layout.item_library_filter,
-                android.R.id.text1, options);
+        // It's a hack to make spinner width as a selected item width
+        ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getContext(), R.layout.item_library_filter, options) {
+            @Override
+            public View getView(final int position, final View convertView,
+                                final ViewGroup parent) {
+                int selectedItemPosition = FilterTitleView.this.getSelectedItemPosition();
+                return super.getView(selectedItemPosition, convertView, parent);
+            }
+        };
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         setAdapter(filterAdapter);

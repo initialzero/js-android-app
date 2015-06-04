@@ -43,8 +43,11 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterM
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
+import com.jaspersoft.android.jaspermobile.widget.FilterTitleView_;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -115,6 +118,10 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        FilterTitleView filterTitleView = FilterTitleView_.build(getActivity());
+        filterTitleView.setFilterSelectedListener(new FilterChangeListener());
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
+
         if (savedInstanceState == null) {
             // Reset all controls state
             pref.clear();
@@ -151,7 +158,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     @Override
     public void onResume() {
         super.onResume();
-        FilterDialogFragment.attachListener(getFragmentManager(), mFilterDialogListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.h_library_label);
@@ -196,6 +202,18 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
         if (resourcesController != null) {
             resourcesController.loadResourcesBySortOrder(sortOrder);
+        }
+    }
+
+    private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
+        @Override
+        public void onDialogPositiveClick(List<String> types) {
+            if (resourcesController != null) {
+                resourcesController.loadResourcesByTypes(types);
+            }
+            if (searchControllerFragment != null) {
+                searchControllerFragment.setResourceTypes(types);
+            }
         }
     }
 }

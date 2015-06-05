@@ -334,14 +334,13 @@
       }
 
       DashboardController.prototype.initialize = function() {
+        this._injectViewport();
         this.callback.onLoadStart();
         return jQuery(document).ready((function(_this) {
           return function() {
             js_mobile.log("document ready");
-            _this.scaler.applyScale();
-            _this._removeRedundantArtifacts();
-            _this._injectViewport();
-            return _this._attachDashletLoadListeners();
+            _this._attachDashletLoadListeners();
+            return _this._removeRedundantArtifacts();
           };
         })(this));
       };
@@ -397,7 +396,7 @@
               return _this._scaleDashboard();
             }
           };
-        })(this), 500);
+        })(this), 50);
       };
 
       DashboardController.prototype._configureDashboard = function() {
@@ -410,6 +409,7 @@
       };
 
       DashboardController.prototype._scaleDashboard = function() {
+        this.scaler.applyScale();
         js_mobile.log("_scaleDashboard " + (jQuery('.dashboardCanvas').length));
         return jQuery('.dashboardCanvas').addClass('scaledCanvas');
       };

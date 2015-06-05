@@ -351,6 +351,7 @@
         this._removeOriginalScale();
         this._disableDashlets();
         this._hideDashletChartTypeSelector();
+        this._showDashlets();
         this.callback.onMinimizeStart();
         DOMTreeObserver.lastModify((function(_this) {
           return function() {
@@ -456,13 +457,15 @@
         dashlets.unbind();
         self = this;
         return dashlets.click(function() {
-          var dashlet, innerLabel, title;
-          dashlet = jQuery(this).parent();
+          var dashlet, innerLabel, overlay, title;
+          overlay = jQuery(this);
+          dashlet = overlay.parent();
           innerLabel = dashlet.find('.innerLabel > p');
           if ((innerLabel != null) && (innerLabel.text != null)) {
             title = innerLabel.text();
             if ((title != null) && title.length > 0) {
-              return self._maximizeDashlet(dashlet, title);
+              self._maximizeDashlet(dashlet, title);
+              return self._hideDashlets(overlay);
             }
           }
         });
@@ -496,6 +499,14 @@
 
       DashboardController.prototype._getOverlay = function() {
         return jQuery(".dashboardCanvas > .content > .body div.canvasOverlay");
+      };
+
+      DashboardController.prototype._showDashlets = function() {
+        return jQuery('.customOverlay').parent().css("opacity", 1);
+      };
+
+      DashboardController.prototype._hideDashlets = function(overlay) {
+        return jQuery('.customOverlay').not(overlay).css("opacity", 0);
       };
 
       return DashboardController;
@@ -700,8 +711,8 @@
 
       AndroidClient.prototype.run = function() {
         return MobileDashboard.newInstance({
-          callback: new AndroidCallback(),
-          viewport: new Viewport()
+          viewport: new Viewport(),
+          callback: new AndroidCallback()
         });
       };
 
@@ -732,13 +743,11 @@
 
 (function() {
   require(['js.mobile.amber.android.dashboard.client', 'js.mobile.debug_log'], function(AndroidClient, Log) {
-    return (function($) {
-      Log.configure();
-      return new AndroidClient().run();
-    })(jQuery);
+    Log.configure();
+    return new AndroidClient().run();
   });
 
 }).call(this);
 
-define("android/amber/dashboard/debug_main.js", function(){});
+define("android/dashboard/amber/debug_main.js", function(){});
 

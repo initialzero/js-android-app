@@ -2,8 +2,9 @@
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/text1"
+    style="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingRight="8dp"
-    android:singleLine="true"
-    android:textSize="@dimen/ab_title_size" />
+    android:paddingLeft="4dp"
+    android:paddingRight="6dp"
+    android:singleLine="true" />

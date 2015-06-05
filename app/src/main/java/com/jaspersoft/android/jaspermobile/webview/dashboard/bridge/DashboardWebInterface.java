@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 
+import android.annotation.SuppressLint;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -33,11 +34,11 @@ import com.jaspersoft.android.jaspermobile.webview.WebInterface;
  * @author Tom Koptel
  * @since 2.0
  */
-public class DashboardWebInterface extends WebInterface implements DashboardCallback {
-    private final DashboardCallback dashboardCallback;
+public final class DashboardWebInterface extends WebInterface implements DashboardCallback {
+    private final DashboardCallback delegate;
 
     private DashboardWebInterface(DashboardCallback dashboardCallback) {
-        this.dashboardCallback = dashboardCallback;
+        this.delegate = dashboardCallback;
     }
 
     public static WebInterface from(DashboardCallback dashboardCallback) {
@@ -46,88 +47,159 @@ public class DashboardWebInterface extends WebInterface implements DashboardCall
 
     @JavascriptInterface
     @Override
-    public void onMaximizeStart(String title) {
-        dashboardCallback.onMaximizeStart(title);
+    public void onMaximizeStart(final String title) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onMaximizeStart(title);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onMaximizeEnd(String title) {
-        dashboardCallback.onMaximizeEnd(title);
+    public void onMaximizeEnd(final String title) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onMaximizeEnd(title);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onMaximizeFailed(String error) {
-        dashboardCallback.onMaximizeFailed(error);
+    public void onMaximizeFailed(final String error) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onMaximizeFailed(error);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
     public void onMinimizeStart() {
-        dashboardCallback.onMinimizeStart();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onMinimizeStart();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
     public void onMinimizeEnd() {
-        dashboardCallback.onMinimizeEnd();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onMinimizeEnd();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onMinimizeFailed(String error) {
-        dashboardCallback.onMinimizeFailed(error);
+    public void onMinimizeFailed(final String error) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onMinimizeFailed(error);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
     public void onScriptLoaded() {
-        dashboardCallback.onScriptLoaded();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onScriptLoaded();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
     public void onLoadStart() {
-        dashboardCallback.onLoadStart();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onLoadStart();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
     public void onLoadDone() {
-        dashboardCallback.onLoadDone();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onLoadDone();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onLoadError(String error) {
-        dashboardCallback.onLoadError(error);
+    public void onLoadError(final String error) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onLoadError(error);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onReportExecution(String data) {
-        dashboardCallback.onReportExecution(data);
+    public void onReportExecution(final String data) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onReportExecution(data);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
     public void onWindowResizeStart() {
-        dashboardCallback.onWindowResizeStart();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onWindowResizeStart();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
     public void onWindowResizeEnd() {
-        dashboardCallback.onWindowResizeEnd();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onWindowResizeEnd();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onAuthError(String message) {
-        dashboardCallback.onAuthError(message);
+    public void onAuthError(final String message) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onAuthError(message);
+            }
+        });
     }
 
+    @SuppressLint("AddJavascriptInterface")
     @Override
     public void exposeJavascriptInterface(WebView webView) {
         webView.addJavascriptInterface(this, "Android");

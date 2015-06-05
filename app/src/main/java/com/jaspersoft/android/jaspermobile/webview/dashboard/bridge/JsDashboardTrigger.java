@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,23 +24,42 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 
+import android.webkit.WebView;
+
 /**
- * Interfaces which represent communication native code with dashboard abstraction on Javascript side.
+ * Introduces hardcoded Javascript calls.
  *
  * @author Tom Koptel
- * @since 2.1
+ * @since 2.0
  */
-public interface JsDashboard {
-    /**
-     * Refreshes maximized dashlet.
-     */
-    void refreshDashlet();
-    /**
-     * Refreshes all dashlets.
-     */
-    void refreshDashboard();
-    /**
-     * Minimize latest maximized dashlet.
-     */
-    void minimizeDashlet();
+public final class JsDashboardTrigger implements DashboardTrigger {
+    private final WebView webView;
+
+    private JsDashboardTrigger(WebView webView) {
+        this.webView = webView;
+    }
+
+    public static JsDashboardTrigger with(WebView webView) {
+        if (webView == null) {
+            throw new IllegalArgumentException("WebView reference should not be null");
+        }
+        return new JsDashboardTrigger(webView);
+    }
+
+    public void refreshDashlet() {
+        webView.loadUrl(assembleUri("MobileDashboard.refresh()"));
+    }
+
+    public void minimizeDashlet() {
+        webView.loadUrl(assembleUri("MobileDashboard.minimizeDashlet()"));
+    }
+
+    @Override
+    public void refreshDashboard() {
+        webView.loadUrl(assembleUri("MobileDashboard.refresh()"));
+    }
+
+    private String assembleUri(String command) {
+        return "javascript:" + command;
+    }
 }

@@ -19,34 +19,34 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
  * @author Tom Koptel
  * @since 2.1
  */
-public final class AmberDashboardLoader implements DashboardLoader {
+public final class AmberDashboardExecutor extends AbstractDashboardExecutor {
     private final WebView webView;
     private final ResourceLookup resource;
 
-    private AmberDashboardLoader(WebView webView, ResourceLookup resource) {
+    private AmberDashboardExecutor(WebView webView, ResourceLookup resource) {
         this.webView = webView;
         this.resource = resource;
     }
 
-    public static DashboardLoader newInstance(WebView webView, ResourceLookup resource) {
+    public static DashboardExecutor newInstance(WebView webView, ResourceLookup resource) {
         if (webView == null) {
             throw new IllegalArgumentException("WebView should not be null");
         }
         if (resource == null) {
             throw new IllegalArgumentException("ResourceLookup should not be null");
         }
-        return new AmberDashboardLoader(webView, resource);
+        return new AmberDashboardExecutor(webView, resource);
     }
 
     @Override
-    public void load() {
+    void doPreparation() {
         WebFlowFactory.getInstance(webView.getContext())
                 .createFlow(resource)
                 .load(webView);
     }
 
     @Override
-    public void run() {
+    void doExecution() {
         ScreenUtil screenUtil = ScreenUtil_.getInstance_(webView.getContext());
         String runScript = String.format(
                 "javascript:MobileDashboard.configure({\"diagonal\": \"%s\"}).run()",

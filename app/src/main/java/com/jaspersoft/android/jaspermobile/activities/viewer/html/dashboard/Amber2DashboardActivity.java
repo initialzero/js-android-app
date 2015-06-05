@@ -39,9 +39,9 @@ import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.Amber2DashboardLoader;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardLoader;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardTrigger;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
@@ -73,7 +73,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private MenuItem favoriteAction, aboutAction;
     private DashboardTrigger mDashboardTrigger;
     private WebInterface mWebInterface;
-    private DashboardLoader mDashboardLoader;
+    private DashboardExecutor mDashboardExecutor;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
         @Override
@@ -128,7 +128,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardTrigger = JsDashboardTrigger.with(webView);
-        mDashboardLoader = Amber2DashboardLoader.newInstance(webView, resource);
+        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, resource);
         mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(mWebInterface);
@@ -265,11 +265,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     //---------------------------------------------------------------------
 
     private void loadFlow() {
-        mDashboardLoader.load();
+        mDashboardExecutor.prepare();
     }
 
     private void runDashboard() {
-        mDashboardLoader.run();
+        mDashboardExecutor.execute();
     }
 
     private void showMenuItems() {

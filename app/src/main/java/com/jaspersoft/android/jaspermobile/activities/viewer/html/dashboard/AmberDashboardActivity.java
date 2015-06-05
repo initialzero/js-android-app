@@ -39,9 +39,9 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboardLoader;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardLoader;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
@@ -77,7 +77,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, refreshAction, aboutAction;
     private JsDashboardTrigger mDashboardTrigger;
-    private DashboardLoader mDashboardLoader;
+    private DashboardExecutor mDashboardExecutor;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
         @Override
@@ -150,7 +150,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardTrigger = JsDashboardTrigger.with(webView);
-        mDashboardLoader = AmberDashboardLoader.newInstance(webView, resource);
+        mDashboardExecutor = AmberDashboardExecutor.newInstance(webView, resource);
         webInterface = DashboardWebInterface.from(this);
         WebViewEnvironment
                 .configure(webView)
@@ -286,11 +286,11 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     //---------------------------------------------------------------------
 
     private void loadFlow() {
-        mDashboardLoader.load();
+        mDashboardExecutor.prepare();
     }
 
     private void runDashboard() {
-        mDashboardLoader.run();
+        mDashboardExecutor.execute();
     }
 
     private void showInitialLoader() {

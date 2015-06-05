@@ -48,27 +48,27 @@ import java.util.Map;
  * @author Tom Koptel
  * @since 2.1
  */
-public final class Amber2DashboardLoader implements DashboardLoader {
+public final class AmberTwoDashboardExecutor extends AbstractDashboardExecutor {
     private final WebView webView;
     private final String uri;
 
-    private Amber2DashboardLoader(WebView webView, ResourceLookup resource) {
+    private AmberTwoDashboardExecutor(WebView webView, ResourceLookup resource) {
         this.webView = webView;
         this.uri = resource.getUri();
     }
 
-    public static DashboardLoader newInstance(WebView webView, ResourceLookup resource) {
+    public static DashboardExecutor newInstance(WebView webView, ResourceLookup resource) {
         if (webView == null) {
             throw new IllegalArgumentException("WebView should not be null");
         }
         if (resource == null) {
             throw new IllegalArgumentException("ResourceLookup should not be null");
         }
-        return new Amber2DashboardLoader(webView, resource);
+        return new AmberTwoDashboardExecutor(webView, resource);
     }
 
     @Override
-    public void load() {
+    void doPreparation() {
         InputStream stream = null;
         Context context = webView.getContext();
 
@@ -96,7 +96,7 @@ public final class Amber2DashboardLoader implements DashboardLoader {
     }
 
     @Override
-    public void run() {
+    void doExecution() {
         ScreenUtil screenUtil = ScreenUtil_.getInstance_(webView.getContext());
         StringBuilder builder = new StringBuilder();
         builder.append("javascript:MobileDashboard")

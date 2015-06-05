@@ -506,7 +506,7 @@
       };
 
       DashboardController.prototype._hideDashlets = function(overlay) {
-        return jQuery('.customOverlay').not(overlay).css("opacity", 0);
+        return jQuery('.customOverlay').not(overlay).parent().css("opacity", 0);
       };
 
       return DashboardController;

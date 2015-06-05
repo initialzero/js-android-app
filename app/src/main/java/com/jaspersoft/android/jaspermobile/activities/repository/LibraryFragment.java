@@ -39,15 +39,17 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.filtering.FilterStorage;
+import com.jaspersoft.android.jaspermobile.util.filtering.LibraryFilterStorage;
+import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
-import com.jaspersoft.android.jaspermobile.widget.FilterTitleView_;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -81,7 +83,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     @Pref
     protected LibraryPref_ pref;
     @Bean
-    protected FilterManagerBean filterOptions;
+    protected LibraryResourceFilter libraryResourceFilter;
     @Bean
     protected SortOptions sortOptions;
 
@@ -93,6 +95,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     @InstanceState
     boolean mShowFilterOption;
 
+    private FilterStorage libraryFilterStorage;
     private ResourcesControllerFragment resourcesController;
     private SearchControllerFragment searchControllerFragment;
 
@@ -112,6 +115,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        libraryFilterStorage = new LibraryFilterStorage(libraryResourceFilter);
     }
 
     @Override
@@ -127,7 +131,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
             resourcesController =
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
-                            .resourceTypes(filterOptions.getFilters())
+                            .resourceTypes(libraryFilterStorage.getFilter().getValues())
                             .sortOrder(sortOptions.getOrder())
                             .recursiveLookup(true)
                             .prefTag(PREF_TAG)
@@ -136,7 +140,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
             searchControllerFragment =
                     SearchControllerFragment_.builder()
-                            .resourceTypes(filterOptions.getFilters())
+                            .resourceTypes(libraryFilterStorage.getFilter().getValues())
                             .prefTag(PREF_TAG)
                             .build();
             transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
@@ -148,7 +152,8 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
                     .findFragmentByTag(SearchControllerFragment.TAG + TAG);
         }
 
-        FilterTitleView filterTitleView = FilterTitleView_.build(getActivity());
+        FilterTitleView filterTitleView = new FilterTitleView(getActivity());
+        filterTitleView.init(libraryResourceFilter, libraryFilterStorage);
         filterTitleView.setFilterSelectedListener(new FilterChangeListener());
         ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
         ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
@@ -208,12 +213,13 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
     private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
         @Override
-        public void onDialogPositiveClick(List<String> types) {
+        public void onFilter(Filter filter) {
+            libraryFilterStorage.storeFilter(filter);
             if (resourcesController != null) {
-                resourcesController.loadResourcesByTypes(types);
+                resourcesController.loadResourcesByTypes(filter.getValues());
             }
             if (searchControllerFragment != null) {
-                searchControllerFragment.setResourceTypes(types);
+                searchControllerFragment.setResourceTypes(filter.getValues());
             }
         }
     }

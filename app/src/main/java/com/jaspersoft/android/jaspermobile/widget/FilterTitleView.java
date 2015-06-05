@@ -9,27 +9,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
-import org.androidannotations.annotations.EView;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.filtering.FilterStorage;
+import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 
 /**
  * @author Andrew Tivodar
  * @since 2.0
  */
-@EView
 public class FilterTitleView extends Spinner {
-    private static final int BY_REPORTS_POSITION = 1;
-    private static final int BY_DASHBOARDS_POSITION = 2;
-
-    @Bean
-    FilterManagerBean filterManager;
-    private ArrayList<String> mFilters;
     private boolean initialSelectionDone = false;
 
     private FilterDialogListener filterSelectedListener;
@@ -46,48 +34,18 @@ public class FilterTitleView extends Spinner {
         super(context, attrs, defStyleAttr);
     }
 
-    @AfterViews
-    final void init() {
-        initTitleView();
-    }
-
-    private void initTitleView() {
+    public void init(final ResourceFilter resourceFilter, FilterStorage filterStorage) {
         setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
-        String[] options = {
-                getContext().getString(R.string.s_fd_option_all),
-                getContext().getString(R.string.s_fd_option_reports),
-                getContext().getString(R.string.s_fd_option_dashboards)
-        };
-
-        int position = 0;
-        mFilters = filterManager.getFilters();
-
-        if (filterManager.containsOnlyReport()) {
-            position = BY_REPORTS_POSITION;
-        }
-        if (filterManager.containsOnlyDashboard()) {
-            position = BY_DASHBOARDS_POSITION;
-        }
+        int position = resourceFilter.indexOf(filterStorage.getFilter());
 
         setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (initialSelectionDone) {
-                    switch (position) {
-                        case BY_REPORTS_POSITION:
-                            mFilters = filterManager.getReportFilters();
-                            break;
-                        case BY_DASHBOARDS_POSITION:
-                            mFilters = filterManager.getDashboardFilters();
-                            break;
-                        default:
-                            mFilters = filterManager.getFiltersForLibrary();
-                            break;
-                    }
-                    filterManager.putFilters(mFilters);
+                    Filter selectedFilter = resourceFilter.get(position);
                     if (filterSelectedListener != null) {
-                        filterSelectedListener.onDialogPositiveClick(mFilters);
+                        filterSelectedListener.onFilter(selectedFilter);
                     }
                 }
                 initialSelectionDone = true;
@@ -100,7 +58,7 @@ public class FilterTitleView extends Spinner {
         });
 
         // It's a hack to make spinner width as a selected item width
-        ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getContext(), R.layout.item_library_filter, options) {
+        ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getContext(), R.layout.item_library_filter, resourceFilter.getAvailableFilters()) {
             @Override
             public View getView(final int position, final View convertView,
                                 final ViewGroup parent) {
@@ -119,7 +77,7 @@ public class FilterTitleView extends Spinner {
     }
 
     public interface FilterDialogListener {
-        void onDialogPositiveClick(List<String> types);
+        void onFilter(Filter types);
     }
 }
 

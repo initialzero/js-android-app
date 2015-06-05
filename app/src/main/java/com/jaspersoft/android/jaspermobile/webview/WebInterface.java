@@ -17,9 +17,7 @@ public abstract class WebInterface {
 
     public void resume() {
         mPaused = false;
-        while (!taskQueue.isEmpty()) {
-            dispatch(taskQueue.pollFirst());
-        }
+        dispatchAll();
     }
 
     protected void handleCallback(Runnable runnable) {
@@ -27,6 +25,12 @@ public abstract class WebInterface {
             conserve(runnable);
         } else {
             dispatch(runnable);
+        }
+    }
+
+    private void dispatchAll() {
+        while (!taskQueue.isEmpty() && !mPaused) {
+            dispatch(taskQueue.pollFirst());
         }
     }
 

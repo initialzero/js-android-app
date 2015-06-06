@@ -137,6 +137,7 @@
     <string name="st_title_cache_expiration">缓存过期</string>
     <string name="st_title_connect_timeout">连接超时</string>
     <string name="st_title_read_timeout">数据读取超时</string>
+    <string name="st_title_animations">动画</string>
     <string name="st_send_crashes">发送崩溃报告</string>
     <string name="st_summary_cache_enable">缓存存储库要求指定的时间量</string>
     <string name="st_summary_sec">%s 秒</string>
@@ -175,5 +176,105 @@
     <string name="h_rd_never">不，谢谢</string>
     <string name="h_rd_rate">给TIBCO JasperMobile评分</string>
 
+    <!-- Navigation Drawer -->
+    <string name="nd_drawer_open">打开</string>
+    <string name="nd_drawer_close">关闭</string>
+    <string name="nd_manage_accounts">管理帐户</string>
+    <string name="nd_select_account">选择账户</string>
+
+    <!-- Password Dialog -->
+    <string name="h_ad_title_server_sign_in">服务器登录</string>
+    <string name="h_ad_label_wrong_password">用户名或密码不正确。重新输入。</string>
+
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">如果您喜欢使用TIBCO JasperMobile，请花点时间来评价一下。评价过程不会超过一分钟。感谢您的支持！</string>
+
+    <!-- Error messages -->
+    <string name="sp_error_reserved_alias">别名保留。</string>
+
+    <!-- Repository Activity -->
+    <string name="r_search_nothing_to_display">没有项目符合您的搜索。</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_added_to_favorites">添加到收藏夹。</string>
+    <string name="r_cm_removed_from_favorites">从收藏夹中删除。</string>
+
+    <!-- Search Activity -->
+    <string name="s_saved_items_hint">搜索已保存文件</string>
+
+    <!-- Filter Favorites Dialog -->
+    <string name="f_fd_option_folders">文件夹</string>
+
+    <!-- Settings Activity -->
+    <string name="sa_show_feedback">反馈</string>
+
+    <!-- Report Viewer Activity -->
+    <string name="rv_out_of_range">请求的页面超出范围。</string>
+    <string name="rv_open_link_chooser">打开链接，使用</string>
+    <string name="rv_no_viewer_identified">无法确定JRS版本：%s 的浏览器</string>
+
+
+    <!-- Save Report Activity -->
+    <string name="sr_report_name">文件名</string>
+    <string name="sr_from">从页面</string>
+    <string name="sr_to">至页面</string>
+    <string name="sr_failed_to_create_local_repo">创建本地文件存储失败。</string>
+
+    <!-- Error messages -->
+    <string name="sr_error_field_is_empty">此字段必填。</string>
+    <string name="sr_error_characters_not_allowed">不允许使用以下字符：* \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sr_error_report_exists">使用此名称的文件已经存在。</string>
+
+    <!-- Favorites activity -->
+    <string name="f_empty_list_msg">没有收藏条目</string>
+
+    <!-- Saved Files Activity -->
+    <string name="sdr_ab_title">已保存文件</string>
+    <string name="sdr_ab_list_msg">没有已保存文件</string>
+
+    <!-- Context Menu -->
+    <string name="action_mode_title">选中条目</string>
+
+    <!-- Rename File Dialog -->
+    <string name="sdr_rrd_title">重命名文件</string>
+    <string name="sdr_rrd_hint">文件名</string>
+    <string name="sdr_rrd_error_name_is_empty">此字段必填。</string>
+    <string name="sdr_rrd_error_characters_not_allowed">不允许使用以下字符：* \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sdr_rrd_error_report_exists">使用此名称的文件已经存在。</string>
+
+    <!-- Remove Favorites Dialog -->
+    <string name="sdr_dfd_title">从收藏夹中删除</string>
+    <string name="sdr_dfd_msg">您真的要删除“%s”吗？</string>
+
+    <!-- Settings activity -->
+    <string name="st_send_crashes_note">注意：更改此设置后，请重新启动应用程序。</string>
+
+    <!-- Error messages -->
+    <string name="r_error_server_not_found">未找到服务器。</string>
+    <string name="r_error_incorrect_credentials">登录名或密码不正确。</string>
+
+    <!-- Others -->
+    <string name="authenticator_label">Jasper帐户</string>
+
+    <!-- Accounts activity -->
+    <string name="add_account">添加帐户</string>
+    <string name="try_demo">试用演示版</string>
+    <string name="hint_alias">帐户名称</string>
+    <string name="hint_server_url">服务器URL地址</string>
+    <string name="hint_organization">组织</string>
+    <string name="hint_username">用户名</string>
+    <string name="hint_password">密码</string>
+    <string name="success_add_account">已添加名为%s的帐户</string>
+    <string name="failure_add_account">添加帐户失败。原因：%s</string>
+    <string name="account_add">正在添加帐户</string>
+
+    <!--Dashboard activity-->
+    <string name="da_session_expired">会话过期</string>
+    <string name="da_session_refresh_failed">刷新会话失败</string>
+    <string name="da_loading">正在加载面板...</string>
+
+    <!-- MultiSelectSpinner -->
+    <string name="mss_btn_check_all">全部选中</string>
+    <string name="mss_btn_uncheck_all">全部取消选中</string>
 
 </resources>

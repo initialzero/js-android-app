@@ -134,6 +134,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       DashboardController.prototype.minimizeDashlet = function() {
         var component, dashboardId;
+        this._showDashlets();
         $('.show_chartTypeSelector_wrapper').hide();
         dashboardId = this.v.dashboard.componentIdDomAttribute;
         component = this.maximizedComponent;
@@ -231,11 +232,13 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         js_mobile.log("Apply click events");
         dashboardId = this.v.dashboard.componentIdDomAttribute;
         self = this;
-        return $(this.container).find("[" + dashboardId + "] > .dashlet").parent().on('click', function() {
-          var component, id;
+        return this._getDashlets(dashboardId).on('click', function() {
+          var component, dashlet, id;
           $('.show_chartTypeSelector_wrapper').show();
-          id = $(this).attr(dashboardId);
+          dashlet = $(this);
+          id = dashlet.attr(dashboardId);
           component = self._getComponentById(id);
+          self._hideDashlets(dashboardId, dashlet);
           if (component && !component.maximized) {
             $(self.container).find("[" + dashboardId + "='" + id + "']").addClass('originalDashletInScaledCanvas');
             self.callback.onMaximizeStart(component.name);
@@ -280,6 +283,22 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           }
         }
         return params;
+      };
+
+      DashboardController.prototype._getDashlets = function(dashboardId) {
+        if (dashboardId != null) {
+          return $(this.container).find("[" + dashboardId + "] > .dashlet").parent();
+        } else {
+          return $(this.container).find(".dashlet").parent();
+        }
+      };
+
+      DashboardController.prototype._hideDashlets = function(dashboardId, dashlet) {
+        return this._getDashlets(dashboardId).not(dashlet).css("opacity", 0);
+      };
+
+      DashboardController.prototype._showDashlets = function() {
+        return this._getDashlets().css("opacity", 1);
       };
 
       return DashboardController;
@@ -743,11 +762,13 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
 (function() {
   require(['js.mobile.amber2.android.dashboard.client', 'js.mobile.debug_log'], function(AndroidClient, Log) {
-    Log.configure();
-    return new AndroidClient().run();
+    return (function($) {
+      Log.configure();
+      return new AndroidClient().run();
+    })(jQuery);
   });
 
 }).call(this);
 
-define("android/amber2/dashboard/debug_main.js", function(){});
+define("android/dashboard/amber2/debug_main.js", function(){});
 

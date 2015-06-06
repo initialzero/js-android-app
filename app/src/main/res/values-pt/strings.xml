@@ -137,6 +137,7 @@
     <string name="st_title_cache_expiration">Expiração do cache</string>
     <string name="st_title_connect_timeout">Tempo limite da conexão</string>
     <string name="st_title_read_timeout">Tempo limite da leitura de dados</string>
+    <string name="st_title_animations">Animações</string>
     <string name="st_send_crashes">Enviar relatórios de falhas</string>
     <string name="st_summary_cache_enable">Solicitações de repositório de cache para o período de tempo especificado</string>
     <string name="st_summary_sec">%s seg</string>
@@ -177,5 +178,105 @@
     <string name="h_rd_never">Não, obrigado</string>
     <string name="h_rd_rate">Avaliar o TIBCO JasperMobile</string>
 
+    <!-- Navigation Drawer -->
+    <string name="nd_drawer_open">abrir</string>
+    <string name="nd_drawer_close">fechar</string>
+    <string name="nd_manage_accounts">Gerenciar contas</string>
+    <string name="nd_select_account">Selecionar conta</string>
+
+    <!-- Password Dialog -->
+    <string name="h_ad_title_server_sign_in">Acesso ao servidor</string>
+    <string name="h_ad_label_wrong_password">Nome de usuário ou senha incorretos. Digite novamente suas credenciais.</string>
+
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">Se você gosta de usar o TIBCO JasperMobile, reserve um momento para avaliá-lo. Não vai demorar mais de um minuto. Agradecemos a sua colaboração!</string>
+
+    <!-- Error messages -->
+    <string name="sp_error_reserved_alias">O apelido já está em uso.</string>
+
+    <!-- Repository Activity -->
+    <string name="r_search_nothing_to_display">Nenhum item corresponde à sua pesquisa.</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_added_to_favorites">Adicionado aos favoritos.</string>
+    <string name="r_cm_removed_from_favorites">Removido dos favoritos.</string>
+
+    <!-- Search Activity -->
+    <string name="s_saved_items_hint">Pesquisar arquivos salvos</string>
+
+    <!-- Filter Favorites Dialog -->
+    <string name="f_fd_option_folders">Pastas</string>
+
+    <!-- Settings Activity -->
+    <string name="sa_show_feedback">Feedback</string>
+
+    <!-- Report Viewer Activity -->
+    <string name="rv_out_of_range">A página solicitada está fora do intervalo.</string>
+    <string name="rv_open_link_chooser">Abrir link com</string>
+    <string name="rv_no_viewer_identified">Não foi possível identificar o visualizador para a versão %s do JRS</string>
+
+
+    <!-- Save Report Activity -->
+    <string name="sr_report_name">Nome do arquivo</string>
+    <string name="sr_from">A partir da página</string>
+    <string name="sr_to">Para a página</string>
+    <string name="sr_failed_to_create_local_repo">Falha ao criar armazenamento local de arquivos.</string>
+
+    <!-- Error messages -->
+    <string name="sr_error_field_is_empty">Este campo é obrigatório.</string>
+    <string name="sr_error_characters_not_allowed">Os caracteres a seguir não são permitidos:  * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sr_error_report_exists">Já existe um arquivo com este nome.</string>
+
+    <!-- Favorites activity -->
+    <string name="f_empty_list_msg">Não há itens favoritos</string>
+
+    <!-- Saved Files Activity -->
+    <string name="sdr_ab_title">Arquivos salvos</string>
+    <string name="sdr_ab_list_msg">Não há arquivos salvos</string>
+
+    <!-- Context Menu -->
+    <string name="action_mode_title">Item selecionado</string>
+
+    <!-- Rename File Dialog -->
+    <string name="sdr_rrd_title">Renomear arquivo</string>
+    <string name="sdr_rrd_hint">Nome do arquivo</string>
+    <string name="sdr_rrd_error_name_is_empty">Este campo é obrigatório.</string>
+    <string name="sdr_rrd_error_characters_not_allowed">Os caracteres a seguir não são permitidos: * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
+    <string name="sdr_rrd_error_report_exists">Já existe um arquivo com este nome.</string>
+
+    <!-- Remove Favorites Dialog -->
+    <string name="sdr_dfd_title">Remover dos favoritos</string>
+    <string name="sdr_dfd_msg">Tem certeza de que deseja remover \"%s\"?</string>
+
+    <!-- Settings activity -->
+    <string name="st_send_crashes_note">OBSERVAÇÃO: Reinicie o app após alterar essa configuração.</string>
+
+    <!-- Error messages -->
+    <string name="r_error_server_not_found">Servidor não encontrado.</string>
+    <string name="r_error_incorrect_credentials">Login ou senha incorretos.</string>
+
+    <!-- Others -->
+    <string name="authenticator_label">Contas Jasper</string>
+
+    <!-- Accounts activity -->
+    <string name="add_account">Adicionar conta</string>
+    <string name="try_demo">Experimentar versão demo</string>
+    <string name="hint_alias">Nome da conta</string>
+    <string name="hint_server_url">URL do servidor</string>
+    <string name="hint_organization">Organização</string>
+    <string name="hint_username">Nome de usuário</string>
+    <string name="hint_password">Senha</string>
+    <string name="success_add_account">A conta com o nome %s foi adicionada</string>
+    <string name="failure_add_account">Falha ao adicionar conta. Motivo: %s</string>
+    <string name="account_add">Adicionando conta</string>
+
+    <!--Dashboard activity-->
+    <string name="da_session_expired">Sessão expirada</string>
+    <string name="da_session_refresh_failed">Falha ao atualizar sessão</string>
+    <string name="da_loading">Carregando painel de controle...</string>
+
+    <!-- MultiSelectSpinner -->
+    <string name="mss_btn_check_all">Marcar todos</string>
+    <string name="mss_btn_uncheck_all">Desmarcar todos</string>
 
 </resources>

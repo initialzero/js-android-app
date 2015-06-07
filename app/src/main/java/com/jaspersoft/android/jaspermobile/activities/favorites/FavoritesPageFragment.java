@@ -37,7 +37,11 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -56,6 +60,9 @@ public class FavoritesPageFragment extends RoboFragment {
     @InstanceState
     protected boolean initialStart;
 
+    @Bean
+    protected FavoritesResourceFilter favoritesResourceFilter;
+
     @Pref
     protected LibraryPref_ pref;
     private FavoritesControllerFragment favoriteController;
@@ -66,7 +73,7 @@ public class FavoritesPageFragment extends RoboFragment {
 
         if (savedInstanceState == null) {
             // Reset all controls state
-            pref.clear();
+            pref.sortType().put(null);
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
@@ -83,8 +90,6 @@ public class FavoritesPageFragment extends RoboFragment {
             favoriteController = (FavoritesControllerFragment) getFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
         }
-
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 
     @Override
@@ -93,6 +98,16 @@ public class FavoritesPageFragment extends RoboFragment {
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.f_title);
+        }
+    }
+
+    private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
+        @Override
+        public void onFilter(Filter filter) {
+            favoritesResourceFilter.persist(filter);
+            if (favoriteController != null) {
+                favoriteController.loadItemsByTypes(filter);
+            }
         }
     }
 }

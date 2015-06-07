@@ -30,6 +30,7 @@ import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
@@ -81,9 +82,13 @@ public class ResourceOpener {
     }
 
     public void openResource(Fragment fragment, ResourceLookup resource) {
+        openResource(fragment, RepositoryFragment.PREF_TAG, resource);
+    }
+
+    public void openResource(Fragment fragment, String prefTag, ResourceLookup resource) {
         switch (resource.getResourceType()) {
             case folder:
-                openFolder(fragment, resource);
+                openFolder(fragment, prefTag, resource);
                 break;
             case reportUnit:
                 runReport(resource);
@@ -95,10 +100,6 @@ public class ResourceOpener {
             default:
                 break;
         }
-    }
-
-    private void openFolder(Fragment fragment, ResourceLookup resource) {
-        openFolder(fragment, RepositoryFragment.PREF_TAG, resource);
     }
 
     public void openFolder(Fragment fragment, String preftag, ResourceLookup resource) {

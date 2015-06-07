@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -82,6 +83,12 @@ public class FavoritesControllerFragment extends ControllerFragment {
     @Override
     protected String getContentFragmentTag() {
         return CONTENT_TAG;
+    }
+
+    public void loadItemsByTypes(Filter newFilterType) {
+        if (contentFragment != null) {
+            contentFragment.showSavedItemsByFilter();
+        }
     }
 
 }

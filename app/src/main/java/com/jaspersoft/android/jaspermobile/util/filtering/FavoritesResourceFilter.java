@@ -21,7 +21,7 @@ import java.util.List;
  * @since 2.0
  */
 @EBean
-public class LibraryResourceFilter extends ResourceFilter {
+public class FavoritesResourceFilter extends ResourceFilter {
 
     private ServerRelease serverRelease;
     private boolean isProEdition;
@@ -29,14 +29,15 @@ public class LibraryResourceFilter extends ResourceFilter {
     @RootContext
     protected FragmentActivity activity;
 
-    private enum LibraryFilterCategory {
+    private enum FavoritesFilterCategory {
         all(R.string.s_fd_option_all),
         reports(R.string.s_fd_option_reports),
-        dashboards(R.string.s_fd_option_dashboards);
+        dashboards(R.string.s_fd_option_dashboards),
+        folders(R.string.f_fd_option_folders);
 
         private int mTitleId = -1;
 
-        LibraryFilterCategory(int titleId) {
+        FavoritesFilterCategory(int titleId) {
             mTitleId = titleId;
         }
 
@@ -54,27 +55,28 @@ public class LibraryResourceFilter extends ResourceFilter {
     }
 
     @Override
-    public String getFilterLocalizedTitle(Filter filter) {
-        LibraryFilterCategory libraryFilterCategory = LibraryFilterCategory.valueOf(filter.getName());
-        return libraryFilterCategory.getLocalizedTitle(activity);
+    protected String getFilterLocalizedTitle(Filter filter) {
+        FavoritesFilterCategory favoritesFilterCategory = FavoritesFilterCategory.valueOf(filter.getName());
+        return favoritesFilterCategory.getLocalizedTitle(activity);
     }
 
     @Override
     protected List<Filter> generateAvailableFilterList() {
         ArrayList<Filter> availableFilters = new ArrayList<>();
-        // Filtration is not available for CE servers
-        if (!isProEdition) return availableFilters;
 
         availableFilters.add(getFilterAll());
         availableFilters.add(getFilterReport());
-        availableFilters.add(getFilterDashboard());
+        if (isProEdition) {
+            availableFilters.add(getFilterDashboard());
+        }
+        availableFilters.add(getFilterFolder());
 
         return availableFilters;
     }
 
     @Override
     protected FilterStorage initFilterStorage() {
-        return LibraryFilterStorage_.getInstance_(activity);
+        return FavoritesFilterStorage_.getInstance_(activity);
     }
 
     @Override
@@ -82,25 +84,33 @@ public class LibraryResourceFilter extends ResourceFilter {
         return getFilterAll();
     }
 
-    private Filter getFilterAll(){
+    private Filter getFilterAll() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
         filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.folder());
 
-        return new Filter(LibraryFilterCategory.all.name(), filterValues);
+        return new Filter(FavoritesFilterCategory.all.name(), filterValues);
     }
 
-    private Filter getFilterReport(){
+    private Filter getFilterReport() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
 
-        return new Filter(LibraryFilterCategory.reports.name(), filterValues);
+        return new Filter(FavoritesFilterCategory.reports.name(), filterValues);
     }
 
-    private Filter getFilterDashboard(){
+    private Filter getFilterDashboard() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.dashboard(serverRelease));
 
-        return new Filter(LibraryFilterCategory.dashboards.name(), filterValues);
+        return new Filter(FavoritesFilterCategory.dashboards.name(), filterValues);
+    }
+
+    private Filter getFilterFolder() {
+        ArrayList<String> filterValues = new ArrayList<>();
+        filterValues.addAll(JasperResources.folder());
+
+        return new Filter(FavoritesFilterCategory.folders.name(), filterValues);
     }
 }

@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +32,14 @@ public abstract class ResourceFilter {
         return getAvailableFilters().get(position);
     }
 
+    final public List<String> getFilters() {
+        List<String> availableFilterTitles = new ArrayList<>();
+        for (Filter filter : getAvailableFilters()) {
+            availableFilterTitles.add(getFilterLocalizedTitle(filter));
+        }
+        return availableFilterTitles;
+    }
+
     final protected List<Filter> getAvailableFilters() {
         if (availableFilters == null) {
             availableFilters = generateAvailableFilterList();
@@ -52,7 +61,7 @@ public abstract class ResourceFilter {
         return null;
     }
 
-    public abstract List<String> getFilters();
+    protected abstract String getFilterLocalizedTitle(Filter filter);
 
     protected abstract List<Filter> generateAvailableFilterList();
 

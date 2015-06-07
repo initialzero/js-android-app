@@ -31,6 +31,7 @@ import android.support.v4.app.Fragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -47,10 +48,6 @@ public class SavedItemsControllerFragment extends ControllerFragment {
     public static final String TAG = SavedItemsControllerFragment.class.getSimpleName();
 
     private SavedItemsFragment contentFragment;
-
-    @FragmentArg
-    @InstanceState
-    FileAdapter.FileType filterType;
 
     @FragmentArg
     @InstanceState
@@ -84,7 +81,6 @@ public class SavedItemsControllerFragment extends ControllerFragment {
     public Fragment getContentFragment() {
         contentFragment = SavedItemsFragment_.builder()
                 .viewType(getViewType())
-                .filterType(filterType)
                 .sortOrder(sortOrder)
                 .searchQuery(searchQuery)
                 .build();
@@ -96,11 +92,10 @@ public class SavedItemsControllerFragment extends ControllerFragment {
         return CONTENT_TAG;
     }
 
-    public void loadItemsByTypes(FileAdapter.FileType _filterType) {
+    public void loadItemsByTypes() {
         if (contentFragment != null) {
-            contentFragment.showSavedItemsByFilter(_filterType);
+            contentFragment.showSavedItemsByFilter();
         }
-        filterType = _filterType;
     }
 
     public void loadItemsBySortOrder(SortOrder _sortOrder) {

@@ -43,6 +43,10 @@ import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItem
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.FilterSavedItemsDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
+import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -65,26 +69,13 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
 
     private SavedItemsControllerFragment savedItemsController;
 
-    @InstanceState
-    FileAdapter.FileType filterType;
-
+    @Bean
+    protected StorageResourceFilter storageResourceFilter;
     @Bean
     protected SortOptions sortOptions;
 
     @Pref
-    LibraryPref_ pref;
-
-
-    private final FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener mFilterSelectedListener =
-            new FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener() {
-        @Override
-        public void onDialogPositiveClick(FileAdapter.FileType _filterType) {
-            if (savedItemsController != null) {
-                savedItemsController.loadItemsByTypes(_filterType);
-                filterType = _filterType;
-            }
-        }
-    };
+    StoragePref_ pref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,12 +89,11 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
 
         if (savedInstanceState == null) {
             // Reset all controls state
-            pref.clear();
+            pref.sortType().put(null);
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             savedItemsController = SavedItemsControllerFragment_.builder()
-                    .filterType(filterType)
                     .sortOrder(sortOptions.getOrder())
                     .build();
             transaction.replace(R.id.resource_controller, savedItemsController, SavedItemsControllerFragment.TAG);
@@ -117,13 +107,16 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
                     .findFragmentByTag(SavedItemsControllerFragment.TAG);
         }
 
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        FilterTitleView filterTitleView = new FilterTitleView(getActivity());
+        filterTitleView.init(storageResourceFilter);
+        filterTitleView.setFilterSelectedListener(new FilterChangeListener());
+        ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        FilterSavedItemsDialogFragment.attachListener(getFragmentManager(), filterType, mFilterSelectedListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sdr_ab_title);
@@ -133,11 +126,6 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
     @OptionsItem(android.R.id.home)
     final void goHome() {
         getActivity().onBackPressed();
-    }
-
-    @OptionsItem(R.id.filter)
-    final void startFiltering() {
-        FilterSavedItemsDialogFragment.show(getFragmentManager(), filterType, mFilterSelectedListener);
     }
 
     @OptionsItem(R.id.sort)
@@ -153,6 +141,14 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
         if (savedItemsController != null) {
             savedItemsController.loadItemsBySortOrder(sortOrder);
             sortOptions.putOrder(sortOrder);
+        }
+    }
+
+    private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
+        @Override
+        public void onFilter(Filter filter) {
+            storageResourceFilter.persist(filter);
+            savedItemsController.loadItemsByTypes();
         }
     }
 }

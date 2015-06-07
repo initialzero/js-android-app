@@ -64,7 +64,7 @@ public class FavoritesPageFragment extends RoboFragment {
     protected FavoritesResourceFilter favoritesResourceFilter;
 
     @Pref
-    protected LibraryPref_ pref;
+    protected FavoritesPref_ pref;
     private FavoritesControllerFragment favoriteController;
 
     @Override

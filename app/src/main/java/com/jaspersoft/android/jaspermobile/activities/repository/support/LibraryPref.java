@@ -39,4 +39,6 @@ public interface LibraryPref {
     String sortType();
 
     Set<String> filterTypes();
+
+    String filterType();
 }

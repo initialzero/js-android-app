@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
 import android.accounts.Account;
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -21,14 +22,31 @@ import java.util.List;
  */
 @EBean
 public class LibraryResourceFilter extends ResourceFilter {
+
     private ServerRelease serverRelease;
     private boolean isProEdition;
 
     @RootContext
     protected FragmentActivity activity;
 
+    private enum LibraryFilterCategory {
+        all(R.string.s_fd_option_all),
+        reports(R.string.s_fd_option_reports),
+        dashboards(R.string.s_fd_option_dashboards);
+
+        private int mTitleId = -1;
+
+        LibraryFilterCategory(int titleId) {
+            mTitleId = titleId;
+        }
+
+        public String getLocalizedTitle(Context context) {
+            return context.getString(this.mTitleId);
+        }
+    }
+
     @AfterInject
-    public void initFilter() {
+    protected void initFilter() {
         Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(activity, account);
         this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
@@ -36,13 +54,13 @@ public class LibraryResourceFilter extends ResourceFilter {
     }
 
     @Override
-    public Filter getDefaultFilter() {
-        return getFilterAll();
-    }
-
-    @Override
-    public List<String> getAvailableFilters() {
-        return null;
+    public List<String> getFilters() {
+        List<String> availableFilterTitles = new ArrayList<>();
+        for (Filter filter : getAvailableFilters()) {
+            LibraryFilterCategory libraryFilterCategory = LibraryFilterCategory.valueOf(filter.getName());
+            availableFilterTitles.add(libraryFilterCategory.getLocalizedTitle(activity));
+        }
+        return availableFilterTitles;
     }
 
     @Override
@@ -58,28 +76,35 @@ public class LibraryResourceFilter extends ResourceFilter {
         return availableFilters;
     }
 
+    @Override
+    protected FilterStorage initFilterStorage() {
+        return LibraryFilterStorage_.getInstance_(activity);
+    }
+
+    @Override
+    protected Filter getDefaultFilter() {
+        return getFilterAll();
+    }
+
     private Filter getFilterAll(){
-        String filterTitle = activity.getString(R.string.s_fd_option_all);
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
         filterValues.addAll(JasperResources.dashboard(serverRelease));
 
-        return new Filter(filterTitle, filterValues);
+        return new Filter(LibraryFilterCategory.all.name(), filterValues);
     }
 
     private Filter getFilterReport(){
-        String filterTitle = activity.getString(R.string.s_fd_option_reports);
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
 
-        return new Filter(filterTitle, filterValues);
+        return new Filter(LibraryFilterCategory.reports.name(), filterValues);
     }
 
     private Filter getFilterDashboard(){
-        String filterTitle = activity.getString(R.string.s_fd_option_dashboards);
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.dashboard(serverRelease));
 
-        return new Filter(filterTitle, filterValues);
+        return new Filter(LibraryFilterCategory.dashboards.name(), filterValues);
     }
 }

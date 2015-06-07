@@ -34,10 +34,10 @@ public class FilterTitleView extends Spinner {
         super(context, attrs, defStyleAttr);
     }
 
-    public void init(final ResourceFilter resourceFilter, FilterStorage filterStorage) {
+    public void init(final ResourceFilter resourceFilter) {
         setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
-        int position = resourceFilter.indexOf(filterStorage.getFilter());
+        int position = resourceFilter.getPosition();
 
         setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
@@ -58,7 +58,7 @@ public class FilterTitleView extends Spinner {
         });
 
         // It's a hack to make spinner width as a selected item width
-        ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getContext(), R.layout.item_library_filter, resourceFilter.getAvailableFilters()) {
+        ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getContext(), R.layout.item_library_filter, resourceFilter.getFilters()) {
             @Override
             public View getView(final int position, final View convertView,
                                 final ViewGroup parent) {

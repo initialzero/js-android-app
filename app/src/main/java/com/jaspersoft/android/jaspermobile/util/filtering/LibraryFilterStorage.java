@@ -1,24 +1,37 @@
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
+import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref;
+import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
+
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.sharedpreferences.Pref;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 /**
  * @author Andrew Tivodar
  * @since 2.0
  */
-public class LibraryFilterStorage implements FilterStorage {
+@EBean
+public class LibraryFilterStorage extends FilterStorage {
 
-    private Filter currentFilter;
+    @Pref
+    protected LibraryPref_ pref;
 
-    public LibraryFilterStorage(ResourceFilter resourceFilter) {
-        this.currentFilter = resourceFilter.getDefaultFilter();
+    @Override
+    public String getFilter() {
+        return pref.filterType().get();
     }
 
     @Override
-    public Filter getFilter() {
-        return currentFilter;
+    public void storeFilter(String filterName) {
+        pref.filterType().put(filterName);
     }
 
     @Override
-    public void storeFilter(Filter selectedFilter) {
-        currentFilter = selectedFilter;
+    public void clearFilter() {
+        pref.edit().filterType().put(null).apply();
     }
 }

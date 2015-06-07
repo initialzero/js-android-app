@@ -95,7 +95,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     @InstanceState
     boolean mShowFilterOption;
 
-    private FilterStorage libraryFilterStorage;
     private ResourcesControllerFragment resourcesController;
     private SearchControllerFragment searchControllerFragment;
 
@@ -115,7 +114,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        libraryFilterStorage = new LibraryFilterStorage(libraryResourceFilter);
     }
 
     @Override
@@ -124,14 +122,14 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
         if (savedInstanceState == null) {
             // Reset all controls state
-            pref.clear();
+            pref.sortType().put(null);
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             resourcesController =
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
-                            .resourceTypes(libraryFilterStorage.getFilter().getValues())
+                            .resourceTypes(libraryResourceFilter.getCurrent().getValues())
                             .sortOrder(sortOptions.getOrder())
                             .recursiveLookup(true)
                             .prefTag(PREF_TAG)
@@ -140,7 +138,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
             searchControllerFragment =
                     SearchControllerFragment_.builder()
-                            .resourceTypes(libraryFilterStorage.getFilter().getValues())
+                            .resourceTypes(libraryResourceFilter.getCurrent().getValues())
                             .prefTag(PREF_TAG)
                             .build();
             transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
@@ -153,7 +151,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
         }
 
         FilterTitleView filterTitleView = new FilterTitleView(getActivity());
-        filterTitleView.init(libraryResourceFilter, libraryFilterStorage);
+        filterTitleView.init(libraryResourceFilter);
         filterTitleView.setFilterSelectedListener(new FilterChangeListener());
         ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
         ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
@@ -214,7 +212,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
         @Override
         public void onFilter(Filter filter) {
-            libraryFilterStorage.storeFilter(filter);
+            libraryResourceFilter.persist(filter);
             if (resourcesController != null) {
                 resourcesController.loadResourcesByTypes(filter.getValues());
             }

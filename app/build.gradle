@@ -56,7 +56,7 @@ android {
 
         testInstrumentationRunner INSTRUMENTATION_RUNNER
 
-        versionCode 15020010
+        versionCode 2_00_01_002
         versionName "2.0.1"
     }
 

@@ -58,7 +58,7 @@ import roboguice.fragment.RoboFragment;
  * @since 1.8
  */
 @EFragment
-@OptionsMenu(R.menu.saved_items_menu)
+@OptionsMenu(R.menu.sort_menu)
 public class SavedReportsFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener{
     public static final String TAG = SavedReportsFragment.class.getSimpleName();
 

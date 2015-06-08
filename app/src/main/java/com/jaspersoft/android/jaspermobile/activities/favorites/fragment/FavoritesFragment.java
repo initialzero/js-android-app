@@ -85,7 +85,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @since 1.9
  */
 @EFragment
-@OptionsMenu(R.menu.saved_items_menu)
+@OptionsMenu(R.menu.sort_menu)
 public class FavoritesFragment extends RoboFragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
         FavoritesAdapter.FavoritesInteractionListener,

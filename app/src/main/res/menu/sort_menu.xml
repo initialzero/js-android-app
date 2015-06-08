@@ -26,15 +26,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/filter"
-        android:icon="@drawable/ic_menu_filter"
-        android:orderInCategory="65"
-        app:showAsAction="never"
-        android:title="@string/s_ab_filter_by"/>
-    <item
         android:id="@+id/sort"
         android:icon="@drawable/ic_menu_sort"
         android:orderInCategory="70"
-        app:showAsAction="never"
+        app:showAsAction="always"
         android:title="@string/s_ab_sort_by"/>
 </menu>

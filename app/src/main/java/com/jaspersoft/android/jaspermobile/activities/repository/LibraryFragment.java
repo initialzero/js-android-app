@@ -23,14 +23,11 @@
  */
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.accounts.Account;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.inject.Inject;
@@ -43,24 +40,18 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.Library
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-
-import java.util.List;
 
 import roboguice.fragment.RoboFragment;
 
@@ -69,7 +60,7 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu(R.menu.libraries_menu)
+@OptionsMenu(R.menu.sort_menu)
 @EFragment
 public class LibraryFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
     public static final String TAG = LibraryFragment.class.getSimpleName();
@@ -86,27 +77,10 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     protected SortOptions sortOptions;
 
     @OptionsMenuItem
-    protected MenuItem filter;
-    @OptionsMenuItem
     protected MenuItem sort;
-
-    @InstanceState
-    boolean mShowFilterOption;
 
     private ResourcesControllerFragment resourcesController;
     private SearchControllerFragment searchControllerFragment;
-
-    private final FilterDialogFragment.FilterDialogListener mFilterDialogListener = new FilterDialogFragment.FilterDialogListener() {
-        @Override
-        public void onDialogPositiveClick(List<String> types) {
-            if (resourcesController != null) {
-                resourcesController.loadResourcesByTypes(types);
-            }
-            if (searchControllerFragment != null) {
-                searchControllerFragment.setResourceTypes(types);
-            }
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -158,8 +132,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
         else {
             ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
         }
-
-        updateOptionsMenu();
     }
 
     @Override
@@ -169,30 +141,6 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
         if (actionBar != null) {
             actionBar.setTitle(R.string.h_library_label);
         }
-    }
-
-    private void updateOptionsMenu() {
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
-
-        mShowFilterOption = accountServerData.getEdition().equals("PRO");
-        getActivity().invalidateOptionsMenu();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        if (!mShowFilterOption) {
-            menu.removeItem(filter.getItemId());
-            sort.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        } else {
-            sort.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-        }
-    }
-
-    @OptionsItem(R.id.filter)
-    final void startFiltering() {
-        FilterDialogFragment.show(getFragmentManager(), mFilterDialogListener);
     }
 
     @OptionsItem(R.id.sort)

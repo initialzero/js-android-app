@@ -21,22 +21,19 @@ import java.util.List;
  * @since 2.0
  */
 @EBean
-public class LibraryResourceFilter extends ResourceFilter {
+public class RepositoryResourceFilter extends ResourceFilter {
 
     private ServerRelease serverRelease;
-    private boolean isProEdition;
 
     @RootContext
     protected FragmentActivity activity;
 
-    private enum LibraryFilterCategory {
-        all(R.string.s_fd_option_all),
-        reports(R.string.s_fd_option_reports),
-        dashboards(R.string.s_fd_option_dashboards);
+    private enum RepositoryFilterCategory {
+        all(R.string.s_fd_option_all);
 
         private int mTitleId = -1;
 
-        LibraryFilterCategory(int titleId) {
+        RepositoryFilterCategory(int titleId) {
             mTitleId = titleId;
         }
 
@@ -50,33 +47,26 @@ public class LibraryResourceFilter extends ResourceFilter {
         Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(activity, account);
         this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
-        this.isProEdition = accountServerData.getEdition().equals("PRO");
     }
+
 
     @Override
     public String getFilterLocalizedTitle(Filter filter) {
-        LibraryFilterCategory libraryFilterCategory = LibraryFilterCategory.valueOf(filter.getName());
-        return libraryFilterCategory.getLocalizedTitle(activity);
+        RepositoryFilterCategory repositoryFilterCategory = RepositoryFilterCategory.valueOf(filter.getName());
+        return repositoryFilterCategory.getLocalizedTitle(activity);
     }
 
     @Override
     protected List<Filter> generateAvailableFilterList() {
         ArrayList<Filter> availableFilters = new ArrayList<>();
-
         availableFilters.add(getFilterAll());
-
-        // Filtration is not available for CE servers
-        if (isProEdition) {
-            availableFilters.add(getFilterReport());
-            availableFilters.add(getFilterDashboard());
-        }
 
         return availableFilters;
     }
 
     @Override
     protected FilterStorage initFilterStorage() {
-        return LibraryFilterStorage_.getInstance_(activity);
+        return RepositoryFilterStorage_.getInstance_(activity);
     }
 
     @Override
@@ -88,21 +78,8 @@ public class LibraryResourceFilter extends ResourceFilter {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
         filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.folder());
 
-        return new Filter(LibraryFilterCategory.all.name(), filterValues);
-    }
-
-    private Filter getFilterReport() {
-        ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.addAll(JasperResources.report());
-
-        return new Filter(LibraryFilterCategory.reports.name(), filterValues);
-    }
-
-    private Filter getFilterDashboard() {
-        ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.addAll(JasperResources.dashboard(serverRelease));
-
-        return new Filter(LibraryFilterCategory.dashboards.name(), filterValues);
+        return new Filter(RepositoryFilterCategory.all.name(), filterValues);
     }
 }

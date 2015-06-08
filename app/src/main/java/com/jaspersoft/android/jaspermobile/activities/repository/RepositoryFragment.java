@@ -34,8 +34,8 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -54,7 +54,7 @@ public class RepositoryFragment extends RoboFragment {
     public static final String PREF_TAG = "repo_pref";
 
     @Bean
-    protected FilterManagerBean filterManager;
+    protected RepositoryResourceFilter repositoryResourceFilter;
 
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
@@ -78,14 +78,14 @@ public class RepositoryFragment extends RoboFragment {
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
                             .recursiveLookup(false)
-                            .resourceTypes(filterManager.getFiltersForRepository())
+                            .resourceTypes(repositoryResourceFilter.getCurrent().getValues())
                             .prefTag(PREF_TAG)
                             .build();
             transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG + TAG);
 
             SearchControllerFragment searchControllerFragment =
                     SearchControllerFragment_.builder()
-                    .resourceTypes(filterManager.getFiltersForRepository())
+                    .resourceTypes(repositoryResourceFilter.getCurrent().getValues())
                     .prefTag(PREF_TAG)
                     .build();
             transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);

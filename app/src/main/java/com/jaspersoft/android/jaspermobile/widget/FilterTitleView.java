@@ -35,12 +35,13 @@ public class FilterTitleView extends Spinner {
 
     /**
      * Init filter view with available filters
+     *
      * @param resourceFilter provide available filters, and currently selected filter
-     * @return true if view initialized successfully. False if there is no available filters
+     * @return true if view initialized successfully. False if there is only one available filters
      */
     public boolean init(final ResourceFilter resourceFilter) {
 
-        if (resourceFilter.getFilters().isEmpty()) {
+        if (resourceFilter.getFilters().size() == 1) {
             setVisibility(GONE);
             return false;
         }

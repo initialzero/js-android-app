@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -37,13 +37,14 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.Amber2DashboardViewTranslator;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardViewTranslator;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboard;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardImpl;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardTrigger;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -70,8 +71,9 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
-    private JsDashboard mDashboardApi;
-    private DashboardViewTranslator mDashboardView;
+    private DashboardTrigger mDashboardTrigger;
+    private WebInterface mWebInterface;
+    private DashboardExecutor mDashboardExecutor;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
         @Override
@@ -105,8 +107,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     protected void onPause() {
-        if (mDashboardView != null) {
-            mDashboardView.pause();
+        if (mWebInterface != null) {
+            mWebInterface.pause();
         }
         super.onPause();
     }
@@ -114,8 +116,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     protected void onResume() {
         super.onResume();
-        if (mDashboardView != null) {
-            mDashboardView.resume();
+        if (mWebInterface != null) {
+            mWebInterface.resume();
         }
     }
 
@@ -125,13 +127,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     public void onWebViewConfigured(WebView webView) {
-        mDashboardApi = JsDashboardImpl.with(webView);
-        mDashboardView = Amber2DashboardViewTranslator.builder()
-                .webView(webView)
-                .resource(resource)
-                .build();
+        mDashboardTrigger = JsDashboardTrigger.with(webView);
+        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, resource);
+        mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
-                .withWebInterface(DashboardWebInterface.from(this));
+                .withWebInterface(mWebInterface);
         loadFlow();
     }
 
@@ -239,16 +239,16 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onRefresh() {
         if (mMaximized) {
-            mDashboardApi.refreshDashlet();
+            mDashboardTrigger.refreshDashlet();
         } else {
-            mDashboardApi.refreshDashboard();
+            mDashboardTrigger.refreshDashboard();
         }
     }
 
     @Override
     public void onHomeAsUpCalled() {
         if (mMaximized && webView != null) {
-            mDashboardApi.minimizeDashlet();
+            mDashboardTrigger.minimizeDashlet();
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();
@@ -265,11 +265,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     //---------------------------------------------------------------------
 
     private void loadFlow() {
-        mDashboardView.load();
+        mDashboardExecutor.prepare();
     }
 
     private void runDashboard() {
-        mDashboardView.run();
+        mDashboardExecutor.execute();
     }
 
     private void showMenuItems() {

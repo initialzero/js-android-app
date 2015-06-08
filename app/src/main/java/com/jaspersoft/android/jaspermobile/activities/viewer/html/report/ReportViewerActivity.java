@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -70,6 +70,7 @@ import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImp
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
@@ -147,8 +148,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @InstanceState
     protected Uri favoriteEntryUri;
-    @InstanceState
-    protected boolean mPaused;
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -166,6 +165,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private boolean mShowSavedMenuItem, mShowRefreshMenuItem;
     private boolean mHasInitialParameters;
     private JasperChromeClientListenerImpl chromeClientListener;
+    private WebInterface mWebInterface;
     private boolean isFlowLoaded;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
@@ -246,16 +246,18 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     protected void onPause() {
-        mPaused = true;
-        webView.loadUrl("javascript:MobileReport.pause()");
+        if (mWebInterface != null) {
+            mWebInterface.pause();
+        }
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mPaused = false;
-        webView.loadUrl("javascript:MobileReport.resume()");
+        if (mWebInterface != null) {
+            mWebInterface.resume();
+        }
     }
 
     @Override
@@ -420,7 +422,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onLoadStart() {
-        if (mPaused) return;
         paginationControl.reset();
         paginationControl.setVisibility(View.GONE);
         ProgressDialogFragment
@@ -537,11 +538,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
                 .withUrlPolicy(defaultPolicy);
 
+        mWebInterface = ReportWebInterface.from(this);
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()
                 .withChromeClient(systemChromeClient)
                 .withWebClient(systemWebViewClient)
-                .withWebInterface(ReportWebInterface.from(this));
+                .withWebInterface(mWebInterface);
     }
 
     private void loadFlow() {

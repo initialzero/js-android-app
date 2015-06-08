@@ -69,7 +69,8 @@
 }).call(this);
 
 (function() {
-  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
   define('js.mobile.android.dashboard.callback', ['require','js.mobile.callback_dispatcher'],function(require) {
@@ -79,6 +80,20 @@
       extend(AndroidCallback, superClass);
 
       function AndroidCallback() {
+        this.onAuthError = bind(this.onAuthError, this);
+        this.onWindowResizeEnd = bind(this.onWindowResizeEnd, this);
+        this.onWindowResizeStart = bind(this.onWindowResizeStart, this);
+        this.onReportExecution = bind(this.onReportExecution, this);
+        this.onLoadError = bind(this.onLoadError, this);
+        this.onLoadDone = bind(this.onLoadDone, this);
+        this.onLoadStart = bind(this.onLoadStart, this);
+        this.onScriptLoaded = bind(this.onScriptLoaded, this);
+        this.onMinimizeFailed = bind(this.onMinimizeFailed, this);
+        this.onMinimizeEnd = bind(this.onMinimizeEnd, this);
+        this.onMinimizeStart = bind(this.onMinimizeStart, this);
+        this.onMaximizeFailed = bind(this.onMaximizeFailed, this);
+        this.onMaximizeEnd = bind(this.onMaximizeEnd, this);
+        this.onMaximizeStart = bind(this.onMaximizeStart, this);
         return AndroidCallback.__super__.constructor.apply(this, arguments);
       }
 
@@ -319,14 +334,13 @@
       }
 
       DashboardController.prototype.initialize = function() {
+        this._injectViewport();
         this.callback.onLoadStart();
         return jQuery(document).ready((function(_this) {
           return function() {
             js_mobile.log("document ready");
-            _this.scaler.applyScale();
-            _this._removeRedundantArtifacts();
-            _this._injectViewport();
-            return _this._attachDashletLoadListeners();
+            _this._attachDashletLoadListeners();
+            return _this._removeRedundantArtifacts();
           };
         })(this));
       };
@@ -337,6 +351,7 @@
         this._removeOriginalScale();
         this._disableDashlets();
         this._hideDashletChartTypeSelector();
+        this._showDashlets();
         this.callback.onMinimizeStart();
         DOMTreeObserver.lastModify((function(_this) {
           return function() {
@@ -382,7 +397,7 @@
               return _this._scaleDashboard();
             }
           };
-        })(this), 500);
+        })(this), 50);
       };
 
       DashboardController.prototype._configureDashboard = function() {
@@ -395,6 +410,7 @@
       };
 
       DashboardController.prototype._scaleDashboard = function() {
+        this.scaler.applyScale();
         js_mobile.log("_scaleDashboard " + (jQuery('.dashboardCanvas').length));
         return jQuery('.dashboardCanvas').addClass('scaledCanvas');
       };
@@ -441,13 +457,15 @@
         dashlets.unbind();
         self = this;
         return dashlets.click(function() {
-          var dashlet, innerLabel, title;
-          dashlet = jQuery(this).parent();
+          var dashlet, innerLabel, overlay, title;
+          overlay = jQuery(this);
+          dashlet = overlay.parent();
           innerLabel = dashlet.find('.innerLabel > p');
           if ((innerLabel != null) && (innerLabel.text != null)) {
             title = innerLabel.text();
             if ((title != null) && title.length > 0) {
-              return self._maximizeDashlet(dashlet, title);
+              self._maximizeDashlet(dashlet, title);
+              return self._hideDashlets(overlay);
             }
           }
         });
@@ -481,6 +499,14 @@
 
       DashboardController.prototype._getOverlay = function() {
         return jQuery(".dashboardCanvas > .content > .body div.canvasOverlay");
+      };
+
+      DashboardController.prototype._showDashlets = function() {
+        return jQuery('.customOverlay').parent().css("opacity", 1);
+      };
+
+      DashboardController.prototype._hideDashlets = function(overlay) {
+        return jQuery('.customOverlay').not(overlay).parent().css("opacity", 0);
       };
 
       return DashboardController;
@@ -685,8 +711,8 @@
 
       AndroidClient.prototype.run = function() {
         return MobileDashboard.newInstance({
-          callback: new AndroidCallback(),
-          viewport: new Viewport()
+          viewport: new Viewport(),
+          callback: new AndroidCallback()
         });
       };
 
@@ -717,13 +743,11 @@
 
 (function() {
   require(['js.mobile.amber.android.dashboard.client', 'js.mobile.debug_log'], function(AndroidClient, Log) {
-    return (function($) {
-      Log.configure();
-      return new AndroidClient().run();
-    })(jQuery);
+    Log.configure();
+    return new AndroidClient().run();
   });
 
 }).call(this);
 
-define("android/amber/dashboard/debug_main.js", function(){});
+define("android/dashboard/amber/debug_main.js", function(){});
 

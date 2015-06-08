@@ -1,14 +1,5 @@
 [
     {
-        "alias": "Dashboard Hotfix",
-        "serverUrl": "http://build-master.jaspersoft.com:8580/jrs-pro-feature-dashboard-improvements-for-jasper-mobile",
-        "organization": "",
-        "username": "superuser",
-        "password": "superuser",
-        "edition": "PRO",
-        "versionName": "6.1"
-    },
-    {
         "alias": "PRO TRUNK Superuser",
         "serverUrl": "http://build-master.jaspersoft.com:5980/jrs-pro-trunk",
         "organization": "",
@@ -61,6 +52,33 @@
         "password": "joeuser",
         "edition": "PRO",
         "versionName": "6.0.1"
+    },
+    {
+        "alias": "PRO 6.1 Superuser",
+        "serverUrl": "http://192.168.88.44:8090/jasperserver-pro-6.1",
+        "organization": "",
+        "username": "superuser",
+        "password": "superuser",
+        "edition": "PRO",
+        "versionName": "6.1"
+    },
+    {
+        "alias": "PRO 6.1 Adminuser",
+        "serverUrl": "http://192.168.88.44:8090/jasperserver-pro-6.1",
+        "organization": "organization_1",
+        "username": "jasperadmin",
+        "password": "jasperadmin",
+        "edition": "PRO",
+        "versionName": "6.1"
+    },
+    {
+        "alias": "PRO 6.1 JoeUser",
+        "serverUrl": "http://192.168.88.44:8090/jasperserver-pro-6.1",
+        "organization": "organization_1",
+        "username": "joeuser",
+        "password": "joeuser",
+        "edition": "PRO",
+        "versionName": "6.1"
     },
     {
         "alias": "PRO 6.0 Superuser",

@@ -28,7 +28,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -49,14 +48,12 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.FilterFavoritesDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
-import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -345,24 +342,24 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onOptionSelected(SortOrder sortOrder) {
-        showSavedItemsBySortOrder(sortOrder);
+        showFavoritesBySortOrder(sortOrder);
         sortOptions.putOrder(sortOrder);
     }
 
-    public void showSavedItemsByFilter() {
+    public void showFavoritesByFilter() {
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
-    public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
+    public void showFavoritesBySortOrder(SortOrder selectedSortOrder) {
         sortOrder = selectedSortOrder;
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
-    private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
+    private class FilterChangeListener implements FilterTitleView.FilterListener {
         @Override
         public void onFilter(Filter filter) {
             favoritesResourceFilter.persist(filter);
-            showSavedItemsByFilter();
+            showFavoritesByFilter();
         }
     }
 }

@@ -35,13 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
-import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
-import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -59,9 +53,6 @@ public class FavoritesPageFragment extends RoboFragment {
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
     protected boolean initialStart;
-
-    @Bean
-    protected FavoritesResourceFilter favoritesResourceFilter;
 
     @Pref
     protected FavoritesPref_ pref;
@@ -98,16 +89,6 @@ public class FavoritesPageFragment extends RoboFragment {
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.f_title);
-        }
-    }
-
-    private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
-        @Override
-        public void onFilter(Filter filter) {
-            favoritesResourceFilter.persist(filter);
-            if (favoriteController != null) {
-                favoriteController.loadItemsByTypes(filter);
-            }
         }
     }
 }

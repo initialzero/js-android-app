@@ -32,25 +32,20 @@ import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment_;
-import com.jaspersoft.android.jaspermobile.dialog.FilterSavedItemsDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
-import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -144,7 +139,7 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
         }
     }
 
-    private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
+    private class FilterChangeListener implements FilterTitleView.FilterListener {
         @Override
         public void onFilter(Filter filter) {
             storageResourceFilter.persist(filter);

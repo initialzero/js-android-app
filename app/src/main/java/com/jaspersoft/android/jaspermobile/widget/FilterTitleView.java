@@ -10,7 +10,6 @@ import android.widget.Spinner;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
-import com.jaspersoft.android.jaspermobile.util.filtering.FilterStorage;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 
 /**
@@ -20,7 +19,7 @@ import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 public class FilterTitleView extends Spinner {
     private boolean initialSelectionDone = false;
 
-    private FilterDialogListener filterSelectedListener;
+    private FilterListener filterSelectedListener;
 
     public FilterTitleView(Context context) {
         super(context);
@@ -34,7 +33,18 @@ public class FilterTitleView extends Spinner {
         super(context, attrs, defStyleAttr);
     }
 
-    public void init(final ResourceFilter resourceFilter) {
+    /**
+     * Init filter view with available filters
+     * @param resourceFilter provide available filters, and currently selected filter
+     * @return true if view initialized successfully. False if there is no available filters
+     */
+    public boolean init(final ResourceFilter resourceFilter) {
+
+        if (resourceFilter.getFilters().isEmpty()) {
+            setVisibility(GONE);
+            return false;
+        }
+
         setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
         int position = resourceFilter.getPosition();
@@ -70,13 +80,15 @@ public class FilterTitleView extends Spinner {
 
         setAdapter(filterAdapter);
         setSelection(position, false);
+
+        return true;
     }
 
-    public void setFilterSelectedListener(FilterDialogListener filterSelectedListener) {
+    public void setFilterSelectedListener(FilterListener filterSelectedListener) {
         this.filterSelectedListener = filterSelectedListener;
     }
 
-    public interface FilterDialogListener {
+    public interface FilterListener {
         void onFilter(Filter types);
     }
 }

@@ -46,8 +46,6 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
-import com.jaspersoft.android.jaspermobile.util.filtering.FilterStorage;
-import com.jaspersoft.android.jaspermobile.util.filtering.LibraryFilterStorage;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
@@ -151,10 +149,15 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
         }
 
         FilterTitleView filterTitleView = new FilterTitleView(getActivity());
-        filterTitleView.init(libraryResourceFilter);
-        filterTitleView.setFilterSelectedListener(new FilterChangeListener());
-        ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
+        boolean filterViewInitialized = filterTitleView.init(libraryResourceFilter);
+        if (filterViewInitialized) {
+            filterTitleView.setFilterSelectedListener(new FilterChangeListener());
+            ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
+            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
+        }
+        else {
+            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        }
 
         updateOptionsMenu();
     }
@@ -209,7 +212,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
         }
     }
 
-    private class FilterChangeListener implements FilterTitleView.FilterDialogListener {
+    private class FilterChangeListener implements FilterTitleView.FilterListener {
         @Override
         public void onFilter(Filter filter) {
             libraryResourceFilter.persist(filter);

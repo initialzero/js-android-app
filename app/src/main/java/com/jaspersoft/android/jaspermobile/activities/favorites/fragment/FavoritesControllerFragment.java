@@ -87,7 +87,7 @@ public class FavoritesControllerFragment extends ControllerFragment {
 
     public void loadItemsByTypes(Filter newFilterType) {
         if (contentFragment != null) {
-            contentFragment.showSavedItemsByFilter();
+            contentFragment.showFavoritesByFilter();
         }
     }
 

@@ -56,8 +56,8 @@ android {
 
         testInstrumentationRunner INSTRUMENTATION_RUNNER
 
-        versionCode 15020000
-        versionName "2.0"
+        versionCode 2_00_01_002
+        versionName "2.0.1"
     }
 
     if (project.hasProperty('JMA_STORE_FILE')) {

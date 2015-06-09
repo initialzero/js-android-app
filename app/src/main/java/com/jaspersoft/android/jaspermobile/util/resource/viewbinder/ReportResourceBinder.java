@@ -112,8 +112,10 @@ class ReportResourceBinder extends ResourceBinder {
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.MATRIX);
-            ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.TOP_CROP);
+            if (view != null) {
+                ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.MATRIX);
+                ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.TOP_CROP);
+            }
         }
     }
 

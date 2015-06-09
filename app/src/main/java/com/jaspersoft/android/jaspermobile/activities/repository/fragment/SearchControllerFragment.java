@@ -78,7 +78,7 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
         super.onPrepareOptionsMenu(menu);
 
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
-        if (!isDetached()) {
+        if (isAdded()) {
             searchView.setQueryHint(getString(R.string.s_hint));
             searchView.setOnQueryTextListener(this);
         }

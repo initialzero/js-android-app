@@ -33,6 +33,7 @@ import com.jaspersoft.android.retrofit.sdk.token.AccessTokenEncoder;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 
 import retrofit.Endpoint;
@@ -136,7 +137,8 @@ public class JsRestClient2 {
                 .flatMap(new Func1<String, Observable<Response>>() {
                     @Override
                     public Observable<Response> call(String authorizationToken) {
-                        return accountService.authorize(authorizationToken);
+                        String locale = Locale.getDefault().toString().replaceAll("_", "-");
+                        return accountService.authorize(authorizationToken, locale);
                     }
                 })
                 .map(new Func1<Response, List<Header>>() {

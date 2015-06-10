@@ -200,6 +200,14 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".util.LocaleChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
             android:name=".network.XmlSpiceService"

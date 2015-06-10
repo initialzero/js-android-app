@@ -28,7 +28,6 @@ import android.accounts.Account;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -44,8 +43,6 @@ import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
 import org.roboguice.shaded.goole.common.collect.Lists;
-
-import java.util.Locale;
 
 import roboguice.activity.RoboActionBarActivity;
 import timber.log.Timber;
@@ -68,7 +65,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
     private boolean windowToolbar;
-    private Locale currentLocale;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
@@ -99,9 +95,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         super.onCreate(savedInstanceState);
         addToolbar();
         Timber.tag(TAG);
-
-        // Setup initial locale
-        currentLocale = Locale.getDefault();
 
         // Listen for view render events during dev process
         if (isDevMode()) {
@@ -170,16 +163,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         contentLayout.removeAllViews();
         LayoutInflater.from(this).inflate(layoutResID, contentLayout, true);
         super.setContentView(baseView);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        // Checks change of localization
-        // New Basic Auth call we be triggered
-        if (!currentLocale.equals(newConfig.locale)) {
-            currentLocale = newConfig.locale;
-        }
     }
 
     @Override

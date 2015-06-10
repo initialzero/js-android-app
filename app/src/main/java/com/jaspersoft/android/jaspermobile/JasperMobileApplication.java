@@ -30,7 +30,9 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -53,11 +55,15 @@ public class JasperMobileApplication extends Application {
 
     @Inject
     AppConfigurator appConfigurator;
+    @Inject
+    JsRestClient jsRestClient;
 
     @Override
     public void onCreate() {
         super.onCreate();
         RoboGuice.getInjector(this).injectMembers(this);
+        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
+
         forceDatabaseUpdate();
 
         if (BuildConfig.DEBUG) {

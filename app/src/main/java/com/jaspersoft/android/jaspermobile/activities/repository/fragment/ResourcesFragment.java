@@ -324,7 +324,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
         // Fetch default URI
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
@@ -352,7 +351,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
 
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;

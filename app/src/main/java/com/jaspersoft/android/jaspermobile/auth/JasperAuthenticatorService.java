@@ -24,21 +24,28 @@
 
 package com.jaspersoft.android.jaspermobile.auth;
 
-import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+
+import com.google.inject.Inject;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+
+import roboguice.service.RoboService;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class JasperAuthenticatorService extends Service {
+public class JasperAuthenticatorService extends RoboService {
     private JasperAuthenticator mAuthenticator;
+
+    @Inject
+    JsRestClient jsRestClient;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mAuthenticator = new JasperAuthenticator(this);
+        mAuthenticator = new JasperAuthenticator(this, jsRestClient);
     }
 
     public JasperAuthenticator getAuthenticator() {

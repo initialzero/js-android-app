@@ -60,7 +60,7 @@ public class JasperMobileModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        JsRestClient jsRestClient = new JsRestClient();
+        JsRestClient jsRestClient = JsRestClient.builder().setDataType(JsRestClient.DataType.JSON).build();
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>();
         interceptors.add(new LocalesHttpRequestInterceptor());
         interceptors.add(new TokenHttpRequestInterceptor(mContext));

@@ -87,6 +87,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         scrollableTitleHelper.injectTitle(resource.getLabel());
+        showMenuItems();
     }
 
     @Override

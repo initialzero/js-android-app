@@ -224,7 +224,11 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
                 String[] authorities = {getString(R.string.jasper_account_authority)};
                 Intent manageAccIntent = new Intent(Settings.ACTION_SYNC_SETTINGS);
                 manageAccIntent.putExtra(Settings.EXTRA_AUTHORITIES, authorities);
-                startActivity(manageAccIntent);
+                try {
+                    startActivity(manageAccIntent);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(this, getString(R.string.wrong_action), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();

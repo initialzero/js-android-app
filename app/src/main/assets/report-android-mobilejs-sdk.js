@@ -84,7 +84,7 @@
         this.onRefreshError = bind(this.onRefreshError, this);
         this.onRefreshSuccess = bind(this.onRefreshSuccess, this);
         this.onExportGetResourcePath = bind(this.onExportGetResourcePath, this);
-        this.onReportExecutionClick = bind(this.onReportExecutionClick, this);
+        this.onReportExecution = bind(this.onReportExecution, this);
         this.onReferenceClick = bind(this.onReferenceClick, this);
         this.onPageChange = bind(this.onPageChange, this);
         this.onTotalPagesLoaded = bind(this.onTotalPagesLoaded, this);
@@ -138,9 +138,9 @@
         });
       };
 
-      ReportCallback.prototype.onReportExecutionClick = function(reportUri, params) {
+      ReportCallback.prototype.onReportExecution = function(data) {
         this.dispatch(function() {
-          return Android.onReportExecutionClick(reportUri, params);
+          return Android.onReportExecutionClick(data);
         });
       };
 
@@ -480,26 +480,35 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       };
 
       ReportController.prototype._startReportExecution = function(link) {
-        var params, paramsAsString, reportUri;
-        params = link.parameters;
-        reportUri = params._report;
-        paramsAsString = JSON.stringify(params, null, 2);
-        return this.callback.onReportExecutionClick(reportUri, paramsAsString);
+        var data, dataString;
+        data = {
+          resource: link.parameters._report,
+          params: this._collectReportParams(link)
+        };
+        dataString = JSON.stringify(data, null, 4);
+        return this.callback.onReportExecution(dataString);
+      };
+
+      ReportController.prototype._collectReportParams = function(link) {
+        var isValueNotArray, key, params;
+        params = {};
+        for (key in link.parameters) {
+          if (key !== '_report') {
+            isValueNotArray = Object.prototype.toString.call(link.parameters[key]) !== '[object Array]';
+            params[key] = isValueNotArray ? [link.parameters[key]] : link.parameters[key];
+          }
+        }
+        return params;
       };
 
       ReportController.prototype._navigateToAnchor = function(link) {
-        return window.location.hash = link.href;
+        return this.report.pages({
+          anchor: link.anchor
+        }).run();
       };
 
       ReportController.prototype._navigateToPage = function(link) {
-        var href, matches, numberPattern, pageNumber;
-        href = link.href;
-        numberPattern = /\d+/g;
-        matches = href.match(numberPattern);
-        if (matches != null) {
-          pageNumber = matches.join("");
-          return this._loadPage(pageNumber);
-        }
+        return this._loadPage(link.pages);
       };
 
       ReportController.prototype._openRemoteLink = function(link) {

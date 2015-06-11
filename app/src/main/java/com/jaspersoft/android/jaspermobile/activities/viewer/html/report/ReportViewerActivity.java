@@ -64,6 +64,7 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
@@ -131,6 +132,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected FavoritesHelper favoritesHelper;
     @Bean
     protected ScreenUtil screenUtil;
+    @Bean
+    protected HyperlinkHelper hyperlinkHelper;
 
     @ViewById
     protected WebView webView;
@@ -476,7 +479,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     @Override
-    public void onReportExecutionClick(String reportUri, String params) {
+    public void onReportExecutionClick(String data) {
+        hyperlinkHelper.executeReport(data);
     }
 
     @UiThread

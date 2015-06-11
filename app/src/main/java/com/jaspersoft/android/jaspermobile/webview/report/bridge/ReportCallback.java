@@ -36,6 +36,6 @@ public interface ReportCallback {
     void onReportCompleted(String status, int pages, String errorMessage);
     void onPageChange(int page);
     void onReferenceClick(String location);
-    void onReportExecutionClick(String report, String params);
+    void onReportExecutionClick(String data);
     void onMultiPageStateObtained(boolean isMultiPage);
 }

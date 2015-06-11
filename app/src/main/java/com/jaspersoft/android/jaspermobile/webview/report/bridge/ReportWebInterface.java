@@ -131,11 +131,11 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
 
     @JavascriptInterface
     @Override
-    public void onReportExecutionClick(final String report, final String params) {
+    public void onReportExecutionClick(final String data) {
         handleCallback(new Runnable() {
             @Override
             public void run() {
-                decoratedCallback.onReportExecutionClick(report, params);
+                decoratedCallback.onReportExecutionClick(data);
             }
         });
     }

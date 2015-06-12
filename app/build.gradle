@@ -135,7 +135,9 @@ dependencies {
     compile project(':library-circular')
     compile project(':sdk')
 
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'
+    compile('com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'){
+        exclude group: 'com.jaspersoft.android.sdk'
+    }
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.google.guava:guava:18.0'
     compile('com.android.support:support-v4:21.0.3') {

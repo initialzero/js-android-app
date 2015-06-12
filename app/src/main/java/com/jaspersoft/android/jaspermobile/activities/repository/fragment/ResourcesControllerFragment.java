@@ -30,12 +30,8 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourceSearchable;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportActionFragment;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
@@ -50,8 +46,7 @@ import java.util.List;
  * @since 1.9
  */
 @EFragment
-public class ResourcesControllerFragment extends ControllerFragment
-        implements ResourcesLoader, ResourceSearchable {
+public class ResourcesControllerFragment extends ControllerFragment {
     public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
     public static final String CONTENT_TAG = "ResourcesControllerFragment.CONTENT_TAG";
 
@@ -130,7 +125,6 @@ public class ResourcesControllerFragment extends ControllerFragment
         return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
     }
 
-    @Override
     public void loadResourcesByTypes(List<String> types) {
         resourceTypes = new ArrayList<String>(types);
         if (contentFragment != null) {
@@ -138,17 +132,10 @@ public class ResourcesControllerFragment extends ControllerFragment
         }
     }
 
-    @Override
     public void loadResourcesBySortOrder(SortOrder order) {
         sortOrder = order;
         if (contentFragment != null) {
             contentFragment.loadResourcesBySortOrder(order);
         }
-    }
-
-    @Override
-    public void doSearch(String query) {
-        contentFragment.setQuery(query);
-        contentFragment.loadFirstPage();
     }
 }

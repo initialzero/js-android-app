@@ -22,10 +22,8 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
+package com.jaspersoft.android.jaspermobile.util.resource.pagination;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
@@ -38,26 +36,25 @@ import org.androidannotations.annotations.InstanceState;
  * @since 1.9
  */
 @EFragment
-public class Emerald2PaginationFragment extends RoboSpiceFragment
+public class Emerald3PaginationFragment extends RoboSpiceFragment
         implements PaginationPolicy {
 
+
+    @InstanceState
+    int mNextOffset;
+    @InstanceState
+    boolean mHasNextPage;
     @InstanceState
     ResourceLookupSearchCriteria mSearchCriteria;
 
-    @Inject
-    @Named("LIMIT")
-    int mLimit;
-    @InstanceState
-    int mTotal;
-
     @Override
     public boolean hasNextPage() {
-        return mSearchCriteria.getOffset() + mLimit < mTotal;
+        return mHasNextPage;
     }
 
     @Override
     public int calculateNextOffset() {
-        return mSearchCriteria.getOffset() + mLimit;
+        return mNextOffset;
     }
 
     @Override
@@ -67,9 +64,8 @@ public class Emerald2PaginationFragment extends RoboSpiceFragment
 
     @Override
     public void handleLookup(ResourceLookupsList resourceLookupsList) {
-        boolean isFirstPage = mSearchCriteria.getOffset() == 0;
-        if (isFirstPage) {
-            mTotal = resourceLookupsList.getTotalCount();
-        }
+        int offset = resourceLookupsList.getNextOffset();
+        mNextOffset = offset;
+        mHasNextPage = offset != ResourceLookupsList.NO_OFFSET;
     }
 }

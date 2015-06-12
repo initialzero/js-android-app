@@ -45,17 +45,18 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
+import com.jaspersoft.android.jaspermobile.util.ViewType;
+import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
+import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
+import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -87,7 +88,7 @@ import roboguice.inject.InjectView;
  */
 @EFragment
 public class ResourcesFragment extends RoboSpiceFragment
-        implements SwipeRefreshLayout.OnRefreshListener, ResourcesLoader, ResourceAdapter.ResourceInteractionListener {
+        implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
 
     public static final String ROOT_URI = "/";
     // Loader actions
@@ -265,7 +266,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     // Implements ResourcesLoader
     //---------------------------------------------------------------------
 
-    @Override
     public void loadResourcesByTypes(List<String> types) {
         resourceTypes = new ArrayList<String>(types);
         mSearchCriteria.setTypes(resourceTypes);
@@ -273,7 +273,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         loadFirstPage();
     }
 
-    @Override
     public void loadResourcesBySortOrder(SortOrder order) {
         sortOrder = order;
         mSearchCriteria.setSortBy(order.getValue());

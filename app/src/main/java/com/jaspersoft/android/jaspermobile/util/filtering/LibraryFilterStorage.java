@@ -1,14 +1,10 @@
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
-import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
+
+import com.jaspersoft.android.jaspermobile.activities.library.LibraryPref_;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * @author Andrew Tivodar

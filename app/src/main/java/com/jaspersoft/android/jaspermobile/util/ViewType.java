@@ -22,27 +22,17 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.support;
-
-import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.sharedpreferences.Pref;
+package com.jaspersoft.android.jaspermobile.util;
 
 /**
- * @author Tom Koptel
+ * @author Ivan Gadzhega
  * @since 1.9
  */
-@EBean(scope = EBean.Scope.Singleton)
-public class SortOptions {
+public enum ViewType {
+    GRID,
+    LIST;
 
-    @Pref
-    LibraryPref_ repositoryPref;
-
-    public SortOrder getOrder() {
-        return SortOrder.valueOf(repositoryPref.sortType().get());
+    public static ViewType valueOf(ControllerPref pref) {
+        return valueOf(pref.viewType().get());
     }
-
-    public void putOrder(SortOrder sortOrder) {
-        repositoryPref.sortType().put(sortOrder.toString());
-    }
-
 }

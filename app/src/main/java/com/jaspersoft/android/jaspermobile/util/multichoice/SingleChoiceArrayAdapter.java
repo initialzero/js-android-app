@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
+package com.jaspersoft.android.jaspermobile.util.multichoice;
 
 import android.content.Context;
 import android.os.Bundle;

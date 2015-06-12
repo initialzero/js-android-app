@@ -27,8 +27,8 @@ configure(allprojects) { project ->
     buildscript {
         repositories {
             jcenter()
-            maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
             mavenLocal()
+            maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         }
     }
 }
@@ -51,7 +51,7 @@ subprojects {
         // Remote official superset of mavenCentral()
         jcenter()
 
-        maven { url "https://mint.splunk.com/gradle/" }
+        // Our remote maven repo
         maven { url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk' }
 
         // Local .m2 repo, usually living at home dir

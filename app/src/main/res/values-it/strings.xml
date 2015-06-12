@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,69 +22,34 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 <resources>
+    <!-- Images content description -->
+    <string name="img_cd_list_item">Anteprima dell\'elemento lista</string>
+    <string name="img_cd_grid_item">Anteprima dell\'elemento griglia</string>
+
     <!-- Home Activity -->
     <string name="h_repository_label">Archivio</string>
     <string name="h_library_label">Libreria</string>
-    <string name="h_server_profile_label">"Profilo server:"</string>
-    <string name="h_server_switched_toast">Server passato a \"%s\"</string>
 
     <!-- Connection Dialog -->
-    <string name="h_ad_title_no_connection">Nessuna connessione</string>
-    <string name="h_ad_msg_no_connection">Verificare le impostazioni della rete mobile e riprovare.</string>
 
     <!-- Password Dialog -->
-    <string name="h_ad_title_enter_password">Immetti password</string>
-    <string name="h_ad_label_server_profile">Profilo server:</string>
-    <string name="h_ad_label_organization">Organizzazione:</string>
-    <string name="h_ad_label_username">Nome utente:</string>
-
-    <!-- Server Profiles Manager Activity -->
-    <string name="spm_list_title">Profili server</string>
-
-    <!-- Toasts -->
-    <string name="spm_profile_created_toast">Nuovo profilo server \'%s\' creato correttamente.</string>
-    <string name="spm_profile_updated_toast">Profilo server \'%s\' aggiornato correttamente.</string>
-    <string name="spm_profile_deleted_toast">Profilo server eliminato correttamente.</string>
-    <string name="toast_select_profile">Selezionare il profilo</string>
-
-    <!-- Context Menu -->
-    <string name="spm_cm_switch">Connetti</string>
-    <string name="spm_cm_edit">Modifica</string>
-    <string name="spm_cm_delete">Elimina</string>
+    <string name="h_ad_label_server_profile">Profilo server</string>
 
     <!-- Action Bar -->
-    <string name="spm_ab_add_profile">Aggiungi profilo server</string>
 
     <!-- Delete Dialog -->
-    <string name="spm_ad_delete_profile_msg">Eliminare il profilo server?</string>
     <string name="spm_delete_btn">Elimina</string>
-    <string name="spm_cancel_btn">Annulla</string>
 
     <!-- Server Profile Activity -->
-    <string name="sp_bc_add_profile">Nuovo profilo server</string>
-    <string name="sp_bc_edit_profile">Modifica profilo server</string>
-    <string name="sp_url_label">URL server:</string>
-    <string name="sp_url_hint">http://myserver.com</string>
-    <string name="sp_org_label">Organizzazione:</string>
-    <string name="sp_organization_hint">id organizzazione</string>
-    <string name="sp_username_label">Nome utente:</string>
-    <string name="sp_username_hint">nome utente personale</string>
-    <string name="sp_password_label">Password:</string>
-    <string name="sp_password_hint">password personale</string>
     <string name="sp_save_btn">Salva</string>
-    <string name="sp_active_item">Attiva: %s</string>
-    <string name="sp_label_general">Generale</string>
-    <string name="sp_label_auth">Autenticazione</string>
 
     <!-- Error messages -->
     <string name="sp_error_field_required">Questo campo è obbligatorio.</string>
     <string name="sp_error_url_not_valid">URL non valido.</string>
     <string name="sp_error_duplicate_alias">Duplica alias.</string>
-    <string name="sp_error_unique_alias">Server con alias \'%s\' già esiste. </string>
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">Non sono presenti risorse nella cartella.</string>
-    <string name="r_search_nothing_to_display">La ricerca non ha riportato alcun risultato.</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">Commuta visualizzazione</string>
@@ -117,48 +82,43 @@
     <string name="s_fd_sort_label">Per etichetta</string>
     <string name="s_fd_sort_date">Per data di creazione</string>
 
-    <!-- Search Activity -->
+    <!-- Settings Activity -->
     <string name="sa_show_about">Informazioni</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nStrumenti di gestione e visualizzazione di rapporti per il server JasperReports 5.5 e versioni successive.\n\nPer ulteriori informazioni visitare: \n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\nPer informazioni sulle nostre normative sulla privacy, visitare:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_privacy">Normative sulla Privacy</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Esegui report</string>
+    <string name="ro_page_title">Opzioni di filtraggio</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Salva report</string>
     <string name="rv_ab_show_filters">Mostra filtri</string>
     <string name="rv_error_empty_report">Nessun dati report presenti</string>
+    <string name="rv_select_page">Selezionare la pagina</string>
+    <string name="rv_dialog_reload">Ricaricare</string>
+
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">Scheda di memoria esterna non disponibile. Montare la scheda e riprovare.</string>
 
     <!-- Save Report Activity -->
     <string name="sr_ab_title">Salva report</string>
-    <string name="sr_report_name">Nome report</string>
     <string name="sr_output_format">Formato dell\'output</string>
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report salvato correttamente</string>
     <!-- Error messages -->
-    <string name="sr_error_field_is_empty">Non può essere vuoto</string>
-    <string name="sr_error_characters_not_allowed">Non può contenere nessuno dei seguenti caratteri * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sr_error_report_exists">Un report con questo nome esiste già</string>
 
     <!-- Favorites activity -->
     <string name="f_title">Preferiti</string>
-    <string name="f_empty_list_msg">Nessuna voce preferita</string>
 
     <!-- Saved Reports Activity -->
-    <string name="sdr_ab_title">Elementi salvati</string>
 
     <!-- Context Menu -->
     <string name="sdr_cm_rename">Rinomina</string>
     <string name="sdr_cm_delete">Elimina</string>
 
     <!-- Rename Report Dialog -->
-    <string name="sdr_rrd_title">Rinomina report</string>
     <string name="sdr_rrd_msg">Immetti nuovo nome:</string>
-    <string name="sdr_rrd_hint">Nome report</string>
-    <string name="sdr_rrd_error_name_is_empty">Non può essere vuoto</string>
-    <string name="sdr_rrd_error_characters_not_allowed">Non può contenere nessuno dei seguenti caratteri * \\ / \" \' : ? | &lt; &gt; + [ ]</string>
-    <string name="sdr_rrd_error_report_exists">Un report con questo nome esiste già</string>
 
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">Elimina report</string>
@@ -177,13 +137,12 @@
     <string name="st_title_cache_expiration">Scadenza cache</string>
     <string name="st_title_connect_timeout">Timeout connessione</string>
     <string name="st_title_read_timeout">Timeout lettura dati</string>
-    <string name="st_title_animations">Animazioni applicazione</string>
     <string name="st_send_crashes">Invia report di arresto anomalo</string>
-    <string name="st_send_crashes_summary">AVVISO: selezionando questa opzione l\'applicazione verrà riavviata.</string>
     <string name="st_summary_cache_enable">Richieste di cache di archivio per la quantità di tempo specificata</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Formato numero non valido</string>
+    <string name="st_category_more">Altro</string>
 
     <!-- Error messages -->
     <string name="error_http_400">400 - Richiesta non valida. La richiesta non è valida.</string>
@@ -199,34 +158,22 @@
 
     <!-- Others -->
     <string name="loading_msg">Caricamento in corso...</string>
-    <string name="error_msg">Errore</string>
-    <string name="warning_msg">Avviso</string>
-    <string name="cancelled_msg">Annullato</string>
-
-    <!-- New Home Page Labels -->
-    <string name="library_card_label">Libreria</string>
-    <string name="library_card_desc">Sfoglia libreria server JR.</string>
-    <string name="saved_items_card_desc">Visualizza elementi salvati sul dispositivo.</string>
-    <string name="repository_card_label">Archivio</string>
-    <string name="repository_card_desc">Sfoglia archivio server JR.</string>
-    <string name="favorites_card_label">Preferiti</string>
-    <string name="favorites_card_desc">Visualizza Preferiti sul dispositivo.</string>
-    <string name="servers_card_label">Server</string>
-    <string name="servers_card_desc">Seleziona il profilo server JR.</string>
-    <string name="settings_card_label">Impostazioni</string>
-    <string name="settings_card_desc">Configura l\'applicazione mobile TIBCO Jaspersoft.</string>
     <string name="search_result_format">Cerca risultato per \'%s\'</string>
     <string name="failed_load_data">Impossibile caricare i dati.</string>
+
+    <!-- Navigation panel -->
+    <string name="library_card_label">Libreria</string>
+    <string name="repository_card_label">Archivio</string>
+    <string name="favorites_card_label">Preferiti</string>
+    <string name="settings_card_label">Impostazioni</string>
 
     <!-- Pagination controll -->
     <string name="of"><![CDATA[di %d]]></string>
     <string name="dialog_current_page">Imposta pagina corrente</string>
     <string name="rv_error_empty_report_title">Report è vuoto</string>
-    <string name="rv_error_empty_report_message">Toccare \"Ok\" se si desidera modificare le opzioni di filtro oppure \"Annulla\" per ritornare al report precedente.</string>
 
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">Se ti piace TIBCO JasperMobile, perché non dedichi qualche istante a darne una valutazione sull\'App Store? Non richiederà più di un minuto. Grazie per il supporto!</string>
     <string name="h_rd_later">Ricordamelo più tardi</string>
     <string name="h_rd_never">No, grazie</string>
     <string name="h_rd_rate">Valuta TIBCO JasperMobile</string>

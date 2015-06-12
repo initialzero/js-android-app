@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,14 +26,16 @@ package com.jaspersoft.android.jaspermobile.test.utils;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import rx.functions.Actions;
+import java.io.IOException;
 
 /**
  * @author Tom Koptel
@@ -52,18 +54,44 @@ public final class AccountUtil {
     }
 
     public AccountUtil removeAllAccounts() {
-        AccountManagerUtil managerUtil = AccountManagerUtil.get(mContext);
-        if (managerUtil.getAccounts().length > 0) {
-            managerUtil.removeAccounts().toBlocking().forEach(Actions.empty());
+        JasperAccountManager managerUtil = JasperAccountManager.get(mContext);
+        Account[] accounts = managerUtil.getAccounts();
+        if (accounts.length > 0) {
+            for (Account account : accounts) {
+                AccountManagerFuture<Boolean> result = AccountManager.get(mContext).removeAccount(account, null, null);
+                try {
+                    result.getResult();
+                } catch (OperationCanceledException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (AuthenticatorException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
-        BasicAccountProvider.get(mContext).removeAccount();
+        JasperAccountManager.get(mContext).deactivateAccount();
         return this;
     }
 
     public AccountUnit addAccount(AccountServerData serverData) {
-        AccountManagerUtil accountManager = AccountManagerUtil.get(mContext);
+        JasperAccountManager accountManager = JasperAccountManager.get(mContext);
         Account account = accountManager.addAccountExplicitly(serverData).toBlocking().first();
         return new AccountUnit(account);
+    }
+
+    public void removeAccount(Account account) {
+        AccountManager accountManager = AccountManager.get(mContext);
+        AccountManagerFuture<Boolean> future = accountManager.removeAccount(account, null, null);
+        try {
+            future.getResult();
+        } catch (OperationCanceledException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } catch (AuthenticatorException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     public class AccountUnit {
@@ -80,7 +108,7 @@ public final class AccountUtil {
         }
 
         public AccountUnit activate() {
-            BasicAccountProvider.get(mContext).putAccount(mAccount);
+            JasperAccountManager.get(mContext).activateAccount(mAccount);
             return this;
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -34,28 +34,39 @@ public enum ServerRelease {
     EMERALD_MR1(5.2d),
     EMERALD_MR2(5.5d),
     EMERALD_MR3(5.6d),
-    AMBER(6.0d);
+    EMERALD_MR4(5.61d),
+    AMBER(6.0d),
+    AMBER_MR1(6.01d),
+    AMBER_MR2(6.1d);
 
-    private final double mVersionCode;
+    private double mVersionCode;
 
     ServerRelease(double versionCode) {
         this.mVersionCode = versionCode;
+    }
+
+    public void setVersionCode(double versionCode) {
+        mVersionCode = versionCode;
     }
 
     public double code() {
         return mVersionCode;
     }
 
-    public static ServerRelease parseString(String versionName) {
-        return parseString(versionName, new DefaultVersionParser());
+    public static ServerRelease parseVersion(String versionName) {
+        return parseVersion(versionName, new DefaultVersionParser());
     }
 
-    public static ServerRelease parseString(String versionName, VersionParser parser) {
+    public static ServerRelease parseVersion(String versionName, VersionParser parser) {
         if (versionName == null) {
             throw new IllegalArgumentException("Argument 'versionName' should not be null");
         }
         double versionCode = parser.parse(versionName);
         return getByVersionCode(versionCode);
+    }
+
+    public static boolean satisfiesMinVersion(String versionName) {
+        return parseVersion(versionName).code() >= EMERALD_MR2.code();
     }
 
     public static ServerRelease getByVersionCode(final double versionCode) {
@@ -64,6 +75,7 @@ public enum ServerRelease {
                 return release;
             }
         }
+        UNKNOWN.setVersionCode(versionCode);
         return UNKNOWN;
     }
 }

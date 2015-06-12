@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -35,7 +35,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.fragment.WebViewFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.test.utils.IdleInjector;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 

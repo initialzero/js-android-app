@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,20 +25,23 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
-import android.content.Context;
-import android.view.ViewConfiguration;
 
-import com.jaspersoft.android.jaspermobile.uil.CustomImageDownaloder;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
+import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.utils.L;
 
 import org.androidannotations.annotations.EApplication;
 
-import java.lang.reflect.Field;
-
+import roboguice.RoboGuice;
 import timber.log.Timber;
 
 /**
@@ -48,14 +51,20 @@ import timber.log.Timber;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+    private Tracker jsTracker;
 
-    public static void removeAllCookies() {
-        JsRestClient.flushCookies();
-    }
+    @Inject
+    AppConfigurator appConfigurator;
+    @Inject
+    JsRestClient jsRestClient;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        RoboGuice.getInjector(this).injectMembers(this);
+        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
+
+        forceDatabaseUpdate();
 
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
@@ -66,44 +75,40 @@ public class JasperMobileApplication extends Application {
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
-        forceOverFlowMenu();
-        initImageLoader(getApplicationContext());
+        appConfigurator.configCrashAnalytics(this);
+        getTracker();
+        initImageLoader();
     }
 
-    private void initImageLoader(Context context) {
+    private void forceDatabaseUpdate() {
+        getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[]{"_id"}, null, null, null);
+    }
+
+    private void initImageLoader() {
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by
         //  ImageLoaderConfiguration.createDefault(this);
         // method.
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-                .imageDownloader(new CustomImageDownaloder(context))
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .imageDownloader(new TokenImageDownloader(this))
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .diskCacheSize(50 * 1024 * 1024) // 50 Mb
                 .tasksProcessingOrder(QueueProcessingType.LIFO)
-                .writeDebugLogs() // Remove for release app
                 .build();
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config);
+        // Ignoring all log from UIL
+        L.writeLogs(false);
     }
 
-    /**
-     * We are forcing OS to show overflow menu for the devices which expose hardware implementation.
-     * WARNING: This is considered to be bad practice though we decide to violate rules.
-     * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
-     */
-    private void forceOverFlowMenu() {
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if(menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
-        } catch (Exception ex) {
-            // Ignore
+    public synchronized Tracker getTracker() {
+        if (jsTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            jsTracker = analytics.newTracker(R.xml.analytics_tracker);
         }
+        return jsTracker;
     }
 
 }

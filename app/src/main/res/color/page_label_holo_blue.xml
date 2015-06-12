@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,9 +25,9 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_activated="true"
-        android:color="@color/holo_blue_light" />
+        android:color="@color/js_blue" />
     <item android:state_pressed="true"
-        android:color="@color/holo_blue_light" />
+        android:color="@color/js_blue" />
     <item
         android:color="@android:color/white" />
 </selector>

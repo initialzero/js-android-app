@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -56,7 +56,6 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -146,7 +145,9 @@ public final class JasperMatcher {
     }
 
     public static Matcher<Root> withNotDecorView(final Matcher<View> decorViewMatcher) {
-        checkNotNull(decorViewMatcher);
+        if (decorViewMatcher == null) {
+            throw new IllegalArgumentException("Decor view null");
+        }
         return new TypeSafeMatcher<Root>() {
 
             @Override
@@ -304,7 +305,10 @@ public final class JasperMatcher {
         private final String expectedText;
 
         private HasTextMatcher(String expectedError) {
-            this.expectedText = checkNotNull(expectedError);
+            if (expectedError == null) {
+                throw new IllegalArgumentException("Expected error should not be null");
+            }
+            this.expectedText = expectedError;
         }
 
         @Override

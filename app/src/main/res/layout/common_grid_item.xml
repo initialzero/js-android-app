@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -27,7 +27,7 @@
     style="@style/grid.item.layout"
     android:layout_width="@dimen/grid_item_size"
     android:layout_height="@dimen/grid_item_size"
-    android:background="@drawable/custom_list_item_bg">
+    android:background="@drawable/bg_item_resource">
 
     <include layout="@layout/res_grid_item" />
 

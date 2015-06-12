@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -23,24 +23,25 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/favoriteAction"
-        android:icon="@drawable/ic_rating_not_favorite"
+        android:icon="@drawable/ic_menu_star_outline"
         android:title="@string/r_cm_add_to_favorites"
-        android:showAsAction="always" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/aboutAction"
-        android:icon="@drawable/ic_action_about"
+        android:icon="@drawable/ic_menu_info"
         android:title="@string/r_cm_view_details"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/refreshAction"
-        android:icon="@drawable/ic_action_refresh"
+        android:icon="@drawable/ic_menu_refresh"
         android:title="@string/r_ab_refresh"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
 </menu>

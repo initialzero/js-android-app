@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/mobile-sdk-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -28,6 +28,6 @@
     depending on the state of the object.
  -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/btn_demo_bg_pressed" android:state_pressed="true" />
-    <item android:drawable="@color/btn_demo_bg"/>
+    <item android:drawable="@color/js_dark_blue" android:state_pressed="true" />
+    <item android:drawable="@color/js_night_blue"/>
 </selector>

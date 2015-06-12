@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,8 +26,6 @@ package com.jaspersoft.android.jaspermobile.test.acceptance;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
@@ -45,7 +43,6 @@ import org.apache.http.hacked.GetUriRegexMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -65,7 +62,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * @author Tom Koptel
  * @since 1.9
  */
-@RunWith(AndroidJUnit4.class)
 public class SearchableActivityTest extends ProtoActivityInstrumentation<SearchableActivity_> {
     private static final String SEARCH_QUERY = "Reports";
 
@@ -76,7 +72,6 @@ public class SearchableActivityTest extends ProtoActivityInstrumentation<Searcha
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
         registerTestModule(new HackedTestModule());
         setDefaultCurrentProfile();

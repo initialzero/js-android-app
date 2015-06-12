@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,12 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.db.seed;
 
-import android.database.sqlite.SQLiteDatabase;
-
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public interface Seed {
-    public void seed(SQLiteDatabase database);
+    public void seed();
 }

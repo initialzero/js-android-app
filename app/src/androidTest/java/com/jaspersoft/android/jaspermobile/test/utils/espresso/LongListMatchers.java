@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -35,8 +35,6 @@ import org.hamcrest.TypeSafeMatcher;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 
@@ -57,72 +55,81 @@ import static org.hamcrest.Matchers.hasEntry;
  */
 public final class LongListMatchers {
 
-  private LongListMatchers() { }
+    private LongListMatchers() {
+    }
 
 
-  /**
-   * Creates a matcher against the text stored in R.id.item_content. This text is roughly
-   * "item: $row_number".
-   */
-  public static Matcher<Object> withItemContent(String expectedText) {
-    // use preconditions to fail fast when a test is creating an invalid matcher.
-    checkNotNull(expectedText);
-    return withItemContent(equalTo(expectedText));
-  }
+    /**
+     * Creates a matcher against the text stored in R.id.item_content. This text is roughly
+     * "item: $row_number".
+     */
+    public static Matcher<Object> withItemContent(String expectedText) {
+        // use preconditions to fail fast when a test is creating an invalid matcher.
+        if (expectedText == null) {
+            throw new IllegalArgumentException("ExpectedText is null");
+        }
+        return withItemContent(equalTo(expectedText));
+    }
 
-  /**
-   * Creates a matcher against the text stored in R.id.item_content. This text is roughly
-   * "item: $row_number".
-   */
-  @SuppressWarnings("rawtypes")
-  public static Matcher<Object> withItemContent(final Matcher<String> itemTextMatcher) {
-    // use preconditions to fail fast when a test is creating an invalid matcher.
-    checkNotNull(itemTextMatcher);
-    return new BoundedMatcher<Object, Map>(Map.class) {
-      @Override
-      public boolean matchesSafely(Map map) {
-        return hasEntry(equalTo("STR"), itemTextMatcher).matches(map);
-      }
+    /**
+     * Creates a matcher against the text stored in R.id.item_content. This text is roughly
+     * "item: $row_number".
+     */
+    @SuppressWarnings("rawtypes")
+    public static Matcher<Object> withItemContent(final Matcher<String> itemTextMatcher) {
+        // use preconditions to fail fast when a test is creating an invalid matcher.
+        if (itemTextMatcher == null) {
+            throw new IllegalArgumentException("Item text matcher is null");
+        }
+        return new BoundedMatcher<Object, Map>(Map.class) {
+            @Override
+            public boolean matchesSafely(Map map) {
+                return hasEntry(equalTo("STR"), itemTextMatcher).matches(map);
+            }
 
-      @Override
-      public void describeTo(Description description) {
-        description.appendText("with item content: ");
-        itemTextMatcher.describeTo(description);
-      }
-    };
-  }
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with item content: ");
+                itemTextMatcher.describeTo(description);
+            }
+        };
+    }
 
-  /**
-   * Creates a matcher against the text stored in R.id.item_size. This text is the size of the text
-   * printed in R.id.item_content.
-   */
-  public static Matcher<Object> withItemSize(int itemSize) {
-    // use preconditions to fail fast when a test is creating an invalid matcher.
-    checkArgument(itemSize > -1);
-    return withItemSize(equalTo(itemSize));
-  }
+    /**
+     * Creates a matcher against the text stored in R.id.item_size. This text is the size of the text
+     * printed in R.id.item_content.
+     */
+    public static Matcher<Object> withItemSize(int itemSize) {
+        // use preconditions to fail fast when a test is creating an invalid matcher.
+        if ( !(itemSize > -1) ) {
+            throw new IllegalArgumentException("ExpectedText is null");
+        }
+        return withItemSize(equalTo(itemSize));
+    }
 
-  /**
-   * Creates a matcher against the text stored in R.id.item_size. This text is the size of the text
-   * printed in R.id.item_content.
-   */
-  @SuppressWarnings("rawtypes")
-  public static Matcher<Object> withItemSize(final Matcher<Integer> itemSizeMatcher) {
-    // use preconditions to fail fast when a test is creating an invalid matcher.
-    checkNotNull(itemSizeMatcher);
-    return new BoundedMatcher<Object, Map>(Map.class) {
-      @Override
-      public boolean matchesSafely(Map map) {
-        return hasEntry(equalTo("LEN"), itemSizeMatcher).matches(map);
-      }
+    /**
+     * Creates a matcher against the text stored in R.id.item_size. This text is the size of the text
+     * printed in R.id.item_content.
+     */
+    @SuppressWarnings("rawtypes")
+    public static Matcher<Object> withItemSize(final Matcher<Integer> itemSizeMatcher) {
+        // use preconditions to fail fast when a test is creating an invalid matcher.
+        if (itemSizeMatcher == null) {
+            throw new IllegalArgumentException("Item size matcher is null");
+        }
+        return new BoundedMatcher<Object, Map>(Map.class) {
+            @Override
+            public boolean matchesSafely(Map map) {
+                return hasEntry(equalTo("LEN"), itemSizeMatcher).matches(map);
+            }
 
-      @Override
-      public void describeTo(Description description) {
-        description.appendText("with item size: ");
-        itemSizeMatcher.describeTo(description);
-      }
-    };
-  }
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with item size: ");
+                itemSizeMatcher.describeTo(description);
+            }
+        };
+    }
 
     public static Matcher<View> withAdaptedData(final Matcher<Object> dataMatcher) {
         return new TypeSafeMatcher<View>() {

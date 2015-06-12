@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -40,11 +40,8 @@ import android.view.WindowManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-import com.jaspersoft.android.jaspermobile.legacy.ProfileManager;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -53,20 +50,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import roboguice.RoboGuice;
 
-import static com.google.common.collect.Iterables.getOnlyElement;
-
 @RunWith(AndroidJUnit4.class)
 public class ProtoActivityInstrumentation<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {
-    protected static final String PASSWORD = "phoneuser";
 
     protected T mActivity;
     protected JsRestClient jsRestClient;
     private Application mApplication;
+    private Account activeAccount;
 
     public ProtoActivityInstrumentation(Class<T> activityClass) {
         super(activityClass);
@@ -77,16 +73,15 @@ public class ProtoActivityInstrumentation<T extends Activity>
         super.setUp();
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
-        DefaultPrefHelper helper = DefaultPrefHelper_
-                .getInstance_(getInstrumentation().getTargetContext().getApplicationContext());
-        helper.setAnimationEnabled(false);
-        helper.setRepoCacheEnabled(false);
+        PreferenceApiAdapter.init(getApplication())
+                .setCacheEnabled(false)
+                .setInAppAnimationEnabled(false);
     }
 
     @After
     public void tearDown() throws Exception {
         super.tearDown();
-        RoboGuice.util.reset();
+        unregisterTestModule();
         mApplication = null;
         mActivity = null;
     }
@@ -100,12 +95,26 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 .setPassword(AccountServerData.Demo.PASSWORD)
                 .setEdition("PRO")
                 .setVersionName("5.5");
-        Account account = AccountUtil.get(getApplication())
+        activeAccount = AccountUtil.get(getApplication())
                 .removeAllAccounts()
                 .addAccount(serverData)
                 .setAuthToken()
-                .activate().getAccount();
-        ProfileManager.initLegacyJsRestClient(getApplication(), account, getJsRestClient());
+                .activate()
+                .getAccount();
+        JsServerProfile profile = new JsServerProfile();
+        profile.setAlias(serverData.getAlias());
+        profile.setServerUrl(serverData.getServerUrl());
+        profile.setOrganization(serverData.getOrganization());
+        profile.setUsername(serverData.getUsername());
+        profile.setPassword(serverData.getPassword());
+        getJsRestClient().setServerProfile(profile);
+    }
+
+    public Account getActiveAccount() {
+        if (activeAccount == null) {
+            setDefaultCurrentProfile();
+        }
+        return activeAccount;
     }
 
     public void startActivityUnderTest() {
@@ -143,38 +152,17 @@ public class ProtoActivityInstrumentation<T extends Activity>
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    protected int getSearcFieldId() {
-        return mActivity.getResources().getIdentifier("search_src_text", "id", "android");
-    }
-
-    protected int getActionBarId() {
-        return mActivity.getResources().getIdentifier("action_bar", "id", "android");
-    }
-
-    protected int getActionBarTitleId() {
-        return mActivity.getResources().getIdentifier("action_bar_title", "id", "android");
-    }
-
-    protected int getActionBarSubTitleId() {
-        return mActivity.getResources().getIdentifier("action_bar_subtitle", "id", "android");
-    }
-
     protected View findViewById(int id) {
         return mActivity.findViewById(id);
     }
 
     protected void registerTestModule(AbstractModule module) {
         unregisterTestModule();
-        Application application = (Application) this.getInstrumentation()
-                .getTargetContext().getApplicationContext();
-        RoboGuice.setBaseApplicationInjector(application,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(application))
-                        .with(module));
+        RoboGuice.overrideApplicationInjector(mApplication, module);
     }
 
     protected void unregisterTestModule() {
-        RoboGuice.util.reset();
+        RoboGuice.Util.reset();
     }
 
     protected Activity getCurrentActivity() throws Throwable {
@@ -186,7 +174,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
                 Collection<Activity> activites =
                         ActivityLifecycleMonitorRegistry.getInstance()
                                 .getActivitiesInStage(Stage.RESUMED);
-                activity[0] = getOnlyElement(activites);
+                activity[0] = new ArrayList<Activity>(activites).get(0);
             }
         });
         return activity[0];
@@ -194,7 +182,7 @@ public class ProtoActivityInstrumentation<T extends Activity>
 
     protected JsRestClient getJsRestClient() {
         if (jsRestClient == null) {
-            Injector injector = RoboGuice.getBaseApplicationInjector(getApplication());
+            Injector injector = RoboGuice.getInjector(getApplication());
             jsRestClient = injector.getInstance(JsRestClient.class);
         }
         return jsRestClient;

@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -42,7 +42,7 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 @EViewGroup(R.layout.res_list_item)
-public class ListItemView extends CheckedRelativeLayout implements IResourceView {
+public class ListItemView extends CheckedRelativeLayout implements ResourceView {
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;
@@ -80,15 +80,18 @@ public class ListItemView extends CheckedRelativeLayout implements IResourceView
         setLayoutParams(params);
     }
 
+    @Override
     public void setTitle(CharSequence title) {
         mTitleTxt.setText(title);
     }
 
+    @Override
     public void setSubTitle(CharSequence subTitle) {
         mSubTitle.setText(subTitle);
     }
 
-    public void setTimeStamp(CharSequence timestamp) {
+    @Override
+    public void setInfo(CharSequence timestamp) {
         if (mTimestampStub != null) {
             if (mTimestampTxt == null) {
                 mTimestampTxt = (TextView) mTimestampStub.inflate();
@@ -104,22 +107,8 @@ public class ListItemView extends CheckedRelativeLayout implements IResourceView
         }
     }
 
-    public void setMisc(CharSequence misc) {
-        if (mMiscStub != null) {
-            if (mMiscTxt == null) {
-                mMiscTxt = (TextView) mMiscStub.inflate();
-            }
-            mMiscTxt.setText(misc);
 
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mSubTitle.getLayoutParams();
-            params.addRule(LEFT_OF, mMiscTxt.getId());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.addRule(START_OF, mMiscTxt.getId());
-            }
-            mSubTitle.setLayoutParams(params);
-        }
-    }
-
+    @Override
     public ImageView getImageView() {
         return mImageIcon;
     }

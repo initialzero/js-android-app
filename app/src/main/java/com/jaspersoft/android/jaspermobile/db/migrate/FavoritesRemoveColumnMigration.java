@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -38,7 +38,7 @@ public class FavoritesRemoveColumnMigration implements Migration {
 
         database.execSQL(
                 "CREATE TABLE favorites ( _id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, uri TEXT, " +
-                        "description TEXT, wstype TEXT, username TEXT, organization TEXT, account_name TEXT, creation_time TEXT )"
+                        "description TEXT, wstype TEXT, username TEXT, organization TEXT, account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none', creation_time TEXT )"
         );
         database.execSQL("INSERT INTO favorites(title, uri, description, wstype, username, organization, account_name, creation_time)" +
                 " select title, uri, description, wstype, username, organization, account_name, creation_time from tmp_favorites;");

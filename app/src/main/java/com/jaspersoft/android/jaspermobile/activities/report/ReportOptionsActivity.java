@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,11 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -37,7 +38,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -48,10 +48,11 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
+import com.jaspersoft.android.jaspermobile.widget.MultiSelectSpinner;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
@@ -62,18 +63,19 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlStatesList;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-import com.jaspersoft.android.sdk.ui.widget.MultiSelectSpinner;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import roboguice.util.Ln;
 
@@ -86,15 +88,17 @@ import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDi
  * @author Tom Koptel
  * @since 1.6
  */
-public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
+public class ReportOptionsActivity extends RoboSpiceActivity {
 
     // Extras
     public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
     public static final String EXTRA_REPORT_URI = "ReportOptionsActivity.EXTRA_REPORT_URI";
-    public static final String EXTRA_REPORT_CONTROLS = "ReportOptionsActivity.EXTRA_REPORT_CONTROLS";
+    public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected ReportParamsStorage paramsStorage;
 
     protected Menu optionsMenu;
     protected String reportUri;
@@ -123,7 +127,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         optionsMenu = menu;
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             // use the App Icon for Navigation
             actionBar.setHomeButtonEnabled(true);
@@ -132,8 +136,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
         // settings
         MenuItem applyMenuItem = menu.add(Menu.NONE, R.id.saveAction, Menu.NONE, R.string.ro_run_report_btn)
-                .setIcon(R.drawable.ic_run_report);
-        applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                .setIcon(R.drawable.ic_menu_run_report);
+        applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -202,6 +206,20 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
+    private boolean isNewParamsEqualOld(ArrayList<ReportParameter> newParams) {
+        ArrayList<ReportParameter> oldParams = paramsStorage.getReportParameters(reportUri);
+
+        if (oldParams.size() != newParams.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < oldParams.size(); i++) {
+            if (!oldParams.get(i).getValues().equals(newParams.get(i).getValues())) return false;
+        }
+
+        return true;
+    }
+
     private void updateDependentControls(InputControl inputControl) {
         if (!inputControl.getSlaveDependencies().isEmpty()) {
             setRefreshActionButtonState(true);
@@ -211,9 +229,14 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     }
 
     private void runReport() {
-        String reportTitle = getIntent().getExtras().getString(EXTRA_REPORT_LABEL);
+        Intent htmlViewer = new Intent();
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
-        runReportViewer(reportUri, reportTitle, parameters);
+        if (isNewParamsEqualOld(parameters)) {
+            htmlViewer.putExtra(RESULT_SAME_PARAMS, true);
+        }
+        paramsStorage.putReportParameters(reportUri, parameters);
+        setResult(Activity.RESULT_OK, htmlViewer);
+        finish();
     }
 
     private ArrayList<ReportParameter> initParametersUsingSelectedValues() {
@@ -224,20 +247,19 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         return parameters;
     }
 
-    private void runReportViewer(String reportUri, String reportLabel, ArrayList<ReportParameter> parameters) {
-        Intent htmlViewer = new Intent();
-        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_PARAMETERS, parameters);
-        htmlViewer.putParcelableArrayListExtra(ReportHtmlViewerActivity.EXTRA_REPORT_CONTROLS, inputControls);
-        setResult(Activity.RESULT_OK, htmlViewer);
-        finish();
-    }
-
     private void hideAllValidationMessages() {
         for (InputControl control : inputControls) {
             TextView textView = (TextView) control.getErrorView();
             if (textView != null) {
                 textView.setVisibility(View.GONE);
             }
+        }
+    }
+
+    private void hideValidationMessage(InputControl control) {
+        TextView textView = (TextView) control.getErrorView();
+        if (textView != null) {
+            textView.setVisibility(View.GONE);
         }
     }
 
@@ -260,10 +282,18 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     }
 
     private void initInputControls() {
-        inputControls = getIntent().getExtras().getParcelableArrayList(EXTRA_REPORT_CONTROLS);
+        ArrayList<ReportParameter> reportParams = paramsStorage.getReportParameters(reportUri);
+        inputControls = paramsStorage.getInputControls(reportUri);
+
+        Map<String, Set<String>> hashMap = new HashMap<String, Set<String>>(reportParams.size());
+        for (ReportParameter reportParameter : reportParams) {
+            hashMap.put(reportParameter.getName(), reportParameter.getValues());
+        }
 
         // init UI components for ICs
         for (final InputControl inputControl : inputControls) {
+            updateInputControlState(hashMap, inputControl);
+
             if (inputControl.isVisible()) {
                 switch (inputControl.getType()) {
                     case bool:
@@ -287,6 +317,37 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
                         initMultiSelectControl(inputControl);
                         break;
                 }
+            }
+        }
+    }
+
+    private void updateInputControlState(Map<String, Set<String>> hashMap, InputControl inputControl) {
+        InputControlState state = inputControl.getState();
+        List<InputControlOption> options = state.getOptions();
+        Set<String> valueSet = hashMap.get(state.getId());
+        List<String> valueList = new ArrayList<String>();
+        if (valueSet != null) {
+            valueList.addAll(valueSet);
+        }
+
+        if (!valueList.isEmpty()) {
+            switch (inputControl.getType()) {
+                case bool:
+                case singleValueText:
+                case singleValueNumber:
+                case singleValueTime:
+                case singleValueDate:
+                case singleValueDatetime:
+                    state.setValue(valueList.get(0));
+                    break;
+                case multiSelect:
+                case multiSelectCheckbox:
+                case singleSelect:
+                case singleSelectRadio:
+                    for (InputControlOption option : options) {
+                        option.setSelected(valueList.contains(option.getValue()));
+                    }
+                    break;
             }
         }
     }
@@ -318,7 +379,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     private void initSingleValueControl(final InputControl inputControl) {
         LayoutInflater inflater = getLayoutInflater();
-        View layoutView = inflater.inflate(R.layout.ic_single_value_layout, baseLayout, false);
+        View layoutView = inflater.inflate(R.layout.view_ic_single_value, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
         EditText editText = (EditText) layoutView.findViewById(R.id.ic_edit_text);
@@ -347,10 +408,11 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     private void initDateControl(final InputControl inputControl) {
         LayoutInflater inflater = getLayoutInflater();
-        View layoutView = inflater.inflate(R.layout.ic_single_value_date_layout, baseLayout, false);
+        View layoutView = inflater.inflate(R.layout.view_ic_single_value_date, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
         final EditText editText = (EditText) layoutView.findViewById(R.id.ic_date_text);
+        final ImageButton clearDate = (ImageButton) layoutView.findViewById(R.id.ic_date_clear);
 
         String format = DEFAULT_DATE_FORMAT;
         for (DateTimeFormatValidationRule validationRule : inputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
@@ -366,6 +428,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
             try {
                 startDate.setTime(formatter.parse(defaultValue));
                 editText.setText(defaultValue);
+                clearDate.setVisibility(View.VISIBLE);
             } catch (ParseException e) {
                 Ln.w("Unparseable date: %s", defaultValue);
             }
@@ -407,6 +470,19 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
                 @Override
                 public void afterTextChanged(Editable editable) {
                     onStringValueChanged(inputControl, editable.toString());
+                    if (editable.length() != 0) {
+                        clearDate.setVisibility(View.VISIBLE);
+                    } else {
+                        clearDate.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+            // add listener for clearing text
+            clearDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editText.setText("");
                 }
             });
         }
@@ -417,7 +493,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     private void initSingleSelectControl(final InputControl inputControl) {
         LayoutInflater inflater = getLayoutInflater();
-        View layoutView = inflater.inflate(R.layout.ic_single_select_layout, baseLayout, false);
+        View layoutView = inflater.inflate(R.layout.view_ic_single_select, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
         Spinner spinner = (Spinner) layoutView.findViewById(R.id.ic_spinner);
@@ -448,6 +524,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
                             if (!option.isSelected()) {
                                 option.setSelected(true);
                                 updateDependentControls(inputControl);
+                                hideValidationMessage(inputControl);
                             }
                         } else {
                             option.setSelected(false);
@@ -466,7 +543,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     private void initMultiSelectControl(final InputControl inputControl) {
         LayoutInflater inflater = getLayoutInflater();
-        View layoutView = inflater.inflate(R.layout.ic_multi_select_layout, baseLayout, false);
+        View layoutView = inflater.inflate(R.layout.view_ic_multi_select, baseLayout, false);
         updateLabelView(inputControl, layoutView);
 
         MultiSelectSpinner<InputControlOption> multiSpinner =
@@ -500,7 +577,10 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
                         option.setSelected(selectedNow);
                     }
                     // update dependent controls if exist
-                    if (valuesChanged) updateDependentControls(inputControl);
+                    if (valuesChanged) {
+                        updateDependentControls(inputControl);
+                        hideValidationMessage(inputControl);
+                    }
                 }
             });
         }
@@ -526,6 +606,7 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
         if (newValue != null && !newValue.equals(oldValue)) {
             inputControl.getState().setValue(newValue);
             updateDependentControls(inputControl);
+            hideValidationMessage(inputControl);
         }
     }
 
@@ -533,11 +614,16 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetInputControlsValuesListener implements RequestListener<InputControlStatesList> {
+    private class GetInputControlsValuesListener extends SimpleRequestListener<InputControlStatesList> {
+
+        @Override
+        protected Context getContext() {
+            return ReportOptionsActivity.this;
+        }
 
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, false);
+            super.onRequestFailure(exception);
             setRefreshActionButtonState(false);
         }
 
@@ -550,8 +636,8 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
                         if (slaveControl.isVisible()) {
                             switch (slaveControl.getType()) {
                                 case bool:
-                                    CheckBox checkBox = (CheckBox) slaveControl.getInputView();
-                                    checkBox.setChecked(Boolean.parseBoolean(state.getValue()));
+                                    Switch icBool = (Switch) slaveControl.getInputView();
+                                    icBool.setChecked(Boolean.parseBoolean(state.getValue()));
                                     break;
                                 case singleValueText:
                                 case singleValueNumber:
@@ -601,11 +687,16 @@ public class ReportOptionsActivity extends RoboSpiceFragmentActivity {
 
     }
 
-    private class ValidateInputControlsValuesListener implements RequestListener<InputControlStatesList> {
+    private class ValidateInputControlsValuesListener extends SimpleRequestListener<InputControlStatesList> {
+
+        @Override
+        protected Context getContext() {
+            return ReportOptionsActivity.this;
+        }
 
         @Override
         public void onRequestFailure(SpiceException exception) {
-            RequestExceptionHandler.handle(exception, ReportOptionsActivity.this, false);
+            super.onRequestFailure(exception);
             setRefreshActionButtonState(false);
         }
 

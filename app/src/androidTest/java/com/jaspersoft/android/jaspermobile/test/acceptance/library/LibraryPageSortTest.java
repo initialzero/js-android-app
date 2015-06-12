@@ -1,5 +1,5 @@
 /*
-* Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+* Copyright © 2015 TIBCO Software, Inc. All rights reserved.
 * http://community.jaspersoft.com/project/jaspermobile-android
 *
 * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,12 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.test.acceptance.library;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
-import android.support.test.runner.AndroidJUnit4;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryActivity_;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.acceptance.library.assertion.RequestAssert;
@@ -50,7 +48,6 @@ import org.apache.http.hacked.HackedJsRestClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -69,19 +66,17 @@ import static org.mockito.Mockito.verify;
  * @author Tom Koptel
  * @since 1.9
  */
-@RunWith(AndroidJUnit4.class)
-public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryActivity_> {
+public class LibraryPageSortTest extends ProtoActivityInstrumentation<NavigationActivity_> {
 
     private final SpiceManagerRequestAssert mMockedSpiceManager = spy(new SpiceManagerRequestAssert());
 
     public LibraryPageSortTest() {
-        super(LibraryActivity_.class);
+        super(NavigationActivity_.class);
     }
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
         registerTestModule(new TestModule());
         setDefaultCurrentProfile();
@@ -149,11 +144,7 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
             onView(withId(R.id.sort)).perform(click());
         } catch (NoMatchingViewException ex) {
             openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            try {
-                onOverflowView(getCurrentActivity(), withText(R.string.s_ab_sort_by)).perform(click());
-            } catch (Throwable throwable) {
-                new RuntimeException(throwable);
-            }
+            onView(withText(R.string.s_ab_sort_by)).perform(click());
         }
     }
 
@@ -163,7 +154,8 @@ public class LibraryPageSortTest extends ProtoActivityInstrumentation<LibraryAct
 
     private class TestModule extends CommonTestModule {
         @Override
-        protected void semanticConfigure() {
+        protected void configure() {
+            super.configure();
             bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
             bind(JsSpiceManager.class).toInstance(mMockedSpiceManager);
         }

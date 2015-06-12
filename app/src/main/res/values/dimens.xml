@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,22 +25,13 @@
 
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <!-- Minimum width for an action button in the menu area of an action bar -->
     <dimen name="abs__action_button_min_width">56dip</dimen>
-
-    <dimen name="card_body_padding">8dp</dimen>
-    <dimen name="card_composed_image_padding">8dp</dimen>
 
     <dimen name="grid_item_size">150dp</dimen>
     <dimen name="list_item_height">60dp</dimen>
     <dimen name="list_item_image_width">96dp</dimen>
     <dimen name="sample_image_padding">5dp</dimen>
-
-    <dimen name="intro_page_bottom_copyright_margin">50dp</dimen>
-    <dimen name="intro_page_bottom_name_margin">30dp</dimen>
-    <dimen name="intro_page_logo_padding">25dp</dimen>
-    <dimen name="intro_page_logo_size">300dp</dimen>
 
 </resources>

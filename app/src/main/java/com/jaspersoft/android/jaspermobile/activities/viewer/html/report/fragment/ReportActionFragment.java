@@ -1,3 +1,27 @@
+/*
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ *  http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ *  Unless you have purchased a commercial license agreement from Jaspersoft,
+ *  the following license terms apply:
+ *
+ *  This program is part of Jaspersoft Mobile for Android.
+ *
+ *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Jaspersoft Mobile is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Jaspersoft Mobile for Android. If not, see
+ *  <http://www.gnu.org/licenses/lgpl>.
+ */
+
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
 
 import android.net.Uri;
@@ -7,9 +31,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.PrintReportHelper;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -26,7 +50,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
 
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
@@ -41,10 +65,7 @@ public class ReportActionFragment extends RoboSpiceFragment {
     ResourceLookup resource;
     @FragmentArg
     ArrayList<ReportParameter> reportParameters;
-
-    @Inject
-    JsRestClient jsRestClient;
-
+    
     @Bean
     FavoritesHelper favoritesHelper;
 
@@ -56,6 +77,10 @@ public class ReportActionFragment extends RoboSpiceFragment {
     @InstanceState
     Uri favoriteEntryUri;
 
+    @Inject
+    JsRestClient jsRestClient;
+
+    
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -67,7 +92,7 @@ public class ReportActionFragment extends RoboSpiceFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_rating_not_favorite : R.drawable.ic_rating_favorite);
+        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
     }
 
@@ -83,6 +108,7 @@ public class ReportActionFragment extends RoboSpiceFragment {
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
                 .setNegativeButtonText(android.R.string.ok)
+                .setTargetFragment(this)
                 .show();
     }
 

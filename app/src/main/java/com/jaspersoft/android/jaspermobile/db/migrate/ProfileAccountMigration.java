@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,16 +25,18 @@
 package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.accounts.Account;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
+import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
-import com.jaspersoft.android.retrofit.sdk.account.AccountManagerUtil;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.BasicAccountProvider;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.util.List;
@@ -46,38 +48,65 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class ProfileAccountMigration implements Migration {
-    private static final String TAG = AccountManagerUtil.class.getSimpleName();
+    private static final String LEGACY_MOBILE_DEMO = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
+    private static final String NEW_MOBILE_DEMO = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
     private final Context mContext;
 
     public ProfileAccountMigration(Context context) {
         mContext = context;
-        Timber.tag(TAG);
     }
 
     @Override
     public void migrate(SQLiteDatabase database) {
+        updateOldMobileDemo(database);
         migrateOldProfiles(database);
         activateProfile(database);
     }
 
+    private void updateOldMobileDemo(SQLiteDatabase database) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("server_url", NEW_MOBILE_DEMO);
+
+        Cursor cursor = database.query("server_profiles", new String[]{BaseColumns._ID},
+                "server_url=?", new String[]{LEGACY_MOBILE_DEMO}, null, null, null);
+        try {
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    String id = cursor.getString(cursor.getColumnIndex(BaseColumns._ID));
+                    database.delete("favorites", "server_profile_id=?", new String[]{id});
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        database.update("server_profiles", contentValues, "server_url=?", new String[] {LEGACY_MOBILE_DEMO});
+    }
+
     private void migrateOldProfiles(SQLiteDatabase db) {
         AccountServerData data;
-        AccountManagerUtil util = AccountManagerUtil.get(mContext);
+        JasperAccountManager util = JasperAccountManager.get(mContext);
         Cursor cursor = db.query(ServerProfilesTable.TABLE_NAME,
                 ServerProfilesTable.ALL_COLUMNS, null, null, null, null, null);
         try {
             List<ServerProfiles> profiles = ServerProfiles.listFromCursor(cursor);
             Timber.d("The number of previously saved accounts are: " + profiles.size());
             for (ServerProfiles profile : profiles) {
-                data = new AccountServerData()
-                        .setAlias(profile.getAlias())
-                        .setServerUrl(profile.getServerUrl())
-                        .setOrganization(profile.getOrganization())
-                        .setUsername(profile.getUsername())
-                        .setPassword(profile.getPassword())
-                        .setEdition(profile.getEdition())
-                        .setVersionName(profile.getVersionCode() + "");
-                util.addAccountExplicitly(data).subscribe();
+                try {
+                    data = new AccountServerData()
+                            .setAlias(profile.getAlias())
+                            .setServerUrl(profile.getServerUrl())
+                            .setOrganization(profile.getOrganization())
+                            .setUsername(profile.getUsername())
+                            .setPassword(profile.getPassword())
+                            .setEdition(TextUtils.isEmpty(profile.getEdition()) ? "?" : profile.getEdition())
+                            .setVersionName(String.valueOf(profile.getVersionCode()));
+                    util.addAccountExplicitly(data).subscribe();
+                } catch (IllegalArgumentException ex) {
+                    Timber.w(ex, "Mis-configured profile '" + profile.getAlias() + "' skipping it");
+                }
             }
         } finally {
             cursor.close();
@@ -92,17 +121,13 @@ public class ProfileAccountMigration implements Migration {
                 ServerProfilesTable._ID + "=" + profileId,
                 null, null, null, null);
         try {
-            Account account;
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 ServerProfiles profile = new ServerProfiles(cursor);
-                account = new Account(profile.getAlias(), JasperSettings.JASPER_ACCOUNT_TYPE);
-            } else {
-                account = new Account(AccountServerData.Demo.ALIAS,
-                        JasperSettings.JASPER_ACCOUNT_TYPE);
+                Account account = new Account(profile.getAlias(), JasperSettings.JASPER_ACCOUNT_TYPE);
+                JasperAccountManager.get(mContext).activateAccount(account);
+                Timber.d("Account[" + account + "] was activated");
             }
-            BasicAccountProvider.get(mContext).putAccount(account);
-            Timber.d("Account[" + account + "] was activated");
         } finally {
             cursor.close();
         }

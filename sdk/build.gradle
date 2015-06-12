@@ -1,21 +1,40 @@
 /*
- * Copyright (c) 2015. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
- * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
- * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
- * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
- * Vestibulum commodo. Ut rhoncus gravida arcu.
+ *  Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ *  http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ *  Unless you have purchased a commercial license agreement from Jaspersoft,
+ *  the following license terms apply:
+ *
+ *  This program is part of Jaspersoft Mobile for Android.
+ *
+ *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Jaspersoft Mobile is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Jaspersoft Mobile for Android. If not, see
+ *  <http://www.gnu.org/licenses/lgpl>.
  */
 
 buildscript {
     repositories {
         jcenter()
+        maven { url 'https://raw.github.com/xujiaao/mvn-repository/master/releases' }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
+        classpath 'com.github.xujiaao:aarLinkSources:1.0.0'
     }
 }
 
 
+apply plugin: 'aar-link-sources'
 apply plugin: 'com.android.library'
 
 android {
@@ -33,6 +52,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -43,6 +66,19 @@ dependencies {
         exclude group: 'com.google.code.gson'
     }
     compile 'com.jakewharton.timber:timber:2.5.0'
-    compile 'com.jaspersoft.android.sdk:js-android-sdk-client:1.9.2'
+
+    compile 'commons-io:commons-io:2.4'
+    compile('org.simpleframework:simple-xml:2.7') {
+        exclude group: 'stax'
+        exclude group: 'xpp3'
+    }
+    compile('com.octo.android.robospice:robospice-spring-android:1.4.14') {
+        exclude group: 'org.apache.commons', module: 'commons-io'
+    }
+    compile("com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}") {
+        transitive = false
+    }
+    aarLinkSources "com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}:sources@jar"
+
     compile 'io.reactivex:rxandroid:0.24.0'
 }

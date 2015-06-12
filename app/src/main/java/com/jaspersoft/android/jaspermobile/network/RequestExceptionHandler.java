@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,23 +24,25 @@
 
 package com.jaspersoft.android.jaspermobile.network;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity;
-import com.jaspersoft.android.jaspermobile.activities.HomeActivity_;
-import com.jaspersoft.android.jaspermobile.dialog.AlertDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.octo.android.robospice.exception.NetworkException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import java.util.EnumMap;
+import java.net.UnknownHostException;
+
+import retrofit.RetrofitError;
 
 /**
  * @author Ivan Gadzhega
@@ -52,126 +54,117 @@ public class RequestExceptionHandler {
         throw new AssertionError();
     }
 
-    public static void handle(Exception exception, Activity activity, boolean finishActivity) {
-        handle(exception, activity, ExceptionRule.all(), finishActivity);
-    }
+    public static void handle(Exception exception, Context context) {
+        if (exception == null) {
+            throw new IllegalArgumentException("Exception should not be null");
+        }
 
-    public static void handle(Exception exception, Activity activity) {
-        handle(exception, activity, ExceptionRule.all(), false);
-    }
-
-    public static void handle(Exception exception, Activity activity,
-                              EnumMap<HttpStatus, ExceptionRule> rules) {
-        handle(exception, activity, rules, false);
-    }
-
-    public static void handle(Exception exception, Activity activity,
-                              EnumMap<HttpStatus, ExceptionRule> rules,
-                              boolean finishActivity) {
-        HttpStatus statusCode = extractStatusCode(exception);
-        if (statusCode != null) {
-            if (rules.keySet().contains(statusCode)) {
-                ExceptionRule rule = rules.get(statusCode);
-                if (statusCode == HttpStatus.UNAUTHORIZED) {
-                    showAuthErrorDialog(rule.getMessage(), activity, finishActivity);
-                } else {
-                    showErrorDialog(rule.getMessage(), activity, finishActivity);
-                }
-            }
+        int statusCode = extractStatusCode(exception);
+        if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
+            showAuthErrorDialog(context);
+        } else if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR) {
+            // do nothing, app will restart automatically
         } else {
-            Throwable cause = exception.getCause();
-            String message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
-            showErrorDialog(message, activity, finishActivity);
+            showCommonErrorMessage(context, exception);
+        }
+    }
+
+
+    @Nullable
+    public static String extractMessage(@NonNull Context context, @Nullable Exception exception) {
+        if (exception == null) {
+            throw new IllegalArgumentException("Exception should not be null");
+        }
+
+        int statusCode = extractStatusCode(exception);
+        String message = extractMessage(context, exception, statusCode);
+        if (TextUtils.isEmpty(message)) {
+            return exception.getLocalizedMessage();
+        } else {
+            return extractMessage(context, exception, statusCode);
         }
     }
 
     /**
-     * Extracts HttpStatus code otherwise returns null.
+     * Extracts HttpStatus code otherwise returns 0.
      */
-    @Nullable
-    public static HttpStatus extractStatusCode(Exception exception) {
+    public static int extractStatusCode(@NonNull Exception exception) {
         if (exception instanceof NetworkException) {
             Throwable cause = exception.getCause();
             if (cause instanceof HttpStatusCodeException) {
-                return ((HttpStatusCodeException) cause).getStatusCode();
+                return ((HttpStatusCodeException) cause).getStatusCode().value();
             }
+            Throwable tokenCause = cause.getCause();
+            if (tokenCause instanceof JasperAccountManager.TokenException){
+                return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
+            }else if (tokenCause instanceof UnknownHostException) {
+                return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
+            }
+        } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
+            return ((RetrofitError) exception).getResponse().getStatus();
         }
-        return null;
+        return 0;
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    private static void showErrorDialog(int messageId, Activity activity, boolean finishActivity) {
-        showErrorDialog(activity.getString(messageId), activity, finishActivity);
-    }
-
-    private static void showErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        AlertDialogFragment.AlertDialogBuilder builder = AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
-                .setIcon(android.R.drawable.ic_dialog_alert);
-        if (finishActivity) {
-            builder.setNeutralButton(
-                    new AlertDialogFragment.NeutralClickListener() {
-                        @Override
-                        public void onClick(DialogFragment fragment) {
-                            if (finishActivity) activity.finish();
-                        }
-                    }
-            ).setNeutralButtonText(android.R.string.ok);
+    /**
+     * Extracts Localized message otherwise returns null.
+     */
+    @Nullable
+    private static String extractMessage(@NonNull Context context, @NonNull Exception exception, int statusCode) {
+        if (statusCode == 0) {
+            return null;
         } else {
-            builder.setPositiveButtonText(android.R.string.ok);
+            if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
+                return context.getString(R.string.r_error_server_not_found);
+            }
+
+            Throwable cause = exception.getCause();
+            if (cause == null) {
+                return exception.getLocalizedMessage();
+            }
+
+            if (cause instanceof HttpStatusCodeException) {
+                ExceptionRule rule = ExceptionRule.all().get(((HttpStatusCodeException) cause).getStatusCode());
+                int messageId = rule.getMessage();
+                return context.getString(messageId);
+            }
+            Throwable tokenCause = cause.getCause();
+            if (tokenCause instanceof JasperAccountManager.TokenException) {
+                return tokenCause.getLocalizedMessage();
+            }
+
+            return exception.getLocalizedMessage();
         }
-        builder
-                .setTitle(R.string.error_msg)
-                .setCancelableOnTouchOutside(false)
-                .setMessage(message)
-                .show();
     }
 
-    private static void showAuthErrorDialog(int messageId, Activity activity, boolean finishActivity) {
-        showAuthErrorDialog(activity.getString(messageId), activity, finishActivity);
+    private static void showCommonErrorMessage(@NonNull Context context, @NonNull Exception exception) {
+        String message = extractMessage(context, exception);
+        if (!TextUtils.isEmpty(message)) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private static void showAuthErrorDialog(String message, final Activity activity, final boolean finishActivity) {
-        AlertDialogFragment.createBuilder(activity, getSupportFragmentManager(activity))
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(new AlertDialogFragment.PositiveClickListener() {
-                    @Override
-                    public void onClick(DialogFragment fragment) {
-                        HomeActivity_.intent(activity)
-                                .action(HomeActivity.EDIT_SERVER_PROFILE_ACTION)
-                                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                .start();
-                    }
-                })
-                .setNegativeButton(new AlertDialogFragment.NegativeClickListener() {
-                    @Override
-                    public void onClick(DialogFragment fragment) {
-                        if (finishActivity) activity.finish();
-                    }
-                })
-                .setNegativeButtonText(android.R.string.cancel)
-                .setPositiveButtonText(android.R.string.ok)
-                .setTitle(R.string.error_msg)
-                .setCancelableOnTouchOutside(false)
-                .setMessage(message)
-                .show();
+    private static void showAuthErrorDialog(@NonNull Context context) {
+        PasswordDialogFragment.show(getSupportFragmentManager(context));
     }
 
     /**
      * It is dirty method will leave here until
      * we move to android.app.FragmentManager
      *
-     * @param activity instance of activity should support
-     *                 getSupportFragmentManager() otherwise
-     *                 will return null
+     * @param context instance of activity should support
+     *                getSupportFragmentManager() otherwise
+     *                will return null
      * @return FragmentManager or null
      */
     @Nullable
-    private static FragmentManager getSupportFragmentManager(Activity activity) {
-        if (activity instanceof FragmentActivity) {
-            return ((FragmentActivity) activity).getSupportFragmentManager();
+    private static FragmentManager getSupportFragmentManager(Context context) {
+        if (context instanceof FragmentActivity) {
+            return ((FragmentActivity) context).getSupportFragmentManager();
         } else {
             return null;
         }

@@ -284,7 +284,7 @@ public class FakeHttpLayer {
 
     /**
      * Call this method if you want to ensure that there's no http responses logged from this point until
-     * the next response arrives. Helpful to ensure that the state is "clear" before actions are executed.
+     * the next response arrives. Helpful to ensure that the state is "deleteSavedItems" before actions are executed.
      */
     public void clearHttpResponses() {
         this.httpResponses.clear();

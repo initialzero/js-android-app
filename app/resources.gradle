@@ -1,0 +1,80 @@
+/*
+ *  Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ *  http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ *  Unless you have purchased a commercial license agreement from Jaspersoft,
+ *  the following license terms apply:
+ *
+ *  This program is part of Jaspersoft Mobile for Android.
+ *
+ *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Jaspersoft Mobile is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Jaspersoft Mobile for Android. If not, see
+ *  <http://www.gnu.org/licenses/lgpl>.
+ */
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.apache.commons:commons-lang3:3.3.2'
+    }
+}
+
+// workaround, see https://code.google.com/p/android/issues/detail?id=136013
+import org.apache.commons.lang3.StringUtils
+gradle.projectsEvaluated {
+    def variants = android.applicationVariants.collect()
+
+    tasks.withType(Test) { task ->
+        try {
+            variants.each { variant ->
+                def buildTypeName = variant.buildType.name.capitalize()
+
+                def productFlavorNames = variant.productFlavors.collect { it.name.capitalize() }
+                if (productFlavorNames.isEmpty()) {
+                    productFlavorNames = [""]
+                }
+                def productFlavorName = productFlavorNames.join('')
+                def flavor = StringUtils.uncapitalize(productFlavorName)
+
+                def variationName = "${productFlavorName}${buildTypeName}"
+
+                if (task.name.contains(variationName)) {
+                    def variationPath = variant.buildType.name;
+
+                    if (StringUtils.isNotEmpty(productFlavorName)) {
+                        variationPath = StringUtils.uncapitalize(productFlavorName) + "/" + variationPath
+                    }
+
+                    def copyTestResourcesTask = project.tasks.create("copyTest${variationName}Resources", Copy)
+                    copyTestResourcesTask.from("${projectDir}/src/test/resources")
+                    copyTestResourcesTask.into("${buildDir}/intermediates/classes/test/${variationPath}")
+
+                    // Makes the test task depend on the copy test resource variation task
+                    task.dependsOn(copyTestResourcesTask)
+
+                    def copyResourcesTask = project.tasks.create("copy${variationName}Resources", Copy)
+                    copyResourcesTask.from("${projectDir}/src/main/resources")
+                    copyResourcesTask.into("${buildDir}/intermediates/classes/${variationPath}")
+
+                    task.dependsOn(copyResourcesTask)
+
+                    variants.remove(variant)
+
+                    throw new Exception("Break") // Breaking the loop
+                }
+            }
+        } catch (Exception e) {} // Just drop the exception
+    }
+}

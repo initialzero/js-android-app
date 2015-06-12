@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ *  Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,94 +22,196 @@
  *  <http://www.gnu.org/licenses/lgpl>.
  */
 
-android.applicationVariants.all { variant ->
-    renameApk(variant)
-    variant.assemble.doLast {
-        removeUnaligned(variant)
+/*
+    In order to run build with and increment use flag -PincrementBuild=true
+    In order to have timestamp in build name use flag -PneedTimeStamp=true
+    For e.g. gradlew assembleQaRelease -PincrementBuild=true -PneedTimeStamp=true
+
+    P.S. gradlew assembleQaRelease -PneedTimeStamp=true
+         will increment build event without appropriate flag
+ */
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.ajoberstar:gradle-git:1.1.0'
     }
 }
 
-ext.renameApk = { targetVariant ->
-    def buildType = targetVariant.buildType
-    def mergedFlavor = targetVariant.mergedFlavor
-    targetVariant.outputs.each { output ->
-        // replace output apk name to <product>-<buildType>-<version>-<gitBranch>.apk
-        def versionSuffix = buildType.versionNameSuffix ? buildType.versionNameSuffix : ""
-        def apkName = versionSuffix + mergedFlavor.versionName
+import java.text.NumberFormat
+import org.ajoberstar.grgit.*
 
-        def file = output.packageApplication.outputFile
-        def fileName = file.name.replace(".apk", "-" + apkName + ".apk")
+ext {
+    versionFile = new File(project.rootDir, 'version.properties')
 
-        if (output.zipAlign) {
-            output.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""))
+    calculateVersionName = { variant ->
+        def version = readVersion()
+        def versionName = "${version['major']}.${version['minor']}.${version['patch']}"
+
+        if (variant != null) {
+            def flavorName = variant.getFlavorName()
+            def dev = flavorName.equals("dev")
+            def qa = flavorName.equals("qa")
+
+            if (qa) {
+                def repo = Grgit.open(project.rootDir)
+                def branch = repo.branch.getCurrent().getName()
+                def sanitizedBranch = branch.replaceAll("/", "_")
+
+                def notMaster = !sanitizedBranch.equals('master')
+                def notDevelop = !sanitizedBranch.equals('develop')
+
+                if (notMaster) {
+                    if (notDevelop && sanitizedBranch.length() > 0) {
+                        versionName += "-${sanitizedBranch}-${version['revision']}"
+                    }
+                }
+            }
+
+            if (dev) {
+                versionName += "-SNAPSHOT"
+            }
+
+            def needTimeStamp = false
+            if (project.hasProperty("needTimeStamp")) {
+                needTimeStamp = project.needTimeStamp
+            }
+            if (needTimeStamp) {
+                TimeZone.setDefault(TimeZone.getTimeZone('UTC'))
+                def now = new Date().format("yyyy_MM_dd-HH_mm_ss")
+                versionName += '-' + now
+            }
         }
+        return versionName
+    }
+
+    /**
+     * Pattern for versionCode:
+     * android:versionCode="vvxxyyzz"
+     * where:
+     * vv - min android sdk version
+     * xx - major version number
+     * yy - minor version number
+     * zz - revision number
+     */
+    calculateVersionCode = { variant ->
+        def versionCode = ""
+        def version = readVersion()
+        def major = version['major'] as int // 1..?
+        def minor = version['minor'] as int // 0..99
+        def build = version['patch'] as int // 0..999
+
+        def format = NumberFormat.getInstance()
+        format.setMinimumIntegerDigits(2)
+
+        if (variant != null) {
+            def flavor = variant.mergedFlavor
+            def minSdk = flavor.minSdkVersion.getApiLevel()
+            versionCode += minSdk
+        }
+
+        versionCode += format.format(major)
+        versionCode += format.format(minor)
+        versionCode += format.format(build)
+        return Integer.valueOf(versionCode)
     }
 }
 
-ext.removeUnaligned = { targetVariant ->
-    targetVariant.outputs.each { output ->
-        def file = output.packageApplication.outputFile
-
-        if (file.name.contains("unaligned")) {
-            delete file
-        }
+Properties readVersion() {
+    def version = new Properties()
+    def stream
+    try {
+        stream = new FileInputStream(versionFile)
+        version.load(stream)
+    } catch (java.io.FileNotFoundException ignore) {
+    } finally {
+        if (stream != null) stream.close()
     }
-}
-
-ext.generateVersionName = {
-    def version = MAJOR_VERSION + "." + MINOR_VERSION
-    def sanitizedBranch = sanitizeLastSlash(getBranch())
-    def notMaster = !sanitizedBranch.equals('master')
-    def notDevelop = !sanitizedBranch.equals('develop')
-//    def needTimeStamp = true
-    def needTimeStamp = false
-
-    if (notMaster) {
-        if (notDevelop && sanitizedBranch.length() > 0) {
-            version = "${sanitizedBranch}-" + version
-        }
-
-        version += '-SNAPSHOT'
-        if (needTimeStamp) {
-            TimeZone.setDefault(TimeZone.getTimeZone('UTC'))
-            def now = new Date().format("yyyy_MM_dd-HH_mm_ss")
-            version += '-' + now
-        }
-    }
-
+    // safety defaults in case file is missing
+    if (!version['major']) version['major'] = "1"
+    if (!version['minor']) version['minor'] = "0"
+    if (!version['patch']) version['patch'] = "0"
+    if (!version['revision']) version['revision'] = "0"
     return version
 }
 
-//---------------------------------------------------------------------
-// Private methods
-//---------------------------------------------------------------------
-
-def sanitizeLastSlash(str) {
-    def lastSlashIndex = str.lastIndexOf("/") + 1
-    return str.substring(lastSlashIndex)
-}
-
-def getBranch() {
-    def gitBranch = getBranchNameFromEnv()
-    if (!gitBranch) {
-        gitBranch = getBranchNameFromGit()
+task incrementVersion {
+    description "Increments build counter in ${versionFile}"
+    doFirst {
+        incrementRevisionNumber()
     }
-    return gitBranch
 }
 
-def getBranchNameFromEnv() { return System.getenv("GIT_BRANCH") }
+void incrementRevisionNumber() {
+    def version = readVersion()
 
-def getBranchNameFromGit() {
+    def build = version['revision'] as int
+    build++
+    version['revision'] = build.toString()
+
+    def stream = new FileOutputStream(versionFile)
     try {
-        def stdout = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
-            standardOutput = stdout
-        }
-        return stdout.toString().trim()
+        version.store(stream, null)
+    } finally {
+        stream.close()
     }
-    catch (ignored) {
-        println ignored
-        return ""
+}
+
+if (plugins.hasPlugin('android') || plugins.hasPlugin('android-library')) {
+    android {
+        defaultConfig {
+            versionName = calculateVersionName(null)
+            versionCode = calculateVersionCode(null)
+        }
+
+        def shouldIncrementBuild = false
+        if (project.hasProperty("incrementBuild")) {
+            shouldIncrementBuild = project.incrementBuild
+        }
+        if (project.hasProperty("needTimeStamp")) {
+            shouldIncrementBuild = true
+        }
+
+        if (shouldIncrementBuild) {
+            afterEvaluate {
+                def renameApk = { targetVariant ->
+                    def buildType = targetVariant.buildType
+                    def mergedFlavor = targetVariant.mergedFlavor
+                    targetVariant.outputs.each { output ->
+                        def versionSuffix = buildType.versionNameSuffix ? buildType.versionNameSuffix : ""
+                        def apkName = versionSuffix + mergedFlavor.versionName
+
+                        def file = output.packageApplication.outputFile
+                        def fileName = file.name.replace(".apk", "-" + apkName + ".apk")
+
+                        if (output.zipAlign) {
+                            output.zipAlign.outputFile = new File(file.parentFile, fileName.replace("-unaligned", ""))
+                        }
+                    }
+                }
+                def autoIncrementVariant = { variant ->
+                    variant.preBuild.dependsOn incrementVersion
+                    incrementVersion.doLast {
+                        variant.mergedFlavor.versionName = calculateVersionName(variant)
+                        variant.mergedFlavor.versionCode = calculateVersionCode(variant)
+                        renameApk(variant)
+                    }
+                }
+
+                if (plugins.hasPlugin('android')) {
+                    applicationVariants.all { variant ->
+                        autoIncrementVariant(variant)
+                    }
+                }
+
+                if (plugins.hasPlugin('android-library')) {
+                    libraryVariants.all { variant ->
+                        autoIncrementVariant(variant)
+                    }
+                }
+            }
+        }
     }
 }

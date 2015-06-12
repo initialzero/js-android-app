@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -39,7 +39,7 @@ import rx.Observable;
 public interface AccountService {
     @Headers({"Accept: application/repository.folder+json"})
     @GET("/resources")
-    Observable<Response> authorize(@Header("Authorization") String authToken);
+    Observable<Response> authorize(@Header("Authorization") String authToken, @Header("Accept-Language") String locale);
     @Headers({"Accept: application/json"})
     @GET("/serverInfo")
     Observable<ServerInfo> getServerInfo(@Header("Set-cookie") String cookie);

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -34,12 +34,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
+import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 
+import retrofit.RetrofitError;
 import timber.log.Timber;
 
 /**
@@ -48,9 +57,11 @@ import timber.log.Timber;
  */
 public class JasperAuthenticator extends AbstractAccountAuthenticator {
     private final Context mContext;
+    private final JsRestClient mJsRestClient;
 
-    public JasperAuthenticator(Context context) {
+    public JasperAuthenticator(Context context, JsRestClient jsRestClient) {
         super(context);
+        mJsRestClient = jsRestClient;
         mContext = context;
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }
@@ -81,44 +92,72 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
         String authToken = accountManager.peekAuthToken(account, authTokenType);
 
         Timber.d("We have peek token: " + authToken);
+
         // Lets give another try to authenticate the user
         if (TextUtils.isEmpty(authToken)) {
             String password = accountManager.getPassword(account);
             Timber.d(String.format("Password for account[%s] : %s", account.name, password));
 
-            if (password != null) {
-                AccountServerData serverData = AccountServerData.get(mContext, account);
-                JsRestClient2 jsRestClient2 = JsRestClient2.forEndpoint(
-                        serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION);
+            AccountServerData serverData = AccountServerData.get(mContext, account);
+            JsRestClient2 jsRestClient2 = JsRestClient2
+                    .configure()
+                    .setEndpoint(serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION)
+                    .setClient(new DefaultUrlConnectionClient(mContext))
+                    .build();
+            try {
                 LoginResponse loginResponse = jsRestClient2.login(
                         serverData.getOrganization(), serverData.getUsername(), password
                 ).toBlocking().firstOrDefault(null);
-                if (loginResponse != null) {
-                    ServerInfo serverInfo = loginResponse.getServerInfo();
-                    Timber.d("Updating user data with server info: " + serverInfo);
-                    accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
-                    accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
-                    authToken = loginResponse.getCookie();
-                    Timber.d("New token: " + authToken);
+
+                ServerInfo serverInfo = loginResponse.getServerInfo();
+
+                boolean serverInfoEditionUpdated = !serverInfo.getEdition().equals(serverData.getEdition());
+                boolean serverInfoVersionUpdated = !serverInfo.getVersion().equals(serverData.getVersionName());
+
+                Timber.d("Updating user data with server info: " + serverInfo);
+                accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
+                accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
+
+                if (serverInfoEditionUpdated || serverInfoVersionUpdated) {
+                    int flags = Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK;
+                    NavigationActivity_.intent(mContext).flags(flags).start();
                 }
+
+                if (!ServerRelease.satisfiesMinVersion(serverInfo.getVersion())) {
+                    result.putString(AccountManager.KEY_ERROR_MESSAGE, mContext.getString(R.string.r_error_server_not_supported));
+                    result.putInt(AccountManager.KEY_ERROR_CODE, JasperAccountManager.TokenException.INCORRECT_SERVER_VERSION_ERROR);
+                    return result;
+                }
+
+                authToken = loginResponse.getCookie();
+                accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
+
+                // Update legacy REST client
+                JsServerProfileCompat.initLegacyJsRestClient(mContext, account, mJsRestClient);
+
+                Timber.d("Prepare correct token bundle");
+                result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+                result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+                result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+            } catch (RetrofitError retrofitError) {
+                Timber.d(retrofitError, "We can not log in");
+                int status;
+                String message;
+                if (retrofitError.getKind() == RetrofitError.Kind.NETWORK) {
+                    status = JasperAccountManager.TokenException.SERVER_NOT_FOUND;
+                    message = mContext.getString(R.string.r_error_server_not_found);
+                } else {
+                    status = retrofitError.getResponse().getStatus();
+                    message = retrofitError.getMessage();
+                }
+
+                // For android 4.4+ we need to send face intent with any data. In other case we will get error in AccountManagerFuture.getResult() method
+                result.putParcelable(AccountManager.KEY_INTENT, new Intent(mContext, AuthenticatorActivity.class));
+                result.putString(AccountManager.KEY_ERROR_MESSAGE, message);
+                result.putInt(AccountManager.KEY_ERROR_CODE, status);
             }
         }
 
-        // If we get an authToken - we return it
-        if (!TextUtils.isEmpty(authToken)) {
-            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-            result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-            return result;
-        }
-
-        // If we get here, then we couldn't access the user's password - so we
-        // need to re-prompt them for their credentials. We do that by creating
-        // an intent to display our AuthenticatorActivity.
-        Timber.d("We cant access user password :(");
-        final Intent intent = new Intent(JasperSettings.ACTION_AUTHORIZE);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-        result.putParcelable(AccountManager.KEY_INTENT, intent);
         return result;
     }
 

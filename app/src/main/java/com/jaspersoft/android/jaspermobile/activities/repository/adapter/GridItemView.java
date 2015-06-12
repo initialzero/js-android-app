@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -40,7 +40,7 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 @EViewGroup(R.layout.res_grid_item)
-public class GridItemView extends CheckedRelativeLayout implements IResourceView {
+public class GridItemView extends CheckedRelativeLayout implements ResourceView {
 
     @ViewById(android.R.id.icon)
     protected ImageView mImageIcon;
@@ -87,21 +87,12 @@ public class GridItemView extends CheckedRelativeLayout implements IResourceView
         }
     }
 
-    public void setTimeStamp(CharSequence timestamp) {
+    public void setInfo(CharSequence timestamp) {
         if (mTimestampStub != null) {
             if (mTimestampTxt == null) {
                 mTimestampTxt = (TextView) mTimestampStub.inflate();
             }
             mTimestampTxt.setText(timestamp);
-        }
-    }
-
-    public void setMisc(CharSequence misc) {
-        if (mMiscStub != null) {
-            if (mMiscTxt == null) {
-                mMiscTxt = (TextView) mMiscStub.inflate();
-            }
-            mMiscTxt.setText(misc);
         }
     }
 

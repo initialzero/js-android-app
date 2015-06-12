@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,9 +25,10 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
 import android.content.Intent;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesSearchableActivity_;
@@ -55,9 +56,11 @@ public class FavoritesSearchFragment extends RoboFragment implements SearchView.
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        SearchView searchView = (SearchView) searchMenuItem.getActionView();
-        searchView.setQueryHint(getString(R.string.s_hint));
-        searchView.setOnQueryTextListener(this);
+        if (!isDetached()) {
+            SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+            searchView.setQueryHint(getString(R.string.s_hint));
+            searchView.setOnQueryTextListener(this);
+        }
     }
 
     @Override

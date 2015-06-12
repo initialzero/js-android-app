@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -28,9 +28,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -42,13 +41,21 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
+    public static final String CONTENT_TAG = "FavoritesControllerFragment.CONTENT_TAG";
+    public static final String PREF_TAG = "favorites_pref";
     public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
 
     private FavoritesFragment contentFragment;
 
     @FragmentArg
     @InstanceState
-    String searchQuery;
+    protected String searchQuery;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getArguments().putString(PREF_TAG_KEY, PREF_TAG);
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -73,15 +80,14 @@ public class FavoritesControllerFragment extends ControllerFragment {
         return contentFragment;
     }
 
-    public void loadItemsByTypes(ResourceLookup.ResourceType newFilterType) {
-        if (contentFragment != null) {
-            contentFragment.showSavedItemsByFilter(newFilterType);
-        }
+    @Override
+    protected String getContentFragmentTag() {
+        return CONTENT_TAG;
     }
 
-    public void loadItemsBySortOrder(SortOrder newSortOrder) {
+    public void loadItemsByTypes(Filter newFilterType) {
         if (contentFragment != null) {
-            contentFragment.showSavedItemsBySortOrder(newSortOrder);
+            contentFragment.showFavoritesByFilter();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,26 +26,29 @@ package com.jaspersoft.android.jaspermobile.activities.storage.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.view.ActionMode;
 import android.text.format.DateUtils;
-import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.collect.Maps;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.SingleChoiceSimpleCursorAdapter;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.IResourceView;
 import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
+import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceSimpleCursorAdapter;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -64,13 +67,13 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         UNKNOWN
     }
 
-    private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = Maps.newEnumMap(FileType.class);
+    private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = new EnumMap<FileType, Integer>(FileType.class);
 
     static {
-        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.ic_composed_html);
-        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.ic_composed_pdf);
-        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.ic_composed_xls);
-        DRAWABLE_IDS_MAP.put(FileType.UNKNOWN, R.drawable.js_grey_gradient);
+        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.bg_saved_html);
+        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.bg_saved_pdf);
+        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.bg_saved_xls);
+        DRAWABLE_IDS_MAP.put(FileType.UNKNOWN, R.drawable.bg_gradient_grey);
     }
 
 
@@ -88,7 +91,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
 
     @Override
     public View getViewImpl(int position, View convertView, ViewGroup parent) {
-        IResourceView itemView = (IResourceView) convertView;
+        ResourceView itemView = (ResourceView) convertView;
 
         if (itemView == null) {
             if (mViewType == ViewType.LIST) {
@@ -106,9 +109,15 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         String fileFormat = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
         String fileName = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
 
-        itemView.getImageView().setImageResource(getFileIconByExtension(fileFormat));
+        TopCropImageView iconView = (TopCropImageView) itemView.getImageView();
+        if (iconView != null) {
+            iconView.setImageResource(getFileIconByExtension(fileFormat));
+            iconView.setBackgroundResource(R.drawable.bg_gradient_grey);
+            iconView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+        }
+
         itemView.setTitle(fileName);
-        itemView.setTimeStamp(getHumanReadableFileSize(file));
+        itemView.setInfo(getHumanReadableFileSize(file));
         itemView.setSubTitle(getFormattedDateModified(creationTime));
 
         return (View) itemView;
@@ -131,17 +140,19 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         Cursor cursor = getCursor();
         cursor.moveToPosition(getCurrentPosition());
 
-        File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+        File itemFile = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+        long recordId = cursor.getLong(cursor.getColumnIndex(SavedItemsTable._ID));
+        Uri recordUri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI, String.valueOf(recordId));
         switch (item.getItemId()) {
             case R.id.renameItem:
                 if (fileInteractionListener != null) {
-                    String extension = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
-                    fileInteractionListener.onRename(file.getParentFile(), extension);
+                    String fileExtension = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
+                    fileInteractionListener.onRename(itemFile.getParentFile(), recordUri, fileExtension);
                 }
                 break;
             case R.id.deleteItem:
                 if (fileInteractionListener != null) {
-                    fileInteractionListener.onDelete(file.getParentFile());
+                    fileInteractionListener.onDelete(itemFile, recordUri);
                 }
                 break;
             case R.id.showAction:
@@ -149,7 +160,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
                     String title = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
                     long creationTime = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.CREATION_TIME));
                     String description = String.format("%s \n %s", getFormattedDateModified(creationTime),
-                            getHumanReadableFileSize(file));
+                            getHumanReadableFileSize(itemFile));
 
                     fileInteractionListener.onInfo(title, description);
                 }
@@ -197,11 +208,11 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     //---------------------------------------------------------------------
 
     public static interface FileInteractionListener {
-        void onRename(File file, String extention);
+        void onRename(File itemFile, Uri recordUri, String fileExtension);
 
-        void onDelete(File file);
+        void onDelete(File itemFile, Uri recordUri);
 
-        void onInfo(String title, String description);
+        void onInfo(String itemTitle, String itemDescription);
     }
 
 }

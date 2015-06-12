@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -35,7 +35,8 @@ import org.apache.http.hacked.HackedJsRestClient;
  */
 public class HackedTestModule extends CommonTestModule {
     @Override
-    protected void semanticConfigure() {
+    protected void configure() {
+        super.configure();
         bind(JsRestClient.class).toInstance(HackedJsRestClient.get());
         bind(JsSpiceManager.class).toInstance(new SyncSpiceManager());
     }

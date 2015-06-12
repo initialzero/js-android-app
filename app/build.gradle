@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ *  Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -23,15 +23,26 @@
  */
 
 buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
+        classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
+apply plugin: 'io.fabric'
 apply from: 'build_utils.gradle'
+apply from: 'resources.gradle'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
 
 android {
     compileSdkVersion androidCompileSdkVersion
@@ -42,16 +53,11 @@ android {
         testApplicationId TEST_PACKAGE_NAME
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
-//        Pattern for versionCode:
-//        android:versionCode="vvxxyyzz"
-//        where:
-//        vv - min android sdk version
-//        xx - major version number
-//        yy - minor version number
-//        zz - revision number
-        versionCode 15020000
-        versionName generateVersionName()
+
         testInstrumentationRunner INSTRUMENTATION_RUNNER
+
+        versionCode 15020010
+        versionName "2.0.1"
     }
 
     if (project.hasProperty('JMA_STORE_FILE')) {
@@ -99,6 +105,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
+        encoding 'ISO-8859-1'
     }
 
     productFlavors {
@@ -107,9 +114,6 @@ android {
         dev {
         }
         production {
-            versionCode 15020000
-            versionName "2.0"
-
             buildTypes {
                 debug {
                     if (project.hasProperty('JMA_STORE_FILE')) {
@@ -119,12 +123,17 @@ android {
             }
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 apt {
     arguments {
         androidManifestFile variant.outputs[0].processResources.manifestFile
         resourcePackageName PACKAGE_NAME
+        guiceAnnotationDatabasePackageName "com.jaspersoft.android.jaspermobile"
         logLevel "WARN"
     }
 }
@@ -132,37 +141,27 @@ apt {
 
 dependencies {
     provided project(':database-generator')
-    compile project(':library-circular')
     compile project(':sdk')
 
-    compile('com.jaspersoft.android.sdk:js-android-sdk-ui:1.9'){
-        exclude group: 'com.jaspersoft.android.sdk'
-    }
-    compile 'org.roboguice:roboguice:2.0'
-    compile 'com.google.guava:guava:18.0'
-    compile('com.android.support:support-v4:21.0.3') {
-        exclude group: 'com.android.support'
-    }
+    compile 'org.roboguice:roboguice:3.0.1'
+    provided 'org.roboguice:roboblender:3.0.1'
 
-    compile'com.android.support:cardview-v7:21.0.3'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:cardview-v7:21.0.3'
+    compile 'com.google.android.gms:play-services-analytics:7.3.0'
 
-    // This is required for @Nullable @NonNull annotations
-    compile 'com.android.support:support-annotations:20.0.0'
-    // For sugar instantiate of dialogs
-    compile('eu.inmite.android.lib:android-styled-dialogs:1.2.0:') {
-        exclude group: 'com.android.support'
-    }
-
-    compile("org.androidannotations:androidannotations-api:${androidAnnotationsVersion}")
-    apt "org.androidannotations:androidannotations:${androidAnnotationsVersion}"
+    compile("org.androidannotations:androidannotations-api:3.2")
+    apt "org.androidannotations:androidannotations:3.2"
+    apt 'org.roboguice:roboblender:3.0.1'
 
     // For action mode support within list views
-    compile 'com.github.manuelpeinado.multichoiceadapter:multichoiceadapter:3.1.0'
-    // For homogeneous design on all platforms
-    compile 'com.negusoft.holoaccent:library:1.1'
+    compile('com.github.manuelpeinado.multichoiceadapter:multichoiceadapter-abc:3.1.0') {
+        exclude group: 'com.android.support'
+    }
 
-    // Splunk Mint(Bugsense)
-    compile "com.splunk.mint:mint:4.0.3"
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.1@aar') {
+        transitive = true;
+    }
 
     // Remove gradle dependency
     // When all required testing for JRS will be completed
@@ -171,8 +170,19 @@ dependencies {
     // Dependency for image loading management
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
 
+    // Template rendering
+    compile 'com.samskivert:jmustache:1.10'
+
+    // Unit tests dependencies
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
+    testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile('org.robolectric:shadows-support-v4:3.0-rc3') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
-    androidTestCompile 'com.squareup.okhttp:okhttp:2.1.0'
     androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
 
     androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {

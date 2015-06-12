@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -33,10 +33,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
-import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity;
 
 import roboguice.fragment.RoboFragment;
 
@@ -48,17 +46,17 @@ import static com.jaspersoft.android.jaspermobile.activities.repository.support.
  * @since 1.9
  */
 public abstract class ControllerFragment extends RoboFragment {
-
-    public static final String CONTENT_TAG = "CONTENT_TAG";
+    protected final static String PREF_TAG_KEY = "prefTag";
 
     private MenuItem switchLayoutMenuItem;
     protected ControllerPref controllerPref;
+    private int switchMenuIcon;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        restoreSavedInstanceState(savedInstanceState);
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        initControllerPref();
     }
 
     @Override
@@ -75,6 +73,36 @@ public abstract class ControllerFragment extends RoboFragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        bundle.putInt("switchMenuIcon", switchMenuIcon);
+    }
+
+    private void restoreSavedInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return;
+        }
+        switchMenuIcon = savedInstanceState.getInt("switchMenuIcon");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        initControllerPref();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        boolean switchButtonInitialized = switchMenuIcon != 0;
+        boolean switchViewWasAltered = switchMenuIcon != getToggleIcon();
+
+        if (switchButtonInitialized && switchViewWasAltered) {
+            switchLayout();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean handled = super.onOptionsItemSelected(item);
         if (handled) {
@@ -82,36 +110,43 @@ public abstract class ControllerFragment extends RoboFragment {
         }
         int itemId_ = item.getItemId();
         if (itemId_ == R.id.switchLayout) {
+            togglePref();
             switchLayout();
             return true;
         }
         return false;
     }
 
-    protected void switchLayout() {
+    private void togglePref() {
         controllerPref.viewType()
                 .put(getViewType() == LIST ? GRID.toString() : LIST.toString());
+    }
+
+    private void switchLayout() {
         toggleSwitcher();
         commitContentFragment();
-        getActivity().invalidateOptionsMenu();
+        getActivity().supportInvalidateOptionsMenu();
     }
 
     private void toggleSwitcher() {
-        if (getViewType() == LIST) {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_grid);
-        } else {
-            switchLayoutMenuItem.setIcon(R.drawable.ic_collections_view_as_list);
+        switchMenuIcon = getToggleIcon();
+        if (switchLayoutMenuItem != null) {
+            switchLayoutMenuItem.setIcon(switchMenuIcon);
         }
     }
 
+    private int getToggleIcon() {
+        return getViewType() == LIST ? R.drawable.ic_menu_module : R.drawable.ic_menu_list;
+    }
+
     protected void commitContentFragment() {
-        boolean animationEnabled = SettingsActivity.isAnimationEnabled(getActivity());
+        boolean animationEnabled = DefaultPrefHelper_.getInstance_(getActivity()).isAnimationEnabled();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         if (animationEnabled) {
             transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
         }
         transaction
-                .replace(android.R.id.content, getContentFragment(), CONTENT_TAG)
+                .replace(R.id.content_frame, getContentFragment(), getContentFragmentTag())
                 .commit();
     }
 
@@ -124,18 +159,15 @@ public abstract class ControllerFragment extends RoboFragment {
 
 
     private void initControllerPref() {
-        String controllerTag = null;
-        Bundle args = getArguments();
-        if (args != null && args.containsKey(ResourcesControllerFragment_.CONTROLLER_TAG_ARG)) {
-            controllerTag = args.getString(ResourcesControllerFragment_.CONTROLLER_TAG_ARG);
-            if (!TextUtils.isEmpty(controllerTag)) {
-                controllerPref = new ControllerPref(getActivity(), controllerTag);
-            }
+        String prefTag = getArguments().getString(PREF_TAG_KEY);
+        if (TextUtils.isEmpty(prefTag)) {
+            throw new IllegalStateException("Missing preference key for switch component");
         }
-        String prefTag = TextUtils.isEmpty(controllerTag) ? getActivity().getLocalClassName() : controllerTag;
         controllerPref = new ControllerPref(getActivity(), prefTag);
     }
 
-    public abstract Fragment getContentFragment();
+    protected abstract Fragment getContentFragment();
+
+    protected abstract String getContentFragmentTag();
 
 }

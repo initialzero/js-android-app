@@ -27,17 +27,14 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragme
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
-import com.jaspersoft.android.jaspermobile.util.PrintReportHelper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -48,24 +45,18 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import java.util.ArrayList;
-
-import javax.inject.Inject;
-
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment
 @OptionsMenu(R.menu.retrofit_report_menu)
-public class ReportActionFragment extends RoboSpiceFragment {
+public class ReportActionFragment extends Fragment {
     public static final String TAG = ReportActionFragment.class.getSimpleName();
 
     @FragmentArg
     ResourceLookup resource;
-    @FragmentArg
-    ArrayList<ReportParameter> reportParameters;
-    
+
     @Bean
     FavoritesHelper favoritesHelper;
 
@@ -77,10 +68,6 @@ public class ReportActionFragment extends RoboSpiceFragment {
     @InstanceState
     Uri favoriteEntryUri;
 
-    @Inject
-    JsRestClient jsRestClient;
-
-    
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -112,8 +99,4 @@ public class ReportActionFragment extends RoboSpiceFragment {
                 .show();
     }
 
-    @OptionsItem
-    final void printAction() {
-        PrintReportHelper.printReport(jsRestClient, getActivity(), resource, reportParameters);
-    }
 }

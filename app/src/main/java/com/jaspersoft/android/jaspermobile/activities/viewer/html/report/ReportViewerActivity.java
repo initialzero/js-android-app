@@ -61,6 +61,7 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
+import com.jaspersoft.android.jaspermobile.util.PrintReportHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -78,6 +79,7 @@ import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterf
 import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -163,6 +165,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected ReportParamsStorage paramsStorage;
     @Inject
     protected ReportParamsSerializer paramsSerializer;
+    @Inject
+    protected JsRestClient jsRestClient;
 
     private AccountServerData accountServerData;
     private boolean mShowSavedMenuItem, mShowRefreshMenuItem;
@@ -331,6 +335,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
         webView.setVisibility(View.INVISIBLE);
         paginationControl.setVisibility(View.GONE);
         paginationControl.reset();
+    }
+
+    @OptionsItem
+    final void printAction() {
+        PrintReportHelper.printReport(jsRestClient, this, resource, reportParameters);
     }
 
     //---------------------------------------------------------------------

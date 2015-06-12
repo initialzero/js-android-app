@@ -44,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.PrintReportHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
@@ -142,6 +143,11 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @OptionsItem
     public void showFilters() {
         showReportOptions();
+    }
+
+    @OptionsItem
+    final void printAction() {
+        PrintReportHelper.printReport(jsRestClient, getActivity(), resource, reportParameters);
     }
 
     private void showReportOptions() {

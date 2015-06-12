@@ -11,10 +11,10 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
+import android.support.v4.app.FragmentActivity;
 import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmentActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.BaseRequest;
@@ -45,8 +45,8 @@ public class PrintReportHelper {
     public static BaseRequest request;
 
     @TargetApi(19)
-    public static void printDashboard(Context context, WebView webViewToPrint, String dashboardName){
-        PrintManager printManager = (PrintManager) context.getSystemService(Context.PRINT_SERVICE);
+    public static void printDashboard(WebView webViewToPrint, String dashboardName){
+        PrintManager printManager = (PrintManager) webViewToPrint.getContext().getSystemService(Context.PRINT_SERVICE);
         PrintDocumentAdapter printAdapter = webViewToPrint.createPrintDocumentAdapter();
         printManager.print(dashboardName, printAdapter,
                 new PrintAttributes.Builder().build());
@@ -69,12 +69,12 @@ public class PrintReportHelper {
         final RequestListener<File> saveFileListener = new RequestListener<File>() {
             @Override
             public void onRequestFailure(SpiceException spiceException) {
-                ProgressDialogFragment.dismiss(((RoboSpiceFragmentActivity) context).getSupportFragmentManager());
+                ProgressDialogFragment.dismiss(((FragmentActivity) context).getSupportFragmentManager());
             }
 
             @Override
             public void onRequestSuccess(File file) {
-                ProgressDialogFragment.dismiss(((RoboSpiceFragmentActivity) context).getSupportFragmentManager());
+                ProgressDialogFragment.dismiss(((FragmentActivity) context).getSupportFragmentManager());
                 String jobName = file.getName();
                 printManager.print(jobName, new PrintReportAdapter(file),
                         new PrintAttributes.Builder().build());
@@ -84,7 +84,7 @@ public class PrintReportHelper {
         final RequestListener<ReportExecutionResponse> runReportListener = new RequestListener<ReportExecutionResponse>() {
             @Override
             public void onRequestFailure(SpiceException spiceException) {
-                ProgressDialogFragment.dismiss(((RoboSpiceFragmentActivity) context).getSupportFragmentManager());
+                ProgressDialogFragment.dismiss(((FragmentActivity) context).getSupportFragmentManager());
             }
 
             @Override
@@ -96,7 +96,7 @@ public class PrintReportHelper {
                 // save report file
                 request = new SaveExportOutputRequest(jsRestClient,
                         executionId, exportOutput, testPdfFile);
-                ((RoboSpiceFragmentActivity) context).getSpiceManager().execute(request, saveFileListener);
+//                ((RoboToolbarActivity) context).getSpiceManager().execute(request, saveFileListener);
             }
         };
 
@@ -104,7 +104,7 @@ public class PrintReportHelper {
             @Override
             public void onCancel(DialogInterface dialog) {
                 if (!request.isCancelled()) {
-                    ((RoboSpiceFragmentActivity) context).getSpiceManager().cancel(request);
+//                    ((FragmentActivity) context).getSpiceManager().cancel(request);
                 }
             }
         };
@@ -113,11 +113,11 @@ public class PrintReportHelper {
             @Override
             public void onShow(DialogInterface dialog) {
                 request = new RunReportExecutionRequest(jsRestClient, executionRequest);
-                ((RoboSpiceFragmentActivity) context).getSpiceManager().execute(request, runReportListener);
+//                ((FragmentActivity) context).getSpiceManager().execute(request, runReportListener);
             }
         };
 
-        ProgressDialogFragment.builder(((RoboSpiceFragmentActivity) context).getSupportFragmentManager())
+        ProgressDialogFragment.builder(((FragmentActivity) context).getSupportFragmentManager())
                 .setOnCancelListener(cancelListener)
                 .setOnShowListener(showListener)
                 .setLoadingMessage(R.string.loading_msg)

@@ -27,21 +27,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/saveReport"
-        android:icon="@drawable/ic_menu_save"
-        android:title="@string/rv_ab_save_report"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/favoriteAction"
-        android:icon="@drawable/ic_menu_star_outline"
-        android:title="@string/r_cm_add_to_favorites"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/aboutAction"
-        android:icon="@drawable/ic_menu_info"
-        android:title="@string/r_cm_view_details"
+        android:id="@+id/showFilters"
+        android:icon="@drawable/ic_menu_filter"
+        android:title="@string/rv_ab_show_filters"
         app:showAsAction="never" />
 
     <item

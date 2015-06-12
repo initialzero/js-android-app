@@ -29,9 +29,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
+import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourceSearchable;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportActionFragment;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
@@ -95,6 +99,14 @@ public class ResourcesControllerFragment extends ControllerFragment
             commitContentFragment();
         } else {
             contentFragment = inMemoryFragment;
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(prefTag.equals(FavoritesControllerFragment.PREF_TAG)) {
+            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
         }
     }
 

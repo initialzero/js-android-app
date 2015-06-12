@@ -159,8 +159,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        resourceOpener.setResourceTypes(resourceTypes);
-
         mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setLimit(mLimit);
         mSearchCriteria.setRecursive(recursiveLookup);

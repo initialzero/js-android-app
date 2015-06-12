@@ -30,11 +30,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
@@ -58,11 +60,12 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     private static final int AUTHORIZE_CODE = 10;
 
     private Toolbar toolbar;
+    private FrameLayout toolbarCustomView;
     private View baseView;
     private ViewGroup contentLayout;
 
     private JasperAccountManager mJasperAccountManager;
-    JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
+    private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
     private boolean windowToolbar;
 
@@ -82,6 +85,36 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     public Toolbar getToolbar() {
         return toolbar;
+    }
+
+    /**
+     * Set custom view instead of toolbar title. Can be used only after activity is created.
+     *
+     * @param view custom view for Toolbar. Pass null to show default toolbar.
+     */
+    public void setCustomToolbarView(View view) {
+        if (toolbarCustomView == null) return;
+
+        toolbarCustomView.removeAllViews();
+        getSupportActionBar().setDisplayShowTitleEnabled(view == null);
+        if (view != null) {
+            toolbarCustomView.addView(view);
+        }
+    }
+
+    /**
+     * Set whether a custom toolbar view should be displayed, if set.
+     * If false, action bar title will be shown.
+     */
+    public void setDisplayCustomToolbarEnable(boolean enabled) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(toolbarCustomView.getChildCount() == 0 || !enabled);
+        }
+
+        for (int i = 0; i < toolbarCustomView.getChildCount(); i++) {
+            toolbarCustomView.getChildAt(i).setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+        }
     }
 
     @Override
@@ -186,13 +219,14 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         baseView = li.inflate(R.layout.view_base_toolbox_layout, null, false);
         contentLayout = (ViewGroup) baseView.findViewById(R.id.content);
         toolbar = (Toolbar) baseView.findViewById(R.id.tb_navigation);
+        toolbarCustomView = (FrameLayout) toolbar.findViewById(R.id.tb_custom);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         super.setContentView(baseView);
     }
 
-    private void defineJasperAccountsState(){
+    private void defineJasperAccountsState() {
         Account[] accounts = mJasperAccountManager.getAccounts();
         Account currentAccount = mJasperAccountManager.getActiveAccount();
 
@@ -240,7 +274,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             case NO_ACCOUNTS:
                 Timber.d("Send user to account page.");
                 startActivityForResult(new Intent(this, AuthenticatorActivity.class), AUTHORIZE_CODE);
-            break;
+                break;
         }
         mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
     }
@@ -269,7 +303,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
     }
 
-    private void restartApp(){
+    private void restartApp() {
         Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);

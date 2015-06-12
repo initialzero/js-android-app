@@ -23,14 +23,11 @@
  */
 package com.jaspersoft.android.jaspermobile.activities.repository;
 
-import android.accounts.Account;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.inject.Inject;
@@ -39,25 +36,22 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Resour
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
 import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.dialog.FilterDialogFragment;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
+import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.sharedpreferences.Pref;
-
-import java.util.List;
 
 import roboguice.fragment.RoboFragment;
 
@@ -66,7 +60,7 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu(R.menu.libraries_menu)
+@OptionsMenu(R.menu.sort_menu)
 @EFragment
 public class LibraryFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
     public static final String TAG = LibraryFragment.class.getSimpleName();
@@ -78,32 +72,15 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     @Pref
     protected LibraryPref_ pref;
     @Bean
-    protected FilterManagerBean filterOptions;
+    protected LibraryResourceFilter libraryResourceFilter;
     @Bean
     protected SortOptions sortOptions;
 
     @OptionsMenuItem
-    protected MenuItem filter;
-    @OptionsMenuItem
     protected MenuItem sort;
-
-    @InstanceState
-    boolean mShowFilterOption;
 
     private ResourcesControllerFragment resourcesController;
     private SearchControllerFragment searchControllerFragment;
-
-    private final FilterDialogFragment.FilterDialogListener mFilterDialogListener = new FilterDialogFragment.FilterDialogListener() {
-        @Override
-        public void onDialogPositiveClick(List<String> types) {
-            if (resourcesController != null) {
-                resourcesController.loadResourcesByTypes(types);
-            }
-            if (searchControllerFragment != null) {
-                searchControllerFragment.setResourceTypes(types);
-            }
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -117,14 +94,14 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
         if (savedInstanceState == null) {
             // Reset all controls state
-            pref.clear();
+            pref.sortType().put(null);
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             resourcesController =
                     ResourcesControllerFragment_.builder()
                             .emptyMessage(R.string.r_browser_nothing_to_display)
-                            .resourceTypes(filterOptions.getFilters())
+                            .resourceTypes(libraryResourceFilter.getCurrent().getValues())
                             .sortOrder(sortOptions.getOrder())
                             .recursiveLookup(true)
                             .prefTag(PREF_TAG)
@@ -133,7 +110,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
             searchControllerFragment =
                     SearchControllerFragment_.builder()
-                            .resourceTypes(filterOptions.getFilters())
+                            .resourceTypes(libraryResourceFilter.getCurrent().getValues())
                             .prefTag(PREF_TAG)
                             .build();
             transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
@@ -145,41 +122,25 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
                     .findFragmentByTag(SearchControllerFragment.TAG + TAG);
         }
 
-        updateOptionsMenu();
+        FilterTitleView filterTitleView = new FilterTitleView(getActivity());
+        boolean filterViewInitialized = filterTitleView.init(libraryResourceFilter);
+        if (filterViewInitialized) {
+            filterTitleView.setFilterSelectedListener(new FilterChangeListener());
+            ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
+            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
+        }
+        else {
+            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        FilterDialogFragment.attachListener(getFragmentManager(), mFilterDialogListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.h_library_label);
         }
-    }
-
-    private void updateOptionsMenu() {
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(getActivity(), account);
-
-        mShowFilterOption = accountServerData.getEdition().equals("PRO");
-        getActivity().invalidateOptionsMenu();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        if (!mShowFilterOption) {
-            menu.removeItem(filter.getItemId());
-            sort.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        } else {
-            sort.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-        }
-    }
-
-    @OptionsItem(R.id.filter)
-    final void startFiltering() {
-        FilterDialogFragment.show(getFragmentManager(), mFilterDialogListener);
     }
 
     @OptionsItem(R.id.sort)
@@ -196,6 +157,19 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
         if (resourcesController != null) {
             resourcesController.loadResourcesBySortOrder(sortOrder);
+        }
+    }
+
+    private class FilterChangeListener implements FilterTitleView.FilterListener {
+        @Override
+        public void onFilter(Filter filter) {
+            libraryResourceFilter.persist(filter);
+            if (resourcesController != null) {
+                resourcesController.loadResourcesByTypes(filter.getValues());
+            }
+            if (searchControllerFragment != null) {
+                searchControllerFragment.setResourceTypes(filter.getValues());
+            }
         }
     }
 }

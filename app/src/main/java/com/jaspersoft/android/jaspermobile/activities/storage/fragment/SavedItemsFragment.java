@@ -48,6 +48,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrd
 import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -55,6 +56,7 @@ import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
+import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -69,6 +71,7 @@ import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -100,16 +103,15 @@ public class SavedItemsFragment extends RoboFragment
 
     @FragmentArg
     @InstanceState
-    protected FileAdapter.FileType filterType;
-
-    @FragmentArg
-    @InstanceState
     protected String searchQuery;
 
     @FragmentArg
     @InstanceState
     protected SortOrder sortOrder;
 
+
+    @Bean
+    protected StorageResourceFilter storageResourceFilter;
     @Bean
     protected SavedItemHelper savedItemHelper;
 
@@ -159,8 +161,7 @@ public class SavedItemsFragment extends RoboFragment
         }
     }
 
-    public void showSavedItemsByFilter(FileAdapter.FileType selectedFilter) {
-        filterType = selectedFilter;
+    public void showSavedItemsByFilter() {
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }
 
@@ -244,12 +245,18 @@ public class SavedItemsFragment extends RoboFragment
         selection.append(")");
 
         //Add filtration to WHERE params
-        boolean withFiltering = filterType != null;
-        if (withFiltering) {
-            selection.append(" AND ")
-                    .append(SavedItemsTable.FILE_FORMAT + " =?");
-            selectionArgs.add(filterType.name());
+        selection.append(" AND (");
+
+        Iterator<String> iterator = storageResourceFilter.getCurrent().getValues().iterator();
+        while (iterator.hasNext()) {
+            selection.append(SavedItemsTable.FILE_FORMAT + " =?");
+            selectionArgs.add(iterator.next());
+            if (iterator.hasNext()) {
+                selection.append(" OR ");
+            }
         }
+
+        selection.append(")");
 
         //Add sorting type to WHERE params
         String sortOrderString;

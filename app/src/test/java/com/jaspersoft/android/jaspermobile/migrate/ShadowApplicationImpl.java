@@ -56,7 +56,6 @@ public class ShadowApplicationImpl extends ShadowApplication {
         }
     }
 
-    @Override
     @Implementation
     public File getDatabasePath(String name) {
         File parent = DATABASE_1_9.getParentFile();

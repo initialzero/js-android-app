@@ -26,11 +26,11 @@ package com.jaspersoft.android.jaspermobile.sdk;
 
 import android.util.Base64;
 
-import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -42,8 +42,8 @@ import static org.hamcrest.core.IsNull.notNullValue;
  * @author Tom Koptel
  * @since 2.0
  */
-@RunWith(CustomRobolectricTestRunner.class)
-@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+@RunWith(RobolectricTestRunner.class)
+@Config(manifest = Config.NONE)
 public class BasicAccessTokenEncoderTest {
 
     @Test(expected = IllegalArgumentException.class)

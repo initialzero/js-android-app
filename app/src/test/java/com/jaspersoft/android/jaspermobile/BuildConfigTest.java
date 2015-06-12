@@ -25,10 +25,9 @@
 package com.jaspersoft.android.jaspermobile;
 
 
-import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.fail;
@@ -36,8 +35,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 
-@RunWith(CustomRobolectricTestRunner.class)
-@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+@RunWith(RobolectricTestRunner.class)
+@Config(manifest = Config.NONE)
 public class BuildConfigTest {
 
     @Test

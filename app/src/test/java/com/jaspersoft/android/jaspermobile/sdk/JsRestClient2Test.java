@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.sdk;
 
-import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
@@ -32,6 +31,7 @@ import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import retrofit.MockRestAdapter;
@@ -49,8 +49,8 @@ import static org.mockito.Mockito.spy;
  * @author Tom Koptel
  * @since 2.0
  */
-@RunWith(CustomRobolectricTestRunner.class)
-@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+@RunWith(RobolectricTestRunner.class)
+@Config(manifest = Config.NONE)
 public class JsRestClient2Test {
     private JsRestClient2 restClient;
     private MockRestAdapter mockRestAdapter;
@@ -59,7 +59,7 @@ public class JsRestClient2Test {
 
     private static class MockAccountService implements AccountService {
         @Override
-        public Observable<Response> authorize(@Header("Authorization") String authToken) {
+        public Observable<Response> authorize(@Header("Authorization") String authToken, @Header("Accept-Language") String locale) {
             return Observable.error(new RuntimeException("Exception from MockAccountService#authorize"));
         }
 

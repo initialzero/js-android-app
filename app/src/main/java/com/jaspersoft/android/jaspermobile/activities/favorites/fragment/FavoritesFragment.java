@@ -209,7 +209,6 @@ public class FavoritesFragment extends RoboFragment
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = new ArrayList<String>();
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), jsRestClient);
         JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
         boolean noOrganization = jsServerProfile.getOrganization() == null;
 

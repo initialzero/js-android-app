@@ -73,7 +73,6 @@ public class FavoritesHelper {
     }
 
     public Uri addToFavorites(ResourceLookup resource) {
-        JsServerProfileCompat.initLegacyJsRestClient(context, jsRestClient);
         JsServerProfile profile = jsRestClient.getServerProfile();
         Favorites favoriteEntry = new Favorites();
 

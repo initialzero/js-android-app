@@ -65,7 +65,7 @@ public class ReportExecutionUtil {
 
     public void setupInteractiveness(ReportExecutionRequest executionData) {
         double currentVersion = mServerRelease.code();
-        boolean interactive = !(currentVersion >= ServerRelease.EMERALD_MR3.code() && currentVersion < ServerRelease.AMBER.code());
+        boolean interactive = (currentVersion != ServerRelease.EMERALD_MR3.code());
         executionData.setInteractive(interactive);
     }
 

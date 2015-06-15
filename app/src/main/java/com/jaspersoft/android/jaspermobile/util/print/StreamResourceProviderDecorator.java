@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
-import java.io.File;
+import java.io.InputStream;
 
 import rx.Observable;
 
@@ -32,12 +32,12 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.1
  */
-final class FileResourceProviderDecorator extends ResourceProviderDecorator<File> {
-    protected FileResourceProviderDecorator(ResourceProvider<File> fileResourceProvider) {
+final class StreamResourceProviderDecorator extends ResourceProviderDecorator<InputStream> {
+    protected StreamResourceProviderDecorator(ResourceProvider<InputStream> fileResourceProvider) {
         super(fileResourceProvider);
     }
 
-    public static ResourceProvider<Observable<File>> decorate(ResourceProvider<File> fileResourceProvider) {
-        return new FileResourceProviderDecorator(fileResourceProvider);
+    public static ResourceProvider<Observable<InputStream>> decorate(ResourceProvider<InputStream> fileResourceProvider) {
+        return new StreamResourceProviderDecorator(fileResourceProvider);
     }
 }

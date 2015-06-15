@@ -22,77 +22,46 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
+package com.jaspersoft.android.jaspermobile.activities.library.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 
-import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourceSearchable;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ResourcesLoader;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportActionFragment;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment
-public class ResourcesControllerFragment extends ControllerFragment
-        implements ResourcesLoader, ResourceSearchable {
-    public static final String TAG = ResourcesControllerFragment.class.getSimpleName();
-    public static final String CONTENT_TAG = "ResourcesControllerFragment.CONTENT_TAG";
+public class LibraryControllerFragment extends ControllerFragment {
+    public static final String TAG = LibraryControllerFragment.class.getSimpleName();
+    public static final String PREF_TAG = "library_pref";
+    public static final String CONTENT_TAG = "LibraryControllerFragment.CONTENT_TAG";
 
-    @InstanceState
-    @FragmentArg
-    ArrayList<String> resourceTypes;
     @InstanceState
     @FragmentArg
     SortOrder sortOrder;
     @InstanceState
     @FragmentArg
-    boolean recursiveLookup;
-    @InstanceState
-    @FragmentArg
-    String resourceLabel;
-    @InstanceState
-    @FragmentArg
-    String resourceUri;
-    @InstanceState
-    @FragmentArg
     String query;
     @InstanceState
     @FragmentArg
-    int emptyMessage;
-    @InstanceState
-    @FragmentArg
-    String prefTag;
+    String resourceLabel;
 
-    @FragmentArg
-    boolean hideMenu;
-    @InstanceState
-    @FragmentArg
-    public String controllerTag;
-
-    private ResourcesFragment contentFragment;
+    private LibraryFragment contentFragment;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        ResourcesFragment inMemoryFragment = (ResourcesFragment)
+        LibraryFragment inMemoryFragment = (LibraryFragment)
                 getFragmentManager().findFragmentByTag(getContentFragmentTag());
 
         if (inMemoryFragment == null) {
@@ -105,50 +74,35 @@ public class ResourcesControllerFragment extends ControllerFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(prefTag.equals(FavoritesControllerFragment.PREF_TAG)) {
-            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
-        }
+        getArguments().putString(PREF_TAG_KEY, PREF_TAG);
     }
 
     @Override
     public Fragment getContentFragment() {
-        contentFragment = ResourcesFragment_.builder()
+        contentFragment = LibraryFragment_.builder()
                 .query(query)
-                .emptyMessage(emptyMessage)
-                .recursiveLookup(recursiveLookup)
-                .resourceUri(resourceUri)
-                .resourceLabel(resourceLabel)
                 .viewType(getViewType())
-                .resourceTypes(resourceTypes)
                 .sortOrder(sortOrder)
+                .resourceLabel(resourceLabel)
                 .build();
         return contentFragment;
     }
 
     @Override
     protected String getContentFragmentTag() {
-        return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
+        return CONTENT_TAG;
     }
 
-    @Override
-    public void loadResourcesByTypes(List<String> types) {
-        resourceTypes = new ArrayList<String>(types);
+    public void loadResourcesByTypes() {
         if (contentFragment != null) {
-            contentFragment.loadResourcesByTypes(types);
+            contentFragment.loadResourcesByTypes();
         }
     }
 
-    @Override
     public void loadResourcesBySortOrder(SortOrder order) {
         sortOrder = order;
         if (contentFragment != null) {
             contentFragment.loadResourcesBySortOrder(order);
         }
-    }
-
-    @Override
-    public void doSearch(String query) {
-        contentFragment.setQuery(query);
-        contentFragment.loadFirstPage();
     }
 }

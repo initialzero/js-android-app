@@ -46,8 +46,8 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment_;
+import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
@@ -213,11 +213,11 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
         switch (viewId) {
             case R.id.vg_library:
                 currentSelection = R.id.vg_library;
-                commitContent(LibraryFragment_.builder().build());
+                commitContent(LibraryPageFragment_.builder().build());
                 break;
             case R.id.vg_repository:
                 currentSelection = R.id.vg_repository;
-                commitContent(RepositoryFragment_.builder().build());
+                commitContent(RepositoryPageFragment_.builder().build());
                 break;
             case R.id.vg_saved_items:
                 currentSelection = R.id.vg_saved_items;

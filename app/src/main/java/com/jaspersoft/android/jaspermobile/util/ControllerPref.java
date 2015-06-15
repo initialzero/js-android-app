@@ -22,7 +22,7 @@
  *  <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.support;
+package com.jaspersoft.android.jaspermobile.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;

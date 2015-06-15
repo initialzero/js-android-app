@@ -22,56 +22,45 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.storage;
+package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OptionsItem;
 
 /**
- * @author Andrew Tivodar
+ * @author Tom Koptel
  * @since 1.9
  */
 @EActivity(R.layout.content_layout)
-public class SavedItemsSearchableActivity extends RoboSpiceActivity {
+public class RepositorySearchableActivity extends RoboSpiceActivity {
 
     @Extra
     String query;
+    @Extra
+    String resourceUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(getString(R.string.search_result_format, query));
-        }
-
         if (savedInstanceState == null) {
-            SavedItemsControllerFragment savedItemsController =
-                    SavedItemsControllerFragment_.builder()
-                            .searchQuery(query)
+            RepositoryControllerFragment resourcesController =
+                    RepositoryControllerFragment_.builder()
+                            .resourceLabel(getString(R.string.search_result_format, query))
+                            .resourceUri(resourceUri)
+                            .query(query)
                             .build();
-
             getSupportFragmentManager().beginTransaction()
-                    .add(savedItemsController, RepositoryControllerFragment.TAG)
+                    .add(R.id.resource_controller, resourcesController, RepositoryControllerFragment.TAG)
                     .commit();
         }
-
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void closeSearch() {
-        super.onBackPressed();
     }
 
 }

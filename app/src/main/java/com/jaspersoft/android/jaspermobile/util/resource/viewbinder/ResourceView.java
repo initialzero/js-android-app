@@ -22,15 +22,21 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.support;
+package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
-import java.util.List;
+import android.widget.ImageView;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public interface ResourcesLoader {
-    void loadResourcesByTypes(List<String> resourceTypes);
-    void loadResourcesBySortOrder(SortOrder sortOrder);
+public interface ResourceView {
+
+    void setTitle(CharSequence title);
+
+    void setSubTitle(CharSequence subTitle);
+
+    void setInfo(CharSequence timestamp);
+
+    ImageView getImageView();
 }

@@ -37,13 +37,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.GridItemView_;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ListItemView_;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceSimpleCursorAdapter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceView;
+import com.jaspersoft.android.jaspermobile.widget.GridItemView_;
+import com.jaspersoft.android.jaspermobile.widget.ListItemView_;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.util.FileUtils;
 

@@ -32,7 +32,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
 import org.androidannotations.annotations.EFragment;
 

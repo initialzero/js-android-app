@@ -22,13 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
+package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
@@ -40,33 +41,35 @@ import org.androidannotations.annotations.InstanceState;
  * @since 1.9
  */
 @EFragment
-public class SavedItemsControllerFragment extends ControllerFragment {
-    public static final String CONTENT_TAG = "SavedItemsControllerFragment.CONTENT_TAG";
+public class RepositoryControllerFragment extends ControllerFragment {
+    public static final String TAG = RepositoryControllerFragment.class.getSimpleName();
+    public static final String PREF_TAG = "repository_pref";
+    public static final String CONTENT_TAG = "ResourcesControllerFragment.CONTENT_TAG";
 
-    public static final String TAG = SavedItemsControllerFragment.class.getSimpleName();
-
-    private SavedItemsFragment contentFragment;
+    @InstanceState
+    @FragmentArg
+    String prefTag;
+    @InstanceState
+    @FragmentArg
+    String resourceUri;
+    @InstanceState
+    @FragmentArg
+    String query;
+    @InstanceState
+    @FragmentArg
+    String resourceLabel;
 
     @FragmentArg
-    @InstanceState
-    SortOrder sortOrder;
+    boolean hideMenu;
 
-    @FragmentArg
-    @InstanceState
-    String searchQuery;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getArguments().putString(PREF_TAG_KEY, "saved_items_pref");
-    }
+    private RepositoryFragment contentFragment;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        SavedItemsFragment inMemoryFragment = (SavedItemsFragment)
-                getFragmentManager().findFragmentByTag(CONTENT_TAG);
+        RepositoryFragment inMemoryFragment = (RepositoryFragment)
+                getFragmentManager().findFragmentByTag(getContentFragmentTag());
 
         if (inMemoryFragment == null) {
             commitContentFragment();
@@ -76,31 +79,25 @@ public class SavedItemsControllerFragment extends ControllerFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        getArguments().putString(PREF_TAG_KEY, prefTag != null ? prefTag : PREF_TAG);
+    }
+
+    @Override
     public Fragment getContentFragment() {
-        contentFragment = SavedItemsFragment_.builder()
+        contentFragment = RepositoryFragment_.builder()
+                .query(query)
+                .resourceUri(resourceUri)
+                .resourceLabel(resourceLabel)
                 .viewType(getViewType())
-                .sortOrder(sortOrder)
-                .searchQuery(searchQuery)
                 .build();
         return contentFragment;
     }
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG;
+        return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
     }
-
-    public void loadItemsByTypes() {
-        if (contentFragment != null) {
-            contentFragment.showSavedItemsByFilter();
-        }
-    }
-
-    public void loadItemsBySortOrder(SortOrder _sortOrder) {
-        if (contentFragment != null) {
-            contentFragment.showSavedItemsBySortOrder(_sortOrder);
-        }
-        sortOrder = _sortOrder;
-    }
-
 }

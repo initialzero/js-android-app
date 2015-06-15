@@ -22,17 +22,22 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.support;
+package com.jaspersoft.android.jaspermobile.util.sorting;
 
 /**
- * @author Ivan Gadzhega
+ * @author Tom Koptel
  * @since 1.9
  */
-public enum ViewType {
-    GRID,
-    LIST;
+public enum SortOrder {
+    LABEL("label"), CREATION_DATE("creationDate");
 
-    public static ViewType valueOf(ControllerPref pref) {
-        return valueOf(pref.viewType().get());
+    private final String mValue;
+
+    private SortOrder(String value) {
+        mValue = value;
+    }
+
+    public String getValue() {
+        return mValue;
     }
 }

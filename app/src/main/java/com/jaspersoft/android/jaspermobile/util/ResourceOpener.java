@@ -30,9 +30,8 @@ import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
@@ -74,7 +73,7 @@ public class ResourceOpener {
     }
 
     public void openResource(Fragment fragment, ResourceLookup resource) {
-        openResource(fragment, RepositoryFragment.PREF_TAG, resource);
+        openResource(fragment, RepositoryControllerFragment.PREF_TAG, resource);
     }
 
     public void openResource(Fragment fragment, String prefTag, ResourceLookup resource) {
@@ -95,10 +94,8 @@ public class ResourceOpener {
     }
 
     public void openFolder(Fragment fragment, String preftag, ResourceLookup resource) {
-        ResourcesControllerFragment newControllerFragment =
-                ResourcesControllerFragment_.builder()
-                        .emptyMessage(R.string.r_browser_nothing_to_display)
-                        .resourceTypes(resourceFilter.getCurrent().getValues())
+        RepositoryControllerFragment newControllerFragment =
+                RepositoryControllerFragment_.builder()
                         .resourceLabel(resource.getLabel())
                         .resourceUri(resource.getUri())
                         .prefTag(preftag)
@@ -106,7 +103,7 @@ public class ResourceOpener {
         fragment.getFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())
                 .replace(R.id.resource_controller, newControllerFragment,
-                        ResourcesControllerFragment.TAG + resource.getUri())
+                        RepositoryControllerFragment.TAG + resource.getUri())
                 .commit();
     }
 

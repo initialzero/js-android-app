@@ -30,7 +30,7 @@ import android.widget.ListView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
+import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.ApiMatcher;
 import com.jaspersoft.android.jaspermobile.test.utils.CommonTestModule;

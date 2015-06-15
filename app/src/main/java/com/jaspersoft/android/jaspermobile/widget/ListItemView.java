@@ -22,7 +22,7 @@
 * <http://www.gnu.org/licenses/lgpl>.
 */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
+package com.jaspersoft.android.jaspermobile.widget;
 
 import android.content.Context;
 import android.os.Build;
@@ -34,7 +34,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.widget.CheckedRelativeLayout;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceView;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EViewGroup;

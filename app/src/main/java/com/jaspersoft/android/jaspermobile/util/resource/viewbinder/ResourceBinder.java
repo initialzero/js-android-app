@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.content.Context;
 import android.widget.ImageView;
 
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import timber.log.Timber;

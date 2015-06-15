@@ -22,21 +22,30 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
+package com.jaspersoft.android.jaspermobile.util.sorting;
 
-import android.widget.ImageView;
+
+import com.jaspersoft.android.jaspermobile.activities.library.LibraryPref_;
+
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public interface ResourceView {
+@EBean(scope = EBean.Scope.Singleton)
+public class SortOptions {
 
-    void setTitle(CharSequence title);
+    @Pref
+    LibraryPref_ repositoryPref;
 
-    void setSubTitle(CharSequence subTitle);
+    public SortOrder getOrder() {
+        return SortOrder.valueOf(repositoryPref.sortType().get());
+    }
 
-    void setInfo(CharSequence timestamp);
+    public void putOrder(SortOrder sortOrder) {
+        repositoryPref.sortType().put(sortOrder.toString());
+    }
 
-    ImageView getImageView();
 }

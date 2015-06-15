@@ -22,12 +22,18 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.support;
+package com.jaspersoft.android.jaspermobile.util.resource.pagination;
+
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public interface ResourceSearchable {
-    void doSearch(String query);
+public interface PaginationPolicy {
+    boolean hasNextPage();
+    int calculateNextOffset();
+    void handleLookup(ResourceLookupsList resourceLookupsList);
+    void setSearchCriteria(ResourceLookupSearchCriteria criteria);
 }

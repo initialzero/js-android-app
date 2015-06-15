@@ -21,7 +21,7 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
-package com.jaspersoft.android.jaspermobile.activities.repository;
+package com.jaspersoft.android.jaspermobile.activities.library;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,17 +32,18 @@ import android.view.MenuItem;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
+import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment;
+import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
@@ -62,9 +63,8 @@ import roboguice.fragment.RoboFragment;
  */
 @OptionsMenu(R.menu.sort_menu)
 @EFragment
-public class LibraryFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
-    public static final String TAG = LibraryFragment.class.getSimpleName();
-    private static final String PREF_TAG = "library_pref";
+public class LibraryPageFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
+    public static final String TAG = LibraryPageFragment.class.getSimpleName();
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -79,8 +79,8 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     @OptionsMenuItem
     protected MenuItem sort;
 
-    private ResourcesControllerFragment resourcesController;
-    private SearchControllerFragment searchControllerFragment;
+    private LibraryControllerFragment libraryControllerFragment;
+    private LibrarySearchFragment searchControllerFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,28 +98,22 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
-            resourcesController =
-                    ResourcesControllerFragment_.builder()
-                            .emptyMessage(R.string.r_browser_nothing_to_display)
-                            .resourceTypes(libraryResourceFilter.getCurrent().getValues())
+            libraryControllerFragment =
+                    LibraryControllerFragment_.builder()
                             .sortOrder(sortOptions.getOrder())
-                            .recursiveLookup(true)
-                            .prefTag(PREF_TAG)
                             .build();
-            transaction.replace(R.id.resource_controller, resourcesController, ResourcesControllerFragment.TAG + TAG);
+            transaction.replace(R.id.resource_controller, libraryControllerFragment, RepositoryControllerFragment.TAG + TAG);
 
             searchControllerFragment =
-                    SearchControllerFragment_.builder()
-                            .resourceTypes(libraryResourceFilter.getCurrent().getValues())
-                            .prefTag(PREF_TAG)
+                    LibrarySearchFragment_.builder()
                             .build();
-            transaction.replace(R.id.search_controller, searchControllerFragment, SearchControllerFragment.TAG + TAG);
+            transaction.replace(R.id.search_controller, searchControllerFragment, RepositorySearchFragment.TAG + TAG);
             transaction.commit();
         } else {
-            resourcesController = (ResourcesControllerFragment) getFragmentManager()
-                    .findFragmentByTag(ResourcesControllerFragment.TAG + TAG);
-            searchControllerFragment = (SearchControllerFragment) getFragmentManager()
-                    .findFragmentByTag(SearchControllerFragment.TAG + TAG);
+            libraryControllerFragment = (LibraryControllerFragment) getFragmentManager()
+                    .findFragmentByTag(RepositoryControllerFragment.TAG + TAG);
+            searchControllerFragment = (LibrarySearchFragment) getFragmentManager()
+                    .findFragmentByTag(RepositorySearchFragment.TAG + TAG);
         }
 
         FilterTitleView filterTitleView = new FilterTitleView(getActivity());
@@ -128,8 +122,7 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
             filterTitleView.setFilterSelectedListener(new FilterChangeListener());
             ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
             ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
-        }
-        else {
+        } else {
             ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
         }
     }
@@ -155,8 +148,8 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
     public void onOptionSelected(SortOrder sortOrder) {
         sortOptions.putOrder(sortOrder);
 
-        if (resourcesController != null) {
-            resourcesController.loadResourcesBySortOrder(sortOrder);
+        if (libraryControllerFragment != null) {
+            libraryControllerFragment.loadResourcesBySortOrder(sortOrder);
         }
     }
 
@@ -164,11 +157,8 @@ public class LibraryFragment extends RoboFragment implements SortDialogFragment.
         @Override
         public void onFilter(Filter filter) {
             libraryResourceFilter.persist(filter);
-            if (resourcesController != null) {
-                resourcesController.loadResourcesByTypes(filter.getValues());
-            }
-            if (searchControllerFragment != null) {
-                searchControllerFragment.setResourceTypes(filter.getValues());
+            if (libraryControllerFragment != null) {
+                libraryControllerFragment.loadResourcesByTypes();
             }
         }
     }

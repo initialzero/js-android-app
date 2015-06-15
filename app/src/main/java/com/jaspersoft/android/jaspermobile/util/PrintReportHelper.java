@@ -28,8 +28,6 @@ import java.util.Random;
 
 public class PrintReportHelper {
 
-    public static BaseRequest request;
-
     @TargetApi(19)
     public static void printDashboard(WebView webViewToPrint, String dashboardName){
         PrintManager printManager = (PrintManager) webViewToPrint.getContext().getSystemService(Context.PRINT_SERVICE);
@@ -40,7 +38,7 @@ public class PrintReportHelper {
 
     @TargetApi(19)
     public static void printReport(JsRestClient jsRestClient, final Context context, ResourceLookup resource, ArrayList<ReportParameter> reportParameters){
-        ResourceProvider<ClientHttpResponse> fileResourceProvider = StreamReportResourceProvider.builder(context)
+        ResourceProvider<ClientHttpResponse> fileResourceProvider = StreamReportResourceProvider.builder()
                 .setResource(resource)
                 .setJsRestClient(jsRestClient)
                 .addReportParameters(reportParameters)

@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetExportOutputRequest;
@@ -45,20 +46,20 @@ import java.util.List;
  * @since 2.1
  */
 public final class StreamReportResourceProvider implements ResourceProvider<ClientHttpResponse> {
-    private final Context mContext;
     private final JsRestClient mJsRestClient;
     private final ResourceLookup mResource;
     private final List<ReportParameter> mReportParameters;
+    private String exportOutput;
+    private String executionId;
 
     private StreamReportResourceProvider(Builder builder) {
-        mContext = builder.context;
         mJsRestClient = builder.jsRestClient;
         mResource = builder.resource;
         mReportParameters = builder.reportParameters;
     }
 
-    public static Builder builder(Context context) {
-        return new Builder(context);
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -73,10 +74,12 @@ public final class StreamReportResourceProvider implements ResourceProvider<Clie
     private ClientHttpResponse requestFileExportAsPDF() throws Exception {
         ReportExecutionRequest request = prepareReportExecutionRequest();
 
-        ReportExecutionResponse exportResponse = mJsRestClient.runReportExecution(request);
-        ExportExecution execution = exportResponse.getExports().get(0);
-        String exportOutput = execution.getId();
-        String executionId = exportResponse.getRequestId();
+        if (TextUtils.isEmpty(exportOutput) || TextUtils.isEmpty(executionId) ) {
+            ReportExecutionResponse exportResponse = mJsRestClient.runReportExecution(request);
+            ExportExecution execution = exportResponse.getExports().get(0);
+            exportOutput = execution.getId();
+            executionId = exportResponse.getRequestId();
+        }
 
         GetExportOutputRequest getExportOutputRequest = new GetExportOutputRequest(mJsRestClient, executionId, exportOutput);
         return getExportOutputRequest.loadDataFromNetwork();
@@ -100,10 +103,8 @@ public final class StreamReportResourceProvider implements ResourceProvider<Clie
         private JsRestClient jsRestClient;
         private ResourceLookup resource;
         private List<ReportParameter> reportParameters;
-        private final Context context;
 
-        public Builder(Context context) {
-            this.context = context;
+        public Builder() {
             this.reportParameters = new ArrayList<ReportParameter>();
         }
 

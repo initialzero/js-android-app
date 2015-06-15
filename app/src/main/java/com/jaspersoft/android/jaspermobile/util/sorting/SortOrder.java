@@ -29,7 +29,7 @@ package com.jaspersoft.android.jaspermobile.util.sorting;
  * @since 1.9
  */
 public enum SortOrder {
-    LABEL("label"), CREATION_DATE("creationDate");
+    LABEL("label"), CREATION_DATE("creationDate"), ACCESS_TIME("accessTime");
 
     private final String mValue;
 

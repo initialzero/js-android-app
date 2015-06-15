@@ -178,7 +178,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         }
     }
 
-    @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items})
+    @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items, R.id.vg_recent})
     final void navigationMenuItemSelect(View newSelectItem) {
         if (selectedItemView != null) {
             setItemSelected(selectedItemView, false);

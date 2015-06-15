@@ -47,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
+import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
@@ -218,6 +219,10 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
             case R.id.vg_repository:
                 currentSelection = R.id.vg_repository;
                 commitContent(RepositoryPageFragment_.builder().build());
+                break;
+            case R.id.vg_recent:
+                currentSelection = R.id.vg_recent;
+                commitContent(RecentPageFragment_.builder().build());
                 break;
             case R.id.vg_saved_items:
                 currentSelection = R.id.vg_saved_items;

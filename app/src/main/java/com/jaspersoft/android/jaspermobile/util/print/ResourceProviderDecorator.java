@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 
 import rx.Observable;
@@ -49,7 +51,14 @@ final class ResourceProviderDecorator implements ObservableResourceProvider {
 
     @Override
     public Observable<File> provideResource() {
-        Observable<File> observable = Observable.create(new Observable.OnSubscribe<File>() {
+        return Observable.create(getSubscriptionTask())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @NonNull
+    private Observable.OnSubscribe<File> getSubscriptionTask() {
+        return new Observable.OnSubscribe<File>() {
             @Override
             public void call(Subscriber<? super File> subscriber) {
                 try {
@@ -64,9 +73,7 @@ final class ResourceProviderDecorator implements ObservableResourceProvider {
                     }
                 }
             }
-        });
-        observable.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io());
-        return observable;
+        };
     }
 
 }

@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
-import android.content.Context;
-
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
@@ -119,23 +117,5 @@ public class ReportResourceProviderTest {
         File file = resourceProvider
                 .provideResource();
         assertThat(file, is(notNullValue()));
-    }
-
-    public void test() {
-        Context context = RuntimeEnvironment.application;
-        FileResourceProvider fileResourceProvider = ReportResourceProvider.builder(context)
-                .setResource(resourceLookup)
-                .setJsRestClient(jsRestClient)
-                .addReportParameters(reportParameters)
-                .build();
-
-        ResourcePrinter printer = AppPrinter.builder()
-                .setResourceProvider(fileResourceProvider)
-                .setResourcePrintJob(resourcePrintJob)
-                .build();
-
-        printer.print();
-        printer.resume();
-        printer.pause();
     }
 }

@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
-import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -108,17 +108,17 @@ public final class StreamReportResourceProvider implements ResourceProvider<Clie
             this.reportParameters = new ArrayList<ReportParameter>();
         }
 
-        public Builder setJsRestClient(JsRestClient jsRestClient) {
+        public Builder setJsRestClient(@Nullable JsRestClient jsRestClient) {
             this.jsRestClient = jsRestClient;
             return this;
         }
 
-        public Builder setResource(ResourceLookup resource) {
+        public Builder setResource(@Nullable ResourceLookup resource) {
             this.resource = resource;
             return this;
         }
 
-        public Builder addReportParameters(Collection<ReportParameter> reportParameters) {
+        public Builder addReportParameters(@Nullable Collection<ReportParameter> reportParameters) {
             if (reportParameters == null) {
                 throw new IllegalArgumentException("Report parameters should not be null");
             }

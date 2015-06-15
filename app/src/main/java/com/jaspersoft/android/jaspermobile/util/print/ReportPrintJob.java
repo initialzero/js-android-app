@@ -34,6 +34,8 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -61,7 +63,7 @@ public class ReportPrintJob implements ResourcePrintJob {
     private final ResourceProvider<Observable<ClientHttpResponse>> resourceProvider;
     private final String printName;
 
-    private ReportPrintJob(Builder builder) {
+    private ReportPrintJob(@NonNull Builder builder) {
         mContext = builder.context;
         resourceProvider = builder.resourceProvider;
         printName = builder.printName;
@@ -160,12 +162,12 @@ public class ReportPrintJob implements ResourcePrintJob {
             return this;
         }
 
-        public Builder setResourceProvider(ResourceProvider<ClientHttpResponse> resourceProvider) {
+        public Builder setResourceProvider(@Nullable ResourceProvider<ClientHttpResponse> resourceProvider) {
             this.resourceProvider = StreamResourceProviderDecorator.decorate(resourceProvider);
             return this;
         }
 
-        public Builder setPrintName(String printName) {
+        public Builder setPrintName(@Nullable String printName) {
             this.printName = printName;
             return this;
         }

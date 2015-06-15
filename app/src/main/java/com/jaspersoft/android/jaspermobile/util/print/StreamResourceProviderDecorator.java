@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.support.annotation.NonNull;
+
 import org.springframework.http.client.ClientHttpResponse;
 
 import rx.Observable;
@@ -37,6 +39,7 @@ final class StreamResourceProviderDecorator extends ResourceProviderDecorator<Cl
         super(fileResourceProvider);
     }
 
+    @NonNull
     public static ResourceProvider<Observable<ClientHttpResponse>> decorate(ResourceProvider<ClientHttpResponse> fileResourceProvider) {
         return new StreamResourceProviderDecorator(fileResourceProvider);
     }

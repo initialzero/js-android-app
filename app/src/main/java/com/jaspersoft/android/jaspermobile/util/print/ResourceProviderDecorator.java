@@ -41,12 +41,12 @@ abstract class ResourceProviderDecorator<RESULT> implements ResourceProvider<Obs
         this.fileResourceProvider = fileResourceProvider;
     }
 
+    @NonNull
     @Override
     public Observable<RESULT> provideResource() {
         return Observable.create(getSubscriptionTask());
     }
 
-    @NonNull
     private Observable.OnSubscribe<RESULT> getSubscriptionTask() {
         return new Observable.OnSubscribe<RESULT>() {
             @Override

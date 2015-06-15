@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -40,17 +40,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-public final class ReportResourceProvider implements ResourceProvider {
-
+public final class ReportResourceProvider implements FileResourceProvider {
     private final Context mContext;
     private final JsRestClient mJsRestClient;
     private final ResourceLookup mResource;
@@ -68,25 +62,12 @@ public final class ReportResourceProvider implements ResourceProvider {
     }
 
     @Override
-    public Observable<File> provideResource() {
-        Observable<File> observable = Observable.create(new Observable.OnSubscribe<File>() {
-            @Override
-            public void call(Subscriber<? super File> subscriber) {
-                try {
-                    File pdfExport = requestFileExportAsPDF();
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(pdfExport);
-                        subscriber.onCompleted();
-                    }
-                } catch (Exception e) {
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onError(e);
-                    }
-                }
-            }
-        });
-        observable.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io());
-        return observable;
+    public File provideResource() {
+        try {
+            return requestFileExportAsPDF();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private File requestFileExportAsPDF() throws Exception {
@@ -152,7 +133,7 @@ public final class ReportResourceProvider implements ResourceProvider {
             return this;
         }
 
-        public ResourceProvider build() {
+        public FileResourceProvider build() {
             validateDependencies();
             return new ReportResourceProvider(this);
         }
@@ -166,5 +147,4 @@ public final class ReportResourceProvider implements ResourceProvider {
             }
         }
     }
-
 }

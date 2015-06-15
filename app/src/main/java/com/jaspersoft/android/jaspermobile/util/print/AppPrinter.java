@@ -1,6 +1,6 @@
 package com.jaspersoft.android.jaspermobile.util.print;
 
-import android.content.Context;
+import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
 
 import java.io.File;
 
@@ -11,22 +11,20 @@ import rx.Subscription;
  * @author Tom Koptel
  * @since 2.1
  */
-public class AppPrinter implements ResourcePrinter {
-    private final Context mContext;
-    private final ResourceProvider mResourceProvider;
+public final class AppPrinter implements ResourcePrinter {
+    private final ObservableResourceProvider mResourceProvider;
     private final ResourcePrintJob resourcePrintJob;
 
     private Subscription mSubscription;
     private Observable<File> mResourceTask;
 
     private AppPrinter(Builder builder) {
-        mContext = builder.context;
         mResourceProvider = builder.resourceProvider;
         resourcePrintJob = builder.resourcePrintJob;
     }
 
-    public static Builder builder(Context context) {
-        return new Builder(context);
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -50,16 +48,17 @@ public class AppPrinter implements ResourcePrinter {
     }
 
     public static class Builder {
-        private final Context context;
-        private ResourceProvider resourceProvider;
+        private ObservableResourceProvider resourceProvider;
         private ResourcePrintJob resourcePrintJob;
 
-        public Builder(Context context) {
-            this.context = context;
+        @VisibleForTesting
+        Builder setResourceProvider(ObservableResourceProvider resourceProvider) {
+            this.resourceProvider = resourceProvider;
+            return this;
         }
 
-        public Builder setResourceProvider(ResourceProvider resourceProvider) {
-            this.resourceProvider = resourceProvider;
+        public Builder setResourceProvider(FileResourceProvider resourceProvider) {
+            this.resourceProvider = ResourceProviderDecorator.decorate(resourceProvider);
             return this;
         }
 

@@ -24,7 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.content.Context;
+
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -38,15 +43,14 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
-
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -62,6 +66,13 @@ public class ReportResourceProviderTest {
     Collection<ReportParameter> reportParameters;
     @Mock
     ResourceLookup resourceLookup;
+    @Mock
+    ReportExecutionResponse reportExecutionResponse;
+    @Mock
+    ExportExecution exportExecution;
+
+    @Mock
+    ResourcePrintJob resourcePrintJob;
 
     @Before
     public void setup() {
@@ -96,32 +107,35 @@ public class ReportResourceProviderTest {
 
     @Test
     public void shouldProvideResource() {
-        ResourceProvider resourceProvider = ReportResourceProvider
+        when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[] {exportExecution}));
+        when(jsRestClient.runReportExecution(any(ReportExecutionRequest.class))).thenReturn(reportExecutionResponse);
+
+        ResourceProvider<File> resourceProvider = ReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setJsRestClient(jsRestClient)
                 .setResource(resourceLookup)
                 .build();
 
-        Observable<File> observable = resourceProvider
+        File file = resourceProvider
                 .provideResource();
+        assertThat(file, is(notNullValue()));
+    }
 
-        observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(AndroidSchedulers.mainThread());
+    public void test() {
+        Context context = RuntimeEnvironment.application;
+        FileResourceProvider fileResourceProvider = ReportResourceProvider.builder(context)
+                .setResource(resourceLookup)
+                .setJsRestClient(jsRestClient)
+                .addReportParameters(reportParameters)
+                .build();
 
-        observable
-                .subscribe(
-                        new Action1<File>() {
-                            @Override
-                            public void call(File file) {
-                                assertThat(file, is(notNullValue()));
-                            }
-                        },
-                        new Action1<Throwable>() {
-                            @Override
-                            public void call(Throwable throwable) {
-                                throw new RuntimeException(throwable);
-                            }
-                        });
+        ResourcePrinter printer = AppPrinter.builder()
+                .setResourceProvider(fileResourceProvider)
+                .setResourcePrintJob(resourcePrintJob)
+                .build();
+
+        printer.print();
+        printer.resume();
+        printer.pause();
     }
 }

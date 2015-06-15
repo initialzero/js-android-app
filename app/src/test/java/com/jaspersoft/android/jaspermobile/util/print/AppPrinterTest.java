@@ -26,12 +26,8 @@ package com.jaspersoft.android.jaspermobile.util.print;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import java.io.File;
 
@@ -46,12 +42,10 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 2.1
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
 public class AppPrinterTest {
 
     @Mock
-    ResourceProvider resourceProvider;
+    ObservableResourceProvider resourceProvider;
     @Mock
     ResourcePrintJob resourcePrintJob;
     @Mock
@@ -70,7 +64,7 @@ public class AppPrinterTest {
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreatePrinterWithoutResourcePrintJob() {
         AppPrinter
-                .builder(RuntimeEnvironment.application)
+                .builder()
                 .setResourcePrintJob(resourcePrintJob)
                 .build();
     }
@@ -78,7 +72,7 @@ public class AppPrinterTest {
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreatePrinterWithoutResourceProvider() {
         AppPrinter
-                .builder(RuntimeEnvironment.application)
+                .builder()
                 .setResourceProvider(resourceProvider)
                 .build();
     }
@@ -86,7 +80,7 @@ public class AppPrinterTest {
     @Test
     public void shouldMaintainCorrectCallOrder() {
         ResourcePrinter printer = AppPrinter
-                .builder(RuntimeEnvironment.application)
+                .builder()
                 .setResourceProvider(resourceProvider)
                 .setResourcePrintJob(resourcePrintJob)
                 .build();
@@ -101,7 +95,7 @@ public class AppPrinterTest {
     @Test
     public void shouldResumeTaskExecutionAfterPause() {
         ResourcePrinter printer = AppPrinter
-                .builder(RuntimeEnvironment.application)
+                .builder()
                 .setResourceProvider(resourceProvider)
                 .setResourcePrintJob(resourcePrintJob)
                 .build();

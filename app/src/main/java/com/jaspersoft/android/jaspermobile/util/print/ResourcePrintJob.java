@@ -24,10 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.annotation.TargetApi;
+
 /**
  * @author Tom Koptel
  * @since 2.1
  */
 public interface ResourcePrintJob {
+    @TargetApi(19)
     void printResource();
 }

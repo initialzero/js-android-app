@@ -6,20 +6,20 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.webkit.WebView;
-import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.util.print.AppPrinter;
-import com.jaspersoft.android.jaspermobile.util.print.FilePrintJob;
-import com.jaspersoft.android.jaspermobile.util.print.FileResourceProvider;
-import com.jaspersoft.android.jaspermobile.util.print.FileReportResourceProvider;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
-import com.jaspersoft.android.jaspermobile.util.print.ResourcePrinter;
+import com.jaspersoft.android.jaspermobile.util.print.ResourceProvider;
+import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
+import com.jaspersoft.android.jaspermobile.util.print.StreamReportResourceProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.BaseRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import org.springframework.http.client.ClientHttpResponse;
+
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * @author Andrew Tivodar
@@ -40,31 +40,18 @@ public class PrintReportHelper {
 
     @TargetApi(19)
     public static void printReport(JsRestClient jsRestClient, final Context context, ResourceLookup resource, ArrayList<ReportParameter> reportParameters){
-        FileResourceProvider fileResourceProvider = FileReportResourceProvider.builder(context)
+        ResourceProvider<ClientHttpResponse> fileResourceProvider = StreamReportResourceProvider.builder(context)
                 .setResource(resource)
                 .setJsRestClient(jsRestClient)
                 .addReportParameters(reportParameters)
                 .build();
 
-        ResourcePrintJob printJob = FilePrintJob.builder(context)
+        ResourcePrintJob printJob = ReportPrintJob.builder(context)
                 .setResourceProvider(fileResourceProvider)
+                .setPrintName(String.valueOf(new Random().nextInt(1000)))
                 .build();
 
-        ResourcePrinter printer = AppPrinter.builder()
-                .setResourcePrintJob(printJob)
-                .setResourcePrintListener(new ResourcePrintJob.Listener() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
-                    }
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                })
-                .build();
-
-        printer.print();
+        printJob.printResource();
     }
 
 }

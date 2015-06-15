@@ -39,8 +39,8 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.springframework.http.client.ClientHttpResponse;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class FileReportResourceProviderTest {
+public class StreamReportResourceProviderTest {
 
     @Mock
     JsRestClient jsRestClient;
@@ -79,7 +79,7 @@ public class FileReportResourceProviderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateProviderWithNULLParams() {
-        FileReportResourceProvider
+        StreamReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setJsRestClient(jsRestClient)
                 .setResource(resourceLookup)
@@ -89,7 +89,7 @@ public class FileReportResourceProviderTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreateProviderWithoutResourceLookup() {
-        FileReportResourceProvider
+        StreamReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setJsRestClient(jsRestClient)
                 .build();
@@ -97,7 +97,7 @@ public class FileReportResourceProviderTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreateProviderWithoutJsRestClient() {
-        FileReportResourceProvider
+        StreamReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setResource(resourceLookup)
                 .build();
@@ -108,14 +108,14 @@ public class FileReportResourceProviderTest {
         when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[] {exportExecution}));
         when(jsRestClient.runReportExecution(any(ReportExecutionRequest.class))).thenReturn(reportExecutionResponse);
 
-        ResourceProvider<File> resourceProvider = FileReportResourceProvider
+        ResourceProvider<ClientHttpResponse> resourceProvider = StreamReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setJsRestClient(jsRestClient)
                 .setResource(resourceLookup)
                 .build();
 
-        File file = resourceProvider
+        ClientHttpResponse response = resourceProvider
                 .provideResource();
-        assertThat(file, is(notNullValue()));
+        assertThat(response, is(notNullValue()));
     }
 }

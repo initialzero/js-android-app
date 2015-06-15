@@ -35,9 +35,11 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import org.apache.commons.io.IOUtils;
 import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
+import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,18 +47,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import rx.Observable;
-import rx.functions.Func1;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func2;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-public class StreamPrintJob implements ResourcePrintJob {
+public class ReportPrintJob implements ResourcePrintJob {
     private final Context mContext;
-    private final ResourceProvider<Observable<InputStream>> resourceProvider;
+    private final ResourceProvider<Observable<ClientHttpResponse>> resourceProvider;
     private final String printName;
 
-    private StreamPrintJob(Builder builder) {
+    private ReportPrintJob(Builder builder) {
         mContext = builder.context;
         resourceProvider = builder.resourceProvider;
         printName = builder.printName;
@@ -66,39 +71,20 @@ public class StreamPrintJob implements ResourcePrintJob {
         return new Builder(context);
     }
 
-    @Override
-    public Observable printResource() {
-        return resourceProvider.provideResource()
-                .map(new Func1<InputStream, Observable>() {
-                    @Override
-                    public Observable call(InputStream stream) {
-                        showPrintPreview(stream);
-                        return Observable.empty();
-                    }
-                });
-    }
-
     @TargetApi(19)
-    private void showPrintPreview(InputStream stream) {
+    @Override
+    public void printResource() {
         PrintManager printManager = (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
         String jobName = printName;
 
         PrintAttributes printAttributes = new PrintAttributes.Builder().build();
-        PrintDocumentAdapter printAdapter = new PrintReportAdapter(stream, printName);
+        PrintDocumentAdapter printAdapter = new PrintReportAdapter();
 
         printManager.print(jobName, printAdapter, printAttributes);
     }
 
     @TargetApi(19)
-    private static class PrintReportAdapter extends PrintDocumentAdapter {
-        private InputStream input;
-        private String printName;
-
-        public PrintReportAdapter(InputStream stream, String printName) {
-            this.input = stream;
-            this.printName = printName;
-        }
-
+    private class PrintReportAdapter extends PrintDocumentAdapter {
         @Override
         public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes, CancellationSignal cancellationSignal, LayoutResultCallback callback, Bundle extras) {
             if (cancellationSignal.isCanceled()) {
@@ -113,16 +99,48 @@ public class StreamPrintJob implements ResourcePrintJob {
         }
 
         @Override
-        public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, WriteResultCallback callback) {
+        public void onWrite(PageRange[] pages, final ParcelFileDescriptor destination, CancellationSignal cancellationSignal, final WriteResultCallback callback) {
+            copyContent(destination)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            new Action1<Object>() {
+                                @Override
+                                public void call(Object o) {
+                                    callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
+                                }
+                            }, new Action1<Throwable>() {
+                                @Override
+                                public void call(Throwable throwable) {
+                                    Toast.makeText(mContext, throwable.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            });
+        }
+
+        private Observable<Object> copyContent(ParcelFileDescriptor destination) {
+            return Observable.zip(resourceProvider.provideResource(), Observable.just(destination), new Func2<ClientHttpResponse, ParcelFileDescriptor, Object>() {
+                @Override
+                public Object call(ClientHttpResponse clientHttpResponse, ParcelFileDescriptor parcelFileDescriptor) {
+                    blockingCopyContent(clientHttpResponse, parcelFileDescriptor);
+                    return null;
+                }
+            });
+        }
+
+        private void blockingCopyContent(final ClientHttpResponse httpResponse, final ParcelFileDescriptor destination) {
             OutputStream output = new FileOutputStream(destination.getFileDescriptor());
+            InputStream inputStream = null;
             try {
-                IOUtils.copy(input, output);
-                callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
+                inputStream = httpResponse.getBody();
+                IOUtils.copy(httpResponse.getBody(), output);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
-                IOUtils.closeQuietly(input);
+                if (inputStream != null) {
+                    IOUtils.closeQuietly(inputStream);
+                }
                 IOUtils.closeQuietly(output);
+                httpResponse.close();
             }
         }
     }
@@ -130,19 +148,19 @@ public class StreamPrintJob implements ResourcePrintJob {
     public static class Builder {
         private final Context context;
         private String printName;
-        private ResourceProvider<Observable<InputStream>> resourceProvider;
+        private ResourceProvider<Observable<ClientHttpResponse>> resourceProvider;
 
         public Builder(Context context) {
-           this.context = context;
+            this.context = context;
         }
 
         @VisibleForTesting
-        Builder setObservableResourceProvider(ResourceProvider<Observable<InputStream>> resourceProvider) {
+        Builder setObservableResourceProvider(ResourceProvider<Observable<ClientHttpResponse>> resourceProvider) {
             this.resourceProvider = resourceProvider;
             return this;
         }
 
-        public Builder setResourceProvider(ResourceProvider<InputStream> resourceProvider) {
+        public Builder setResourceProvider(ResourceProvider<ClientHttpResponse> resourceProvider) {
             this.resourceProvider = StreamResourceProviderDecorator.decorate(resourceProvider);
             return this;
         }
@@ -154,7 +172,7 @@ public class StreamPrintJob implements ResourcePrintJob {
 
         public ResourcePrintJob build() {
             validateDependencies();
-            return new StreamPrintJob(this);
+            return new ReportPrintJob(this);
         }
 
         private void validateDependencies() {

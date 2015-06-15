@@ -31,8 +31,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-
-import java.io.File;
+import org.springframework.http.client.ClientHttpResponse;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -49,10 +48,12 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class FileResourceProviderDecoratorTest {
+public class StreamResourceProviderDecoratorTest {
 
     @Mock
-    ResourceProvider<File> fileResourceProvider;
+    ResourceProvider<ClientHttpResponse> streamResourceProvider;
+    @Mock
+    ClientHttpResponse clientHttpResponse;
 
     @Before
     public void setup() {
@@ -61,33 +62,33 @@ public class FileResourceProviderDecoratorTest {
 
     @Test
     public void shouldProvideFile() {
-        when(fileResourceProvider.provideResource()).thenReturn(new File(""));
+        when(streamResourceProvider.provideResource()).thenReturn(clientHttpResponse);
 
-        ResourceProvider<Observable<File>> resourceProvider = FileResourceProviderDecorator.decorate(fileResourceProvider);
-        Observable<File> observable = resourceProvider.provideResource();
+        ResourceProvider<Observable<ClientHttpResponse>> resourceProvider = StreamResourceProviderDecorator.decorate(streamResourceProvider);
+        Observable<ClientHttpResponse> observable = resourceProvider.provideResource();
 
         observable.subscribeOn(AndroidSchedulers.mainThread()).subscribeOn(AndroidSchedulers.mainThread());
 
-        observable.subscribe(new Action1<File>() {
+        observable.subscribe(new Action1<ClientHttpResponse>() {
             @Override
-            public void call(File file) {
-                assertThat(file, is(notNullValue()));
+            public void call(ClientHttpResponse response) {
+                assertThat(response, is(notNullValue()));
             }
         });
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldHandleError() {
-        when(fileResourceProvider.provideResource()).thenThrow(new IllegalStateException());
+        when(streamResourceProvider.provideResource()).thenThrow(new IllegalStateException());
 
-        ResourceProvider<Observable<File>> resourceProvider = FileResourceProviderDecorator.decorate(fileResourceProvider);
+        ResourceProvider<Observable<ClientHttpResponse>> resourceProvider = StreamResourceProviderDecorator.decorate(streamResourceProvider);
         resourceProvider
                 .provideResource()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<File>() {
+                .subscribe(new Action1<ClientHttpResponse>() {
                     @Override
-                    public void call(File file) {
+                    public void call(ClientHttpResponse response) {
                     }
                 }, new Action1<Throwable>() {
                     @Override

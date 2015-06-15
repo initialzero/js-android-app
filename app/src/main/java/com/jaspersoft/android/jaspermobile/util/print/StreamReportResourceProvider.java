@@ -27,15 +27,15 @@ package com.jaspersoft.android.jaspermobile.util.print;
 import android.content.Context;
 
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
-import com.jaspersoft.android.sdk.client.async.request.SaveExportOutputRequest;
+import com.jaspersoft.android.sdk.client.async.request.GetExportOutputRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import java.io.File;
+import org.springframework.http.client.ClientHttpResponse;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,13 +44,13 @@ import java.util.List;
  * @author Tom Koptel
  * @since 2.1
  */
-public final class FileReportResourceProvider implements ResourceProvider<File> {
+public final class StreamReportResourceProvider implements ResourceProvider<ClientHttpResponse> {
     private final Context mContext;
     private final JsRestClient mJsRestClient;
     private final ResourceLookup mResource;
     private final List<ReportParameter> mReportParameters;
 
-    private FileReportResourceProvider(Builder builder) {
+    private StreamReportResourceProvider(Builder builder) {
         mContext = builder.context;
         mJsRestClient = builder.jsRestClient;
         mResource = builder.resource;
@@ -62,7 +62,7 @@ public final class FileReportResourceProvider implements ResourceProvider<File> 
     }
 
     @Override
-    public File provideResource() {
+    public ClientHttpResponse provideResource() {
         try {
             return requestFileExportAsPDF();
         } catch (Exception e) {
@@ -70,18 +70,16 @@ public final class FileReportResourceProvider implements ResourceProvider<File> 
         }
     }
 
-    private File requestFileExportAsPDF() throws Exception {
-        File testPdfFile = prepareTempFile();
+    private ClientHttpResponse requestFileExportAsPDF() throws Exception {
         ReportExecutionRequest request = prepareReportExecutionRequest();
 
-        RunReportExecutionRequest runReportExecutionRequest = new RunReportExecutionRequest(mJsRestClient, request);
-        ReportExecutionResponse exportResponse = runReportExecutionRequest.loadDataFromNetwork();
+        ReportExecutionResponse exportResponse = mJsRestClient.runReportExecution(request);
         ExportExecution execution = exportResponse.getExports().get(0);
         String exportOutput = execution.getId();
         String executionId = exportResponse.getRequestId();
 
-        SaveExportOutputRequest saveExportOutputRequest = new SaveExportOutputRequest(mJsRestClient, executionId, exportOutput, testPdfFile);
-        return saveExportOutputRequest.loadDataFromNetwork();
+        GetExportOutputRequest getExportOutputRequest = new GetExportOutputRequest(mJsRestClient, executionId, exportOutput);
+        return getExportOutputRequest.loadDataFromNetwork();
     }
 
     private ReportExecutionRequest prepareReportExecutionRequest() {
@@ -96,12 +94,6 @@ public final class FileReportResourceProvider implements ResourceProvider<File> 
         }
 
         return executionRequest;
-    }
-
-    private File prepareTempFile() {
-        File externalFile = mContext.getExternalFilesDir(null);
-        String tmpResource = mResource.getLabel() + ".pdf";
-        return new File(externalFile, tmpResource);
     }
 
     public static class Builder {
@@ -133,9 +125,9 @@ public final class FileReportResourceProvider implements ResourceProvider<File> 
             return this;
         }
 
-        public ResourceProvider<File> build() {
+        public ResourceProvider<ClientHttpResponse> build() {
             validateDependencies();
-            return new FileReportResourceProvider(this);
+            return new StreamReportResourceProvider(this);
         }
 
         private void validateDependencies() {

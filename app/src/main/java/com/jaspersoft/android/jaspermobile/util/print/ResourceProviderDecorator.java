@@ -28,8 +28,6 @@ import android.support.annotation.NonNull;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
@@ -45,9 +43,7 @@ abstract class ResourceProviderDecorator<RESULT> implements ResourceProvider<Obs
 
     @Override
     public Observable<RESULT> provideResource() {
-        return Observable.create(getSubscriptionTask())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+        return Observable.create(getSubscriptionTask());
     }
 
     @NonNull

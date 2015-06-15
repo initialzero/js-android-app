@@ -11,7 +11,7 @@ import rx.Subscription;
  * @author Tom Koptel
  * @since 2.1
  */
-public abstract class AbstractPrinter implements ResourcePrinter {
+public class AppPrinter implements ResourcePrinter {
     private final Context mContext;
     private final ResourceProvider mResourceProvider;
     private final ResourcePrintJob resourcePrintJob;
@@ -19,10 +19,14 @@ public abstract class AbstractPrinter implements ResourcePrinter {
     private Subscription mSubscription;
     private Observable<File> mResourceTask;
 
-    public AbstractPrinter(Builder builder) {
+    private AppPrinter(Builder builder) {
         mContext = builder.context;
         mResourceProvider = builder.resourceProvider;
         resourcePrintJob = builder.resourcePrintJob;
+    }
+
+    public static Builder builder(Context context) {
+        return new Builder(context);
     }
 
     @Override
@@ -45,7 +49,7 @@ public abstract class AbstractPrinter implements ResourcePrinter {
         }
     }
 
-    public static abstract class Builder {
+    public static class Builder {
         private final Context context;
         private ResourceProvider resourceProvider;
         private ResourcePrintJob resourcePrintJob;
@@ -66,10 +70,8 @@ public abstract class AbstractPrinter implements ResourcePrinter {
 
         public ResourcePrinter build() {
             validateDependencies();
-            return createPrinter();
+            return new AppPrinter(this);
         }
-
-        protected abstract ResourcePrinter createPrinter();
 
         private void validateDependencies() {
             if (resourceProvider == null) {

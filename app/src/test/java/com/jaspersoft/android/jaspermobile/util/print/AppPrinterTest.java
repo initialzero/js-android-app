@@ -24,12 +24,23 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+
+import java.io.File;
+
+import rx.Observable;
+import rx.functions.Action1;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -37,16 +48,28 @@ import org.robolectric.annotation.Config;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class DashboardPrinterTest {
+public class AppPrinterTest {
 
     @Mock
     ResourceProvider resourceProvider;
     @Mock
     ResourcePrintJob resourcePrintJob;
+    @Mock
+    Action1<File> successCallback;
+    @Mock
+    Action1<Throwable> errorCallback;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        when(resourceProvider.provideResource()).thenReturn(Observable.<File>empty());
+        when(resourcePrintJob.printResource()).thenReturn(successCallback);
+        when(resourcePrintJob.reportError()).thenReturn(errorCallback);
+    }
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreatePrinterWithoutResourcePrintJob() {
-        DashboardPrinter
+        AppPrinter
                 .builder(RuntimeEnvironment.application)
                 .setResourcePrintJob(resourcePrintJob)
                 .build();
@@ -54,10 +77,40 @@ public class DashboardPrinterTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreatePrinterWithoutResourceProvider() {
-        DashboardPrinter
+        AppPrinter
                 .builder(RuntimeEnvironment.application)
                 .setResourceProvider(resourceProvider)
                 .build();
     }
 
+    @Test
+    public void shouldMaintainCorrectCallOrder() {
+        ResourcePrinter printer = AppPrinter
+                .builder(RuntimeEnvironment.application)
+                .setResourceProvider(resourceProvider)
+                .setResourcePrintJob(resourcePrintJob)
+                .build();
+
+        printer.print();
+
+        verify(resourceProvider).provideResource();
+        verify(resourcePrintJob).printResource();
+        verify(resourcePrintJob).reportError();
+    }
+
+    @Test
+    public void shouldResumeTaskExecutionAfterPause() {
+        ResourcePrinter printer = AppPrinter
+                .builder(RuntimeEnvironment.application)
+                .setResourceProvider(resourceProvider)
+                .setResourcePrintJob(resourcePrintJob)
+                .build();
+
+        printer.print();
+        printer.pause();
+        printer.resume();
+
+        verify(resourcePrintJob, times(2)).printResource();
+        verify(resourcePrintJob, times(2)).reportError();
+    }
 }

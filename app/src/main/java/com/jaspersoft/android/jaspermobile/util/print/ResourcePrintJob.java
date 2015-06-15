@@ -24,15 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
-import java.io.File;
-
-import rx.functions.Action1;
+import rx.Observable;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
 public interface ResourcePrintJob {
-    Action1<File> printResource();
-    Action1<Throwable> reportError();
+    Observable printResource();
+
+    interface Listener {
+        void onSuccess();
+        void onError(Throwable throwable);
+    }
 }

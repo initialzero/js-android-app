@@ -6,11 +6,13 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.util.print.AppPrinter;
-import com.jaspersoft.android.jaspermobile.util.print.CommonPrintJob;
+import com.jaspersoft.android.jaspermobile.util.print.FilePrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.FileResourceProvider;
 import com.jaspersoft.android.jaspermobile.util.print.ReportResourceProvider;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrinter;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.BaseRequest;
@@ -37,16 +39,29 @@ public class PrintReportHelper {
     }
 
     @TargetApi(19)
-    public static void printReport(JsRestClient jsRestClient, Context context, ResourceLookup resource, ArrayList<ReportParameter> reportParameters){
+    public static void printReport(JsRestClient jsRestClient, final Context context, ResourceLookup resource, ArrayList<ReportParameter> reportParameters){
         FileResourceProvider fileResourceProvider = ReportResourceProvider.builder(context)
                 .setResource(resource)
                 .setJsRestClient(jsRestClient)
                 .addReportParameters(reportParameters)
                 .build();
 
-        ResourcePrinter printer = AppPrinter.builder()
+        ResourcePrintJob printJob = FilePrintJob.builder(context)
                 .setResourceProvider(fileResourceProvider)
-                .setResourcePrintJob(CommonPrintJob.newInstance(context))
+                .build();
+
+        ResourcePrinter printer = AppPrinter.builder()
+                .setResourcePrintJob(printJob)
+                .setResourcePrintListener(new ResourcePrintJob.Listener() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                })
                 .build();
 
         printer.print();

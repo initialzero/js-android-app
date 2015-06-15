@@ -34,9 +34,9 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
-import android.widget.Toast;
 
 import org.apache.commons.io.IOUtils;
+import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,41 +46,36 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import rx.functions.Action1;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-public final class CommonPrintJob implements ResourcePrintJob {
+public final class FilePrintJob implements ResourcePrintJob {
     private final Context mContext;
+    private final ResourceProvider<Observable<File>> resourceProvider;
 
-    private CommonPrintJob(Context context) {
-        mContext = context;
+    private FilePrintJob(Builder builder) {
+        mContext = builder.context;
+        resourceProvider = builder.resourceProvider;
     }
 
-    public static ResourcePrintJob newInstance(Context context) {
-        return new CommonPrintJob(context);
-    }
-
-    @Override
-    public Action1<File> printResource() {
-        return new Action1<File>() {
-            @Override
-            public void call(File file) {
-                showPrintPreview(file);
-            }
-        };
+    public static Builder builder(Context context) {
+        return new Builder(context);
     }
 
     @Override
-    public Action1<Throwable> reportError() {
-        return new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                Toast.makeText(mContext, throwable.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        };
+    public Observable printResource() {
+        return resourceProvider.provideResource()
+                .map(new Func1<File, Observable>() {
+                    @Override
+                    public Observable call(File file) {
+                        showPrintPreview(file);
+                        return Observable.empty();
+                    }
+                });
     }
 
     @TargetApi(19)
@@ -135,6 +130,37 @@ public final class CommonPrintJob implements ResourcePrintJob {
                 return new FileInputStream(fileToPrint);
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    public static class Builder {
+        private final Context context;
+        private ResourceProvider<Observable<File>> resourceProvider;
+
+        public Builder(Context context) {
+            this.context = context;
+        }
+
+        @VisibleForTesting
+        Builder setObservableResourceProvider(ResourceProvider<Observable<File>> resourceProvider) {
+            this.resourceProvider = resourceProvider;
+            return this;
+        }
+
+        public Builder setResourceProvider(ResourceProvider<File> resourceProvider) {
+            this.resourceProvider = ResourceProviderDecorator.decorate(resourceProvider);
+            return this;
+        }
+
+        public ResourcePrintJob build() {
+            validateDependencies();
+            return new FilePrintJob(this);
+        }
+
+        private void validateDependencies() {
+            if (resourceProvider == null) {
+                throw new IllegalStateException("Resource provider should not be null");
             }
         }
     }

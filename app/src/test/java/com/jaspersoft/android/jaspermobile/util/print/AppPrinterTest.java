@@ -56,47 +56,30 @@ public class AppPrinterTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        when(resourceProvider.provideResource()).thenReturn(Observable.<File>empty());
-        when(resourcePrintJob.printResource()).thenReturn(successCallback);
-        when(resourcePrintJob.reportError()).thenReturn(errorCallback);
+        when(resourcePrintJob.printResource()).thenReturn(Observable.empty());
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreatePrinterWithoutResourcePrintJob() {
-        AppPrinter
-                .builder()
-                .setResourcePrintJob(resourcePrintJob)
-                .build();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void shouldNotCreatePrinterWithoutResourceProvider() {
-        AppPrinter
-                .builder()
-                .setResourceProvider(resourceProvider)
-                .build();
+        AppPrinter.builder().build();
     }
 
     @Test
     public void shouldMaintainCorrectCallOrder() {
         ResourcePrinter printer = AppPrinter
                 .builder()
-                .setResourceProvider(resourceProvider)
                 .setResourcePrintJob(resourcePrintJob)
                 .build();
 
         printer.print();
 
-        verify(resourceProvider).provideResource();
         verify(resourcePrintJob).printResource();
-        verify(resourcePrintJob).reportError();
     }
 
     @Test
     public void shouldResumeTaskExecutionAfterPause() {
         ResourcePrinter printer = AppPrinter
                 .builder()
-                .setResourceProvider(resourceProvider)
                 .setResourcePrintJob(resourcePrintJob)
                 .build();
 
@@ -104,7 +87,6 @@ public class AppPrinterTest {
         printer.pause();
         printer.resume();
 
-        verify(resourcePrintJob, times(2)).printResource();
-        verify(resourcePrintJob, times(2)).reportError();
+        verify(resourcePrintJob, times(1)).printResource();
     }
 }

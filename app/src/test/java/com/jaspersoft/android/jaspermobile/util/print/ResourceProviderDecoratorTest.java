@@ -81,19 +81,19 @@ public class ResourceProviderDecoratorTest {
         when(fileResourceProvider.provideResource()).thenThrow(new IllegalStateException());
 
         ObservableResourceProvider resourceProvider = ResourceProviderDecorator.decorate(fileResourceProvider);
-        Observable<File> observable = resourceProvider.provideResource();
-
-        observable.subscribeOn(AndroidSchedulers.mainThread()).subscribeOn(AndroidSchedulers.mainThread());
-
-        observable.subscribe(new Action1<File>() {
-            @Override
-            public void call(File file) {
-            }
-        }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        });
+        resourceProvider
+                .provideResource()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<File>() {
+                    @Override
+                    public void call(File file) {
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        throw new RuntimeException(throwable);
+                    }
+                });
     }
 }

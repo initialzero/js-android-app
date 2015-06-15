@@ -86,7 +86,7 @@ public class FilterSavedItemsDialogFragment extends DialogFragment {
 
         builder.setTitle(R.string.s_ab_filter_by);
         CharSequence[] options = {
-                getString(R.string.si_fd_option_all),
+                getString(R.string.s_fd_option_all),
                 getString(R.string.si_fd_option_html),
                 getString(R.string.si_fd_option_pdf),
                 getString(R.string.si_fd_option_xls)

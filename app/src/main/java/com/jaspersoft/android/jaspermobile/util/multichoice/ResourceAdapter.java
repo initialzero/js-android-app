@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.adapter;
+package com.jaspersoft.android.jaspermobile.util.multichoice;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -37,8 +37,6 @@ import android.view.ViewGroup;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceAdapterHelper;
-import com.jaspersoft.android.jaspermobile.util.multichoice.SingleChoiceArrayAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceView;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.widget.GridItemView_;

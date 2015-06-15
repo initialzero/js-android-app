@@ -33,16 +33,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.SearchableActivity_;
+import com.jaspersoft.android.jaspermobile.activities.repository.RepositorySearchableActivity_;
 
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import roboguice.fragment.RoboFragment;
 
@@ -52,20 +47,12 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment
 @OptionsMenu(R.menu.search_menu)
-public class SearchControllerFragment extends RoboFragment implements SearchView.OnQueryTextListener {
+public class RepositorySearchFragment extends RoboFragment implements SearchView.OnQueryTextListener {
 
-    public static final String TAG = SearchControllerFragment.class.getSimpleName();
-    public static final int SEARCH_ACTION = 100;
+    public static final String TAG = RepositorySearchFragment.class.getSimpleName();
 
     @OptionsMenuItem(R.id.search)
     public MenuItem searchMenuItem;
-
-    @InstanceState
-    @FragmentArg
-    ArrayList<String> resourceTypes;
-    @InstanceState
-    @FragmentArg
-    String prefTag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,16 +75,12 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
     public boolean onQueryTextSubmit(String query) {
         searchMenuItem.collapseActionView();
         String resourceUri = getResourceUri();
-        Intent searchIntent = SearchableActivity_
+        Intent searchIntent = RepositorySearchableActivity_
                 .intent(getActivity())
                 .query(query)
                 .resourceUri(resourceUri)
-                .resourceTypes(resourceTypes)
-                .controllerTag(getActivity().getLocalClassName())
-                .prefTag(prefTag)
                 .get();
-        searchIntent.setAction(Intent.ACTION_SEARCH);
-        getActivity().startActivityForResult(searchIntent, SEARCH_ACTION);
+        getActivity().startActivity(searchIntent);
         return true;
     }
 
@@ -106,15 +89,11 @@ public class SearchControllerFragment extends RoboFragment implements SearchView
         return false;
     }
 
-    public void setResourceTypes(List<String> resourceTypes) {
-        this.resourceTypes = new ArrayList<String>(resourceTypes);
-    }
-
     public String getResourceUri() {
         FragmentManager fm = getFragmentManager();
         int entryCount = fm.getBackStackEntryCount();
         if (entryCount == 0) {
-            return ResourcesFragment.ROOT_URI;
+            return RepositoryFragment.ROOT_URI;
         }
         FragmentManager.BackStackEntry entry = fm.getBackStackEntryAt(entryCount - 1);
         return entry.getName();

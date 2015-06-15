@@ -136,12 +136,15 @@
         </activity>
 
         <activity
-            android:name=".activities.SearchableActivity_"
+            android:name=".activities.library.LibrarySearchableActivity_"
             android:configChanges="locale"
             android:launchMode="singleTop" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activities.repository.RepositorySearchableActivity_"
+            android:configChanges="locale"
+            android:launchMode="singleTop" >
         </activity>
 
         <!-- Activity that allows to make search in Saved Items activity -->

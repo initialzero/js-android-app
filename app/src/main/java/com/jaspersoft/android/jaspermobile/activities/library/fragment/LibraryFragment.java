@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
+package com.jaspersoft.android.jaspermobile.activities.library.fragment;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -44,7 +44,7 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.adapter.ResourceAdapter;
+import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
@@ -53,6 +53,7 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
+import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
@@ -61,9 +62,7 @@ import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
@@ -77,7 +76,6 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -87,7 +85,7 @@ import roboguice.inject.InjectView;
  * @since 1.9
  */
 @EFragment
-public class ResourcesFragment extends RoboSpiceFragment
+public class LibraryFragment extends RoboSpiceFragment
         implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
 
     public static final String ROOT_URI = "/";
@@ -110,25 +108,13 @@ public class ResourcesFragment extends RoboSpiceFragment
 
     @InstanceState
     @FragmentArg
-    protected ArrayList<String> resourceTypes;
+    protected String resourceLabel;
     @InstanceState
     @FragmentArg
     protected SortOrder sortOrder;
     @InstanceState
     @FragmentArg
-    protected boolean recursiveLookup;
-    @InstanceState
-    @FragmentArg
-    protected String resourceLabel;
-    @InstanceState
-    @FragmentArg
-    protected String resourceUri;
-    @InstanceState
-    @FragmentArg
     protected String query;
-    @InstanceState
-    @FragmentArg
-    protected int emptyMessage;
 
     @FragmentArg
     protected ViewType viewType;
@@ -146,6 +132,8 @@ public class ResourcesFragment extends RoboSpiceFragment
     protected int mLoaderState = LOAD_FROM_CACHE;
 
     @Bean
+    protected LibraryResourceFilter libraryResourceFilter;
+    @Bean
     protected DefaultPrefHelper prefHelper;
     @Bean
     protected ResourceOpener resourceOpener;
@@ -162,9 +150,9 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setLimit(mLimit);
-        mSearchCriteria.setRecursive(recursiveLookup);
-        mSearchCriteria.setTypes(resourceTypes);
-        mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
+        mSearchCriteria.setRecursive(true);
+        mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
+        mSearchCriteria.setFolderUri(ROOT_URI);
         if (!TextUtils.isEmpty(query)) {
             mSearchCriteria.setQuery(query);
         }
@@ -197,7 +185,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         listView.setOnScrollListener(new ScrollListener());
         setDataAdapter(savedInstanceState);
         updatePaginationPolicy();
-        loadPage();
+        loadFirstPage();
     }
 
     @Override
@@ -206,7 +194,7 @@ public class ResourcesFragment extends RoboSpiceFragment
 
         boolean isResourceLoaded = (mAdapter.getCount() == 0);
         if (!mLoading && isResourceLoaded) {
-            loadPage();
+            loadFirstPage();
         }
     }
 
@@ -217,9 +205,7 @@ public class ResourcesFragment extends RoboSpiceFragment
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             if (TextUtils.isEmpty(resourceLabel)) {
-                boolean isRepository = !recursiveLookup;
-                actionBar.setTitle(isRepository ?
-                        getString(R.string.h_repository_label) : getString(R.string.h_library_label));
+                actionBar.setTitle(getString(R.string.h_library_label));
             } else {
                 actionBar.setTitle(resourceLabel);
             }
@@ -259,16 +245,15 @@ public class ResourcesFragment extends RoboSpiceFragment
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
-        loadPage();
+        loadFirstPage();
     }
 
     //---------------------------------------------------------------------
     // Implements ResourcesLoader
     //---------------------------------------------------------------------
 
-    public void loadResourcesByTypes(List<String> types) {
-        resourceTypes = new ArrayList<String>(types);
-        mSearchCriteria.setTypes(resourceTypes);
+    public void loadResourcesByTypes() {
+        mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
         mAdapter.clear();
         loadFirstPage();
     }
@@ -317,17 +302,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-    private void loadRootFolders() {
-        setRefreshState(true);
-        showEmptyText(R.string.loading_msg);
-        // Fetch default URI
-        GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
-        long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
-                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
-                new GetRootFolderDataRequestListener());
-    }
-
     private void loadNextPage() {
         if (!mLoading && hasNextPage()) {
             mSearchCriteria.setOffset(calculateNextOffset());
@@ -367,17 +341,6 @@ public class ResourcesFragment extends RoboSpiceFragment
         }
     }
 
-    private void loadPage() {
-        boolean isRepository = !recursiveLookup;
-        boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = mServerData.getEdition().equals("PRO");
-        if (isRepository && isRoot && isProJrs) {
-            loadRootFolders();
-        } else {
-            loadFirstPage();
-        }
-    }
-
     //---------------------------------------------------------------------
     // Implements FavoritesAdapter.FavoritesInteractionListener
     //---------------------------------------------------------------------
@@ -402,44 +365,6 @@ public class ResourcesFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
-
-    private class GetRootFolderDataRequestListener extends SimpleRequestListener<FolderDataResponse> {
-
-        @Override
-        protected Context getContext() {
-            return getActivity();
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            setRefreshState(false);
-            showEmptyText(R.string.failed_load_data);
-        }
-
-        @Override
-        public void onRequestSuccess(FolderDataResponse folderDataResponse) {
-            // Do this for explicit refresh during pull to refresh interaction
-            if (mLoaderState == LOAD_FROM_NETWORK) {
-                mAdapter.setNotifyOnChange(false);
-                mAdapter.clear();
-            }
-
-            mAdapter.add(folderDataResponse);
-
-            ResourceLookup publicLookup = new ResourceLookup();
-            publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
-            publicLookup.setLabel("Public");
-            publicLookup.setUri("/public");
-            mAdapter.add(publicLookup);
-
-            mAdapter.setNotifyOnChange(true);
-            mAdapter.notifyDataSetChanged();
-
-            setRefreshState(false);
-            showEmptyText(emptyMessage);
-        }
-    }
 
     private class GetResourceLookupsListener extends SimpleRequestListener<ResourceLookupsList> {
 
@@ -468,18 +393,13 @@ public class ResourcesFragment extends RoboSpiceFragment
                 mAdapter.clear();
             }
             mAdapter.addAll(datum);
-            // We won`t sort by type in Library section
-            if (resourceTypes != null &&
-                    resourceTypes.contains(ResourceLookup.ResourceType.folder.toString())) {
-                mAdapter.sortByType();
-            }
             mAdapter.setNotifyOnChange(true);
             mAdapter.notifyDataSetChanged();
 
             // set refresh states
             setRefreshState(false);
             // If need we show 'empty' message
-            showEmptyText(emptyMessage);
+            showEmptyText(R.string.r_browser_nothing_to_display);
         }
     }
 

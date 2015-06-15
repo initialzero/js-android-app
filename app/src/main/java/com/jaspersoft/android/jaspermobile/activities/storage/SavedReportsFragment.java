@@ -31,7 +31,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
@@ -94,7 +94,7 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
             transaction.replace(R.id.resource_controller, savedItemsController, SavedItemsControllerFragment.TAG);
 
             SavedItemsSearchFragment searchFragment = SavedItemsSearchFragment_.builder().build();
-            transaction.replace(R.id.search_controller, searchFragment, SearchControllerFragment.TAG + TAG);
+            transaction.replace(R.id.search_controller, searchFragment, RepositorySearchFragment.TAG + TAG);
 
             transaction.commit();
         } else {

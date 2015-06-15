@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -44,13 +44,13 @@ import java.util.List;
  * @author Tom Koptel
  * @since 2.1
  */
-public final class ReportResourceProvider implements FileResourceProvider {
+public final class FileReportResourceProvider implements ResourceProvider<File> {
     private final Context mContext;
     private final JsRestClient mJsRestClient;
     private final ResourceLookup mResource;
     private final List<ReportParameter> mReportParameters;
 
-    private ReportResourceProvider(Builder builder) {
+    private FileReportResourceProvider(Builder builder) {
         mContext = builder.context;
         mJsRestClient = builder.jsRestClient;
         mResource = builder.resource;
@@ -133,9 +133,9 @@ public final class ReportResourceProvider implements FileResourceProvider {
             return this;
         }
 
-        public FileResourceProvider build() {
+        public ResourceProvider<File> build() {
             validateDependencies();
-            return new ReportResourceProvider(this);
+            return new FileReportResourceProvider(this);
         }
 
         private void validateDependencies() {

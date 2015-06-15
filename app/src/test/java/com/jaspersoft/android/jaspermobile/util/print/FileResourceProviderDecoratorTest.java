@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -49,10 +49,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class ResourceProviderDecoratorTest {
+public class FileResourceProviderDecoratorTest {
 
     @Mock
-    FileResourceProvider fileResourceProvider;
+    ResourceProvider<File> fileResourceProvider;
 
     @Before
     public void setup() {
@@ -63,7 +63,7 @@ public class ResourceProviderDecoratorTest {
     public void shouldProvideFile() {
         when(fileResourceProvider.provideResource()).thenReturn(new File(""));
 
-        ObservableResourceProvider resourceProvider = ResourceProviderDecorator.decorate(fileResourceProvider);
+        ResourceProvider<Observable<File>> resourceProvider = FileResourceProviderDecorator.decorate(fileResourceProvider);
         Observable<File> observable = resourceProvider.provideResource();
 
         observable.subscribeOn(AndroidSchedulers.mainThread()).subscribeOn(AndroidSchedulers.mainThread());
@@ -80,7 +80,7 @@ public class ResourceProviderDecoratorTest {
     public void shouldHandleError() {
         when(fileResourceProvider.provideResource()).thenThrow(new IllegalStateException());
 
-        ObservableResourceProvider resourceProvider = ResourceProviderDecorator.decorate(fileResourceProvider);
+        ResourceProvider<Observable<File>> resourceProvider = FileResourceProviderDecorator.decorate(fileResourceProvider);
         resourceProvider
                 .provideResource()
                 .observeOn(AndroidSchedulers.mainThread())

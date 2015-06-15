@@ -11,7 +11,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.util.print.AppPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.FilePrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.FileResourceProvider;
-import com.jaspersoft.android.jaspermobile.util.print.ReportResourceProvider;
+import com.jaspersoft.android.jaspermobile.util.print.FileReportResourceProvider;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrinter;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -40,7 +40,7 @@ public class PrintReportHelper {
 
     @TargetApi(19)
     public static void printReport(JsRestClient jsRestClient, final Context context, ResourceLookup resource, ArrayList<ReportParameter> reportParameters){
-        FileResourceProvider fileResourceProvider = ReportResourceProvider.builder(context)
+        FileResourceProvider fileResourceProvider = FileReportResourceProvider.builder(context)
                 .setResource(resource)
                 .setJsRestClient(jsRestClient)
                 .addReportParameters(reportParameters)

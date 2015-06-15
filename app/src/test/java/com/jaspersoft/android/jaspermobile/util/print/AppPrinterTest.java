@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 public class AppPrinterTest {
 
     @Mock
-    ObservableResourceProvider resourceProvider;
+    ResourceProvider<Observable<File>> resourceProvider;
     @Mock
     ResourcePrintJob resourcePrintJob;
     @Mock

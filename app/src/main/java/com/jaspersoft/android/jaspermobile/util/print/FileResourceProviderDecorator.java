@@ -37,16 +37,16 @@ import rx.schedulers.Schedulers;
  * @author Tom Koptel
  * @since 2.1
  */
-final class ResourceProviderDecorator implements ObservableResourceProvider {
+final class FileResourceProviderDecorator implements ResourceProvider<Observable<File>> {
 
     private final ResourceProvider<File> fileResourceProvider;
 
-    private ResourceProviderDecorator(ResourceProvider<File> fileResourceProvider) {
+    private FileResourceProviderDecorator(ResourceProvider<File> fileResourceProvider) {
         this.fileResourceProvider = fileResourceProvider;
     }
 
-    public static ObservableResourceProvider decorate(ResourceProvider<File> fileResourceProvider) {
-        return new ResourceProviderDecorator(fileResourceProvider);
+    public static ResourceProvider<Observable<File>> decorate(ResourceProvider<File> fileResourceProvider) {
+        return new FileResourceProviderDecorator(fileResourceProvider);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class ReportResourceProviderTest {
+public class FileReportResourceProviderTest {
 
     @Mock
     JsRestClient jsRestClient;
@@ -79,7 +79,7 @@ public class ReportResourceProviderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateProviderWithNULLParams() {
-        ReportResourceProvider
+        FileReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setJsRestClient(jsRestClient)
                 .setResource(resourceLookup)
@@ -89,7 +89,7 @@ public class ReportResourceProviderTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreateProviderWithoutResourceLookup() {
-        ReportResourceProvider
+        FileReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setJsRestClient(jsRestClient)
                 .build();
@@ -97,7 +97,7 @@ public class ReportResourceProviderTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreateProviderWithoutJsRestClient() {
-        ReportResourceProvider
+        FileReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setResource(resourceLookup)
                 .build();
@@ -108,7 +108,7 @@ public class ReportResourceProviderTest {
         when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[] {exportExecution}));
         when(jsRestClient.runReportExecution(any(ReportExecutionRequest.class))).thenReturn(reportExecutionResponse);
 
-        ResourceProvider<File> resourceProvider = ReportResourceProvider
+        ResourceProvider<File> resourceProvider = FileReportResourceProvider
                 .builder(RuntimeEnvironment.application)
                 .setJsRestClient(jsRestClient)
                 .setResource(resourceLookup)

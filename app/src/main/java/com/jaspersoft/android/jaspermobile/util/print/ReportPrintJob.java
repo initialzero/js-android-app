@@ -124,7 +124,7 @@ final class ReportPrintJob implements ResourcePrintJob {
                 return;
             }
 
-            writeContentTask = printUnit.writeContent(destination)
+            writeContentTask = printUnit.writeContent(pages[0], destination)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(

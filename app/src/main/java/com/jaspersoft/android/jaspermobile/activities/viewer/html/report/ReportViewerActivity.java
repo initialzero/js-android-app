@@ -64,9 +64,7 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
-import com.jaspersoft.android.jaspermobile.util.print.PrintUnit;
-import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
-import com.jaspersoft.android.jaspermobile.util.print.ReportPrintUnit;
+import com.jaspersoft.android.jaspermobile.util.print.ReportPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
@@ -109,7 +107,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import rx.Subscription;
 import rx.functions.Action1;
@@ -345,16 +342,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @OptionsItem
     final void printAction() {
         if (printJob == null) {
-            PrintUnit reportPrintUnit = ReportPrintUnit.builder()
-                    .setResource(resource)
-                    .setJsRestClient(jsRestClient)
-                    .addReportParameters(reportParameters)
-                    .build();
-
-            printJob = ReportPrintJob.builder(this)
-                    .setPrintUnit(reportPrintUnit)
-                    .setPrintName(String.valueOf(new Random().nextInt(1000)))
-                    .build();
+            printJob = ReportPrinter.get()
+                    .withContext(this)
+                    .withJsRestClient(jsRestClient)
+                    .withResource(resource)
+                    .withReportParameters(reportParameters)
+                    .print();
         }
 
         printJob.printResource();

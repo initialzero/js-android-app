@@ -44,7 +44,7 @@ import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.print.DashboardPrintJob;
+import com.jaspersoft.android.jaspermobile.util.print.DashboardPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
@@ -165,10 +165,9 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
         if (itemId == R.id.printAction) {
             if (printJob == null) {
-                printJob = DashboardPrintJob.builder()
-                        .setPrintName(resource.getLabel())
-                        .setWebView(webView)
-                        .build();
+                printJob = DashboardPrinter.get()
+                        .withResource(resource)
+                        .withWebView(webView).print();
             }
 
             printJob.printResource();

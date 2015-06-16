@@ -53,7 +53,7 @@ import rx.Subscriber;
  * @author Tom Koptel
  * @since 2.1
  */
-public final class ReportPrintUnit implements PrintUnit {
+final class ReportPrintUnit implements PrintUnit {
     private final JsRestClient mJsRestClient;
     private final ResourceLookup mResource;
     private final List<ReportParameter> mReportParameters;

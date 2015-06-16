@@ -47,7 +47,7 @@ import rx.schedulers.Schedulers;
  * @author Tom Koptel
  * @since 2.1
  */
-public class ReportPrintJob implements ResourcePrintJob {
+final class ReportPrintJob implements ResourcePrintJob {
     private final Context mContext;
     private final PrintUnit printUnit;
     private final String printName;

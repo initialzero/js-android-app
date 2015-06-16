@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
@@ -35,7 +36,7 @@ import android.webkit.WebView;
  * @author Tom Koptel
  * @since 2.1
  */
-public class DashboardPrintJob implements ResourcePrintJob {
+final class DashboardPrintJob implements ResourcePrintJob {
     private final String printName;
     private final WebView webView;
 
@@ -48,6 +49,7 @@ public class DashboardPrintJob implements ResourcePrintJob {
         return new Builder();
     }
 
+    @TargetApi(19)
     @Override
     public void printResource() {
         PrintManager printManager = (PrintManager) webView.getContext().getSystemService(Context.PRINT_SERVICE);

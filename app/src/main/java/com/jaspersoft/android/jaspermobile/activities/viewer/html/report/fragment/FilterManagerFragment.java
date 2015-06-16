@@ -45,9 +45,7 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.util.print.PrintUnit;
-import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
-import com.jaspersoft.android.jaspermobile.util.print.ReportPrintUnit;
+import com.jaspersoft.android.jaspermobile.util.print.ReportPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
@@ -67,7 +65,6 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
@@ -153,16 +150,12 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @OptionsItem
     final void printAction() {
         if (printJob == null) {
-            PrintUnit reportPrintUnit = ReportPrintUnit.builder()
-                    .setResource(resource)
-                    .setJsRestClient(jsRestClient)
-                    .addReportParameters(reportParameters)
-                    .build();
-
-            printJob = ReportPrintJob.builder(getActivity())
-                    .setPrintUnit(reportPrintUnit)
-                    .setPrintName(String.valueOf(new Random().nextInt(1000)))
-                    .build();
+            printJob = ReportPrinter.get()
+                    .withContext(getActivity())
+                    .withJsRestClient(jsRestClient)
+                    .withResource(resource)
+                    .withReportParameters(reportParameters)
+                    .print();
         }
         printJob.printResource();
     }

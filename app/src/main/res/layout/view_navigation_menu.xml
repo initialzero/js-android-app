@@ -102,7 +102,7 @@
                 android:id="@+id/iv_recent"
                 android:layout_width="24dp"
                 android:layout_height="wrap_content"
-                android:src="@drawable/bg_navigation_icon_library" />
+                android:src="@drawable/bg_navigation_icon_recently" />
 
             <TextView
                 android:id="@+id/tv_recent"

@@ -149,15 +149,12 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsItem
     final void printAction() {
-        if (printJob == null) {
-            printJob = ReportPrinter.get()
-                    .withContext(getActivity())
-                    .withJsRestClient(jsRestClient)
-                    .withResource(resource)
-                    .withReportParameters(reportParameters)
-                    .print();
-        }
-        printJob.printResource();
+        ReportPrinter.get()
+                .withContext(getActivity())
+                .withJsRestClient(jsRestClient)
+                .withResource(resource)
+                .withReportParameters(reportParameters)
+                .print();
     }
 
     private void showReportOptions() {

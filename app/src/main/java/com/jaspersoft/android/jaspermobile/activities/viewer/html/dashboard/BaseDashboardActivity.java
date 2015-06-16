@@ -45,7 +45,6 @@ import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.jaspermobile.util.print.DashboardPrinter;
-import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
@@ -84,7 +83,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-    private ResourcePrintJob printJob;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,13 +162,10 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
-            if (printJob == null) {
-                printJob = DashboardPrinter.get()
-                        .withResource(resource)
-                        .withWebView(webView).print();
-            }
-
-            printJob.printResource();
+            DashboardPrinter.get()
+                    .withResource(resource)
+                    .withWebView(webView)
+                    .print();
         }
 
         return true;
@@ -197,7 +192,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     protected void resetZoom() {
-        while(webView.zoomOut());
+        while (webView.zoomOut()) ;
     }
 
     protected void showMessage(CharSequence message) {
@@ -247,7 +242,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
                         new Action1<Boolean>() {
                             @Override
                             public void call(Boolean isRefreshed) {
-                                if (isRefreshed){
+                                if (isRefreshed) {
                                     onSessionRefreshed();
                                 } else {
                                     Toast.makeText(BaseDashboardActivity.this,

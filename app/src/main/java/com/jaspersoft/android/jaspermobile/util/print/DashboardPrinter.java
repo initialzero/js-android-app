@@ -58,6 +58,7 @@ public final class DashboardPrinter implements ResourcePrinter {
         return DashboardPrintJob.builder()
                 .setPrintName(resource.getLabel())
                 .setWebView(webView)
-                .build();
+                .build()
+                .printResource();
     }
 }

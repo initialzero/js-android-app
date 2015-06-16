@@ -32,5 +32,5 @@ import android.annotation.TargetApi;
  */
 public interface ResourcePrintJob {
     @TargetApi(19)
-    void printResource();
+    ResourcePrintJob printResource();
 }

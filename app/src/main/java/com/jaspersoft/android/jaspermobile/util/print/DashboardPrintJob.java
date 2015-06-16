@@ -51,10 +51,11 @@ final class DashboardPrintJob implements ResourcePrintJob {
 
     @TargetApi(19)
     @Override
-    public void printResource() {
+    public ResourcePrintJob printResource() {
         PrintManager printManager = (PrintManager) webView.getContext().getSystemService(Context.PRINT_SERVICE);
         PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(printName);
         printManager.print(printName, printAdapter, new PrintAttributes.Builder().build());
+        return this;
     }
 
     public static class Builder {

@@ -80,6 +80,7 @@ public final class ReportPrinter implements ResourcePrinter {
         return ReportPrintJob.builder(context)
                 .setPrintUnit(reportPrintUnit)
                 .setPrintName(String.valueOf(new Random().nextInt(1000)))
-                .build();
+                .build()
+                .printResource();
     }
 }

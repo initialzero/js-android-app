@@ -64,7 +64,7 @@ final class ReportPrintJob implements ResourcePrintJob {
 
     @TargetApi(19)
     @Override
-    public void printResource() {
+    public ResourcePrintJob printResource() {
         PrintManager printManager = (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
         String jobName = printName;
 
@@ -72,6 +72,7 @@ final class ReportPrintJob implements ResourcePrintJob {
         PrintDocumentAdapter printAdapter = new PrintReportAdapter();
 
         printManager.print(jobName, printAdapter, printAttributes);
+        return this;
     }
 
     @TargetApi(19)

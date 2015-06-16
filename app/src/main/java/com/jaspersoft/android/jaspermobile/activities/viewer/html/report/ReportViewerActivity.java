@@ -65,7 +65,6 @@ import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ReportPrinter;
-import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
@@ -177,13 +176,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private boolean isFlowLoaded;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
+    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
         @Override
         public void onCancel(DialogInterface dialog) {
             ReportViewerActivity.super.onBackPressed();
         }
     };
-    private ResourcePrintJob printJob;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -341,16 +339,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
-        if (printJob == null) {
-            printJob = ReportPrinter.get()
-                    .withContext(this)
-                    .withJsRestClient(jsRestClient)
-                    .withResource(resource)
-                    .withReportParameters(reportParameters)
-                    .print();
-        }
-
-        printJob.printResource();
+        ReportPrinter.get()
+                .withContext(this)
+                .withJsRestClient(jsRestClient)
+                .withResource(resource)
+                .withReportParameters(reportParameters)
+                .print();
     }
 
     //---------------------------------------------------------------------
@@ -544,7 +538,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     protected void resetZoom() {
-        while(webView.zoomOut());
+        while (webView.zoomOut()) ;
     }
 
     private void setupPaginationControl() {

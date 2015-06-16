@@ -359,7 +359,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         } catch (IOException e) {
             Timber.w(TAG, "Failed to remove template file", e);
         }
-        Toast.makeText(getActivity(), "Failed to execute report", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), R.string.sr_failed_to_execute_report, Toast.LENGTH_SHORT).show();
     }
 
     private void removeRecord() {

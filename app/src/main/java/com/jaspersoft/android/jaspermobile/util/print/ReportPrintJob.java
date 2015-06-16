@@ -114,7 +114,7 @@ final class ReportPrintJob implements ResourcePrintJob {
         }
 
         @Override
-        public void onWrite(PageRange[] pages, final ParcelFileDescriptor destination,
+        public void onWrite(final PageRange[] pages, final ParcelFileDescriptor destination,
                             CancellationSignal cancellationSignal, final WriteResultCallback callback) {
             if (cancellationSignal.isCanceled()) {
                 if (writeContentTask != null) {
@@ -131,7 +131,7 @@ final class ReportPrintJob implements ResourcePrintJob {
                             new Action1<Object>() {
                                 @Override
                                 public void call(Object o) {
-                                    callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
+                                    callback.onWriteFinished(pages);
                                 }
                             },
                             new Action1<Throwable>() {

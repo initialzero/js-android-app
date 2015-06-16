@@ -38,11 +38,7 @@ import org.androidannotations.annotations.EFragment;
  */
 @EFragment
 public class RecentControllerFragment extends ControllerFragment {
-    public static final String TAG = RecentControllerFragment.class.getSimpleName();
     public static final String PREF_TAG = "recent_pref";
-    public static final String CONTENT_TAG = "recentControllerFragment.CONTENT_TAG";
-
-    private RecentFragment contentFragment;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -53,8 +49,6 @@ public class RecentControllerFragment extends ControllerFragment {
 
         if (inMemoryFragment == null) {
             commitContentFragment();
-        } else {
-            contentFragment = inMemoryFragment;
         }
     }
 
@@ -66,14 +60,13 @@ public class RecentControllerFragment extends ControllerFragment {
 
     @Override
     public Fragment getContentFragment() {
-        contentFragment = RecentFragment_.builder()
+        return RecentFragment_.builder()
                 .viewType(getViewType())
                 .build();
-        return contentFragment;
     }
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG;
+        return RecentFragment.TAG;
     }
 }

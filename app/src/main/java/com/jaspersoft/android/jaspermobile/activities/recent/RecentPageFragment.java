@@ -43,7 +43,6 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment
 public class RecentPageFragment extends RoboFragment {
-    public static final String TAG = RecentPageFragment.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,7 +59,7 @@ public class RecentPageFragment extends RoboFragment {
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             RecentControllerFragment recentControllerFragment = RecentControllerFragment_.builder().build();
-            transaction.replace(R.id.resource_controller, recentControllerFragment, RecentControllerFragment.TAG);
+            transaction.replace(R.id.resource_controller, recentControllerFragment);
 
             transaction.commit();
         }

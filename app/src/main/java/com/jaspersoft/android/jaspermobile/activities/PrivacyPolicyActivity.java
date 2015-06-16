@@ -30,7 +30,6 @@ import android.webkit.WebViewClient;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment_;
@@ -68,8 +67,12 @@ public class PrivacyPolicyActivity extends RoboSpiceActivity implements WebViewF
             webViewFragment.setOnWebViewCreated(this);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content, webViewFragment, RepositoryControllerFragment.TAG)
+                    .add(R.id.content, webViewFragment, WebViewFragment.TAG)
                     .commit();
+        }
+        else {
+            webViewFragment = (WebViewFragment) getSupportFragmentManager()
+                    .findFragmentByTag(WebViewFragment.TAG);
         }
     }
 

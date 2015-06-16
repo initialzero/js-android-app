@@ -74,6 +74,7 @@ import roboguice.inject.InjectView;
 @EFragment
 public class RecentFragment extends RoboSpiceFragment
         implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
+    public static final String TAG = RecentFragment.class.getSimpleName();
     public static final String ROOT_URI = "/";
 
     @InjectView(android.R.id.list)

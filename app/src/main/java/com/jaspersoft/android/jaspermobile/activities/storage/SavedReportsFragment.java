@@ -31,9 +31,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
@@ -42,6 +39,8 @@ import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItem
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 
 import org.androidannotations.annotations.Bean;
@@ -60,7 +59,6 @@ import roboguice.fragment.RoboFragment;
 @EFragment
 @OptionsMenu(R.menu.sort_menu)
 public class SavedReportsFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener{
-    public static final String TAG = SavedReportsFragment.class.getSimpleName();
 
     private SavedItemsControllerFragment savedItemsController;
 
@@ -94,7 +92,7 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
             transaction.replace(R.id.resource_controller, savedItemsController, SavedItemsControllerFragment.TAG);
 
             SavedItemsSearchFragment searchFragment = SavedItemsSearchFragment_.builder().build();
-            transaction.replace(R.id.search_controller, searchFragment, RepositorySearchFragment.TAG + TAG);
+            transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
         } else {
@@ -118,11 +116,6 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
         }
     }
 
-    @OptionsItem(android.R.id.home)
-    final void goHome() {
-        getActivity().onBackPressed();
-    }
-
     @OptionsItem(R.id.sort)
     final void startSorting() {
         SortDialogFragment.createBuilder(getFragmentManager())
@@ -133,9 +126,9 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
 
     @Override
     public void onOptionSelected(SortOrder sortOrder) {
+        sortOptions.putOrder(sortOrder);
         if (savedItemsController != null) {
             savedItemsController.loadItemsBySortOrder(sortOrder);
-            sortOptions.putOrder(sortOrder);
         }
     }
 

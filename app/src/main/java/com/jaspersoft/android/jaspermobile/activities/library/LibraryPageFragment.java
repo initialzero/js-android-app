@@ -26,9 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.library;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.view.MenuItem;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -36,8 +33,6 @@ import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryCo
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
@@ -51,7 +46,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import roboguice.fragment.RoboFragment;
@@ -64,7 +58,6 @@ import roboguice.fragment.RoboFragment;
 @OptionsMenu(R.menu.sort_menu)
 @EFragment
 public class LibraryPageFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
-    public static final String TAG = LibraryPageFragment.class.getSimpleName();
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -76,11 +69,7 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
     @Bean
     protected SortOptions sortOptions;
 
-    @OptionsMenuItem
-    protected MenuItem sort;
-
     private LibraryControllerFragment libraryControllerFragment;
-    private LibrarySearchFragment searchControllerFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,22 +87,18 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
-            libraryControllerFragment =
-                    LibraryControllerFragment_.builder()
-                            .sortOrder(sortOptions.getOrder())
-                            .build();
-            transaction.replace(R.id.resource_controller, libraryControllerFragment, RepositoryControllerFragment.TAG + TAG);
+            libraryControllerFragment = LibraryControllerFragment_.builder()
+                    .sortOrder(sortOptions.getOrder())
+                    .build();
+            transaction.replace(R.id.resource_controller, libraryControllerFragment, LibraryControllerFragment.TAG);
 
-            searchControllerFragment =
-                    LibrarySearchFragment_.builder()
-                            .build();
-            transaction.replace(R.id.search_controller, searchControllerFragment, RepositorySearchFragment.TAG + TAG);
+            LibrarySearchFragment searchControllerFragment = LibrarySearchFragment_.builder()
+                    .build();
+            transaction.replace(R.id.search_controller, searchControllerFragment);
             transaction.commit();
         } else {
             libraryControllerFragment = (LibraryControllerFragment) getFragmentManager()
-                    .findFragmentByTag(RepositoryControllerFragment.TAG + TAG);
-            searchControllerFragment = (LibrarySearchFragment) getFragmentManager()
-                    .findFragmentByTag(RepositorySearchFragment.TAG + TAG);
+                    .findFragmentByTag(LibraryControllerFragment.TAG);
         }
 
         FilterTitleView filterTitleView = new FilterTitleView(getActivity());
@@ -124,15 +109,6 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
             ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
         } else {
             ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.h_library_label);
         }
     }
 

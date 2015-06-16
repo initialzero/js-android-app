@@ -29,7 +29,6 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 
 import org.androidannotations.annotations.EActivity;
@@ -56,7 +55,7 @@ public class LibrarySearchableActivity extends RoboSpiceActivity {
                             .query(query)
                             .build();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.resource_controller, resourcesController, RepositoryControllerFragment.TAG)
+                    .add(R.id.resource_controller, resourcesController)
                     .commit();
         }
     }

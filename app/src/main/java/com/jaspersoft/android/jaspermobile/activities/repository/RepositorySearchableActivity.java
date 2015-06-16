@@ -58,7 +58,7 @@ public class RepositorySearchableActivity extends RoboSpiceActivity {
                             .query(query)
                             .build();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.resource_controller, resourcesController, RepositoryControllerFragment.TAG)
+                    .add(R.id.resource_controller, resourcesController)
                     .commit();
         }
     }

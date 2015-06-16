@@ -88,6 +88,7 @@ import roboguice.inject.InjectView;
 public class LibraryFragment extends RoboSpiceFragment
         implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
 
+    public static final String TAG = LibraryFragment.class.getSimpleName();
     public static final String ROOT_URI = "/";
     // Loader actions
     private static final int LOAD_FROM_CACHE = 1;

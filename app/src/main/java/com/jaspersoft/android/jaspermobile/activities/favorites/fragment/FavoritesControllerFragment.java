@@ -29,7 +29,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
-import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -41,11 +40,7 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
-    public static final String CONTENT_TAG = "FavoritesControllerFragment.CONTENT_TAG";
     public static final String PREF_TAG = "favorites_pref";
-    public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
-
-    private FavoritesFragment contentFragment;
 
     @FragmentArg
     @InstanceState
@@ -62,33 +57,24 @@ public class FavoritesControllerFragment extends ControllerFragment {
         super.onActivityCreated(savedInstanceState);
 
         FavoritesFragment inMemoryFragment = (FavoritesFragment)
-                getFragmentManager().findFragmentByTag(CONTENT_TAG);
+                getFragmentManager().findFragmentByTag(FavoritesFragment.TAG);
 
         if (inMemoryFragment == null) {
             commitContentFragment();
-        } else {
-            contentFragment = inMemoryFragment;
         }
     }
 
     @Override
     public Fragment getContentFragment() {
-        contentFragment = FavoritesFragment_.builder()
+        return FavoritesFragment_.builder()
                 .viewType(getViewType())
                 .searchQuery(searchQuery)
                 .build();
-        return contentFragment;
     }
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG;
-    }
-
-    public void loadItemsByTypes(Filter newFilterType) {
-        if (contentFragment != null) {
-            contentFragment.showFavoritesByFilter();
-        }
+        return FavoritesFragment.TAG;
     }
 
 }

@@ -41,8 +41,6 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class SavedItemsControllerFragment extends ControllerFragment {
-    public static final String CONTENT_TAG = "SavedItemsControllerFragment.CONTENT_TAG";
-
     public static final String TAG = SavedItemsControllerFragment.class.getSimpleName();
 
     private SavedItemsFragment contentFragment;
@@ -66,7 +64,7 @@ public class SavedItemsControllerFragment extends ControllerFragment {
         super.onActivityCreated(savedInstanceState);
 
         SavedItemsFragment inMemoryFragment = (SavedItemsFragment)
-                getFragmentManager().findFragmentByTag(CONTENT_TAG);
+                getFragmentManager().findFragmentByTag(SavedItemsFragment.TAG);
 
         if (inMemoryFragment == null) {
             commitContentFragment();
@@ -87,7 +85,7 @@ public class SavedItemsControllerFragment extends ControllerFragment {
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG;
+        return SavedItemsFragment.TAG;
     }
 
     public void loadItemsByTypes() {

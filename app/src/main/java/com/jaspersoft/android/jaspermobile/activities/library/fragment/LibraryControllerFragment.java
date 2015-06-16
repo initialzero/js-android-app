@@ -43,7 +43,6 @@ import org.androidannotations.annotations.InstanceState;
 public class LibraryControllerFragment extends ControllerFragment {
     public static final String TAG = LibraryControllerFragment.class.getSimpleName();
     public static final String PREF_TAG = "library_pref";
-    public static final String CONTENT_TAG = "LibraryControllerFragment.CONTENT_TAG";
 
     @InstanceState
     @FragmentArg
@@ -90,7 +89,7 @@ public class LibraryControllerFragment extends ControllerFragment {
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG;
+        return LibraryFragment.TAG;
     }
 
     public void loadResourcesByTypes() {

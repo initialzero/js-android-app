@@ -45,10 +45,10 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.jaspermobile.util.print.PrintUnit;
 import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
+import com.jaspersoft.android.jaspermobile.util.print.ReportPrintUnit;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
-import com.jaspersoft.android.jaspermobile.util.print.ResourceProvider;
-import com.jaspersoft.android.jaspermobile.util.print.StreamReportResourceProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -65,7 +65,6 @@ import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
-import org.springframework.http.client.ClientHttpResponse;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -154,14 +153,14 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @OptionsItem
     final void printAction() {
         if (printJob == null) {
-            ResourceProvider<ClientHttpResponse> fileResourceProvider = StreamReportResourceProvider.builder()
+            PrintUnit reportPrintUnit = ReportPrintUnit.builder()
                     .setResource(resource)
                     .setJsRestClient(jsRestClient)
                     .addReportParameters(reportParameters)
                     .build();
 
             printJob = ReportPrintJob.builder(getActivity())
-                    .setResourceProvider(fileResourceProvider)
+                    .setPrintUnit(reportPrintUnit)
                     .setPrintName(String.valueOf(new Random().nextInt(1000)))
                     .build();
         }

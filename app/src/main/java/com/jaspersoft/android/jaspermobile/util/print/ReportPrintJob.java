@@ -37,21 +37,10 @@ import android.print.PrintManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.widget.Toast;
 
-import org.apache.commons.io.IOUtils;
-import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
-import org.springframework.http.client.ClientHttpResponse;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 /**
@@ -60,12 +49,12 @@ import rx.schedulers.Schedulers;
  */
 public class ReportPrintJob implements ResourcePrintJob {
     private final Context mContext;
-    private final ResourceProvider<Observable<ClientHttpResponse>> resourceProvider;
+    private final PrintUnit printUnit;
     private final String printName;
 
     private ReportPrintJob(@NonNull Builder builder) {
         mContext = builder.context;
-        resourceProvider = builder.resourceProvider;
+        printUnit = builder.printUnit;
         printName = builder.printName;
     }
 
@@ -87,22 +76,54 @@ public class ReportPrintJob implements ResourcePrintJob {
 
     @TargetApi(19)
     private class PrintReportAdapter extends PrintDocumentAdapter {
+        private Subscription getPageCountTask;
+        private Subscription writeContentTask;
+
         @Override
-        public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes, CancellationSignal cancellationSignal, LayoutResultCallback callback, Bundle extras) {
+        public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
+                             CancellationSignal cancellationSignal, final LayoutResultCallback callback, Bundle extras) {
             if (cancellationSignal.isCanceled()) {
+                if (getPageCountTask != null) {
+                    getPageCountTask.unsubscribe();
+                }
                 callback.onLayoutCancelled();
                 return;
             }
 
-            PrintDocumentInfo pdi = new PrintDocumentInfo.Builder(printName)
-                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                    .build();
-            callback.onLayoutFinished(pdi, true);
+            getPageCountTask = printUnit.getPageCount()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            new Action1<Integer>() {
+                                @Override
+                                public void call(Integer number) {
+                                    PrintDocumentInfo pdi = new PrintDocumentInfo.Builder(printName)
+                                            .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                                            .setPageCount(number)
+                                            .build();
+                                    callback.onLayoutFinished(pdi, true);
+                                }
+                            },
+                            new Action1<Throwable>() {
+                                @Override
+                                public void call(Throwable throwable) {
+                                    callback.onLayoutFailed(throwable.getMessage());
+                                }
+                            });
         }
 
         @Override
-        public void onWrite(PageRange[] pages, final ParcelFileDescriptor destination, CancellationSignal cancellationSignal, final WriteResultCallback callback) {
-            copyContent(destination)
+        public void onWrite(PageRange[] pages, final ParcelFileDescriptor destination,
+                            CancellationSignal cancellationSignal, final WriteResultCallback callback) {
+            if (cancellationSignal.isCanceled()) {
+                if (writeContentTask != null) {
+                    writeContentTask.unsubscribe();
+                }
+                callback.onWriteCancelled();
+                return;
+            }
+
+            writeContentTask = printUnit.writeContent(destination)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -111,59 +132,27 @@ public class ReportPrintJob implements ResourcePrintJob {
                                 public void call(Object o) {
                                     callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
                                 }
-                            }, new Action1<Throwable>() {
+                            },
+                            new Action1<Throwable>() {
                                 @Override
                                 public void call(Throwable throwable) {
-                                    Toast.makeText(mContext, throwable.getMessage(), Toast.LENGTH_LONG).show();
+                                    callback.onWriteFailed(throwable.getMessage());
                                 }
                             });
-        }
-
-        private Observable<Object> copyContent(ParcelFileDescriptor destination) {
-            return Observable.zip(resourceProvider.provideResource(), Observable.just(destination), new Func2<ClientHttpResponse, ParcelFileDescriptor, Object>() {
-                @Override
-                public Object call(ClientHttpResponse clientHttpResponse, ParcelFileDescriptor parcelFileDescriptor) {
-                    blockingCopyContent(clientHttpResponse, parcelFileDescriptor);
-                    return null;
-                }
-            });
-        }
-
-        private void blockingCopyContent(final ClientHttpResponse httpResponse, final ParcelFileDescriptor destination) {
-            OutputStream output = new FileOutputStream(destination.getFileDescriptor());
-            InputStream inputStream = null;
-            try {
-                inputStream = httpResponse.getBody();
-                IOUtils.copy(httpResponse.getBody(), output);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                if (inputStream != null) {
-                    IOUtils.closeQuietly(inputStream);
-                }
-                IOUtils.closeQuietly(output);
-                httpResponse.close();
-            }
         }
     }
 
     public static class Builder {
         private final Context context;
         private String printName;
-        private ResourceProvider<Observable<ClientHttpResponse>> resourceProvider;
+        private PrintUnit printUnit;
 
         public Builder(Context context) {
             this.context = context;
         }
 
-        @VisibleForTesting
-        Builder setObservableResourceProvider(ResourceProvider<Observable<ClientHttpResponse>> resourceProvider) {
-            this.resourceProvider = resourceProvider;
-            return this;
-        }
-
-        public Builder setResourceProvider(@Nullable ResourceProvider<ClientHttpResponse> resourceProvider) {
-            this.resourceProvider = StreamResourceProviderDecorator.decorate(resourceProvider);
+        public Builder setPrintUnit(@Nullable PrintUnit printUnit) {
+            this.printUnit = printUnit;
             return this;
         }
 
@@ -178,8 +167,8 @@ public class ReportPrintJob implements ResourcePrintJob {
         }
 
         private void validateDependencies() {
-            if (resourceProvider == null) {
-                throw new IllegalStateException("Resource provider should not be null");
+            if (printUnit == null) {
+                throw new IllegalStateException("Print unit should not be null");
             }
             if (TextUtils.isEmpty(printName)) {
                 throw new IllegalStateException("Job print name should not be null. Current value: " + printName);

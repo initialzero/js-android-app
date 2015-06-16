@@ -24,8 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetExportOutputRequest;
@@ -35,24 +35,31 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.client.ClientHttpResponse;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import rx.Observable;
+import rx.Subscriber;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-public final class StreamReportResourceProvider implements ResourceProvider<ClientHttpResponse> {
+public final class ReportPrintUnit implements PrintUnit {
     private final JsRestClient mJsRestClient;
     private final ResourceLookup mResource;
     private final List<ReportParameter> mReportParameters;
-    private String exportOutput;
-    private String executionId;
+    private ReportExecutionResponse exportResponse;
 
-    private StreamReportResourceProvider(Builder builder) {
+    private ReportPrintUnit(Builder builder) {
         mJsRestClient = builder.jsRestClient;
         mResource = builder.resource;
         mReportParameters = builder.reportParameters;
@@ -63,26 +70,47 @@ public final class StreamReportResourceProvider implements ResourceProvider<Clie
     }
 
     @Override
-    public ClientHttpResponse provideResource() {
-        try {
-            return requestFileExportAsPDF();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public Observable<Integer> getPageCount() {
+        return Observable.create(new Observable.OnSubscribe<Integer>() {
+            @Override
+            public void call(Subscriber<? super Integer> subscriber) {
+                ReportExecutionResponse response = getReportExecution();
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onNext(response.getTotalPages());
+                    subscriber.onCompleted();
+                }
+            }
+        });
     }
 
-    private ClientHttpResponse requestFileExportAsPDF() throws Exception {
-        ReportExecutionRequest request = prepareReportExecutionRequest();
+    @Override
+    public Observable<Boolean> writeContent(final ParcelFileDescriptor destination) {
+        return Observable.create(
+                new Observable.OnSubscribe<Boolean>() {
+                    @Override
+                    public void call(Subscriber<? super Boolean> subscriber) {
+                        try {
+                            ClientHttpResponse response = runExport();
+                            writeResponseToDestination(response, destination);
+                            if (!subscriber.isUnsubscribed()) {
+                                subscriber.onNext(true);
+                                subscriber.onCompleted();
+                            }
+                        } catch (Exception ex) {
+                            if (!subscriber.isUnsubscribed()) {
+                                subscriber.onError(ex);
+                            }
+                        }
+                    }
+                });
+    }
 
-        if (TextUtils.isEmpty(exportOutput) || TextUtils.isEmpty(executionId) ) {
-            ReportExecutionResponse exportResponse = mJsRestClient.runReportExecution(request);
-            ExportExecution execution = exportResponse.getExports().get(0);
-            exportOutput = execution.getId();
-            executionId = exportResponse.getRequestId();
+    private ReportExecutionResponse getReportExecution() {
+        if (exportResponse == null) {
+            ReportExecutionRequest request = prepareReportExecutionRequest();
+            exportResponse = mJsRestClient.runReportExecution(request);
         }
-
-        GetExportOutputRequest getExportOutputRequest = new GetExportOutputRequest(mJsRestClient, executionId, exportOutput);
-        return getExportOutputRequest.loadDataFromNetwork();
+        return exportResponse;
     }
 
     private ReportExecutionRequest prepareReportExecutionRequest() {
@@ -97,6 +125,32 @@ public final class StreamReportResourceProvider implements ResourceProvider<Clie
         }
 
         return executionRequest;
+    }
+
+    private ClientHttpResponse runExport() throws Exception {
+        ExportExecution execution = exportResponse.getExports().get(0);
+        String exportOutput = execution.getId();
+        String executionId = exportResponse.getRequestId();
+
+        GetExportOutputRequest getExportOutputRequest = new GetExportOutputRequest(mJsRestClient, executionId, exportOutput);
+        return getExportOutputRequest.loadDataFromNetwork();
+    }
+
+    private void writeResponseToDestination(final ClientHttpResponse httpResponse, final ParcelFileDescriptor destination) {
+        OutputStream output = new FileOutputStream(destination.getFileDescriptor());
+        InputStream inputStream = null;
+        try {
+            inputStream = httpResponse.getBody();
+            IOUtils.copy(httpResponse.getBody(), output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (inputStream != null) {
+                IOUtils.closeQuietly(inputStream);
+            }
+            IOUtils.closeQuietly(output);
+            httpResponse.close();
+        }
     }
 
     public static class Builder {
@@ -126,9 +180,9 @@ public final class StreamReportResourceProvider implements ResourceProvider<Clie
             return this;
         }
 
-        public ResourceProvider<ClientHttpResponse> build() {
+        public PrintUnit build() {
             validateDependencies();
-            return new StreamReportResourceProvider(this);
+            return new ReportPrintUnit(this);
         }
 
         private void validateDependencies() {

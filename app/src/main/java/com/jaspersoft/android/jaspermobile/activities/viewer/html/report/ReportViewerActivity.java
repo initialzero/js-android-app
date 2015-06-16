@@ -64,10 +64,10 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.util.print.PrintUnit;
 import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
+import com.jaspersoft.android.jaspermobile.util.print.ReportPrintUnit;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
-import com.jaspersoft.android.jaspermobile.util.print.ResourceProvider;
-import com.jaspersoft.android.jaspermobile.util.print.StreamReportResourceProvider;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
@@ -102,7 +102,6 @@ import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.apache.commons.io.IOUtils;
-import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -346,14 +345,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @OptionsItem
     final void printAction() {
         if (printJob == null) {
-            ResourceProvider<ClientHttpResponse> fileResourceProvider = StreamReportResourceProvider.builder()
+            PrintUnit reportPrintUnit = ReportPrintUnit.builder()
                     .setResource(resource)
                     .setJsRestClient(jsRestClient)
                     .addReportParameters(reportParameters)
                     .build();
 
             printJob = ReportPrintJob.builder(this)
-                    .setResourceProvider(fileResourceProvider)
+                    .setPrintUnit(reportPrintUnit)
                     .setPrintName(String.valueOf(new Random().nextInt(1000)))
                     .build();
         }

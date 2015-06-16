@@ -37,16 +37,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.springframework.http.client.ClientHttpResponse;
 
 import java.util.Arrays;
 import java.util.Collection;
 
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class StreamReportResourceProviderTest {
+public class ReportPrintUnitTest {
 
     @Mock
     JsRestClient jsRestClient;
@@ -79,8 +79,8 @@ public class StreamReportResourceProviderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateProviderWithNULLParams() {
-        StreamReportResourceProvider
-                .builder(RuntimeEnvironment.application)
+        ReportPrintUnit
+                .builder()
                 .setJsRestClient(jsRestClient)
                 .setResource(resourceLookup)
                 .addReportParameters(null)
@@ -89,33 +89,40 @@ public class StreamReportResourceProviderTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreateProviderWithoutResourceLookup() {
-        StreamReportResourceProvider
-                .builder(RuntimeEnvironment.application)
+        ReportPrintUnit
+                .builder()
                 .setJsRestClient(jsRestClient)
                 .build();
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldNotCreateProviderWithoutJsRestClient() {
-        StreamReportResourceProvider
-                .builder(RuntimeEnvironment.application)
+        ReportPrintUnit
+                .builder()
                 .setResource(resourceLookup)
                 .build();
     }
 
     @Test
-    public void shouldProvideResource() {
+    public void shouldProvideResourceTotalPages() {
+        when(reportExecutionResponse.getTotalPages()).thenReturn(100);
         when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[] {exportExecution}));
         when(jsRestClient.runReportExecution(any(ReportExecutionRequest.class))).thenReturn(reportExecutionResponse);
 
-        ResourceProvider<ClientHttpResponse> resourceProvider = StreamReportResourceProvider
-                .builder(RuntimeEnvironment.application)
+        PrintUnit reportPrintUnit = ReportPrintUnit
+                .builder()
                 .setJsRestClient(jsRestClient)
                 .setResource(resourceLookup)
                 .build();
 
-        ClientHttpResponse response = resourceProvider
-                .provideResource();
-        assertThat(response, is(notNullValue()));
+        reportPrintUnit.getPageCount()
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer number) {
+                        assertThat(number, is(100));
+                    }
+                });
     }
 }

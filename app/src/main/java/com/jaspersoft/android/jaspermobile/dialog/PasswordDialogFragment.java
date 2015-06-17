@@ -37,7 +37,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import roboguice.fragment.RoboDialogFragment;
 

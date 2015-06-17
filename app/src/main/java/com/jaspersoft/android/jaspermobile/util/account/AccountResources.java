@@ -36,7 +36,6 @@ import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import java.io.File;
 import java.util.ArrayList;

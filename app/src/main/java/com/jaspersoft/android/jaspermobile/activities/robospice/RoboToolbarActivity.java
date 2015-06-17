@@ -41,7 +41,7 @@ import android.widget.FrameLayout;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
 import org.roboguice.shaded.goole.common.collect.Lists;

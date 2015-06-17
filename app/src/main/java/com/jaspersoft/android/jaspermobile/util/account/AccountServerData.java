@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.account;
+package com.jaspersoft.android.jaspermobile.util.account;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;

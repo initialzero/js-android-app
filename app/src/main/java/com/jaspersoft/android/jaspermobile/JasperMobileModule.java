@@ -35,7 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.
 import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
 import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;

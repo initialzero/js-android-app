@@ -33,7 +33,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.util.FileUtils;
 

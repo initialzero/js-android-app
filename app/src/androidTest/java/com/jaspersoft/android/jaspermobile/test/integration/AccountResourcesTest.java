@@ -38,7 +38,7 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.SavedFilesUtil;
 import com.jaspersoft.android.jaspermobile.util.account.AccountResources;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 

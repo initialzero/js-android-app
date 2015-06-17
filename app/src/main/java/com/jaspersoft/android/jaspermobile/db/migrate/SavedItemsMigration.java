@@ -29,7 +29,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;

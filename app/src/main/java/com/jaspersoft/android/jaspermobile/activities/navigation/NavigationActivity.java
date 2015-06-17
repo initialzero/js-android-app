@@ -54,7 +54,7 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;

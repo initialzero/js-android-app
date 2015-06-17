@@ -39,8 +39,8 @@ import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
@@ -131,9 +131,6 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
 
                 authToken = loginResponse.getCookie();
                 accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
-
-                // Update legacy REST client
-                JsServerProfileCompat.initLegacyJsRestClient(mContext, account, mJsRestClient);
 
                 Timber.d("Prepare correct token bundle");
                 result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);

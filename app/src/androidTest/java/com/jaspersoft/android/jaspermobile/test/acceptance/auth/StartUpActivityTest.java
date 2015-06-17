@@ -33,7 +33,7 @@ import com.jaspersoft.android.jaspermobile.test.junit.WebMockRule;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResource;
 import com.jaspersoft.android.jaspermobile.test.utils.pref.PreferenceApiAdapter;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 

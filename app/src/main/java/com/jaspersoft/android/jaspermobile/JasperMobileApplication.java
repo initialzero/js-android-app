@@ -62,7 +62,7 @@ public class JasperMobileApplication extends Application {
     public void onCreate() {
         super.onCreate();
         RoboGuice.getInjector(this).injectMembers(this);
-        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
+        initLegacyJsRestClient();
 
         forceDatabaseUpdate();
 
@@ -82,6 +82,10 @@ public class JasperMobileApplication extends Application {
 
     private void forceDatabaseUpdate() {
         getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[]{"_id"}, null, null, null);
+    }
+
+    public void initLegacyJsRestClient() {
+        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
     }
 
     private void initImageLoader() {

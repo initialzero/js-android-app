@@ -34,7 +34,7 @@ import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import timber.log.Timber;
 

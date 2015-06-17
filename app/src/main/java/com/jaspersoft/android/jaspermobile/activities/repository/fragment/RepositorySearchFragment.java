@@ -49,8 +49,6 @@ import roboguice.fragment.RoboFragment;
 @OptionsMenu(R.menu.search_menu)
 public class RepositorySearchFragment extends RoboFragment implements SearchView.OnQueryTextListener {
 
-    public static final String TAG = RepositorySearchFragment.class.getSimpleName();
-
     @OptionsMenuItem(R.id.search)
     public MenuItem searchMenuItem;
 

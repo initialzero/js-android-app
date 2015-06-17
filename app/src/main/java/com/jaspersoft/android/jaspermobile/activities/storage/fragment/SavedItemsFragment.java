@@ -87,6 +87,7 @@ public class SavedItemsFragment extends RoboFragment
         implements FileAdapter.FileInteractionListener, DeleteDialogFragment.DeleteDialogClickListener,
         LoaderManager.LoaderCallbacks<Cursor>, RenameDialogFragment.RenameDialogClickListener {
 
+    public static final String TAG = SavedItemsFragment.class.getSimpleName();
     private final int SAVED_ITEMS_LOADER_ID = 10;
 
     @FragmentArg

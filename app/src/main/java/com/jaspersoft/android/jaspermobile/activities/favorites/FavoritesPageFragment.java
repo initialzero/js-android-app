@@ -27,8 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.favorites;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
@@ -48,7 +46,6 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment
 public class FavoritesPageFragment extends RoboFragment {
-    public static final String TAG = FavoritesPageFragment.class.getSimpleName();
 
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
@@ -56,7 +53,6 @@ public class FavoritesPageFragment extends RoboFragment {
 
     @Pref
     protected FavoritesPref_ pref;
-    private FavoritesControllerFragment favoriteController;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -68,27 +64,13 @@ public class FavoritesPageFragment extends RoboFragment {
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
-            favoriteController = FavoritesControllerFragment_.builder()
-                    .build();
-
-            transaction.replace(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG);
+            FavoritesControllerFragment favoriteController = FavoritesControllerFragment_.builder().build();
+            transaction.replace(R.id.resource_controller, favoriteController);
 
             FavoritesSearchFragment searchFragment = FavoritesSearchFragment_.builder().build();
-            transaction.replace(R.id.search_controller, searchFragment, FavoritesSearchFragment.TAG);
+            transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
-        } else {
-            favoriteController = (FavoritesControllerFragment) getFragmentManager()
-                    .findFragmentByTag(FavoritesControllerFragment.TAG);
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.f_title);
         }
     }
 }

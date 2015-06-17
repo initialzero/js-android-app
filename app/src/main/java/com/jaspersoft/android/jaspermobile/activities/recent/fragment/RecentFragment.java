@@ -22,19 +22,16 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.library.fragment;
+package com.jaspersoft.android.jaspermobile.activities.recent.fragment;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,38 +39,28 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
+import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
 
 import java.util.List;
@@ -85,14 +72,10 @@ import roboguice.inject.InjectView;
  * @since 1.9
  */
 @EFragment
-public class LibraryFragment extends RoboSpiceFragment
+public class RecentFragment extends RoboSpiceFragment
         implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
-
-    public static final String TAG = LibraryFragment.class.getSimpleName();
+    public static final String TAG = RecentFragment.class.getSimpleName();
     public static final String ROOT_URI = "/";
-    // Loader actions
-    private static final int LOAD_FROM_CACHE = 1;
-    private static final int LOAD_FROM_NETWORK = 2;
 
     @InjectView(android.R.id.list)
     protected AbsListView listView;
@@ -107,59 +90,27 @@ public class LibraryFragment extends RoboSpiceFragment
     @Inject
     protected ResourceLookupSearchCriteria mSearchCriteria;
 
-    @InstanceState
-    @FragmentArg
-    protected String resourceLabel;
-    @InstanceState
-    @FragmentArg
-    protected SortOrder sortOrder;
-    @InstanceState
-    @FragmentArg
-    protected String query;
-
     @FragmentArg
     protected ViewType viewType;
 
-    @Inject
-    @Named("LIMIT")
-    protected int mLimit;
-    @Inject
-    @Named("THRESHOLD")
-    protected int mTreshold;
-
-    @InstanceState
-    protected boolean mLoading;
-    @InstanceState
-    protected int mLoaderState = LOAD_FROM_CACHE;
-
     @Bean
     protected LibraryResourceFilter libraryResourceFilter;
-    @Bean
-    protected DefaultPrefHelper prefHelper;
     @Bean
     protected ResourceOpener resourceOpener;
     @Bean
     protected FavoritesHelper favoritesHelper;
 
     private ResourceAdapter mAdapter;
-    private PaginationPolicy mPaginationPolicy;
-    private AccountServerData mServerData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSearchCriteria.setForceFullPage(true);
-        mSearchCriteria.setLimit(mLimit);
-        mSearchCriteria.setRecursive(true);
+        mSearchCriteria.setLimit(10);
+        mSearchCriteria.setAccessType("viewed");
         mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
+        mSearchCriteria.setSortBy(SortOrder.ACCESS_TIME.getValue());
         mSearchCriteria.setFolderUri(ROOT_URI);
-        if (!TextUtils.isEmpty(query)) {
-            mSearchCriteria.setQuery(query);
-        }
-        if (sortOrder != null) {
-            mSearchCriteria.setSortBy(sortOrder.getValue());
-        }
     }
 
     @Override
@@ -173,9 +124,6 @@ public class LibraryFragment extends RoboSpiceFragment
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        mServerData = AccountServerData.get(getActivity(), account);
-
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.js_blue,
@@ -185,18 +133,7 @@ public class LibraryFragment extends RoboSpiceFragment
 
         listView.setOnScrollListener(new ScrollListener());
         setDataAdapter(savedInstanceState);
-        updatePaginationPolicy();
-        loadFirstPage();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        boolean isResourceLoaded = (mAdapter.getCount() == 0);
-        if (!mLoading && isResourceLoaded) {
-            loadFirstPage();
-        }
+        loadResources();
     }
 
     @Override
@@ -205,11 +142,7 @@ public class LibraryFragment extends RoboSpiceFragment
 
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
-            if (TextUtils.isEmpty(resourceLabel)) {
-                actionBar.setTitle(getString(R.string.h_library_label));
-            } else {
-                actionBar.setTitle(resourceLabel);
-            }
+            actionBar.setTitle(getString(R.string.recent_card_label));
         }
     }
 
@@ -227,10 +160,6 @@ public class LibraryFragment extends RoboSpiceFragment
         super.onSaveInstanceState(outState);
     }
 
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
     @ItemClick(android.R.id.list)
     public void onItemClick(ResourceLookup resource) {
         mAdapter.finishActionMode();
@@ -243,32 +172,7 @@ public class LibraryFragment extends RoboSpiceFragment
 
     @Override
     public void onRefresh() {
-        ImageLoader.getInstance().clearDiskCache();
-        ImageLoader.getInstance().clearMemoryCache();
-        mLoaderState = LOAD_FROM_NETWORK;
-        loadFirstPage();
-    }
-
-    //---------------------------------------------------------------------
-    // Implements ResourcesLoader
-    //---------------------------------------------------------------------
-
-    public void loadResourcesByTypes() {
-        mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
-        mAdapter.clear();
-        loadFirstPage();
-    }
-
-    public void loadResourcesBySortOrder(SortOrder order) {
-        sortOrder = order;
-        mSearchCriteria.setSortBy(order.getValue());
-        mAdapter.clear();
-        loadFirstPage();
-    }
-
-    public void loadFirstPage() {
-        mSearchCriteria.setOffset(0);
-        loadResources(mLoaderState);
+        loadResources();
     }
 
     //---------------------------------------------------------------------
@@ -282,50 +186,12 @@ public class LibraryFragment extends RoboSpiceFragment
         listView.setAdapter(mAdapter);
     }
 
-    private void updatePaginationPolicy() {
-        ServerRelease release = ServerRelease.parseVersion(mServerData.getVersionName());
-        double versionCode = release.code();
-
-        if (versionCode <= ServerRelease.EMERALD_MR2.code()) {
-            mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
-        }
-        if (versionCode > ServerRelease.EMERALD_MR2.code()) {
-            mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
-        }
-
-        if (mPaginationPolicy == null) {
-            throw new UnsupportedOperationException();
-        } else {
-            mPaginationPolicy.setSearchCriteria(mSearchCriteria);
-            getChildFragmentManager().beginTransaction()
-                    .add((Fragment) mPaginationPolicy,
-                            PaginationPolicy.class.getSimpleName()).commit();
-        }
-    }
-
-    private void loadNextPage() {
-        if (!mLoading && hasNextPage()) {
-            mSearchCriteria.setOffset(calculateNextOffset());
-            mLoaderState = LOAD_FROM_CACHE;
-            loadResources(mLoaderState);
-        }
-    }
-
-    private boolean hasNextPage() {
-        return mPaginationPolicy.hasNextPage();
-    }
-
-    private int calculateNextOffset() {
-        return mPaginationPolicy.calculateNextOffset();
-    }
-
-    private void loadResources(int state) {
+    private void loadResources() {
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
 
         GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
-        long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
-                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
+        long cacheExpiryDuration = DurationInMillis.ALWAYS_EXPIRED;
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
@@ -336,7 +202,6 @@ public class LibraryFragment extends RoboSpiceFragment
     }
 
     private void setRefreshState(boolean refreshing) {
-        mLoading = refreshing;
         if (!refreshing) {
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -383,16 +248,10 @@ public class LibraryFragment extends RoboSpiceFragment
 
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
-            // set pagination data
-            mPaginationPolicy.handleLookup(resourceLookupsList);
-
             // set data
             List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
-            // Do this for explicit refresh during pull to refresh interaction
-            if (mLoaderState == LOAD_FROM_NETWORK) {
-                mAdapter.setNotifyOnChange(false);
-                mAdapter.clear();
-            }
+            mAdapter.setNotifyOnChange(false);
+            mAdapter.clear();
             mAdapter.addAll(datum);
             mAdapter.setNotifyOnChange(true);
             mAdapter.notifyDataSetChanged();
@@ -411,9 +270,6 @@ public class LibraryFragment extends RoboSpiceFragment
     private class ScrollListener extends SimpleScrollListener {
         @Override
         public void onScroll(AbsListView listView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
-                loadNextPage();
-            }
             enableRefreshLayout(listView);
         }
 
@@ -430,5 +286,6 @@ public class LibraryFragment extends RoboSpiceFragment
             swipeRefreshLayout.setEnabled(enable);
         }
     }
+
 
 }

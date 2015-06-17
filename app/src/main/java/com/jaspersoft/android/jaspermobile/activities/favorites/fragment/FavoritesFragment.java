@@ -91,6 +91,7 @@ public class FavoritesFragment extends RoboFragment
         DeleteDialogFragment.DeleteDialogClickListener,
         SortDialogFragment.SortDialogClickListener {
 
+    public static final String TAG = FavoritesFragment.class.getSimpleName();
     private final int FAVORITES_LOADER_ID = 20;
 
     @Bean
@@ -352,6 +353,10 @@ public class FavoritesFragment extends RoboFragment
         sortOrder = selectedSortOrder;
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
+
+    //---------------------------------------------------------------------
+    // Nested classes
+    //---------------------------------------------------------------------
 
     private class FilterChangeListener implements FilterTitleView.FilterListener {
         @Override

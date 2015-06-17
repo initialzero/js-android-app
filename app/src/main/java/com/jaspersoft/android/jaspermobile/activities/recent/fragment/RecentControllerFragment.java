@@ -22,51 +22,33 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.library.fragment;
+package com.jaspersoft.android.jaspermobile.activities.recent.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.InstanceState;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment
-public class LibraryControllerFragment extends ControllerFragment {
-    public static final String TAG = LibraryControllerFragment.class.getSimpleName();
-    public static final String PREF_TAG = "library_pref";
-
-    @InstanceState
-    @FragmentArg
-    SortOrder sortOrder;
-    @InstanceState
-    @FragmentArg
-    String query;
-    @InstanceState
-    @FragmentArg
-    String resourceLabel;
-
-    private LibraryFragment contentFragment;
+public class RecentControllerFragment extends ControllerFragment {
+    public static final String PREF_TAG = "recent_pref";
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        LibraryFragment inMemoryFragment = (LibraryFragment)
+        RecentFragment inMemoryFragment = (RecentFragment)
                 getFragmentManager().findFragmentByTag(getContentFragmentTag());
 
         if (inMemoryFragment == null) {
             commitContentFragment();
-        } else {
-            contentFragment = inMemoryFragment;
         }
     }
 
@@ -78,30 +60,13 @@ public class LibraryControllerFragment extends ControllerFragment {
 
     @Override
     public Fragment getContentFragment() {
-        contentFragment = LibraryFragment_.builder()
-                .query(query)
+        return RecentFragment_.builder()
                 .viewType(getViewType())
-                .sortOrder(sortOrder)
-                .resourceLabel(resourceLabel)
                 .build();
-        return contentFragment;
     }
 
     @Override
     protected String getContentFragmentTag() {
-        return LibraryFragment.TAG;
-    }
-
-    public void loadResourcesByTypes() {
-        if (contentFragment != null) {
-            contentFragment.loadResourcesByTypes();
-        }
-    }
-
-    public void loadResourcesBySortOrder(SortOrder order) {
-        sortOrder = order;
-        if (contentFragment != null) {
-            contentFragment.loadResourcesBySortOrder(order);
-        }
+        return RecentFragment.TAG;
     }
 }

@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.repository;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -47,13 +46,10 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment
 public class RepositoryPageFragment extends RoboFragment {
-    public static final String TAG = RepositoryPageFragment.class.getSimpleName();
 
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
     protected boolean initialStart;
-
-    private RepositoryControllerFragment resourcesController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,28 +63,15 @@ public class RepositoryPageFragment extends RoboFragment {
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            resourcesController =
-                    RepositoryControllerFragment_.builder()
-                            .build();
-            transaction.replace(R.id.resource_controller, resourcesController, RepositoryControllerFragment.TAG + TAG);
+            RepositoryControllerFragment resourcesController = RepositoryControllerFragment_.builder()
+                    .build();
+            transaction.replace(R.id.resource_controller, resourcesController);
 
             RepositorySearchFragment searchControllerFragment =
                     RepositorySearchFragment_.builder()
                             .build();
-            transaction.replace(R.id.search_controller, searchControllerFragment, RepositorySearchFragment.TAG + TAG);
+            transaction.replace(R.id.search_controller, searchControllerFragment);
             transaction.commit();
-        } else {
-            FragmentManager fragmentManager = getFragmentManager();
-            int count = fragmentManager.getBackStackEntryCount();
-
-            if (count == 0) {
-                resourcesController = (RepositoryControllerFragment)
-                        fragmentManager.findFragmentByTag(RepositoryControllerFragment.TAG + TAG);
-            } else {
-                FragmentManager.BackStackEntry entry = fragmentManager.getBackStackEntryAt(count - 1);
-                resourcesController = (RepositoryControllerFragment)
-                        fragmentManager.findFragmentByTag(RepositoryControllerFragment.TAG + entry.getName());
-            }
         }
 
         ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);

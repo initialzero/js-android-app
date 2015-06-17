@@ -102,8 +102,7 @@ public class ResourceOpener {
                         .build();
         fragment.getFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())
-                .replace(R.id.resource_controller, newControllerFragment,
-                        RepositoryControllerFragment.TAG + resource.getUri())
+                .replace(R.id.resource_controller, newControllerFragment)
                 .commit();
     }
 

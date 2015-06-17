@@ -42,9 +42,7 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class RepositoryControllerFragment extends ControllerFragment {
-    public static final String TAG = RepositoryControllerFragment.class.getSimpleName();
     public static final String PREF_TAG = "repository_pref";
-    public static final String CONTENT_TAG = "ResourcesControllerFragment.CONTENT_TAG";
 
     @InstanceState
     @FragmentArg
@@ -62,8 +60,6 @@ public class RepositoryControllerFragment extends ControllerFragment {
     @FragmentArg
     boolean hideMenu;
 
-    private RepositoryFragment contentFragment;
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -73,8 +69,6 @@ public class RepositoryControllerFragment extends ControllerFragment {
 
         if (inMemoryFragment == null) {
             commitContentFragment();
-        } else {
-            contentFragment = inMemoryFragment;
         }
     }
 
@@ -87,17 +81,16 @@ public class RepositoryControllerFragment extends ControllerFragment {
 
     @Override
     public Fragment getContentFragment() {
-        contentFragment = RepositoryFragment_.builder()
+        return RepositoryFragment_.builder()
                 .query(query)
                 .resourceUri(resourceUri)
                 .resourceLabel(resourceLabel)
                 .viewType(getViewType())
                 .build();
-        return contentFragment;
     }
 
     @Override
     protected String getContentFragmentTag() {
-        return TextUtils.isEmpty(resourceUri) ? CONTENT_TAG : CONTENT_TAG + resourceUri;
+        return TextUtils.isEmpty(resourceUri) ? RepositoryFragment.TAG : RepositoryFragment.TAG + resourceUri;
     }
 }

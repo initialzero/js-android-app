@@ -21,42 +21,49 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
-
-package com.jaspersoft.android.jaspermobile.activities.library;
+package com.jaspersoft.android.jaspermobile.activities.recent;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.EFragment;
+
+import roboguice.fragment.RoboFragment;
+
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
-@EActivity(R.layout.content_layout)
-public class LibrarySearchableActivity extends RoboSpiceActivity {
-
-    @Extra
-    String query;
+@EFragment
+public class RecentPageFragment extends RoboFragment {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
-            LibraryControllerFragment resourcesController =
-                    LibraryControllerFragment_.builder()
-                            .resourceLabel(getString(R.string.search_result_format, query))
-                            .query(query)
-                            .build();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.resource_controller, resourcesController)
-                    .commit();
+
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+            RecentControllerFragment recentControllerFragment = RecentControllerFragment_.builder().build();
+            transaction.replace(R.id.resource_controller, recentControllerFragment);
+
+            transaction.commit();
         }
+
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 }

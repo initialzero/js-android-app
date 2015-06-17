@@ -34,7 +34,7 @@ import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 
 /**
  * @author Tom Koptel

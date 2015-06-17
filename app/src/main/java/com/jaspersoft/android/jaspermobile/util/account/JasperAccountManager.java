@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.account;
+package com.jaspersoft.android.jaspermobile.util.account;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -34,6 +34,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.io.IOException;
@@ -119,6 +120,8 @@ public class JasperAccountManager {
         String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
         invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
+
+        ((JasperMobileApplication) mContext.getApplicationContext()).initLegacyJsRestClient();
     }
 
     public void activateFirstAccount() {
@@ -127,6 +130,8 @@ public class JasperAccountManager {
         String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
         invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
+
+        ((JasperMobileApplication) mContext.getApplicationContext()).initLegacyJsRestClient();
     }
 
     public void deactivateAccount() {
@@ -209,7 +214,7 @@ public class JasperAccountManager {
     /**
      * Retrieves token from {@link android.accounts.AccountManager} for specified {@link android.accounts.Account}.
      *
-     * @param account which represents both JRS and user data configuration for more details refer to {@link com.jaspersoft.android.retrofit.sdk.account.AccountServerData}
+     * @param account which represents both JRS and user data configuration for more details refer to {@link AccountServerData}
      * @return token which in our case is cookie string for specified account. Can be <b>null</b> or empty if token is missing
      */
     private String getAuthToken(final Account account) throws TokenException {

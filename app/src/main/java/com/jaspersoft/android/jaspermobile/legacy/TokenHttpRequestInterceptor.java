@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.legacy;
 
 import android.content.Context;
 
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;

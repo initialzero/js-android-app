@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.network.endpoint;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import retrofit.Endpoint;

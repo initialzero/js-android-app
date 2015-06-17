@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -70,10 +72,13 @@ public final class ReportPrinter implements ResourcePrinter {
 
     @Override
     public ResourcePrintJob print() {
+        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(context);
+
         PrintUnit reportPrintUnit = ReportPrintUnit.builder()
                 .setResource(resource)
                 .setJsRestClient(jsRestClient)
                 .addReportParameters(reportParameters)
+                .setServerInfoProvider(serverInfoProvider)
                 .build();
 
         return ReportPrintJob.builder(context)

@@ -28,6 +28,9 @@ import android.os.ParcelFileDescriptor;
 import android.print.PageRange;
 import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.util.report.ExportIdFormat;
+import com.jaspersoft.android.jaspermobile.util.report.ExportIdFormatFactory;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetExportOutputRequest;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExportsRequest;
@@ -69,12 +72,14 @@ final class ReportPrintUnit implements PrintUnit {
     private final JsRestClient mJsRestClient;
     private final ResourceLookup mResource;
     private final List<ReportParameter> mReportParameters;
+    private final ServerInfoProvider mServerInfoProvider;
     private ReportExecutionResponse reportExecutionResponse;
 
     private ReportPrintUnit(Builder builder) {
         mJsRestClient = builder.jsRestClient;
         mResource = builder.resource;
         mReportParameters = builder.reportParameters;
+        mServerInfoProvider = builder.serverInfoProvider;
     }
 
     public static Builder builder() {
@@ -213,16 +218,23 @@ final class ReportPrintUnit implements PrintUnit {
     private ClientHttpResponse runExport(PageRange pageRange) throws Exception {
         String executionId = reportExecutionResponse.getRequestId();
 
-        ExportsRequest executionData = new ExportsRequest();
-        executionData.setOutputFormat("PDF");
-        executionData.setPages(String.format("%d-%d", pageRange.getStart() + 1, pageRange.getEnd() + 1));
+        ExportsRequest exportsRequest = new ExportsRequest();
+        exportsRequest.setOutputFormat("PDF");
+        exportsRequest.setPages(String.format("%d-%d", pageRange.getStart() + 1, pageRange.getEnd() + 1));
 
-        RunReportExportsRequest request = new RunReportExportsRequest(mJsRestClient, executionData, executionId);
-        ExportExecution execution = request.loadDataFromNetwork();
+        RunReportExportsRequest request = new RunReportExportsRequest(mJsRestClient, exportsRequest, executionId);
+        ExportExecution exportExecutionResponse = request.loadDataFromNetwork();
 
-        String exportOutput = execution.getId();
+        String serverVersion = mServerInfoProvider.getServerVersion();
+        ExportIdFormat exportIdFormat = ExportIdFormatFactory.builder()
+                .setExportsRequest(exportsRequest)
+                .setExportExecution(exportExecutionResponse)
+                .build()
+                .createAdapter(serverVersion);
 
-        GetExportOutputRequest getExportOutputRequest = new GetExportOutputRequest(mJsRestClient, executionId, exportOutput);
+        String exportOutputId = exportIdFormat.format();
+
+        GetExportOutputRequest getExportOutputRequest = new GetExportOutputRequest(mJsRestClient, executionId, exportOutputId);
         return getExportOutputRequest.loadDataFromNetwork();
     }
 
@@ -244,6 +256,7 @@ final class ReportPrintUnit implements PrintUnit {
     }
 
     public static class Builder {
+        private ServerInfoProvider serverInfoProvider;
         private JsRestClient jsRestClient;
         private ResourceLookup resource;
         private List<ReportParameter> reportParameters;
@@ -259,6 +272,11 @@ final class ReportPrintUnit implements PrintUnit {
 
         public Builder setResource(@Nullable ResourceLookup resource) {
             this.resource = resource;
+            return this;
+        }
+
+        public Builder setServerInfoProvider(ServerInfoProvider serverInfoProvider) {
+            this.serverInfoProvider = serverInfoProvider;
             return this;
         }
 
@@ -281,6 +299,9 @@ final class ReportPrintUnit implements PrintUnit {
             }
             if (resource == null) {
                 throw new IllegalStateException("Resource should not be null");
+            }
+            if (serverInfoProvider == null) {
+                throw new IllegalStateException("Server data provider should not be null");
             }
         }
     }

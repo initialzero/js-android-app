@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
@@ -68,6 +69,8 @@ public class ReportPrintUnitTest {
     ReportExecutionResponse reportExecutionResponse;
     @Mock
     ExportExecution exportExecution;
+    @Mock
+    ServerInfoProvider serverInfoProvider;
 
     @Mock
     ResourcePrintJob resourcePrintJob;
@@ -83,6 +86,7 @@ public class ReportPrintUnitTest {
                 .builder()
                 .setJsRestClient(jsRestClient)
                 .setResource(resourceLookup)
+                .setServerInfoProvider(serverInfoProvider)
                 .addReportParameters(null)
                 .build();
     }
@@ -103,6 +107,15 @@ public class ReportPrintUnitTest {
                 .build();
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void shouldNotCreateProviderWithoutServerProviderData() {
+        ReportPrintUnit
+                .builder()
+                .setJsRestClient(jsRestClient)
+                .setResource(resourceLookup)
+                .build();
+    }
+
     @Test
     public void shouldProvideResourceTotalPages() {
         when(reportExecutionResponse.getTotalPages()).thenReturn(100);
@@ -112,6 +125,7 @@ public class ReportPrintUnitTest {
         PrintUnit reportPrintUnit = ReportPrintUnit
                 .builder()
                 .setJsRestClient(jsRestClient)
+                .setServerInfoProvider(serverInfoProvider)
                 .setResource(resourceLookup)
                 .build();
 

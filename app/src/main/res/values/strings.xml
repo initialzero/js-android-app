@@ -216,14 +216,14 @@
     <string name="loading_msg">Loading…</string>
     <string name="search_result_format">Search results for \'%s\'</string>
     <string name="failed_load_data">Failed to load data!</string>
-    <string name="authenticator_label" translatable="false">Jasper accounts</string>
+    <string name="authenticator_label">Jasper accounts</string>
     <string name="wrong_action" translatable="false">Can not perform this action</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>
     <string name="repository_card_label">Repository</string>
     <string name="favorites_card_label">Favorites</string>
-    <string name="recent_card_label">Recently Viewed</string>
+    <string name="recent_card_label" translatable="false">Recently Viewed</string>
     <string name="settings_card_label">Settings</string>
 
     <!-- Pagination control -->

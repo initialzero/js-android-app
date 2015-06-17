@@ -31,7 +31,6 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author Tom Koptel
@@ -79,7 +78,7 @@ public final class ReportPrinter implements ResourcePrinter {
 
         return ReportPrintJob.builder(context)
                 .setPrintUnit(reportPrintUnit)
-                .setPrintName(String.valueOf(new Random().nextInt(1000)))
+                .setPrintName(resource.getLabel())
                 .build()
                 .printResource();
     }

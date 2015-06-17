@@ -1,16 +1,11 @@
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
@@ -29,7 +24,7 @@ public class StorageResourceFilter extends ResourceFilter {
     protected FragmentActivity activity;
 
     private enum StorageFilterCategory {
-        all(R.string.si_fd_option_all),
+        all(R.string.s_fd_option_all),
         html(R.string.si_fd_option_html),
         pdf(R.string.si_fd_option_pdf),
         xls(R.string.si_fd_option_xls);

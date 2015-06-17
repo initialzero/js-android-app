@@ -69,24 +69,29 @@ final class ReportPrintJob implements ResourcePrintJob {
         String jobName = printName;
 
         PrintAttributes printAttributes = new PrintAttributes.Builder().build();
-        PrintDocumentAdapter printAdapter = new PrintReportAdapter();
+        PrintDocumentAdapter printAdapter = new PrintReportAdapter(printName, printUnit);
 
         printManager.print(jobName, printAdapter, printAttributes);
         return this;
     }
 
     @TargetApi(19)
-    private class PrintReportAdapter extends PrintDocumentAdapter {
+    private static class PrintReportAdapter extends PrintDocumentAdapter {
         private Subscription getPageCountTask;
         private Subscription writeContentTask;
+        private final String printName;
+        private final PrintUnit printUnit;
+
+        PrintReportAdapter(String printName, PrintUnit printUnit) {
+            this.printName = printName;
+            this.printUnit = printUnit;
+        }
 
         @Override
         public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
                              CancellationSignal cancellationSignal, final LayoutResultCallback callback, Bundle extras) {
             if (cancellationSignal.isCanceled()) {
-                if (getPageCountTask != null) {
-                    getPageCountTask.unsubscribe();
-                }
+                cancelGetCountTask();
                 callback.onLayoutCancelled();
                 return;
             }
@@ -117,9 +122,7 @@ final class ReportPrintJob implements ResourcePrintJob {
         public void onWrite(final PageRange[] pages, final ParcelFileDescriptor destination,
                             CancellationSignal cancellationSignal, final WriteResultCallback callback) {
             if (cancellationSignal.isCanceled()) {
-                if (writeContentTask != null) {
-                    writeContentTask.unsubscribe();
-                }
+                cancelWriteTask();
                 callback.onWriteCancelled();
                 return;
             }
@@ -140,6 +143,24 @@ final class ReportPrintJob implements ResourcePrintJob {
                                     callback.onWriteFailed(throwable.getMessage());
                                 }
                             });
+        }
+
+        @Override
+        public void onFinish() {
+            cancelGetCountTask();
+            cancelWriteTask();
+        }
+
+        private void cancelGetCountTask() {
+            if (getPageCountTask != null) {
+                getPageCountTask.unsubscribe();
+            }
+        }
+
+        private void cancelWriteTask() {
+            if (writeContentTask != null) {
+                writeContentTask.unsubscribe();
+            }
         }
     }
 

@@ -70,7 +70,7 @@
 
     <!-- Settings Activity -->
     <string name="s_hint">Ressources de recherche</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nOutil de gestion et visionneur de rapport pour JasperReports Server 5.5 et plus.\n\nPour plus d\'informations, consulter :\n<a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a>\n\nPour les informations de la politique de confidentialité, consulter :\n<a href="com.jaspersoft.android.privacy_policy://"> http://www.tibco.com/privacy-policies/jaspermobile-android </a>\n\nDroits d\'auteurs © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nOutil de gestion et visionneur de rapport pour JasperReports Server 5.5 et plus.\n\nPour plus d\'informations, consulter:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android </a>\n\nPour les informations de la politique de confidentialité, consulter:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android </a>\n\nDroits d\'auteurs © 2005-2015 TIBCO Software, Inc.</string>
     <string name="sa_about_privacy">Politique de confidentialité</string>
 
     <!-- Action Bar -->

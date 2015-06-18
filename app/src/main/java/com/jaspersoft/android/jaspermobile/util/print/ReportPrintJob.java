@@ -81,6 +81,7 @@ final class ReportPrintJob implements ResourcePrintJob {
         private Subscription writeContentTask;
         private final String printName;
         private final PrintUnit printUnit;
+        private Integer mPageCount;
 
         PrintReportAdapter(String printName, PrintUnit printUnit) {
             this.printName = printName;
@@ -102,10 +103,11 @@ final class ReportPrintJob implements ResourcePrintJob {
                     .subscribe(
                             new Action1<Integer>() {
                                 @Override
-                                public void call(Integer number) {
+                                public void call(Integer pageCount) {
+                                    mPageCount = pageCount;
                                     PrintDocumentInfo pdi = new PrintDocumentInfo.Builder(printName)
                                             .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                                            .setPageCount(number)
+                                            .setPageCount(pageCount)
                                             .build();
                                     callback.onLayoutFinished(pdi, true);
                                 }
@@ -127,7 +129,9 @@ final class ReportPrintJob implements ResourcePrintJob {
                 return;
             }
 
-            writeContentTask = printUnit.writeContent(pages[0], destination)
+            final PageRange range = adaptRange(pages[0]);
+
+            writeContentTask = printUnit.writeContent(range, destination)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -143,6 +147,14 @@ final class ReportPrintJob implements ResourcePrintJob {
                                     callback.onWriteFailed(throwable.getMessage());
                                 }
                             });
+        }
+
+        private PageRange adaptRange(PageRange range) {
+            if (range.equals(PageRange.ALL_PAGES)) {
+                return new PageRange(0, mPageCount - 1);
+            } else {
+                return range;
+            }
         }
 
         @Override

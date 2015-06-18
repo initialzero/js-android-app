@@ -29,31 +29,32 @@ import com.jaspersoft.android.jaspermobile.R;
 
 import org.springframework.http.HttpStatus;
 
-import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public enum ExceptionRule {
-    BAD_REQUEST(HttpStatus.BAD_REQUEST, R.string.error_http_400),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, R.string.error_http_401),
-    FORBIDDEN(HttpStatus.FORBIDDEN, R.string.error_http_403),
-    NOT_FOUND(HttpStatus.NOT_FOUND, R.string.error_http_404),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, R.string.error_http_500),
-    BAD_GATEWAY(HttpStatus.BAD_GATEWAY, R.string.error_http_502),
-    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, R.string.error_http_503),
-    GATEWAY_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, R.string.error_http_504);
+    BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), R.string.error_http_400),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), R.string.error_http_401),
+    FORBIDDEN(HttpStatus.FORBIDDEN.value(), R.string.error_http_403),
+    NOT_FOUND(HttpStatus.NOT_FOUND.value(), R.string.error_http_404),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), R.string.error_http_500),
+    BAD_GATEWAY(HttpStatus.BAD_GATEWAY.value(), R.string.error_http_502),
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE.value(), R.string.error_http_503),
+    GATEWAY_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT.value(), R.string.error_http_504);
 
-    private final HttpStatus httpStatus;
+    private final int httpStatus;
     private final int message;
 
-    ExceptionRule(HttpStatus httpStatus, int message) {
+    ExceptionRule(int httpStatus, int message) {
         this.httpStatus = httpStatus;
         this.message = message;
     }
 
-    public HttpStatus getHttpStatus() {
+    public int getHttpStatus() {
         return httpStatus;
     }
 
@@ -61,9 +62,9 @@ public enum ExceptionRule {
         return message;
     }
 
-    public static EnumMap<HttpStatus, ExceptionRule> all() {
-        EnumMap<HttpStatus, ExceptionRule> collection =
-                new EnumMap<HttpStatus, ExceptionRule>(HttpStatus.class);
+    public static Map<Integer, ExceptionRule> all() {
+        Map<Integer, ExceptionRule> collection =
+                new HashMap<Integer, ExceptionRule>();
         for (ExceptionRule rule : values()) {
             collection.put(rule.getHttpStatus(), rule);
         }

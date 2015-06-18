@@ -148,8 +148,7 @@
     <!-- Error messages -->
     <string name="error_http_400">400 - Demande incorrecte. Demande non valide.</string>
     <string name="error_http_401">401 - Non autorisé.
-                                  \nInformations d\'identification d\'authentification manquantes ou incorrectes.
-                                  \n\nVoulez-vous modifier le profil du serveur ?</string>
+                                  \nInformations d\'identification d\'authentification manquantes ou incorrectes.</string>
     <string name="error_http_403">403 - Autorisation refusée. La demande est comprise mais a été refusée.</string>
     <string name="error_http_404">404 - Introuvable. L\'URI demandé n\'est pas valide ou la ressource demandée n\'existe pas.</string>
     <string name="error_http_500">500 - Erreur interne du serveur.</string>

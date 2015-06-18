@@ -203,8 +203,7 @@
     <string name="r_error_incorrect_credentials">Login or password is incorrect.</string>
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
     <string name="error_http_401">401 - Unauthorized.
-                                  \nAuthentication credentials were missing or incorrect.
-                                  \n\nDo you want to edit server profile?</string>
+                                  \nAuthentication credentials were missing or incorrect.</string>
     <string name="error_http_403">403 - Permission Denied. The request is understood, but it has been refused.</string>
     <string name="error_http_404">404 - Not Found. The URI requested is invalid or the resource requested does not exists.</string>
     <string name="error_http_500">500 - Internal Server Error.</string>

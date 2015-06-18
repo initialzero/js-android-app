@@ -118,26 +118,27 @@ public class RequestExceptionHandler {
         if (statusCode == 0) {
             return null;
         } else {
-            if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
-                return context.getString(R.string.r_error_server_not_found);
-            }
+            ExceptionRule rule = ExceptionRule.all().get(statusCode);
+            if (rule == null) {
+                if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
+                    return context.getString(R.string.r_error_server_not_found);
+                }
 
-            Throwable cause = exception.getCause();
-            if (cause == null) {
+                Throwable cause = exception.getCause();
+                if (cause == null) {
+                    return exception.getLocalizedMessage();
+                }
+
+                Throwable tokenCause = cause.getCause();
+                if (tokenCause instanceof JasperAccountManager.TokenException) {
+                    return tokenCause.getLocalizedMessage();
+                }
+
                 return exception.getLocalizedMessage();
-            }
-
-            if (cause instanceof HttpStatusCodeException) {
-                ExceptionRule rule = ExceptionRule.all().get(((HttpStatusCodeException) cause).getStatusCode());
+            } else {
                 int messageId = rule.getMessage();
                 return context.getString(messageId);
             }
-            Throwable tokenCause = cause.getCause();
-            if (tokenCause instanceof JasperAccountManager.TokenException) {
-                return tokenCause.getLocalizedMessage();
-            }
-
-            return exception.getLocalizedMessage();
         }
     }
 

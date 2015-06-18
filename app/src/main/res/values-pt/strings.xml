@@ -148,8 +148,7 @@
     <!-- Error messages -->
     <string name="error_http_400">400 - Solicitação incorreta. A solicitação não era válida.</string>
     <string name="error_http_401">401 - Não autorizado.
-                                  \nAs credenciais de autenticação estavam vazias ou incorretas.
-                                  \n\nDeseja editar o perfil do servidor?</string>
+                                  \nAs credenciais de autenticação estavam vazias ou incorretas.</string>
     <string name="error_http_403">403 - Permissão negada. A solicitação foi enviada, mas foi recusada.</string>
     <string name="error_http_404">404 - Não encontrado. O URI solicitado é inválido ou o recurso solicitado não existe.</string>
     <string name="error_http_500">500 - Erro interno do servidor.</string>

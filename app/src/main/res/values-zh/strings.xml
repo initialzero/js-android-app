@@ -148,8 +148,7 @@
     <!-- Error messages -->
     <string name="error_http_400">400 - 请求错误。请求无效。</string>
     <string name="error_http_401">401 - 未经授权。
-                                  \n身份验证凭据丢失或不正确。
-                                  \n\n是否要编辑服务器配置文件?</string>
+                                  \n身份验证凭据丢失或不正确。</string>
     <string name="error_http_403">403 - 权限已被拒绝。已了解请求，但被拒绝。</string>
     <string name="error_http_404">404 - 未找到。请求的 URI 无效，或请求的资源不存在。</string>
     <string name="error_http_500">500 - 内部服务器错误。</string>

@@ -148,8 +148,7 @@
     <!-- Error messages -->
     <string name="error_http_400">400 - 要求が正しくありません。リクエストは無効です。</string>
     <string name="error_http_401">401 - 権限がありません。
-                                  \n認証資格情報がないか、または誤っています。
-                                  \n\nサーバープロファイルを編集しますか？</string>
+                                  \n認証資格情報がないか、または誤っています。</string>
     <string name="error_http_403">403 - アクセスは拒否されました。リクエストは理解されましたが、拒否されました。</string>
     <string name="error_http_404">404 - 見つかりません。要求された URI が無効か、または要求されたリソースが存在していません。</string>
     <string name="error_http_500">500 - 内部サーバー エラー。</string>

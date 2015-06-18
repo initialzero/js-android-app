@@ -144,8 +144,7 @@
     <!-- Error messages -->
     <string name="error_http_400">400 - Unzulässige Anforderung. Die Anforderung war ungültig.</string>
     <string name="error_http_401">401 - Nicht autorisiert.
-                                  \nDie Anmeldeinformationen fehlen oder sind falsch.
-                                  \n\nMöchten Sie das Serverprofil bearbeiten?</string>
+                                  \nDie Anmeldeinformationen fehlen oder sind falsch.</string>
     <string name="error_http_403">403 - Zugriff verweigert. Die Anforderung wurde erkannt, aber zurückgewiesen.</string>
     <string name="error_http_404">404 - Nicht gefunden. Der angeforderte URI ist ungültig, oder die angeforderte Ressource ist nicht vorhanden.</string>
     <string name="error_http_500">500 - Interner Serverfehler.</string>

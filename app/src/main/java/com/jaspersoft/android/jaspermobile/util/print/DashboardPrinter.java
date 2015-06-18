@@ -26,6 +26,9 @@ package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 
@@ -55,10 +58,21 @@ public final class DashboardPrinter implements ResourcePrinter {
 
     @Override
     public ResourcePrintJob print() {
-        return DashboardPrintJob.builder()
-                .setPrintName(resource.getLabel())
-                .setWebView(webView)
-                .build()
-                .printResource();
+        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(webView.getContext());
+        ServerRelease serverRelease = ServerRelease.parseVersion(serverInfoProvider.getServerVersion());
+
+        if (serverRelease.code() >= ServerRelease.AMBER.code()) {
+            return DashboardPicturePrintJob.builder()
+                    .setPrintName(resource.getLabel())
+                    .setWebView(webView)
+                    .build()
+                    .printResource();
+        } else {
+            return DashboardWebviewPrintJob.builder()
+                    .setPrintName(resource.getLabel())
+                    .setWebView(webView)
+                    .build()
+                    .printResource();
+        }
     }
 }

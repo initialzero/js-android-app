@@ -36,11 +36,11 @@ import android.webkit.WebView;
  * @author Tom Koptel
  * @since 2.1
  */
-final class DashboardPrintJob implements ResourcePrintJob {
+final class DashboardWebviewPrintJob implements ResourcePrintJob {
     private final String printName;
     private final WebView webView;
 
-    private DashboardPrintJob(Builder builder) {
+    private DashboardWebviewPrintJob(Builder builder) {
         this.printName = builder.printName;
         this.webView = builder.webView;
     }
@@ -74,7 +74,7 @@ final class DashboardPrintJob implements ResourcePrintJob {
 
         public ResourcePrintJob build() {
             validateDependencies();
-            return new DashboardPrintJob(this);
+            return new DashboardWebviewPrintJob(this);
         }
 
         private void validateDependencies() {

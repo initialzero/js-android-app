@@ -62,6 +62,7 @@ final class ReportPrintJob implements ResourcePrintJob {
         return new Builder(context);
     }
 
+    @NonNull
     @TargetApi(19)
     @Override
     public ResourcePrintJob printResource() {

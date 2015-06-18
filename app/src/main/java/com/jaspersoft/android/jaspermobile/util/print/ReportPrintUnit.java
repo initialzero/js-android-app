@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.os.ParcelFileDescriptor;
 import android.print.PageRange;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.util.report.ExportIdFormat;
@@ -86,6 +87,7 @@ final class ReportPrintUnit implements PrintUnit {
         return new Builder();
     }
 
+    @NonNull
     @Override
     public Observable<Boolean> writeContent(final PageRange pageRange, final ParcelFileDescriptor destination) {
         return Observable.create(
@@ -108,6 +110,7 @@ final class ReportPrintUnit implements PrintUnit {
                 });
     }
 
+    @NonNull
     @Override
     public Observable<Integer> getPageCount() {
         return startReportExecutionAsync().flatMap(new Func1<ReportExecutionResponse, Observable<Integer>>() {

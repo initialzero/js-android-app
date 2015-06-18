@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.support.annotation.NonNull;
 import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
@@ -56,6 +57,7 @@ public final class DashboardPrinter implements ResourcePrinter {
         return this;
     }
 
+    @NonNull
     @Override
     public ResourcePrintJob print() {
         ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(webView.getContext());

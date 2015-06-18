@@ -29,6 +29,7 @@ import android.content.Context;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.webkit.WebView;
 
@@ -49,6 +50,7 @@ final class DashboardWebviewPrintJob implements ResourcePrintJob {
         return new Builder();
     }
 
+    @NonNull
     @TargetApi(19)
     @Override
     public ResourcePrintJob printResource() {

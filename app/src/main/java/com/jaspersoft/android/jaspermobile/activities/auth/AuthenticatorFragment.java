@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import retrofit.RetrofitError;
 import roboguice.fragment.RoboFragment;
 import rx.Observable;
 import rx.Subscription;
@@ -119,7 +120,12 @@ public class AuthenticatorFragment extends RoboFragment {
             String exceptionMessage;
             int statusCode = RequestExceptionHandler.extractStatusCode((Exception) throwable);
             if (statusCode == HttpStatus.NOT_FOUND.value()) {
-                exceptionMessage = getString(R.string.r_error_server_not_found);
+                boolean isRequestWasForRootFolder = false;
+                if (throwable instanceof RetrofitError) {
+                    // This possible only for JRS lower that 5.5. Reason for that is missing root folder endpoint
+                    isRequestWasForRootFolder = ((RetrofitError) throwable).getUrl().contains("/resources");
+                }
+                exceptionMessage = getString(isRequestWasForRootFolder ? R.string.r_error_server_not_supported : R.string.r_error_server_not_found);
             } else if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
                 exceptionMessage = getString(R.string.r_error_incorrect_credentials);
             } else {

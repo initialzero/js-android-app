@@ -106,7 +106,9 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       function DashboardController(callback, scaler, params) {
         this.callback = callback;
         this.scaler = scaler;
-        this._clickCallback = bind(this._clickCallback, this);
+        this._openRemoteLink = bind(this._openRemoteLink, this);
+        this._startReportExecution = bind(this._startReportExecution, this);
+        this._processLinkClicks = bind(this._processLinkClicks, this);
         this._processErrors = bind(this._processErrors, this);
         this._processSuccess = bind(this._processSuccess, this);
         this._executeDashboard = bind(this._executeDashboard, this);
@@ -183,7 +185,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           },
           linkOptions: {
             events: {
-              click: this._clickCallback
+              click: this._processLinkClicks
             }
           },
           error: this._processErrors
@@ -261,28 +263,54 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         })[0];
       };
 
-      DashboardController.prototype._clickCallback = function(event, link) {
-        var data, dataString;
-        if (link.type === "ReportExecution") {
-          data = {
-            resource: link.parameters._report,
-            params: this._collectReportParams(link)
-          };
-          dataString = JSON.stringify(data, null, 4);
-          return this.callback.onReportExecution(dataString);
+      DashboardController.prototype._processLinkClicks = function(event, link, defaultHandler) {
+        var type;
+        type = link.type;
+        js_mobile.log("_processLinkClicks: " + (JSON.stringify(link)));
+        js_mobile.log("type: " + type);
+        switch (type) {
+          case "ReportExecution":
+            return this._startReportExecution(link);
+          case "Reference":
+            return this._openRemoteLink(link);
+          case "LocalAnchor":
+            return defaultHandler.call(this);
+          case "LocalPage":
+            return defaultHandler.call(this);
+          default:
+            return defaultHandler.call(this);
         }
       };
 
+      DashboardController.prototype._startReportExecution = function(link) {
+        var data;
+        js_mobile.log("_startReportExecution");
+        js_mobile.log("resource: " + link.parameters._report);
+        data = {
+          resource: link.parameters._report,
+          params: this._collectReportParams(link)
+        };
+        return this.callback.onReportExecution(data);
+      };
+
       DashboardController.prototype._collectReportParams = function(link) {
-        var isValueNotArray, key, params;
+        var isValueNotArray, key, parameters, params;
         params = {};
         for (key in link.parameters) {
           if (key !== '_report') {
-            isValueNotArray = Object.prototype.toString.call(link.parameters[key]) !== '[object Array]';
-            params[key] = isValueNotArray ? [link.parameters[key]] : link.parameters[key];
+            parameters = link.parameters[key];
+            isValueNotArray = Object.prototype.toString.call(parameters) !== '[object Array]';
+            params[key] = isValueNotArray ? [parameters] : parameters;
           }
         }
         return params;
+      };
+
+      DashboardController.prototype._openRemoteLink = function(link) {
+        var href;
+        js_mobile.log("_openRemoteLink");
+        href = link.href;
+        return this.callback.onReferenceClick(href);
       };
 
       DashboardController.prototype._getDashlets = function(dashboardId) {
@@ -691,8 +719,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       };
 
       AndroidCallback.prototype.onReportExecution = function(data) {
+        var dataString;
+        dataString = JSON.stringify(data, null, 4);
         this.dispatch(function() {
-          return Android.onReportExecution(data);
+          return Android.onReportExecution(dataString);
         });
       };
 

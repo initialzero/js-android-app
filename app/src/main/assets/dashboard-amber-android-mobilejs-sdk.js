@@ -158,8 +158,10 @@
       };
 
       AndroidCallback.prototype.onReportExecution = function(data) {
+        var dataString;
+        dataString = JSON.stringify(data, null, 4);
         this.dispatch(function() {
-          return Android.onReportExecution(data);
+          return Android.onReportExecution(dataString);
         });
       };
 
@@ -365,7 +367,7 @@
       DashboardController.prototype._removeRedundantArtifacts = function() {
         var customStyle;
         js_mobile.log("remove artifacts");
-        customStyle = ".header, .dashletToolbar { display: none !important; } .show_chartTypeSelector_wrapper { display: none; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } #mainNavigation{ display: none !important; } .customOverlay { position: absolute; width: 100%; height: 100%; z-index: 1000; } .dashboardCanvas .dashlet > .dashletContent > .content { -webkit-overflow-scrolling : auto !important; } .component_show { display: block; }";
+        customStyle = ".header, .dashletToolbar, .show_chartTypeSelector_wrapper, .heartbeatOptin, #mainNavigation { display: none !important; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } .customOverlay { position: absolute; width: 100%; height: 100%; z-index: 1000; } .dashboardCanvas .dashlet > .dashletContent > .content { -webkit-overflow-scrolling : auto !important; } .component_show { display: block; }";
         return jQuery('<style id="custom_mobile"></style>').text(customStyle).appendTo('head');
       };
 

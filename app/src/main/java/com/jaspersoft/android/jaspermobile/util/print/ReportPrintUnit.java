@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.util.print;
 import android.os.ParcelFileDescriptor;
 import android.print.PageRange;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.util.report.ExportIdFormat;
 import com.jaspersoft.android.jaspermobile.util.report.ExportIdFormatFactory;
@@ -52,8 +51,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -76,15 +73,24 @@ final class ReportPrintUnit implements PrintUnit {
     private final ServerInfoProvider mServerInfoProvider;
     private ReportExecutionResponse reportExecutionResponse;
 
-    private ReportPrintUnit(Builder builder) {
-        mJsRestClient = builder.jsRestClient;
-        mResource = builder.resource;
-        mReportParameters = builder.reportParameters;
-        mServerInfoProvider = builder.serverInfoProvider;
-    }
+    ReportPrintUnit(JsRestClient jsRestClient, ResourceLookup resource, List<ReportParameter> reportParameters, ServerInfoProvider serverInfoProvider) {
+        if (jsRestClient == null) {
+            throw new IllegalArgumentException("JsRestClient should not be null");
+        }
+        if (resource == null) {
+            throw new IllegalArgumentException("Resource should not be null");
+        }
+        if (reportParameters == null) {
+            throw new IllegalArgumentException("Resource parameters should not be null");
+        }
+        if (serverInfoProvider == null) {
+            throw new IllegalArgumentException("Server data provider should not be null");
+        }
 
-    public static Builder builder() {
-        return new Builder();
+        this.mJsRestClient = jsRestClient;
+        this.mResource = resource;
+        this.mReportParameters = reportParameters;
+        this.mServerInfoProvider = serverInfoProvider;
     }
 
     @NonNull
@@ -269,54 +275,4 @@ final class ReportPrintUnit implements PrintUnit {
         }
     }
 
-    public static class Builder {
-        private ServerInfoProvider serverInfoProvider;
-        private JsRestClient jsRestClient;
-        private ResourceLookup resource;
-        private List<ReportParameter> reportParameters;
-
-        public Builder() {
-            this.reportParameters = new ArrayList<ReportParameter>();
-        }
-
-        public Builder setJsRestClient(@Nullable JsRestClient jsRestClient) {
-            this.jsRestClient = jsRestClient;
-            return this;
-        }
-
-        public Builder setResource(@Nullable ResourceLookup resource) {
-            this.resource = resource;
-            return this;
-        }
-
-        public Builder setServerInfoProvider(ServerInfoProvider serverInfoProvider) {
-            this.serverInfoProvider = serverInfoProvider;
-            return this;
-        }
-
-        public Builder addReportParameters(@Nullable Collection<ReportParameter> reportParameters) {
-            if (reportParameters == null) {
-                throw new IllegalArgumentException("Report parameters should not be null");
-            }
-            this.reportParameters.addAll(reportParameters);
-            return this;
-        }
-
-        public PrintUnit build() {
-            validateDependencies();
-            return new ReportPrintUnit(this);
-        }
-
-        private void validateDependencies() {
-            if (jsRestClient == null) {
-                throw new IllegalStateException("JsRestClient should not be null");
-            }
-            if (resource == null) {
-                throw new IllegalStateException("Resource should not be null");
-            }
-            if (serverInfoProvider == null) {
-                throw new IllegalStateException("Server data provider should not be null");
-            }
-        }
-    }
 }

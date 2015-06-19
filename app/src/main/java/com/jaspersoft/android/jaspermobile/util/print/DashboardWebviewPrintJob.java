@@ -38,16 +38,20 @@ import android.webkit.WebView;
  * @since 2.1
  */
 final class DashboardWebviewPrintJob implements ResourcePrintJob {
+
     private final String printName;
     private final WebView webView;
 
-    private DashboardWebviewPrintJob(Builder builder) {
-        this.printName = builder.printName;
-        this.webView = builder.webView;
-    }
+    DashboardWebviewPrintJob(WebView webView, String printName) {
+        if (webView == null) {
+            throw new IllegalArgumentException("WebView should not be null");
+        }
+        if (TextUtils.isEmpty(printName)) {
+            throw new IllegalArgumentException("Print name should not be null");
+        }
 
-    public static Builder builder() {
-        return new Builder();
+        this.webView = webView;
+        this.printName = printName;
     }
 
     @NonNull
@@ -60,32 +64,4 @@ final class DashboardWebviewPrintJob implements ResourcePrintJob {
         return this;
     }
 
-    public static class Builder {
-        private String printName;
-        private WebView webView;
-
-        public Builder setPrintName(String printName) {
-            this.printName = printName;
-            return this;
-        }
-
-        public Builder setWebView(WebView webView) {
-            this.webView = webView;
-            return this;
-        }
-
-        public ResourcePrintJob build() {
-            validateDependencies();
-            return new DashboardWebviewPrintJob(this);
-        }
-
-        private void validateDependencies() {
-            if (webView == null) {
-                throw new IllegalStateException("WebView should not be null");
-            }
-            if (TextUtils.isEmpty(printName)) {
-                throw new IllegalStateException("Print name should not be null");
-            }
-        }
-    }
 }

@@ -42,18 +42,20 @@ import rx.schedulers.Schedulers;
  * @since 2.1
  */
 final class DashboardPicturePrintJob implements ResourcePrintJob {
+
     private final String printName;
     private final WebView webView;
-    private final PrintHelper printHelper;
 
-    private DashboardPicturePrintJob(Builder builder) {
-        this.printName = builder.printName;
-        this.webView = builder.webView;
-        this.printHelper = new PrintHelper(webView.getContext());
-    }
+    DashboardPicturePrintJob(WebView webView, String printName) {
+        if (webView == null) {
+            throw new IllegalArgumentException("WebView should not be null");
+        }
+        if (TextUtils.isEmpty(printName)) {
+            throw new IllegalArgumentException("Print name should not be null");
+        }
 
-    public static Builder builder() {
-        return new Builder();
+        this.webView = webView;
+        this.printName = printName;
     }
 
     @NonNull
@@ -65,6 +67,7 @@ final class DashboardPicturePrintJob implements ResourcePrintJob {
                 .subscribe(new Action1<Bitmap>() {
                     @Override
                     public void call(Bitmap bitmap) {
+                        PrintHelper printHelper = new PrintHelper(webView.getContext());
                         printHelper.setScaleMode(PrintHelper.SCALE_MODE_FIT);
                         printHelper.printBitmap(printName, bitmap);
                     }
@@ -88,32 +91,4 @@ final class DashboardPicturePrintJob implements ResourcePrintJob {
         return bitmap;
     }
 
-    public static class Builder {
-        private String printName;
-        private WebView webView;
-
-        public Builder setPrintName(String printName) {
-            this.printName = printName;
-            return this;
-        }
-
-        public Builder setWebView(WebView webView) {
-            this.webView = webView;
-            return this;
-        }
-
-        public ResourcePrintJob build() {
-            validateDependencies();
-            return new DashboardPicturePrintJob(this);
-        }
-
-        private void validateDependencies() {
-            if (webView == null) {
-                throw new IllegalStateException("WebView should not be null");
-            }
-            if (TextUtils.isEmpty(printName)) {
-                throw new IllegalStateException("Print name should not be null");
-            }
-        }
-    }
 }

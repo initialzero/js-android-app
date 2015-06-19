@@ -164,7 +164,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
-            ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(resource, webView);
+            ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
             JasperPrinter.print(job);
         }
 

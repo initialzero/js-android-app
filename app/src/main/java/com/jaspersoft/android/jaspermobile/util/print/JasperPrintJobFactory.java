@@ -45,8 +45,10 @@ import java.util.List;
 public class JasperPrintJobFactory {
 
     /**
-     * Creates {@link ReportPrintJob} which is responsible for creating custom adapter for native print framework
-     * 
+     * Creates {@link ReportPrintJob} which is responsible for creating custom adapter for native print framework.
+     * <br/>
+     * Throws {@link IllegalArgumentException} if {@link ResourceLookup} type is not reportUnit
+     *
      * @param resource SDK object which wraps resource metadata
      * @param context context which is usually comes from activity
      * @param jsRestClient SDK rest client
@@ -54,45 +56,37 @@ public class JasperPrintJobFactory {
      * @return common abstraction around resource printing
      */
     public static ResourcePrintJob createReportPrintJob(Context context, JsRestClient jsRestClient, ResourceLookup resource, List<ReportParameter> reportParameters) {
+        if (resource.getResourceType() != ResourceLookup.ResourceType.reportUnit) {
+            throw new IllegalArgumentException("Incorrect resource type. It should be 'reportUnit' but was: " + String.valueOf(resource.getResourceType()));
+        }
+
         ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(context);
-
-        PrintUnit reportPrintUnit = ReportPrintUnit.builder()
-                .setResource(resource)
-                .setJsRestClient(jsRestClient)
-                .addReportParameters(reportParameters)
-                .setServerInfoProvider(serverInfoProvider)
-                .build();
-
-        return ReportPrintJob.builder(context)
-                .setPrintUnit(reportPrintUnit)
-                .setPrintName(resource.getLabel())
-                .build()
-                .printResource();
+        PrintUnit reportPrintUnit = new ReportPrintUnit(jsRestClient, resource, reportParameters, serverInfoProvider);
+        return new ReportPrintJob(context, reportPrintUnit, resource.getLabel());
     }
 
     /**
      * Creates {@link DashboardPicturePrintJob} or {@link DashboardWebviewPrintJob} jobs responsible for starting native printing
-     *
+     * <br/>
+     * Throws {@link IllegalArgumentException} if {@link ResourceLookup} type is not reportUnit
+
      * @param webView target {@link WebView} instance we would like to print from
      * @param resource SDK object which wraps resource metadata
      * @return common abstraction around resource printing
      */
     public static ResourcePrintJob createDashboardPrintJob(WebView webView, ResourceLookup resource) {
+        if (resource.getResourceType() != ResourceLookup.ResourceType.dashboard) {
+            throw new IllegalArgumentException("Incorrect resource type. It should be 'dashboard' but was: " + String.valueOf(resource.getResourceType()));
+        }
+
         ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(webView.getContext());
         ServerRelease serverRelease = ServerRelease.parseVersion(serverInfoProvider.getServerVersion());
 
+        String printName = resource.getLabel();
         if (serverRelease.code() >= ServerRelease.AMBER.code()) {
-            return DashboardPicturePrintJob.builder()
-                    .setPrintName(resource.getLabel())
-                    .setWebView(webView)
-                    .build()
-                    .printResource();
+            return new DashboardPicturePrintJob(webView, printName);
         } else {
-            return DashboardWebviewPrintJob.builder()
-                    .setPrintName(resource.getLabel())
-                    .setWebView(webView)
-                    .build()
-                    .printResource();
+            return new DashboardWebviewPrintJob(webView, printName);
         }
     }
 

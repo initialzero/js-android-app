@@ -26,40 +26,36 @@ package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.os.ParcelFileDescriptor;
-import android.print.PageRange;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
-import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
-
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
 final class ReportPrintJob implements ResourcePrintJob {
+
     private final Context mContext;
     private final PrintUnit printUnit;
     private final String printName;
 
-    private ReportPrintJob(@NonNull Builder builder) {
-        mContext = builder.context;
-        printUnit = builder.printUnit;
-        printName = builder.printName;
-    }
+    ReportPrintJob(Context mContext, PrintUnit printUnit, String printName) {
+        if (mContext == null) {
+            throw new IllegalArgumentException("Context should not be null");
+        }
+        if (printUnit == null) {
+            throw new IllegalArgumentException("Print unit should not be null");
+        }
+        if (TextUtils.isEmpty(printName)) {
+            throw new IllegalArgumentException("Print name should not be null");
+        }
 
-    public static Builder builder(Context context) {
-        return new Builder(context);
+        this.mContext = mContext;
+        this.printUnit = printUnit;
+        this.printName = printName;
     }
 
     @NonNull
@@ -67,147 +63,12 @@ final class ReportPrintJob implements ResourcePrintJob {
     @Override
     public ResourcePrintJob printResource() {
         PrintManager printManager = (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
-        String jobName = printName;
 
         PrintAttributes printAttributes = new PrintAttributes.Builder().build();
-        PrintDocumentAdapter printAdapter = new PrintReportAdapter(printName, printUnit);
+        PrintDocumentAdapter printAdapter = new PrintReportAdapter(printUnit, printName);
 
-        printManager.print(jobName, printAdapter, printAttributes);
+        printManager.print(printName, printAdapter, printAttributes);
         return this;
     }
 
-    @TargetApi(19)
-    private static class PrintReportAdapter extends PrintDocumentAdapter {
-        private Subscription getPageCountTask;
-        private Subscription writeContentTask;
-        private final String printName;
-        private final PrintUnit printUnit;
-        private Integer mPageCount;
-
-        PrintReportAdapter(String printName, PrintUnit printUnit) {
-            this.printName = printName;
-            this.printUnit = printUnit;
-        }
-
-        @Override
-        public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
-                             CancellationSignal cancellationSignal, final LayoutResultCallback callback, Bundle extras) {
-            if (cancellationSignal.isCanceled()) {
-                cancelGetCountTask();
-                callback.onLayoutCancelled();
-                return;
-            }
-
-            getPageCountTask = printUnit.fetchPageCount()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            new Action1<Integer>() {
-                                @Override
-                                public void call(Integer pageCount) {
-                                    mPageCount = pageCount;
-                                    PrintDocumentInfo pdi = new PrintDocumentInfo.Builder(printName)
-                                            .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                                            .setPageCount(pageCount)
-                                            .build();
-                                    callback.onLayoutFinished(pdi, true);
-                                }
-                            },
-                            new Action1<Throwable>() {
-                                @Override
-                                public void call(Throwable throwable) {
-                                    callback.onLayoutFailed(throwable.getMessage());
-                                }
-                            });
-        }
-
-        @Override
-        public void onWrite(final PageRange[] pages, final ParcelFileDescriptor destination,
-                            CancellationSignal cancellationSignal, final WriteResultCallback callback) {
-            if (cancellationSignal.isCanceled()) {
-                cancelWriteTask();
-                callback.onWriteCancelled();
-                return;
-            }
-
-            final PageRange range = adaptRange(pages[0]);
-
-            writeContentTask = printUnit.writeContent(range, destination)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            new Action1<Object>() {
-                                @Override
-                                public void call(Object o) {
-                                    callback.onWriteFinished(pages);
-                                }
-                            },
-                            new Action1<Throwable>() {
-                                @Override
-                                public void call(Throwable throwable) {
-                                    callback.onWriteFailed(throwable.getMessage());
-                                }
-                            });
-        }
-
-        private PageRange adaptRange(PageRange range) {
-            if (range.equals(PageRange.ALL_PAGES)) {
-                return new PageRange(0, mPageCount - 1);
-            } else {
-                return range;
-            }
-        }
-
-        @Override
-        public void onFinish() {
-            cancelGetCountTask();
-            cancelWriteTask();
-        }
-
-        private void cancelGetCountTask() {
-            if (getPageCountTask != null) {
-                getPageCountTask.unsubscribe();
-            }
-        }
-
-        private void cancelWriteTask() {
-            if (writeContentTask != null) {
-                writeContentTask.unsubscribe();
-            }
-        }
-    }
-
-    public static class Builder {
-        private final Context context;
-        private String printName;
-        private PrintUnit printUnit;
-
-        public Builder(Context context) {
-            this.context = context;
-        }
-
-        public Builder setPrintUnit(@Nullable PrintUnit printUnit) {
-            this.printUnit = printUnit;
-            return this;
-        }
-
-        public Builder setPrintName(@Nullable String printName) {
-            this.printName = printName;
-            return this;
-        }
-
-        public ResourcePrintJob build() {
-            validateDependencies();
-            return new ReportPrintJob(this);
-        }
-
-        private void validateDependencies() {
-            if (printUnit == null) {
-                throw new IllegalStateException("Print unit should not be null");
-            }
-            if (TextUtils.isEmpty(printName)) {
-                throw new IllegalStateException("Job print name should not be null. Current value: " + printName);
-            }
-        }
-    }
 }

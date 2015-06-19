@@ -30,6 +30,8 @@ import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportStatusResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.junit.Before;
@@ -39,12 +41,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.springframework.web.client.RestClientException;
 
 import java.util.Arrays;
-import java.util.Collection;
-
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -62,18 +62,23 @@ public class ReportPrintUnitTest {
     @Mock
     JsRestClient jsRestClient;
     @Mock
-    Collection<ReportParameter> reportParameters;
+    List<ReportParameter> reportParameters;
     @Mock
     ResourceLookup resourceLookup;
-    @Mock
-    ReportExecutionResponse reportExecutionResponse;
-    @Mock
-    ExportExecution exportExecution;
     @Mock
     ServerInfoProvider serverInfoProvider;
 
     @Mock
     ResourcePrintJob resourcePrintJob;
+
+    // REST
+    @Mock
+    ReportExecutionResponse reportExecutionResponse;
+    @Mock
+    ExportExecution exportExecution;
+    @Mock
+    ReportStatusResponse reportStatusResponse;
+
 
     @Before
     public void setup() {
@@ -82,61 +87,82 @@ public class ReportPrintUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateProviderWithNULLParams() {
-        ReportPrintUnit
-                .builder()
-                .setJsRestClient(jsRestClient)
-                .setResource(resourceLookup)
-                .setServerInfoProvider(serverInfoProvider)
-                .addReportParameters(null)
-                .build();
+        new ReportPrintUnit(jsRestClient, resourceLookup, null, serverInfoProvider);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateProviderWithoutResourceLookup() {
-        ReportPrintUnit
-                .builder()
-                .setJsRestClient(jsRestClient)
-                .build();
+        new ReportPrintUnit(jsRestClient, null, reportParameters, serverInfoProvider);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateProviderWithoutJsRestClient() {
-        ReportPrintUnit
-                .builder()
-                .setResource(resourceLookup)
-                .build();
+        new ReportPrintUnit(null, resourceLookup, reportParameters, serverInfoProvider);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateProviderWithoutServerProviderData() {
-        ReportPrintUnit
-                .builder()
-                .setJsRestClient(jsRestClient)
-                .setResource(resourceLookup)
-                .build();
+        new ReportPrintUnit(jsRestClient, resourceLookup, reportParameters, null);
     }
 
     @Test
     public void shouldProvideResourceTotalPages() {
+        when(reportExecutionResponse.getReportStatus()).thenReturn(ReportStatus.ready);
+
         when(reportExecutionResponse.getTotalPages()).thenReturn(100);
-        when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[] {exportExecution}));
+        when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[]{exportExecution}));
+
         when(jsRestClient.runReportExecution(any(ReportExecutionRequest.class))).thenReturn(reportExecutionResponse);
 
-        PrintUnit reportPrintUnit = ReportPrintUnit
-                .builder()
-                .setJsRestClient(jsRestClient)
-                .setServerInfoProvider(serverInfoProvider)
-                .setResource(resourceLookup)
-                .build();
+        PrintUnit reportPrintUnit = new ReportPrintUnit(jsRestClient, resourceLookup, reportParameters, serverInfoProvider);
 
-        reportPrintUnit.fetchPageCount()
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Integer>() {
-                    @Override
-                    public void call(Integer number) {
-                        assertThat(number, is(100));
-                    }
-                });
+        Integer pages = reportPrintUnit.fetchPageCount().toBlocking().first();
+        assertThat(pages, is(100));
     }
+
+    @Test
+    public void shouldProvideResourceTotalPagesAfterDelay() {
+        when(reportStatusResponse.getReportStatus()).thenReturn(ReportStatus.ready);
+        when(reportExecutionResponse.getReportStatus()).thenReturn(ReportStatus.queued);
+
+        when(reportExecutionResponse.getTotalPages()).thenReturn(100);
+        when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[]{exportExecution}));
+
+        when(jsRestClient.runReportExecution(any(ReportExecutionRequest.class))).thenReturn(reportExecutionResponse);
+        when(jsRestClient.runReportStatusCheck(any(String.class))).thenReturn(reportStatusResponse);
+        when(jsRestClient.runReportDetailsRequest(any(String.class))).thenReturn(reportExecutionResponse);
+
+        PrintUnit reportPrintUnit = new ReportPrintUnit(jsRestClient, resourceLookup, reportParameters, serverInfoProvider);
+        Integer pages = reportPrintUnit.fetchPageCount().toBlocking().first();
+        assertThat(pages, is(100));
+    }
+
+    @Test(expected = RestClientException.class)
+    public void shouldRaiseErrorIfExecutionFailed() {
+        when(reportExecutionResponse.getReportStatus()).thenReturn(ReportStatus.failed);
+
+        when(reportExecutionResponse.getTotalPages()).thenReturn(100);
+        when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[]{exportExecution}));
+
+        when(jsRestClient.runReportExecution(any(ReportExecutionRequest.class))).thenReturn(reportExecutionResponse);
+
+        PrintUnit reportPrintUnit = new ReportPrintUnit(jsRestClient, resourceLookup, reportParameters, serverInfoProvider);
+        reportPrintUnit.fetchPageCount().toBlocking().first();
+    }
+
+    @Test(expected = RestClientException.class)
+    public void shouldRaiseErrorIfExecutionFailedAfterDelay() {
+        when(reportStatusResponse.getReportStatus()).thenReturn(ReportStatus.failed);
+        when(reportExecutionResponse.getReportStatus()).thenReturn(ReportStatus.queued);
+
+        when(reportExecutionResponse.getTotalPages()).thenReturn(100);
+        when(reportExecutionResponse.getExports()).thenReturn(Arrays.asList(new ExportExecution[]{exportExecution}));
+
+        when(jsRestClient.runReportExecution(any(ReportExecutionRequest.class))).thenReturn(reportExecutionResponse);
+        when(jsRestClient.runReportStatusCheck(any(String.class))).thenReturn(reportStatusResponse);
+
+        PrintUnit reportPrintUnit = new ReportPrintUnit(jsRestClient, resourceLookup, reportParameters, serverInfoProvider);
+        reportPrintUnit.fetchPageCount().toBlocking().first();
+    }
+
 }

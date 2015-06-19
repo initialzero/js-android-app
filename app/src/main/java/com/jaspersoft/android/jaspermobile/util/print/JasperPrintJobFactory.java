@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.app.Activity;
 import android.content.Context;
 import android.webkit.WebView;
 
@@ -45,12 +46,12 @@ import java.util.List;
 public final class JasperPrintJobFactory {
 
     /**
-     * Creates {@link ReportPrintJob} which is responsible for creating custom adapter for native print framework.
+     * Creates {@link ResourcePrintJob} for report which is responsible for creating custom adapter for native print framework
      * <br/>
      * Throws {@link IllegalArgumentException} if {@link ResourceLookup} type is not reportUnit
      *
      * @param resource SDK object which wraps resource metadata
-     * @param context context which is usually comes from activity
+     * @param context context which represents current {@link Activity}
      * @param jsRestClient SDK rest client
      * @param reportParameters report parameters user chooses before printing report
      * @return common abstraction around resource printing
@@ -66,10 +67,10 @@ public final class JasperPrintJobFactory {
     }
 
     /**
-     * Creates {@link DashboardPicturePrintJob} or {@link DashboardWebviewPrintJob} jobs responsible for starting native printing
+     * Creates {@link ResourcePrintJob} for report which is responsible for creating custom adapter for native print dashboard
      * <br/>
-     * Throws {@link IllegalArgumentException} if {@link ResourceLookup} type is not reportUnit
-
+     * Throws {@link IllegalArgumentException} if {@link ResourceLookup} type is not dashboard
+     *
      * @param webView target {@link WebView} instance we would like to print from
      * @param resource SDK object which wraps resource metadata
      * @return common abstraction around resource printing
@@ -86,7 +87,7 @@ public final class JasperPrintJobFactory {
         if (serverRelease.code() >= ServerRelease.AMBER.code()) {
             return new DashboardPicturePrintJob(webView, printName);
         } else {
-            return new DashboardWebviewPrintJob(webView, printName);
+            return new DashboardWebViewPrintJob(webView, printName);
         }
     }
 

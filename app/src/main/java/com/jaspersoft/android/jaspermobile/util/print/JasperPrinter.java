@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.util.print;
 
 /**
  * High level abstraction around printing functional.
- *
+ * <br/>
  * Class accepts job and delegates to native framework.
  *
  * @author Tom Koptel
@@ -35,9 +35,9 @@ package com.jaspersoft.android.jaspermobile.util.print;
 public final class JasperPrinter {
 
     /**
-     * Accepts abstract job and invokes corresponding print logic.
+     * Accepts print job and invokes corresponding print logic.
      *
-     * @param resourcePrintJob represents custom resource print job. See {@link ReportPrintJob}, {@link DashboardPicturePrintJob}, {@link DashboardWebviewPrintJob}
+     * @param resourcePrintJob represents custom resource print job. See {@link ReportPrintJob}, {@link DashboardPicturePrintJob}, {@link DashboardWebViewPrintJob}
      */
     public static void print(ResourcePrintJob resourcePrintJob) {
         resourcePrintJob.printResource();

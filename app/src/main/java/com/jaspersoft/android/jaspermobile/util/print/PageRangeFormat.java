@@ -41,7 +41,7 @@ final class PageRangeFormat {
         if (totalPages < 0) {
             throw new IllegalArgumentException("Total pages should not be less than zero");
         }
-        this.mTotalPages = totalPages;
+        mTotalPages = totalPages;
     }
 
     /**

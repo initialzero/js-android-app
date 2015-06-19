@@ -37,12 +37,12 @@ import android.webkit.WebView;
  * @author Tom Koptel
  * @since 2.1
  */
-final class DashboardWebviewPrintJob implements ResourcePrintJob {
+final class DashboardWebViewPrintJob implements ResourcePrintJob {
 
     private final String printName;
     private final WebView webView;
 
-    DashboardWebviewPrintJob(WebView webView, String printName) {
+    DashboardWebViewPrintJob(WebView webView, String printName) {
         if (webView == null) {
             throw new IllegalArgumentException("WebView should not be null");
         }

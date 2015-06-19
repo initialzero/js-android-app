@@ -48,14 +48,15 @@ subprojects {
     ext.jasperSdkVersion = '1.10-SNAPSHOT';
 
     repositories {
+        // Local .m2 repo, usually living at home dir
+        mavenLocal()
+
         // Remote official superset of mavenCentral()
         jcenter()
 
         // Our remote maven repo
         maven { url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk' }
 
-        // Local .m2 repo, usually living at home dir
-        mavenLocal()
         maven { url "file://${System.getenv("ANDROID_HOME")}/extras/android/m2repository" }
     }
 }

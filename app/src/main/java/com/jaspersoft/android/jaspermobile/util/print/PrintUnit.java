@@ -12,7 +12,7 @@ import rx.Observable;
  */
 interface PrintUnit {
     @NonNull
-    Observable<Integer> getPageCount();
+    Observable<Integer> fetchPageCount();
     @NonNull
     Observable<Boolean> writeContent(PageRange pageRange, ParcelFileDescriptor destination);
 }

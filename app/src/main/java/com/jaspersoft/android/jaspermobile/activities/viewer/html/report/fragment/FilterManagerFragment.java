@@ -45,7 +45,8 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.util.print.ReportPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
@@ -149,12 +150,9 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsItem
     final void printAction() {
-        ReportPrinter.get()
-                .withContext(getActivity())
-                .withJsRestClient(jsRestClient)
-                .withResource(resource)
-                .withReportParameters(reportParameters)
-                .print();
+        ResourcePrintJob job = JasperPrintJobFactory
+                .createReportPrintJob(getActivity(), jsRestClient, resource, reportParameters);
+        JasperPrinter.print(job);
     }
 
     private void showReportOptions() {

@@ -98,7 +98,7 @@ final class ReportPrintJob implements ResourcePrintJob {
                 return;
             }
 
-            getPageCountTask = printUnit.getPageCount()
+            getPageCountTask = printUnit.fetchPageCount()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(

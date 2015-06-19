@@ -64,7 +64,9 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
-import com.jaspersoft.android.jaspermobile.util.print.ReportPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
@@ -339,12 +341,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
-        ReportPrinter.get()
-                .withContext(this)
-                .withJsRestClient(jsRestClient)
-                .withResource(resource)
-                .withReportParameters(reportParameters)
-                .print();
+        ResourcePrintJob job = JasperPrintJobFactory
+                .createReportPrintJob(this, jsRestClient, resource, reportParameters);
+        JasperPrinter.print(job);
     }
 
     //---------------------------------------------------------------------

@@ -129,7 +129,7 @@ public class ReportPrintUnitTest {
                 .setResource(resourceLookup)
                 .build();
 
-        reportPrintUnit.getPageCount()
+        reportPrintUnit.fetchPageCount()
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Integer>() {

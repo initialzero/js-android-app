@@ -112,7 +112,7 @@ final class ReportPrintUnit implements PrintUnit {
 
     @NonNull
     @Override
-    public Observable<Integer> getPageCount() {
+    public Observable<Integer> fetchPageCount() {
         return startReportExecutionAsync().flatMap(new Func1<ReportExecutionResponse, Observable<Integer>>() {
             @Override
             public Observable<Integer> call(ReportExecutionResponse reportExecutionResponse) {
@@ -243,6 +243,7 @@ final class ReportPrintUnit implements PrintUnit {
         return getExportOutputRequest.loadDataFromNetwork();
     }
 
+    // TODO move on higher layer
     private String getPages(PageRange pageRange) {
         if (pageRange.getStart() == pageRange.getEnd()) {
             return String.valueOf(pageRange.getStart() + 1);

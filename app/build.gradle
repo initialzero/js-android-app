@@ -175,6 +175,10 @@ dependencies {
 
     // Unit tests dependencies
     testCompile 'junit:junit:4.12'
+    // JunitParams
+    testCompile('pl.pragmatists:JUnitParams:1.0.4') {
+        exclude group: 'org.hamcrest'
+    }
     testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
     testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile('org.robolectric:shadows-support-v4:3.0-rc3') {

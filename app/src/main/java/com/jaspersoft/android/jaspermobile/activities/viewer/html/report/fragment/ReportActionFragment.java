@@ -56,6 +56,7 @@ public class ReportActionFragment extends Fragment {
 
     @FragmentArg
     ResourceLookup resource;
+
     @Bean
     FavoritesHelper favoritesHelper;
 
@@ -97,4 +98,5 @@ public class ReportActionFragment extends Fragment {
                 .setTargetFragment(this)
                 .show();
     }
+
 }

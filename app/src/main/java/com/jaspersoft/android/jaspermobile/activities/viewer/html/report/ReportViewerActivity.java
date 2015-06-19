@@ -64,6 +64,9 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
@@ -78,6 +81,7 @@ import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterf
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -163,6 +167,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected ReportParamsStorage paramsStorage;
     @Inject
     protected ReportParamsSerializer paramsSerializer;
+    @Inject
+    protected JsRestClient jsRestClient;
 
     private AccountServerData accountServerData;
     private boolean mShowSavedMenuItem, mShowRefreshMenuItem;
@@ -172,7 +178,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private boolean isFlowLoaded;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
+    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
         @Override
         public void onCancel(DialogInterface dialog) {
             ReportViewerActivity.super.onBackPressed();
@@ -331,6 +337,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
         webView.setVisibility(View.INVISIBLE);
         paginationControl.setVisibility(View.GONE);
         paginationControl.reset();
+    }
+
+    @OptionsItem
+    final void printAction() {
+        ResourcePrintJob job = JasperPrintJobFactory
+                .createReportPrintJob(this, jsRestClient, resource, reportParameters);
+        JasperPrinter.print(job);
     }
 
     //---------------------------------------------------------------------
@@ -524,7 +537,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     protected void resetZoom() {
-        while(webView.zoomOut());
+        while (webView.zoomOut()) ;
     }
 
     private void setupPaginationControl() {

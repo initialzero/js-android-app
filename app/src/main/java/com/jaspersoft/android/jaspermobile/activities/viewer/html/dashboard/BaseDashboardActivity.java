@@ -44,6 +44,9 @@ import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
@@ -160,6 +163,10 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         if (itemId == android.R.id.home) {
             onHomeAsUpCalled();
         }
+        if (itemId == R.id.printAction) {
+            ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
+            JasperPrinter.print(job);
+        }
 
         return true;
     }
@@ -185,7 +192,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     protected void resetZoom() {
-        while(webView.zoomOut());
+        while (webView.zoomOut()) ;
     }
 
     protected void showMessage(CharSequence message) {
@@ -235,7 +242,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
                         new Action1<Boolean>() {
                             @Override
                             public void call(Boolean isRefreshed) {
-                                if (isRefreshed){
+                                if (isRefreshed) {
                                     onSessionRefreshed();
                                 } else {
                                     Toast.makeText(BaseDashboardActivity.this,

@@ -49,7 +49,7 @@ final class PrintReportAdapter extends PrintDocumentAdapter {
     private Subscription writeContentTask;
     private final String printName;
     private final PrintUnit printUnit;
-    private Integer mPageCount;
+    private PageRangeFormat mPageRangeFormat;
 
     PrintReportAdapter(PrintUnit printUnit, String printName) {
         if (printUnit == null) {
@@ -79,7 +79,7 @@ final class PrintReportAdapter extends PrintDocumentAdapter {
                         new Action1<Integer>() {
                             @Override
                             public void call(Integer pageCount) {
-                                mPageCount = pageCount;
+                                mPageRangeFormat = new PageRangeFormat(pageCount);
                                 PrintDocumentInfo pdi = new PrintDocumentInfo.Builder(printName)
                                         .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
                                         .setPageCount(pageCount)
@@ -104,8 +104,7 @@ final class PrintReportAdapter extends PrintDocumentAdapter {
             return;
         }
 
-        final PageRange range = adaptRange(pages[0]);
-
+        String range = mPageRangeFormat.format(pages[0]);
         writeContentTask = printUnit.writeContent(range, destination)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -122,14 +121,6 @@ final class PrintReportAdapter extends PrintDocumentAdapter {
                                 callback.onWriteFailed(throwable.getMessage());
                             }
                         });
-    }
-
-    private PageRange adaptRange(PageRange range) {
-        if (range.equals(PageRange.ALL_PAGES)) {
-            return new PageRange(0, mPageCount - 1);
-        } else {
-            return range;
-        }
     }
 
     @Override

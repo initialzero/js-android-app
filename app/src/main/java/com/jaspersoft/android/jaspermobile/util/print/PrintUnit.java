@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.os.ParcelFileDescriptor;
-import android.print.PageRange;
 import android.support.annotation.NonNull;
 
 import rx.Observable;
@@ -14,5 +13,5 @@ interface PrintUnit {
     @NonNull
     Observable<Integer> fetchPageCount();
     @NonNull
-    Observable<Boolean> writeContent(PageRange pageRange, ParcelFileDescriptor destination);
+    Observable<Boolean> writeContent(String pageRange, ParcelFileDescriptor destination);
 }

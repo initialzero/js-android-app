@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.os.ParcelFileDescriptor;
-import android.print.PageRange;
 import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.util.report.ExportIdFormat;
@@ -95,7 +94,7 @@ final class ReportPrintUnit implements PrintUnit {
 
     @NonNull
     @Override
-    public Observable<Boolean> writeContent(final PageRange pageRange, final ParcelFileDescriptor destination) {
+    public Observable<Boolean> writeContent(final String pageRange, final ParcelFileDescriptor destination) {
         return Observable.create(
                 new Observable.OnSubscribe<Boolean>() {
                     @Override
@@ -224,14 +223,13 @@ final class ReportPrintUnit implements PrintUnit {
         return executionRequest;
     }
 
-    private ClientHttpResponse runExport(PageRange pageRange) throws Exception {
+    private ClientHttpResponse runExport(String pageRange) throws Exception {
         String executionId = reportExecutionResponse.getRequestId();
 
         ExportsRequest exportsRequest = new ExportsRequest();
         exportsRequest.setOutputFormat("PDF");
 
-        String pages = getPages(pageRange);
-        exportsRequest.setPages(pages);
+        exportsRequest.setPages(pageRange);
 
         RunReportExportsRequest request = new RunReportExportsRequest(mJsRestClient, exportsRequest, executionId);
         ExportExecution exportExecutionResponse = request.loadDataFromNetwork();
@@ -247,15 +245,6 @@ final class ReportPrintUnit implements PrintUnit {
 
         GetExportOutputRequest getExportOutputRequest = new GetExportOutputRequest(mJsRestClient, executionId, exportOutputId);
         return getExportOutputRequest.loadDataFromNetwork();
-    }
-
-    // TODO move on higher layer
-    private String getPages(PageRange pageRange) {
-        if (pageRange.getStart() == pageRange.getEnd()) {
-            return String.valueOf(pageRange.getStart() + 1);
-        } else {
-            return String.format("%d-%d", pageRange.getStart() + 1, pageRange.getEnd() + 1);
-        }
     }
 
     private void writeResponseToDestination(final ClientHttpResponse httpResponse, final ParcelFileDescriptor destination) {

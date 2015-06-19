@@ -42,7 +42,7 @@ import java.util.List;
  * @author Tom Koptel
  * @since 2.1
  */
-public class JasperPrintJobFactory {
+public final class JasperPrintJobFactory {
 
     /**
      * Creates {@link ReportPrintJob} which is responsible for creating custom adapter for native print framework.

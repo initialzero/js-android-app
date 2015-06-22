@@ -28,8 +28,8 @@ import android.accounts.Account;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 /**
  * @author Tom Koptel

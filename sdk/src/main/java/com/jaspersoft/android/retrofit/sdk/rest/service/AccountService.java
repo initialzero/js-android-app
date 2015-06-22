@@ -37,10 +37,10 @@ import rx.Observable;
  * @since 2.0
  */
 public interface AccountService {
-    @Headers({"Accept: application/repository.folder+json"})
+    @Headers({"Accept: application/repository.folder+json", "Connection: close"})
     @GET("/resources")
     Observable<Response> authorize(@Header("Authorization") String authToken, @Header("Accept-Language") String locale);
-    @Headers({"Accept: application/json"})
+    @Headers({"Accept: application/json", "Connection: close"})
     @GET("/serverInfo")
     Observable<ServerInfo> getServerInfo(@Header("Set-cookie") String cookie);
 }

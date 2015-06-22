@@ -62,8 +62,9 @@ public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor
 
         // Token expired
         if (status == HttpStatus.UNAUTHORIZED) {
-            manager.invalidateToken(token);
+            manager.invalidateActiveToken();
             token = manager.getActiveAuthToken();
+            request.getHeaders().remove(COOKIE);
             request.getHeaders().add(COOKIE, token);
             response = execution.execute(request, body);
         }

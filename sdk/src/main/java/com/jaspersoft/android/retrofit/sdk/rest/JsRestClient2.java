@@ -32,6 +32,8 @@ import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
 import com.jaspersoft.android.retrofit.sdk.token.AccessTokenEncoder;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executor;
@@ -47,8 +49,6 @@ import retrofit.client.Response;
 import retrofit.converter.Converter;
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action2;
-import rx.functions.Func0;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
@@ -147,40 +147,35 @@ public class JsRestClient2 {
                         return response.getHeaders();
                     }
                 })
-                .flatMap(new Func1<List<Header>, Observable<Header>>() {
+                .flatMap(new Func1<List<Header>, Observable<String>>() {
                     @Override
-                    public Observable<Header> call(List<Header> headers) {
-                        return Observable.from(headers);
-                    }
-                })
-                .filter(new Func1<Header, Boolean>() {
-                    @Override
-                    public Boolean call(Header header) {
-                        if (TextUtils.isEmpty(header.getName())) {
-                            return false;
+                    public Observable<String> call(List<Header> headers) {
+                        List<String> cookies = new ArrayList<String>();
+                        for (Header header : headers) {
+                            if (!TextUtils.isEmpty(header.getName()) && header.getName().equals("Set-Cookie")) {
+                                cookies.add(header.getValue());
+                            }
                         }
-                        return header.getName().equals("Set-Cookie");
+
+                        StringBuilder stringBuilder = new StringBuilder();
+                        Iterator<String> iterator = cookies.iterator();
+                        while (iterator.hasNext()) {
+                            String cookie = iterator.next();
+                            stringBuilder.append(cookie);
+                            if (iterator.hasNext()) {
+                                stringBuilder.append(";");
+                            }
+                        }
+
+                        return Observable.just(stringBuilder.toString());
                     }
                 })
-                .collect(
-                        new Func0<StringBuilder>() {
-                            @Override
-                            public StringBuilder call() {
-                                return new StringBuilder();
-                            }
-                        },
-                        new Action2<StringBuilder, Header>() {
-                            @Override
-                            public void call(StringBuilder builder, Header header) {
-                                builder.append(header.getValue());
-                            }
-                        })
-                .flatMap(new Func1<StringBuilder, Observable<LoginResponse>>() {
+                .flatMap(new Func1<String, Observable<LoginResponse>>() {
                     @Override
-                    public Observable<LoginResponse> call(final StringBuilder header) {
+                    public Observable<LoginResponse> call(final String header) {
                         return Observable.zip(
-                                Observable.just(header.toString()),
-                                accountService.getServerInfo(header.toString()),
+                                Observable.just(header),
+                                accountService.getServerInfo(header),
                                 new Func2<String, ServerInfo, LoginResponse>() {
                                     @Override
                                     public LoginResponse call(String header, ServerInfo serverInfo) {

@@ -216,6 +216,7 @@
     <string name="sr_from">Von Seite</string>
     <string name="sr_to">Bis Seite</string>
     <string name="sr_failed_to_create_local_repo">Fehler beim Erstellen des lokalen Dateispeichers.</string>
+    <string name="sr_failed_to_execute_report">Fehler beim Ausführen des Berichts</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">Dieses Feld ist erforderlich.</string>

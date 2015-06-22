@@ -218,6 +218,7 @@
     <string name="sr_from">从页面</string>
     <string name="sr_to">至页面</string>
     <string name="sr_failed_to_create_local_repo">创建本地文件存储失败。</string>
+    <string name="sr_failed_to_execute_report">执行报告失败</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">此字段必填。</string>

@@ -138,7 +138,7 @@
     <string name="sr_from">From page</string>
     <string name="sr_to">To page</string>
     <string name="sr_failed_to_create_local_repo">Failed to create local file storage.</string>
-    <string name="sr_failed_to_execute_report" translatable="false">Failed to execute report</string>
+    <string name="sr_failed_to_execute_report">Failed to execute report</string>
 
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report saved to file successfully.</string>

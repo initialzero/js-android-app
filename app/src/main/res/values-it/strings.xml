@@ -220,6 +220,7 @@
     <string name="sr_from">Da pagina</string>
     <string name="sr_to">a pagina</string>
     <string name="sr_failed_to_create_local_repo">Impossibile creare la memorizzazione del file locale.</string>
+    <string name="sr_failed_to_execute_report">Impossibile eseguire il rapporto</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">Questo campo è obbligatorio.</string>

@@ -220,6 +220,7 @@
     <string name="sr_from">ページから</string>
     <string name="sr_to">ページへ</string>
     <string name="sr_failed_to_create_local_repo">ローカルファイルストレージが作成できませんでした。</string>
+    <string name="sr_failed_to_execute_report">レポートの実行に失敗しました</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">この項目は入力が必須です。</string>

@@ -220,6 +220,7 @@
     <string name="sr_from">Depuis la page</string>
     <string name="sr_to">À la page</string>
     <string name="sr_failed_to_create_local_repo">Impossible de créer un stockage de fichier local.</string>
+    <string name="sr_failed_to_execute_report">Éxécution du rapport échouée</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">Ce champ est obligatoire.</string>

@@ -221,6 +221,7 @@
     <string name="sr_from">Desde la página</string>
     <string name="sr_to">Hasta la página</string>
     <string name="sr_failed_to_create_local_repo">No se pudo crear el almacenamiento local de archivos</string>
+    <string name="sr_failed_to_execute_report">No se pudo ejecutar el informe</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">El campo es obligatorio.</string>

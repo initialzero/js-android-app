@@ -241,8 +241,6 @@
     <string name="success_add_account">Account with name %s was added</string>
     <string name="failure_add_account">Failed to add account. Reason: %s</string>
     <string name="account_add">Adding account</string>
-    <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
-    <string name="jasper_account_authority"  translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
 
     <!--Dashboard activity-->
     <string name="da_session_expired">Session expired</string>
@@ -252,5 +250,16 @@
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all">Check all</string>
     <string name="mss_btn_uncheck_all">Uncheck all</string>
+
+    <!--Not translatable-->
+    <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
+    <string name="jasper_account_authority"  translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
+    <string name="jasper_app_data"  translatable="false">Version name: %s \nVersion code: %s</string>
+    <string name="jrs_version_data"  translatable="false">JRS version: %s</string>
+    <string name="jrs_edition_data"  translatable="false">JRS edition: %s</string>
+    <array name="internal_email_addresses" translatable="false">
+        <item>js-dev-mobile@tibco.com</item>
+        <item>js.testdevice@gmail.com</item>
+    </array>
 
 </resources>

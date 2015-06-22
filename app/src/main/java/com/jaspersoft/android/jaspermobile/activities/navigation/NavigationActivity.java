@@ -38,6 +38,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +54,8 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
@@ -289,13 +292,27 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     private void sendFeedback() {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("message/rfc822");
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"js.testdevice@gmail.com"});
+        intent.putExtra(Intent.EXTRA_EMAIL, getResources().getStringArray(R.array.internal_email_addresses));
         intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             String versionName = pInfo.versionName;
             String versionCode = String.valueOf(pInfo.versionCode);
-            intent.putExtra(Intent.EXTRA_TEXT, String.format("Version name: %s \nVersion code: %s", versionName, versionCode));
+
+            StringBuilder extraText = new StringBuilder();
+            extraText.append(getString(R.string.jasper_app_data, versionName, versionCode));
+
+            ServerInfoProvider provider = ServerInfo.newInstance(this);
+            String serverVersion = provider.getServerVersion();
+            if (!TextUtils.isEmpty(serverVersion)) {
+                extraText.append(getString(R.string.jrs_version_data, serverVersion)).append("\n");
+            }
+            String serverEdition = provider.getServerVersion();
+            if (!TextUtils.isEmpty(serverEdition)) {
+                extraText.append(getString(R.string.jrs_edition_data, serverEdition));
+            }
+
+            intent.putExtra(Intent.EXTRA_TEXT, extraText.toString());
         } catch (PackageManager.NameNotFoundException e) {
             // Can not go here
         }

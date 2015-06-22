@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.util.server;
 
 import android.accounts.Account;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -36,22 +36,33 @@ import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
  * @since 2.1
  */
 public class ServerInfo implements ServerInfoProvider {
-    private final Context mContext;
+    private final AccountServerData serverData;
 
     private ServerInfo(Context context) {
-        mContext = context;
+        JasperAccountManager accountManager = JasperAccountManager.get(context);
+        Account account = accountManager.getActiveAccount();
+        serverData = AccountServerData.get(context, account);
     }
 
     public static ServerInfoProvider newInstance(Context context) {
         return new ServerInfo(context);
     }
 
-    @NonNull
+    /**
+     * {@inheritDoc}
+     */
+    @Nullable
     @Override
     public String getServerVersion() {
-        JasperAccountManager accountManager = JasperAccountManager.get(mContext);
-        Account account = accountManager.getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(mContext, account);
         return serverData.getVersionName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Nullable
+    @Override
+    public String getServerEdition() {
+        return serverData.getEdition();
     }
 }

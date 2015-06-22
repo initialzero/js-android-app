@@ -121,7 +121,7 @@ public class JasperAccountManager {
         invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
 
-        ((JasperMobileApplication) mContext.getApplicationContext()).initLegacyJsRestClient();
+        syncJsRestClient();
     }
 
     public void activateFirstAccount() {
@@ -131,7 +131,7 @@ public class JasperAccountManager {
         invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
 
-        ((JasperMobileApplication) mContext.getApplicationContext()).initLegacyJsRestClient();
+        syncJsRestClient();
     }
 
     public void deactivateAccount() {
@@ -247,6 +247,13 @@ public class JasperAccountManager {
         AccountServerData accountServerData = AccountServerData.get(mContext, account);
         accountServerData.setServerCookie(token);
         return accountServerData;
+    }
+
+    private void syncJsRestClient() {
+        if (mContext.getApplicationContext() instanceof JasperMobileApplication) {
+            JasperMobileApplication app = ((JasperMobileApplication) mContext.getApplicationContext());
+            app.initLegacyJsRestClient();
+        }
     }
 
     //---------------------------------------------------------------------

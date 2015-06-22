@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -35,9 +36,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+
+import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.UiThread;
 
 import roboguice.fragment.RoboDialogFragment;
 
@@ -45,6 +52,7 @@ import roboguice.fragment.RoboDialogFragment;
  * @author Tom Koptel
  * @since 1.9
  */
+@EFragment
 public class PasswordDialogFragment extends RoboDialogFragment implements DialogInterface.OnShowListener {
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
@@ -59,7 +67,7 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         PasswordDialogFragment dialogFragment = (PasswordDialogFragment)
                 fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
-            dialogFragment = new PasswordDialogFragment();
+            dialogFragment = new PasswordDialogFragment_().builder().build();
             dialogFragment.show(fm, TAG);
         }
     }
@@ -99,6 +107,31 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
                 .setOnClickListener(new PasswordDialogOkClickListener());
     }
 
+    @Background
+    protected void tryToLogin() {
+        try {
+            JasperAccountManager.get(getActivity()).getActiveAuthToken();
+            loginSuccess();
+        } catch (JasperAccountManager.TokenException e) {
+            loginFailed();
+        }
+    }
+
+    @UiThread
+    protected void loginSuccess(){
+        dismiss();
+        ProgressDialogFragment.dismiss(getFragmentManager());
+
+        int flags = Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK;
+        NavigationActivity_.intent(getActivity()).flags(flags).start();
+    }
+
+    @UiThread
+    protected void loginFailed(){
+        Toast.makeText(getActivity(), getString(R.string.r_error_incorrect_credentials), Toast.LENGTH_SHORT).show();
+        ProgressDialogFragment.dismiss(getFragmentManager());
+    }
+
     //---------------------------------------------------------------------
     // Nested classes
     //---------------------------------------------------------------------
@@ -107,13 +140,13 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
 
         @Override
         public void onClick(View v) {
-            String password = etPassword.getText().toString();
+            String password = etPassword.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
                 etPassword.setError(getString(R.string.sp_error_field_required));
             } else {
                 JasperAccountManager.get(getActivity()).updateActiveAccountPassword(password);
-
-                dismiss();
+                ProgressDialogFragment.builder(getFragmentManager()).show();
+                tryToLogin();
             }
         }
     }

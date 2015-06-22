@@ -140,7 +140,7 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
 
         @Override
         public void onClick(View v) {
-            String password = etPassword.getText().toString();
+            String password = etPassword.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
                 etPassword.setError(getString(R.string.sp_error_field_required));
             } else {

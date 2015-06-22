@@ -253,7 +253,7 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">サーバーが見つかりません。</string>
-    <string name="r_error_incorrect_credentials">ログインまたはパスワードが正しくありません。</string>
+    <string name="r_error_incorrect_credentials">無効な認証情報。</string>
 
     <!-- Others -->
     <string name="authenticator_label">Jasperアカウント</string>

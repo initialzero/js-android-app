@@ -253,7 +253,7 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Servidor não encontrado.</string>
-    <string name="r_error_incorrect_credentials">Login ou senha incorretos.</string>
+    <string name="r_error_incorrect_credentials">Credenciais inválidas.</string>
 
     <!-- Others -->
     <string name="authenticator_label">Contas Jasper</string>

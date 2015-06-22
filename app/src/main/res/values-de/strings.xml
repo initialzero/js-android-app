@@ -249,7 +249,7 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Server nicht gefunden.</string>
-    <string name="r_error_incorrect_credentials">Login oder Passwort ist nicht korrekt.</string>
+    <string name="r_error_incorrect_credentials">Ungültige anmeldedaten.</string>
 
     <!-- Others -->
     <string name="authenticator_label">Jasper-Konten</string>

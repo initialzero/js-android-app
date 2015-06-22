@@ -253,7 +253,7 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Serveur introuvable.</string>
-    <string name="r_error_incorrect_credentials">Connexion ou mot de passe incorrect.</string>
+    <string name="r_error_incorrect_credentials">Données d\'identification non valides.</string>
 
     <!-- Others -->
     <string name="authenticator_label">Comptes Jasper</string>

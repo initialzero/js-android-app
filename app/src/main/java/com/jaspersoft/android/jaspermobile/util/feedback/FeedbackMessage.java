@@ -33,6 +33,8 @@ import android.text.TextUtils;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 
+import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -81,7 +83,8 @@ final class FeedbackMessage implements Feedback {
         return this;
     }
 
-    private String generateServerVersion() {
+    @VisibleForTesting
+    String generateServerVersion() {
         String serverVersion = mInfoProvider.getServerVersion();
         if (TextUtils.isEmpty(serverVersion)) {
             return null;
@@ -90,7 +93,8 @@ final class FeedbackMessage implements Feedback {
         }
     }
 
-    private String generateServerEdition() {
+    @VisibleForTesting
+    String generateServerEdition() {
         String serverEdition = mInfoProvider.getServerEdition();
         if (TextUtils.isEmpty(serverEdition)) {
             return null;
@@ -99,7 +103,8 @@ final class FeedbackMessage implements Feedback {
         }
     }
 
-    private String generateAppVersionInfo() {
+    @VisibleForTesting
+    String generateAppVersionInfo() {
         PackageInfo packageInfo = null;
         try {
             packageInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);

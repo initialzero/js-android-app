@@ -42,7 +42,10 @@ import org.robolectric.annotation.Config;
 import org.robolectric.res.builder.RobolectricPackageManager;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -55,45 +58,95 @@ import static org.robolectric.Shadows.shadowOf;
 public class FeedbackMessageTest {
     @Mock
     ServerInfoProvider serverInfoProvider;
-
-    Feedback feedbackMessage;
+    FeedbackMessage feedbackMessage;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-
-        Application context = RuntimeEnvironment.application;
-        RobolectricPackageManager packageManager = (RobolectricPackageManager) shadowOf(context).getPackageManager();
-        try {
-            PackageInfo info = packageManager.getPackageInfo(context.getPackageName(), 0);
-            info.versionCode = 20100000;
-            info.versionName = "2.1";
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
         feedbackMessage = new FeedbackMessage(RuntimeEnvironment.application, serverInfoProvider);
     }
 
     @Test
     public void shouldCreateValidFeedbackMessage() {
+        mockPackageManager();
+
         when(serverInfoProvider.getServerVersion()).thenReturn("6.1");
         when(serverInfoProvider.getServerEdition()).thenReturn("CE");
 
         String message = feedbackMessage.createMessage();
 
-        assertThat(message, containsString("Version code: 20100000"));
-        assertThat(message, containsString("JRS version: 6.1"));
-        assertThat(message, containsString("JRS edition: CE"));
+        assertThat(message, is(notNullValue()));
     }
 
     @Test
     public void shouldOmitServerDataIfMissing() {
+        mockPackageManager();
+
         when(serverInfoProvider.getServerVersion()).thenReturn(null);
         when(serverInfoProvider.getServerEdition()).thenReturn(null);
 
         String message = feedbackMessage.createMessage();
 
+        assertThat(message, is(notNullValue()));
+    }
+
+    @Test
+    public void shouldGenerateAppVersionInfo() {
+        mockPackageManager();
+        String message = feedbackMessage.generateAppVersionInfo();
         assertThat(message, containsString("Version code: 20100000"));
+    }
+
+    @Test
+    public void shouldGenerateNullForAppVersionInfo() {
+        Application context = RuntimeEnvironment.application;
+        RobolectricPackageManager packageManager = (RobolectricPackageManager) shadowOf(context).getPackageManager();
+        packageManager.removePackage(context.getPackageName());
+
+        String message = feedbackMessage.generateAppVersionInfo();
+        assertThat(message, is(nullValue()));
+    }
+
+    @Test
+    public void shouldGenerateJrsVersionInfo() {
+        when(serverInfoProvider.getServerVersion()).thenReturn("6.1");
+        String message = feedbackMessage.generateServerVersion();
+        assertThat(message, containsString("JRS version: 6.1"));
+    }
+
+    @Test
+    public void shouldGenerateNullForJrsVersion() {
+        when(serverInfoProvider.getServerVersion()).thenReturn(null);
+        String message = feedbackMessage.generateServerVersion();
+        assertThat(message, is(nullValue()));
+    }
+
+    @Test
+    public void shouldGenerateJrsEditionInfo() {
+        when(serverInfoProvider.getServerEdition()).thenReturn("CE");
+        String message = feedbackMessage.generateServerEdition();
+        assertThat(message, containsString("JRS edition: CE"));
+    }
+
+    @Test
+    public void shouldGenerateNullForEdition() {
+        when(serverInfoProvider.getServerEdition()).thenReturn(null);
+        String message = feedbackMessage.generateServerEdition();
+        assertThat(message, is(nullValue()));
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void mockPackageManager() {
+        Application context = RuntimeEnvironment.application;
+        RobolectricPackageManager packageManager = (RobolectricPackageManager) shadowOf(context).getPackageManager();
+        try {
+            PackageInfo info = packageManager.getPackageInfo(context.getPackageName(), 0);
+            info.versionCode = 20100000;
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

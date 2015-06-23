@@ -43,13 +43,16 @@ import java.util.List;
  * @author Tom Koptel
  * @since 2.1
  */
-final class FeedbackMessage implements Feedback {
+class Message {
     private final ServerInfoProvider mInfoProvider;
     private final Context mContext;
     private final StringBuilder mTextMessage;
     private final List<String> mParts;
 
-    FeedbackMessage(Context context, ServerInfoProvider infoProvider) {
+    Message(Context context, ServerInfoProvider infoProvider) {
+        if (context == null) {
+            throw new IllegalArgumentException();
+        }
         mContext = context;
         mInfoProvider = infoProvider;
         mTextMessage = new StringBuilder();
@@ -57,7 +60,7 @@ final class FeedbackMessage implements Feedback {
     }
 
     @NonNull
-    public String createMessage() {
+    public String create() {
         return append(generateAppVersionInfo())
                 .append(generateServerVersion())
                 .append(generateServerEdition())
@@ -76,7 +79,7 @@ final class FeedbackMessage implements Feedback {
         return mTextMessage;
     }
 
-    private FeedbackMessage append(String message) {
+    private Message append(String message) {
         if (!TextUtils.isEmpty(message)) {
             mParts.add(message);
         }

@@ -39,6 +39,8 @@ import org.robolectric.annotation.Config;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -50,7 +52,7 @@ import static org.mockito.Mockito.when;
 public class FeedbackSenderTest {
 
     @Mock
-    Feedback feedbackMessage;
+    Message feedbackMessage;
     FeedbackSender sender;
 
     @Before
@@ -86,9 +88,12 @@ public class FeedbackSenderTest {
 
     @Test
     public void shouldCreateIntentWithSubjectExtraText() {
-        when(feedbackMessage.createMessage()).thenReturn("message");
+        when(feedbackMessage.create()).thenReturn("message");
+
         Intent intent = sender.buildIntent();
         assertThat(intent.getStringExtra(Intent.EXTRA_TEXT), is("message"));
+
+        verify(feedbackMessage, times(1)).create();
     }
 
     // Just assert method doesn't cause NPE

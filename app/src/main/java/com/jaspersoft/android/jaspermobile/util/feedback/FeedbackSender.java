@@ -41,17 +41,17 @@ import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
 public final class FeedbackSender {
     private static final String MESSAGE_TYPE = "message/rfc822";
     private final Context mContext;
-    private final Feedback mFeedback;
+    private final Message mFeedback;
 
     @VisibleForTesting
-    FeedbackSender(Context context, Feedback feedbackMessage) {
+    FeedbackSender(Context context, Message feedbackMessage) {
         mContext = context;
         mFeedback = feedbackMessage;
     }
 
     public static FeedbackSender get(Context context) {
         ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(context);
-        Feedback feedback = new FeedbackMessage(context, serverInfoProvider);
+        Message feedback = new Message(context, serverInfoProvider);
         return new FeedbackSender(context, feedback);
     }
 
@@ -76,7 +76,7 @@ public final class FeedbackSender {
         intent.setType(MESSAGE_TYPE);
         intent.putExtra(Intent.EXTRA_EMAIL, mContext.getResources().getStringArray(R.array.feedback_subject_email));
         intent.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.sa_show_feedback));
-        intent.putExtra(Intent.EXTRA_TEXT, mFeedback.createMessage());
+        intent.putExtra(Intent.EXTRA_TEXT, mFeedback.create());
         return intent;
     }
 }

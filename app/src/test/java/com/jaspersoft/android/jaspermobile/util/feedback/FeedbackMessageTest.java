@@ -58,12 +58,12 @@ import static org.robolectric.Shadows.shadowOf;
 public class FeedbackMessageTest {
     @Mock
     ServerInfoProvider serverInfoProvider;
-    FeedbackMessage feedbackMessage;
+    Message feedbackMessage;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        feedbackMessage = new FeedbackMessage(RuntimeEnvironment.application, serverInfoProvider);
+        feedbackMessage = new Message(RuntimeEnvironment.application, serverInfoProvider);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class FeedbackMessageTest {
         when(serverInfoProvider.getServerVersion()).thenReturn("6.1");
         when(serverInfoProvider.getServerEdition()).thenReturn("CE");
 
-        String message = feedbackMessage.createMessage();
+        String message = feedbackMessage.create();
 
         assertThat(message, is(notNullValue()));
     }
@@ -85,7 +85,7 @@ public class FeedbackMessageTest {
         when(serverInfoProvider.getServerVersion()).thenReturn(null);
         when(serverInfoProvider.getServerEdition()).thenReturn(null);
 
-        String message = feedbackMessage.createMessage();
+        String message = feedbackMessage.create();
 
         assertThat(message, is(notNullValue()));
     }

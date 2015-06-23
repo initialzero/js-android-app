@@ -40,8 +40,6 @@
     <string name="jrs_edition_data" translatable="false">JRS edition: %s</string>
     <string-array name="feedback_subject_email" translatable="false">
         <item>js-dev-mobile@tibco.com</item>
-    </string-array>
-    <string-array name="feedback_bcc_email" translatable="false">
         <item>js.testdevice@gmail.com</item>
     </string-array>
 

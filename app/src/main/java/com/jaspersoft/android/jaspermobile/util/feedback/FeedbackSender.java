@@ -39,7 +39,7 @@ import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
  * @since 2.1
  */
 public final class FeedbackSender {
-    private static final String MESSAGE_TYPE = "text/plain";
+    private static final String MESSAGE_TYPE = "message/rfc822";
     private final Context mContext;
     private final Feedback mFeedback;
 
@@ -79,7 +79,6 @@ public final class FeedbackSender {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType(MESSAGE_TYPE);
         intent.putExtra(Intent.EXTRA_EMAIL, mContext.getResources().getStringArray(R.array.feedback_subject_email));
-        intent.putExtra(Intent.EXTRA_BCC, mContext.getResources().getStringArray(R.array.feedback_bcc_email));
         intent.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.sa_show_feedback));
         intent.putExtra(Intent.EXTRA_TEXT, mFeedback.createMessage());
         return intent;

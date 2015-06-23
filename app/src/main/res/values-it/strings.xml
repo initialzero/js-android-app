@@ -279,4 +279,7 @@
     <string name="mss_btn_check_all">Seleziona tutto</string>
     <string name="mss_btn_uncheck_all">Deseleziona tutto</string>
 
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Visualizzato recentemente</string>
+
 </resources>

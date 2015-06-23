@@ -280,4 +280,7 @@
     <string name="mss_btn_check_all">Marcar todo</string>
     <string name="mss_btn_uncheck_all">Desmarcar todo</string>
 
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Recientemente visto</string>
+
 </resources>

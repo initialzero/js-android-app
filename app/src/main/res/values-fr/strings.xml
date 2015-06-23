@@ -279,4 +279,7 @@
     <string name="mss_btn_check_all">Cocher tout</string>
     <string name="mss_btn_uncheck_all">Décocher tout</string>
 
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Recientemente visto</string>
+
 </resources>

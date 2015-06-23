@@ -275,4 +275,7 @@
     <string name="mss_btn_check_all">Alle markieren</string>
     <string name="mss_btn_uncheck_all">Alle abwählen</string>
 
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Zuletzt angesehen</string>
+
 </resources>

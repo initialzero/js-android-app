@@ -60,23 +60,40 @@ public class FeedbackSenderTest {
     }
 
     @Test
-    public void shouldCreateFeedbackIntent() {
-        when(feedbackMessage.createMessage()).thenReturn("message");
-
+    public void shouldCreateIntentWithActionSend() {
         Intent intent = sender.buildIntent();
         assertThat(intent.getAction(), is(Intent.ACTION_SEND));
-        assertThat(intent.getType(), is("message/rfc822"));
+    }
 
+    @Test
+    public void shouldCreateIntentWithTyperfc822() {
+        Intent intent = sender.buildIntent();
+        assertThat(intent.getType(), is("message/rfc822"));
+    }
+
+    @Test
+    public void shouldCreateIntentWithSubjectMails() {
+        Intent intent = sender.buildIntent();
         String[] emails = {"js-dev-mobile@tibco.com", "js.testdevice@gmail.com"};
         assertThat(intent.getStringArrayExtra(Intent.EXTRA_EMAIL), is(emails));
+    }
+
+    @Test
+    public void shouldCreateIntentWithSubject() {
+        Intent intent = sender.buildIntent();
         assertThat(intent.getStringExtra(Intent.EXTRA_SUBJECT), is("Feedback"));
+    }
+
+    @Test
+    public void shouldCreateIntentWithSubjectExtraText() {
+        when(feedbackMessage.createMessage()).thenReturn("message");
+        Intent intent = sender.buildIntent();
         assertThat(intent.getStringExtra(Intent.EXTRA_TEXT), is("message"));
     }
 
     // Just assert method doesn't cause NPE
     @Test
     public void shouldSendIntent() {
-        when(feedbackMessage.createMessage()).thenReturn("message");
         sender.send();
     }
 

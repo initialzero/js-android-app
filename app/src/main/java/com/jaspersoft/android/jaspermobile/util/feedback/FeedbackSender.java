@@ -43,12 +43,6 @@ public final class FeedbackSender {
     private final Context mContext;
     private final Feedback mFeedback;
 
-    private FeedbackSender(Context context) {
-        mContext = context;
-        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(context);
-        mFeedback = new FeedbackMessage(context, serverInfoProvider);
-    }
-
     @VisibleForTesting
     FeedbackSender(Context context, Feedback feedbackMessage) {
         mContext = context;
@@ -56,7 +50,9 @@ public final class FeedbackSender {
     }
 
     public static FeedbackSender get(Context context) {
-        return new FeedbackSender(context);
+        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(context);
+        Feedback feedback = new FeedbackMessage(context, serverInfoProvider);
+        return new FeedbackSender(context, feedback);
     }
 
     /**

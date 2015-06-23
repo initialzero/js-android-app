@@ -51,6 +51,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -103,6 +104,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
 
         if (savedInstanceState == null) {
             navigateToCurrentSelection();
+            RateAppDialog_.builder().build().show(this, getSupportFragmentManager());
         } else {
             setDisplayCustomToolbarEnable(customToolbarDisplayEnabled);
         }

@@ -54,6 +54,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -290,35 +291,8 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     private void sendFeedback() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("message/rfc822");
-        intent.putExtra(Intent.EXTRA_EMAIL, getResources().getStringArray(R.array.internal_email_addresses));
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            String versionName = pInfo.versionName;
-            String versionCode = String.valueOf(pInfo.versionCode);
-
-            StringBuilder extraText = new StringBuilder();
-            extraText.append(getString(R.string.jasper_app_data, versionName, versionCode));
-
-            ServerInfoProvider provider = ServerInfo.newInstance(this);
-            String serverVersion = provider.getServerVersion();
-            if (!TextUtils.isEmpty(serverVersion)) {
-                extraText.append(getString(R.string.jrs_version_data, serverVersion)).append("\n");
-            }
-            String serverEdition = provider.getServerVersion();
-            if (!TextUtils.isEmpty(serverEdition)) {
-                extraText.append(getString(R.string.jrs_edition_data, serverEdition));
-            }
-
-            intent.putExtra(Intent.EXTRA_TEXT, extraText.toString());
-        } catch (PackageManager.NameNotFoundException e) {
-            // Can not go here
-        }
-        try {
-            startActivity(intent);
-        } catch (ActivityNotFoundException e) {
+        boolean feedbackWasSent = FeedbackSender.get(this).send();
+        if (!feedbackWasSent) {
             Toast.makeText(this,
                     getString(R.string.sdr_t_no_app_available, "email"),
                     Toast.LENGTH_SHORT).show();

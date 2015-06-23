@@ -28,8 +28,6 @@ import android.accounts.Account;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -38,7 +36,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,11 +51,9 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
-import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
+import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -291,8 +286,8 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     private void sendFeedback() {
-        boolean feedbackWasSent = FeedbackSender.get(this).send();
-        if (!feedbackWasSent) {
+        boolean sendTaskWasInitiated = FeedbackSender.get(this).initiate();
+        if (!sendTaskWasInitiated) {
             Toast.makeText(this,
                     getString(R.string.sdr_t_no_app_available, "email"),
                     Toast.LENGTH_SHORT).show();

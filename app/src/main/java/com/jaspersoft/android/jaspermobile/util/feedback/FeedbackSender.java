@@ -60,7 +60,7 @@ public final class FeedbackSender {
      *
      * @return <code>true<code/> if activity was resolved, otherwise <code>false<code/> if no messenger app installed.
      */
-    public boolean send() {
+    public boolean initiate() {
         Intent intent = buildIntent();
         if (intent.resolveActivity(mContext.getPackageManager()) != null) {
             mContext.startActivity(intent);

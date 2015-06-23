@@ -199,6 +199,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">Ajouté aux favoris.</string>
     <string name="r_cm_removed_from_favorites">Supprimé des favoris.</string>
+    <string name="r_cm_print">Impression</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">Recherche de fichiers enregistrés</string>

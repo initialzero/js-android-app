@@ -197,6 +197,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">添加到收藏夹。</string>
     <string name="r_cm_removed_from_favorites">从收藏夹中删除。</string>
+    <string name="r_cm_print">打印</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">搜索已保存文件</string>

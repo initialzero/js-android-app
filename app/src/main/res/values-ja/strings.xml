@@ -199,6 +199,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">お気に入りに追加しました。</string>
     <string name="r_cm_removed_from_favorites">お気に入りから削除しました。</string>
+    <string name="r_cm_print">印刷</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">保存されたファイルを検索</string>

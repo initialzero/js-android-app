@@ -200,6 +200,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">Añadido a favoritos.</string>
     <string name="r_cm_removed_from_favorites">Eliminado de favoritos.</string>
+    <string name="r_cm_print">Imprimir</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">Buscar archivos guardados</string>

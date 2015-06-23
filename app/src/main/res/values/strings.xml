@@ -79,7 +79,7 @@
     <string name="r_cm_remove_from_favorites">Remove from favorites</string>
     <string name="r_cm_removed_from_favorites">Removed from favorites.</string>
     <string name="r_cm_remove_from_favorites_failed">Failed to remove from favorites.</string>
-    <string name="r_cm_print" translatable="false">Print</string>
+    <string name="r_cm_print">Print</string>
 
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Running report...</string>

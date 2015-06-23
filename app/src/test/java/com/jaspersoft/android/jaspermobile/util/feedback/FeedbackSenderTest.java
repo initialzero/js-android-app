@@ -65,7 +65,7 @@ public class FeedbackSenderTest {
 
         Intent intent = sender.buildIntent();
         assertThat(intent.getAction(), is(Intent.ACTION_SEND));
-        assertThat(intent.getType(), is("message/rfc822"));
+        assertThat(intent.getType(), is("text/plain"));
 
         String[] subject = {"js-dev-mobile@tibco.com"};
         assertThat(intent.getStringArrayExtra(Intent.EXTRA_EMAIL), is(subject));

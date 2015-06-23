@@ -54,7 +54,7 @@ public class FavoritesSearchFragment extends RoboFragment implements SearchView.
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        if (!isDetached()) {
+        if (isAdded()) {
             SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
             searchView.setQueryHint(getString(R.string.s_hint));
             searchView.setOnQueryTextListener(this);

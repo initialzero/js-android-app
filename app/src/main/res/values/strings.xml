@@ -257,9 +257,9 @@
     <string name="jasper_app_data"  translatable="false">Version name: %s \nVersion code: %s</string>
     <string name="jrs_version_data"  translatable="false">JRS version: %s</string>
     <string name="jrs_edition_data"  translatable="false">JRS edition: %s</string>
-    <array name="internal_email_addresses" translatable="false">
+    <string-array name="internal_email_addresses" translatable="false">
         <item>js-dev-mobile@tibco.com</item>
         <item>js.testdevice@gmail.com</item>
-    </array>
+    </string-array>
 
 </resources>

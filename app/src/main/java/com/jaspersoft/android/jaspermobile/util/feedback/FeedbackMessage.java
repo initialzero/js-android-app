@@ -41,7 +41,7 @@ import java.util.List;
  * @author Tom Koptel
  * @since 2.1
  */
-final class FeedbackMessage {
+final class FeedbackMessage implements Feedback {
     private final ServerInfoProvider mInfoProvider;
     private final Context mContext;
     private final StringBuilder mTextMessage;
@@ -55,7 +55,7 @@ final class FeedbackMessage {
     }
 
     @NonNull
-    public String getMessage() {
+    public String createMessage() {
         return append(generateAppVersionInfo())
                 .append(generateServerVersion())
                 .append(generateServerEdition())

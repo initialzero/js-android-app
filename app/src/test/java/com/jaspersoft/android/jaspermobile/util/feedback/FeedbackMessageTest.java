@@ -56,7 +56,7 @@ public class FeedbackMessageTest {
     @Mock
     ServerInfoProvider serverInfoProvider;
 
-    FeedbackMessage feedbackMessage;
+    Feedback feedbackMessage;
 
     @Before
     public void setup() {
@@ -80,7 +80,7 @@ public class FeedbackMessageTest {
         when(serverInfoProvider.getServerVersion()).thenReturn("6.1");
         when(serverInfoProvider.getServerEdition()).thenReturn("CE");
 
-        String message = feedbackMessage.getMessage();
+        String message = feedbackMessage.createMessage();
 
         assertThat(message, containsString("Version name: 2.1"));
         assertThat(message, containsString("Version code: 20100000"));
@@ -93,7 +93,7 @@ public class FeedbackMessageTest {
         when(serverInfoProvider.getServerVersion()).thenReturn(null);
         when(serverInfoProvider.getServerEdition()).thenReturn(null);
 
-        String message = feedbackMessage.getMessage();
+        String message = feedbackMessage.createMessage();
 
         assertThat(message, containsString("Version name: 2.1"));
         assertThat(message, containsString("Version code: 20100000"));

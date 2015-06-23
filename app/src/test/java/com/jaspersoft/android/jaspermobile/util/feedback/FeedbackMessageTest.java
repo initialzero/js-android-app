@@ -82,7 +82,6 @@ public class FeedbackMessageTest {
 
         String message = feedbackMessage.createMessage();
 
-        assertThat(message, containsString("Version name: 2.1"));
         assertThat(message, containsString("Version code: 20100000"));
         assertThat(message, containsString("JRS version: 6.1"));
         assertThat(message, containsString("JRS edition: CE"));
@@ -95,7 +94,6 @@ public class FeedbackMessageTest {
 
         String message = feedbackMessage.createMessage();
 
-        assertThat(message, containsString("Version name: 2.1"));
         assertThat(message, containsString("Version code: 20100000"));
     }
 }

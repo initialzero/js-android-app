@@ -104,10 +104,9 @@ final class FeedbackMessage implements Feedback {
         try {
             packageInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
 
-            String versionName = packageInfo.versionName;
             String versionCode = String.valueOf(packageInfo.versionCode);
 
-            return  mContext.getString(R.string.jasper_app_data, versionName, versionCode);
+            return  mContext.getString(R.string.jasper_app_data, versionCode);
         } catch (PackageManager.NameNotFoundException e) {
             return null;
         }

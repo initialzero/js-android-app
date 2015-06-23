@@ -67,8 +67,12 @@ public class FeedbackSenderTest {
         assertThat(intent.getAction(), is(Intent.ACTION_SEND));
         assertThat(intent.getType(), is("message/rfc822"));
 
-        String[] emails = {"js-dev-mobile@tibco.com", "js.testdevice@gmail.com"};
-        assertThat(intent.getStringArrayExtra(Intent.EXTRA_EMAIL), is(emails));
+        String[] subject = {"js-dev-mobile@tibco.com"};
+        assertThat(intent.getStringArrayExtra(Intent.EXTRA_EMAIL), is(subject));
+
+        String[] bcc = {"js.testdevice@gmail.com"};
+        assertThat(intent.getStringArrayExtra(Intent.EXTRA_BCC), is(bcc));
+
         assertThat(intent.getStringExtra(Intent.EXTRA_SUBJECT), is("Feedback"));
         assertThat(intent.getStringExtra(Intent.EXTRA_TEXT), is("message"));
     }

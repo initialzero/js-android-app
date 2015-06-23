@@ -39,6 +39,7 @@ import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
  * @since 2.1
  */
 public final class FeedbackSender {
+    private static final String MESSAGE_TYPE = "text/plain";
     private final Context mContext;
     private final Feedback mFeedback;
 
@@ -59,7 +60,7 @@ public final class FeedbackSender {
     }
 
     /**
-     * Invokes mail activity in order to create feedback report. Current realisation includes hardcoded message.
+     * Invokes third party app in order to create feedback report. Current realisation includes hardcoded message.
      *
      * @return <code>true<code/> if activity was resolved, otherwise <code>false<code/> if no messenger app installed.
      */
@@ -76,8 +77,9 @@ public final class FeedbackSender {
     @VisibleForTesting
     Intent buildIntent() {
         Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("message/rfc822");
-        intent.putExtra(Intent.EXTRA_EMAIL, mContext.getResources().getStringArray(R.array.internal_email_addresses));
+        intent.setType(MESSAGE_TYPE);
+        intent.putExtra(Intent.EXTRA_EMAIL, mContext.getResources().getStringArray(R.array.feedback_subject_email));
+        intent.putExtra(Intent.EXTRA_BCC, mContext.getResources().getStringArray(R.array.feedback_bcc_email));
         intent.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.sa_show_feedback));
         intent.putExtra(Intent.EXTRA_TEXT, mFeedback.createMessage());
         return intent;

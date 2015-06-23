@@ -58,11 +58,18 @@ public final class FeedbackSender {
         return new FeedbackSender(context);
     }
 
-    public void send() {
+    /**
+     * Invokes mail activity in order to create feedback report. Current realisation includes hardcoded message.
+     *
+     * @return <code>true<code/> if activity was resolved, otherwise <code>false<code/> if no messenger app installed.
+     */
+    public boolean send() {
         Intent intent = buildIntent();
         if (intent.resolveActivity(mContext.getPackageManager()) != null) {
             mContext.startActivity(intent);
+            return true;
         }
+        return false;
     }
 
     @NonNull

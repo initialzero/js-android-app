@@ -29,6 +29,7 @@ import android.accounts.Account;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -45,9 +46,12 @@ import static org.junit.Assert.assertThat;
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
 public class ServerInfoTest {
-    @Test
-    public void shouldProvideServerVersion() {
-        AccountServerData serverData = new AccountServerData()
+
+    AccountServerData fakeServerData;
+
+    @Before
+    public void setup() {
+        fakeServerData = new AccountServerData()
                 .setAlias("alias")
                 .setServerUrl("")
                 .setOrganization("")
@@ -55,15 +59,33 @@ public class ServerInfoTest {
                 .setPassword("")
                 .setEdition("CE")
                 .setVersionName("5.5");
+    }
 
-        JasperAccountManager jasperAccountManager = JasperAccountManager.get(RuntimeEnvironment.application);
-        Account account = jasperAccountManager.addAccountExplicitly(serverData).toBlocking().first();
-        jasperAccountManager.activateAccount(account);
+    @Test
+    public void shouldProvideServerVersion() {
+        activateServerData(fakeServerData);
 
         ServerInfoProvider serverInfoProvider =
                 ServerInfo.newInstance(RuntimeEnvironment.application);
         String retrievedVersion = serverInfoProvider.getServerVersion();
 
         assertThat(retrievedVersion, is("5.5"));
+    }
+
+    @Test
+    public void shouldProvideServerEdition() {
+        activateServerData(fakeServerData);
+
+        ServerInfoProvider serverInfoProvider =
+                ServerInfo.newInstance(RuntimeEnvironment.application);
+        String retrievedEdition = serverInfoProvider.getServerEdition();
+
+        assertThat(retrievedEdition, is("CE"));
+    }
+
+    private void activateServerData(AccountServerData serverData) {
+        JasperAccountManager jasperAccountManager = JasperAccountManager.get(RuntimeEnvironment.application);
+        Account account = jasperAccountManager.addAccountExplicitly(serverData).toBlocking().first();
+        jasperAccountManager.activateAccount(account);
     }
 }

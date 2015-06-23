@@ -24,8 +24,6 @@
 -->
 <resources>
 
-    <!-- General -->
-    <string name="app_label" translatable="false">TIBCO JasperMobile</string>
     <!-- Images content description -->
     <string name="img_cd_list_item">List item preview</string>
     <string name="img_cd_grid_item">Grid item preview</string>
@@ -98,11 +96,6 @@
     <string name="s_fd_option_dashboards">Dashboards</string>
     <string name="s_fd_sort_label">Label</string>
     <string name="s_fd_sort_date">Creation date</string>
-
-    <!-- Filter Saved Items Dialog -->
-    <string name="si_fd_option_html" translatable="false">HTML</string>
-    <string name="si_fd_option_pdf" translatable="false">PDF</string>
-    <string name="si_fd_option_xls" translatable="false">XLS</string>
 
     <!-- Filter Favorites Dialog -->
     <string name="f_fd_option_folders">Folders</string>
@@ -241,8 +234,6 @@
     <string name="success_add_account">Account with name %s was added</string>
     <string name="failure_add_account">Failed to add account. Reason: %s</string>
     <string name="account_add">Adding account</string>
-    <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
-    <string name="jasper_account_authority"  translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
 
     <!--Dashboard activity-->
     <string name="da_session_expired">Session expired</string>

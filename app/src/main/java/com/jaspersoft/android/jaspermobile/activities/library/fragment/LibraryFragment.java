@@ -422,8 +422,11 @@ public class LibraryFragment extends RoboSpiceFragment
             if (listView != null && listView.getChildCount() > 0) {
                 // check if the first item of the list is visible
                 boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;
+
                 // check if the top of the first item is visible
-                boolean topOfFirstItemVisible = listView.getChildAt(0).getTop() == 0;
+                View topViewItem = listView.getChildAt(0);
+                boolean topOfFirstItemVisible = topViewItem.getTop() - listView.getPaddingTop() == 0;
+
                 // enabling or disabling the refresh layout
                 enable = firstItemVisible && topOfFirstItemVisible;
             }

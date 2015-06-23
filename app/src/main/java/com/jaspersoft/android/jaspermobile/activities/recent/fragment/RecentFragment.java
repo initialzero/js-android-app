@@ -47,7 +47,7 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.filtering.RecentlyViewedResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -94,7 +94,7 @@ public class RecentFragment extends RoboSpiceFragment
     protected ViewType viewType;
 
     @Bean
-    protected LibraryResourceFilter libraryResourceFilter;
+    protected RecentlyViewedResourceFilter recentlyViewedResourceFilter;
     @Bean
     protected ResourceOpener resourceOpener;
     @Bean
@@ -108,7 +108,7 @@ public class RecentFragment extends RoboSpiceFragment
 
         mSearchCriteria.setLimit(10);
         mSearchCriteria.setAccessType("viewed");
-        mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
+        mSearchCriteria.setTypes(recentlyViewedResourceFilter.getCurrent().getValues());
         mSearchCriteria.setSortBy(SortOrder.ACCESS_TIME.getValue());
         mSearchCriteria.setFolderUri(ROOT_URI);
     }

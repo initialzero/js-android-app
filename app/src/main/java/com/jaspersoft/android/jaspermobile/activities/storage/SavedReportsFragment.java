@@ -56,7 +56,7 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 1.8
  */
-@EFragment
+@EFragment (R.layout.content_layout)
 @OptionsMenu(R.menu.sort_menu)
 public class SavedReportsFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener{
 
@@ -84,7 +84,7 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
             // Reset all controls state
             pref.sortType().put(null);
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
             savedItemsController = SavedItemsControllerFragment_.builder()
                     .sortOrder(sortOptions.getOrder())

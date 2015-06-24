@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -62,8 +63,6 @@ import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
-
-import java.util.List;
 
 /**
  * @author Ivan Gadzhega
@@ -158,10 +157,22 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
 
     @Override
     public void onBackPressed() {
+        // Close left panel on back press
         if (drawerLayout.isDrawerOpen(navigationPanelLayout)) {
             drawerLayout.closeDrawer(navigationPanelLayout);
             return;
         }
+
+        // Back for repository
+        Fragment currentPageFragment = getSupportFragmentManager().findFragmentById(R.id.main_frame);
+        if (currentPageFragment.isVisible()) {
+            FragmentManager childFm = currentPageFragment.getChildFragmentManager();
+            if (childFm.getBackStackEntryCount() > 0) {
+                childFm.popBackStack();
+                return;
+            }
+        }
+
         super.onBackPressed();
     }
 
@@ -268,14 +279,6 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
 
     private void commitContent(@NonNull Fragment directFragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                if (fragment != null) {
-                    transaction.remove(fragment);
-                }
-            }
-        }
         transaction
                 .replace(R.id.main_frame, directFragment)
                 .commit();

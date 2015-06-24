@@ -25,6 +25,7 @@ package com.jaspersoft.android.jaspermobile.activities.recent;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -41,7 +42,7 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 2.0
  */
-@EFragment
+@EFragment (R.layout.content_layout)
 public class RecentPageFragment extends RoboFragment {
 
     @Override
@@ -56,10 +57,15 @@ public class RecentPageFragment extends RoboFragment {
 
         if (savedInstanceState == null) {
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
             RecentControllerFragment recentControllerFragment = RecentControllerFragment_.builder().build();
             transaction.replace(R.id.resource_controller, recentControllerFragment);
+
+            Fragment searchFragment = getFragmentManager().findFragmentById(R.id.search_controller);
+            if (searchFragment != null) {
+                transaction.remove(searchFragment);
+            }
 
             transaction.commit();
         }

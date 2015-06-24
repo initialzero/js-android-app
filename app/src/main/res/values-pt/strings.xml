@@ -237,6 +237,7 @@
 
     <!-- Context Menu -->
     <string name="action_mode_title">Item selecionado</string>
+    <string name="no_network">Rede não está disponível</string>
 
     <!-- Rename File Dialog -->
     <string name="sdr_rrd_title">Renomear arquivo</string>

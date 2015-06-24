@@ -258,6 +258,7 @@
 
     <!-- Others -->
     <string name="authenticator_label">Jasperアカウント</string>
+    <string name="no_network">ネットワークは利用不可</string>
 
     <!-- Accounts activity -->
     <string name="add_account">アカウントを追加する</string>

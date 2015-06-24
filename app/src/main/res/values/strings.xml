@@ -211,6 +211,7 @@
     <string name="failed_load_data">Failed to load data!</string>
     <string name="authenticator_label">Jasper accounts</string>
     <string name="wrong_action" translatable="false">Can not perform this action</string>
+    <string name="no_network">Network is not available</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>

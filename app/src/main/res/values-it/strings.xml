@@ -258,6 +258,7 @@
 
     <!-- Others -->
     <string name="authenticator_label">Account Jasper</string>
+    <string name="no_network">La rete non è disponibile</string>
 
     <!-- Accounts activity -->
     <string name="add_account">Aggiungi account</string>

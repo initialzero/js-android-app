@@ -238,6 +238,7 @@
 
     <!-- Context Menu -->
     <string name="action_mode_title">Elemento seleccionado</string>
+    <string name="no_network">La red no está disponible</string>
 
     <!-- Rename File Dialog -->
     <string name="sdr_rrd_title">Renombrar archivo</string>

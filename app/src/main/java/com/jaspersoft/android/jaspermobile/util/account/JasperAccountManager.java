@@ -30,11 +30,13 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.io.IOException;
@@ -236,6 +238,12 @@ public class JasperAccountManager {
         }
 
         if (tokenOutput.containsKey(AccountManager.KEY_ERROR_MESSAGE)) {
+            int errorCode = tokenOutput.getInt(AccountManager.KEY_ERROR_CODE);
+            if (errorCode == TokenException.SERVER_UPDATED_ERROR) {
+                int flags = Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK;
+                NavigationActivity_.intent(mContext).flags(flags).start();
+            }
+
             throw new TokenException(tokenOutput);
         }
 
@@ -263,8 +271,10 @@ public class JasperAccountManager {
     public static class TokenException extends IOException {
         public static final int OBTAIN_TOKEN_ERROR = 15;
         public static final int SERVER_NOT_FOUND = 16;
-        public static final int INCORRECT_SERVER_VERSION_ERROR = 17;
-        public static final int NO_ACCOUNTS_ERROR = 18;
+        public static final int SERVER_UPDATED_ERROR = 17;
+        public static final int INCORRECT_SERVER_VERSION_ERROR = 18;
+        public static final int NO_ACCOUNTS_ERROR = 19;
+        public static final int NO_PASSWORD_ERROR = 20;
 
         private final int mErrorCode;
 

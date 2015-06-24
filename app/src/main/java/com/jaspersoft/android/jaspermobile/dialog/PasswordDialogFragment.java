@@ -101,7 +101,7 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
 
     @Override
     public void onShow(DialogInterface dialogInterface) {
-        AlertDialog dialog = ((AlertDialog) getDialog());
+        AlertDialog dialog = ((AlertDialog) dialogInterface);
         etPassword = (EditText) dialog.findViewById(R.id.et_new_password);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(new PasswordDialogOkClickListener());

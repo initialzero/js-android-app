@@ -212,6 +212,7 @@
     <string name="authenticator_label">Jasper accounts</string>
     <string name="wrong_action" translatable="false">Can not perform this action</string>
     <string name="no_network">Network is not available</string>
+    <string name="request_was_cancelled_explicitly">Request was cancelled explicitly</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>

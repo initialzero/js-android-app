@@ -160,6 +160,7 @@
     <string name="loading_msg">Cargando...</string>
     <string name="search_result_format">Buscar resultados para \'%s\'</string>
     <string name="failed_load_data">Error al cargar los datos.</string>
+    <string name="request_was_cancelled_explicitly">La solicitud fue cancelada de forma explícita</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Biblioteca</string>

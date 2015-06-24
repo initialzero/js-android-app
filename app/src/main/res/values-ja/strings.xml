@@ -259,6 +259,7 @@
     <!-- Others -->
     <string name="authenticator_label">Jasperアカウント</string>
     <string name="no_network">ネットワークは利用不可</string>
+    <string name="request_was_cancelled_explicitly">要求が明示的にキャンセルされました</string>
 
     <!-- Accounts activity -->
     <string name="add_account">アカウントを追加する</string>

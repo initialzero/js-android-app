@@ -160,6 +160,8 @@
     <string name="loading_msg">正在加载...</string>
     <string name="search_result_format">搜索 \'%s\' 的结果</string>
     <string name="failed_load_data">加载数据失败！</string>
+    <string name="no_network">网络没有</string>
+    <string name="request_was_cancelled_explicitly">请求被取消了</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">库</string>
@@ -280,6 +282,5 @@
 
     <!-- Navigation panel -->
     <string name="recent_card_label">最近浏览</string>
-    <string name="no_network">Network is not available</string>
 
 </resources>

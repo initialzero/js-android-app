@@ -160,6 +160,7 @@
     <string name="loading_msg">Caricamento in corso...</string>
     <string name="search_result_format">Cerca risultato per \'%s\'</string>
     <string name="failed_load_data">Impossibile caricare i dati.</string>
+    <string name="request_was_cancelled_explicitly">La richiesta è stata annullata in modo esplicito</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Libreria</string>

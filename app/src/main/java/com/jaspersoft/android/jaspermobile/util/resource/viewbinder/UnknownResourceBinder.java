@@ -25,30 +25,33 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
+import android.widget.ImageView;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-final class ResourceBinderFactory {
-    private ResourceBinderFactory() {
+class UnknownResourceBinder extends ResourceBinder {
+
+    public UnknownResourceBinder(Context context) {
+        super(context);
     }
 
-    public static ResourceBinder create(Context context, String type) {
-        ResourceLookup.ResourceType resourceType = ResourceLookup.ResourceType.valueOf(type);
-
-        switch (resourceType) {
-            case folder:
-                return new FolderResourceBinder(context);
-            case legacyDashboard:
-            case dashboard:
-                return new DashboardResourceBinder(context);
-            case reportUnit:
-                return new ReportResourceBinder(context);
-            default:
-                return new UnknownResourceBinder(context);
-        }
+    @Override
+    public void bindView(ResourceView resourceView, ResourceLookup item) {
+        setIcon(resourceView.getImageView(), item.getUri());
+        resourceView.setTitle(item.getLabel());
     }
+
+    @Override
+    public void setIcon(ImageView imageView, String uri) {
+        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        imageView.setImageResource(android.R.drawable.ic_menu_help);
+
+    }
+
 }

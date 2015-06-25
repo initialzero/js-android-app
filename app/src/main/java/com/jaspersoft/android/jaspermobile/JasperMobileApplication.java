@@ -26,8 +26,6 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
@@ -75,6 +73,7 @@ public class JasperMobileApplication extends Application {
         System.setProperty("http.keepAlive", "false");
 
         appConfigurator.configCrashAnalytics(this);
+        appConfigurator.configGoogleAnalytics(this);
         initImageLoader();
     }
 

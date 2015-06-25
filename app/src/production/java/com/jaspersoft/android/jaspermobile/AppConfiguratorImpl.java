@@ -37,7 +37,6 @@ import io.fabric.sdk.android.Fabric;
  * @since 2.0
  */
 public class AppConfiguratorImpl implements AppConfigurator {
-    private final Object lock = new Object();
 
     @Override
     public void configCrashAnalytics(Context appContext) {
@@ -49,10 +48,8 @@ public class AppConfiguratorImpl implements AppConfigurator {
 
     @Override
     public void configGoogleAnalytics(Context appContext) {
-        synchronized (lock) {
-            GoogleAnalytics analytics = GoogleAnalytics.getInstance(appContext);
-            analytics.newTracker(R.xml.analytics_tracker);
-        }
+        GoogleAnalytics analytics = GoogleAnalytics.getInstance(appContext);
+        analytics.newTracker(R.xml.analytics_tracker);
     }
 
 }

@@ -110,8 +110,20 @@ android {
 
     productFlavors {
         dev {
+            ext.enableCrashlytics = false
         }
         production {
+            // If you new Crashlytics enabled, please, setup constant 'CRASHLYTICS_API_KEY' in gradle.properties
+            // with valid API key Crashlytics provides.
+            if (project.hasProperty('CRASHLYTICS_API_KEY')) {
+                manifestPlaceholders = [crashlyticsApiKey: CRASHLYTICS_API_KEY]
+            } else {
+                // If API key wasn't applied we disable io.fabric validation steps during build process.
+                // ATTENTION: App will crash silently due to missing API key. If you don't need Crashlytics
+                // remove setup in AppConfiguratorImpl for production flavor
+                manifestPlaceholders = [crashlyticsApiKey: ""]
+                ext.enableCrashlytics = false
+            }
         }
     }
 
@@ -121,7 +133,7 @@ android {
 }
 
 android.variantFilter { variant ->
-    if(variant.buildType.name.equals('debug') && variant.getFlavors().get(0).name.equals('production')) {
+    if (variant.buildType.name.equals('debug') && variant.getFlavors().get(0).name.equals('production')) {
         variant.setIgnore(true);
     }
 }

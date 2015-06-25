@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile;
 import android.content.Context;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 
 import io.fabric.sdk.android.Fabric;
@@ -36,6 +37,8 @@ import io.fabric.sdk.android.Fabric;
  * @since 2.0
  */
 public class AppConfiguratorImpl implements AppConfigurator {
+    private final Object lock = new Object();
+
     @Override
     public void configCrashAnalytics(Context appContext) {
         DefaultPrefHelper_ prefHelper = DefaultPrefHelper_.getInstance_(appContext);
@@ -43,4 +46,13 @@ public class AppConfiguratorImpl implements AppConfigurator {
             Fabric.with(appContext, new Crashlytics());
         }
     }
+
+    @Override
+    public void configGoogleAnalytics(Context appContext) {
+        synchronized (lock) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(appContext);
+            analytics.newTracker(R.xml.analytics_tracker);
+        }
+    }
+
 }

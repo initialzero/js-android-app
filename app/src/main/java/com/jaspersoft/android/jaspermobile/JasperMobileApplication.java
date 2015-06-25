@@ -51,7 +51,6 @@ import timber.log.Timber;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
-    private Tracker jsTracker;
 
     @Inject
     AppConfigurator appConfigurator;
@@ -76,7 +75,6 @@ public class JasperMobileApplication extends Application {
         System.setProperty("http.keepAlive", "false");
 
         appConfigurator.configCrashAnalytics(this);
-        getTracker();
         initImageLoader();
     }
 
@@ -106,13 +104,4 @@ public class JasperMobileApplication extends Application {
         // Ignoring all log from UIL
         L.writeLogs(false);
     }
-
-    public synchronized Tracker getTracker() {
-        if (jsTracker == null) {
-            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            jsTracker = analytics.newTracker(R.xml.analytics_tracker);
-        }
-        return jsTracker;
-    }
-
 }

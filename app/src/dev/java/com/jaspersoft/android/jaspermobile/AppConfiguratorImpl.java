@@ -26,11 +26,6 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.content.Context;
 
-import com.crashlytics.android.Crashlytics;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-
-import io.fabric.sdk.android.Fabric;
-
 /**
  * @author Andrew Tivodar
  * @since 2.0
@@ -38,5 +33,9 @@ import io.fabric.sdk.android.Fabric;
 public class AppConfiguratorImpl implements AppConfigurator {
     @Override
     public void configCrashAnalytics(Context appContext) {
+    }
+
+    @Override
+    public void configGoogleAnalytics(Context appContext) {
     }
 }

@@ -310,7 +310,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
-                .setNegativeButtonText(android.R.string.ok)
+                .setNegativeButtonText(R.string.ok)
                 .show();
     }
 

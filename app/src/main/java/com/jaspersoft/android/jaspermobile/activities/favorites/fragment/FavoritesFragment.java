@@ -297,7 +297,7 @@ public class FavoritesFragment extends RoboFragment
                 .setTitle(R.string.sdr_dfd_title)
                 .setMessage(getActivity().getString(R.string.sdr_dfd_msg, itemTitle))
                 .setPositiveButtonText(R.string.spm_delete_btn)
-                .setNegativeButtonText(android.R.string.cancel)
+                .setNegativeButtonText(R.string.cancel)
                 .setTargetFragment(this)
                 .show();
     }
@@ -307,7 +307,7 @@ public class FavoritesFragment extends RoboFragment
         SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
                 .setTitle(itemTitle)
                 .setMessage(itemDescription)
-                .setPositiveButtonText(getString(android.R.string.ok))
+                .setPositiveButtonText(getString(R.string.ok))
                 .setTargetFragment(this)
                 .show();
     }

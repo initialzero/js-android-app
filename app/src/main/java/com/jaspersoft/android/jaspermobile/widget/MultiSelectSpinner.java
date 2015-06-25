@@ -104,7 +104,7 @@ public class MultiSelectSpinner<T> extends Spinner implements DialogInterface.On
         }
         defaultCheckedItems = Arrays.copyOf(checkedItems, checkedItems.length);
         builder.setMultiChoiceItems(stringItems, checkedItems, this);
-        builder.setPositiveButton(android.R.string.ok,
+        builder.setPositiveButton(R.string.ok,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

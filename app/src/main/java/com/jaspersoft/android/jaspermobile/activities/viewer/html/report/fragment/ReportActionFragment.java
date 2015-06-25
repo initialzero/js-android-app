@@ -94,7 +94,7 @@ public class ReportActionFragment extends Fragment {
         SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
-                .setNegativeButtonText(android.R.string.ok)
+                .setNegativeButtonText(R.string.ok)
                 .setTargetFragment(this)
                 .show();
     }

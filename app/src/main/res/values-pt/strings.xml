@@ -160,7 +160,7 @@
     <string name="loading_msg">Carregando...</string>
     <string name="search_result_format">Procurar resultados para \'%s\'</string>
     <string name="failed_load_data">Falha ao carregar dados!</string>
-    <string name="request_was_cancelled_explicitly">Pedido foi cancelado explicitamente</string>
+    <string name="request_was_cancelled_explicitly">Cancelado</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Biblioteca</string>
@@ -238,7 +238,7 @@
 
     <!-- Context Menu -->
     <string name="action_mode_title">Item selecionado</string>
-    <string name="no_network">Rede não está disponível</string>
+    <string name="no_network">Ocorreu um erro na rede.</string>
 
     <!-- Rename File Dialog -->
     <string name="sdr_rrd_title">Renomear arquivo</string>
@@ -284,5 +284,7 @@
 
     <!-- Navigation panel -->
     <string name="recent_card_label">Visualizado recentemente</string>
+    <string name="cancel">Cancelar</string>
+    <string name="ok">OK</string>
 
 </resources>

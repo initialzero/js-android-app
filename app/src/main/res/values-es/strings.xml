@@ -160,7 +160,7 @@
     <string name="loading_msg">Cargando...</string>
     <string name="search_result_format">Buscar resultados para \'%s\'</string>
     <string name="failed_load_data">Error al cargar los datos.</string>
-    <string name="request_was_cancelled_explicitly">La solicitud fue cancelada de forma explícita</string>
+    <string name="request_was_cancelled_explicitly">Cancelado</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Biblioteca</string>
@@ -239,7 +239,7 @@
 
     <!-- Context Menu -->
     <string name="action_mode_title">Elemento seleccionado</string>
-    <string name="no_network">La red no está disponible</string>
+    <string name="no_network">Se ha producido un error de red.</string>
 
     <!-- Rename File Dialog -->
     <string name="sdr_rrd_title">Renombrar archivo</string>
@@ -285,5 +285,7 @@
 
     <!-- Navigation panel -->
     <string name="recent_card_label">Recientemente visto</string>
+    <string name="cancel">Cancelar</string>
+    <string name="ok">Aceptar</string>
 
 </resources>

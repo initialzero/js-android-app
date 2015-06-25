@@ -347,7 +347,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.rv_out_of_range)
                         .setMessage(errorDescriptor.getMessage())
-                        .setNegativeButtonText(android.R.string.cancel)
+                        .setNegativeButtonText(R.string.cancel)
                         .setPositiveButtonText(R.string.rv_dialog_reload)
                         .setTargetFragment(NodeWebViewFragment.this)
                         .setCancelableOnTouchOutside(false)

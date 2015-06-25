@@ -160,7 +160,7 @@
     <string name="loading_msg">Chargement en cours...</string>
     <string name="search_result_format">Résultat de la recherche pour \'%s\'</string>
     <string name="failed_load_data">Echec du chargement des données !</string>
-    <string name="request_was_cancelled_explicitly">La demande a été annulée explicitement</string>
+    <string name="request_was_cancelled_explicitly">Tâche annulée</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Bibliothèque</string>
@@ -259,7 +259,7 @@
 
     <!-- Others -->
     <string name="authenticator_label">Comptes Jasper</string>
-    <string name="no_network">Le réseau n\'est pas disponible</string>
+    <string name="no_network">Une erreur réseau s\'est produite.</string>
 
     <!-- Accounts activity -->
     <string name="add_account">Ajouter un compte</string>
@@ -284,5 +284,7 @@
 
     <!-- Navigation panel -->
     <string name="recent_card_label">Recientemente visto</string>
+    <string name="cancel">Annuler</string>
+    <string name="ok">OK</string>
 
 </resources>

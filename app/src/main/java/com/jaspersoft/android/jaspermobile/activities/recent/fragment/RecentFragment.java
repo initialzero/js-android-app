@@ -223,7 +223,7 @@ public class RecentFragment extends RoboSpiceFragment
         SimpleDialogFragment.createBuilder(getActivity(), fm)
                 .setTitle(resourceTitle)
                 .setMessage(resourceDescription)
-                .setNegativeButtonText(android.R.string.ok)
+                .setNegativeButtonText(R.string.ok)
                 .setTargetFragment(this)
                 .show();
     }

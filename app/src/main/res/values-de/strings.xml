@@ -156,7 +156,7 @@
     <string name="loading_msg">Laden&#8230;</string>
     <string name="search_result_format">Suchergebnis für \'%s\'</string>
     <string name="failed_load_data">Die Daten konnten nicht geladen werden.</string>
-    <string name="request_was_cancelled_explicitly">Anfrage wurde abgebrochen explizit</string>
+    <string name="request_was_cancelled_explicitly">Abgebrochen</string>
 
     <!-- Navigatioon panel -->
     <string name="library_card_label">Bibliothek</string>
@@ -255,7 +255,7 @@
 
     <!-- Others -->
     <string name="authenticator_label">Jasper-Konten</string>
-    <string name="no_network">Netzwerk ist nicht verfügbar</string>
+    <string name="no_network">Ein Netzwerkfehler ist aufgetreten.</string>
 
     <!-- Accounts activity -->
     <string name="add_account">Konto hinzufügen</string>
@@ -280,5 +280,7 @@
 
     <!-- Navigation panel -->
     <string name="recent_card_label">Zuletzt angesehen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="ok">OK</string>
 
 </resources>

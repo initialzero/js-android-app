@@ -90,8 +90,8 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setView(dialogView)
                 .setCancelable(true)
-                .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(android.R.string.cancel, null);
+                .setPositiveButton(R.string.ok, null)
+                .setNegativeButton(R.string.cancel, null);
 
         AlertDialog dialog = builder.create();
         dialog.setOnShowListener(this);

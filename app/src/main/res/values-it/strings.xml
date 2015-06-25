@@ -160,7 +160,7 @@
     <string name="loading_msg">Caricamento in corso...</string>
     <string name="search_result_format">Cerca risultato per \'%s\'</string>
     <string name="failed_load_data">Impossibile caricare i dati.</string>
-    <string name="request_was_cancelled_explicitly">La richiesta è stata annullata in modo esplicito</string>
+    <string name="request_was_cancelled_explicitly">Annullato</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Libreria</string>
@@ -259,7 +259,7 @@
 
     <!-- Others -->
     <string name="authenticator_label">Account Jasper</string>
-    <string name="no_network">La rete non è disponibile</string>
+    <string name="no_network">Si è verificato un errore di rete.</string>
 
     <!-- Accounts activity -->
     <string name="add_account">Aggiungi account</string>
@@ -284,5 +284,7 @@
 
     <!-- Navigation panel -->
     <string name="recent_card_label">Visualizzato recentemente</string>
+    <string name="cancel">Annulla</string>
+    <string name="ok">OK</string>
 
 </resources>

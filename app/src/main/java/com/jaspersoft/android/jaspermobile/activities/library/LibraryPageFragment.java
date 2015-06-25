@@ -56,7 +56,7 @@ import roboguice.fragment.RoboFragment;
  * @since 2.0
  */
 @OptionsMenu(R.menu.sort_menu)
-@EFragment
+@EFragment (R.layout.content_layout)
 public class LibraryPageFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
 
     @Inject
@@ -85,7 +85,7 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
             // Reset all controls state
             pref.sortType().put(null);
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
             libraryControllerFragment = LibraryControllerFragment_.builder()
                     .sortOrder(sortOptions.getOrder())

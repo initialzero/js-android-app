@@ -44,7 +44,7 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
+@EFragment (R.layout.content_layout)
 public class RepositoryPageFragment extends RoboFragment {
 
     // It is hack to force saved instance state not to be null after rotate
@@ -62,7 +62,7 @@ public class RepositoryPageFragment extends RoboFragment {
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
             RepositoryControllerFragment resourcesController = RepositoryControllerFragment_.builder()
                     .build();
             transaction.replace(R.id.resource_controller, resourcesController);

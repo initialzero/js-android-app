@@ -44,7 +44,7 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
+@EFragment (R.layout.content_layout)
 public class FavoritesPageFragment extends RoboFragment {
 
     // It is hack to force saved instance state not to be null after rotate
@@ -62,7 +62,7 @@ public class FavoritesPageFragment extends RoboFragment {
             // Reset all controls state
             pref.sortType().put(null);
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
             FavoritesControllerFragment favoriteController = FavoritesControllerFragment_.builder().build();
             transaction.replace(R.id.resource_controller, favoriteController);

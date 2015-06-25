@@ -60,9 +60,9 @@ public class RequestExceptionHandler {
         }
 
         int statusCode = extractStatusCode(exception);
-        if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
+        if (statusCode == HttpStatus.UNAUTHORIZED.value() || statusCode == JasperAccountManager.TokenException.NO_PASSWORD_ERROR) {
             showAuthErrorDialog(context);
-        } else if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR) {
+        } else if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR || statusCode == JasperAccountManager.TokenException.SERVER_UPDATED_ERROR) {
             // do nothing, app will restart automatically
         } else {
             showCommonErrorMessage(context, exception);

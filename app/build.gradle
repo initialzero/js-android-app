@@ -112,18 +112,17 @@ android {
         dev {
         }
         production {
-            buildTypes {
-                debug {
-                    if (project.hasProperty('JMA_STORE_FILE')) {
-                        signingConfig signingConfigs.release
-                    }
-                }
-            }
         }
     }
 
     lintOptions {
         abortOnError false
+    }
+}
+
+android.variantFilter { variant ->
+    if(variant.buildType.name.equals('debug') && variant.getFlavors().get(0).name.equals('production')) {
+        variant.setIgnore(true);
     }
 }
 

@@ -52,5 +52,5 @@
         Settings screen
     </screenName>
 
-    <string name="ga_trackingId">UA-59444864-2</string>
+    <string name="ga_trackingId">@string/google_analytics_tracking_id</string>
 </resources>

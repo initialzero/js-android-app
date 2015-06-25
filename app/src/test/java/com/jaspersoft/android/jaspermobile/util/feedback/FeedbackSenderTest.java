@@ -99,7 +99,7 @@ public class FeedbackSenderTest {
     // Just assert method doesn't cause NPE
     @Test
     public void shouldSendIntent() {
-        sender.send();
+        sender.initiate();
     }
 
 }

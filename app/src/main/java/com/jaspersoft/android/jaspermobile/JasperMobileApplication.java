@@ -26,8 +26,6 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
@@ -51,7 +49,6 @@ import timber.log.Timber;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
-    private Tracker jsTracker;
 
     @Inject
     AppConfigurator appConfigurator;
@@ -76,7 +73,7 @@ public class JasperMobileApplication extends Application {
         System.setProperty("http.keepAlive", "false");
 
         appConfigurator.configCrashAnalytics(this);
-        getTracker();
+        appConfigurator.configGoogleAnalytics(this);
         initImageLoader();
     }
 
@@ -106,13 +103,4 @@ public class JasperMobileApplication extends Application {
         // Ignoring all log from UIL
         L.writeLogs(false);
     }
-
-    public synchronized Tracker getTracker() {
-        if (jsTracker == null) {
-            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            jsTracker = analytics.newTracker(R.xml.analytics_tracker);
-        }
-        return jsTracker;
-    }
-
 }

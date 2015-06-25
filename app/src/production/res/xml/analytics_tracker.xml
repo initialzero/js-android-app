@@ -2,7 +2,7 @@
 <resources>
     <bool name="ga_autoActivityTracking">true</bool>
     <integer name="ga_sessionTimeout">1800</integer>
-    <integer name="ga_dispatchPeriod">15 </integer>
+    <integer name="ga_dispatchPeriod">15</integer>
 
     <screenName name="com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_">
         Home screen
@@ -52,5 +52,5 @@
         Settings screen
     </screenName>
 
-    <string name="ga_trackingId">UA-59444864-2</string>
+    <string name="ga_trackingId">@string/google_analytics_tracking_id</string>
 </resources>

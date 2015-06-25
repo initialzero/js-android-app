@@ -109,23 +109,37 @@ android {
     }
 
     productFlavors {
-        qa {
-        }
         dev {
+            ext.enableCrashlytics = false
         }
         production {
-            buildTypes {
-                debug {
-                    if (project.hasProperty('JMA_STORE_FILE')) {
-                        signingConfig signingConfigs.release
-                    }
-                }
+            // If you new Crashlytics enabled, please, setup constant 'CRASHLYTICS_API_KEY' in gradle.properties
+            // with valid API key Crashlytics provides.
+            if (project.hasProperty('CRASHLYTICS_API_KEY')) {
+                manifestPlaceholders = [crashlyticsApiKey: CRASHLYTICS_API_KEY]
+            } else {
+                // If API key wasn't applied we disable io.fabric validation steps during build process.
+                // ATTENTION: App will crash silently due to missing API key. If you don't need Crashlytics
+                // remove setup in AppConfiguratorImpl for production flavor
+                manifestPlaceholders = [crashlyticsApiKey: ""]
+                ext.enableCrashlytics = false
+            }
+            if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
+                resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
+            } else {
+                resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
             }
         }
     }
 
     lintOptions {
         abortOnError false
+    }
+}
+
+android.variantFilter { variant ->
+    if (variant.buildType.name.equals('debug') && variant.getFlavors().get(0).name.equals('production')) {
+        variant.setIgnore(true);
     }
 }
 

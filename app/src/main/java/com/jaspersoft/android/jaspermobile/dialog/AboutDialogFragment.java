@@ -49,7 +49,7 @@ public class AboutDialogFragment extends SimpleDialogFragment implements DialogI
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.sa_show_about);
         builder.setMessage(R.string.sa_about_info);
-        builder.setNeutralButton(android.R.string.ok, null);
+        builder.setNeutralButton(R.string.ok, null);
 
         Dialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);

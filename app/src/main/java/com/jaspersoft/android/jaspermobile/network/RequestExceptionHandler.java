@@ -36,6 +36,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.octo.android.robospice.exception.NetworkException;
+import com.octo.android.robospice.exception.NoNetworkException;
+import com.octo.android.robospice.exception.RequestCancelledException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -116,6 +118,12 @@ public class RequestExceptionHandler {
     @Nullable
     private static String extractMessage(@NonNull Context context, @NonNull Exception exception, int statusCode) {
         if (statusCode == 0) {
+            if (exception instanceof NoNetworkException) {
+                return context.getString(R.string.no_network);
+            }
+            if (exception instanceof RequestCancelledException) {
+                return context.getString(R.string.request_was_cancelled_explicitly);
+            }
             return null;
         } else {
             ExceptionRule rule = ExceptionRule.all().get(statusCode);

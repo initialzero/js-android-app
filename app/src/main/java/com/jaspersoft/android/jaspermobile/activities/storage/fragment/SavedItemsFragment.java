@@ -318,7 +318,7 @@ public class SavedItemsFragment extends RoboFragment
                 .setMessage(getActivity().getString(R.string.sdr_drd_msg,
                         itemFile.getName()))
                 .setPositiveButtonText(R.string.spm_delete_btn)
-                .setNegativeButtonText(android.R.string.cancel)
+                .setNegativeButtonText(R.string.cancel)
                 .setTargetFragment(this)
                 .show();
     }
@@ -329,7 +329,7 @@ public class SavedItemsFragment extends RoboFragment
         SimpleDialogFragment.createBuilder(getActivity(), fm)
                 .setTitle(title)
                 .setMessage(description)
-                .setPositiveButtonText(android.R.string.ok)
+                .setPositiveButtonText(R.string.ok)
                 .setTargetFragment(this)
                 .show();
     }

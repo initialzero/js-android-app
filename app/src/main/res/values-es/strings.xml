@@ -160,6 +160,7 @@
     <string name="loading_msg">Cargando...</string>
     <string name="search_result_format">Buscar resultados para \'%s\'</string>
     <string name="failed_load_data">Error al cargar los datos.</string>
+    <string name="request_was_cancelled_explicitly">Cancelado</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Biblioteca</string>
@@ -200,6 +201,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">Añadido a favoritos.</string>
     <string name="r_cm_removed_from_favorites">Eliminado de favoritos.</string>
+    <string name="r_cm_print">Imprimir</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">Buscar archivos guardados</string>
@@ -221,6 +223,7 @@
     <string name="sr_from">Desde la página</string>
     <string name="sr_to">Hasta la página</string>
     <string name="sr_failed_to_create_local_repo">No se pudo crear el almacenamiento local de archivos</string>
+    <string name="sr_failed_to_execute_report">No se pudo ejecutar el informe</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">El campo es obligatorio.</string>
@@ -236,6 +239,7 @@
 
     <!-- Context Menu -->
     <string name="action_mode_title">Elemento seleccionado</string>
+    <string name="no_network">Se ha producido un error de red.</string>
 
     <!-- Rename File Dialog -->
     <string name="sdr_rrd_title">Renombrar archivo</string>
@@ -253,7 +257,7 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">No se encontró el servidor.</string>
-    <string name="r_error_incorrect_credentials">Contraseña o inicio de sesión incorrecto.</string>
+    <string name="r_error_incorrect_credentials">Credenciales no válidas.</string>
 
     <!-- Others -->
     <string name="authenticator_label">Cuentas Jasper</string>
@@ -278,5 +282,10 @@
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all">Marcar todo</string>
     <string name="mss_btn_uncheck_all">Desmarcar todo</string>
+
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Recientemente visto</string>
+    <string name="cancel">Cancelar</string>
+    <string name="ok">Aceptar</string>
 
 </resources>

@@ -77,7 +77,7 @@
     <string name="r_cm_remove_from_favorites">Remove from favorites</string>
     <string name="r_cm_removed_from_favorites">Removed from favorites.</string>
     <string name="r_cm_remove_from_favorites_failed">Failed to remove from favorites.</string>
-    <string name="r_cm_print" translatable="false">Print</string>
+    <string name="r_cm_print">Print</string>
 
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Running report...</string>
@@ -131,7 +131,7 @@
     <string name="sr_from">From page</string>
     <string name="sr_to">To page</string>
     <string name="sr_failed_to_create_local_repo">Failed to create local file storage.</string>
-    <string name="sr_failed_to_execute_report" translatable="false">Failed to execute report</string>
+    <string name="sr_failed_to_execute_report">Failed to execute report</string>
 
     <!-- Toasts -->
     <string name="sr_t_report_saved">Report saved to file successfully.</string>
@@ -194,7 +194,7 @@
     <!-- Error messages -->
     <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
     <string name="r_error_server_not_found">Server not found.</string>
-    <string name="r_error_incorrect_credentials">Login or password is incorrect.</string>
+    <string name="r_error_incorrect_credentials">Invalid credentials.</string>
     <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
     <string name="error_http_401">401 - Unauthorized.
                                   \nAuthentication credentials were missing or incorrect.</string>
@@ -211,12 +211,16 @@
     <string name="failed_load_data">Failed to load data!</string>
     <string name="authenticator_label">Jasper accounts</string>
     <string name="wrong_action" translatable="false">Can not perform this action</string>
+    <string name="no_network">There was a network error.</string>
+    <string name="request_was_cancelled_explicitly">Cancelled</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>
     <string name="repository_card_label">Repository</string>
     <string name="favorites_card_label">Favorites</string>
-    <string name="recent_card_label" translatable="false">Recently Viewed</string>
+    <string name="recent_card_label">Recently Viewed</string>
     <string name="settings_card_label">Settings</string>
 
     <!-- Pagination control -->

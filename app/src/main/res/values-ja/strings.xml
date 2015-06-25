@@ -199,6 +199,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">お気に入りに追加しました。</string>
     <string name="r_cm_removed_from_favorites">お気に入りから削除しました。</string>
+    <string name="r_cm_print">印刷</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">保存されたファイルを検索</string>
@@ -220,6 +221,7 @@
     <string name="sr_from">ページから</string>
     <string name="sr_to">ページへ</string>
     <string name="sr_failed_to_create_local_repo">ローカルファイルストレージが作成できませんでした。</string>
+    <string name="sr_failed_to_execute_report">レポートの実行に失敗しました</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">この項目は入力が必須です。</string>
@@ -252,10 +254,12 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">サーバーが見つかりません。</string>
-    <string name="r_error_incorrect_credentials">ログインまたはパスワードが正しくありません。</string>
+    <string name="r_error_incorrect_credentials">無効な認証情報。</string>
 
     <!-- Others -->
     <string name="authenticator_label">Jasperアカウント</string>
+    <string name="no_network">ネットワークエラーが発生しました。</string>
+    <string name="request_was_cancelled_explicitly">キャンセルされました</string>
 
     <!-- Accounts activity -->
     <string name="add_account">アカウントを追加する</string>
@@ -277,5 +281,10 @@
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all">すべてをチェックする</string>
     <string name="mss_btn_uncheck_all">すべてのチェックを外す</string>
+
+    <!-- Navigation panel -->
+    <string name="recent_card_label">最近表示した項目</string>
+    <string name="cancel">キャンセル</string>
+    <string name="ok">OK</string>
 
 </resources>

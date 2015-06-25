@@ -37,6 +37,8 @@ import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.widget.EditText;
 
+import com.jaspersoft.android.jaspermobile.R;
+
 import timber.log.Timber;
 
 /**
@@ -85,7 +87,7 @@ public class SystemChromeClient extends WebChromeClient {
         dlg.setTitle("Alert");
         //Don't let alerts break the back button
         dlg.setCancelable(true);
-        dlg.setPositiveButton(android.R.string.ok,
+        dlg.setPositiveButton(R.string.ok,
                 new AlertDialog.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         result.confirm();
@@ -119,13 +121,13 @@ public class SystemChromeClient extends WebChromeClient {
         dlg.setMessage(message);
         dlg.setTitle("Confirm");
         dlg.setCancelable(true);
-        dlg.setPositiveButton(android.R.string.ok,
+        dlg.setPositiveButton(R.string.ok,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         result.confirm();
                     }
                 });
-        dlg.setNegativeButton(android.R.string.cancel,
+        dlg.setNegativeButton(R.string.cancel,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         result.cancel();
@@ -166,14 +168,14 @@ public class SystemChromeClient extends WebChromeClient {
         }
         dlg.setView(input);
         dlg.setCancelable(false);
-        dlg.setPositiveButton(android.R.string.ok,
+        dlg.setPositiveButton(R.string.ok,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         String usertext = input.getText().toString();
                         res.confirm(usertext);
                     }
                 });
-        dlg.setNegativeButton(android.R.string.cancel,
+        dlg.setNegativeButton(R.string.cancel,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         res.cancel();

@@ -160,6 +160,7 @@
     <string name="loading_msg">Chargement en cours...</string>
     <string name="search_result_format">Résultat de la recherche pour \'%s\'</string>
     <string name="failed_load_data">Echec du chargement des données !</string>
+    <string name="request_was_cancelled_explicitly">Tâche annulée</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Bibliothèque</string>
@@ -199,6 +200,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">Ajouté aux favoris.</string>
     <string name="r_cm_removed_from_favorites">Supprimé des favoris.</string>
+    <string name="r_cm_print">Impression</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">Recherche de fichiers enregistrés</string>
@@ -220,6 +222,7 @@
     <string name="sr_from">Depuis la page</string>
     <string name="sr_to">À la page</string>
     <string name="sr_failed_to_create_local_repo">Impossible de créer un stockage de fichier local.</string>
+    <string name="sr_failed_to_execute_report">Éxécution du rapport échouée</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">Ce champ est obligatoire.</string>
@@ -252,10 +255,11 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Serveur introuvable.</string>
-    <string name="r_error_incorrect_credentials">Connexion ou mot de passe incorrect.</string>
+    <string name="r_error_incorrect_credentials">Données d\'identification non valides.</string>
 
     <!-- Others -->
     <string name="authenticator_label">Comptes Jasper</string>
+    <string name="no_network">Une erreur réseau s\'est produite.</string>
 
     <!-- Accounts activity -->
     <string name="add_account">Ajouter un compte</string>
@@ -277,5 +281,10 @@
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all">Cocher tout</string>
     <string name="mss_btn_uncheck_all">Décocher tout</string>
+
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Recientemente visto</string>
+    <string name="cancel">Annuler</string>
+    <string name="ok">OK</string>
 
 </resources>

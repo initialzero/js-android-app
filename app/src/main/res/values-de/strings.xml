@@ -156,6 +156,7 @@
     <string name="loading_msg">Laden&#8230;</string>
     <string name="search_result_format">Suchergebnis für \'%s\'</string>
     <string name="failed_load_data">Die Daten konnten nicht geladen werden.</string>
+    <string name="request_was_cancelled_explicitly">Abgebrochen</string>
 
     <!-- Navigatioon panel -->
     <string name="library_card_label">Bibliothek</string>
@@ -195,6 +196,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">Zu Favoriten hinzugefügt.</string>
     <string name="r_cm_removed_from_favorites">Von Favoriten entfernt.</string>
+    <string name="r_cm_print">Drucken</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">Gespeicherte Dateien durchsuchen</string>
@@ -216,6 +218,7 @@
     <string name="sr_from">Von Seite</string>
     <string name="sr_to">Bis Seite</string>
     <string name="sr_failed_to_create_local_repo">Fehler beim Erstellen des lokalen Dateispeichers.</string>
+    <string name="sr_failed_to_execute_report">Fehler beim Ausführen des Berichts</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">Dieses Feld ist erforderlich.</string>
@@ -248,10 +251,11 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Server nicht gefunden.</string>
-    <string name="r_error_incorrect_credentials">Login oder Passwort ist nicht korrekt.</string>
+    <string name="r_error_incorrect_credentials">Ungültige anmeldedaten.</string>
 
     <!-- Others -->
     <string name="authenticator_label">Jasper-Konten</string>
+    <string name="no_network">Ein Netzwerkfehler ist aufgetreten.</string>
 
     <!-- Accounts activity -->
     <string name="add_account">Konto hinzufügen</string>
@@ -273,5 +277,10 @@
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all">Alle markieren</string>
     <string name="mss_btn_uncheck_all">Alle abwählen</string>
+
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Zuletzt angesehen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="ok">OK</string>
 
 </resources>

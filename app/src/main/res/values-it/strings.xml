@@ -160,6 +160,7 @@
     <string name="loading_msg">Caricamento in corso...</string>
     <string name="search_result_format">Cerca risultato per \'%s\'</string>
     <string name="failed_load_data">Impossibile caricare i dati.</string>
+    <string name="request_was_cancelled_explicitly">Annullato</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Libreria</string>
@@ -199,6 +200,7 @@
     <!-- Context Menu -->
     <string name="r_cm_added_to_favorites">Aggiunto ai Preferiti.</string>
     <string name="r_cm_removed_from_favorites">Rimosso dai Preferiti.</string>
+    <string name="r_cm_print">Stampa</string>
 
     <!-- Search Activity -->
     <string name="s_saved_items_hint">Cerca file salvati</string>
@@ -220,6 +222,7 @@
     <string name="sr_from">Da pagina</string>
     <string name="sr_to">a pagina</string>
     <string name="sr_failed_to_create_local_repo">Impossibile creare la memorizzazione del file locale.</string>
+    <string name="sr_failed_to_execute_report">Impossibile eseguire il rapporto</string>
 
     <!-- Error messages -->
     <string name="sr_error_field_is_empty">Questo campo è obbligatorio.</string>
@@ -252,10 +255,11 @@
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Server non trovato.</string>
-    <string name="r_error_incorrect_credentials">Credenziali di accesso o password non corretti.</string>
+    <string name="r_error_incorrect_credentials">Credenziali non valide.</string>
 
     <!-- Others -->
     <string name="authenticator_label">Account Jasper</string>
+    <string name="no_network">Si è verificato un errore di rete.</string>
 
     <!-- Accounts activity -->
     <string name="add_account">Aggiungi account</string>
@@ -277,5 +281,10 @@
     <!-- MultiSelectSpinner -->
     <string name="mss_btn_check_all">Seleziona tutto</string>
     <string name="mss_btn_uncheck_all">Deseleziona tutto</string>
+
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Visualizzato recentemente</string>
+    <string name="cancel">Annulla</string>
+    <string name="ok">OK</string>
 
 </resources>

@@ -438,6 +438,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             // save report file
             SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient,
                     executionId, exportOutput, reportFile);
+            requests.add(outputRequest);
             getSpiceManager().execute(outputRequest, new ReportFileSaveListener(outputFormat));
 
             // save attachments

@@ -97,7 +97,7 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
             transaction.replace(R.id.search_controller, searchControllerFragment);
             transaction.commit();
         } else {
-            libraryControllerFragment = (LibraryControllerFragment) getFragmentManager()
+            libraryControllerFragment = (LibraryControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(LibraryControllerFragment.TAG);
         }
 

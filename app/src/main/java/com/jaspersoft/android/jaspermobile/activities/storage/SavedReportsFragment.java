@@ -96,7 +96,7 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
 
             transaction.commit();
         } else {
-            savedItemsController = (SavedItemsControllerFragment) getFragmentManager()
+            savedItemsController = (SavedItemsControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(SavedItemsControllerFragment.TAG);
         }
 

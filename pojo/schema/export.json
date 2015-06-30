@@ -1,8 +1,0 @@
-{
-    "description": "Export REST api generates. In common case HTML",
-    "type": "object",
-    "properties": {
-        "status": { "type": "string" },
-        "id": { "type": "string" }
-    }
-}

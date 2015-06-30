@@ -23,9 +23,6 @@
  */
 
 include ':app'
-// Retrofit SDK modules. We are going to keep our ideas here before
-// we decide them being ready to be bundled as part of SDK
-include ':pojo'
 include ':sdk'
 // Dummy dependencies. We are planning to ged rid of.
 include ':database-generator'

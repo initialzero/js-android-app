@@ -141,6 +141,8 @@ class DatePickerDialogHelper {
             if (activeDate != null) {
                 activeDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 activeDate.set(Calendar.MINUTE, minute);
+                activeDate.set(Calendar.SECOND, 0);
+                activeDate.set(Calendar.MILLISECOND, 0);
                 updateDisplayAndValueOnDateSet();
             }
         }

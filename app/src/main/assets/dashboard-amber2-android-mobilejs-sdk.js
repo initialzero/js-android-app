@@ -106,6 +106,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       function DashboardController(callback, scaler, params) {
         this.callback = callback;
         this.scaler = scaler;
+        this._adHocHandler = bind(this._adHocHandler, this);
         this._openRemoteLink = bind(this._openRemoteLink, this);
         this._startReportExecution = bind(this._startReportExecution, this);
         this._processLinkClicks = bind(this._processLinkClicks, this);
@@ -277,6 +278,8 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
             return defaultHandler.call(this);
           case "LocalPage":
             return defaultHandler.call(this);
+          case "AdHocExecution":
+            return this._adHocHandler(link, defaultHandler);
           default:
             return defaultHandler.call(this);
         }
@@ -311,6 +314,11 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         js_mobile.log("_openRemoteLink");
         href = link.href;
         return this.callback.onReferenceClick(href);
+      };
+
+      DashboardController.prototype._adHocHandler = function(link, defaultHandler) {
+        js_mobile.log("_adHocHandler");
+        return defaultHandler.call(this);
       };
 
       DashboardController.prototype._getDashlets = function(dashboardId) {
@@ -390,7 +398,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       ScaleStyleReport.prototype.applyFor = function(factor) {
         var scaledCanvasCss;
         jQuery("#scale_style").remove();
-        scaledCanvasCss = "#container { position: absolute; width: " + (100 / factor) + "%; height: " + (100 / factor) + "%; }";
+        scaledCanvasCss = "#container { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
         jQuery('<style id="scale_style"></style>').text(scaledCanvasCss).appendTo('head');
       };
 

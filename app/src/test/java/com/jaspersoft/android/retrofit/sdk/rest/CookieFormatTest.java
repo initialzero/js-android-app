@@ -48,18 +48,18 @@ import static org.junit.Assert.assertThat;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class CookieFormatterTest {
+public class CookieFormatTest {
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
     private static final Header header1 = new Header("Set-Cookie", "cookie1");
     private static final Header header2 = new Header("Set-Cookie", "cookie2");
     private static final Header header3 = new Header("Strange-Header", "header");
 
-    private CookieFormatter cookieFormatter;
+    private CookieFormat.Formatter cookieFormatter;
 
     @Before
     public void setup() {
-        cookieFormatter = CookieFormatter.INSTANCE;
+        cookieFormatter = CookieFormat.Formatter.INSTANCE;
     }
 
     @Test
@@ -110,7 +110,7 @@ public class CookieFormatterTest {
             add(header2);
         }};
 
-        String format = CookieFormatter.format(headers);
+        String format = CookieFormat.format(headers);
 
         assertThat(format, is(notNullValue()));
         assertThat(format.trim().length(), is(not(0)));

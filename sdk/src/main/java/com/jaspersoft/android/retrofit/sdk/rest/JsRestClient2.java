@@ -146,7 +146,7 @@ public class JsRestClient2 {
                 .flatMap(new Func1<List<Header>, Observable<String>>() {
                     @Override
                     public Observable<String> call(List<Header> headers) {
-                        return Observable.just(CookieFormatter.format(headers));
+                        return Observable.just(CookieFormat.format(headers));
                     }
                 })
                 .flatMap(new Func1<String, Observable<LoginResponse>>() {

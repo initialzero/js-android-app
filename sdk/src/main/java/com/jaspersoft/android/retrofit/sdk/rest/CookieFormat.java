@@ -39,9 +39,7 @@ import retrofit.client.Header;
  * @author Tom Koptel
  * @since 2.1
  */
-enum CookieFormatter {
-    INSTANCE;
-
+class CookieFormat {
     /**
      * Accept raw list of headers from JRS. Then applies join strategy on it.
      *
@@ -49,43 +47,47 @@ enum CookieFormatter {
      * @return cookie as string instance
      */
     public static String format(List<Header> headers) {
-        return INSTANCE.performFormat(headers);
+        return Formatter.INSTANCE.performFormat(headers);
     }
 
-    String performFormat(List<Header> headers) {
-        List<Header> cookies = filterCookieHeaders(headers);
-        StringBuilder stringBuilder = joinCookieHeaders(cookies);
-        appendTimeZone(stringBuilder);
+    enum Formatter {
+        INSTANCE;
 
-        return stringBuilder.toString();
-    }
+        String performFormat(List<Header> headers) {
+            List<Header> cookies = filterCookieHeaders(headers);
+            StringBuilder stringBuilder = joinCookieHeaders(cookies);
+            appendTimeZone(stringBuilder);
 
-    void appendTimeZone(StringBuilder stringBuilder) {
-        TimeZone timeZone = TimeZone.getDefault();
-        stringBuilder.append(";userTimezone=").append(timeZone.getID());
-    }
-
-    StringBuilder joinCookieHeaders(List<Header> cookies) {
-        StringBuilder stringBuilder = new StringBuilder();
-        Iterator<Header> iterator = cookies.iterator();
-        while (iterator.hasNext()) {
-            Header cookie = iterator.next();
-            stringBuilder.append(cookie.getValue());
-            if (iterator.hasNext()) {
-                stringBuilder.append(";");
-            }
+            return stringBuilder.toString();
         }
-        return stringBuilder;
-    }
 
-    List<Header> filterCookieHeaders(List<Header> headers) {
-        List<Header> cookies = new ArrayList<Header>();
-        for (Header header : headers) {
-            if (!TextUtils.isEmpty(header.getName()) && header.getName().equals("Set-Cookie")) {
-                cookies.add(header);
-            }
+        void appendTimeZone(StringBuilder stringBuilder) {
+            TimeZone timeZone = TimeZone.getDefault();
+            stringBuilder.append(";userTimezone=").append(timeZone.getID());
         }
-        return cookies;
+
+        StringBuilder joinCookieHeaders(List<Header> cookies) {
+            StringBuilder stringBuilder = new StringBuilder();
+            Iterator<Header> iterator = cookies.iterator();
+            while (iterator.hasNext()) {
+                Header cookie = iterator.next();
+                stringBuilder.append(cookie.getValue());
+                if (iterator.hasNext()) {
+                    stringBuilder.append(";");
+                }
+            }
+            return stringBuilder;
+        }
+
+        List<Header> filterCookieHeaders(List<Header> headers) {
+            List<Header> cookies = new ArrayList<Header>();
+            for (Header header : headers) {
+                if (!TextUtils.isEmpty(header.getName()) && header.getName().equals("Set-Cookie")) {
+                    cookies.add(header);
+                }
+            }
+            return cookies;
+        }
     }
 
 }

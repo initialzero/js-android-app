@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -33,13 +33,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ControllerPref;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType;
 
 import roboguice.fragment.RoboFragment;
 
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.GRID;
-import static com.jaspersoft.android.jaspermobile.activities.repository.support.ViewType.LIST;
+import static com.jaspersoft.android.jaspermobile.util.ViewType.GRID;
+import static com.jaspersoft.android.jaspermobile.util.ViewType.LIST;
 
 /**
  * @author Tom Koptel

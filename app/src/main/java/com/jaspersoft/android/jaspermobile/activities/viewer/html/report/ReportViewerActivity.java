@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -64,18 +64,24 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
+import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -130,6 +136,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected FavoritesHelper favoritesHelper;
     @Bean
     protected ScreenUtil screenUtil;
+    @Bean
+    protected HyperlinkHelper hyperlinkHelper;
 
     @ViewById
     protected WebView webView;
@@ -147,8 +155,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @InstanceState
     protected Uri favoriteEntryUri;
-    @InstanceState
-    protected boolean mPaused;
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -161,15 +167,18 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected ReportParamsStorage paramsStorage;
     @Inject
     protected ReportParamsSerializer paramsSerializer;
+    @Inject
+    protected JsRestClient jsRestClient;
 
     private AccountServerData accountServerData;
     private boolean mShowSavedMenuItem, mShowRefreshMenuItem;
     private boolean mHasInitialParameters;
     private JasperChromeClientListenerImpl chromeClientListener;
+    private WebInterface mWebInterface;
     private boolean isFlowLoaded;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
+    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
         @Override
         public void onCancel(DialogInterface dialog) {
             ReportViewerActivity.super.onBackPressed();
@@ -246,16 +255,18 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     protected void onPause() {
-        mPaused = true;
-        webView.loadUrl("javascript:MobileReport.pause()");
+        if (mWebInterface != null) {
+            mWebInterface.pause();
+        }
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mPaused = false;
-        webView.loadUrl("javascript:MobileReport.resume()");
+        if (mWebInterface != null) {
+            mWebInterface.resume();
+        }
     }
 
     @Override
@@ -297,7 +308,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
-                .setNegativeButtonText(android.R.string.ok)
+                .setNegativeButtonText(R.string.ok)
                 .show();
     }
 
@@ -326,6 +337,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
         webView.setVisibility(View.INVISIBLE);
         paginationControl.setVisibility(View.GONE);
         paginationControl.reset();
+    }
+
+    @OptionsItem
+    final void printAction() {
+        ResourcePrintJob job = JasperPrintJobFactory
+                .createReportPrintJob(this, jsRestClient, resource, reportParameters);
+        JasperPrinter.print(job);
     }
 
     //---------------------------------------------------------------------
@@ -420,7 +438,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onLoadStart() {
-        if (mPaused) return;
         paginationControl.reset();
         paginationControl.setVisibility(View.GONE);
         ProgressDialogFragment
@@ -475,7 +492,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     @Override
-    public void onReportExecutionClick(String reportUri, String params) {
+    public void onReportExecutionClick(String data) {
+        hyperlinkHelper.executeReport(data);
     }
 
     @UiThread
@@ -519,7 +537,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     protected void resetZoom() {
-        while(webView.zoomOut());
+        while (webView.zoomOut()) ;
     }
 
     private void setupPaginationControl() {
@@ -537,11 +555,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
                 .withUrlPolicy(defaultPolicy);
 
+        mWebInterface = ReportWebInterface.from(this);
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()
                 .withChromeClient(systemChromeClient)
                 .withWebClient(systemWebViewClient)
-                .withWebInterface(ReportWebInterface.from(this));
+                .withWebInterface(mWebInterface);
     }
 
     private void loadFlow() {

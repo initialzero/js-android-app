@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -40,10 +40,7 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
-    public static final String CONTENT_TAG = "FavoritesControllerFragment.CONTENT_TAG";
-    public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
-
-    private FavoritesFragment contentFragment;
+    public static final String PREF_TAG = "favorites_pref";
 
     @FragmentArg
     @InstanceState
@@ -52,7 +49,7 @@ public class FavoritesControllerFragment extends ControllerFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getArguments().putString(PREF_TAG_KEY, "favorites_pref");
+        getArguments().putString(PREF_TAG_KEY, PREF_TAG);
     }
 
     @Override
@@ -60,27 +57,24 @@ public class FavoritesControllerFragment extends ControllerFragment {
         super.onActivityCreated(savedInstanceState);
 
         FavoritesFragment inMemoryFragment = (FavoritesFragment)
-                getFragmentManager().findFragmentByTag(CONTENT_TAG);
+                getFragmentManager().findFragmentByTag(FavoritesFragment.TAG);
 
         if (inMemoryFragment == null) {
             commitContentFragment();
-        } else {
-            contentFragment = inMemoryFragment;
         }
     }
 
     @Override
     public Fragment getContentFragment() {
-        contentFragment = FavoritesFragment_.builder()
+        return FavoritesFragment_.builder()
                 .viewType(getViewType())
                 .searchQuery(searchQuery)
                 .build();
-        return contentFragment;
     }
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG;
+        return FavoritesFragment.TAG;
     }
 
 }

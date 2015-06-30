@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -30,10 +30,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.db.JSDatabaseHelper;
-import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
@@ -43,7 +43,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
@@ -64,10 +65,11 @@ import static org.hamcrest.core.IsNull.notNullValue;
  * @since 2.0
  */
 @Ignore
-@RunWith(CustomRobolectricTestRunner.class)
+@RunWith(RobolectricGradleTestRunner.class)
 @Config(
         shadows = {ShadowApplicationImpl.class},
-        emulateSdk = 18
+        constants = BuildConfig.class,
+        sdk = 21
 )
 public class Migrate_1_9_to_2_0Test {
     private WrapperOpenHelper helper;
@@ -105,7 +107,7 @@ public class Migrate_1_9_to_2_0Test {
         execSQLOverOldDb(INSERT_MIS_CONFIGURED_PROFILE);
         performMigrations();
 
-        Account[] accounts = JasperAccountManager.get(Robolectric.application).getAccounts();
+        Account[] accounts = JasperAccountManager.get(RuntimeEnvironment.application).getAccounts();
         List<Account> accountList = Arrays.asList(accounts);
         assertThat(accountList.size(), is(1));
     }
@@ -123,7 +125,7 @@ public class Migrate_1_9_to_2_0Test {
     @Test
     public void testShouldConvertProfilesInAccount() {
         performMigrations();
-        Account[] accounts = JasperAccountManager.get(Robolectric.application).getAccounts();
+        Account[] accounts = JasperAccountManager.get(RuntimeEnvironment.application).getAccounts();
         List<Account> accountList = Arrays.asList(accounts);
         Account accountToAssert = new Account("Mobile Demo", JasperSettings.JASPER_ACCOUNT_TYPE);
         assertThat(accountList.size(), not(0));
@@ -135,7 +137,7 @@ public class Migrate_1_9_to_2_0Test {
         activateFirstProfile();
         performMigrations();
 
-        Account account = JasperAccountManager.get(Robolectric.application).getActiveAccount();
+        Account account = JasperAccountManager.get(RuntimeEnvironment.application).getActiveAccount();
         assertThat(account, CoreMatchers.notNullValue());
     }
 
@@ -237,7 +239,7 @@ public class Migrate_1_9_to_2_0Test {
     private File prepareSavedReportsDir() {
         resetExternalDir();
 
-        File externalDir = Robolectric.application.getExternalFilesDir(null);
+        File externalDir = RuntimeEnvironment.application.getExternalFilesDir(null);
         File savedReportsDir = new File(externalDir, "saved.reports");
         if (!savedReportsDir.exists()) {
             assertThat(savedReportsDir.mkdir(), is(true));
@@ -246,7 +248,7 @@ public class Migrate_1_9_to_2_0Test {
     }
 
     private void resetExternalDir() {
-        File externalDir = Robolectric.application.getExternalFilesDir(null);
+        File externalDir = RuntimeEnvironment.application.getExternalFilesDir(null);
         try {
             org.apache.commons.io.FileUtils.deleteDirectory(externalDir);
         } catch (IOException e) {
@@ -259,7 +261,7 @@ public class Migrate_1_9_to_2_0Test {
         // Ensure method executed before migration
         assertThat(migrated, is(false));
 
-        GeneralPref_ pref = new GeneralPref_(Robolectric.application);
+        GeneralPref_ pref = new GeneralPref_(RuntimeEnvironment.application);
         pref.currentProfileId().put(1);
     }
 
@@ -274,7 +276,7 @@ public class Migrate_1_9_to_2_0Test {
         // Ensure migration has been performed only one time
         assertThat(migrated, is(false));
         migrated = true;
-        helper = new WrapperOpenHelper(Robolectric.application);
+        helper = new WrapperOpenHelper(RuntimeEnvironment.application);
         newDb = helper.getReadableDatabase();
         // Assert new database was initialized
         assertInitialDB(newDb);
@@ -286,16 +288,16 @@ public class Migrate_1_9_to_2_0Test {
     }
 
     private void execSQLOverOldDb(String sql) {
-        SQLiteOpenHelper_1_9 sqLiteOpenHelper_1_9 = new SQLiteOpenHelper_1_9(Robolectric.application);
+        SQLiteOpenHelper_1_9 sqLiteOpenHelper_1_9 = new SQLiteOpenHelper_1_9(RuntimeEnvironment.application);
         SQLiteDatabase oldDb = sqLiteOpenHelper_1_9.getWritableDatabase();
         oldDb.execSQL(sql);
         oldDb.close();
     }
 
     private void resetDatabases() {
-        File dbFile = Robolectric.application.getDatabasePath(null);
+        File dbFile = RuntimeEnvironment.application.getDatabasePath(null);
         assertThat(SQLiteDatabase.deleteDatabase(dbFile), is(true));
-        Robolectric.application.getDatabasePath(null);
+        RuntimeEnvironment.application.getDatabasePath(null);
     }
 
     private void releaseResources() {

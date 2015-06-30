@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
     Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,6 +22,7 @@
     along with Jaspersoft Mobile for Android. If not, see
     <http://www.gnu.org/licenses/lgpl>.
 -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jaspersoft.android.jaspermobile" >
 
@@ -135,12 +136,15 @@
         </activity>
 
         <activity
-            android:name=".activities.SearchableActivity_"
+            android:name=".activities.library.LibrarySearchableActivity_"
             android:configChanges="locale"
             android:launchMode="singleTop" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activities.repository.RepositorySearchableActivity_"
+            android:configChanges="locale"
+            android:launchMode="singleTop" >
         </activity>
 
         <!-- Activity that allows to make search in Saved Items activity -->
@@ -183,19 +187,19 @@
             </intent-filter>
         </activity>
 
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-
-        <meta-data
-            android:name="com.crashlytics.ApiKey"
-            android:value="9d425447d513077d94708723fd9cf72803a745bc" />
-
         <receiver
             android:name=".auth.AccountsReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".util.LocaleChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
         </receiver>
 

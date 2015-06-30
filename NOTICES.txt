@@ -3,23 +3,24 @@ THIRD PARTY COMPONENTS
 This software includes third party software subject to the associated copyrights, as follows:
 
 * Software for developing case
-- RoboGuice 3.0.1 (Apache 2.0) - https://github.com/roboguice/roboguice
-- Android Annotations 3.2 (Apache 2.0) - https://github.com/excilys/androidannotations
-- android-styled-dialogs 1.2.0 (Apache 2.0) - https://github.com/inmite/android-styled-dialogs
-- MultiChoiceAdapter 3.1.0 (Apache 2.0) - https://github.com/ManuelPeinado/MultiChoiceAdapter
+- RoboGuice 3.0.1 (Apache 2.0) - https://github.com/roboguice/roboguice/blob/master/LICENSE
+- Android Annotations 3.2 (Apache 2.0) - https://github.com/excilys/androidannotations/blob/develop/LICENSE.txt
+- MultiChoiceAdapter 3.1.0 (Apache 2.0) - https://github.com/ManuelPeinado/MultiChoiceAdapter/blob/master/LICENSE.txt
 - RoboCoP 0.5.1 (Apache 2.0) - https://github.com/mediarain/RoboCoP
-- SmoothProgressBar 1.0.1 (Apache 2.0) - https://github.com/castorflex/SmoothProgressBar
-- NineOldAndroids 2.4.0 (Apache 2.0) - https://github.com/JakeWharton/NineOldAndroids/
-- Universal Image Loader 1.9.3 (Apache 2.0) - https://github.com/nostra13/Android-Universal-Image-Loader
+- Universal Image Loader 1.9.3 (Apache 2.0) - https://github.com/nostra13/Android-Universal-Image-Loader/blob/master/LICENSE
 - Gson 2.3 (Apache 2.0) - https://code.google.com/p/google-gson/
-- Json schema to Pojo 0.4.2 (Apache 2.0) -https://github.com/joelittlejohn/jsonschema2pojo
-- Timber 2.5.0 (Apache 2.0) - https://github.com/JakeWharton/timber
-- RxAndroid 0.24.0 (Apache 2.0) - https://github.com/ReactiveX/RxAndroid
-- Retrofit 1.8.0 (Apache 2.0) - https://github.com/square/retrofit
-- Cordova for Android 3.7.1 (Apache 2.0) - https://github.com/apache/cordova-android
+- Json schema to Pojo 0.4.2 (Apache 2.0) - https://github.com/joelittlejohn/jsonschema2pojo/blob/master/LICENSE
+- Timber 2.5.0 (Apache 2.0) - https://github.com/JakeWharton/timber/blob/master/LICENSE.txt
+- RxAndroid 0.24.0 (Apache 2.0) - https://github.com/ReactiveX/RxAndroid/blob/0.x/LICENSE
+- Retrofit 1.8.0 (Apache 2.0) - https://github.com/square/retrofit/blob/master/LICENSE.txt
+- jmustache 1.10 (New BSD License) - https://github.com/samskivert/jmustache/blob/master/LICENSE
+- crashlytics 2.2.1 (Apache 2.0) - https://github.com/twitterdev/cannonball-android/blob/master/LICENSE
+- Google Analytics 7.3.0 (Apache 2.0) - https://developers.google.com/analytics/devguides/collection/android/v4/
 
 * Software for testing case
 - Espresso 2.0 (Apache 2.0) - https://code.google.com/p/android-test-kit/
+- Robolectric 2.4 (MIT) - https://github.com/robolectric/robolectric/blob/master/LICENSE.txt
+- Retrofit Mock 1.8.0 (MIT) - https://github.com/square/retrofit/tree/master/retrofit-mock
 - Mockito 1.9.5 (MIT) - https://code.google.com/p/mockito/
 - Dexmaker 1.0 (Apache 2.0) - https://code.google.com/p/dexmaker/
 - OkHttp MockWebServer 2.1.0 (Apache 2.0) - https://github.com/square/okhttp/tree/master/mockwebserver

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+  ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
   ~ Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -39,6 +39,7 @@
     </issue>
     <issue id="MissingTranslation">
         <ignore path="src/main/res/values/roboguice.xml" />
+        <ignore path="build/generated/res/generated/production/release/values/generated.xml" />
     </issue>
     <issue id="InvalidPackage">
         <ignore regexp="okio-2.0.0.jar" />

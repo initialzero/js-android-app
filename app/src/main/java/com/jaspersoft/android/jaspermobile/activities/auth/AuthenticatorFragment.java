@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -42,15 +42,14 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -65,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import retrofit.RetrofitError;
 import roboguice.fragment.RoboFragment;
 import rx.Observable;
 import rx.Subscription;
@@ -120,7 +120,12 @@ public class AuthenticatorFragment extends RoboFragment {
             String exceptionMessage;
             int statusCode = RequestExceptionHandler.extractStatusCode((Exception) throwable);
             if (statusCode == HttpStatus.NOT_FOUND.value()) {
-                exceptionMessage = getString(R.string.r_error_server_not_found);
+                boolean isRequestWasForRootFolder = false;
+                if (throwable instanceof RetrofitError) {
+                    // This possible only for JRS lower that 5.5. Reason for that is missing root folder endpoint
+                    isRequestWasForRootFolder = ((RetrofitError) throwable).getUrl().contains("/resources");
+                }
+                exceptionMessage = getString(isRequestWasForRootFolder ? R.string.r_error_server_not_supported : R.string.r_error_server_not_found);
             } else if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
                 exceptionMessage = getString(R.string.r_error_incorrect_credentials);
             } else {
@@ -301,9 +306,6 @@ public class AuthenticatorFragment extends RoboFragment {
         data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
         data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
         getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
-
-        // Sync with legacy sdk
-        JsServerProfileCompat.initLegacyJsRestClient(getActivity(), account, legacyRestClient);
 
         Toast.makeText(getActivity(),
                 getString(R.string.success_add_account, account.name),

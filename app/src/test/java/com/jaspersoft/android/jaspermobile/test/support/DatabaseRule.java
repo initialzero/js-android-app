@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -29,7 +29,7 @@ import android.database.sqlite.SQLiteDatabase;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 
 import java.io.File;
 
@@ -51,7 +51,7 @@ public final class DatabaseRule implements TestRule  {
     }
 
     private void resetDatabase() {
-        File dbFile = Robolectric.application.getDatabasePath(null);
+        File dbFile = RuntimeEnvironment.application.getDatabasePath(null);
         SQLiteDatabase.deleteDatabase(dbFile);
     }
 }

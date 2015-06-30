@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -34,7 +34,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.ResourceDescriptor;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -82,13 +81,7 @@ public class HyperlinkHelper {
     @Background
     protected void requestResourceLookup(ReportData reportData) {
         try {
-            ResourceDescriptor descriptor = jsRestClient.getResource(reportData.getResource());
-
-            ResourceLookup lookup = new ResourceLookup();
-            lookup.setResourceType(descriptor.getWsType().toString());
-            lookup.setLabel(descriptor.getLabel());
-            lookup.setDescription(descriptor.getDescription());
-            lookup.setUri(descriptor.getUriString());
+            ResourceLookup lookup = jsRestClient.getReportResource(reportData.getResource());
 
             ArrayList<ReportParameter> reportParameters = transform(reportData.getParams());
             startReportActivity(lookup, reportParameters);

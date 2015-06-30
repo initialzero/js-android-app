@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -28,8 +28,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
@@ -42,15 +41,9 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class SavedItemsControllerFragment extends ControllerFragment {
-    public static final String CONTENT_TAG = "SavedItemsControllerFragment.CONTENT_TAG";
-
     public static final String TAG = SavedItemsControllerFragment.class.getSimpleName();
 
     private SavedItemsFragment contentFragment;
-
-    @FragmentArg
-    @InstanceState
-    FileAdapter.FileType filterType;
 
     @FragmentArg
     @InstanceState
@@ -71,7 +64,7 @@ public class SavedItemsControllerFragment extends ControllerFragment {
         super.onActivityCreated(savedInstanceState);
 
         SavedItemsFragment inMemoryFragment = (SavedItemsFragment)
-                getFragmentManager().findFragmentByTag(CONTENT_TAG);
+                getFragmentManager().findFragmentByTag(SavedItemsFragment.TAG);
 
         if (inMemoryFragment == null) {
             commitContentFragment();
@@ -84,7 +77,6 @@ public class SavedItemsControllerFragment extends ControllerFragment {
     public Fragment getContentFragment() {
         contentFragment = SavedItemsFragment_.builder()
                 .viewType(getViewType())
-                .filterType(filterType)
                 .sortOrder(sortOrder)
                 .searchQuery(searchQuery)
                 .build();
@@ -93,14 +85,13 @@ public class SavedItemsControllerFragment extends ControllerFragment {
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG;
+        return SavedItemsFragment.TAG;
     }
 
-    public void loadItemsByTypes(FileAdapter.FileType _filterType) {
+    public void loadItemsByTypes() {
         if (contentFragment != null) {
-            contentFragment.showSavedItemsByFilter(_filterType);
+            contentFragment.showSavedItemsByFilter();
         }
-        filterType = _filterType;
     }
 
     public void loadItemsBySortOrder(SortOrder _sortOrder) {

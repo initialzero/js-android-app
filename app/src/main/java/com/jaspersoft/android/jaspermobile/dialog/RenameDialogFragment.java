@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -86,8 +86,8 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
         builder.setView(customLayout);
         builder.setTitle(R.string.sdr_rrd_title);
         builder.setCancelable(false);
-        builder.setPositiveButton(android.R.string.ok, null);
-        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setPositiveButton(R.string.ok, null);
+        builder.setNegativeButton(R.string.cancel, null);
 
         mDialog = builder.create();
         mDialog.setOnShowListener(this);

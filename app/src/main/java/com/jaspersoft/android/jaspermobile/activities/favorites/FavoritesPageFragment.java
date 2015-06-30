@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -27,15 +27,12 @@ package com.jaspersoft.android.jaspermobile.activities.favorites;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
@@ -47,17 +44,15 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
+@EFragment (R.layout.content_layout)
 public class FavoritesPageFragment extends RoboFragment {
-    public static final String TAG = FavoritesPageFragment.class.getSimpleName();
 
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
     protected boolean initialStart;
 
     @Pref
-    protected LibraryPref_ pref;
-    private FavoritesControllerFragment favoriteController;
+    protected FavoritesPref_ pref;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -65,31 +60,17 @@ public class FavoritesPageFragment extends RoboFragment {
 
         if (savedInstanceState == null) {
             // Reset all controls state
-            pref.clear();
+            pref.sortType().put(null);
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
-            favoriteController = FavoritesControllerFragment_.builder()
-                    .build();
-
-            transaction.replace(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG);
+            FavoritesControllerFragment favoriteController = FavoritesControllerFragment_.builder().build();
+            transaction.replace(R.id.resource_controller, favoriteController);
 
             FavoritesSearchFragment searchFragment = FavoritesSearchFragment_.builder().build();
-            transaction.replace(R.id.search_controller, searchFragment, FavoritesSearchFragment.TAG);
+            transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
-        } else {
-            favoriteController = (FavoritesControllerFragment) getFragmentManager()
-                    .findFragmentByTag(FavoritesControllerFragment.TAG);
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.f_title);
         }
     }
 }

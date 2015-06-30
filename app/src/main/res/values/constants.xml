@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+    http://community.jaspersoft.com/project/jaspermobile-android
+
+    Unless you have purchased a commercial license agreement from Jaspersoft,
+    the following license terms apply:
+
+    This program is part of Jaspersoft Mobile for Android.
+
+    Jaspersoft Mobile is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Jaspersoft Mobile is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Jaspersoft Mobile for Android. If not, see
+    <http://www.gnu.org/licenses/lgpl>.
+-->
+<resources>
+
+    <!-- General -->
+    <string name="app_label" translatable="false">TIBCO JasperMobile</string>
+
+    <!-- Filter Saved Items Dialog -->
+    <string name="si_fd_option_html" translatable="false">HTML</string>
+    <string name="si_fd_option_pdf" translatable="false">PDF</string>
+    <string name="si_fd_option_xls" translatable="false">XLS</string>
+
+    <!--Constants-->
+    <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
+    <string name="jasper_account_authority" translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
+    <string name="jasper_app_data" translatable="false">Version code: %s</string>
+    <string name="jrs_version_data" translatable="false">JRS version: %s</string>
+    <string name="jrs_edition_data" translatable="false">JRS edition: %s</string>
+    <string-array name="feedback_subject_email" translatable="false">
+        <item>js-dev-mobile@tibco.com</item>
+        <item>js.testdevice@gmail.com</item>
+    </string-array>
+
+</resources>

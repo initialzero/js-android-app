@@ -1,5 +1,5 @@
 /*
- * Copyright В© 2014 TIBCO Software, Inc. All rights reserved.
+ *  Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -48,7 +48,21 @@ ext {
 
     calculateVersionName = { variant ->
         def version = readVersion()
-        def versionName = "${version['major']}.${version['minor']}.${version['patch']}"
+
+        def format = NumberFormat.getInstance()
+        def major = version['major'] as int // 1..?
+        def minor = version['minor'] as int // 0..99
+        def patch = version['patch'] as int // 0..99
+        def revision = version['revision'] as int // 0..999
+
+        format.setMinimumIntegerDigits(1)
+        minor = format.format(minor)
+        patch = format.format(patch)
+
+        format.setMinimumIntegerDigits(3)
+        revision = format.format(revision)
+
+        def versionName = "${major}.${minor}.${patch}.${revision}"
 
         if (variant != null) {
             def flavorName = variant.getFlavorName()
@@ -56,16 +70,14 @@ ext {
             def qa = flavorName.equals("qa")
 
             if (qa) {
-                def repo = Grgit.open(project.rootDir)
-                def branch = repo.branch.getCurrent().getName()
-                def sanitizedBranch = branch.replaceAll("/", "_")
+                def sanitizedBranch = getBranch()
 
                 def notMaster = !sanitizedBranch.equals('master')
                 def notDevelop = !sanitizedBranch.equals('develop')
 
                 if (notMaster) {
                     if (notDevelop && sanitizedBranch.length() > 0) {
-                        versionName += "-${sanitizedBranch}-${version['revision']}"
+                        versionName += "-${sanitizedBranch}"
                     }
                 }
             }
@@ -89,34 +101,39 @@ ext {
 
     /**
      * Pattern for versionCode:
-     * android:versionCode="vvxxyyzz"
+     * android:versionCode="xxyyzzvvv"
      * where:
-     * vv - min android sdk version
      * xx - major version number
      * yy - minor version number
-     * zz - revision number
+     * zz - patch version
+     * vvv - revision number
      */
     calculateVersionCode = { variant ->
         def versionCode = ""
         def version = readVersion()
         def major = version['major'] as int // 1..?
         def minor = version['minor'] as int // 0..99
-        def build = version['patch'] as int // 0..999
+        def patch = version['patch'] as int // 0..99
+        def revision = version['revision'] as int // 0..999
 
         def format = NumberFormat.getInstance()
         format.setMinimumIntegerDigits(2)
 
-        if (variant != null) {
-            def flavor = variant.mergedFlavor
-            def minSdk = flavor.minSdkVersion.getApiLevel()
-            versionCode += minSdk
-        }
-
         versionCode += format.format(major)
         versionCode += format.format(minor)
-        versionCode += format.format(build)
+        versionCode += format.format(patch)
+
+        format.setMinimumIntegerDigits(3)
+        versionCode += format.format(revision)
+
         return Integer.valueOf(versionCode)
     }
+}
+
+String getBranch() {
+    def repo = Grgit.open(project.rootDir)
+    def branch = repo.branch.getCurrent().getName()
+    return branch.replaceAll("/", "_")
 }
 
 Properties readVersion() {
@@ -140,7 +157,10 @@ Properties readVersion() {
 task incrementVersion {
     description "Increments build counter in ${versionFile}"
     doFirst {
-        incrementRevisionNumber()
+        def branch = getBranch()
+        if (branch.equals("develop")) {
+            incrementRevisionNumber()
+        }
     }
 }
 

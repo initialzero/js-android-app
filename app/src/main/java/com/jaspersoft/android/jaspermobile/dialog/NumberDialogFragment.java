@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -83,8 +83,8 @@ public class NumberDialogFragment extends BaseDialogFragment implements DialogIn
         builder.setTitle(R.string.dialog_current_page);
         builder.setView(customView);
         builder.setCancelable(true);
-        builder.setPositiveButton(android.R.string.ok, this);
-        builder.setNegativeButton(android.R.string.cancel, this);
+        builder.setPositiveButton(R.string.ok, this);
+        builder.setNegativeButton(R.string.cancel, this);
 
         AlertDialog dialog = builder.create();
         if (savedInstanceState == null) {

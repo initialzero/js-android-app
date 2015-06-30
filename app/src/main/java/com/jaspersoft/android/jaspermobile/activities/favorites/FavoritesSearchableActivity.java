@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
@@ -50,11 +49,6 @@ public class FavoritesSearchableActivity extends RoboSpiceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         if (savedInstanceState == null) {
             FavoritesControllerFragment favoriteController =
                     FavoritesControllerFragment_.builder()
@@ -62,7 +56,7 @@ public class FavoritesSearchableActivity extends RoboSpiceActivity {
                             .build();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG)
+                    .add(R.id.resource_controller, favoriteController)
                     .commit();
         }
 

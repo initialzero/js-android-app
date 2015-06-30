@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -35,7 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.
 import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
 import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;
@@ -60,7 +60,7 @@ public class JasperMobileModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        JsRestClient jsRestClient = new JsRestClient();
+        JsRestClient jsRestClient = JsRestClient.builder().setDataType(JsRestClient.DataType.JSON).build();
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>();
         interceptors.add(new LocalesHttpRequestInterceptor());
         interceptors.add(new TokenHttpRequestInterceptor(mContext));

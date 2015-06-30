@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  *  http://community.jaspersoft.com/project/jaspermobile-android
  *
  *  Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -47,8 +47,6 @@ import roboguice.fragment.RoboFragment;
 @OptionsMenu(R.menu.search_menu)
 public class SavedItemsSearchFragment extends RoboFragment implements SearchView.OnQueryTextListener {
 
-    public static final String TAG = SavedItemsSearchFragment.class.getSimpleName();
-
     @OptionsMenuItem(R.id.search)
     public MenuItem searchMenuItem;
 
@@ -56,7 +54,7 @@ public class SavedItemsSearchFragment extends RoboFragment implements SearchView
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        if (!isDetached()) {
+        if (isAdded()) {
             SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
             searchView.setQueryHint(getString(R.string.s_saved_items_hint));
             searchView.setOnQueryTextListener(this);

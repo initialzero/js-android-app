@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,17 +24,55 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.text.TextUtils;
+
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.network.XmlSpiceService;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.request.CachedSpiceRequest;
+import com.octo.android.robospice.request.listener.RequestListener;
+
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public class JsSpiceManager extends SpiceManager {
+    private static final String LOG_TAG = JsSpiceManager.class.getSimpleName();
+
+    @Inject
+    JsRestClient jsRestClient;
+
     @Inject
     public JsSpiceManager() {
         super(XmlSpiceService.class);
+    }
+
+    @Override
+    public <T> void execute(final CachedSpiceRequest<T> cachedSpiceRequest, final RequestListener<T> requestListener) {
+        if (isRestClientValid()) {
+            super.execute(cachedSpiceRequest, requestListener);
+        }
+    }
+
+    private boolean isRestClientValid() {
+        if (jsRestClient != null) {
+            JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
+            if (jsServerProfile == null) {
+                Timber.w(LOG_TAG, "Server profile is null ignoring request");
+                return false;
+            } else {
+                if (TextUtils.isEmpty(jsServerProfile.getServerUrl())) {
+                    Timber.w(LOG_TAG, "Server url is null ignoring request");
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

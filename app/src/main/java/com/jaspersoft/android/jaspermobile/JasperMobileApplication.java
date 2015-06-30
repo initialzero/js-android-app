@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,11 +26,11 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
+import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -49,15 +49,18 @@ import timber.log.Timber;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
-    private Tracker jsTracker;
 
     @Inject
     AppConfigurator appConfigurator;
+    @Inject
+    JsRestClient jsRestClient;
 
     @Override
     public void onCreate() {
         super.onCreate();
         RoboGuice.getInjector(this).injectMembers(this);
+        initLegacyJsRestClient();
+
         forceDatabaseUpdate();
 
         if (BuildConfig.DEBUG) {
@@ -70,12 +73,16 @@ public class JasperMobileApplication extends Application {
         System.setProperty("http.keepAlive", "false");
 
         appConfigurator.configCrashAnalytics(this);
-        getTracker();
+        appConfigurator.configGoogleAnalytics(this);
         initImageLoader();
     }
 
     private void forceDatabaseUpdate() {
         getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[]{"_id"}, null, null, null);
+    }
+
+    public void initLegacyJsRestClient() {
+        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
     }
 
     private void initImageLoader() {
@@ -96,13 +103,4 @@ public class JasperMobileApplication extends Application {
         // Ignoring all log from UIL
         L.writeLogs(false);
     }
-
-    public synchronized Tracker getTracker() {
-        if (jsTracker == null) {
-            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            jsTracker = analytics.newTracker(R.xml.analytics_tracker);
-        }
-        return jsTracker;
-    }
-
 }

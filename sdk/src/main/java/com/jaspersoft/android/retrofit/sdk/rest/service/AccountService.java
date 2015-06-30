@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,7 +24,8 @@
 
 package com.jaspersoft.android.retrofit.sdk.rest.service;
 
-import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
+
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import retrofit.client.Response;
 import retrofit.http.GET;
@@ -37,10 +38,10 @@ import rx.Observable;
  * @since 2.0
  */
 public interface AccountService {
-    @Headers({"Accept: application/repository.folder+json"})
+    @Headers({"Accept: application/repository.folder+json", "Connection: close"})
     @GET("/resources")
-    Observable<Response> authorize(@Header("Authorization") String authToken);
-    @Headers({"Accept: application/json"})
+    Observable<Response> authorize(@Header("Authorization") String authToken, @Header("Accept-Language") String locale);
+    @Headers({"Accept: application/json", "Connection: close"})
     @GET("/serverInfo")
     Observable<ServerInfo> getServerInfo(@Header("Set-cookie") String cookie);
 }

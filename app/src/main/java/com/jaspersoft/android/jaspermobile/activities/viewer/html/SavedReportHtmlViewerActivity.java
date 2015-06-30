@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -97,7 +97,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
                 .setPositiveButtonText(R.string.spm_delete_btn)
-                .setNegativeButtonText(android.R.string.cancel)
+                .setNegativeButtonText(R.string.cancel)
                 .show();
     }
 

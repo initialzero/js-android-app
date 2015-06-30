@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -35,15 +35,16 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
+import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberDashboardExecutor;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardExecutor;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -61,8 +62,6 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
-    @Bean
-    protected ScreenUtil screenUtil;
 
     @Extra
     protected ResourceLookup resource;
@@ -77,6 +76,8 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     private int mOrientation;
     private boolean mFavoriteItemVisible, mRefreshItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, refreshAction, aboutAction;
+    private JsDashboardTrigger mDashboardTrigger;
+    private DashboardExecutor mDashboardExecutor;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
         @Override
@@ -84,6 +85,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
             AmberDashboardActivity.super.onBackPressed();
         }
     };
+    private WebInterface webInterface;
 
     @SuppressLint("ShowToast")
     @Override
@@ -125,16 +127,20 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Override
     protected void onPause() {
-        super.onPause();
         mPaused = true;
-        webView.loadUrl("javascript:MobileDashboard.pause()");
+        if (webInterface != null) {
+            webInterface.pause();
+        }
+        super.onPause();
     }
 
     @Override
     protected void onResume() {
-        super.onPause();
+        super.onResume();
         mPaused = false;
-        webView.loadUrl("javascript:MobileDashboard.resume()");
+        if (webInterface != null) {
+            webInterface.resume();
+        }
     }
 
     //---------------------------------------------------------------------
@@ -143,9 +149,12 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Override
     public void onWebViewConfigured(WebView webView) {
+        mDashboardTrigger = JsDashboardTrigger.with(webView);
+        mDashboardExecutor = AmberDashboardExecutor.newInstance(webView, resource);
+        webInterface = DashboardWebInterface.from(this);
         WebViewEnvironment
                 .configure(webView)
-                .withWebInterface(DashboardWebInterface.from(this));
+                .withWebInterface(webInterface);
         showInitialLoader();
         loadFlow();
     }
@@ -163,7 +172,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     public void onHomeAsUpCalled() {
         if (mMaximized && webView != null) {
-            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
+            mDashboardTrigger.minimizeDashlet();
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();
@@ -268,19 +277,20 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
+    @Override
+    public void onAuthError(String message) {
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
     private void loadFlow() {
-        WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
+        mDashboardExecutor.prepare();
     }
 
     private void runDashboard() {
-        String runScript = String.format(
-                "javascript:MobileDashboard.configure({\"diagonal\": \"%s\"}).run()",
-                screenUtil.getDiagonal());
-        webView.loadUrl(runScript);
+        mDashboardExecutor.execute();
     }
 
     private void showInitialLoader() {

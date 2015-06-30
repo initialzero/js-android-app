@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -141,6 +141,8 @@ class DatePickerDialogHelper {
             if (activeDate != null) {
                 activeDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 activeDate.set(Calendar.MINUTE, minute);
+                activeDate.set(Calendar.SECOND, 0);
+                activeDate.set(Calendar.MILLISECOND, 0);
                 updateDisplayAndValueOnDateSet();
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,7 +24,8 @@
 
 package com.jaspersoft.android.retrofit.sdk.rest.response;
 
-import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
+
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 /**
  * @author Tom Koptel

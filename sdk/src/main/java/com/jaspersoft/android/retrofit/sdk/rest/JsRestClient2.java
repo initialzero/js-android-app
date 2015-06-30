@@ -24,16 +24,12 @@
 
 package com.jaspersoft.android.retrofit.sdk.rest;
 
-import android.text.TextUtils;
-
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
 import com.jaspersoft.android.retrofit.sdk.token.AccessTokenEncoder;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executor;
@@ -150,24 +146,7 @@ public class JsRestClient2 {
                 .flatMap(new Func1<List<Header>, Observable<String>>() {
                     @Override
                     public Observable<String> call(List<Header> headers) {
-                        List<String> cookies = new ArrayList<String>();
-                        for (Header header : headers) {
-                            if (!TextUtils.isEmpty(header.getName()) && header.getName().equals("Set-Cookie")) {
-                                cookies.add(header.getValue());
-                            }
-                        }
-
-                        StringBuilder stringBuilder = new StringBuilder();
-                        Iterator<String> iterator = cookies.iterator();
-                        while (iterator.hasNext()) {
-                            String cookie = iterator.next();
-                            stringBuilder.append(cookie);
-                            if (iterator.hasNext()) {
-                                stringBuilder.append(";");
-                            }
-                        }
-
-                        return Observable.just(stringBuilder.toString());
+                        return Observable.just(CookieFormatter.format(headers));
                     }
                 })
                 .flatMap(new Func1<String, Observable<LoginResponse>>() {

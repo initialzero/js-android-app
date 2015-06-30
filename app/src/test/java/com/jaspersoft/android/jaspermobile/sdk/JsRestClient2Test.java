@@ -24,9 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.sdk;
 
-import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import org.junit.Before;
 import org.junit.Test;

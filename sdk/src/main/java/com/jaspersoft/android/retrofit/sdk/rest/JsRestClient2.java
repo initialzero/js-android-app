@@ -26,11 +26,11 @@ package com.jaspersoft.android.retrofit.sdk.rest;
 
 import android.text.TextUtils;
 
-import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
 import com.jaspersoft.android.retrofit.sdk.token.AccessTokenEncoder;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -98,7 +98,12 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     public void executeReport(ArrayList<ReportParameter> reportParameters) {
         ReportExecutionRequest executionData = prepareExecutionData(reportParameters);
         final RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient, executionData);
-        requestExecutor.execute(request, new RunReportExecutionListener());
+        requestExecutor.execute(request, new RunReportExecutionListener(), new RequestExecutor.OnProgressDialogCancelListener() {
+            @Override
+            public void onCancel() {
+                getActivity().finish();
+            }
+        });
     }
 
     public void executeReport() {

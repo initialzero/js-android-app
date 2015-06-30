@@ -55,17 +55,12 @@ public class RequestExecutor {
         this.executionMode = executionMode;
     }
 
-    public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
+    public <T> void execute(final SpiceRequest<T> request, final RequestListener<T> requestListener, final OnProgressDialogCancelListener cancelListener) {
         final CachedSpiceRequest<T> cachedSpiceRequest = new CachedSpiceRequest<T>(request, null, DurationInMillis.ALWAYS_RETURNED);
-        execute(cachedSpiceRequest, requestListener);
+        execute(cachedSpiceRequest, requestListener, cancelListener);
     }
 
-    public <T> void execute(final SpiceRequest<T> request, final Object requestCacheKey, final long cacheExpiryDuration, final RequestListener<T> requestListener) {
-        final CachedSpiceRequest<T> cachedSpiceRequest = new CachedSpiceRequest<T>(request, requestCacheKey, cacheExpiryDuration);
-        execute(cachedSpiceRequest, requestListener);
-    }
-
-    public <T> void execute(CachedSpiceRequest<T> request, RequestListener<T> requestListener) {
+    public <T> void execute(CachedSpiceRequest<T> request, RequestListener<T> requestListener, final OnProgressDialogCancelListener cancelListener) {
         boolean isVisibleExecutionInProgress = ProgressDialogFragment.isVisible(fragmentManager);
         if (isVisibleExecutionInProgress) {
             makeSilentExecution(request, requestListener);
@@ -77,7 +72,7 @@ public class RequestExecutor {
                 makeSilentExecution(request, requestListener);
                 break;
             case VISIBLE:
-                makeVisibleExecution(request, requestListener);
+                makeVisibleExecution(request, requestListener, cancelListener);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -88,15 +83,19 @@ public class RequestExecutor {
         spiceManager.execute(request, requestListener);
     }
 
-    private <T> void makeVisibleExecution(final SpiceRequest<T> request, final RequestListener<T> requestListener) {
-        DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
+    private <T> void makeVisibleExecution(final SpiceRequest<T> request, final RequestListener<T> requestListener, final OnProgressDialogCancelListener cancelListener) {
+        DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
                 if (!request.isCancelled()) {
                     spiceManager.cancel(request);
                 }
+                if (cancelListener != null) {
+                    cancelListener.onCancel();
+                }
             }
         };
+
         DialogInterface.OnShowListener showListener = new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
@@ -105,7 +104,7 @@ public class RequestExecutor {
         };
 
         ProgressDialogFragment.builder(fragmentManager)
-                .setOnCancelListener(cancelListener)
+                .setOnCancelListener(onCancelListener)
                 .setOnShowListener(showListener)
                 .show();
     }
@@ -155,5 +154,9 @@ public class RequestExecutor {
 
     public static enum Mode {
         SILENT, VISIBLE
+    }
+
+    public interface OnProgressDialogCancelListener{
+        void onCancel();
     }
 }

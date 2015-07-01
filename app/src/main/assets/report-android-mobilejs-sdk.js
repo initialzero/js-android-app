@@ -80,6 +80,7 @@
       extend(ReportCallback, superClass);
 
       function ReportCallback() {
+        this.onWindowError = bind(this.onWindowError, this);
         this.onMultiPageStateObtained = bind(this.onMultiPageStateObtained, this);
         this.onRefreshError = bind(this.onRefreshError, this);
         this.onRefreshSuccess = bind(this.onRefreshSuccess, this);
@@ -165,6 +166,12 @@
       ReportCallback.prototype.onMultiPageStateObtained = function(isMultiPage) {
         this.dispatch(function() {
           return Android.onMultiPageStateObtained(isMultiPage);
+        });
+      };
+
+      ReportCallback.prototype.onWindowError = function(message) {
+        this.dispatch(function() {
+          return Android.onWindowError(message);
         });
       };
 
@@ -342,6 +349,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       ReportController.prototype.runReport = function() {
         js_mobile.log("runReport");
+        this._setGlobalErrorListener();
         this.scaler.applyScale();
         this.callback.onLoadStart();
         return this._getServerVersion(this._runReportOnTheVersionBasis);
@@ -651,6 +659,14 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
             return report.scale("width").run();
           };
         })(this));
+      };
+
+      ReportController.prototype._setGlobalErrorListener = function() {
+        return window.onerror = (function(_this) {
+          return function(errorMsg, url, lineNumber) {
+            return _this.callback.onWindowError(errorMsg);
+          };
+        })(this);
       };
 
       return ReportController;

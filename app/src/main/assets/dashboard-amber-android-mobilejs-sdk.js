@@ -80,6 +80,7 @@
       extend(AndroidCallback, superClass);
 
       function AndroidCallback() {
+        this.onWindowError = bind(this.onWindowError, this);
         this.onAuthError = bind(this.onAuthError, this);
         this.onWindowResizeEnd = bind(this.onWindowResizeEnd, this);
         this.onWindowResizeStart = bind(this.onWindowResizeStart, this);
@@ -180,6 +181,12 @@
       AndroidCallback.prototype.onAuthError = function(message) {
         this.dispatch(function() {
           return Android.onAuthError(message);
+        });
+      };
+
+      AndroidCallback.prototype.onWindowError = function(message) {
+        this.dispatch(function() {
+          return Android.onWindowError(message);
         });
       };
 
@@ -336,6 +343,7 @@
       }
 
       DashboardController.prototype.initialize = function() {
+        this._setGlobalErrorListener();
         this._injectViewport();
         this.callback.onLoadStart();
         return jQuery(document).ready((function(_this) {
@@ -509,6 +517,14 @@
 
       DashboardController.prototype._hideDashlets = function(overlay) {
         return jQuery('.customOverlay').not(overlay).parent().css("opacity", 0);
+      };
+
+      DashboardController.prototype._setGlobalErrorListener = function() {
+        return window.onerror = (function(_this) {
+          return function(errorMsg, url, lineNumber) {
+            return _this.callback.onWindowError(errorMsg);
+          };
+        })(this);
       };
 
       return DashboardController;

@@ -510,7 +510,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     public void onWindowError(String errorMessage) {
         showErrorView(getString(R.string.sr_failed_to_execute_report));
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        CrashReport.getInstance().logException(new RuntimeException(errorMessage));
+        CrashReport.logException(new RuntimeException(errorMessage));
     }
 
     //---------------------------------------------------------------------

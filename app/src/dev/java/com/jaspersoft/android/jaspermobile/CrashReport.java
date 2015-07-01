@@ -28,17 +28,8 @@ package com.jaspersoft.android.jaspermobile;
  * @author Tom Koptel
  * @since 2.1
  */
-public class CrashReportImpl implements CrashReport {
-    public static CrashReport getInstance() {
-        return CrashReportHolder.INSTANCE;
-    }
-
-    private static class CrashReportHolder {
-        private static final CrashReport INSTANCE = new CrashReportImpl();
-    }
-
-    @Override
-    public void logException(Exception exception) {
+public class CrashReport {
+    public static void logException(Exception exception) {
         // stub
     }
 }

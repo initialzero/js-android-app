@@ -30,17 +30,16 @@ import com.crashlytics.android.Crashlytics;
  * @author Tom Koptel
  * @since 2.1
  */
-public class CrashReport implements CrashReporter {
-    public static CrashReporter getInstance() {
-        return CrashReportHolder.INSTANCE;
+public class CrashReport {
+    public static void logException(Exception exception) {
+        Reporter.INSTANCE.logException(exception);
     }
 
-    private static class CrashReportHolder {
-        private static final CrashReporter INSTANCE = new CrashReport();
-    }
+    private enum Reporter {
+        INSTANCE;
 
-    @Override
-    public void logException(Exception exception) {
-        Crashlytics.logException(exception);
+        public void logException(Exception exception) {
+            Crashlytics.logException(exception);
+        }
     }
 }

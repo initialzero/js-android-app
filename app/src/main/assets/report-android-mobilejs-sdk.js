@@ -451,6 +451,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           },
           success: (function(_this) {
             return function(parameters) {
+              _this._adjustScaleForReport(_this.report);
               return _this.report.container("#container").render().done(function() {
                 return _this._processSuccess(parameters);
               });
@@ -458,8 +459,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           })(this)
         };
         actualParams = jQuery.extend({}, defaultParams, params);
-        this.report = this.v.report(actualParams);
-        return this._adjustScaleForReport(this.report);
+        return this.report = this.v.report(actualParams);
       };
 
       ReportController.prototype._executeFailedCallback = function(error) {
@@ -661,19 +661,19 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 }).call(this);
 
 (function() {
-  define('js.mobile.scale.calculator', [],function() {
-    var ScaleCalculator;
-    return ScaleCalculator = (function() {
-      function ScaleCalculator(diagonal) {
+  define('js.mobile.factor.calculator', [],function() {
+    var FactorCalculator;
+    return FactorCalculator = (function() {
+      function FactorCalculator(diagonal) {
         this.diagonal = diagonal;
         this.diagonal || (this.diagonal = 10.1);
       }
 
-      ScaleCalculator.prototype.calculateFactor = function() {
+      FactorCalculator.prototype.calculateFactor = function() {
         return this.diagonal / 10.1;
       };
 
-      return ScaleCalculator;
+      return FactorCalculator;
 
     })();
   });
@@ -681,70 +681,20 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 }).call(this);
 
 (function() {
-  define('js.mobile.scale.style.report', [],function() {
-    var ScaleStyleReport;
-    return ScaleStyleReport = (function() {
-      function ScaleStyleReport() {}
-
-      ScaleStyleReport.prototype.applyFor = function(factor) {
-        var scaledCanvasCss;
-        jQuery("#scale_style").remove();
-        scaledCanvasCss = "#container { position: absolute; width: " + (100 / factor) + "%; height: " + (100 / factor) + "%; }";
-        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss).appendTo('head');
-      };
-
-      return ScaleStyleReport;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.scale.style.dashboard', [],function() {
-    var ScaleStyleDashboard;
-    return ScaleStyleDashboard = (function() {
-      function ScaleStyleDashboard() {}
-
-      ScaleStyleDashboard.prototype.applyFor = function(factor) {
-        var originalDashletInScaledCanvasCss, scaledCanvasCss;
-        jQuery("#scale_style").remove();
-        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
-        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
-        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
-      };
-
-      return ScaleStyleDashboard;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.scale.manager', ['require','js.mobile.scale.calculator','js.mobile.scale.style.report','js.mobile.scale.style.dashboard'],function(require) {
-    var ScaleCalculator, ScaleManager, ScaleStyleDashboard, ScaleStyleReport;
-    ScaleCalculator = require('js.mobile.scale.calculator');
-    ScaleStyleReport = require('js.mobile.scale.style.report');
-    ScaleStyleDashboard = require('js.mobile.scale.style.dashboard');
+  define('js.mobile.scale.manager', ['js.mobile.factor.calculator'],function() {
+    var ScaleFactor, ScaleManager;
+    ScaleFactor = require('js.mobile.factor.calculator');
     return ScaleManager = (function() {
-      ScaleManager.getReportManager = function(diagonal) {
-        return new ScaleManager(diagonal, new ScaleStyleReport());
-      };
-
-      ScaleManager.getDashboardManager = function(diagonal) {
-        return new ScaleManager(diagonal, new ScaleStyleDashboard());
-      };
-
-      function ScaleManager(diagonal, scaleStyle) {
-        this.scaleStyle = scaleStyle;
-        this.calculator = new ScaleCalculator(diagonal);
+      function ScaleManager(configs) {
+        var diagonal;
+        this.scale_style = configs.scale_style, diagonal = configs.diagonal;
+        this.calculator = new ScaleFactor(diagonal);
       }
 
       ScaleManager.prototype.applyScale = function() {
         var factor;
         factor = this.calculator.calculateFactor();
-        return this.scaleStyle.applyFor(factor);
+        return this.scale_style.applyFor(factor);
       };
 
       return ScaleManager;
@@ -828,8 +778,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       function MobileReport(args) {
         this._getChartTypeList = bind(this._getChartTypeList, this);
-        this.callback = args.callback;
-        this.scaler = ScaleManager.getReportManager();
+        this.callback = args.callback, this.scale_style = args.scale_style;
+        this.scaler = new ScaleManager({
+          scale_style: this.scale_style
+        });
         this.callback.onScriptLoaded();
       }
 
@@ -838,7 +790,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       };
 
       MobileReport.prototype._configure = function(options) {
-        this.scaler = ScaleManager.getReportManager(options.diagonal);
+        this.scaler = new ScaleManager({
+          scale_style: this.scale_style,
+          diagonal: options.diagonal
+        });
         return this.session = new Session(options.auth);
       };
 
@@ -881,16 +836,38 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 }).call(this);
 
 (function() {
-  define('js.mobile.android.report.client', ['require','js.mobile.android.report.callback','js.mobile.report'],function(require) {
-    var MobileReport, ReportCallback, ReportClient;
+  define('js.mobile.android.scale.style.report', [],function() {
+    var ScaleStyleReport;
+    return ScaleStyleReport = (function() {
+      function ScaleStyleReport() {}
+
+      ScaleStyleReport.prototype.applyFor = function(factor) {
+        var scaledCanvasCss;
+        jQuery("#scale_style").remove();
+        scaledCanvasCss = "#container { position: absolute; width: " + (100 / factor) + "%; height: " + (100 / factor) + "%; }";
+        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss).appendTo('head');
+      };
+
+      return ScaleStyleReport;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.android.report.client', ['require','js.mobile.android.report.callback','js.mobile.report','js.mobile.android.scale.style.report'],function(require) {
+    var MobileReport, ReportCallback, ReportClient, ScaleStyleReport;
     ReportCallback = require('js.mobile.android.report.callback');
     MobileReport = require('js.mobile.report');
+    ScaleStyleReport = require('js.mobile.android.scale.style.report');
     return ReportClient = (function() {
       function ReportClient() {}
 
       ReportClient.prototype.run = function() {
         return MobileReport.getInstance({
-          callback: new ReportCallback()
+          callback: new ReportCallback(),
+          scale_style: new ScaleStyleReport()
         });
       };
 

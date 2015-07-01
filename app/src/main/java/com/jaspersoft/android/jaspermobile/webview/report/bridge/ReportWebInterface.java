@@ -151,4 +151,15 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
         });
     }
 
+    @JavascriptInterface
+    @Override
+    public void onWindowError(final String errorMessage) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onWindowError(errorMessage);
+            }
+        });
+    }
+
 }

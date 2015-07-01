@@ -28,6 +28,7 @@ import android.annotation.SuppressLint;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.CrashReport;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 
 /**
@@ -157,6 +158,7 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
         handleCallback(new Runnable() {
             @Override
             public void run() {
+                CrashReport.logException(new RuntimeException(errorMessage));
                 decoratedCallback.onWindowError(errorMessage);
             }
         });

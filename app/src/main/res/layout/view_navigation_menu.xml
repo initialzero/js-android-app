@@ -91,7 +91,6 @@
             android:id="@+id/vg_recent"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="8dp"
             android:background="@drawable/bg_navigation_item"
             android:gravity="center_vertical"
             android:orientation="horizontal"

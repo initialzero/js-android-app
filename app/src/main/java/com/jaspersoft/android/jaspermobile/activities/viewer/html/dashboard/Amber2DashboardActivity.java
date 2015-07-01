@@ -233,6 +233,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         super.onSessionExpired();
     }
 
+    @UiThread
+    @Override
+    public void onWindowError(String errorMessage) {
+        showMessage(getString(R.string.failed_load_data));
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
     @Override
     public void onPageFinished() {
     }

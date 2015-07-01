@@ -281,6 +281,13 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     public void onAuthError(String message) {
     }
 
+    @UiThread
+    @Override
+    public void onWindowError(String errorMessage) {
+        showMessage(getString(R.string.failed_load_data));
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------

@@ -199,6 +199,17 @@ public final class DashboardWebInterface extends WebInterface implements Dashboa
         });
     }
 
+    @JavascriptInterface
+    @Override
+    public void onWindowError(final String errorMessage) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                delegate.onWindowError(errorMessage);
+            }
+        });
+    }
+
     @SuppressLint("AddJavascriptInterface")
     @Override
     public void exposeJavascriptInterface(WebView webView) {

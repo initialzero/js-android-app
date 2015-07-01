@@ -519,19 +519,19 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.scale.calculator', [],function() {
-    var ScaleCalculator;
-    return ScaleCalculator = (function() {
-      function ScaleCalculator(diagonal) {
+  define('js.mobile.factor.calculator', [],function() {
+    var FactorCalculator;
+    return FactorCalculator = (function() {
+      function FactorCalculator(diagonal) {
         this.diagonal = diagonal;
         this.diagonal || (this.diagonal = 10.1);
       }
 
-      ScaleCalculator.prototype.calculateFactor = function() {
+      FactorCalculator.prototype.calculateFactor = function() {
         return this.diagonal / 10.1;
       };
 
-      return ScaleCalculator;
+      return FactorCalculator;
 
     })();
   });
@@ -539,70 +539,20 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.scale.style.report', [],function() {
-    var ScaleStyleReport;
-    return ScaleStyleReport = (function() {
-      function ScaleStyleReport() {}
-
-      ScaleStyleReport.prototype.applyFor = function(factor) {
-        var scaledCanvasCss;
-        jQuery("#scale_style").remove();
-        scaledCanvasCss = "#container { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
-        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss).appendTo('head');
-      };
-
-      return ScaleStyleReport;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.scale.style.dashboard', [],function() {
-    var ScaleStyleDashboard;
-    return ScaleStyleDashboard = (function() {
-      function ScaleStyleDashboard() {}
-
-      ScaleStyleDashboard.prototype.applyFor = function(factor) {
-        var originalDashletInScaledCanvasCss, scaledCanvasCss;
-        jQuery("#scale_style").remove();
-        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
-        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
-        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
-      };
-
-      return ScaleStyleDashboard;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.scale.manager', ['require','js.mobile.scale.calculator','js.mobile.scale.style.report','js.mobile.scale.style.dashboard'],function(require) {
-    var ScaleCalculator, ScaleManager, ScaleStyleDashboard, ScaleStyleReport;
-    ScaleCalculator = require('js.mobile.scale.calculator');
-    ScaleStyleReport = require('js.mobile.scale.style.report');
-    ScaleStyleDashboard = require('js.mobile.scale.style.dashboard');
+  define('js.mobile.scale.manager', ['js.mobile.factor.calculator'],function() {
+    var ScaleFactor, ScaleManager;
+    ScaleFactor = require('js.mobile.factor.calculator');
     return ScaleManager = (function() {
-      ScaleManager.getReportManager = function(diagonal) {
-        return new ScaleManager(diagonal, new ScaleStyleReport());
-      };
-
-      ScaleManager.getDashboardManager = function(diagonal) {
-        return new ScaleManager(diagonal, new ScaleStyleDashboard());
-      };
-
-      function ScaleManager(diagonal, scaleStyle) {
-        this.scaleStyle = scaleStyle;
-        this.calculator = new ScaleCalculator(diagonal);
+      function ScaleManager(configs) {
+        var diagonal;
+        this.scale_style = configs.scale_style, diagonal = configs.diagonal;
+        this.calculator = new ScaleFactor(diagonal);
       }
 
       ScaleManager.prototype.applyScale = function() {
         var factor;
         factor = this.calculator.calculateFactor();
-        return this.scaleStyle.applyFor(factor);
+        return this.scale_style.applyFor(factor);
       };
 
       return ScaleManager;
@@ -670,7 +620,10 @@
       };
 
       MobileDashboard.prototype._initController = function() {
-        this.args.scaler = ScaleManager.getDashboardManager(this.options.diagonal);
+        this.args.scaler = new ScaleManager({
+          scale_style: this.args.scale_style,
+          diagonal: this.options.diagonal
+        });
         this._controller = new DashboardController(this.args);
         return this._controller.initialize();
       };
@@ -703,18 +656,41 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.android.dashboard.callback','js.mobile.amber.dashboard','js.mobile.android.viewport.dashboard.amber'],function(require) {
-    var AndroidCallback, AndroidClient, MobileDashboard, Viewport;
+  define('js.mobile.android.scale.style.dashboard', [],function() {
+    var ScaleStyleDashboard;
+    return ScaleStyleDashboard = (function() {
+      function ScaleStyleDashboard() {}
+
+      ScaleStyleDashboard.prototype.applyFor = function(factor) {
+        var originalDashletInScaledCanvasCss, scaledCanvasCss;
+        jQuery("#scale_style").remove();
+        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
+        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
+        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
+      };
+
+      return ScaleStyleDashboard;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.android.dashboard.callback','js.mobile.amber.dashboard','js.mobile.android.viewport.dashboard.amber','js.mobile.android.scale.style.dashboard'],function(require) {
+    var AndroidCallback, AndroidClient, MobileDashboard, ScaleStyleDashboard, Viewport;
     AndroidCallback = require('js.mobile.android.dashboard.callback');
     MobileDashboard = require('js.mobile.amber.dashboard');
     Viewport = require('js.mobile.android.viewport.dashboard.amber');
+    ScaleStyleDashboard = require('js.mobile.android.scale.style.dashboard');
     return AndroidClient = (function() {
       function AndroidClient() {}
 
       AndroidClient.prototype.run = function() {
         return MobileDashboard.newInstance({
           viewport: new Viewport(),
-          callback: new AndroidCallback()
+          callback: new AndroidCallback(),
+          scale_style: new ScaleStyleDashboard()
         });
       };
 

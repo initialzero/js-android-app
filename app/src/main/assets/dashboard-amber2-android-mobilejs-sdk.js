@@ -158,6 +158,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       };
 
       DashboardController.prototype.runDashboard = function() {
+        this._setGlobalErrorListener();
         this._scaleDashboard();
         this.callback.onLoadStart();
         if (this.session != null) {
@@ -335,6 +336,14 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       DashboardController.prototype._showDashlets = function() {
         return this._getDashlets().css("opacity", 1);
+      };
+
+      DashboardController.prototype._setGlobalErrorListener = function() {
+        return window.onerror = (function(_this) {
+          return function(errorMsg, url, lineNumber) {
+            return _this.callback.onWindowError(errorMsg);
+          };
+        })(this);
       };
 
       return DashboardController;
@@ -608,6 +617,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       extend(AndroidCallback, superClass);
 
       function AndroidCallback() {
+        this.onWindowError = bind(this.onWindowError, this);
         this.onAuthError = bind(this.onAuthError, this);
         this.onWindowResizeEnd = bind(this.onWindowResizeEnd, this);
         this.onWindowResizeStart = bind(this.onWindowResizeStart, this);
@@ -708,6 +718,12 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       AndroidCallback.prototype.onAuthError = function(message) {
         this.dispatch(function() {
           return Android.onAuthError(message);
+        });
+      };
+
+      AndroidCallback.prototype.onWindowError = function(message) {
+        this.dispatch(function() {
+          return Android.onWindowError(message);
         });
       };
 

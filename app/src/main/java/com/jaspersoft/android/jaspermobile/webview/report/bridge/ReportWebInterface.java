@@ -28,6 +28,7 @@ import android.annotation.SuppressLint;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.CrashReport;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 
 /**
@@ -147,6 +148,18 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
             @Override
             public void run() {
                 decoratedCallback.onMultiPageStateObtained(isMultiPage);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onWindowError(final String errorMessage) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                CrashReport.logException(new RuntimeException(errorMessage));
+                decoratedCallback.onWindowError(errorMessage);
             }
         });
     }

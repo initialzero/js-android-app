@@ -28,6 +28,7 @@ import android.annotation.SuppressLint;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.CrashReport;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 
 /**
@@ -195,6 +196,18 @@ public final class DashboardWebInterface extends WebInterface implements Dashboa
             @Override
             public void run() {
                 delegate.onAuthError(message);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onWindowError(final String errorMessage) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                CrashReport.logException(new RuntimeException(errorMessage));
+                delegate.onWindowError(errorMessage);
             }
         });
     }

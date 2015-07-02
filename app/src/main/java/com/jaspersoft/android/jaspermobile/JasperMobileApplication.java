@@ -54,6 +54,8 @@ public class JasperMobileApplication extends Application {
     AppConfigurator appConfigurator;
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    Analytics analytics;
 
     @Override
     public void onCreate() {
@@ -72,8 +74,8 @@ public class JasperMobileApplication extends Application {
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
+        analytics.init(this);
         appConfigurator.configCrashAnalytics(this);
-        appConfigurator.configGoogleAnalytics(this);
         initImageLoader();
     }
 

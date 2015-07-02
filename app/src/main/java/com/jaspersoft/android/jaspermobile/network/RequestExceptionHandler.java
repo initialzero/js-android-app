@@ -104,6 +104,8 @@ public class RequestExceptionHandler {
             }
         } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
             return ((RetrofitError) exception).getResponse().getStatus();
+        } else if (exception instanceof JasperAccountManager.TokenException) {
+            return ((JasperAccountManager.TokenException) exception).getErrorCode();
         }
         return 0;
     }

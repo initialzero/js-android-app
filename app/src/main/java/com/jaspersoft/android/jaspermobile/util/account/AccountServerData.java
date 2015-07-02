@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 /**
  * TODO provide unit tests
@@ -123,7 +124,11 @@ public class AccountServerData {
     }
 
     public AccountServerData setOrganization(String organization) {
-        this.organization = organization;
+        if (TextUtils.isEmpty(organization)) {
+            this.organization = "";
+        } else {
+            this.organization = organization;
+        }
         return this;
     }
 

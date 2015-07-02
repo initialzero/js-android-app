@@ -36,10 +36,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.annotations.Background;
@@ -113,7 +113,7 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
             JasperAccountManager.get(getActivity()).getActiveAuthToken();
             loginSuccess();
         } catch (JasperAccountManager.TokenException e) {
-            loginFailed();
+            loginFailed(e);
         }
     }
 
@@ -127,8 +127,8 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
     }
 
     @UiThread
-    protected void loginFailed(){
-        Toast.makeText(getActivity(), getString(R.string.r_error_incorrect_credentials), Toast.LENGTH_SHORT).show();
+    protected void loginFailed(Exception e){
+        RequestExceptionHandler.handle(e, getActivity());
         ProgressDialogFragment.dismiss(getFragmentManager());
     }
 
@@ -145,7 +145,9 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
                 etPassword.setError(getString(R.string.sp_error_field_required));
             } else {
                 JasperAccountManager.get(getActivity()).updateActiveAccountPassword(password);
-                ProgressDialogFragment.builder(getFragmentManager()).show();
+                ProgressDialogFragment.builder(getFragmentManager())
+                        .setLoadingMessage(R.string.loading_msg)
+                        .show();
                 tryToLogin();
             }
         }

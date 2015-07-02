@@ -43,7 +43,6 @@ import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import retrofit.RetrofitError;
@@ -54,12 +53,11 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class JasperAuthenticator extends AbstractAccountAuthenticator {
+    private static final String SERVER_DATA_WAS_UPDATED = "Server version or edition has been updated";
     private final Context mContext;
-    private final JsRestClient mJsRestClient;
 
-    public JasperAuthenticator(Context context, JsRestClient jsRestClient) {
+    public JasperAuthenticator(Context context) {
         super(context);
-        mJsRestClient = jsRestClient;
         mContext = context;
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }
@@ -126,7 +124,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             }
 
             if (!ServerRelease.satisfiesMinVersion(serverInfo.getVersion())) {
-                return createErrorBundle(JasperAccountManager.TokenException.INCORRECT_SERVER_VERSION_ERROR, mContext.getString(R.string.r_error_server_not_supported));
+                return createErrorBundle(JasperAccountManager.TokenException.INCORRECT_SERVER_VERSION_ERROR, SERVER_DATA_WAS_UPDATED);
             }
 
             authToken = loginResponse.getCookie();

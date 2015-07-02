@@ -83,6 +83,54 @@ public class ServerInfoTest {
         assertThat(retrievedEdition, is("CE"));
     }
 
+    @Test
+    public void shouldProvideOrganization() {
+        fakeServerData.setOrganization("organization");
+        activateServerData(fakeServerData);
+
+        ServerInfoProvider serverInfoProvider =
+                ServerInfo.newInstance(RuntimeEnvironment.application);
+        String retrievedOrganization = serverInfoProvider.getOrganization();
+
+        assertThat(retrievedOrganization, is("organization"));
+    }
+
+    @Test
+    public void shouldProvideEmptyOrganizationIfOneMissing() {
+        fakeServerData.setOrganization(null);
+        activateServerData(fakeServerData);
+
+        ServerInfoProvider serverInfoProvider =
+                ServerInfo.newInstance(RuntimeEnvironment.application);
+        String retrievedOrganization = serverInfoProvider.getOrganization();
+
+        assertThat(retrievedOrganization, is(""));
+    }
+
+    @Test
+    public void shouldProvideUsername() {
+        fakeServerData.setUsername("username");
+        activateServerData(fakeServerData);
+
+        ServerInfoProvider serverInfoProvider =
+                ServerInfo.newInstance(RuntimeEnvironment.application);
+        String retrievedUsername = serverInfoProvider.getUsername();
+
+        assertThat(retrievedUsername, is("username"));
+    }
+
+    @Test
+    public void shouldProvideAlias() {
+        fakeServerData.setAlias("alias");
+        activateServerData(fakeServerData);
+
+        ServerInfoProvider serverInfoProvider =
+                ServerInfo.newInstance(RuntimeEnvironment.application);
+        String retrievedAlias = serverInfoProvider.getAlias();
+
+        assertThat(retrievedAlias, is("alias"));
+    }
+
     private void activateServerData(AccountServerData serverData) {
         JasperAccountManager jasperAccountManager = JasperAccountManager.get(RuntimeEnvironment.application);
         Account account = jasperAccountManager.addAccountExplicitly(serverData).toBlocking().first();

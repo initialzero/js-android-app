@@ -41,6 +41,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EFragment;
@@ -82,8 +84,20 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
         View dialogView = inflater.inflate(R.layout.dialog_password, null);
-        String accName = JasperAccountManager.get(getActivity()).getActiveAccount().name;
-        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(accName);
+        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(getActivity());
+        String alias = serverInfoProvider.getAlias();
+        String username = serverInfoProvider.getUsername();
+        String organization = serverInfoProvider.getOrganization();
+
+        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(alias);
+        ((TextView) dialogView.findViewById(R.id.tv_username)).setText(username);
+
+        TextView organizationField = (TextView) dialogView.findViewById(R.id.tv_organization);
+        organizationField.setText(organization);
+        if (TextUtils.isEmpty(organization)) {
+            dialogView.findViewById(R.id.tv_organization_hint).setVisibility(View.GONE);
+            organizationField.setVisibility(View.GONE);
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.h_ad_title_server_sign_in)

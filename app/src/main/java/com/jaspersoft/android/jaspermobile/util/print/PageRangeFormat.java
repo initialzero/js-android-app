@@ -54,7 +54,7 @@ final class PageRangeFormat {
         int start;
         int end;
 
-        boolean rangePointsToAllPages = (pageRange == PageRange.ALL_PAGES);
+        boolean rangePointsToAllPages = (pageRange.getEnd() == Integer.MAX_VALUE);
         if (rangePointsToAllPages) {
             start = 1;
             end = mTotalPages;

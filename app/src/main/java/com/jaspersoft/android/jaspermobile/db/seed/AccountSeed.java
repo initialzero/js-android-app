@@ -28,6 +28,7 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -50,10 +51,19 @@ public class AccountSeed implements Seed {
     private final JasperAccountManager jasperAccountManager;
     private final Context mContext;
 
-    public AccountSeed(Context context) {
+    private AccountSeed(Context context) {
         mContext = context;
         jasperAccountManager = JasperAccountManager.get(context);
         Timber.tag(AccountSeed.class.getSimpleName());
+    }
+
+    public static void seed(Context context) {
+        boolean noAccounts = JasperAccountManager.get(context).getAccounts().length == 0;
+        boolean buildForQa = (BuildConfig.DEBUG || BuildConfig.FLAVOR.equalsIgnoreCase("dev"));
+        if (noAccounts && buildForQa) {
+            AccountSeed accountSeed = new AccountSeed(context);
+            accountSeed.seed();
+        }
     }
 
     @Override
@@ -90,7 +100,8 @@ public class AccountSeed implements Seed {
             String json = IOUtils.toString(is);
             Gson gson = new Gson();
 
-            Type listType = new TypeToken<List<AccountServerData>>() {}.getType();
+            Type listType = new TypeToken<List<AccountServerData>>() {
+            }.getType();
             List<AccountServerData> datum = gson.fromJson(json, listType);
             for (AccountServerData serverData : datum) {
                 Timber.d("Add server explicitly" + serverData);

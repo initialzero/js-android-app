@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -61,15 +61,15 @@ final class PageRangeFormat {
         } else {
             start = pageRange.getStart() + 1;
             end = pageRange.getEnd() + 1;
-
-            boolean rangePointsToFirstPage = (start == end && start == 1);
-            if (rangePointsToFirstPage) {
-                return String.valueOf(start);
-            }
         }
 
-        // By default returns simple range incremented by 1
-        return String.format("%d-%d", start, end);
+        boolean isSinglePage = (start == end);
+        if (isSinglePage) {
+            return String.valueOf(start);
+        } else {
+            // By default returns simple range incremented by 1
+            return String.format("%d-%d", start, end);
+        }
     }
 
 }

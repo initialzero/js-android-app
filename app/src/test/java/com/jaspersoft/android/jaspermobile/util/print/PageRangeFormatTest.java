@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -28,8 +28,12 @@ import android.print.PageRange;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -39,6 +43,7 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 2.1
  */
+@RunWith(JUnitParamsRunner.class)
 public class PageRangeFormatTest {
     private static final int MAX_TOTAL_PAGE = 1000;
 
@@ -61,24 +66,37 @@ public class PageRangeFormatTest {
     }
 
     @Test
-    public void shouldAdaptRangeFor1to10() {
-        when(pageRange.getStart()).thenReturn(0);
-        when(pageRange.getEnd()).thenReturn(10);
+    @Parameters({"0|10", "5|300"})
+    public void shouldAdaptRangeForRange(String startString, String endString) {
+        int start = Integer.valueOf(startString);
+        int end = Integer.valueOf(endString);
+        when(pageRange.getStart()).thenReturn(start);
+        when(pageRange.getEnd()).thenReturn(end);
+
         String range = new PageRangeFormat(MAX_TOTAL_PAGE).format(pageRange);
-        assertThat(range, is("1-11"));
+
+        assertThat(range, is(String.format("%d-%d", start + 1, end + 1)));
     }
 
     @Test
-    public void shouldAdaptRangeFor1to1() {
-        when(pageRange.getStart()).thenReturn(0);
-        when(pageRange.getEnd()).thenReturn(0);
-        String range = new PageRangeFormat(MAX_TOTAL_PAGE).format(pageRange);
-        assertThat(range, is("1"));
+    @Parameters({"0|0|10|1", "0|0|1|1", "0|" + Integer.MAX_VALUE + "|1|1", "1|1|10|2", "2|2|10|3"})
+    public void shouldAdaptRangeToSinglePage(String start, String end, String totalPages, String resultPage) {
+        when(pageRange.getStart()).thenReturn(Integer.valueOf(start));
+        when(pageRange.getEnd()).thenReturn(Integer.valueOf(end));
+
+        String range = new PageRangeFormat(Integer.valueOf(totalPages)).format(pageRange);
+
+        assertThat(range, is(resultPage));
     }
 
     @Test
     public void shouldAdaptRangeForAllPages() {
-        String range = new PageRangeFormat(MAX_TOTAL_PAGE).format(PageRange.ALL_PAGES);
+        // Simulate all pages
+        when(pageRange.getStart()).thenReturn(0);
+        when(pageRange.getEnd()).thenReturn(Integer.MAX_VALUE);
+
+        String range = new PageRangeFormat(MAX_TOTAL_PAGE).format(pageRange);
+
         assertThat(range, is("1-1000"));
     }
 

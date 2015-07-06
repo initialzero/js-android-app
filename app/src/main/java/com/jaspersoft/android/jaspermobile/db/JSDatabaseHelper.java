@@ -27,14 +27,12 @@ package com.jaspersoft.android.jaspermobile.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
 import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesRemoveColumnMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import timber.log.Timber;
 
@@ -53,7 +51,7 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
     @Override
     public void onCreate(SQLiteDatabase db) {
         super.onCreate(db);
-        seedProfiles();
+        AccountSeed.seed(mContext);
     }
 
     @Override
@@ -94,13 +92,6 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 Timber.d("Start migrating favorite items");
                 new FavoritesRemoveColumnMigration().migrate(db);
                 break;
-        }
-    }
-
-    private void seedProfiles() {
-        boolean noAccounts = JasperAccountManager.get(mContext).getAccounts().length == 0;
-        if (noAccounts && (BuildConfig.DEBUG || BuildConfig.FLAVOR.equalsIgnoreCase("qa"))) {
-            new AccountSeed(mContext).seed();
         }
     }
 

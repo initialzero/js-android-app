@@ -31,7 +31,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
@@ -48,7 +47,6 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
@@ -58,7 +56,6 @@ import java.util.ArrayList;
  * @since 2.0
  */
 @EFragment
-@OptionsMenu(R.menu.report_filter_manager_menu)
 public class GetInputControlsFragment extends RoboSpiceFragment {
 
     public static final String TAG = GetInputControlsFragment.class.getSimpleName();

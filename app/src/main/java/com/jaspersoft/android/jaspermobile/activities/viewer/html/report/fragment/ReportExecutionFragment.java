@@ -190,7 +190,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             requestId = response.getRequestId();
             reportSession.setRequestId(requestId);
-            getFilterMangerFragment().enableSaveOption();
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
@@ -271,6 +270,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 handleEmptyReportEvent();
             } else {
                 getFilterMangerFragment().makeSnapshot();
+                getFilterMangerFragment().enableSaveOption();
             }
         }
     }

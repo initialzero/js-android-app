@@ -44,7 +44,6 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.CrashReport;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
@@ -120,7 +119,7 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu})
+@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu})
 @EActivity(R.layout.activity_report_viewer)
 public class ReportViewerActivity extends RoboToolbarActivity
         implements ReportCallback,
@@ -162,6 +161,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @OptionsMenuItem
     protected MenuItem saveReport;
     @OptionsMenuItem
+    protected MenuItem printAction;
+    @OptionsMenuItem
     protected MenuItem refreshAction;
 
     @Inject
@@ -172,7 +173,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected JsRestClient jsRestClient;
 
     private AccountServerData accountServerData;
-    private boolean mShowSavedMenuItem, mShowRefreshMenuItem;
+    private boolean mShowSaveAndPrintMenuItems, mShowRefreshMenuItem;
     private boolean mHasInitialParameters;
     private JasperChromeClientListenerImpl chromeClientListener;
     private WebInterface mWebInterface;
@@ -243,7 +244,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
         boolean result = super.onCreateOptionsMenu(menu);
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
-        saveReport.setVisible(mShowSavedMenuItem);
+        saveReport.setVisible(mShowSaveAndPrintMenuItems);
+        printAction.setVisible(mShowSaveAndPrintMenuItems);
         refreshAction.setVisible(mShowRefreshMenuItem);
 
         if (BuildConfig.FLAVOR.equals("qa") || BuildConfig.FLAVOR.equals("dev")) {
@@ -383,7 +385,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 return;
             }
 
-            mShowSavedMenuItem = false;
+            mShowSaveAndPrintMenuItems = false;
             supportInvalidateOptionsMenu();
             if (isFlowLoaded) {
                 applyReportParams();
@@ -465,7 +467,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     public void onReportCompleted(String status, int pages, String errorMessage) {
         if (status.equals("ready")) {
             boolean noPages = (pages == 0);
-            mShowSavedMenuItem = mShowRefreshMenuItem = !noPages;
+            mShowSaveAndPrintMenuItems = mShowRefreshMenuItem = !noPages;
             supportInvalidateOptionsMenu();
 
             paginationControl.updateTotalCount(pages);

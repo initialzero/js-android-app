@@ -88,13 +88,15 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsMenuItem
     protected MenuItem saveReport;
+    @OptionsMenuItem (R.id.printAction)
+    protected MenuItem printReport;
     @OptionsMenuItem
     protected MenuItem showFilters;
 
     @InstanceState
     protected boolean mShowFilterOption;
     @InstanceState
-    protected boolean mShowSaveOption;
+    protected boolean mShowSaveAndPrintOption;
 
     private boolean mPageWasLoadedAtLeastOnce;
 
@@ -129,7 +131,8 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        saveReport.setVisible(mShowSaveOption);
+        saveReport.setVisible(mShowSaveAndPrintOption);
+        printReport.setVisible(mShowSaveAndPrintOption);
         showFilters.setVisible(mShowFilterOption);
     }
 
@@ -207,12 +210,12 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     }
 
     public void disableSaveOption() {
-        mShowSaveOption = false;
+        mShowSaveAndPrintOption = false;
         getActivity().supportInvalidateOptionsMenu();
     }
 
     public void enableSaveOption() {
-        mShowSaveOption = true;
+        mShowSaveAndPrintOption = true;
         getActivity().supportInvalidateOptionsMenu();
     }
 
@@ -245,7 +248,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;
-            mShowSaveOption = true;
+            mShowSaveAndPrintOption = false;
             getActivity().supportInvalidateOptionsMenu();
 
             if (showFilterActionVisible) {

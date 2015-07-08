@@ -37,6 +37,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
@@ -85,6 +87,9 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+
+    @Inject
+    protected Analytics analytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +169,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
+            analytics.trackPrintEvent();
             ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
             JasperPrinter.print(job);
         }

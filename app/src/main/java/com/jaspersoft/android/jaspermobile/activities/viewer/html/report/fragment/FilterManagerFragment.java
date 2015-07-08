@@ -35,6 +35,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
@@ -82,6 +83,8 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     protected JsRestClient jsRestClient;
     @Inject
     protected ReportParamsStorage paramsStorage;
+    @Inject
+    protected Analytics analytics;
 
     @FragmentArg
     protected ResourceLookup resource;
@@ -158,6 +161,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsItem
     final void printAction() {
+        analytics.trackPrintEvent();
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(getActivity(), jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);

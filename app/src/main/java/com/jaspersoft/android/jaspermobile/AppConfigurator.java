@@ -32,5 +32,4 @@ import android.content.Context;
  */
 public interface AppConfigurator {
     void configCrashAnalytics(Context appContext);
-    void configGoogleAnalytics(Context appContext);
 }

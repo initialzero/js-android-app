@@ -152,31 +152,37 @@ public class AuthenticatorFragment extends RoboFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onPause() {
+        super.onPause();
+
+        if (addAccountSubscription != null) {
+            addAccountSubscription.unsubscribe();
+        }
+        if (loginSubscription != null) {
+            loginSubscription.unsubscribe();
+        }
+        if (demoSubscription != null) {
+            demoSubscription.unsubscribe();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         if (demoAccountExist()) {
             tryDemoLayout.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             tryDemoLayout.setVisibility(View.VISIBLE);
         }
 
         setProgressEnabled(mFetching);
         if (loginDemoTask != null && mFetching) {
-            addAccount();
+            requestCustomLogin();
         }
         if (tryDemoTask != null && mFetching) {
-            tryDemo();
+            requestDemoLogin();
         }
-    }
-
-    @Override
-    public void onDestroyView() {
-        addAccountSubscription.unsubscribe();
-        loginSubscription.unsubscribe();
-        demoSubscription.unsubscribe();
-        super.onDestroyView();
     }
 
     @Click(R.id.addAccount)
@@ -200,6 +206,10 @@ public class AuthenticatorFragment extends RoboFragment {
         ).subscribeOn(Schedulers.io());
 
         loginDemoTask = bindFragment(this, loginObservable.cache());
+        requestCustomLogin();
+    }
+
+    private void requestCustomLogin() {
         loginSubscription = loginDemoTask
                 .flatMap(new Func1<LoginResponse, Observable<AccountServerData>>() {
                     @Override
@@ -228,6 +238,10 @@ public class AuthenticatorFragment extends RoboFragment {
         ).subscribeOn(Schedulers.io());
 
         tryDemoTask = bindFragment(this, tryDemoObservable.cache());
+        requestDemoLogin();
+    }
+
+    private void requestDemoLogin() {
         demoSubscription = tryDemoTask
                 .flatMap(new Func1<LoginResponse, Observable<AccountServerData>>() {
                     @Override
@@ -242,10 +256,10 @@ public class AuthenticatorFragment extends RoboFragment {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private boolean demoAccountExist(){
+    private boolean demoAccountExist() {
         Account[] accounts = JasperAccountManager.get(getActivity()).getAccounts();
         for (Account account : accounts) {
-            if (account.name.equals( AccountServerData.Demo.ALIAS))
+            if (account.name.equals(AccountServerData.Demo.ALIAS))
                 return true;
         }
         return false;

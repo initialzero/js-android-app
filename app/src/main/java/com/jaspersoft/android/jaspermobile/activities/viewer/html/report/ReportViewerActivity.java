@@ -43,6 +43,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
@@ -171,6 +172,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected ReportParamsSerializer paramsSerializer;
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected Analytics analytics;
 
     private AccountServerData accountServerData;
     private boolean mShowSaveAndPrintMenuItems, mShowRefreshMenuItem;
@@ -344,6 +347,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
+        analytics.trackPrintEvent();
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(this, jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);

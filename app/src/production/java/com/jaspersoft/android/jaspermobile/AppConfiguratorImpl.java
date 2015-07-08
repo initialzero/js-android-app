@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile;
 import android.content.Context;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.analytics.GoogleAnalytics;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 
 import io.fabric.sdk.android.Fabric;
@@ -44,12 +43,6 @@ public class AppConfiguratorImpl implements AppConfigurator {
         if (prefHelper.sendCrashReports()) {
             Fabric.with(appContext, new Crashlytics());
         }
-    }
-
-    @Override
-    public void configGoogleAnalytics(Context appContext) {
-        GoogleAnalytics analytics = GoogleAnalytics.getInstance(appContext);
-        analytics.newTracker(R.xml.analytics_tracker);
     }
 
 }

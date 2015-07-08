@@ -34,8 +34,4 @@ public class AppConfiguratorImpl implements AppConfigurator {
     @Override
     public void configCrashAnalytics(Context appContext) {
     }
-
-    @Override
-    public void configGoogleAnalytics(Context appContext) {
-    }
 }

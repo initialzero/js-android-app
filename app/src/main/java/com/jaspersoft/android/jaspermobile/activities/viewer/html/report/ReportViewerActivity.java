@@ -253,8 +253,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
         saveReport.setVisible(mShowSaveAndPrintMenuItems);
-        printAction.setVisible(mShowSaveAndPrintMenuItems);
         refreshAction.setVisible(mShowRefreshMenuItem);
+        if (printAction != null) {
+            printAction.setVisible(mShowSaveAndPrintMenuItems);
+        }
 
         if (BuildConfig.FLAVOR.equals("qa") || BuildConfig.FLAVOR.equals("dev")) {
             MenuInflater inflater = getMenuInflater();

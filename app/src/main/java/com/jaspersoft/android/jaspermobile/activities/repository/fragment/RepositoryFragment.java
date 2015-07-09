@@ -117,6 +117,9 @@ public class RepositoryFragment extends RoboSpiceFragment
     @InstanceState
     @FragmentArg
     protected String query;
+    @InstanceState
+    @FragmentArg
+    protected boolean recursive;
 
     @FragmentArg
     protected ViewType viewType;
@@ -152,7 +155,7 @@ public class RepositoryFragment extends RoboSpiceFragment
 
         mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setLimit(mLimit);
-        mSearchCriteria.setRecursive(false);
+        mSearchCriteria.setRecursive(recursive);
         mSearchCriteria.setTypes(repositoryResourceFilter.getCurrent().getValues());
         mSearchCriteria.setFolderUri(TextUtils.isEmpty(resourceUri) ? ROOT_URI : resourceUri);
         if (!TextUtils.isEmpty(query)) {
@@ -365,7 +368,6 @@ public class RepositoryFragment extends RoboSpiceFragment
                 .setTitle(resourceTitle)
                 .setMessage(resourceDescription)
                 .setNegativeButtonText(R.string.ok)
-                .setTargetFragment(this)
                 .show();
     }
 

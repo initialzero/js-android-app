@@ -54,6 +54,7 @@ public class RepositorySearchableActivity extends RoboSpiceActivity {
             RepositoryControllerFragment resourcesController =
                     RepositoryControllerFragment_.builder()
                             .resourceLabel(getString(R.string.search_result_format, query))
+                            .recursive(true)
                             .resourceUri(resourceUri)
                             .query(query)
                             .build();

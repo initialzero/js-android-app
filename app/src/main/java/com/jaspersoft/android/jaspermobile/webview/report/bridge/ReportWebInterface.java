@@ -38,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 public final class ReportWebInterface extends WebInterface implements ReportCallback {
 
     private final ReportCallback decoratedCallback;
+    private boolean mLoadDone;
 
     private ReportWebInterface(ReportCallback decoratedCallback) {
         this.decoratedCallback = decoratedCallback;
@@ -78,6 +79,7 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
     @JavascriptInterface
     @Override
     public void onLoadDone(final String parameters) {
+        mLoadDone = true;
         handleCallback(new Runnable() {
             @Override
             public void run() {
@@ -155,13 +157,15 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
     @JavascriptInterface
     @Override
     public void onWindowError(final String errorMessage) {
-        handleCallback(new Runnable() {
-            @Override
-            public void run() {
-                CrashReport.logException(new RuntimeException(errorMessage));
-                decoratedCallback.onWindowError(errorMessage);
-            }
-        });
+        if (!mLoadDone) {
+            handleCallback(new Runnable() {
+                @Override
+                public void run() {
+                    CrashReport.logException(new RuntimeException(errorMessage));
+                    decoratedCallback.onWindowError(errorMessage);
+                }
+            });
+        }
     }
 
 }

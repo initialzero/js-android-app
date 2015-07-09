@@ -597,7 +597,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
                 .withDelegateListener(chromeClientListener);
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
-                .withDelegateListener(new ErrorWebViewClientListener(this))
+                .withDelegateListener(new ErrorWebViewClientListener(this, this))
                 .withUrlPolicy(defaultPolicy);
 
         mWebInterface = ReportWebInterface.from(this);

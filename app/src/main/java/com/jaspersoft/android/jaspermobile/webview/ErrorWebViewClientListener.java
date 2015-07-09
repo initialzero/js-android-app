@@ -24,20 +24,27 @@
 
 package com.jaspersoft.android.jaspermobile.webview;
 
+import android.content.Context;
 import android.webkit.WebViewClient;
+
+import com.jaspersoft.android.jaspermobile.R;
+
+import java.lang.ref.WeakReference;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
 public class ErrorWebViewClientListener implements JasperWebViewClientListener {
-    private final OnWebViewErrorListener onWebViewErrorListener;
+    private final WeakReference<Context> mContextWeakReference;
+    private final OnWebViewErrorListener mErrorListener;
 
-    public ErrorWebViewClientListener(OnWebViewErrorListener onWebViewErrorListener) {
+    public ErrorWebViewClientListener(Context context, OnWebViewErrorListener onWebViewErrorListener) {
         if (onWebViewErrorListener == null) {
             throw new IllegalArgumentException("Error listener can not be null");
         }
-        this.onWebViewErrorListener = onWebViewErrorListener;
+        mContextWeakReference = new WeakReference<Context>(context);
+        mErrorListener = onWebViewErrorListener;
     }
 
     @Override
@@ -46,55 +53,65 @@ public class ErrorWebViewClientListener implements JasperWebViewClientListener {
 
     @Override
     public void onReceivedError(int errorCode, String description, String failingUrl) {
+        Context context = mContextWeakReference.get();
+        if (context != null) {
+            delegateError(errorCode, context);
+        }
+
+
+
+    }
+
+    private void delegateError(int errorCode, Context context) {
         String message = null;
         String title = null;
         if (errorCode == WebViewClient.ERROR_AUTHENTICATION) {
-            message = "User authentication failed on server";
-            title = "Auth Error";
+            message = context.getString(R.string.error_webview_auth_msg);
+            title = context.getString(R.string.error_webview_auth_title);
         } else if (errorCode == WebViewClient.ERROR_TIMEOUT) {
-            message = "The server is taking too much time to communicate. Try again later.";
-            title = "Connection Timeout";
+            message = context.getString(R.string.error_webview_timeout_msg);
+            title = context.getString(R.string.error_webview_timeout_title);
         } else if (errorCode == WebViewClient.ERROR_TOO_MANY_REQUESTS) {
-            message = "Too many requests during this load";
-            title = "Too Many Requests";
+            message = context.getString(R.string.error_webview_too_many_requests_msg);
+            title = context.getString(R.string.error_webview_too_many_requests_title);
         } else if (errorCode == WebViewClient.ERROR_UNKNOWN) {
-            message = "Generic error";
-            title = "Unknown Error";
+            message = context.getString(R.string.error_webview_generic_msg);
+            title = context.getString(R.string.error_webview_generic_title);
         } else if (errorCode == WebViewClient.ERROR_BAD_URL) {
-            message = "Check entered URL..";
-            title = "Malformed URL";
+            message = context.getString(R.string.error_webview_bad_url_msg);
+            title = context.getString(R.string.error_webview_bad_url_title);
         } else if (errorCode == WebViewClient.ERROR_CONNECT) {
-            message = "Failed to connect to the server";
-            title = "Connection";
+            message = context.getString(R.string.error_webview_connect_msg);
+            title = context.getString(R.string.error_webview_connect_title);
         } else if (errorCode == WebViewClient.ERROR_FAILED_SSL_HANDSHAKE) {
-            message = "Failed to perform SSL handshake";
-            title = "SSL Handshake Failed";
+            message = context.getString(R.string.error_webview_ssl_handshake_msg);
+            title = context.getString(R.string.error_webview_ssl_handshake_title);
         } else if (errorCode == WebViewClient.ERROR_HOST_LOOKUP) {
-            message = "Server or proxy hostname lookup failed";
-            title = "Host Lookup Error";
+            message = context.getString(R.string.error_webview_host_lookup_msg);
+            title = context.getString(R.string.error_webview_host_lookup_title);
         } else if (errorCode == WebViewClient.ERROR_PROXY_AUTHENTICATION) {
-            message = "User authentication failed on proxy";
-            title = "Proxy Auth Error";
+            message = context.getString(R.string.error_webview_proxy_auth_msg);
+            title = context.getString(R.string.error_webview_proxy_auth_title);
         } else if (errorCode == WebViewClient.ERROR_REDIRECT_LOOP) {
-            message = "Too many redirects";
-            title = "Redirect Loop Error";
+            message = context.getString(R.string.error_webview_redirect_loop_msg);
+            title = context.getString(R.string.error_webview_redirect_loop_title);
         } else if (errorCode == WebViewClient.ERROR_UNSUPPORTED_AUTH_SCHEME) {
-            message = "Unsupported authentication scheme (not basic or digest)";
-            title = "Auth Scheme Error";
+            message = context.getString(R.string.error_webview_unsupported_auth_scheme_msg);
+            title = context.getString(R.string.error_webview_unsupported_auth_scheme_title);
         } else if (errorCode == WebViewClient.ERROR_UNSUPPORTED_SCHEME) {
-            message = "Unsupported URI scheme";
-            title = "URI Scheme Error";
+            message = context.getString(R.string.error_webview_unsupported_scheme_msg);
+            title = context.getString(R.string.error_webview_unsupported_scheme_title);
         } else if (errorCode == WebViewClient.ERROR_FILE) {
-            message = "Generic file error";
-            title = "File";
+            message = context.getString(R.string.error_webview_error_file_msg);
+            title = context.getString(R.string.error_webview_error_file_title);
         } else if (errorCode == WebViewClient.ERROR_FILE_NOT_FOUND) {
-            message = "File not found";
-            title = "File";
+            message = context.getString(R.string.error_webview_file_not_found_msg);
+            title = context.getString(R.string.error_webview_file_not_found_title);
         } else if (errorCode == WebViewClient.ERROR_IO) {
-            message = "The server failed to communicate. Try again later.";
-            title = "IO Error";
+            message = context.getString(R.string.error_webview_io_msg);
+            title = context.getString(R.string.error_webview_io_title);
         }
-        onWebViewErrorListener.onWebViewError(title, message);
+        mErrorListener.onWebViewError(title, message);
     }
 
     @Override

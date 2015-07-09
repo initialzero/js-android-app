@@ -56,6 +56,9 @@ public class RepositoryControllerFragment extends ControllerFragment {
     @InstanceState
     @FragmentArg
     String resourceLabel;
+    @InstanceState
+    @FragmentArg
+    boolean recursive;
 
     @FragmentArg
     boolean hideMenu;
@@ -85,6 +88,7 @@ public class RepositoryControllerFragment extends ControllerFragment {
                 .query(query)
                 .resourceUri(resourceUri)
                 .resourceLabel(resourceLabel)
+                .recursive(recursive)
                 .viewType(getViewType())
                 .build();
     }

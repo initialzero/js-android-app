@@ -48,6 +48,7 @@
     <TextView
         android:id="@android:id/empty"
         tools:text="@string/rv_error_empty_report"
+        android:padding="8dp"
         android:textColor="@android:color/black"
         android:visibility="gone"
         android:layout_centerInParent="true"

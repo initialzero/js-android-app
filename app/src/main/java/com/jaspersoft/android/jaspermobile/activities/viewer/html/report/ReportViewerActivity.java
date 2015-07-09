@@ -131,8 +131,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,
-        ErrorWebViewClientListener.OnWebViewErrorListener,
-        SimpleDialogFragment.SimpleDialogClickListener
+        ErrorWebViewClientListener.OnWebViewErrorListener
 {
 
     @Bean
@@ -559,24 +558,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void onWebViewError(String title, String message) {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setTitle(title)
-                .setMessage(message)
-                .setNegativeButtonText(R.string.ok)
-                .show();
-    }
-
-    //---------------------------------------------------------------------
-    // SimpleDialogFragment.OnWebViewErrorListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onPositiveClick(int requestCode) {
-        finish();
-    }
-
-    @Override
-    public void onNegativeClick(int requestCode) {
+        progressBar.setVisibility(View.GONE);
+        webView.setVisibility(View.GONE);
+        showErrorView(title + "\n" + message);
     }
 
     //---------------------------------------------------------------------

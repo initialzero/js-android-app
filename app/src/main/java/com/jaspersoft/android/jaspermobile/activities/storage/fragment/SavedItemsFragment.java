@@ -330,7 +330,6 @@ public class SavedItemsFragment extends RoboFragment
                 .setTitle(title)
                 .setMessage(description)
                 .setPositiveButtonText(R.string.ok)
-                .setTargetFragment(this)
                 .show();
     }
 

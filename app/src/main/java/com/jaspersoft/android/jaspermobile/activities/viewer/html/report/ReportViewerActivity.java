@@ -73,6 +73,7 @@ import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
+import com.jaspersoft.android.jaspermobile.webview.ErrorWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
@@ -127,7 +128,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
         AbstractPaginationView.OnPageChangeListener,
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
-        NumberDialogFragment.NumberDialogClickListener {
+        NumberDialogFragment.NumberDialogClickListener,
+        ErrorWebViewClientListener.OnWebViewErrorListener,
+        SimpleDialogFragment.SimpleDialogClickListener
+{
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -547,6 +551,32 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     //---------------------------------------------------------------------
+    // ErrorWebViewClientListener.OnWebViewErrorListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onWebViewError(String title, String message) {
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setTitle(title)
+                .setMessage(message)
+                .setNegativeButtonText(R.string.ok)
+                .show();
+    }
+
+    //---------------------------------------------------------------------
+    // SimpleDialogFragment.OnWebViewErrorListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onPositiveClick(int requestCode) {
+        finish();
+    }
+
+    @Override
+    public void onNegativeClick(int requestCode) {
+    }
+
+    //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
@@ -567,6 +597,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
                 .withDelegateListener(chromeClientListener);
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+                .withDelegateListener(new ErrorWebViewClientListener(this))
                 .withUrlPolicy(defaultPolicy);
 
         mWebInterface = ReportWebInterface.from(this);

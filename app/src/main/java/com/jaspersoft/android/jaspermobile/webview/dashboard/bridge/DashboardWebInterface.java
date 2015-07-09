@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.webview.WebInterface;
  */
 public final class DashboardWebInterface extends WebInterface implements DashboardCallback {
     private final DashboardCallback delegate;
+    private boolean mOnLoadDone;
 
     private DashboardWebInterface(DashboardCallback dashboardCallback) {
         this.delegate = dashboardCallback;
@@ -137,6 +138,7 @@ public final class DashboardWebInterface extends WebInterface implements Dashboa
     @JavascriptInterface
     @Override
     public void onLoadDone() {
+        mOnLoadDone = true;
         handleCallback(new Runnable() {
             @Override
             public void run() {
@@ -203,13 +205,15 @@ public final class DashboardWebInterface extends WebInterface implements Dashboa
     @JavascriptInterface
     @Override
     public void onWindowError(final String errorMessage) {
-        handleCallback(new Runnable() {
-            @Override
-            public void run() {
-                CrashReport.logException(new RuntimeException(errorMessage));
-                delegate.onWindowError(errorMessage);
-            }
-        });
+        if (!mOnLoadDone) {
+            handleCallback(new Runnable() {
+                @Override
+                public void run() {
+                    CrashReport.logException(new RuntimeException(errorMessage));
+                    delegate.onWindowError(errorMessage);
+                }
+            });
+        }
     }
 
     @SuppressLint("AddJavascriptInterface")

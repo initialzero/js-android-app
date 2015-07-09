@@ -308,7 +308,6 @@ public class FavoritesFragment extends RoboFragment
                 .setTitle(itemTitle)
                 .setMessage(itemDescription)
                 .setPositiveButtonText(getString(R.string.ok))
-                .setTargetFragment(this)
                 .show();
     }
 

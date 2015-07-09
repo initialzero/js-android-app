@@ -224,7 +224,6 @@ public class RecentFragment extends RoboSpiceFragment
                 .setTitle(resourceTitle)
                 .setMessage(resourceDescription)
                 .setNegativeButtonText(R.string.ok)
-                .setTargetFragment(this)
                 .show();
     }
 

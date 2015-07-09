@@ -38,7 +38,7 @@ import java.text.NumberFormat
 ext {
     versionFile = new File(project.rootDir, 'version.properties')
     currentBranch = getCurrentBranch()
-    ext.baseAppName = "jaspermobile"
+    baseAppName = "jaspermobile"
 }
 
 android {
@@ -215,15 +215,12 @@ void renameApk(flavor, apkName) {
     def outputs = flavor.outputs
 
     outputs.each { output ->
-        def alignedOutputFile = output.outputFile
-        def unalignedOutputFile = output.packageApplication.outputFile
-
         if (flavor.buildType.zipAlignEnabled) {
             // normal APK
-            output.packageApplication.outputFile = new File(unalignedOutputFile.parent, "${apkName}.apk")
+            output.outputFile = new File(output.outputFile.parent, "${apkName}.apk")
         }
         // 'unaligned' APK
         def unalignedApkName = "${baseAppName}-${baseVersion}-unaligned.apk"
-        output.outputFile = new File(alignedOutputFile.parent, unalignedApkName)
+        output.packageApplication.outputFile = new File(output.packageApplication.outputFile.parent, unalignedApkName)
     }
 }

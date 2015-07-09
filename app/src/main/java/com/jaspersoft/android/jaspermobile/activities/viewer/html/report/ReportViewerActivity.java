@@ -556,6 +556,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public void onWebViewError(String title, String message) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(title)
                 .setMessage(message)

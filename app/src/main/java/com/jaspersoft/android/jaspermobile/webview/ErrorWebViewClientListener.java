@@ -57,9 +57,6 @@ public class ErrorWebViewClientListener implements JasperWebViewClientListener {
         if (context != null) {
             delegateError(errorCode, context);
         }
-
-
-
     }
 
     private void delegateError(int errorCode, Context context) {

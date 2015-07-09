@@ -75,8 +75,10 @@ import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.ErrorWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
+import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
+import com.jaspersoft.android.jaspermobile.webview.TimeoutWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
@@ -597,8 +599,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
         SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
                 .withDelegateListener(chromeClientListener);
+
+        JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(this, this);
+        JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
+
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
-                .withDelegateListener(new ErrorWebViewClientListener(this, this))
+                .withDelegateListener(clientListener)
                 .withUrlPolicy(defaultPolicy);
 
         mWebInterface = ReportWebInterface.from(this);

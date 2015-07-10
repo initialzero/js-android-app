@@ -36,6 +36,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 
 /**
@@ -48,7 +49,8 @@ public class AboutDialogFragment extends SimpleDialogFragment implements DialogI
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.sa_show_about);
-        builder.setMessage(R.string.sa_about_info);
+        String message = getString(R.string.sa_about_info, BuildConfig.VERSION_NAME);
+        builder.setMessage(message);
         builder.setNeutralButton(R.string.ok, null);
 
         Dialog dialog = builder.create();

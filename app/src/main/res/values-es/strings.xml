@@ -84,7 +84,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">Acerca de</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nHerramienta de gestión y visualización de informes para JasperReports Server 5.5 y superior.\n\nPara mayor información visite:\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">\nhttp://community.jaspersoft.com/project/jaspermobile-android</a>\n\nPara información de la política de privacidad, visite:\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nDerechos reservados © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_info">TIBCO JasperMobile™ v%s\n\nHerramienta de gestión y visualización de informes para JasperReports Server 5.5 y superior.\n\nPara mayor información visite:\n\n\nDerechos reservados © 2005-2015 TIBCO Software, Inc.</string>
     <string name="sa_about_privacy">Política de Privacidad</string>
 
     <!-- Report Options Activity -->

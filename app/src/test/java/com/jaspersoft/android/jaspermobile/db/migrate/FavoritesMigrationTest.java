@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
@@ -54,7 +55,7 @@ import static org.junit.Assert.assertThat;
         constants = BuildConfig.class,
         sdk = 21
 )
-public class ProfileFavoritesMigrationTest {
+public class FavoritesMigrationTest {
 
     private ResourceDatabase resourceDatabase;
     private SQLiteDatabase database;
@@ -65,7 +66,7 @@ public class ProfileFavoritesMigrationTest {
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        Migration migration = new ProfileFavoritesMigration();
+        Migration migration = new FavoritesMigration();
 
         String insertProfileSql = TestResource.get("insert_mobile_profile.sql").asString();
         String insertFavoriteSql = TestResource.get("insert_favorite.sql").asString();
@@ -82,18 +83,7 @@ public class ProfileFavoritesMigrationTest {
     }
 
     @Test
-    public void shouldAddCreationTimeColumn() {
-        Cursor cursor = database.query("favorites",
-                new String[]{"_id", "creation_time"},
-                null, null, null, null, null);
-        assertCursor(cursor);
-        cursor.moveToFirst();
-
-        cursor.getColumnIndexOrThrow("creation_time");
-    }
-
-    @Test
-    public void shouldAddAccountNameColumn() {
+    public void shouldUpdateAccountNameColumnWithAlias() {
         Cursor cursor = database.query("favorites",
                 new String[]{"_id", "account_name"},
                 null, null, null, null, null);
@@ -102,6 +92,17 @@ public class ProfileFavoritesMigrationTest {
 
         String name = cursor.getString(cursor.getColumnIndexOrThrow("account_name"));
         assertThat(name, is("Mobile Demo"));
+    }
+
+    @Test(expected = SQLiteException.class)
+    public void shouldRemoveServerProfileIdColumn() {
+        Cursor cursor = database.query("favorites",
+                new String[]{"_id", "server_profile_id"},
+                null, null, null, null, null);
+        assertCursor(cursor);
+        cursor.moveToFirst();
+
+        cursor.getColumnIndexOrThrow("server_profile_id");
     }
 
 }

@@ -19,30 +19,21 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>./
+ * <http://www.gnu.org/licenses/lgpl>.
  */
+
 package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.database.sqlite.SQLiteDatabase;
 
 /**
- * Removing column 'name'
- *
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.1
  */
-public class FavoritesRemoveColumnMigration implements Migration {
+public class FavoritesMigration implements Migration {
     @Override
     public void migrate(SQLiteDatabase database) {
-        database.execSQL("ALTER TABLE favorites RENAME TO tmp_favorites;");
-
-        database.execSQL(
-                "CREATE TABLE favorites ( _id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, uri TEXT, " +
-                        "description TEXT, wstype TEXT, username TEXT, organization TEXT, account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none', creation_time TEXT )"
-        );
-        database.execSQL("INSERT INTO favorites(title, uri, description, wstype, username, organization, account_name, creation_time)" +
-                " select title, uri, description, wstype, username, organization, account_name, creation_time from tmp_favorites;");
-
-        database.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
+        new FavoriteTableColumnsMigration().migrate(database);
+        new ProfileFavoritesMigration().migrate(database);
     }
 }

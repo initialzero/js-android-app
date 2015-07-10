@@ -28,9 +28,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
-import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesRemoveColumnMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
-import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
 
@@ -86,11 +85,9 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 Timber.d("Start migrating accounts");
                 new ProfileAccountMigration(mContext).migrate(db);
                 Timber.d("Start migrating profiles");
-                new ProfileFavoritesMigration().migrate(db);
+                new FavoritesMigration().migrate(db);
                 Timber.d("Start migrating saved items");
                 new SavedItemsMigration(mContext).migrate(db);
-                Timber.d("Start migrating favorite items");
-                new FavoritesRemoveColumnMigration().migrate(db);
                 break;
         }
     }

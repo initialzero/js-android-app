@@ -33,12 +33,11 @@ import android.database.sqlite.SQLiteDatabase;
  * @author Tom Koptel
  * @since 2.0
  */
-public class ProfileFavoritesMigration implements Migration {
+final class ProfileFavoritesMigration implements Migration {
     @Override
     public void migrate(SQLiteDatabase database) {
-        addCreationTimeColumn(database);
-        addAccountNameColumn(database);
         populateAccountNameColumn(database);
+        removeServerProfileIdColumn(database);
     }
 
     private void populateAccountNameColumn(SQLiteDatabase database) {
@@ -65,11 +64,17 @@ public class ProfileFavoritesMigration implements Migration {
         }
     }
 
-    private void addAccountNameColumn(SQLiteDatabase database) {
-        database.execSQL("ALTER TABLE favorites ADD COLUMN account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none';");
+    private void removeServerProfileIdColumn(SQLiteDatabase database) {
+        database.execSQL("ALTER TABLE favorites RENAME TO tmp_favorites;");
+
+        database.execSQL(
+                "CREATE TABLE favorites ( _id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, uri TEXT, " +
+                        "description TEXT, wstype TEXT, username TEXT, organization TEXT, account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none', creation_time TEXT )"
+        );
+        database.execSQL("INSERT INTO favorites(title, uri, description, wstype, username, organization, account_name, creation_time)" +
+                " select title, uri, description, wstype, username, organization, account_name, creation_time from tmp_favorites;");
+
+        database.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
     }
 
-    private void addCreationTimeColumn(SQLiteDatabase database) {
-        database.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
-    }
 }

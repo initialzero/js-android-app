@@ -28,9 +28,11 @@ import android.text.TextUtils;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
@@ -78,5 +80,14 @@ public class TestResource {
         return "TestResource{" +
                 "fileName='" + fileName + '\'' +
                 '}';
+    }
+
+    public File asFile() {
+        URL path = getClass().getClassLoader().getResource(fileName);
+        try {
+            return new File(path.toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

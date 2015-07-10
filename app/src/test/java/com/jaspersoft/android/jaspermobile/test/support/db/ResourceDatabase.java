@@ -25,12 +25,12 @@
 package com.jaspersoft.android.jaspermobile.test.support.db;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 
 /**
  * @author Tom Koptel
@@ -41,6 +41,7 @@ public class ResourceDatabase {
     private final URL resourceUrl;
     private final String resourceName;
     private final ClassLoader classLoader;
+    private SQLiteDatabase mDatabase;
 
     public static ResourceDatabase get(String relativePath) {
         return new ResourceDatabase(relativePath);
@@ -79,40 +80,42 @@ public class ResourceDatabase {
     // DB actions
     //---------------------------------------------------------------------
 
-    public void performAction(DbAction action) {
-        SQLiteDatabase db = getDatabase();
-        try {
-            action.performAction(db);
-        } finally {
-            db.close();
+    public SQLiteDatabase open() {
+        if (mDatabase == null || !mDatabase.isOpen()) {
+            mDatabase = SQLiteDatabase.openDatabase(getFile().getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
+        }
+        return mDatabase;
+    }
+
+    public void close() {
+        if (mDatabase != null) {
+            mDatabase.close();
         }
     }
 
-    public void performMigration(final SQLiteOpenHelper sqLiteOpenHelper, final MigrationCondition migrationCondition) {
-        performAction(new DbAction() {
-            @Override
-            public void performAction(SQLiteDatabase database) {
-                sqLiteOpenHelper.onUpgrade(database, migrationCondition.oldVersion(), migrationCondition.newVersion());
-            }
-        });
+    public SQLiteDatabase getDb() {
+        if (mDatabase == null) {
+            throw new IllegalStateException("Database is not opened!");
+        }
+        return mDatabase;
     }
 
     public void performSql(final String sql) {
-        performAction(new DbAction() {
-            @Override
-            public void performAction(SQLiteDatabase database) {
-                database.execSQL(sql);
-            }
-        });
+        if (mDatabase == null) {
+            throw new IllegalStateException("Database is not opened!");
+        }
+        mDatabase.execSQL(sql);
+    }
+
+    public void execSQLResource(RawSqlStatements rawSql) {
+        for (String sql : rawSql.getStatements()) {
+            performSql(sql);
+        }
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-
-    private SQLiteDatabase getDatabase() {
-        return SQLiteDatabase.openDatabase(getFile().getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
-    }
 
     private void removeFileOrThrow(File file) {
         if (file.exists()) {
@@ -131,7 +134,7 @@ public class ResourceDatabase {
         }
     }
 
-    public interface DbAction {
-        void performAction(SQLiteDatabase database);
+    public interface RawSqlStatements {
+        Collection<String> getStatements();
     }
 }

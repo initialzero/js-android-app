@@ -40,7 +40,7 @@ import java.net.URL;
 public class TestResource {
     private final String fileName;
 
-    private TestResource(String fileName) {
+    protected TestResource(String fileName) {
         if (TextUtils.isEmpty(fileName)) {
             throw new IllegalArgumentException("Resource name should not be null");
         }

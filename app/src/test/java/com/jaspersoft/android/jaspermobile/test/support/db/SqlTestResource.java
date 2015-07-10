@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,18 +24,37 @@
 
 package com.jaspersoft.android.jaspermobile.test.support.db;
 
+import com.jaspersoft.android.jaspermobile.test.support.TestResource;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-class MigrationCondition1_9 implements MigrationCondition {
-    @Override
-    public int oldVersion() {
-        return 3;
+public class SqlTestResource extends TestResource implements ResourceDatabase.RawSqlStatements {
+
+    private SqlTestResource(String fileName) {
+        super(fileName);
+    }
+
+    public static SqlTestResource get(String fileName) {
+        return new SqlTestResource(fileName);
     }
 
     @Override
-    public int newVersion() {
-        return 4;
+    public Collection<String> getStatements() {
+        String rawString = asString();
+        String[] statements = rawString.split(";");
+        List<String> result = new ArrayList<String>(statements.length);
+        for (String statement : statements) {
+            statement = statement.replace("\n", "");
+            statement = statement.replace("\r", "");
+            result.add(statement + ";");
+        }
+        return result;
     }
+
 }

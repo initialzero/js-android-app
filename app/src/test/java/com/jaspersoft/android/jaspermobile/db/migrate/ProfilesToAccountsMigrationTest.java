@@ -1,5 +1,5 @@
 /*
- * Copyright � 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -24,16 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.db.migrate;
 
-import android.database.Cursor;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
-import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
+import com.jaspersoft.android.jaspermobile.test.support.db.SqlTestResource;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,9 +42,11 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static org.hamcrest.CoreMatchers.is;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
  * @author Tom Koptel
@@ -54,66 +57,36 @@ import static org.hamcrest.core.IsNull.notNullValue;
         constants = BuildConfig.class,
         sdk = 21
 )
-public class LegacyProfileMigrationTest {
+public class ProfilesToAccountsMigrationTest {
 
     private ResourceDatabase resourceDatabase;
-    private String insertMobileProfileSql;
-    private SQLiteDatabase database;
+    private ResourceDatabase.RawSqlStatements insertMobileProfileSql;
     private Migration migration;
+    private SQLiteDatabase database;
 
     @Before
     public void setup() {
         // Dirty hack in order to revert AccountSeed side effect
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
+
+        migration = new ProfilesToAccountsMigration(RuntimeEnvironment.application);
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        migration = new LegacyProfileMigration();
 
-        insertMobileProfileSql = TestResource.get("insert_mobile_profile.sql").asString();
-    }
-
-    @After
-    public void teardown() {
-        resourceDatabase.close();
-        resourceDatabase.delete();
+        insertMobileProfileSql = SqlTestResource.get("insert_custom_profiles.sql");
     }
 
     @Test
-    public void shouldRenameLegacyProfile() {
-        resourceDatabase.performSql(insertMobileProfileSql);
+    public void shouldConvertProfilesInAccount() {
+        resourceDatabase.execSQLResource(insertMobileProfileSql);
         migration.migrate(database);
 
-        Cursor cursor = queryProfile();
+        Account[] accounts = AccountManager.get(RuntimeEnvironment.application).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        List<Account> accountList = Arrays.asList(accounts);
+        Account account1 = new Account("My profile 1", JasperSettings.JASPER_ACCOUNT_TYPE);
+        Account account2 = new Account("My profile 2", JasperSettings.JASPER_ACCOUNT_TYPE);
 
-        assertCursor(cursor);
-        assertThat(cursor.getString(cursor.getColumnIndex("alias")), is("Legacy Mobile Demo"));
-
-        cursor.close();
-    }
-
-    @Test
-    public void shouldUpdateUrlWithMobileDemo2() {
-        resourceDatabase.performSql(insertMobileProfileSql);
-        migration.migrate(database);
-
-        Cursor cursor = queryProfile();
-
-        assertCursor(cursor);
-        assertThat(cursor.getString(cursor.getColumnIndex("server_url")), is("http://mobiledemo2.jaspersoft.com/jasperserver-pro"));
-
-        cursor.close();
-    }
-
-    private void assertCursor(Cursor cursor) {
-        assertThat(cursor, notNullValue());
-        assertThat(cursor.getCount(), is(1));
-        assertThat(cursor.moveToFirst(), is(true));
-    }
-
-    private Cursor queryProfile() {
-        return database.query("server_profiles",
-                    new String[]{"_id", "alias", "server_url"},
-                    null, null, null, null, null);
+        assertThat(accountList, hasItems(account1, account2));
     }
 
 }

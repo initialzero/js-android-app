@@ -85,6 +85,7 @@ public class RepositoryControllerFragment extends ControllerFragment {
     @Override
     public Fragment getContentFragment() {
         return RepositoryFragment_.builder()
+                .prefTag(prefTag)
                 .query(query)
                 .resourceUri(resourceUri)
                 .resourceLabel(resourceLabel)

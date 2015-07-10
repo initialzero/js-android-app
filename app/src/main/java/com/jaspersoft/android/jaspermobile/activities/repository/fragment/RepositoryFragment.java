@@ -110,6 +110,9 @@ public class RepositoryFragment extends RoboSpiceFragment
 
     @InstanceState
     @FragmentArg
+    String prefTag;
+    @InstanceState
+    @FragmentArg
     protected String resourceLabel;
     @InstanceState
     @FragmentArg
@@ -235,7 +238,7 @@ public class RepositoryFragment extends RoboSpiceFragment
     @ItemClick(android.R.id.list)
     public void onItemClick(ResourceLookup resource) {
         mAdapter.finishActionMode();
-        resourceOpener.openResource(this, resource);
+        resourceOpener.openResource(this, prefTag, resource);
     }
 
     //---------------------------------------------------------------------

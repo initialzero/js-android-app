@@ -31,11 +31,11 @@ import android.database.sqlite.SQLiteDatabase;
  * @author Tom Koptel
  * @since 2.0
  */
-public class ProfileAccountMigration implements Migration {
+public class ProfilesMigration implements Migration {
 
     private final Context mContext;
 
-    public ProfileAccountMigration(Context context) {
+    public ProfilesMigration(Context context) {
         mContext = context;
     }
 

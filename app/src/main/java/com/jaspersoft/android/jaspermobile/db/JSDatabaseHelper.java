@@ -29,7 +29,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
 import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesMigration;
-import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.ProfilesMigration;
 import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
 
@@ -83,7 +83,7 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
             case 3:
                 Timber.d("Start migrating accounts");
-                new ProfileAccountMigration(mContext).migrate(db);
+                new ProfilesMigration(mContext).migrate(db);
                 Timber.d("Start migrating profiles");
                 new FavoritesMigration().migrate(db);
                 Timber.d("Start migrating saved items");

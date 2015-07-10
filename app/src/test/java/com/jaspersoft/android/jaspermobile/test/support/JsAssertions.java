@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.test.support;
 
+import android.database.Cursor;
 import android.net.Uri;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -45,6 +46,11 @@ public class JsAssertions {
 
         Long id = Long.valueOf(uri.getLastPathSegment());
         assertThat(id, is(not(0L)));
+    }
+
+    public static void assertCursor(Cursor cursor) {
+        assertThat(cursor, notNullValue());
+        assertThat(cursor.getCount(), is(1));
     }
 }
 

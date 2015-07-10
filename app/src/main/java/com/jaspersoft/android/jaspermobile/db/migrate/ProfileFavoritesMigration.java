@@ -36,9 +36,12 @@ import android.database.sqlite.SQLiteDatabase;
 public class ProfileFavoritesMigration implements Migration {
     @Override
     public void migrate(SQLiteDatabase database) {
-        database.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
-        database.execSQL("ALTER TABLE favorites ADD COLUMN account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none';");
+        addCreationTimeColumn(database);
+        addAccountNameColumn(database);
+        populateAccountNameColumn(database);
+    }
 
+    private void populateAccountNameColumn(SQLiteDatabase database) {
         Cursor profilesCursor = database.rawQuery("SELECT _id, alias FROM server_profiles", null);
         try {
             if (profilesCursor != null && profilesCursor.getCount() > 0) {
@@ -60,5 +63,13 @@ public class ProfileFavoritesMigration implements Migration {
             contentValues.put("account_name", alias);
             database.update("favorites", contentValues, "server_profile_id=?", new String[]{id});
         }
+    }
+
+    private void addAccountNameColumn(SQLiteDatabase database) {
+        database.execSQL("ALTER TABLE favorites ADD COLUMN account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none';");
+    }
+
+    private void addCreationTimeColumn(SQLiteDatabase database) {
+        database.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
     }
 }

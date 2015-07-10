@@ -248,4 +248,36 @@
     <string name="mss_btn_check_all">Check all</string>
     <string name="mss_btn_uncheck_all">Uncheck all</string>
 
+    <!-- WebView errors -->
+    <string name="error_webview_auth_msg" translatable="false">User authentication failed on server</string>
+    <string name="error_webview_auth_title" translatable="false">Auth Error</string>
+    <string name="error_webview_timeout_msg" translatable="false">The server is taking too much time to communicate. Try again later.</string>
+    <string name="error_webview_timeout_title" translatable="false">Connection Timeout</string>
+    <string name="error_webview_too_many_requests_msg" translatable="false">Too many requests during this load</string>
+    <string name="error_webview_too_many_requests_title" translatable="false">Too Many Requests</string>
+    <string name="error_webview_generic_msg" translatable="false">Generic error</string>
+    <string name="error_webview_generic_title" translatable="false">Unknown Error</string>
+    <string name="error_webview_bad_url_msg" translatable="false">Check entered URL..</string>
+    <string name="error_webview_bad_url_title" translatable="false">Malformed URL</string>
+    <string name="error_webview_connect_msg" translatable="false">Failed to connect to the server</string>
+    <string name="error_webview_connect_title" translatable="false">Connection</string>
+    <string name="error_webview_ssl_handshake_msg" translatable="false">Failed to perform SSL handshake</string>
+    <string name="error_webview_ssl_handshake_title" translatable="false">SSL Handshake Failed</string>
+    <string name="error_webview_host_lookup_msg" translatable="false">Server or proxy hostname lookup failed</string>
+    <string name="error_webview_host_lookup_title" translatable="false">Host Lookup Error</string>
+    <string name="error_webview_proxy_auth_msg" translatable="false">User authentication failed on proxy</string>
+    <string name="error_webview_proxy_auth_title" translatable="false">Proxy Auth Error</string>
+    <string name="error_webview_redirect_loop_msg" translatable="false">Too many redirects</string>
+    <string name="error_webview_redirect_loop_title" translatable="false">Redirect Loop Error</string>
+    <string name="error_webview_unsupported_auth_scheme_msg" translatable="false">Unsupported authentication scheme (not basic or digest)</string>
+    <string name="error_webview_unsupported_auth_scheme_title" translatable="false">Auth Scheme Error</string>
+    <string name="error_webview_unsupported_scheme_msg" translatable="false">Unsupported URI scheme</string>
+    <string name="error_webview_unsupported_scheme_title" translatable="false">URI Scheme Error</string>
+    <string name="error_webview_error_file_msg" translatable="false">Generic file error</string>
+    <string name="error_webview_error_file_title" translatable="false">File</string>
+    <string name="error_webview_file_not_found_msg" translatable="false">File not found</string>
+    <string name="error_webview_file_not_found_title" translatable="false">File</string>
+    <string name="error_webview_io_msg" translatable="false">The server failed to communicate. Try again later.</string>
+    <string name="error_webview_io_title" translatable="false">IO Error</string>
+
 </resources>

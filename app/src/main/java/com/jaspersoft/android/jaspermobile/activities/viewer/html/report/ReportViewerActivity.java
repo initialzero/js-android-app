@@ -73,9 +73,12 @@ import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
+import com.jaspersoft.android.jaspermobile.webview.ErrorWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
+import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
+import com.jaspersoft.android.jaspermobile.webview.TimeoutWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
@@ -127,7 +130,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
         AbstractPaginationView.OnPageChangeListener,
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
-        NumberDialogFragment.NumberDialogClickListener {
+        NumberDialogFragment.NumberDialogClickListener,
+        ErrorWebViewClientListener.OnWebViewErrorListener
+{
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -549,6 +554,18 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     //---------------------------------------------------------------------
+    // ErrorWebViewClientListener.OnWebViewErrorListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onWebViewError(String title, String message) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        progressBar.setVisibility(View.GONE);
+        webView.setVisibility(View.GONE);
+        showErrorView(title + "\n" + message);
+    }
+
+    //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
@@ -568,7 +585,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
         SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
                 .withDelegateListener(chromeClientListener);
+
+        JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(this, this);
+        JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
+
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+                .withDelegateListener(clientListener)
                 .withUrlPolicy(defaultPolicy);
 
         mWebInterface = ReportWebInterface.from(this);

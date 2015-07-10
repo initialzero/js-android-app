@@ -24,24 +24,39 @@
 
 package com.jaspersoft.android.jaspermobile.test.support;
 
+import android.text.TextUtils;
+
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URL;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 public class TestResource {
+    private final String fileName;
 
-    public static TestResource get() {
-        return new TestResource();
+    private TestResource(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            throw new IllegalArgumentException("Resource name should not be null");
+        }
+        URL path = getClass().getClassLoader().getResource(fileName);
+        if (path == null) {
+            throw new IllegalStateException(this + " is missing");
+        }
+        this.fileName = fileName;
     }
 
-    public String rawData(String fileName) {
-        InputStream inputStream = getStream(fileName);
+    public static TestResource get(String fileName) {
+        return new TestResource(fileName);
+    }
+
+    public String asString() {
+        InputStream inputStream = asStream();
 
         StringWriter writer = new StringWriter();
         try {
@@ -54,8 +69,14 @@ public class TestResource {
         return writer.toString();
     }
 
-    public InputStream getStream(String fileName) {
+    public InputStream asStream() {
         return getClass().getClassLoader().getResourceAsStream(fileName);
     }
 
+    @Override
+    public String toString() {
+        return "TestResource{" +
+                "fileName='" + fileName + '\'' +
+                '}';
+    }
 }

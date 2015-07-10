@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -40,7 +41,14 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
+    public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
     public static final String PREF_TAG = "favorites_pref";
+
+    private FavoritesFragment contentFragment;
+
+    @FragmentArg
+    @InstanceState
+    SortOrder sortOrder;
 
     @FragmentArg
     @InstanceState
@@ -61,20 +69,31 @@ public class FavoritesControllerFragment extends ControllerFragment {
 
         if (inMemoryFragment == null) {
             commitContentFragment();
+        } else {
+            contentFragment = inMemoryFragment;
         }
     }
 
     @Override
     public Fragment getContentFragment() {
-        return FavoritesFragment_.builder()
+        contentFragment = FavoritesFragment_.builder()
                 .viewType(getViewType())
+                .sortOrder(sortOrder)
                 .searchQuery(searchQuery)
                 .build();
+        return contentFragment;
     }
 
     @Override
     protected String getContentFragmentTag() {
         return FavoritesFragment.TAG;
+    }
+
+    public void loadItemsBySortOrder(SortOrder _sortOrder) {
+        if (contentFragment != null) {
+            contentFragment.showFavoritesBySortOrder(_sortOrder);
+        }
+        sortOrder = _sortOrder;
     }
 
 }

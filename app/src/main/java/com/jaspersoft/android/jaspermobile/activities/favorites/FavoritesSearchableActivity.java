@@ -33,7 +33,6 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivit
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OptionsItem;
 
 /**
  * @author Andrew Tivodar
@@ -61,10 +60,4 @@ public class FavoritesSearchableActivity extends RoboSpiceActivity {
         }
 
     }
-
-    @OptionsItem(android.R.id.home)
-    final void closeSearch() {
-        super.onBackPressed();
-    }
-
 }

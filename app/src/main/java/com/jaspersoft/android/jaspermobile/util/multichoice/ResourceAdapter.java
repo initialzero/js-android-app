@@ -106,6 +106,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     @Override
     public void addAll(Collection<? extends ResourceLookup> collection) {
         super.addAll(collection);
+        sortByType();
         // Because of rotation we are loosing content of adapter. For that
         // reason we are altering ActionMode icon if it visible state to
         // the required value.
@@ -165,7 +166,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         return true;
     }
 
-    public void sortByType() {
+    private void sortByType() {
         super.sort(new OrderingByType());
     }
 

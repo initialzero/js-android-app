@@ -204,22 +204,10 @@ public class FavoritesFragment extends RoboFragment
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = new ArrayList<String>();
-        JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
-        boolean noOrganization = jsServerProfile.getOrganization() == null;
 
         //Add server profile id and username to WHERE params
         selection.append(FavoritesTable.ACCOUNT_NAME + " =?");
         selectionArgs.add(JasperAccountManager.get(getActivity()).getActiveAccount().name);
-
-        //Add organization to WHERE params
-        if (noOrganization) {
-            selection.append("  AND ")
-                    .append(FavoritesTable.ORGANIZATION + " IS NULL");
-        } else {
-            selection.append("  AND ")
-                    .append(FavoritesTable.ORGANIZATION + " =?");
-            selectionArgs.add(String.valueOf(jsServerProfile.getOrganization()));
-        }
 
         //Add filtration to WHERE params
         selection.append(" AND (");

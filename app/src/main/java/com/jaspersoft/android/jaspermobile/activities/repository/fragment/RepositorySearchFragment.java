@@ -29,8 +29,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositorySearchableActivity_;
@@ -64,6 +66,7 @@ public class RepositorySearchFragment extends RoboFragment implements SearchView
 
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         if (isAdded()) {
+            disableSearchViewActionMode(searchView);
             searchView.setQueryHint(getString(R.string.s_hint));
             searchView.setOnQueryTextListener(this);
         }
@@ -95,5 +98,32 @@ public class RepositorySearchFragment extends RoboFragment implements SearchView
         }
         FragmentManager.BackStackEntry entry = fm.getBackStackEntryAt(entryCount - 1);
         return entry.getName();
+    }
+
+    private void disableSearchViewActionMode(SearchView searchView) {
+        EditText searchInput = (EditText) searchView.findViewById(R.id.search_src_text);
+        if (searchInput != null) {
+            searchInput.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    return false;
+                }
+
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+
+                }
+            });
+        }
     }
 }

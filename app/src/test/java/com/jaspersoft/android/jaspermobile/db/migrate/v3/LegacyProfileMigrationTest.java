@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright � 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,12 +22,13 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
@@ -41,9 +42,9 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static com.jaspersoft.android.jaspermobile.test.support.JsAssertions.assertCursor;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
  * @author Tom Koptel
@@ -54,10 +55,12 @@ import static org.junit.Assert.assertThat;
         constants = BuildConfig.class,
         sdk = 21
 )
-public class FavoriteTableColumnsMigrationTest {
+public class LegacyProfileMigrationTest {
 
     private ResourceDatabase resourceDatabase;
+    private String insertMobileProfileSql;
     private SQLiteDatabase database;
+    private Migration migration;
 
     @Before
     public void setup() {
@@ -65,12 +68,9 @@ public class FavoriteTableColumnsMigrationTest {
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        Migration migration = new FavoriteTableColumnsMigration();
+        migration = new LegacyProfileMigration();
 
-        String insertFavoriteSql = TestResource.get("insert_favorite.sql").asString();
-
-        resourceDatabase.performSql(insertFavoriteSql);
-        migration.migrate(database);
+        insertMobileProfileSql = TestResource.get("insert_mobile_profile.sql").asString();
     }
 
     @After
@@ -80,26 +80,41 @@ public class FavoriteTableColumnsMigrationTest {
     }
 
     @Test
-    public void shouldAddCreationTimeColumn() {
-        Cursor cursor = database.query("favorites",
-                new String[]{"_id", "creation_time"},
-                null, null, null, null, null);
-        assertCursor(cursor);
-        cursor.moveToFirst();
+    public void shouldRenameLegacyProfile() {
+        resourceDatabase.performSql(insertMobileProfileSql);
+        migration.migrate(database);
 
-        cursor.getColumnIndexOrThrow("creation_time");
+        Cursor cursor = queryProfile();
+
+        assertCursor(cursor);
+        assertThat(cursor.getString(cursor.getColumnIndex("alias")), is("Legacy Mobile Demo"));
+
+        cursor.close();
     }
 
     @Test
-    public void shouldAddAccountNameColumn() {
-        Cursor cursor = database.query("favorites",
-                new String[]{"_id", "account_name"},
-                null, null, null, null, null);
-        assertCursor(cursor);
-        cursor.moveToFirst();
+    public void shouldUpdateUrlWithMobileDemo2() {
+        resourceDatabase.performSql(insertMobileProfileSql);
+        migration.migrate(database);
 
-        String name = cursor.getString(cursor.getColumnIndexOrThrow("account_name"));
-        assertThat(name, is("com.jaspersoft.account.none"));
+        Cursor cursor = queryProfile();
+
+        assertCursor(cursor);
+        assertThat(cursor.getString(cursor.getColumnIndex("server_url")), is("http://mobiledemo2.jaspersoft.com/jasperserver-pro"));
+
+        cursor.close();
+    }
+
+    private void assertCursor(Cursor cursor) {
+        assertThat(cursor, notNullValue());
+        assertThat(cursor.getCount(), is(1));
+        assertThat(cursor.moveToFirst(), is(true));
+    }
+
+    private Cursor queryProfile() {
+        return database.query("server_profiles",
+                    new String[]{"_id", "alias", "server_url"},
+                    null, null, null, null, null);
     }
 
 }

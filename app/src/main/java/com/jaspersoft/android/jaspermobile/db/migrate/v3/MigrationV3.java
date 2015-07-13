@@ -19,30 +19,37 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>./
+ * <http://www.gnu.org/licenses/lgpl>.
  */
-package com.jaspersoft.android.jaspermobile.db.migrate;
 
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
+
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
+
+import timber.log.Timber;
+
 /**
- * Removing column 'name'
- *
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.1
  */
-final class FavoriteTableColumnsMigration implements Migration {
+public class MigrationV3 implements Migration {
+    private final Context mContext;
+
+    public MigrationV3(Context context) {
+        mContext = context;
+    }
+
     @Override
     public void migrate(SQLiteDatabase database) {
-        addAccountNameColumn(database);
-        addCreationTimeColumn(database);
-    }
+        new ProfilesMigration(mContext).migrate(database);
 
-    private void addAccountNameColumn(SQLiteDatabase database) {
-        database.execSQL("ALTER TABLE favorites ADD COLUMN account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none';");
-    }
+        Timber.d("Start migrating favorites");
+        new FavoritesMigration().migrate(database);
 
-    private void addCreationTimeColumn(SQLiteDatabase database) {
-        database.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
+        Timber.d("Start migrating saved items");
+        new SavedItemsMigration(mContext).migrate(database);
     }
 }

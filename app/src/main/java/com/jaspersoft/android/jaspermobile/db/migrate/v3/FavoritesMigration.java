@@ -22,15 +22,17 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.database.sqlite.SQLiteDatabase;
+
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-public class FavoritesMigration implements Migration {
+final class FavoritesMigration implements Migration {
     @Override
     public void migrate(SQLiteDatabase database) {
         new FavoriteTableColumnsMigration().migrate(database);

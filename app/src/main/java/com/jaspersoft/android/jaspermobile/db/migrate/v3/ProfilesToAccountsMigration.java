@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -31,6 +31,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;

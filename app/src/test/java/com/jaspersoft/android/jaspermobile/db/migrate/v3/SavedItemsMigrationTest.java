@@ -22,12 +22,13 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
@@ -45,7 +46,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration.SHARED_DIR;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -62,6 +62,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 )
 public class SavedItemsMigrationTest {
 
+    private final String SHARED_DIR = JasperMobileApplication.SHARED_DIR;
     private ResourceDatabase resourceDatabase;
     private SQLiteDatabase database;
     private SavedItemsMigration migration;

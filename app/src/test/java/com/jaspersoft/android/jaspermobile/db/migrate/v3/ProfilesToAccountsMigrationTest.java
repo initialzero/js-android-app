@@ -22,19 +22,20 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
-import android.database.Cursor;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
-import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
+import com.jaspersoft.android.jaspermobile.test.support.db.SqlTestResource;
+import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,9 +43,11 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static com.jaspersoft.android.jaspermobile.test.support.JsAssertions.assertCursor;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Tom Koptel
@@ -55,54 +58,36 @@ import static org.junit.Assert.assertThat;
         constants = BuildConfig.class,
         sdk = 21
 )
-public class FavoritesMigrationTest {
+public class ProfilesToAccountsMigrationTest {
 
     private ResourceDatabase resourceDatabase;
+    private ResourceDatabase.RawSqlStatements insertMobileProfileSql;
+    private Migration migration;
     private SQLiteDatabase database;
 
     @Before
     public void setup() {
         // Dirty hack in order to revert AccountSeed side effect
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
+
+        migration = new ProfilesToAccountsMigration(RuntimeEnvironment.application);
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        Migration migration = new FavoritesMigration();
 
-        String insertProfileSql = TestResource.get("insert_mobile_profile.sql").asString();
-        String insertFavoriteSql = TestResource.get("insert_favorite.sql").asString();
-
-        resourceDatabase.performSql(insertProfileSql);
-        resourceDatabase.performSql(insertFavoriteSql);
-        migration.migrate(database);
-    }
-
-    @After
-    public void teardown() {
-        resourceDatabase.close();
-        resourceDatabase.delete();
+        insertMobileProfileSql = SqlTestResource.get("insert_custom_profiles.sql");
     }
 
     @Test
-    public void shouldUpdateAccountNameColumnWithAlias() {
-        Cursor cursor = database.query("favorites",
-                new String[]{"_id", "account_name"},
-                null, null, null, null, null);
-        assertCursor(cursor);
-        cursor.moveToFirst();
+    public void shouldConvertProfilesInAccount() {
+        resourceDatabase.execSQLResource(insertMobileProfileSql);
+        migration.migrate(database);
 
-        String name = cursor.getString(cursor.getColumnIndexOrThrow("account_name"));
-        assertThat(name, is("Mobile Demo"));
-    }
+        Account[] accounts = AccountManager.get(RuntimeEnvironment.application).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        List<Account> accountList = Arrays.asList(accounts);
+        Account account1 = new Account("My profile 1", JasperSettings.JASPER_ACCOUNT_TYPE);
+        Account account2 = new Account("My profile 2", JasperSettings.JASPER_ACCOUNT_TYPE);
 
-    @Test(expected = SQLiteException.class)
-    public void shouldRemoveServerProfileIdColumn() {
-        Cursor cursor = database.query("favorites",
-                new String[]{"_id", "server_profile_id"},
-                null, null, null, null, null);
-        assertCursor(cursor);
-        cursor.moveToFirst();
-
-        cursor.getColumnIndexOrThrow("server_profile_id");
+        assertThat(accountList, hasItems(account1, account2));
     }
 
 }

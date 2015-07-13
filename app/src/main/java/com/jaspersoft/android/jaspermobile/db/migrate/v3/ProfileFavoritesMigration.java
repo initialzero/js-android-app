@@ -21,11 +21,13 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>./
  */
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
  * Populating 'account_name' field with data from server profiles.

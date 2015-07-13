@@ -19,30 +19,34 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>./
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
-import android.content.Context;
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.1
  */
-public class ProfilesMigration implements Migration {
-
-    private final Context mContext;
-
-    public ProfilesMigration(Context context) {
-        mContext = context;
-    }
+final class LegacyProfileMigration implements Migration {
+    private static final String LEGACY_MOBILE_DEMO = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
+    private static final String NEW_MOBILE_DEMO = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
+    private static final String LEGACY_NAME = "Legacy Mobile Demo";
 
     @Override
     public void migrate(SQLiteDatabase database) {
-        new LegacyProfileMigration().migrate(database);
-        new ProfilesToAccountsMigration(mContext).migrate(database);
+        updateLegacyProfile(database);
     }
 
+    private void updateLegacyProfile(SQLiteDatabase database) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("alias", LEGACY_NAME);
+        contentValues.put("server_url", NEW_MOBILE_DEMO);
+        database.update("server_profiles", contentValues, "server_url=?", new String[] {LEGACY_MOBILE_DEMO});
+    }
 }

@@ -33,6 +33,7 @@ import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
+import com.jaspersoft.android.jaspermobile.test.support.db.SqlTestResource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,6 +43,10 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -61,6 +66,7 @@ public class LegacyProfileMigrationTest {
     private String insertMobileProfileSql;
     private SQLiteDatabase database;
     private Migration migration;
+    private SqlTestResource insertMobilesProfileSql;
 
     @Before
     public void setup() {
@@ -71,6 +77,7 @@ public class LegacyProfileMigrationTest {
         migration = new LegacyProfileMigration();
 
         insertMobileProfileSql = TestResource.get("insert_mobile_profile.sql").asString();
+        insertMobilesProfileSql = SqlTestResource.get("insert_mobile_profiles.sql");
     }
 
     @After
@@ -93,16 +100,33 @@ public class LegacyProfileMigrationTest {
     }
 
     @Test
-    public void shouldUpdateUrlWithMobileDemo2() {
+    public void shouldNotUpdateUrl() {
         resourceDatabase.performSql(insertMobileProfileSql);
         migration.migrate(database);
 
         Cursor cursor = queryProfile();
 
         assertCursor(cursor);
-        assertThat(cursor.getString(cursor.getColumnIndex("server_url")), is("http://mobiledemo2.jaspersoft.com/jasperserver-pro"));
+        assertThat(cursor.getString(cursor.getColumnIndex("server_url")), is("http://mobiledemo.jaspersoft.com/jasperserver-pro"));
 
         cursor.close();
+    }
+
+    @Test
+    public void shouldOnlyRenameLegacyDemo() {
+        resourceDatabase.execSQLResource(insertMobilesProfileSql);
+        migration.migrate(database);
+
+        Cursor cursor = queryProfile();
+        assertThat(cursor.getCount(), is(2));
+
+        List<String> aliases = new ArrayList<String>(cursor.getCount());
+        while (cursor.moveToNext()) {
+            String alias = cursor.getString(cursor.getColumnIndex("alias"));
+            aliases.add(alias);
+        }
+
+        assertThat(aliases, hasItems("Legacy Mobile Demo", "Not Demo"));
     }
 
     private void assertCursor(Cursor cursor) {
@@ -113,8 +137,8 @@ public class LegacyProfileMigrationTest {
 
     private Cursor queryProfile() {
         return database.query("server_profiles",
-                    new String[]{"_id", "alias", "server_url"},
-                    null, null, null, null, null);
+                new String[]{"_id", "alias", "server_url"},
+                null, null, null, null, null);
     }
 
 }

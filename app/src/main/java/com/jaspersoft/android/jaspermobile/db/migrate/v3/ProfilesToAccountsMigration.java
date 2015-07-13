@@ -40,6 +40,8 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.util.List;
 
+import rx.functions.Action1;
+import rx.functions.Actions;
 import timber.log.Timber;
 
 /**
@@ -67,20 +69,21 @@ final class ProfilesToAccountsMigration implements Migration {
         try {
             List<ServerProfiles> profiles = ServerProfiles.listFromCursor(cursor);
             Timber.d("The number of previously saved accounts are: " + profiles.size());
-            for (ServerProfiles profile : profiles) {
-                try {
-                    data = new AccountServerData()
-                            .setAlias(profile.getAlias())
-                            .setServerUrl(profile.getServerUrl())
-                            .setOrganization(profile.getOrganization())
-                            .setUsername(profile.getUsername())
-                            .setPassword(profile.getPassword())
-                            .setEdition(TextUtils.isEmpty(profile.getEdition()) ? "?" : profile.getEdition())
-                            .setVersionName(String.valueOf(profile.getVersionCode()));
-                    util.addAccountExplicitly(data).subscribe();
-                } catch (IllegalArgumentException ex) {
-                    Timber.w(ex, "Mis-configured profile '" + profile.getAlias() + "' skipping it");
-                }
+            for (final ServerProfiles profile : profiles) {
+                data = new AccountServerData()
+                        .setAlias(profile.getAlias())
+                        .setServerUrl(profile.getServerUrl())
+                        .setOrganization(profile.getOrganization())
+                        .setUsername(profile.getUsername())
+                        .setPassword(profile.getPassword())
+                        .setEdition(TextUtils.isEmpty(profile.getEdition()) ? "?" : profile.getEdition())
+                        .setVersionName(String.valueOf(profile.getVersionCode()));
+                util.addAccountExplicitly(data).subscribe(Actions.empty(), new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Timber.w(throwable, "Mis-configured profile '" + profile.getAlias() + "' skipping it");
+                    }
+                });
             }
         } finally {
             cursor.close();

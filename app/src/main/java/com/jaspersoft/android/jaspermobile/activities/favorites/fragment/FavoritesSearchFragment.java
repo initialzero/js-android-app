@@ -27,8 +27,10 @@ package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 import android.content.Intent;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesSearchableActivity_;
@@ -56,6 +58,7 @@ public class FavoritesSearchFragment extends RoboFragment implements SearchView.
 
         if (isAdded()) {
             SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+            disableSearchViewActionMode(searchView);
             searchView.setQueryHint(getString(R.string.s_hint));
             searchView.setOnQueryTextListener(this);
         }
@@ -77,5 +80,30 @@ public class FavoritesSearchFragment extends RoboFragment implements SearchView.
         return false;
     }
 
+    private void disableSearchViewActionMode(SearchView searchView) {
+        EditText searchInput = (EditText) searchView.findViewById(R.id.search_src_text);
+        if (searchInput != null) {
+            searchInput.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
 
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    return false;
+                }
+
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+
+                }
+            });
+        }
+    }
 }

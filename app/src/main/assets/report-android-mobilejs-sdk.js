@@ -459,7 +459,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           },
           success: (function(_this) {
             return function(parameters) {
-              _this._adjustScaleForReport(_this.report);
+              _this._adjustScaleForReport();
               return _this.report.container("#container").render().done(function() {
                 return _this._processSuccess(parameters);
               });
@@ -653,10 +653,14 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         }
       };
 
-      ReportController.prototype._adjustScaleForReport = function(report) {
+      ReportController.prototype._adjustScaleForReport = function() {
         return jQuery(window).resize((function(_this) {
           return function() {
-            return report.scale("width").run();
+            var container;
+            container = jQuery("#container")[0];
+            container.style.display = 'none';
+            container.offsetHeight;
+            return container.style.display = '';
           };
         })(this));
       };
@@ -860,7 +864,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       ScaleStyleReport.prototype.applyFor = function(factor) {
         var scaledCanvasCss;
         jQuery("#scale_style").remove();
-        scaledCanvasCss = "#container { position: absolute; width: " + (100 / factor) + "%; height: " + (100 / factor) + "%; }";
+        scaledCanvasCss = "#container {}";
         jQuery('<style id="scale_style"></style>').text(scaledCanvasCss).appendTo('head');
       };
 

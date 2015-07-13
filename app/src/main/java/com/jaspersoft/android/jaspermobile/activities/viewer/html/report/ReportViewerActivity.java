@@ -612,8 +612,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
             StringWriter writer = new StringWriter();
             IOUtils.copy(stream, writer, "UTF-8");
 
+            String visualizeUrl = accountServerData.getServerUrl() + "/client/visualize.js?_opt=" + optimized;
+            double initialScale = screenUtil.getDiagonal() / 10.1;
+
             Map<String, Object> data = new HashMap<String, Object>();
-            data.put("visualize_url", accountServerData.getServerUrl() + "/client/visualize.js?_opt=" + optimized);
+            data.put("visualize_url", visualizeUrl);
+            data.put("initial_scale", initialScale);
             data.put("optimized", optimized);
             Template tmpl = Mustache.compiler().compile(writer.toString());
             String html = tmpl.execute(data);

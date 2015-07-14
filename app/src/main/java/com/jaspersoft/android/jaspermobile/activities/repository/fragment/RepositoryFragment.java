@@ -442,7 +442,7 @@ public class RepositoryFragment extends RoboSpiceFragment
                 mAdapter.setNotifyOnChange(false);
                 mAdapter.clear();
             }
-            mAdapter.addAll(datum);
+            mAdapter.addAllByType(datum);
             mAdapter.setNotifyOnChange(true);
             mAdapter.notifyDataSetChanged();
 

@@ -44,7 +44,9 @@ import com.jaspersoft.android.jaspermobile.widget.ListItemView_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 
 public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
@@ -106,7 +108,6 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     @Override
     public void addAll(Collection<? extends ResourceLookup> collection) {
         super.addAll(collection);
-        sortByType();
         // Because of rotation we are loosing content of adapter. For that
         // reason we are altering ActionMode icon if it visible state to
         // the required value.
@@ -166,8 +167,9 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         return true;
     }
 
-    private void sortByType() {
-        super.sort(new OrderingByType());
+    public void addAllByType(List<ResourceLookup> datum) {
+        Collections.sort(datum, new OrderingByType());
+        addAll(datum);
     }
 
     private static class OrderingByType implements Comparator<ResourceLookup> {

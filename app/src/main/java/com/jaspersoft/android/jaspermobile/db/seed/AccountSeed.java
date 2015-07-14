@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.db.seed;
 
+import android.accounts.Account;
 import android.content.Context;
 
 import com.google.gson.Gson;
@@ -40,6 +41,10 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Actions;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -50,6 +55,11 @@ import timber.log.Timber;
 public class AccountSeed implements Seed {
     private final JasperAccountManager jasperAccountManager;
     private final Context mContext;
+    private final Action1<Throwable> emptyError = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable throwable) {
+        }
+    };
 
     private AccountSeed(Context context) {
         mContext = context;
@@ -85,7 +95,7 @@ public class AccountSeed implements Seed {
         jasperAccountManager
                 .addAccountExplicitly(serverData)
                 .subscribeOn(Schedulers.io())
-                .subscribe();
+                .subscribe(Actions.empty(), emptyError);
     }
 
     private void populateTestServers() {
@@ -103,12 +113,17 @@ public class AccountSeed implements Seed {
             Type listType = new TypeToken<List<AccountServerData>>() {
             }.getType();
             List<AccountServerData> datum = gson.fromJson(json, listType);
-            for (AccountServerData serverData : datum) {
-                Timber.d("Add server explicitly" + serverData);
-                jasperAccountManager.addAccountExplicitly(serverData)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe();
-            }
+            Observable.from(datum).flatMap(new Func1<AccountServerData, Observable<Account>>() {
+                @Override
+                public Observable<Account> call(AccountServerData serverData) {
+                    return jasperAccountManager.addAccountExplicitly(serverData);
+                }
+            }).subscribe(new Action1<Account>() {
+                @Override
+                public void call(Account account) {
+                    Timber.d("Account was added " + account);
+                }
+            }, emptyError);
         } catch (IOException e) {
             Timber.w("Ignoring population of data");
         } finally {

@@ -21,46 +21,30 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>./
  */
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
-package com.jaspersoft.android.jaspermobile.db;
-
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
-import com.jaspersoft.android.jaspermobile.db.migrate.v2.MigrationV2;
-import com.jaspersoft.android.jaspermobile.db.migrate.v3.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
+ * Removing column 'name'
+ *
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
-public class JSDatabaseHelper extends JasperMobileDbDatabase {
-    private final Context mContext;
-
-    public JSDatabaseHelper(Context context) {
-        super(context);
-        mContext = context;
-    }
-
+final class FavoriteTableColumnsMigration implements Migration {
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        super.onCreate(db);
-        AccountSeed.seed(mContext);
+    public void migrate(SQLiteDatabase database) {
+        addAccountNameColumn(database);
+        addCreationTimeColumn(database);
     }
 
-    @Override
-    public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-        executePragmas(db);
-        switch (oldVersion) {
-            case 1:
-            case 2:
-                new MigrationV2().migrate(db);
-            case 3:
-                new MigrationV3(mContext).migrate(db);
-                break;
-        }
+    private void addAccountNameColumn(SQLiteDatabase database) {
+        database.execSQL("ALTER TABLE favorites ADD COLUMN account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none';");
     }
 
+    private void addCreationTimeColumn(SQLiteDatabase database) {
+        database.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
+    }
 }

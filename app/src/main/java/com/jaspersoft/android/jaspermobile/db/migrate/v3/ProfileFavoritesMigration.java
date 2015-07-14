@@ -21,11 +21,13 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>./
  */
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
  * Populating 'account_name' field with data from server profiles.
@@ -33,12 +35,14 @@ import android.database.sqlite.SQLiteDatabase;
  * @author Tom Koptel
  * @since 2.0
  */
-public class ProfileFavoritesMigration implements Migration {
+final class ProfileFavoritesMigration implements Migration {
     @Override
     public void migrate(SQLiteDatabase database) {
-        database.execSQL("ALTER TABLE favorites ADD COLUMN creation_time TEXT DEFAULT '';");
-        database.execSQL("ALTER TABLE favorites ADD COLUMN account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none';");
+        populateAccountNameColumn(database);
+        removeServerProfileIdColumn(database);
+    }
 
+    private void populateAccountNameColumn(SQLiteDatabase database) {
         Cursor profilesCursor = database.rawQuery("SELECT _id, alias FROM server_profiles", null);
         try {
             if (profilesCursor != null && profilesCursor.getCount() > 0) {
@@ -61,4 +65,18 @@ public class ProfileFavoritesMigration implements Migration {
             database.update("favorites", contentValues, "server_profile_id=?", new String[]{id});
         }
     }
+
+    private void removeServerProfileIdColumn(SQLiteDatabase database) {
+        database.execSQL("ALTER TABLE favorites RENAME TO tmp_favorites;");
+
+        database.execSQL(
+                "CREATE TABLE favorites ( _id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, uri TEXT, " +
+                        "description TEXT, wstype TEXT, username TEXT, organization TEXT, account_name TEXT NOT NULL DEFAULT 'com.jaspersoft.account.none', creation_time TEXT )"
+        );
+        database.execSQL("INSERT INTO favorites(title, uri, description, wstype, username, organization, account_name, creation_time)" +
+                " select title, uri, description, wstype, username, organization, account_name, creation_time from tmp_favorites;");
+
+        database.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
+    }
+
 }

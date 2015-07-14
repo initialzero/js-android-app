@@ -19,20 +19,19 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>./
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.accounts.Account;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
@@ -41,51 +40,28 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.util.List;
 
+import rx.functions.Action1;
+import rx.functions.Actions;
 import timber.log.Timber;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.1
  */
-public class ProfileAccountMigration implements Migration {
-    private static final String LEGACY_MOBILE_DEMO = "http://mobiledemo.jaspersoft.com/jasperserver-pro";
-    private static final String NEW_MOBILE_DEMO = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
+final class ProfilesToAccountsMigration implements Migration {
     private final Context mContext;
 
-    public ProfileAccountMigration(Context context) {
+    ProfilesToAccountsMigration(Context context) {
         mContext = context;
     }
 
     @Override
     public void migrate(SQLiteDatabase database) {
-        updateOldMobileDemo(database);
-        migrateOldProfiles(database);
-        activateProfile(database);
+        adaptProfilesToAccounts(database);
+        activateAccount(database);
     }
 
-    private void updateOldMobileDemo(SQLiteDatabase database) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("server_url", NEW_MOBILE_DEMO);
-
-        Cursor cursor = database.query("server_profiles", new String[]{BaseColumns._ID},
-                "server_url=?", new String[]{LEGACY_MOBILE_DEMO}, null, null, null);
-        try {
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    String id = cursor.getString(cursor.getColumnIndex(BaseColumns._ID));
-                    database.delete("favorites", "server_profile_id=?", new String[]{id});
-                }
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-        database.update("server_profiles", contentValues, "server_url=?", new String[] {LEGACY_MOBILE_DEMO});
-    }
-
-    private void migrateOldProfiles(SQLiteDatabase db) {
+    private void adaptProfilesToAccounts(SQLiteDatabase db) {
         AccountServerData data;
         JasperAccountManager util = JasperAccountManager.get(mContext);
         Cursor cursor = db.query(ServerProfilesTable.TABLE_NAME,
@@ -93,27 +69,28 @@ public class ProfileAccountMigration implements Migration {
         try {
             List<ServerProfiles> profiles = ServerProfiles.listFromCursor(cursor);
             Timber.d("The number of previously saved accounts are: " + profiles.size());
-            for (ServerProfiles profile : profiles) {
-                try {
-                    data = new AccountServerData()
-                            .setAlias(profile.getAlias())
-                            .setServerUrl(profile.getServerUrl())
-                            .setOrganization(profile.getOrganization())
-                            .setUsername(profile.getUsername())
-                            .setPassword(profile.getPassword())
-                            .setEdition(TextUtils.isEmpty(profile.getEdition()) ? "?" : profile.getEdition())
-                            .setVersionName(String.valueOf(profile.getVersionCode()));
-                    util.addAccountExplicitly(data).subscribe();
-                } catch (IllegalArgumentException ex) {
-                    Timber.w(ex, "Mis-configured profile '" + profile.getAlias() + "' skipping it");
-                }
+            for (final ServerProfiles profile : profiles) {
+                data = new AccountServerData()
+                        .setAlias(profile.getAlias())
+                        .setServerUrl(profile.getServerUrl())
+                        .setOrganization(profile.getOrganization())
+                        .setUsername(profile.getUsername())
+                        .setPassword(profile.getPassword())
+                        .setEdition(TextUtils.isEmpty(profile.getEdition()) ? "?" : profile.getEdition())
+                        .setVersionName(String.valueOf(profile.getVersionCode()));
+                util.addAccountExplicitly(data).subscribe(Actions.empty(), new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Timber.w(throwable, "Mis-configured profile '" + profile.getAlias() + "' skipping it");
+                    }
+                });
             }
         } finally {
             cursor.close();
         }
     }
 
-    private void activateProfile(SQLiteDatabase db) {
+    private void activateAccount(SQLiteDatabase db) {
         GeneralPref_ pref = new GeneralPref_(mContext);
         long profileId = pref.currentProfileId().get();
         Cursor cursor = db.query(ServerProfilesTable.TABLE_NAME,

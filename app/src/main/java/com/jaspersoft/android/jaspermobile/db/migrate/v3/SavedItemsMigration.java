@@ -21,7 +21,7 @@
  * along with Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>./
  */
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -29,6 +29,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
@@ -44,8 +45,7 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-public class SavedItemsMigration implements Migration {
-    public static final String SHARED_DIR = "com.jaspersoft.account.none";
+final class SavedItemsMigration implements Migration {
 
     private static final String TAG = JasperAccountManager.class.getSimpleName();
     private final Context mContext;
@@ -85,7 +85,7 @@ public class SavedItemsMigration implements Migration {
 
     @Nullable
     private File createShareDirectory(File savedItemsDir) {
-        File sharedDir = new File(savedItemsDir, SHARED_DIR);
+        File sharedDir = new File(savedItemsDir, JasperMobileApplication.SHARED_DIR);
         if (!sharedDir.exists() && !sharedDir.mkdir()) return null;
         return sharedDir;
     }

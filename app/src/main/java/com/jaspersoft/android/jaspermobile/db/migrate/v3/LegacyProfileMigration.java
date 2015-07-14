@@ -22,35 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.support;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
-import android.database.Cursor;
-import android.net.Uri;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.notNullValue;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.1
  */
-public class JsAssertions {
-    private JsAssertions() {
-        throw new AssertionError();
+final class LegacyProfileMigration implements Migration {
+    private static final String LEGACY_MOBILE_DEMO_ALIAS = "Mobile Demo";
+    private static final String LEGACY_NAME = "Legacy Mobile Demo";
+
+    @Override
+    public void migrate(SQLiteDatabase database) {
+        updateLegacyProfile(database);
     }
 
-    public static void assertNewUri(Uri uri) {
-        assertThat(uri, notNullValue());
-
-        Long id = Long.valueOf(uri.getLastPathSegment());
-        assertThat(id, is(not(0L)));
-    }
-
-    public static void assertCursor(Cursor cursor) {
-        assertThat(cursor, notNullValue());
-        assertThat(cursor.getCount(), is(1));
+    private void updateLegacyProfile(SQLiteDatabase database) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("alias", LEGACY_NAME);
+        database.update("server_profiles", contentValues, "alias=?", new String[] {LEGACY_MOBILE_DEMO_ALIAS});
     }
 }
-

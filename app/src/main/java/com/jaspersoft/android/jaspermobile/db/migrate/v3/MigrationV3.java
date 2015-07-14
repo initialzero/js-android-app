@@ -19,48 +19,37 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>./
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
-import com.jaspersoft.android.jaspermobile.db.migrate.v2.MigrationV2;
-import com.jaspersoft.android.jaspermobile.db.migrate.v3.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
+
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.1
  */
-public class JSDatabaseHelper extends JasperMobileDbDatabase {
+public class MigrationV3 implements Migration {
     private final Context mContext;
 
-    public JSDatabaseHelper(Context context) {
-        super(context);
+    public MigrationV3(Context context) {
         mContext = context;
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        super.onCreate(db);
-        AccountSeed.seed(mContext);
-    }
+    public void migrate(SQLiteDatabase database) {
+        new ProfilesMigration(mContext).migrate(database);
 
-    @Override
-    public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-        executePragmas(db);
-        switch (oldVersion) {
-            case 1:
-            case 2:
-                new MigrationV2().migrate(db);
-            case 3:
-                new MigrationV3(mContext).migrate(db);
-                break;
-        }
-    }
+        Timber.d("Start migrating favorites");
+        new FavoritesMigration().migrate(database);
 
+        Timber.d("Start migrating saved items");
+        new SavedItemsMigration(mContext).migrate(database);
+    }
 }

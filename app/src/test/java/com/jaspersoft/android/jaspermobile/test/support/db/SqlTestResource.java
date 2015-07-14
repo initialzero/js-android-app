@@ -22,35 +22,39 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.test.support;
+package com.jaspersoft.android.jaspermobile.test.support.db;
 
-import android.database.Cursor;
-import android.net.Uri;
+import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.notNullValue;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.1
  */
-public class JsAssertions {
-    private JsAssertions() {
-        throw new AssertionError();
+public class SqlTestResource extends TestResource implements ResourceDatabase.RawSqlStatements {
+
+    private SqlTestResource(String fileName) {
+        super(fileName);
     }
 
-    public static void assertNewUri(Uri uri) {
-        assertThat(uri, notNullValue());
-
-        Long id = Long.valueOf(uri.getLastPathSegment());
-        assertThat(id, is(not(0L)));
+    public static SqlTestResource get(String fileName) {
+        return new SqlTestResource(fileName);
     }
 
-    public static void assertCursor(Cursor cursor) {
-        assertThat(cursor, notNullValue());
-        assertThat(cursor.getCount(), is(1));
+    @Override
+    public Collection<String> getStatements() {
+        String rawString = asString();
+        String[] statements = rawString.split(";");
+        List<String> result = new ArrayList<String>(statements.length);
+        for (String statement : statements) {
+            statement = statement.replace("\n", "");
+            statement = statement.replace("\r", "");
+            result.add(statement + ";");
+        }
+        return result;
     }
+
 }
-

@@ -22,45 +22,33 @@
  * <http://www.gnu.org/licenses/lgpl>./
  */
 
-package com.jaspersoft.android.jaspermobile.db;
+package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
-import com.jaspersoft.android.jaspermobile.db.migrate.v2.MigrationV2;
-import com.jaspersoft.android.jaspermobile.db.migrate.v3.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
+
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
-public class JSDatabaseHelper extends JasperMobileDbDatabase {
+final class ProfilesMigration implements Migration {
+
     private final Context mContext;
 
-    public JSDatabaseHelper(Context context) {
-        super(context);
+    public ProfilesMigration(Context context) {
         mContext = context;
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        super.onCreate(db);
-        AccountSeed.seed(mContext);
-    }
-
-    @Override
-    public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-        executePragmas(db);
-        switch (oldVersion) {
-            case 1:
-            case 2:
-                new MigrationV2().migrate(db);
-            case 3:
-                new MigrationV3(mContext).migrate(db);
-                break;
-        }
+    public void migrate(SQLiteDatabase database) {
+        Timber.d("Start migrating profiles");
+        new LegacyProfileMigration().migrate(database);
+        Timber.d("Start migrating accounts");
+        new ProfilesToAccountsMigration(mContext).migrate(database);
     }
 
 }

@@ -72,10 +72,11 @@ String getCurrentBranch() {
 }
 
 boolean currentBranchIsProd() {
-    if (currentBranch.equalsIgnoreCase("develop") || currentBranch.equalsIgnoreCase("master") || currentBranch.equalsIgnoreCase("hotfix")) {
-        return true
-    }
-    return false
+    return (currentBranch.equalsIgnoreCase("develop") ||
+            currentBranch.equalsIgnoreCase("master") ||
+            currentBranch.equalsIgnoreCase("hotfix")) ||
+            currentBranch.contains("release")
+    ;
 }
 
 Properties getDefaultVersionName() {

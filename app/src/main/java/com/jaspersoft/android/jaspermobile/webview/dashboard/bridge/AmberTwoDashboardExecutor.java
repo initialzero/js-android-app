@@ -30,7 +30,6 @@ import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
-import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -81,13 +80,8 @@ public final class AmberTwoDashboardExecutor extends AbstractDashboardExecutor {
             StringWriter writer = new StringWriter();
             IOUtils.copy(stream, writer, "UTF-8");
 
-            VisualizeEndpoint endpoint = VisualizeEndpoint.forBaseUrl(accountServerData.getServerUrl())
-                    .optimized()
-                    .showControls()
-                    .build();
-
             Map<String, String> data = new HashMap<String, String>();
-            data.put("visualize_url", endpoint.createUri());
+            data.put("visualize_url", accountServerData.getServerUrl() + "/client/visualize.js?_opt=true&_showInputControls=true");
             Template tmpl = Mustache.compiler().compile(writer.toString());
             String html = tmpl.execute(data);
 

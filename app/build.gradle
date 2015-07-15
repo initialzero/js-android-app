@@ -161,11 +161,12 @@ dependencies {
     provided 'org.roboguice:roboblender:3.0.1'
 
     compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.android.support:cardview-v7:21.0.3'
     compile 'com.google.android.gms:play-services-analytics:7.3.0'
 
-    compile("org.androidannotations:androidannotations-api:3.2")
-    apt "org.androidannotations:androidannotations:3.2"
+    compile("org.androidannotations:androidannotations-api:3.3.2")
+    apt "org.androidannotations:androidannotations:3.3.2"
     apt 'org.roboguice:roboblender:3.0.1'
 
     // For action mode support within list views

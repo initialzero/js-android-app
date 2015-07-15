@@ -28,38 +28,39 @@ import android.accounts.Account;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.jaspersoft.android.jaspermobile.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
@@ -74,7 +75,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.ItemClick;
 
 import java.util.List;
 
@@ -84,7 +84,7 @@ import roboguice.inject.InjectView;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
+@EFragment(R.layout.fragment_resources_list)
 public class LibraryFragment extends RoboSpiceFragment
         implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
 
@@ -95,7 +95,7 @@ public class LibraryFragment extends RoboSpiceFragment
     private static final int LOAD_FROM_NETWORK = 2;
 
     @InjectView(android.R.id.list)
-    protected AbsListView listView;
+    protected JasperRecyclerView listView;
     @InjectView(R.id.refreshLayout)
     protected SwipeRefreshLayout swipeRefreshLayout;
 
@@ -141,7 +141,7 @@ public class LibraryFragment extends RoboSpiceFragment
     @Bean
     protected FavoritesHelper favoritesHelper;
 
-    private ResourceAdapter mAdapter;
+    private JasperResourceAdapter mAdapter;
     private PaginationPolicy mPaginationPolicy;
     private AccountServerData mServerData;
 
@@ -163,13 +163,6 @@ public class LibraryFragment extends RoboSpiceFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(
-                (viewType == ViewType.LIST) ? R.layout.fragment_resources_list : R.layout.fragment_resources_grid,
-                container, false);
-    }
-
-    @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -183,8 +176,8 @@ public class LibraryFragment extends RoboSpiceFragment
                 R.color.js_blue,
                 R.color.js_dark_blue);
 
-        listView.setOnScrollListener(new ScrollListener());
-        setDataAdapter(savedInstanceState);
+        listView.addOnScrollListener(new ScrollListener());
+        setDataAdapter();
         updatePaginationPolicy();
         loadFirstPage();
     }
@@ -193,7 +186,7 @@ public class LibraryFragment extends RoboSpiceFragment
     public void onStart() {
         super.onStart();
 
-        boolean isResourceLoaded = (mAdapter.getCount() == 0);
+        boolean isResourceLoaded = (mAdapter.getItemCount() == 0);
         if (!mLoading && isResourceLoaded) {
             loadFirstPage();
         }
@@ -221,9 +214,9 @@ public class LibraryFragment extends RoboSpiceFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mAdapter != null) {
-            mAdapter.save(outState);
-        }
+//        if (mAdapter != null) {
+//            mAdapter.save(outState);
+//        }
         super.onSaveInstanceState(outState);
     }
 
@@ -231,11 +224,11 @@ public class LibraryFragment extends RoboSpiceFragment
         this.query = query;
     }
 
-    @ItemClick(android.R.id.list)
-    public void onItemClick(ResourceLookup resource) {
-        mAdapter.finishActionMode();
-        resourceOpener.openResource(this, resource);
-    }
+//    @ItemClick(android.R.id.list)
+//    public void onItemClick(ResourceLookup resource) {
+//        mAdapter.finishActionMode();
+//        resourceOpener.openResource(this, resource);
+//    }
 
     //---------------------------------------------------------------------
     // Implements SwipeRefreshLayout.OnRefreshListener
@@ -275,10 +268,11 @@ public class LibraryFragment extends RoboSpiceFragment
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void setDataAdapter(Bundle savedInstanceState) {
-        mAdapter = new ResourceAdapter(getActivity(), savedInstanceState, viewType);
-        mAdapter.setResourcesInteractionListener(this);
-        mAdapter.setAdapterView(listView);
+    private void setDataAdapter() {
+        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
+        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertFromResourceLookups(null), viewType);
+        // mAdapter.setResourcesInteractionListener(this);
+        listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
     }
 
@@ -330,7 +324,7 @@ public class LibraryFragment extends RoboSpiceFragment
     }
 
     private void showEmptyText(int resId) {
-        boolean noItems = (mAdapter.getCount() > 0);
+        boolean noItems = (mAdapter.getItemCount() > 0);
         emptyText.setVisibility(noItems ? View.GONE : View.VISIBLE);
         if (resId != 0) emptyText.setText(resId);
     }
@@ -389,11 +383,10 @@ public class LibraryFragment extends RoboSpiceFragment
             List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
             // Do this for explicit refresh during pull to refresh interaction
             if (mLoaderState == LOAD_FROM_NETWORK) {
-                mAdapter.setNotifyOnChange(false);
                 mAdapter.clear();
             }
-            mAdapter.addAll(datum);
-            mAdapter.setNotifyOnChange(true);
+            JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
+            mAdapter.addAll(jasperResourceConverter.convertFromResourceLookups(datum));
             mAdapter.notifyDataSetChanged();
 
             // set refresh states
@@ -407,28 +400,31 @@ public class LibraryFragment extends RoboSpiceFragment
     // Implements AbsListView.OnScrollListener
     //---------------------------------------------------------------------
 
-    private class ScrollListener extends SimpleScrollListener {
+    private class ScrollListener extends RecyclerView.OnScrollListener {
+
         @Override
-        public void onScroll(AbsListView listView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+
+            RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+            int visibleItemCount = recyclerView.getChildCount();
+            int totalItemCount = recyclerView.getLayoutManager().getItemCount();
+            int firstVisibleItem;
+
+            if (layoutManager instanceof LinearLayoutManager) {
+                firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+            } else {
+                firstVisibleItem = ((GridLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+            }
+
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
             }
             enableRefreshLayout(listView);
         }
 
-        private void enableRefreshLayout(AbsListView listView) {
-            boolean enable = true;
-            if (listView != null && listView.getChildCount() > 0) {
-                // check if the first item of the list is visible
-                boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;
-
-                // check if the top of the first item is visible
-                View topViewItem = listView.getChildAt(0);
-                boolean topOfFirstItemVisible = topViewItem.getTop() - listView.getPaddingTop() == 0;
-
-                // enabling or disabling the refresh layout
-                enable = firstItemVisible && topOfFirstItemVisible;
-            }
+        private void enableRefreshLayout(RecyclerView listView) {
+            boolean enable = !listView.canScrollVertically(-1);
             swipeRefreshLayout.setEnabled(enable);
         }
     }

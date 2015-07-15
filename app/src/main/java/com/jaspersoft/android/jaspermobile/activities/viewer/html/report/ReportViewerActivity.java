@@ -65,7 +65,6 @@ import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
-import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
@@ -613,13 +612,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             StringWriter writer = new StringWriter();
             IOUtils.copy(stream, writer, "UTF-8");
 
-
-            String baseUrl = accountServerData.getServerUrl();
-            VisualizeEndpoint visualizeEndpoint = VisualizeEndpoint.forBaseUrl(baseUrl)
-                    .setOptimized(optimized)
-                    .build();
-            String visualizeUrl = visualizeEndpoint.createUri();
-
+            String visualizeUrl = accountServerData.getServerUrl() + "/client/visualize.js?_opt=" + optimized;
             double initialScale = screenUtil.getDiagonal() / 10.1;
 
             Map<String, Object> data = new HashMap<String, Object>();

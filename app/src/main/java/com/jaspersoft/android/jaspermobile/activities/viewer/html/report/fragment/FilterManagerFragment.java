@@ -254,7 +254,6 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;
-            mShowSaveAndPrintOption = false;
             getActivity().supportInvalidateOptionsMenu();
 
             if (showFilterActionVisible) {

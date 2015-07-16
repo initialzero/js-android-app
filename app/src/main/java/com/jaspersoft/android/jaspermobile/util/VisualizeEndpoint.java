@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.util;
 
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Patterns;
+import android.webkit.URLUtil;
 
 /**
  * Hides details of visualize url creation.
@@ -80,9 +80,9 @@ public class VisualizeEndpoint {
         if (TextUtils.isEmpty(baseUrl)) {
             throw new IllegalArgumentException("Base url should not be null");
         }
-        boolean isValid = Patterns.WEB_URL.matcher(baseUrl).matches();
+        boolean isValid = URLUtil.isNetworkUrl(baseUrl);
         if (!isValid) {
-            throw new IllegalArgumentException("Url does not matched regular expression: " + Patterns.WEB_URL);
+            throw new IllegalArgumentException("Url does not considered to be network url: " + baseUrl);
         }
 
         return new EndpointBuilder(baseUrl);

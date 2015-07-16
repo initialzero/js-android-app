@@ -53,6 +53,7 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -117,6 +118,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     @Override
     protected void onActiveAccountChanged() {
         navigateToCurrentSelection();
+        enableRecentlyViewedSection();
     }
 
     @Override
@@ -180,6 +182,19 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void enableRecentlyViewedSection() {
+        Account account = JasperAccountManager.get(this).getActiveAccount();
+        AccountServerData serverData = AccountServerData.get(this, account);
+        boolean isProJrs = serverData.getEdition().equals("PRO");
+
+        View recentlyView = findViewById(R.id.vg_recent);
+        if (isProJrs) {
+            recentlyView.setVisibility(View.VISIBLE);
+        } else {
+            recentlyView.setVisibility(View.GONE);
+        }
+    }
+
     private void setupNavDrawer() {
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, getToolbar(),
                 R.string.nd_drawer_open, R.string.nd_drawer_close) {
@@ -204,6 +219,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     private void setupNavPanel() {
+        enableRecentlyViewedSection();
         navigationPanelLayout.setListener(new NavigationPanelLayout.NavigationListener() {
             @Override
             public void onNavigate(int viewId) {

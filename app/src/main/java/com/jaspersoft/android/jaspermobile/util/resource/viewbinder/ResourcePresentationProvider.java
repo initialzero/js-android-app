@@ -6,8 +6,7 @@ import android.view.ViewGroup;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public interface ResourceViewProvider {
-
+public interface ResourcePresentationProvider {
     BaseViewHolder provideListViewHolder(ViewGroup parent);
     BaseViewHolder provideGridViewHolder(ViewGroup parent);
 }

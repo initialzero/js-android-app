@@ -27,11 +27,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
+    <GridView
         android:id="@android:id/list"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:padding="16dp"/>
+        android:layout_margin="8dp"
+        android:columnWidth="@dimen/grid_item_size"
+        android:drawSelectorOnTop="true"
+        android:gravity="center_horizontal"
+        android:horizontalSpacing="8dp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="16dp" />
 
     <TextView
         android:id="@android:id/empty"

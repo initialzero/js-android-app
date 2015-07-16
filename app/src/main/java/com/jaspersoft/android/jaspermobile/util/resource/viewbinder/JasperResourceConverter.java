@@ -15,6 +15,7 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import roboguice.RoboGuice;
@@ -39,34 +40,43 @@ public class JasperResourceConverter {
         isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
     }
 
-    public List<JasperResource> convertFromResourceLookups(List<ResourceLookup> listToConvert) {
+    public List<JasperResource> convertToJasperResource(List<ResourceLookup> listToConvert) {
         List<JasperResource> jasperResourceList = new ArrayList<>();
         if (listToConvert == null) return jasperResourceList;
 
-        JasperResource resource;
-
         for (ResourceLookup resourceLookup : listToConvert) {
+            JasperResource resource;
             switch (resourceLookup.getResourceType()) {
                 case folder:
-                    resource = new FolderResource(resourceLookup.getLabel(), resourceLookup.getDescription());
+                    resource = new FolderResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
                     break;
                 case legacyDashboard:
                 case dashboard:
-                    resource = new DashboardResource(resourceLookup.getLabel(), resourceLookup.getDescription());
+                    resource = new DashboardResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
                     break;
                 case reportUnit:
                     String imageUri = "";
                     if (isAmberOrHigher) {
                         imageUri = jsRestClient.generateThumbNailUri(resourceLookup.getUri());
                     }
-                    resource = new ReportResource(resourceLookup.getLabel(), resourceLookup.getDescription(), imageUri);
+                    resource = new ReportResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription(), imageUri);
                     break;
                 default:
-                    resource = new UndefinedResource(resourceLookup.getLabel(), resourceLookup.getDescription());
+                    resource = new UndefinedResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
                     break;
             }
             jasperResourceList.add(resource);
         }
         return jasperResourceList;
+    }
+
+    public HashMap<String, ResourceLookup> contertToDataMap(List<ResourceLookup> listToConvert){
+        HashMap<String, ResourceLookup> jasperResourceMap = new HashMap<>();
+        if (listToConvert == null) return jasperResourceMap;
+
+        for (ResourceLookup resourceLookup : listToConvert) {
+            jasperResourceMap.put(resourceLookup.getUri(), resourceLookup);
+        }
+        return jasperResourceMap;
     }
 }

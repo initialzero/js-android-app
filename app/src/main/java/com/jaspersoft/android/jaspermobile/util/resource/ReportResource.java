@@ -10,8 +10,8 @@ public class ReportResource extends JasperResource {
 
     private String thumbnailUri;
 
-    public ReportResource(String label, String description, String thumbnailUri) {
-        super(label, description);
+    public ReportResource(String id, String label, String description, String thumbnailUri) {
+        super(id, label, description);
         this.thumbnailUri = thumbnailUri;
     }
 

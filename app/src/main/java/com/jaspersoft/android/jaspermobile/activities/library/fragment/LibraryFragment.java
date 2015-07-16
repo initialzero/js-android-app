@@ -76,6 +76,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 
+import java.util.HashMap;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -84,7 +85,7 @@ import roboguice.inject.InjectView;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment(R.layout.fragment_resources_list)
+@EFragment(R.layout.fragment_resource)
 public class LibraryFragment extends RoboSpiceFragment
         implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
 
@@ -144,10 +145,13 @@ public class LibraryFragment extends RoboSpiceFragment
     private JasperResourceAdapter mAdapter;
     private PaginationPolicy mPaginationPolicy;
     private AccountServerData mServerData;
+    private HashMap<String, ResourceLookup> mResourceLookupHashMap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mResourceLookupHashMap = new HashMap<>();
 
         mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setLimit(mLimit);
@@ -224,18 +228,13 @@ public class LibraryFragment extends RoboSpiceFragment
         this.query = query;
     }
 
-//    @ItemClick(android.R.id.list)
-//    public void onItemClick(ResourceLookup resource) {
-//        mAdapter.finishActionMode();
-//        resourceOpener.openResource(this, resource);
-//    }
-
     //---------------------------------------------------------------------
     // Implements SwipeRefreshLayout.OnRefreshListener
     //---------------------------------------------------------------------
 
     @Override
     public void onRefresh() {
+        clearData();
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
@@ -248,14 +247,14 @@ public class LibraryFragment extends RoboSpiceFragment
 
     public void loadResourcesByTypes() {
         mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
-        mAdapter.clear();
+        clearData();
         loadFirstPage();
     }
 
     public void loadResourcesBySortOrder(SortOrder order) {
         sortOrder = order;
         mSearchCriteria.setSortBy(order.getValue());
-        mAdapter.clear();
+        clearData();
         loadFirstPage();
     }
 
@@ -268,9 +267,37 @@ public class LibraryFragment extends RoboSpiceFragment
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void clearData(){
+        mResourceLookupHashMap.clear();
+        mAdapter.clear();
+    }
+
+    private void addData( List<ResourceLookup> data){
+        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
+        mResourceLookupHashMap.putAll(jasperResourceConverter.contertToDataMap(data));
+        mAdapter.addAll(jasperResourceConverter.convertToJasperResource(data));
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void onViewSingleClick(ResourceLookup resource) {
+       // mAdapter.finishActionMode();
+        resourceOpener.openResource(this, resource);
+    }
+
     private void setDataAdapter() {
         JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertFromResourceLookups(null), viewType);
+        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(null), viewType);
+        mAdapter.setOnItemClickListener(new JasperResourceAdapter.OnItemInteractionListener() {
+            @Override
+            public void onItemClick(String id) {
+                onViewSingleClick(mResourceLookupHashMap.get(id));
+            }
+
+            @Override
+            public void onItemLongClick(String id) {
+
+            }
+        });
         // mAdapter.setResourcesInteractionListener(this);
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
@@ -379,15 +406,7 @@ public class LibraryFragment extends RoboSpiceFragment
             // set pagination data
             mPaginationPolicy.handleLookup(resourceLookupsList);
 
-            // set data
-            List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
-            // Do this for explicit refresh during pull to refresh interaction
-            if (mLoaderState == LOAD_FROM_NETWORK) {
-                mAdapter.clear();
-            }
-            JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-            mAdapter.addAll(jasperResourceConverter.convertFromResourceLookups(datum));
-            mAdapter.notifyDataSetChanged();
+            addData(resourceLookupsList.getResourceLookups());
 
             // set refresh states
             setRefreshState(false);

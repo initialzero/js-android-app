@@ -27,11 +27,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView
+    <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:columnWidth="@dimen/grid_item_size"/>
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10dp"
+        android:drawSelectorOnTop="true"/>
 
     <TextView
         android:id="@android:id/empty"

@@ -23,6 +23,26 @@ public class SimpleGridViewHolder extends BaseViewHolder {
 
         this.ivIcon = (TopCropImageView) itemView.findViewById(android.R.id.icon);
         this.tvName = (TextView) itemView.findViewById(android.R.id.text1);
+
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mItemInteractionListener != null) {
+                    mItemInteractionListener.onViewSingleClick(getAdapterPosition());
+                }
+            }
+        });
+
+        itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mItemInteractionListener != null) {
+                    mItemInteractionListener.onViewLongClick(getAdapterPosition());
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     /**

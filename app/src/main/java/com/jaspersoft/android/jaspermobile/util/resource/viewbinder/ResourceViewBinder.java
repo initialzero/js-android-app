@@ -9,7 +9,7 @@ import com.jaspersoft.android.jaspermobile.util.ViewType;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public abstract class ResourceViewBinder implements ResourceViewProvider {
+public abstract class ResourceViewBinder implements ResourcePresentationProvider {
 
     protected Context mContext;
     private ViewType mViewType;

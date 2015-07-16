@@ -50,7 +50,7 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
-public class JasperMobileModule extends AbstractModule {
+public class  JasperMobileModule extends AbstractModule {
     private final Context mContext;
 
     public JasperMobileModule(Application application) {
@@ -75,7 +75,7 @@ public class JasperMobileModule extends AbstractModule {
         animationSpeed *= 1.5;
         bindConstant().annotatedWith(Names.named("animationSpeed"))
                 .to(animationSpeed);
-        bindConstant().annotatedWith(Names.named("LIMIT")).to(100);
+        bindConstant().annotatedWith(Names.named("LIMIT")).to(10);
         bindConstant().annotatedWith(Names.named("MAX_PAGE_ALLOWED")).to(10);
         bindConstant().annotatedWith(Names.named("THRESHOLD")).to(5);
 

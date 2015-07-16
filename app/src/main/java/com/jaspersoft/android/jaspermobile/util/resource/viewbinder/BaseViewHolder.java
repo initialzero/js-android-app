@@ -11,8 +11,14 @@ import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
  */
 public abstract class BaseViewHolder extends RecyclerView.ViewHolder {
 
+    protected OnViewClickListener mItemInteractionListener;
+
     public BaseViewHolder(View itemView) {
         super(itemView);
+    }
+
+    public void setOnItemInteractionListener(OnViewClickListener itemInteractionListener){
+        this.mItemInteractionListener = itemInteractionListener;
     }
 
     /**
@@ -20,4 +26,12 @@ public abstract class BaseViewHolder extends RecyclerView.ViewHolder {
      * @param resource data to be displayed in UI
      */
     public abstract void populateView(JasperResource resource);
+
+    //---------------------------------------------------------------------
+    // Base ViewHolder's click listener
+    //---------------------------------------------------------------------
+    public interface OnViewClickListener {
+        void onViewSingleClick(int position);
+        void onViewLongClick(int position);
+    }
 }

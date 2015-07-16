@@ -8,8 +8,8 @@ import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResour
  */
 public class DashboardResource extends JasperResource {
 
-    public DashboardResource(String label, String description) {
-        super(label, description);
+    public DashboardResource(String id, String label, String description) {
+        super(id, label, description);
     }
 
     @Override

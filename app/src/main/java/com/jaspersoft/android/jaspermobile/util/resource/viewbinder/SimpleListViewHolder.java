@@ -21,11 +21,32 @@ public class SimpleListViewHolder extends BaseViewHolder {
         this.ivIcon = (TopCropImageView) itemView.findViewById(android.R.id.icon);
         this.tvName = (TextView) itemView.findViewById(android.R.id.text1);
         this.tvDescription = (TextView) itemView.findViewById(android.R.id.text2);
+
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mItemInteractionListener != null) {
+                    mItemInteractionListener.onViewSingleClick(getAdapterPosition());
+                }
+            }
+        });
+
+        itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mItemInteractionListener != null) {
+                    mItemInteractionListener.onViewLongClick(getAdapterPosition());
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
 
     /**
      * Fill resource view with data. This method does not contain setting of item icon.
+     *
      * @param resource data to be displayed in UI
      */
     @Override

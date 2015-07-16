@@ -23,6 +23,7 @@ import java.util.List;
  */
 public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
+    private OnItemInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
     private ViewType viewType;
 
@@ -38,7 +39,23 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int resourceType) {
         ResourceViewBinder resourceViewBinder = getResViewBinderForResType(parent.getContext(), JasperResourceType.values()[resourceType], viewType);
-        return resourceViewBinder.buildViewHolder(parent);
+        BaseViewHolder itemViewHolder = resourceViewBinder.buildViewHolder(parent);
+        itemViewHolder.setOnItemInteractionListener(new BaseViewHolder.OnViewClickListener() {
+            @Override
+            public void onViewSingleClick(int position) {
+                if (mItemInteractionListener != null) {
+                    mItemInteractionListener.onItemClick(jasperResources.get(position).getId());
+                }
+            }
+
+            @Override
+            public void onViewLongClick(int position) {
+                if (mItemInteractionListener != null) {
+                    mItemInteractionListener.onItemLongClick(jasperResources.get(position).getId());
+                }
+            }
+        });
+        return itemViewHolder;
     }
 
     @Override
@@ -57,6 +74,10 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> 
         return resource.getResourceType().ordinal();
     }
 
+    public void setOnItemClickListener(OnItemInteractionListener itemInteractionListener){
+        this.mItemInteractionListener = itemInteractionListener;
+    }
+
     public void addAll(List<JasperResource> jasperResources) {
         this.jasperResources.addAll(jasperResources);
         notifyDataSetChanged();
@@ -64,8 +85,6 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> 
 
     public void clear() {
         jasperResources = new ArrayList<>();
-        notifyDataSetChanged();
-
     }
 
     private ResourceViewBinder getResViewBinderForResType(Context context, JasperResourceType jasperResourceType, ViewType viewType) {
@@ -79,5 +98,13 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> 
             default:
                 return new UndefinedViewBinder(context, viewType);
         }
+    }
+
+    //---------------------------------------------------------------------
+    // Base adapter interaction listener
+    //---------------------------------------------------------------------
+    public interface OnItemInteractionListener {
+        void onItemClick(String id);
+        void onItemLongClick(String id);
     }
 }

@@ -8,8 +8,8 @@ import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResour
  */
 public class UndefinedResource extends JasperResource {
 
-    public UndefinedResource(String label, String description) {
-        super(label, description);
+    public UndefinedResource(String id, String label, String description) {
+        super(id, label, description);
     }
 
     @Override

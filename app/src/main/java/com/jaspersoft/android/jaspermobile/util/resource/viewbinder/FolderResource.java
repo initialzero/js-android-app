@@ -8,8 +8,8 @@ import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
  */
 public class FolderResource extends JasperResource {
 
-    public FolderResource(String label, String description) {
-        super(label, description);
+    public FolderResource(String id, String label, String description) {
+        super(id, label, description);
     }
 
     @Override

@@ -84,7 +84,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">关于</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ V%s\n\nJasperReports Server 5.5及以上版本的管理工具和报告查看器。\n\n欲了解更多信息，请访问：\n\n\n©2005-2015 TIBCO Software, Inc.版权所有</string>
+    <string name="sa_about_info"><![CDATA[TIBCO JasperMobile™ V%s<br><br>JasperReports Server 5.5及以上版本的管理工具和报告查看器。<br><br>欲了解更多信息，请访问：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>欲查看隐私政策信息，请访问：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>©2005-2015 TIBCO Software, Inc.版权所有]]></string>
     <string name="sa_about_privacy">隐私政策</string>
 
     <!-- Report Options Activity -->

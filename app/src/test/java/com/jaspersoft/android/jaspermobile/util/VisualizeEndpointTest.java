@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -58,6 +58,11 @@ public class VisualizeEndpointTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAcceptInvalidBaseUrl() {
         VisualizeEndpoint.forBaseUrl("some_invalid_url");
+    }
+
+    @Test
+    public void shouldAcceptLocalhostAsBaseUrl() {
+        VisualizeEndpoint.forBaseUrl("http://localhost:554/my-server");
     }
 
     @Test

@@ -26,7 +26,7 @@ public class UndefinedViewBinder extends ResourceViewBinder {
     @Override
     public BaseViewHolder provideListViewHolder(ViewGroup parent) {
         View itemView = LayoutInflater.from(parent.getContext()).
-                inflate(R.layout.common_list_item, parent, false);
+                inflate(R.layout.item_resource_list, parent, false);
         return new ListUndefinedViewHolder(itemView);
     }
 

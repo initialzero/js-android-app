@@ -270,6 +270,7 @@ public class LibraryFragment extends RoboSpiceFragment
     private void clearData(){
         mResourceLookupHashMap.clear();
         mAdapter.clear();
+        mAdapter.notifyDataSetChanged();
     }
 
     private void addData( List<ResourceLookup> data){

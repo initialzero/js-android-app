@@ -24,8 +24,9 @@ public abstract class BaseViewHolder extends RecyclerView.ViewHolder {
     /**
      * Fill resource view with data
      * @param resource data to be displayed in UI
+     * @param isSelected is item selected
      */
-    public abstract void populateView(JasperResource resource);
+    public abstract void populateView(JasperResource resource, boolean isSelected);
 
     //---------------------------------------------------------------------
     // Base ViewHolder's click listener

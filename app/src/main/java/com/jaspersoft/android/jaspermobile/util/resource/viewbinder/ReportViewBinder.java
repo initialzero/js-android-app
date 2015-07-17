@@ -89,8 +89,8 @@ public class ReportViewBinder extends ResourceViewBinder {
         }
 
         @Override
-        public void populateView(JasperResource resource) {
-            super.populateView(resource);
+        public void populateView(JasperResource resource, boolean isSelected) {
+            super.populateView(resource, isSelected);
             if (!(resource instanceof ReportResource)) return;
 
             ReportResource reportResource = ((ReportResource) resource);
@@ -105,8 +105,8 @@ public class ReportViewBinder extends ResourceViewBinder {
         }
 
         @Override
-        public void populateView(JasperResource resource) {
-            super.populateView(resource);
+        public void populateView(JasperResource resource, boolean isSelected) {
+            super.populateView(resource, isSelected);
             if (!(resource instanceof ReportResource)) return;
 
             ReportResource reportResource = ((ReportResource) resource);

@@ -48,9 +48,10 @@ public class SimpleGridViewHolder extends BaseViewHolder {
     /**
      * Fill resource view with data. This method does not contain setting of item icon.
      * @param resource data to be displayed in UI
+     * @param isSelected is item selected
      */
     @Override
-    public void populateView(JasperResource resource) {
+    public void populateView(JasperResource resource, boolean isSelected) {
         tvName.setText(resource.getLabel());
     }
 }

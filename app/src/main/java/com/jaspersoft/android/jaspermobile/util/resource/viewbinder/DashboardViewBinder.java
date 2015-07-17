@@ -64,8 +64,8 @@ public class DashboardViewBinder extends ResourceViewBinder {
         }
 
         @Override
-        public void populateView(JasperResource resource) {
-            super.populateView(resource);
+        public void populateView(JasperResource resource, boolean isSelected) {
+            super.populateView(resource, isSelected);
             setThumbnail(ivIcon);
         }
     }
@@ -77,8 +77,8 @@ public class DashboardViewBinder extends ResourceViewBinder {
         }
 
         @Override
-        public void populateView(JasperResource resource) {
-            super.populateView(resource);
+        public void populateView(JasperResource resource, boolean isSelected) {
+            super.populateView(resource, isSelected);
             setThumbnail(ivIcon);
         }
     }

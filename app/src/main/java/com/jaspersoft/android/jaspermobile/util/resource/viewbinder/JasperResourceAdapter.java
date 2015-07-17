@@ -1,18 +1,10 @@
-package com.jaspersoft.android.jaspermobile;
+package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.BaseViewHolder;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.DashboardViewBinder;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FolderViewBinder;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceType;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ReportViewBinder;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewBinder;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.UndefinedViewBinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +13,9 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+public class JasperResourceAdapter extends SelectableAdapter<String> {
 
-    private OnItemInteractionListener mItemInteractionListener;
+    private OnResourceInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
     private ViewType viewType;
 
@@ -40,27 +32,14 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> 
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int resourceType) {
         ResourceViewBinder resourceViewBinder = getResViewBinderForResType(parent.getContext(), JasperResourceType.values()[resourceType], viewType);
         BaseViewHolder itemViewHolder = resourceViewBinder.buildViewHolder(parent);
-        itemViewHolder.setOnItemInteractionListener(new BaseViewHolder.OnViewClickListener() {
-            @Override
-            public void onViewSingleClick(int position) {
-                if (mItemInteractionListener != null) {
-                    mItemInteractionListener.onItemClick(jasperResources.get(position).getId());
-                }
-            }
-
-            @Override
-            public void onViewLongClick(int position) {
-                if (mItemInteractionListener != null) {
-                    mItemInteractionListener.onItemLongClick(jasperResources.get(position).getId());
-                }
-            }
-        });
+        itemViewHolder.setOnItemInteractionListener(new OnResourceItemClickListener());
         return itemViewHolder;
     }
 
     @Override
     public void onBindViewHolder(BaseViewHolder baseViewHolder, int position) {
-        baseViewHolder.populateView(jasperResources.get(position));
+        boolean isSelected = mResourceSelector != null && mResourceSelector.isSelected(position);
+        baseViewHolder.populateView(jasperResources.get(position), isSelected);
     }
 
     @Override
@@ -74,7 +53,7 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> 
         return resource.getResourceType().ordinal();
     }
 
-    public void setOnItemClickListener(OnItemInteractionListener itemInteractionListener){
+    public void setOnItemInteractionListener(OnResourceInteractionListener itemInteractionListener) {
         this.mItemInteractionListener = itemInteractionListener;
     }
 
@@ -85,6 +64,7 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> 
 
     public void clear() {
         jasperResources = new ArrayList<>();
+        notifyDataSetChanged();
     }
 
     private ResourceViewBinder getResViewBinderForResType(Context context, JasperResourceType jasperResourceType, ViewType viewType) {
@@ -100,11 +80,38 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseViewHolder> 
         }
     }
 
+    @Override
+    public String getItemKey(int position) {
+        if (jasperResources.size() < position) return null;
+
+        JasperResource jasperResource = jasperResources.get(position);
+        if (jasperResource != null) {
+            return jasperResources.get(position).getId();
+        }
+        return null;
+    }
+
     //---------------------------------------------------------------------
     // Base adapter interaction listener
     //---------------------------------------------------------------------
-    public interface OnItemInteractionListener {
-        void onItemClick(String id);
-        void onItemLongClick(String id);
+    public interface OnResourceInteractionListener {
+        void onResourceItemClicked(String id);
+    }
+
+    private class OnResourceItemClickListener implements BaseViewHolder.OnViewClickListener {
+
+        @Override
+        public void onViewSingleClick(int position) {
+            if (mItemInteractionListener != null) {
+                mItemInteractionListener.onResourceItemClicked(jasperResources.get(position).getId());
+            }
+        }
+
+        @Override
+        public void onViewLongClick(int position) {
+            if (mResourceSelector != null) {
+                mResourceSelector.changeSelectedState(position);
+            }
+        }
     }
 }

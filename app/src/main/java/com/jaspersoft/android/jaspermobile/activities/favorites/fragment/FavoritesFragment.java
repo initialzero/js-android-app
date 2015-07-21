@@ -33,14 +33,14 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
+import android.support.v7.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -51,23 +51,26 @@ import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.SelectionModeHelper;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
+import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -80,10 +83,9 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
+@EFragment(R.layout.fragment_resource)
 public class FavoritesFragment extends RoboFragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        FavoritesAdapter.FavoritesInteractionListener,
         DeleteDialogFragment.DeleteDialogClickListener {
 
     public static final String TAG = FavoritesFragment.class.getSimpleName();
@@ -101,7 +103,7 @@ public class FavoritesFragment extends RoboFragment
     protected SortOrder sortOrder;
 
     @InjectView(android.R.id.list)
-    AbsListView listView;
+    JasperRecyclerView listView;
     @InjectView(android.R.id.empty)
     TextView emptyText;
 
@@ -114,12 +116,16 @@ public class FavoritesFragment extends RoboFragment
     @FragmentArg
     @InstanceState
     String searchQuery;
-    private FavoritesAdapter mAdapter;
+
+    private SelectionModeHelper mSelectionModeHelper;
+    private JasperResourceAdapter mAdapter;
+    JasperResourceConverter jasperResourceConverter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        jasperResourceConverter = new JasperResourceConverter(getActivity());
     }
 
     @Override
@@ -136,21 +142,11 @@ public class FavoritesFragment extends RoboFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(
-                (viewType == ViewType.LIST) ? R.layout.common_list_layout : R.layout.common_grid_layout,
-                container, false);
-    }
-
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setEmptyText(0);
 
-        mAdapter = new FavoritesAdapter(getActivity(), savedInstanceState, viewType);
-        mAdapter.setAdapterView(listView);
-        mAdapter.setFavoritesInteractionListener(this);
-        listView.setAdapter(mAdapter);
+        setDataAdapter(savedInstanceState);
 
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
@@ -164,26 +160,10 @@ public class FavoritesFragment extends RoboFragment
         }
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        mAdapter.save(outState);
+        mSelectionModeHelper.saveState(outState);
         super.onSaveInstanceState(outState);
-    }
-
-    @ItemClick(android.R.id.list)
-    final void itemClick(int position) {
-        mAdapter.finishActionMode();
-        Cursor cursor = mAdapter.getCursor();
-        cursor.moveToPosition(position);
-
-        ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
-        resource.setDescription(cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION)));
-        resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
-        resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
-
-        resourceOpener.openResource(this, FavoritesControllerFragment.PREF_TAG, resource);
     }
 
     @UiThread
@@ -194,6 +174,39 @@ public class FavoritesFragment extends RoboFragment
             emptyText.setVisibility(View.VISIBLE);
             emptyText.setText(resId);
         }
+    }
+
+    public void showFavoritesByFilter() {
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    public void showFavoritesBySortOrder(SortOrder selectedSortOrder) {
+        sortOrder = selectedSortOrder;
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    private void onViewSingleClick(ResourceLookup resource) {
+        if (mSelectionModeHelper != null) {
+            mSelectionModeHelper.finishSelectionMode();
+        }
+        resourceOpener.openResource(this, FavoritesControllerFragment.PREF_TAG, resource);
+    }
+
+    private void setDataAdapter(Bundle savedInstanceState) {
+        Cursor cursor = null;
+        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(cursor, null, null), viewType);
+        mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
+            @Override
+            public void onResourceItemClicked(String id) {
+                ResourceLookup resource = jasperResourceConverter.convertToResourceLookup(id, getActivity());
+                onViewSingleClick(resource);
+            }
+        });
+
+        listView.setViewType(viewType);
+        listView.setAdapter(mAdapter);
+        mSelectionModeHelper = new LibrarySelectionModeHelper(mAdapter);
+        mSelectionModeHelper.restoreState(savedInstanceState);
     }
 
     //---------------------------------------------------------------------
@@ -255,7 +268,10 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        mAdapter.swapCursor(cursor);
+        mAdapter.clear();
+        mAdapter.addAll(jasperResourceConverter.convertToJasperResource(cursor, FavoritesTable._ID, JasperMobileDbProvider.FAVORITES_CONTENT_URI));
+        mAdapter.notifyDataSetChanged();
+
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
@@ -265,33 +281,8 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        mAdapter.swapCursor(null);
-    }
-
-    //---------------------------------------------------------------------
-    // Implements FavoritesAdapter.FavoritesInteractionListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onDelete(String itemTitle, Uri recordUri) {
-        DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setRecordUri(recordUri)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.sdr_dfd_title)
-                .setMessage(getActivity().getString(R.string.sdr_dfd_msg, itemTitle))
-                .setPositiveButtonText(R.string.spm_delete_btn)
-                .setNegativeButtonText(R.string.cancel)
-                .setTargetFragment(this)
-                .show();
-    }
-
-    @Override
-    public void onInfo(String itemTitle, String itemDescription) {
-        SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setTitle(itemTitle)
-                .setMessage(itemDescription)
-                .setPositiveButtonText(getString(R.string.ok))
-                .show();
+        mAdapter.clear();
+        mAdapter.notifyDataSetChanged();
     }
 
     //---------------------------------------------------------------------
@@ -299,22 +290,16 @@ public class FavoritesFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(Uri recordUri, File itemFile) {
-        getActivity().getContentResolver().delete(recordUri, null, null);
-        mAdapter.finishActionMode();
+    public void onDeleteConfirmed(List<String> recordsUri, List<File> itemsFile) {
+        for (String recordUri : recordsUri) {
+            getActivity().getContentResolver().delete(Uri.parse(recordUri), null, null);
+        }
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+        mSelectionModeHelper.finishSelectionMode();
     }
 
     @Override
     public void onDeleteCanceled() {
-    }
-
-    public void showFavoritesByFilter() {
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
-    }
-
-    public void showFavoritesBySortOrder(SortOrder selectedSortOrder) {
-        sortOrder = selectedSortOrder;
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
     //---------------------------------------------------------------------
@@ -326,6 +311,76 @@ public class FavoritesFragment extends RoboFragment
         public void onFilter(Filter filter) {
             favoritesResourceFilter.persist(filter);
             showFavoritesByFilter();
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Library selection mode helper
+    //---------------------------------------------------------------------
+
+    private class LibrarySelectionModeHelper extends SelectionModeHelper<String> {
+
+        public LibrarySelectionModeHelper(JasperResourceAdapter resourceAdapter) {
+            super(((ActionBarActivity) getActivity()), resourceAdapter);
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            MenuInflater inflater = actionMode.getMenuInflater();
+            inflater.inflate(R.menu.am_favorites_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            menu.findItem(R.id.showAction).setVisible(getSelectedItemCount() == 1);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            ArrayList<String> selectedItemIds = getSelectedItemsKey();
+            if (selectedItemIds.size() == 0) return false;
+
+            ResourceLookup selectedItem;
+            switch (menuItem.getItemId()) {
+                case R.id.showAction:
+                    selectedItem = jasperResourceConverter.convertToResourceLookup(selectedItemIds.get(0), getActivity());
+                    String resourceTitle = selectedItem.getLabel();
+                    String resourceDescription = selectedItem.getDescription();
+
+                    showInfo(resourceTitle, resourceDescription);
+                    return true;
+                case R.id.removeFromFavorites:
+                    String deleteMessage;
+                    if (selectedItemIds.size() > 1) {
+                        deleteMessage = getActivity().getString(R.string.sdr_dfd_msg_multi, selectedItemIds.size());
+                    } else {
+                        selectedItem = jasperResourceConverter.convertToResourceLookup(selectedItemIds.get(0), getActivity());
+                        deleteMessage = getActivity().getString(R.string.sdr_dfd_msg, selectedItem.getLabel());
+                    }
+                    DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                            .setRecordsUri(selectedItemIds)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle(R.string.sdr_dfd_title)
+                            .setMessage(deleteMessage)
+                            .setPositiveButtonText(R.string.spm_delete_btn)
+                            .setNegativeButtonText(R.string.cancel)
+                            .setTargetFragment(FavoritesFragment.this)
+                            .show();
+                    invalidateSelectionMode();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void showInfo(String resourceTitle, String resourceDescription) {
+            SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                    .setTitle(resourceTitle)
+                    .setMessage(resourceDescription)
+                    .setPositiveButtonText(getString(R.string.ok))
+                    .show();
         }
     }
 }

@@ -44,8 +44,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
-import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
@@ -55,8 +53,10 @@ import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
-import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.FileUtils;
@@ -71,6 +71,7 @@ import org.androidannotations.annotations.UiThread;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -310,9 +311,14 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public void onDelete(File itemFile, Uri recordUri) {
+        ArrayList<File> files = new ArrayList<>();
+        files.add(itemFile);
+        ArrayList<String> uris = new ArrayList<>();
+        uris.add(recordUri.toString());
+
         DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setFile(itemFile)
-                .setRecordUri(recordUri)
+                .setFiles(files)
+                .setRecordsUri(uris)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getActivity().getString(R.string.sdr_drd_msg,
@@ -338,9 +344,9 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete) {
-        long id = Long.valueOf(itemToDelete.getLastPathSegment());
-        savedItemHelper.deleteSavedItem(fileToDelete, id);
+    public void onDeleteConfirmed(List<String> itemsToDelete, List<File> filesToDelete) {
+        long id = Long.valueOf(Uri.parse(itemsToDelete.get(0)).getLastPathSegment());
+        savedItemHelper.deleteSavedItem(filesToDelete.get(0), id);
         mAdapter.finishActionMode();
     }
 

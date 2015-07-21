@@ -91,7 +91,7 @@ import roboguice.inject.InjectView;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment(R.layout.fragment_resource)
+@EFragment(R.layout.fragment_refreshable_resource)
 public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = LibraryFragment.class.getSimpleName();
@@ -281,7 +281,7 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
 
     private void addData(List<ResourceLookup> data) {
         JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-        mResourceLookupHashMap.putAll(jasperResourceConverter.contertToDataMap(data));
+        mResourceLookupHashMap.putAll(jasperResourceConverter.convertToDataMap(data));
         mAdapter.addAll(jasperResourceConverter.convertToJasperResource(data));
         mAdapter.notifyDataSetChanged();
     }
@@ -296,7 +296,8 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     private void setDataAdapter(Bundle savedInstanceState) {
         JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
 
-        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(null), viewType);
+        List<ResourceLookup> resourceLookupList = null;
+        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {

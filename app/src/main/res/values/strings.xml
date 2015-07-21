@@ -168,6 +168,7 @@
     <!-- Remove Favorites Dialog -->
     <string name="sdr_dfd_title">Remove from Favorites</string>
     <string name="sdr_dfd_msg">Do you really want to remove \"%s\"?</string>
+    <string name="sdr_dfd_msg_multi" translatable="false">Do you really want to remove selected items (%s items)?</string>
 
     <!-- Toasts -->
     <string name="sdr_t_no_app_available">No \"%s\" viewer installed.</string>

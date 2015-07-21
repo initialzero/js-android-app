@@ -40,6 +40,9 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -91,8 +94,8 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
                 String.valueOf(reportId));
 
         DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setFile(reportFile)
-                .setRecordUri(uri)
+                .setFiles(Collections.singletonList(reportFile))
+                .setRecordsUri(new ArrayList<>(Collections.singletonList(uri.toString())))
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -106,8 +109,8 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete) {
-        long id = Long.valueOf(itemToDelete.getLastPathSegment());
+    public void onDeleteConfirmed(List<String> itemsToDelete, List<File> filesToDelete) {
+        long id = Long.valueOf(Uri.parse(itemsToDelete.get(0)).getLastPathSegment());
         savedItemHelper.deleteSavedItem(reportFile, id);
         finish();
     }

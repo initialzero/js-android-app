@@ -52,6 +52,7 @@ public class SimpleGridViewHolder extends BaseViewHolder {
      */
     @Override
     public void populateView(JasperResource resource, boolean isSelected) {
+        tvName.getRootView().setSelected(isSelected);
         tvName.setText(resource.getLabel());
     }
 }

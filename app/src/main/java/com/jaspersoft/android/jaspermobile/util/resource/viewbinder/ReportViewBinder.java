@@ -36,7 +36,7 @@ public class ReportViewBinder extends ResourceViewBinder {
     @Override
     public BaseViewHolder provideGridViewHolder(ViewGroup parent) {
         View itemView = LayoutInflater.from(parent.getContext()).
-                inflate(R.layout.common_grid_item, parent, false);
+                inflate(R.layout.item_resource_grid, parent, false);
         return new GridReportViewHolder(itemView);
     }
 

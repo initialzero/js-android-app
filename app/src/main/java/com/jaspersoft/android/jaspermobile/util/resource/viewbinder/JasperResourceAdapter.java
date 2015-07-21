@@ -82,7 +82,7 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
 
     @Override
     public String getItemKey(int position) {
-        if (jasperResources.size() < position) return null;
+        if (jasperResources.size() <= position) return null;
 
         JasperResource jasperResource = jasperResources.get(position);
         if (jasperResource != null) {

@@ -119,7 +119,7 @@ public class FavoritesFragment extends RoboFragment
 
     private SelectionModeHelper mSelectionModeHelper;
     private JasperResourceAdapter mAdapter;
-    JasperResourceConverter jasperResourceConverter;
+    private JasperResourceConverter jasperResourceConverter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -144,8 +144,8 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setEmptyText(0);
 
+        setEmptyText(0);
         setDataAdapter(savedInstanceState);
 
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
@@ -205,7 +205,7 @@ public class FavoritesFragment extends RoboFragment
 
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
-        mSelectionModeHelper = new LibrarySelectionModeHelper(mAdapter);
+        mSelectionModeHelper = new FavoriteSelectionModeHelper(mAdapter);
         mSelectionModeHelper.restoreState(savedInstanceState);
     }
 
@@ -318,9 +318,9 @@ public class FavoritesFragment extends RoboFragment
     // Library selection mode helper
     //---------------------------------------------------------------------
 
-    private class LibrarySelectionModeHelper extends SelectionModeHelper<String> {
+    private class FavoriteSelectionModeHelper extends SelectionModeHelper<String> {
 
-        public LibrarySelectionModeHelper(JasperResourceAdapter resourceAdapter) {
+        public FavoriteSelectionModeHelper(JasperResourceAdapter resourceAdapter) {
             super(((ActionBarActivity) getActivity()), resourceAdapter);
         }
 

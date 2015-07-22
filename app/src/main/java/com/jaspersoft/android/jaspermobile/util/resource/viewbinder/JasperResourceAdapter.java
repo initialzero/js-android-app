@@ -75,6 +75,8 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
                 return new DashboardViewBinder(context, viewType);
             case folder:
                 return new FolderViewBinder(context, viewType);
+            case saved_item:
+                return new SavedItemViewBinder(context, viewType);
             default:
                 return new UndefinedViewBinder(context, viewType);
         }

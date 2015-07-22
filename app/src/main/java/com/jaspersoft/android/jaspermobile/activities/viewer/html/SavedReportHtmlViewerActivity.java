@@ -29,7 +29,6 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 
@@ -60,7 +59,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     protected File reportFile;
 
     @Extra
-    protected long reportId;
+    protected String recordUri;
 
     @Extra
     protected String resourceLabel;
@@ -90,8 +89,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void deleteItem() {
-        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                String.valueOf(reportId));
+        Uri uri = Uri.parse(recordUri);
 
         DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setFiles(Collections.singletonList(reportFile))

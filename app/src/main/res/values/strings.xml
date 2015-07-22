@@ -164,6 +164,7 @@
     <!-- Delete Report Dialog -->
     <string name="sdr_drd_title">Delete File</string>
     <string name="sdr_drd_msg">Do you really want to delete \"%s\"?</string>
+    <string name="sdr_drd_msg_multi" translatable="false">Do you really want to delete selected items (%s items)?</string>
 
     <!-- Remove Favorites Dialog -->
     <string name="sdr_dfd_title">Remove from Favorites</string>

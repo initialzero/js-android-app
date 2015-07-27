@@ -56,8 +56,8 @@ android {
 
         testInstrumentationRunner INSTRUMENTATION_RUNNER
 
-        versionCode 15020000
-        versionName "2.0"
+        versionCode 2_01_00_000
+        versionName "2.1.0"
     }
 
     if (project.hasProperty('JMA_STORE_FILE')) {
@@ -109,23 +109,37 @@ android {
     }
 
     productFlavors {
-        qa {
-        }
         dev {
+            ext.enableCrashlytics = false
         }
         production {
-            buildTypes {
-                debug {
-                    if (project.hasProperty('JMA_STORE_FILE')) {
-                        signingConfig signingConfigs.release
-                    }
-                }
+            // If you new Crashlytics enabled, please, setup constant 'CRASHLYTICS_API_KEY' in gradle.properties
+            // with valid API key Crashlytics provides.
+            if (project.hasProperty('CRASHLYTICS_API_KEY')) {
+                manifestPlaceholders = [crashlyticsApiKey: CRASHLYTICS_API_KEY]
+            } else {
+                // If API key wasn't applied we disable io.fabric validation steps during build process.
+                // ATTENTION: App will crash silently due to missing API key. If you don't need Crashlytics
+                // remove setup in AppConfiguratorImpl for production flavor
+                manifestPlaceholders = [crashlyticsApiKey: ""]
+                ext.enableCrashlytics = false
+            }
+            if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
+                resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
+            } else {
+                resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
             }
         }
     }
 
     lintOptions {
         abortOnError false
+    }
+}
+
+android.variantFilter { variant ->
+    if (variant.buildType.name.equals('debug') && variant.getFlavors().get(0).name.equals('production')) {
+        variant.setIgnore(true);
     }
 }
 
@@ -175,27 +189,15 @@ dependencies {
 
     // Unit tests dependencies
     testCompile 'junit:junit:4.12'
+    // JunitParams
+    testCompile('pl.pragmatists:JUnitParams:1.0.4') {
+        exclude group: 'org.hamcrest'
+    }
     testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
     testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile ('org.robolectric:robolectric:2.4') {
-        exclude module: 'classworlds'
-        exclude module: 'maven-artifact'
-        exclude module: 'maven-artifact-manager'
-        exclude module: 'maven-error-diagnostics'
-        exclude module: 'maven-model'
-        exclude module: 'maven-plugin-registry'
-        exclude module: 'maven-profile'
-        exclude module: 'maven-project'
-        exclude module: 'maven-settings'
-        exclude module: 'nekohtml'
-        exclude module: 'plexus-container-default'
-        exclude module: 'plexus-interpolation'
-        exclude module: 'plexus-utils'
-        exclude module: 'support-v4' // crazy but my android studio don't like this dependency and to fix it remove .idea and re import project
-        exclude module: 'wagon-file'
-        exclude module: 'wagon-http-lightweight'
-        exclude module: 'wagon-http-shared'
-        exclude module: 'wagon-provider-api'
+    testCompile('org.robolectric:shadows-support-v4:3.0-rc3') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
 
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'

@@ -32,11 +32,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
-import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ public class AccountResources {
             accountNames[i] = accounts[i].name;
         }
         // Manually add internal account
-        accountNames[count] = SavedItemsMigration.SHARED_DIR;
+        accountNames[count] = JasperMobileApplication.SHARED_DIR;
         return accountNames;
     }
 

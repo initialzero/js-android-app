@@ -34,8 +34,10 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.octo.android.robospice.exception.NetworkException;
+import com.octo.android.robospice.exception.NoNetworkException;
+import com.octo.android.robospice.exception.RequestCancelledException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -60,9 +62,9 @@ public class RequestExceptionHandler {
         }
 
         int statusCode = extractStatusCode(exception);
-        if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
+        if (statusCode == HttpStatus.UNAUTHORIZED.value() || statusCode == JasperAccountManager.TokenException.NO_PASSWORD_ERROR) {
             showAuthErrorDialog(context);
-        } else if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR) {
+        } else if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR || statusCode == JasperAccountManager.TokenException.SERVER_UPDATED_ERROR) {
             // do nothing, app will restart automatically
         } else {
             showCommonErrorMessage(context, exception);
@@ -102,6 +104,8 @@ public class RequestExceptionHandler {
             }
         } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
             return ((RetrofitError) exception).getResponse().getStatus();
+        } else if (exception instanceof JasperAccountManager.TokenException) {
+            return ((JasperAccountManager.TokenException) exception).getErrorCode();
         }
         return 0;
     }
@@ -116,28 +120,35 @@ public class RequestExceptionHandler {
     @Nullable
     private static String extractMessage(@NonNull Context context, @NonNull Exception exception, int statusCode) {
         if (statusCode == 0) {
+            if (exception instanceof NoNetworkException) {
+                return context.getString(R.string.no_network);
+            }
+            if (exception instanceof RequestCancelledException) {
+                return context.getString(R.string.request_was_cancelled_explicitly);
+            }
             return null;
         } else {
-            if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
-                return context.getString(R.string.r_error_server_not_found);
-            }
+            ExceptionRule rule = ExceptionRule.all().get(statusCode);
+            if (rule == null) {
+                if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
+                    return context.getString(R.string.r_error_server_not_found);
+                }
 
-            Throwable cause = exception.getCause();
-            if (cause == null) {
+                Throwable cause = exception.getCause();
+                if (cause == null) {
+                    return exception.getLocalizedMessage();
+                }
+
+                Throwable tokenCause = cause.getCause();
+                if (tokenCause instanceof JasperAccountManager.TokenException) {
+                    return tokenCause.getLocalizedMessage();
+                }
+
                 return exception.getLocalizedMessage();
-            }
-
-            if (cause instanceof HttpStatusCodeException) {
-                ExceptionRule rule = ExceptionRule.all().get(((HttpStatusCodeException) cause).getStatusCode());
+            } else {
                 int messageId = rule.getMessage();
                 return context.getString(messageId);
             }
-            Throwable tokenCause = cause.getCause();
-            if (tokenCause instanceof JasperAccountManager.TokenException) {
-                return tokenCause.getLocalizedMessage();
-            }
-
-            return exception.getLocalizedMessage();
         }
     }
 

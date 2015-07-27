@@ -80,7 +80,21 @@
       extend(AndroidCallback, superClass);
 
       function AndroidCallback() {
+        this.onWindowError = bind(this.onWindowError, this);
+        this.onAuthError = bind(this.onAuthError, this);
         this.onWindowResizeEnd = bind(this.onWindowResizeEnd, this);
+        this.onWindowResizeStart = bind(this.onWindowResizeStart, this);
+        this.onReportExecution = bind(this.onReportExecution, this);
+        this.onLoadError = bind(this.onLoadError, this);
+        this.onLoadDone = bind(this.onLoadDone, this);
+        this.onLoadStart = bind(this.onLoadStart, this);
+        this.onScriptLoaded = bind(this.onScriptLoaded, this);
+        this.onMinimizeFailed = bind(this.onMinimizeFailed, this);
+        this.onMinimizeEnd = bind(this.onMinimizeEnd, this);
+        this.onMinimizeStart = bind(this.onMinimizeStart, this);
+        this.onMaximizeFailed = bind(this.onMaximizeFailed, this);
+        this.onMaximizeEnd = bind(this.onMaximizeEnd, this);
+        this.onMaximizeStart = bind(this.onMaximizeStart, this);
         return AndroidCallback.__super__.constructor.apply(this, arguments);
       }
 
@@ -145,8 +159,10 @@
       };
 
       AndroidCallback.prototype.onReportExecution = function(data) {
+        var dataString;
+        dataString = JSON.stringify(data, null, 4);
         this.dispatch(function() {
-          return Android.onReportExecution(data);
+          return Android.onReportExecution(dataString);
         });
       };
 
@@ -159,6 +175,18 @@
       AndroidCallback.prototype.onWindowResizeEnd = function() {
         this.dispatch(function() {
           return Android.onWindowResizeEnd();
+        });
+      };
+
+      AndroidCallback.prototype.onAuthError = function(message) {
+        this.dispatch(function() {
+          return Android.onAuthError(message);
+        });
+      };
+
+      AndroidCallback.prototype.onWindowError = function(message) {
+        this.dispatch(function() {
+          return Android.onWindowError(message);
         });
       };
 
@@ -315,14 +343,14 @@
       }
 
       DashboardController.prototype.initialize = function() {
+        this._setGlobalErrorListener();
+        this._injectViewport();
         this.callback.onLoadStart();
         return jQuery(document).ready((function(_this) {
           return function() {
             js_mobile.log("document ready");
-            _this.scaler.applyScale();
-            _this._removeRedundantArtifacts();
-            _this._injectViewport();
-            return _this._attachDashletLoadListeners();
+            _this._attachDashletLoadListeners();
+            return _this._removeRedundantArtifacts();
           };
         })(this));
       };
@@ -333,6 +361,7 @@
         this._removeOriginalScale();
         this._disableDashlets();
         this._hideDashletChartTypeSelector();
+        this._showDashlets();
         this.callback.onMinimizeStart();
         DOMTreeObserver.lastModify((function(_this) {
           return function() {
@@ -346,7 +375,7 @@
       DashboardController.prototype._removeRedundantArtifacts = function() {
         var customStyle;
         js_mobile.log("remove artifacts");
-        customStyle = ".header, .dashletToolbar { display: none !important; } .show_chartTypeSelector_wrapper { display: none; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } #mainNavigation{ display: none !important; } .customOverlay { position: absolute; width: 100%; height: 100%; z-index: 1000; } .dashboardCanvas .dashlet > .dashletContent > .content { -webkit-overflow-scrolling : auto !important; } .component_show { display: block; }";
+        customStyle = ".header, .dashletToolbar, .show_chartTypeSelector_wrapper, .heartbeatOptin, #mainNavigation { display: none !important; } .column.decorated { margin: 0 !important; border: none !important; } .dashboardViewer.dashboardContainer>.content>.body, .column.decorated>.content>.body, .column>.content>.body { top: 0 !important; } .customOverlay { position: absolute; width: 100%; height: 100%; z-index: 1000; } .dashboardCanvas .dashlet > .dashletContent > .content { -webkit-overflow-scrolling : auto !important; } .component_show { display: block; }";
         return jQuery('<style id="custom_mobile"></style>').text(customStyle).appendTo('head');
       };
 
@@ -378,7 +407,7 @@
               return _this._scaleDashboard();
             }
           };
-        })(this), 500);
+        })(this), 50);
       };
 
       DashboardController.prototype._configureDashboard = function() {
@@ -391,6 +420,7 @@
       };
 
       DashboardController.prototype._scaleDashboard = function() {
+        this.scaler.applyScale();
         js_mobile.log("_scaleDashboard " + (jQuery('.dashboardCanvas').length));
         return jQuery('.dashboardCanvas').addClass('scaledCanvas');
       };
@@ -437,13 +467,15 @@
         dashlets.unbind();
         self = this;
         return dashlets.click(function() {
-          var dashlet, innerLabel, title;
-          dashlet = jQuery(this).parent();
+          var dashlet, innerLabel, overlay, title;
+          overlay = jQuery(this);
+          dashlet = overlay.parent();
           innerLabel = dashlet.find('.innerLabel > p');
           if ((innerLabel != null) && (innerLabel.text != null)) {
             title = innerLabel.text();
             if ((title != null) && title.length > 0) {
-              return self._maximizeDashlet(dashlet, title);
+              self._maximizeDashlet(dashlet, title);
+              return self._hideDashlets(overlay);
             }
           }
         });
@@ -479,6 +511,22 @@
         return jQuery(".dashboardCanvas > .content > .body div.canvasOverlay");
       };
 
+      DashboardController.prototype._showDashlets = function() {
+        return jQuery('.customOverlay').parent().css("opacity", 1);
+      };
+
+      DashboardController.prototype._hideDashlets = function(overlay) {
+        return jQuery('.customOverlay').not(overlay).parent().css("opacity", 0);
+      };
+
+      DashboardController.prototype._setGlobalErrorListener = function() {
+        return window.onerror = (function(_this) {
+          return function(errorMsg, url, lineNumber) {
+            return _this.callback.onWindowError(errorMsg);
+          };
+        })(this);
+      };
+
       return DashboardController;
 
     })(Module);
@@ -487,19 +535,19 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.scale.calculator', [],function() {
-    var ScaleCalculator;
-    return ScaleCalculator = (function() {
-      function ScaleCalculator(diagonal) {
+  define('js.mobile.factor.calculator', [],function() {
+    var FactorCalculator;
+    return FactorCalculator = (function() {
+      function FactorCalculator(diagonal) {
         this.diagonal = diagonal;
         this.diagonal || (this.diagonal = 10.1);
       }
 
-      ScaleCalculator.prototype.calculateFactor = function() {
+      FactorCalculator.prototype.calculateFactor = function() {
         return this.diagonal / 10.1;
       };
 
-      return ScaleCalculator;
+      return FactorCalculator;
 
     })();
   });
@@ -507,70 +555,20 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.scale.style.report', [],function() {
-    var ScaleStyleReport;
-    return ScaleStyleReport = (function() {
-      function ScaleStyleReport() {}
-
-      ScaleStyleReport.prototype.applyFor = function(factor) {
-        var scaledCanvasCss;
-        jQuery("#scale_style").remove();
-        scaledCanvasCss = "#container { position: absolute; width: " + (100 / factor) + "%; height: " + (100 / factor) + "%; }";
-        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss).appendTo('head');
-      };
-
-      return ScaleStyleReport;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.scale.style.dashboard', [],function() {
-    var ScaleStyleDashboard;
-    return ScaleStyleDashboard = (function() {
-      function ScaleStyleDashboard() {}
-
-      ScaleStyleDashboard.prototype.applyFor = function(factor) {
-        var originalDashletInScaledCanvasCss, scaledCanvasCss;
-        jQuery("#scale_style").remove();
-        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
-        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
-        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
-      };
-
-      return ScaleStyleDashboard;
-
-    })();
-  });
-
-}).call(this);
-
-(function() {
-  define('js.mobile.scale.manager', ['require','js.mobile.scale.calculator','js.mobile.scale.style.report','js.mobile.scale.style.dashboard'],function(require) {
-    var ScaleCalculator, ScaleManager, ScaleStyleDashboard, ScaleStyleReport;
-    ScaleCalculator = require('js.mobile.scale.calculator');
-    ScaleStyleReport = require('js.mobile.scale.style.report');
-    ScaleStyleDashboard = require('js.mobile.scale.style.dashboard');
+  define('js.mobile.scale.manager', ['js.mobile.factor.calculator'],function() {
+    var ScaleFactor, ScaleManager;
+    ScaleFactor = require('js.mobile.factor.calculator');
     return ScaleManager = (function() {
-      ScaleManager.getReportManager = function(diagonal) {
-        return new ScaleManager(diagonal, new ScaleStyleReport());
-      };
-
-      ScaleManager.getDashboardManager = function(diagonal) {
-        return new ScaleManager(diagonal, new ScaleStyleDashboard());
-      };
-
-      function ScaleManager(diagonal, scaleStyle) {
-        this.scaleStyle = scaleStyle;
-        this.calculator = new ScaleCalculator(diagonal);
+      function ScaleManager(configs) {
+        var diagonal;
+        this.scale_style = configs.scale_style, diagonal = configs.diagonal;
+        this.calculator = new ScaleFactor(diagonal);
       }
 
       ScaleManager.prototype.applyScale = function() {
         var factor;
         factor = this.calculator.calculateFactor();
-        return this.scaleStyle.applyFor(factor);
+        return this.scale_style.applyFor(factor);
       };
 
       return ScaleManager;
@@ -638,7 +636,10 @@
       };
 
       MobileDashboard.prototype._initController = function() {
-        this.args.scaler = ScaleManager.getDashboardManager(this.options.diagonal);
+        this.args.scaler = new ScaleManager({
+          scale_style: this.args.scale_style,
+          diagonal: this.options.diagonal
+        });
         this._controller = new DashboardController(this.args);
         return this._controller.initialize();
       };
@@ -671,18 +672,41 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.android.dashboard.callback','js.mobile.amber.dashboard','js.mobile.android.viewport.dashboard.amber'],function(require) {
-    var AndroidCallback, AndroidClient, MobileDashboard, Viewport;
+  define('js.mobile.android.scale.style.dashboard', [],function() {
+    var ScaleStyleDashboard;
+    return ScaleStyleDashboard = (function() {
+      function ScaleStyleDashboard() {}
+
+      ScaleStyleDashboard.prototype.applyFor = function(factor) {
+        var originalDashletInScaledCanvasCss, scaledCanvasCss;
+        jQuery("#scale_style").remove();
+        scaledCanvasCss = ".scaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + factor + " ); -ms-transform: scale( " + factor + " ); -webkit-transform: scale( " + factor + " ); width: " + (100 / factor) + "% !important; height: " + (100 / factor) + "% !important; }";
+        originalDashletInScaledCanvasCss = ".dashboardCanvas > .content > .body div.canvasOverlay.originalDashletInScaledCanvas { transform-origin: 0 0 0; -ms-transform-origin: 0 0 0; -webkit-transform-origin: 0 0 0; transform: scale( " + (1 / factor) + " ); -ms-transform: scale( " + (1 / factor) + " ); -webkit-transform: scale( " + (1 / factor) + " ); width: " + (100 * factor) + "% !important; height: " + (100 * factor) + "% !important; }";
+        jQuery('<style id="scale_style"></style>').text(scaledCanvasCss + originalDashletInScaledCanvasCss).appendTo('head');
+      };
+
+      return ScaleStyleDashboard;
+
+    })();
+  });
+
+}).call(this);
+
+(function() {
+  define('js.mobile.amber.android.dashboard.client', ['require','js.mobile.android.dashboard.callback','js.mobile.amber.dashboard','js.mobile.android.viewport.dashboard.amber','js.mobile.android.scale.style.dashboard'],function(require) {
+    var AndroidCallback, AndroidClient, MobileDashboard, ScaleStyleDashboard, Viewport;
     AndroidCallback = require('js.mobile.android.dashboard.callback');
     MobileDashboard = require('js.mobile.amber.dashboard');
     Viewport = require('js.mobile.android.viewport.dashboard.amber');
+    ScaleStyleDashboard = require('js.mobile.android.scale.style.dashboard');
     return AndroidClient = (function() {
       function AndroidClient() {}
 
       AndroidClient.prototype.run = function() {
         return MobileDashboard.newInstance({
+          viewport: new Viewport(),
           callback: new AndroidCallback(),
-          viewport: new Viewport()
+          scale_style: new ScaleStyleDashboard()
         });
       };
 
@@ -713,13 +737,11 @@
 
 (function() {
   require(['js.mobile.amber.android.dashboard.client', 'js.mobile.debug_log'], function(AndroidClient, Log) {
-    return (function($) {
-      Log.configure();
-      return new AndroidClient().run();
-    })(jQuery);
+    Log.configure();
+    return new AndroidClient().run();
   });
 
 }).call(this);
 
-define("android/amber/dashboard/debug_main.js", function(){});
+define("android/dashboard/amber/debug_main.js", function(){});
 

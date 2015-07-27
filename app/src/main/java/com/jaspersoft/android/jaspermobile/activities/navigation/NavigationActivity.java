@@ -28,13 +28,12 @@ import android.accounts.Account;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -46,22 +45,25 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.LibraryFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment_;
+import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
+import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
-
-import java.util.List;
 
 /**
  * @author Ivan Gadzhega
@@ -83,6 +85,9 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     @Extra
     protected int currentSelection = R.id.vg_library;
 
+    @InstanceState
+    protected boolean customToolbarDisplayEnabled = true;
+
     @AfterViews
     final void setupNavigation() {
         if (getSupportActionBar() != null) {
@@ -99,6 +104,9 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
 
         if (savedInstanceState == null) {
             navigateToCurrentSelection();
+            RateAppDialog_.builder().build().show(this, getSupportFragmentManager());
+        } else {
+            setDisplayCustomToolbarEnable(customToolbarDisplayEnabled);
         }
     }
 
@@ -110,6 +118,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     @Override
     protected void onActiveAccountChanged() {
         navigateToCurrentSelection();
+        enableRecentlyViewedSection();
     }
 
     @Override
@@ -148,9 +157,43 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        // Close left panel on back press
+        if (drawerLayout.isDrawerOpen(navigationPanelLayout)) {
+            drawerLayout.closeDrawer(navigationPanelLayout);
+            return;
+        }
+
+        // Back for repository
+        Fragment currentPageFragment = getSupportFragmentManager().findFragmentById(R.id.main_frame);
+        if (currentPageFragment.isVisible()) {
+            FragmentManager childFm = currentPageFragment.getChildFragmentManager();
+            if (childFm.getBackStackEntryCount() > 0) {
+                childFm.popBackStack();
+                return;
+            }
+        }
+
+        super.onBackPressed();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void enableRecentlyViewedSection() {
+        Account account = JasperAccountManager.get(this).getActiveAccount();
+        AccountServerData serverData = AccountServerData.get(this, account);
+        boolean isProJrs = serverData.getEdition().equals("PRO");
+
+        View recentlyView = findViewById(R.id.vg_recent);
+        if (isProJrs) {
+            recentlyView.setVisibility(View.VISIBLE);
+        } else {
+            recentlyView.setVisibility(View.GONE);
+        }
+    }
 
     private void setupNavDrawer() {
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, getToolbar(),
@@ -160,18 +203,23 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
                 super.onDrawerClosed(drawerView);
                 invalidateOptionsMenu();
                 navigationPanelLayout.notifyPanelClosed();
+                customToolbarDisplayEnabled = true;
+                setDisplayCustomToolbarEnable(true);
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 invalidateOptionsMenu();
+                customToolbarDisplayEnabled = false;
+                setDisplayCustomToolbarEnable(false);
             }
         };
         drawerLayout.setDrawerListener(mDrawerToggle);
     }
 
     private void setupNavPanel() {
+        enableRecentlyViewedSection();
         navigationPanelLayout.setListener(new NavigationPanelLayout.NavigationListener() {
             @Override
             public void onNavigate(int viewId) {
@@ -194,11 +242,15 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
         switch (viewId) {
             case R.id.vg_library:
                 currentSelection = R.id.vg_library;
-                commitContent(LibraryFragment_.builder().build());
+                commitContent(LibraryPageFragment_.builder().build());
                 break;
             case R.id.vg_repository:
                 currentSelection = R.id.vg_repository;
-                commitContent(RepositoryFragment_.builder().build());
+                commitContent(RepositoryPageFragment_.builder().build());
+                break;
+            case R.id.vg_recent:
+                currentSelection = R.id.vg_recent;
+                commitContent(RecentPageFragment_.builder().build());
                 break;
             case R.id.vg_saved_items:
                 currentSelection = R.id.vg_saved_items;
@@ -215,7 +267,11 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
                 String[] authorities = {getString(R.string.jasper_account_authority)};
                 Intent manageAccIntent = new Intent(Settings.ACTION_SYNC_SETTINGS);
                 manageAccIntent.putExtra(Settings.EXTRA_AUTHORITIES, authorities);
-                startActivity(manageAccIntent);
+                try {
+                    startActivity(manageAccIntent);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(this, getString(R.string.wrong_action), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
@@ -239,14 +295,6 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
 
     private void commitContent(@NonNull Fragment directFragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                if (fragment != null) {
-                    transaction.remove(fragment);
-                }
-            }
-        }
         transaction
                 .replace(R.id.main_frame, directFragment)
                 .commit();
@@ -259,21 +307,8 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     private void sendFeedback() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("message/rfc822");
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"js.testdevice@gmail.com"});
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            String versionName = pInfo.versionName;
-            String versionCode = String.valueOf(pInfo.versionCode);
-            intent.putExtra(Intent.EXTRA_TEXT, String.format("Version name: %s \nVersion code: %s", versionName, versionCode));
-        } catch (PackageManager.NameNotFoundException e) {
-            // Can not go here
-        }
-        try {
-            startActivity(intent);
-        } catch (ActivityNotFoundException e) {
+        boolean sendTaskWasInitiated = FeedbackSender.get(this).initiate();
+        if (!sendTaskWasInitiated) {
             Toast.makeText(this,
                     getString(R.string.sdr_t_no_app_available, "email"),
                     Toast.LENGTH_SHORT).show();

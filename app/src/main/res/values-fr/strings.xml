@@ -70,7 +70,7 @@
 
     <!-- Settings Activity -->
     <string name="s_hint">Ressources de recherche</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nOutil de gestion et visionneur de rapport pour JasperReports Server 5.5 et plus.\n\nPour plus d\'informations, consulter :\n<a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a>\n\nPour les informations de la politique de confidentialité, consulter :\n<a href="com.jaspersoft.android.privacy_policy://"> http://www.tibco.com/privacy-policies/jaspermobile-android </a>\n\nDroits d\'auteurs © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_info"><![CDATA[TIBCO JasperMobile™ v%s<br><br>Outil de gestion et visionneur de rapport pour JasperReports Server 5.5 et plus.<br><br>Pour plus d\'informations, consulter:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>Pour les informations de la politique de confidentialité, consulter:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android </a><br><br>Droits d\'auteurs © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Politique de confidentialité</string>
 
     <!-- Action Bar -->
@@ -137,6 +137,7 @@
     <string name="st_title_cache_expiration">Expiration du cache</string>
     <string name="st_title_connect_timeout">Délai de connexion</string>
     <string name="st_title_read_timeout">Délai de lecture des données</string>
+    <string name="st_title_animations">Animations</string>
     <string name="st_send_crashes">Envoyer les rapports d\'incidents</string>
     <string name="st_summary_cache_enable">Mettre en cache les demandes du référentiel pour la durée spécifiée</string>
     <string name="st_summary_sec">%s s</string>
@@ -147,8 +148,7 @@
     <!-- Error messages -->
     <string name="error_http_400">400 - Demande incorrecte. Demande non valide.</string>
     <string name="error_http_401">401 - Non autorisé.
-                                  \nInformations d\'identification d\'authentification manquantes ou incorrectes.
-                                  \n\nVoulez-vous modifier le profil du serveur ?</string>
+                                  \nInformations d\'identification d\'authentification manquantes ou incorrectes.</string>
     <string name="error_http_403">403 - Autorisation refusée. La demande est comprise mais a été refusée.</string>
     <string name="error_http_404">404 - Introuvable. L\'URI demandé n\'est pas valide ou la ressource demandée n\'existe pas.</string>
     <string name="error_http_500">500 - Erreur interne du serveur.</string>
@@ -160,6 +160,7 @@
     <string name="loading_msg">Chargement en cours...</string>
     <string name="search_result_format">Résultat de la recherche pour \'%s\'</string>
     <string name="failed_load_data">Echec du chargement des données !</string>
+    <string name="request_was_cancelled_explicitly">Tâche annulée</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Bibliothèque</string>
@@ -177,5 +178,113 @@
     <string name="h_rd_never">Non, merci</string>
     <string name="h_rd_rate">Évaluer TIBCO JasperMobile</string>
 
+    <!-- Navigation Drawer -->
+    <string name="nd_drawer_open">ouvrir</string>
+    <string name="nd_drawer_close">fermer</string>
+    <string name="nd_manage_accounts">Gérer les comptes</string>
+    <string name="nd_select_account">Sélectionner un compte</string>
+
+    <!-- Password Dialog -->
+    <string name="h_ad_title_server_sign_in">Connexion au serveur</string>
+    <string name="h_ad_label_wrong_password">Le nom d\'utilisateur ou mot de passe est incorrect. Saisissez à nouveau vos identifiants.</string>
+
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">Si vous aimez utiliser TIBCO JasperMobile, veuillez prendre un moment pour donner une note. Cela ne prendra pas plus d\'une minute. Merci de votre aide !</string>
+
+    <!-- Error messages -->
+    <string name="sp_error_reserved_alias">Alias ​​réservés.</string>
+
+    <!-- Repository Activity -->
+    <string name="r_search_nothing_to_display">Aucun élément ne correspond à votre recherche.</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_added_to_favorites">Ajouté aux favoris.</string>
+    <string name="r_cm_removed_from_favorites">Supprimé des favoris.</string>
+    <string name="r_cm_print">Impression</string>
+
+    <!-- Search Activity -->
+    <string name="s_saved_items_hint">Recherche de fichiers enregistrés</string>
+
+    <!-- Filter Favorites Dialog -->
+    <string name="f_fd_option_folders">Dossiers</string>
+
+    <!-- Settings Activity -->
+    <string name="sa_show_feedback">Réaction</string>
+
+    <!-- Report Viewer Activity -->
+    <string name="rv_out_of_range">La page demandée est hors de portée.</string>
+    <string name="rv_open_link_chooser">Ouvrir le lien dans</string>
+    <string name="rv_no_viewer_identified">Impossible d\'identifier le visionneur pour la version JRS : %s</string>
+
+
+    <!-- Save Report Activity -->
+    <string name="sr_report_name">Nom de fichier</string>
+    <string name="sr_from">Depuis la page</string>
+    <string name="sr_to">À la page</string>
+    <string name="sr_failed_to_create_local_repo">Impossible de créer un stockage de fichier local.</string>
+    <string name="sr_failed_to_execute_report">Éxécution du rapport échouée</string>
+
+    <!-- Error messages -->
+    <string name="sr_error_field_is_empty">Ce champ est obligatoire.</string>
+    <string name="sr_error_characters_not_allowed">Les caractères suivants ne sont pas autorisés : * \\ / \"\': | &lt;&gt; + []</string>
+    <string name="sr_error_report_exists">Un fichier portant ce nom existe déjà.</string>
+
+    <!-- Favorites activity -->
+    <string name="f_empty_list_msg">Aucun article préféré</string>
+
+    <!-- Saved Files Activity -->
+    <string name="sdr_ab_title">Fichiers enregistrés</string>
+    <string name="sdr_ab_list_msg">Aucun fichier enregistré</string>
+
+    <!-- Context Menu -->
+    <string name="action_mode_title">Élément sélectionné</string>
+
+    <!-- Rename File Dialog -->
+    <string name="sdr_rrd_title">Renommer le fichier</string>
+    <string name="sdr_rrd_hint">Nom du fichier</string>
+    <string name="sdr_rrd_error_name_is_empty">Ce champ est obligatoire.</string>
+    <string name="sdr_rrd_error_characters_not_allowed">Les caractères suivants ne sont pas autorisés : * \\ / \"\': | &lt;&gt; + []</string>
+    <string name="sdr_rrd_error_report_exists">Un fichier portant ce nom existe déjà.</string>
+
+    <!-- Remove Favorites Dialog -->
+    <string name="sdr_dfd_title">Supprimer des favoris</string>
+    <string name="sdr_dfd_msg">Voulez-vous vraiment supprimer \"%s\" ?</string>
+
+    <!-- Settings activity -->
+    <string name="st_send_crashes_note">REMARQUE : Redémarrer l\'application après avoir modifié ce paramètre.</string>
+
+    <!-- Error messages -->
+    <string name="r_error_server_not_found">Serveur introuvable.</string>
+    <string name="r_error_incorrect_credentials">Données d\'identification non valides.</string>
+
+    <!-- Others -->
+    <string name="authenticator_label">Comptes Jasper</string>
+    <string name="no_network">Une erreur réseau s\'est produite.</string>
+
+    <!-- Accounts activity -->
+    <string name="add_account">Ajouter un compte</string>
+    <string name="try_demo">Essayer la démo</string>
+    <string name="hint_alias">Nom du compte</string>
+    <string name="hint_server_url">URL du serveur</string>
+    <string name="hint_organization">Organisation</string>
+    <string name="hint_username">Nom d\'utilisateur</string>
+    <string name="hint_password">Mot de passe</string>
+    <string name="success_add_account">Le compte avec le nom %s a été ajouté</string>
+    <string name="failure_add_account">Impossible d\'ajouter un compte. Raison : %s</string>
+    <string name="account_add">Ajout de compte</string>
+
+    <!--Dashboard activity-->
+    <string name="da_session_expired">La session a expiré</string>
+    <string name="da_session_refresh_failed">Impossible de rafraîchir la session</string>
+    <string name="da_loading">Chargement du tableau de bord ...</string>
+
+    <!-- MultiSelectSpinner -->
+    <string name="mss_btn_check_all">Cocher tout</string>
+    <string name="mss_btn_uncheck_all">Décocher tout</string>
+
+    <!-- Navigation panel -->
+    <string name="recent_card_label">Recientemente visto</string>
+    <string name="cancel">Annuler</string>
+    <string name="ok">OK</string>
 
 </resources>

@@ -35,6 +35,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
@@ -45,6 +46,9 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -79,19 +83,23 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     protected JsRestClient jsRestClient;
     @Inject
     protected ReportParamsStorage paramsStorage;
+    @Inject
+    protected Analytics analytics;
 
     @FragmentArg
     protected ResourceLookup resource;
 
     @OptionsMenuItem
     protected MenuItem saveReport;
+    @OptionsMenuItem (R.id.printAction)
+    protected MenuItem printReport;
     @OptionsMenuItem
     protected MenuItem showFilters;
 
     @InstanceState
     protected boolean mShowFilterOption;
     @InstanceState
-    protected boolean mShowSaveOption;
+    protected boolean mShowSaveAndPrintOption;
 
     private boolean mPageWasLoadedAtLeastOnce;
 
@@ -115,13 +123,22 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
         final GetInputControlsRequest request =
                 new GetInputControlsRequest(jsRestClient, resource.getUri());
-        requestExecutor.execute(request, new GetInputControlsListener());
+        requestExecutor.execute(request, new GetInputControlsListener(), new RequestExecutor.OnProgressDialogCancelListener() {
+            @Override
+            public void onCancel() {
+                getActivity().finish();
+            }
+        });
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        saveReport.setVisible(mShowSaveOption);
+        saveReport.setVisible(mShowSaveAndPrintOption);
         showFilters.setVisible(mShowFilterOption);
+
+        if (printReport != null) {
+            printReport.setVisible(mShowSaveAndPrintOption);
+        }
     }
 
     @OptionsItem
@@ -142,6 +159,14 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @OptionsItem
     public void showFilters() {
         showReportOptions();
+    }
+
+    @OptionsItem
+    final void printAction() {
+        analytics.trackPrintEvent();
+        ResourcePrintJob job = JasperPrintJobFactory
+                .createReportPrintJob(getActivity(), jsRestClient, resource, reportParameters);
+        JasperPrinter.print(job);
     }
 
     private void showReportOptions() {
@@ -191,12 +216,12 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     }
 
     public void disableSaveOption() {
-        mShowSaveOption = false;
+        mShowSaveAndPrintOption = false;
         getActivity().supportInvalidateOptionsMenu();
     }
 
     public void enableSaveOption() {
-        mShowSaveOption = true;
+        mShowSaveAndPrintOption = true;
         getActivity().supportInvalidateOptionsMenu();
     }
 
@@ -229,7 +254,6 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;
-            mShowSaveOption = true;
             getActivity().supportInvalidateOptionsMenu();
 
             if (showFilterActionVisible) {

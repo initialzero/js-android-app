@@ -1,0 +1,2 @@
+INSERT INTO `server_profiles`(`alias`,`server_url`,`organization`,`username`,`password`,`edition`,`version_code`) VALUES ('My profile 1','http://profile1.com/jasperserver-pro','organization_1','phoneuser','phoneuser','PRO',5.5);
+INSERT INTO `server_profiles`(`alias`,`server_url`,`organization`,`username`,`password`,`edition`,`version_code`) VALUES ('My profile 2','http://profile2.com/jasperserver-pro','organization_1','phoneuser','phoneuser','PRO',5.5);

@@ -48,7 +48,7 @@ final class ResourceBinderFactory {
             case reportUnit:
                 return new ReportResourceBinder(context);
             default:
-                throw new UnsupportedOperationException("Unsupported resource type: " + resourceType);
+                return new UnknownResourceBinder(context);
         }
     }
 }

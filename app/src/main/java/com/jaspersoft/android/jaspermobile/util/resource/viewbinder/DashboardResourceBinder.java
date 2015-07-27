@@ -29,6 +29,8 @@ import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * @author Tom Koptel
@@ -43,6 +45,12 @@ class DashboardResourceBinder extends ResourceBinder {
     public void setIcon(ImageView imageView, String uri) {
         ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
-        imageView.setImageResource(R.drawable.placeholder_dashboard);
+        ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions());
+    }
+
+    private DisplayImageOptions getDisplayImageOptions() {
+        return new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.placeholder_dashboard)
+                .build();
     }
 }

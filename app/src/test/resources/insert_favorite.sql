@@ -1,0 +1,1 @@
+INSERT INTO `favorites`(`name`,`title`,`uri`,`description`,`wstype`,`username`,`organization`,`server_profile_id`) VALUES (NULL, '01. Geographic Results by Segment Report','/Reports/1._Geographic_Results_by_Segment_Report','Description','reportUnit','phoneuser','organization_1',1);

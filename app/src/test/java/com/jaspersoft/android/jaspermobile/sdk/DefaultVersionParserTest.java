@@ -24,11 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.sdk;
 
-import com.jaspersoft.android.jaspermobile.test.support.CustomRobolectricTestRunner;
 import com.jaspersoft.android.retrofit.sdk.server.DefaultVersionParser;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.math.BigDecimal;
@@ -42,8 +42,8 @@ import static org.hamcrest.core.Is.is;
  * @author Tom Koptel
  * @since 2.0
  */
-@RunWith(CustomRobolectricTestRunner.class)
-@Config(manifest = "app/src/main/AndroidManifest.xml", emulateSdk = 18)
+@RunWith(RobolectricTestRunner.class)
+@Config(manifest = Config.NONE)
 public class DefaultVersionParserTest {
     @Test
     public void shouldParseSemanticVersioning() {

@@ -27,18 +27,21 @@ package com.jaspersoft.android.jaspermobile.activities.favorites;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
+import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import roboguice.fragment.RoboFragment;
@@ -47,17 +50,20 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
-public class FavoritesPageFragment extends RoboFragment {
-    public static final String TAG = FavoritesPageFragment.class.getSimpleName();
+@EFragment (R.layout.content_layout)
+@OptionsMenu(R.menu.sort_menu)
+public class FavoritesPageFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener{
+
+    private FavoritesControllerFragment favoritesController;
 
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
     protected boolean initialStart;
+    @Bean
+    protected SortOptions sortOptions;
 
     @Pref
-    protected LibraryPref_ pref;
-    private FavoritesControllerFragment favoriteController;
+    protected FavoritesPref_ pref;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -65,31 +71,38 @@ public class FavoritesPageFragment extends RoboFragment {
 
         if (savedInstanceState == null) {
             // Reset all controls state
-            pref.clear();
+            pref.sortType().put(null);
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
-            favoriteController = FavoritesControllerFragment_.builder()
+            favoritesController = FavoritesControllerFragment_.builder()
+                    .sortOrder(sortOptions.getOrder())
                     .build();
-
-            transaction.replace(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG);
+            transaction.replace(R.id.resource_controller, favoritesController, FavoritesControllerFragment.TAG);
 
             FavoritesSearchFragment searchFragment = FavoritesSearchFragment_.builder().build();
-            transaction.replace(R.id.search_controller, searchFragment, FavoritesSearchFragment.TAG);
+            transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
         } else {
-            favoriteController = (FavoritesControllerFragment) getFragmentManager()
+            favoritesController = (FavoritesControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
         }
     }
 
+    @OptionsItem(R.id.sort)
+    final void startSorting() {
+        SortDialogFragment.createBuilder(getFragmentManager())
+                .setInitialSortOption(sortOptions.getOrder())
+                .setTargetFragment(this)
+                .show();
+    }
+
     @Override
-    public void onResume() {
-        super.onResume();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.f_title);
+    public void onOptionSelected(SortOrder sortOrder) {
+        sortOptions.putOrder(sortOrder);
+        if (favoritesController != null) {
+            favoritesController.loadItemsBySortOrder(sortOrder);
         }
     }
 }

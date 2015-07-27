@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -37,7 +38,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+
+import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.UiThread;
 
 import roboguice.fragment.RoboDialogFragment;
 
@@ -45,6 +54,7 @@ import roboguice.fragment.RoboDialogFragment;
  * @author Tom Koptel
  * @since 1.9
  */
+@EFragment
 public class PasswordDialogFragment extends RoboDialogFragment implements DialogInterface.OnShowListener {
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
@@ -59,7 +69,7 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         PasswordDialogFragment dialogFragment = (PasswordDialogFragment)
                 fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
-            dialogFragment = new PasswordDialogFragment();
+            dialogFragment = new PasswordDialogFragment_().builder().build();
             dialogFragment.show(fm, TAG);
         }
     }
@@ -74,16 +84,28 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
         View dialogView = inflater.inflate(R.layout.dialog_password, null);
-        String accName = JasperAccountManager.get(getActivity()).getActiveAccount().name;
-        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(accName);
+        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(getActivity());
+        String alias = serverInfoProvider.getAlias();
+        String username = serverInfoProvider.getUsername();
+        String organization = serverInfoProvider.getOrganization();
+
+        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(alias);
+        ((TextView) dialogView.findViewById(R.id.tv_username)).setText(username);
+
+        TextView organizationField = (TextView) dialogView.findViewById(R.id.tv_organization);
+        organizationField.setText(organization);
+        if (TextUtils.isEmpty(organization)) {
+            dialogView.findViewById(R.id.tv_organization_hint).setVisibility(View.GONE);
+            organizationField.setVisibility(View.GONE);
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.h_ad_title_server_sign_in)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setView(dialogView)
                 .setCancelable(true)
-                .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(android.R.string.cancel, null);
+                .setPositiveButton(R.string.ok, null)
+                .setNegativeButton(R.string.cancel, null);
 
         AlertDialog dialog = builder.create();
         dialog.setOnShowListener(this);
@@ -93,10 +115,35 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
 
     @Override
     public void onShow(DialogInterface dialogInterface) {
-        AlertDialog dialog = ((AlertDialog) getDialog());
+        AlertDialog dialog = ((AlertDialog) dialogInterface);
         etPassword = (EditText) dialog.findViewById(R.id.et_new_password);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(new PasswordDialogOkClickListener());
+    }
+
+    @Background
+    protected void tryToLogin() {
+        try {
+            JasperAccountManager.get(getActivity()).getActiveAuthToken();
+            loginSuccess();
+        } catch (JasperAccountManager.TokenException e) {
+            loginFailed(e);
+        }
+    }
+
+    @UiThread
+    protected void loginSuccess(){
+        dismiss();
+        ProgressDialogFragment.dismiss(getFragmentManager());
+
+        int flags = Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK;
+        NavigationActivity_.intent(getActivity()).flags(flags).start();
+    }
+
+    @UiThread
+    protected void loginFailed(Exception e){
+        RequestExceptionHandler.handle(e, getActivity());
+        ProgressDialogFragment.dismiss(getFragmentManager());
     }
 
     //---------------------------------------------------------------------
@@ -107,13 +154,15 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
 
         @Override
         public void onClick(View v) {
-            String password = etPassword.getText().toString();
+            String password = etPassword.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
                 etPassword.setError(getString(R.string.sp_error_field_required));
             } else {
                 JasperAccountManager.get(getActivity()).updateActiveAccountPassword(password);
-
-                dismiss();
+                ProgressDialogFragment.builder(getFragmentManager())
+                        .setLoadingMessage(R.string.loading_msg)
+                        .show();
+                tryToLogin();
             }
         }
     }

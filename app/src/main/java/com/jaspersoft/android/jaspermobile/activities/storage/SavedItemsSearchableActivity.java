@@ -28,14 +28,12 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OptionsItem;
 
 /**
  * @author Andrew Tivodar
@@ -63,15 +61,9 @@ public class SavedItemsSearchableActivity extends RoboSpiceActivity {
                             .build();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(savedItemsController, ResourcesControllerFragment.TAG)
+                    .add(R.id.resource_controller, savedItemsController)
                     .commit();
         }
 
     }
-
-    @OptionsItem(android.R.id.home)
-    final void closeSearch() {
-        super.onBackPressed();
-    }
-
 }

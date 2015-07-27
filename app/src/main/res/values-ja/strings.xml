@@ -84,7 +84,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">バージョン情報</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ v2.0\n\nJasperReports Server 5.5以上向けの管理ツールおよびレポートビューア\n\n詳細について：\n<a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a>\n\n個人情報保護方針について：\n<a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a>\n\nCopyright © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_info"><![CDATA[TIBCO JasperMobile™ v%s<br><br>JasperReports Server 5.5以上向けの管理ツールおよびレポートビューア<br><br>詳細について：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>個人情報保護方針について：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">個人情報保護方針</string>
 
     <!-- Report Options Activity -->
@@ -137,6 +137,7 @@
     <string name="st_title_cache_expiration">キャッシュの有効期限</string>
     <string name="st_title_connect_timeout">接続タイムアウト</string>
     <string name="st_title_read_timeout">データ読み込みタイムアウト</string>
+    <string name="st_title_animations">アニメーション</string>
     <string name="st_send_crashes">クラッシュレポートを送信</string>
     <string name="st_summary_cache_enable">指定した時間のキャッシュリポジトリリクエスト</string>
     <string name="st_summary_sec">%s 秒</string>
@@ -147,8 +148,7 @@
     <!-- Error messages -->
     <string name="error_http_400">400 - 要求が正しくありません。リクエストは無効です。</string>
     <string name="error_http_401">401 - 権限がありません。
-                                  \n認証資格情報がないか、または誤っています。
-                                  \n\nサーバープロファイルを編集しますか？</string>
+                                  \n認証資格情報がないか、または誤っています。</string>
     <string name="error_http_403">403 - アクセスは拒否されました。リクエストは理解されましたが、拒否されました。</string>
     <string name="error_http_404">404 - 見つかりません。要求された URI が無効か、または要求されたリソースが存在していません。</string>
     <string name="error_http_500">500 - 内部サーバー エラー。</string>
@@ -177,5 +177,114 @@
     <string name="h_rd_never">いいえ</string>
     <string name="h_rd_rate">TIBCO JasperMobileの評価</string>
 
+    <!-- Navigation Drawer -->
+    <string name="nd_drawer_open">開く</string>
+    <string name="nd_drawer_close">閉じる</string>
+    <string name="nd_manage_accounts">アカウントの管理</string>
+    <string name="nd_select_account">アカウントを選択</string>
+
+    <!-- Password Dialog -->
+    <string name="h_ad_title_server_sign_in">サーバーにサインイン</string>
+    <string name="h_ad_label_wrong_password">ユーザー名またはパスワードが正しくありません。正しい情報を再入力してください。</string>
+
+    <!-- Rate Dialog -->
+    <string name="h_rd_description">もしTIBCO JasperMobileを気に入って頂けましたら、少しお時間をとって評価をして頂けると幸いです。これには１分もかかりません。ご協力ありがとうございます！</string>
+
+    <!-- Error messages -->
+    <string name="sp_error_reserved_alias">エイリアスは既に使用されています。</string>
+
+    <!-- Repository Activity -->
+    <string name="r_search_nothing_to_display">検索条件に一致するアイテムはありません。</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_added_to_favorites">お気に入りに追加しました。</string>
+    <string name="r_cm_removed_from_favorites">お気に入りから削除しました。</string>
+    <string name="r_cm_print">印刷</string>
+
+    <!-- Search Activity -->
+    <string name="s_saved_items_hint">保存されたファイルを検索</string>
+
+    <!-- Filter Favorites Dialog -->
+    <string name="f_fd_option_folders">フォルダ</string>
+
+    <!-- Settings Activity -->
+    <string name="sa_show_feedback">フィードバック</string>
+
+    <!-- Report Viewer Activity -->
+    <string name="rv_out_of_range">要求されたページは範囲外です。</string>
+    <string name="rv_open_link_chooser">次の項目でリンクを開きます</string>
+    <string name="rv_no_viewer_identified">JRSバージョンのビューアを認識できませんでした：%s</string>
+
+
+    <!-- Save Report Activity -->
+    <string name="sr_report_name">ファイル名</string>
+    <string name="sr_from">ページから</string>
+    <string name="sr_to">ページへ</string>
+    <string name="sr_failed_to_create_local_repo">ローカルファイルストレージが作成できませんでした。</string>
+    <string name="sr_failed_to_execute_report">レポートの実行に失敗しました</string>
+
+    <!-- Error messages -->
+    <string name="sr_error_field_is_empty">この項目は入力が必須です。</string>
+    <string name="sr_error_characters_not_allowed">次の文字は使用できません。* \\ / \"\'：|？&lt;&gt; + []</string>
+    <string name="sr_error_report_exists">この名前のファイルはすでに存在しています。</string>
+
+    <!-- Favorites activity -->
+    <string name="f_empty_list_msg">お気に入りのアイテムはありません</string>
+
+    <!-- Saved Files Activity -->
+    <string name="sdr_ab_title">保存されたファイル</string>
+    <string name="sdr_ab_list_msg">保存されたファイルがありません</string>
+
+    <!-- Context Menu -->
+    <string name="action_mode_title">選択したアイテム</string>
+
+    <!-- Rename File Dialog -->
+    <string name="sdr_rrd_title">ファイルの名前を変更</string>
+    <string name="sdr_rrd_hint">ファイル名</string>
+    <string name="sdr_rrd_error_name_is_empty">この項目は入力が必須です。</string>
+    <string name="sdr_rrd_error_characters_not_allowed">次の文字は使用できません。* \\ / \"\'：|？&lt;&gt; + []</string>
+    <string name="sdr_rrd_error_report_exists">この名前のファイルはすでに存在しています。</string>
+
+    <!-- Remove Favorites Dialog -->
+    <string name="sdr_dfd_title">お気に入りから削除</string>
+    <string name="sdr_dfd_msg">本当に「%s 」を削除しますか？</string>
+
+    <!-- Settings activity -->
+    <string name="st_send_crashes_note">注：この設定を変更した後、アプリを再起動して下さい。</string>
+
+    <!-- Error messages -->
+    <string name="r_error_server_not_found">サーバーが見つかりません。</string>
+    <string name="r_error_incorrect_credentials">無効な認証情報。</string>
+
+    <!-- Others -->
+    <string name="authenticator_label">Jasperアカウント</string>
+    <string name="no_network">ネットワークエラーが発生しました。</string>
+    <string name="request_was_cancelled_explicitly">キャンセルされました</string>
+
+    <!-- Accounts activity -->
+    <string name="add_account">アカウントを追加する</string>
+    <string name="try_demo">体験版をご利用下さい</string>
+    <string name="hint_alias">アカウント名</string>
+    <string name="hint_server_url">サーバーURL</string>
+    <string name="hint_organization">所属機関</string>
+    <string name="hint_username">ユーザー名</string>
+    <string name="hint_password">パスワード</string>
+    <string name="success_add_account"> %s という名前のアカウントが追加されました</string>
+    <string name="failure_add_account">アカウントを追加できませんでした。理由：%s</string>
+    <string name="account_add">アカウントを追加しています</string>
+
+    <!--Dashboard activity-->
+    <string name="da_session_expired">セッションが終了されました</string>
+    <string name="da_session_refresh_failed">セッションの更新に失敗しました。</string>
+    <string name="da_loading">ダッシュボードを読み込んでいます...</string>
+
+    <!-- MultiSelectSpinner -->
+    <string name="mss_btn_check_all">すべてをチェックする</string>
+    <string name="mss_btn_uncheck_all">すべてのチェックを外す</string>
+
+    <!-- Navigation panel -->
+    <string name="recent_card_label">最近表示した項目</string>
+    <string name="cancel">キャンセル</string>
+    <string name="ok">OK</string>
 
 </resources>

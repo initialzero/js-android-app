@@ -30,26 +30,23 @@ import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.ResourcesControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.FilterManagerBean;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
+import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
-
-import java.util.ArrayList;
 
 /**
  * @author Tom Koptel
@@ -57,12 +54,11 @@ import java.util.ArrayList;
  */
 @EBean
 public class ResourceOpener {
-    @Bean
-    FilterManagerBean filterManager;
+
     @RootContext
     FragmentActivity activity;
 
-    private ArrayList<String> resourceTypes;
+    ResourceFilter resourceFilter;
     private ServerRelease serverRelease;
     private boolean isCeJrs;
 
@@ -73,17 +69,17 @@ public class ResourceOpener {
         serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
         isCeJrs = accountServerData.getEdition().equals("CE");
 
-        resourceTypes = filterManager.getFiltersForRepository();
-    }
-
-    public void setResourceTypes(ArrayList<String> resourceTypes) {
-        this.resourceTypes = resourceTypes;
+        resourceFilter = RepositoryResourceFilter_.getInstance_(activity);
     }
 
     public void openResource(Fragment fragment, ResourceLookup resource) {
+        openResource(fragment, RepositoryControllerFragment.PREF_TAG, resource);
+    }
+
+    public void openResource(Fragment fragment, String prefTag, ResourceLookup resource) {
         switch (resource.getResourceType()) {
             case folder:
-                openFolder(fragment, resource);
+                openFolder(fragment, prefTag, resource);
                 break;
             case reportUnit:
                 runReport(resource);
@@ -97,19 +93,16 @@ public class ResourceOpener {
         }
     }
 
-    private void openFolder(Fragment fragment, ResourceLookup resource) {
-        ResourcesControllerFragment newControllerFragment =
-                ResourcesControllerFragment_.builder()
-                        .emptyMessage(R.string.r_browser_nothing_to_display)
-                        .resourceTypes(resourceTypes)
+    public void openFolder(Fragment fragment, String preftag, ResourceLookup resource) {
+        RepositoryControllerFragment newControllerFragment =
+                RepositoryControllerFragment_.builder()
                         .resourceLabel(resource.getLabel())
                         .resourceUri(resource.getUri())
-                        .prefTag(RepositoryFragment.PREF_TAG)
+                        .prefTag(preftag)
                         .build();
         fragment.getFragmentManager().beginTransaction()
                 .addToBackStack(resource.getUri())
-                .replace(R.id.resource_controller, newControllerFragment,
-                        ResourcesControllerFragment.TAG + resource.getUri())
+                .replace(R.id.resource_controller, newControllerFragment)
                 .commit();
     }
 

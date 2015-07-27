@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -40,10 +41,14 @@ import org.androidannotations.annotations.InstanceState;
  */
 @EFragment
 public class FavoritesControllerFragment extends ControllerFragment {
-    public static final String CONTENT_TAG = "FavoritesControllerFragment.CONTENT_TAG";
     public static final String TAG = FavoritesControllerFragment.class.getSimpleName();
+    public static final String PREF_TAG = "favorites_pref";
 
     private FavoritesFragment contentFragment;
+
+    @FragmentArg
+    @InstanceState
+    SortOrder sortOrder;
 
     @FragmentArg
     @InstanceState
@@ -52,7 +57,7 @@ public class FavoritesControllerFragment extends ControllerFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getArguments().putString(PREF_TAG_KEY, "favorites_pref");
+        getArguments().putString(PREF_TAG_KEY, PREF_TAG);
     }
 
     @Override
@@ -60,7 +65,7 @@ public class FavoritesControllerFragment extends ControllerFragment {
         super.onActivityCreated(savedInstanceState);
 
         FavoritesFragment inMemoryFragment = (FavoritesFragment)
-                getFragmentManager().findFragmentByTag(CONTENT_TAG);
+                getFragmentManager().findFragmentByTag(FavoritesFragment.TAG);
 
         if (inMemoryFragment == null) {
             commitContentFragment();
@@ -73,6 +78,7 @@ public class FavoritesControllerFragment extends ControllerFragment {
     public Fragment getContentFragment() {
         contentFragment = FavoritesFragment_.builder()
                 .viewType(getViewType())
+                .sortOrder(sortOrder)
                 .searchQuery(searchQuery)
                 .build();
         return contentFragment;
@@ -80,7 +86,14 @@ public class FavoritesControllerFragment extends ControllerFragment {
 
     @Override
     protected String getContentFragmentTag() {
-        return CONTENT_TAG;
+        return FavoritesFragment.TAG;
+    }
+
+    public void loadItemsBySortOrder(SortOrder _sortOrder) {
+        if (contentFragment != null) {
+            contentFragment.showFavoritesBySortOrder(_sortOrder);
+        }
+        sortOrder = _sortOrder;
     }
 
 }

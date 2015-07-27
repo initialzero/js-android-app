@@ -32,10 +32,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 
 /**
@@ -48,8 +50,9 @@ public class AboutDialogFragment extends SimpleDialogFragment implements DialogI
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.sa_show_about);
-        builder.setMessage(R.string.sa_about_info);
-        builder.setNeutralButton(android.R.string.ok, null);
+        String message = getString(R.string.sa_about_info, BuildConfig.VERSION_NAME);
+        builder.setMessage(Html.fromHtml(message));
+        builder.setNeutralButton(R.string.ok, null);
 
         Dialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);

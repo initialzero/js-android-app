@@ -27,8 +27,8 @@ configure(allprojects) { project ->
     buildscript {
         repositories {
             jcenter()
-            maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
             mavenLocal()
+            maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         }
     }
 }
@@ -38,24 +38,25 @@ subprojects {
     group = 'com.jaspersoft.android'
     description = 'js-android-jaspermobile'
 
-    ext.androidToolsBuildGradle = '1.1.3'
+    ext.androidToolsBuildGradle = '1.2.3'
     ext.androidApt = '1.4'
     ext.androidBuildToolsVersion = '21.1.2';
     ext.androidMinSdkVersion = 15;
     ext.androidCompileSdkVersion = 21;
     ext.androidTargetSdkVersion = 21;
 
-    ext.jasperSdkVersion = '1.9.3';
+    ext.jasperSdkVersion = '1.10';
 
     repositories {
+        // Local .m2 repo, usually living at home dir
+        mavenLocal()
+
         // Remote official superset of mavenCentral()
         jcenter()
 
-        maven { url "https://mint.splunk.com/gradle/" }
+        // Our remote maven repo
         maven { url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk' }
 
-        // Local .m2 repo, usually living at home dir
-        mavenLocal()
         maven { url "file://${System.getenv("ANDROID_HOME")}/extras/android/m2repository" }
     }
 }

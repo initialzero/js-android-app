@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
@@ -34,7 +33,6 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivit
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OptionsItem;
 
 /**
  * @author Andrew Tivodar
@@ -50,11 +48,6 @@ public class FavoritesSearchableActivity extends RoboSpiceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         if (savedInstanceState == null) {
             FavoritesControllerFragment favoriteController =
                     FavoritesControllerFragment_.builder()
@@ -62,15 +55,9 @@ public class FavoritesSearchableActivity extends RoboSpiceActivity {
                             .build();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.resource_controller, favoriteController, FavoritesControllerFragment.TAG)
+                    .add(R.id.resource_controller, favoriteController)
                     .commit();
         }
 
     }
-
-    @OptionsItem(android.R.id.home)
-    final void closeSearch() {
-        super.onBackPressed();
-    }
-
 }

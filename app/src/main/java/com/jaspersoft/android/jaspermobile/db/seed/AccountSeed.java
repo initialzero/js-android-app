@@ -24,13 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.db.seed;
 
+import android.accounts.Account;
 import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.apache.commons.io.IOUtils;
 
@@ -39,6 +41,10 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Actions;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -49,11 +55,25 @@ import timber.log.Timber;
 public class AccountSeed implements Seed {
     private final JasperAccountManager jasperAccountManager;
     private final Context mContext;
+    private final Action1<Throwable> emptyError = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable throwable) {
+        }
+    };
 
-    public AccountSeed(Context context) {
+    private AccountSeed(Context context) {
         mContext = context;
         jasperAccountManager = JasperAccountManager.get(context);
         Timber.tag(AccountSeed.class.getSimpleName());
+    }
+
+    public static void seed(Context context) {
+        boolean noAccounts = JasperAccountManager.get(context).getAccounts().length == 0;
+        boolean buildForQa = (BuildConfig.DEBUG || BuildConfig.FLAVOR.equalsIgnoreCase("dev"));
+        if (noAccounts && buildForQa) {
+            AccountSeed accountSeed = new AccountSeed(context);
+            accountSeed.seed();
+        }
     }
 
     @Override
@@ -75,7 +95,7 @@ public class AccountSeed implements Seed {
         jasperAccountManager
                 .addAccountExplicitly(serverData)
                 .subscribeOn(Schedulers.io())
-                .subscribe();
+                .subscribe(Actions.empty(), emptyError);
     }
 
     private void populateTestServers() {
@@ -90,14 +110,20 @@ public class AccountSeed implements Seed {
             String json = IOUtils.toString(is);
             Gson gson = new Gson();
 
-            Type listType = new TypeToken<List<AccountServerData>>() {}.getType();
+            Type listType = new TypeToken<List<AccountServerData>>() {
+            }.getType();
             List<AccountServerData> datum = gson.fromJson(json, listType);
-            for (AccountServerData serverData : datum) {
-                Timber.d("Add server explicitly" + serverData);
-                jasperAccountManager.addAccountExplicitly(serverData)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe();
-            }
+            Observable.from(datum).flatMap(new Func1<AccountServerData, Observable<Account>>() {
+                @Override
+                public Observable<Account> call(AccountServerData serverData) {
+                    return jasperAccountManager.addAccountExplicitly(serverData);
+                }
+            }).subscribe(new Action1<Account>() {
+                @Override
+                public void call(Account account) {
+                    Timber.d("Account was added " + account);
+                }
+            }, emptyError);
         } catch (IOException e) {
             Timber.w("Ignoring population of data");
         } finally {

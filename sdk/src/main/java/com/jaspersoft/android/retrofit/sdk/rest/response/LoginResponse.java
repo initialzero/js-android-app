@@ -24,7 +24,8 @@
 
 package com.jaspersoft.android.retrofit.sdk.rest.response;
 
-import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
+
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 /**
  * @author Tom Koptel

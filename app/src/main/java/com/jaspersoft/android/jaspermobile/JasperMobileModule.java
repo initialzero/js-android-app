@@ -35,7 +35,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.
 import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
 import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;
@@ -60,7 +60,7 @@ public class JasperMobileModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        JsRestClient jsRestClient = new JsRestClient();
+        JsRestClient jsRestClient = JsRestClient.builder().setDataType(JsRestClient.DataType.JSON).build();
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>();
         interceptors.add(new LocalesHttpRequestInterceptor());
         interceptors.add(new TokenHttpRequestInterceptor(mContext));
@@ -85,6 +85,7 @@ public class JasperMobileModule extends AbstractModule {
         bind(ReportParamsStorage.class).in(Singleton.class);
         bind(ReportParamsSerializer.class).to(ReportParamsSerializerImpl.class);
         bind(AppConfigurator.class).to(AppConfiguratorImpl.class);
+        bind(Analytics.class).to(JasperAnalytics.class).in(Singleton.class);
     }
 
 }

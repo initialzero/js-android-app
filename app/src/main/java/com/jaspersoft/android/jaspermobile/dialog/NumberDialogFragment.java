@@ -83,8 +83,8 @@ public class NumberDialogFragment extends BaseDialogFragment implements DialogIn
         builder.setTitle(R.string.dialog_current_page);
         builder.setView(customView);
         builder.setCancelable(true);
-        builder.setPositiveButton(android.R.string.ok, this);
-        builder.setNegativeButton(android.R.string.cancel, this);
+        builder.setPositiveButton(R.string.ok, this);
+        builder.setNegativeButton(R.string.cancel, this);
 
         AlertDialog dialog = builder.create();
         if (savedInstanceState == null) {

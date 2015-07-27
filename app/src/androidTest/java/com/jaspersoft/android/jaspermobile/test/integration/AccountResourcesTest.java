@@ -32,13 +32,13 @@ import android.test.AndroidTestCase;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
-import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.v3.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.utils.SavedFilesUtil;
 import com.jaspersoft.android.jaspermobile.util.account.AccountResources;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 

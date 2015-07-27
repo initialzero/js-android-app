@@ -141,7 +141,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
     public void testToRangeDependentOnFromPageControl() {
         onView(withId(R.id.fromPageControl)).perform(click());
         onView(withClassName(equalTo(NumberPicker.class.getName()))).perform(selectCurrentNumber(30));
-        onView(withText(android.R.string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
 
         onView(withId(R.id.toPageControl)).perform(click());
         onView(withClassName(equalTo(NumberPicker.class.getName()))).check(matches(hasMinValue(30)));
@@ -151,7 +151,7 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
     public void testToRangeDisabledWhileFromPageHasMaxValue() {
         onView(withId(R.id.fromPageControl)).perform(click());
         onView(withClassName(equalTo(NumberPicker.class.getName()))).perform(selectCurrentNumber(45));
-        onView(withText(android.R.string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
 
         onView(withId(R.id.toPageControl)).check(matches(not(isEnabled())));
     }
@@ -163,13 +163,13 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         // Select 43
         onView(withId(R.id.fromPageControl)).perform(click());
         onView(withClassName(equalTo(NumberPicker.class.getName()))).perform(selectCurrentNumber(43));
-        onView(withText(android.R.string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
 
         // Enter in number picker edit field incorrect value
         onView(withId(R.id.toPageControl)).perform(click());
         onView(withId(numberPickerInputId)).perform(clearText());
         onView(withId(numberPickerInputId)).perform(typeText("15"));
-        onView(withText(android.R.string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
 
         onView(withId(R.id.toPageControl)).check(matches(withText("45")));
     }
@@ -179,12 +179,12 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         // Select 10
         onView(withId(R.id.toPageControl)).perform(click());
         onView(withClassName(equalTo(NumberPicker.class.getName()))).perform(selectCurrentNumber(10));
-        onView(withText(android.R.string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
 
         // Enter in number picker edit field incorrect value
         onView(withId(R.id.fromPageControl)).perform(click());
         onView(withClassName(equalTo(NumberPicker.class.getName()))).perform(selectCurrentNumber(43));
-        onView(withText(android.R.string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
 
         onView(withId(R.id.fromPageControl)).check(matches(withText("1")));
     }
@@ -196,13 +196,13 @@ public class SaveReportValidationsTest extends ProtoActivityInstrumentation<Save
         onView(withId(R.id.fromPageControl)).perform(click());
         onView(withId(numberPickerInputId)).perform(clearText());
         onView(withId(numberPickerInputId)).perform(typeText("0"));
-        onView(withText(android.R.string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
         onView(withId(R.id.fromPageControl)).check(matches(withText("1")));
 
         onView(withId(R.id.toPageControl)).perform(click());
         onView(withId(numberPickerInputId)).perform(clearText());
         onView(withId(numberPickerInputId)).perform(typeText("0"));
-        onView(withText(android.R.string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
         onView(withId(R.id.toPageControl)).check(matches(withText("45")));
     }
 

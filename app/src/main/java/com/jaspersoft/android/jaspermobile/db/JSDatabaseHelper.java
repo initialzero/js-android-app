@@ -27,16 +27,10 @@ package com.jaspersoft.android.jaspermobile.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
-import com.jaspersoft.android.jaspermobile.db.migrate.FavoritesRemoveColumnMigration;
-import com.jaspersoft.android.jaspermobile.db.migrate.ProfileAccountMigration;
-import com.jaspersoft.android.jaspermobile.db.migrate.ProfileFavoritesMigration;
-import com.jaspersoft.android.jaspermobile.db.migrate.SavedItemsMigration;
+import com.jaspersoft.android.jaspermobile.db.migrate.v2.MigrationV2;
+import com.jaspersoft.android.jaspermobile.db.migrate.v3.MigrationV3;
 import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
-
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -53,7 +47,7 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
     @Override
     public void onCreate(SQLiteDatabase db) {
         super.onCreate(db);
-        seedProfiles();
+        AccountSeed.seed(mContext);
     }
 
     @Override
@@ -62,45 +56,10 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
         switch (oldVersion) {
             case 1:
             case 2:
-                db.execSQL("DROP TABLE IF EXISTS report_options;");
-
-                db.execSQL("ALTER TABLE server_profiles RENAME TO tmp_server_profiles;");
-                db.execSQL(
-                        "CREATE TABLE server_profiles ( _id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                                " alias TEXT, server_url TEXT, organization TEXT, username TEXT," +
-                                " password TEXT, edition TEXT, version_code NUMERIC );"
-                );
-                db.execSQL("INSERT INTO server_profiles(alias, server_url, organization, username, password)" +
-                        " select alias, server_url, organization, username, password from tmp_server_profiles;");
-                db.execSQL("DROP TABLE IF EXISTS tmp_server_profiles;");
-
-                db.execSQL("ALTER TABLE favorites RENAME TO tmp_favorites;");
-                db.execSQL(
-                        "CREATE TABLE favorites ( _id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT," +
-                                " title TEXT, uri TEXT, description TEXT, wstype TEXT, username TEXT, " +
-                                "organization TEXT, server_profile_id INTEGER REFERENCES server_profiles(_id)" +
-                                " ON DELETE CASCADE )"
-                );
-                db.execSQL("INSERT INTO favorites(name, title, uri, description, wstype, username, organization, server_profile_id)" +
-                        " select name, title, uri, description, wstype, username, organization, server_profile_id from tmp_favorites;");
-                db.execSQL("DROP TABLE IF EXISTS tmp_favorites;");
+                new MigrationV2().migrate(db);
             case 3:
-                Timber.d("Start migrating accounts");
-                new ProfileAccountMigration(mContext).migrate(db);
-                Timber.d("Start migrating profiles");
-                new ProfileFavoritesMigration().migrate(db);
-                Timber.d("Start migrating saved items");
-                new SavedItemsMigration(mContext).migrate(db);
-                Timber.d("Start migrating favorite items");
-                new FavoritesRemoveColumnMigration().migrate(db);
+                new MigrationV3(mContext).migrate(db);
                 break;
-        }
-    }
-
-    private void seedProfiles() {
-        boolean noAccounts = JasperAccountManager.get(mContext).getAccounts().length == 0;
-        if (noAccounts && (BuildConfig.DEBUG || BuildConfig.FLAVOR.equalsIgnoreCase("qa"))) {
-            new AccountSeed(mContext).seed();
         }
     }
 

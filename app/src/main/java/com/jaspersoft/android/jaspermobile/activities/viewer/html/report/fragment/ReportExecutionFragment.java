@@ -96,9 +96,16 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
 
     public void executeReport(ArrayList<ReportParameter> reportParameters) {
+        getFilterMangerFragment().disableSaveOption();
+
         ReportExecutionRequest executionData = prepareExecutionData(reportParameters);
         final RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient, executionData);
-        requestExecutor.execute(request, new RunReportExecutionListener());
+        requestExecutor.execute(request, new RunReportExecutionListener(), new RequestExecutor.OnProgressDialogCancelListener() {
+            @Override
+            public void onCancel() {
+                getActivity().finish();
+            }
+        });
     }
 
     public void executeReport() {
@@ -185,7 +192,6 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
             PaginationManagerFragment paginationManagerFragment = getPaginationManagerFragment();
             requestId = response.getRequestId();
             reportSession.setRequestId(requestId);
-            getFilterMangerFragment().enableSaveOption();
 
             ReportStatus status = response.getReportStatus();
             if (status == ReportStatus.ready) {
@@ -196,6 +202,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                     handleEmptyReportEvent();
                 } else {
                     getFilterMangerFragment().makeSnapshot();
+                    getFilterMangerFragment().enableSaveOption();
                     paginationManagerFragment.paginateToCurrentSelection();
                     paginationManagerFragment.loadNextPageInBackground();
                 }
@@ -266,6 +273,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                 handleEmptyReportEvent();
             } else {
                 getFilterMangerFragment().makeSnapshot();
+                getFilterMangerFragment().enableSaveOption();
             }
         }
     }

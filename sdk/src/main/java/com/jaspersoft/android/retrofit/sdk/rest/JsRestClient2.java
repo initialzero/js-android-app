@@ -24,15 +24,14 @@
 
 package com.jaspersoft.android.retrofit.sdk.rest;
 
-import android.text.TextUtils;
-
-import com.jaspersoft.android.retrofit.sdk.ojm.ServerInfo;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.rest.service.AccountService;
 import com.jaspersoft.android.retrofit.sdk.token.AccessTokenEncoder;
 import com.jaspersoft.android.retrofit.sdk.token.BasicAccessTokenEncoder;
+import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 
 import retrofit.Endpoint;
@@ -46,8 +45,6 @@ import retrofit.client.Response;
 import retrofit.converter.Converter;
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action2;
-import rx.functions.Func0;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
@@ -136,7 +133,8 @@ public class JsRestClient2 {
                 .flatMap(new Func1<String, Observable<Response>>() {
                     @Override
                     public Observable<Response> call(String authorizationToken) {
-                        return accountService.authorize(authorizationToken);
+                        String locale = Locale.getDefault().toString().replaceAll("_", "-");
+                        return accountService.authorize(authorizationToken, locale);
                     }
                 })
                 .map(new Func1<Response, List<Header>>() {
@@ -145,40 +143,18 @@ public class JsRestClient2 {
                         return response.getHeaders();
                     }
                 })
-                .flatMap(new Func1<List<Header>, Observable<Header>>() {
+                .flatMap(new Func1<List<Header>, Observable<String>>() {
                     @Override
-                    public Observable<Header> call(List<Header> headers) {
-                        return Observable.from(headers);
+                    public Observable<String> call(List<Header> headers) {
+                        return Observable.just(CookieFormat.format(headers));
                     }
                 })
-                .filter(new Func1<Header, Boolean>() {
+                .flatMap(new Func1<String, Observable<LoginResponse>>() {
                     @Override
-                    public Boolean call(Header header) {
-                        if (TextUtils.isEmpty(header.getName())) {
-                            return false;
-                        }
-                        return header.getName().equals("Set-Cookie");
-                    }
-                })
-                .collect(
-                        new Func0<StringBuilder>() {
-                            @Override
-                            public StringBuilder call() {
-                                return new StringBuilder();
-                            }
-                        },
-                        new Action2<StringBuilder, Header>() {
-                            @Override
-                            public void call(StringBuilder builder, Header header) {
-                                builder.append(header.getValue());
-                            }
-                        })
-                .flatMap(new Func1<StringBuilder, Observable<LoginResponse>>() {
-                    @Override
-                    public Observable<LoginResponse> call(final StringBuilder header) {
+                    public Observable<LoginResponse> call(final String header) {
                         return Observable.zip(
-                                Observable.just(header.toString()),
-                                accountService.getServerInfo(header.toString()),
+                                Observable.just(header),
+                                accountService.getServerInfo(header),
                                 new Func2<String, ServerInfo, LoginResponse>() {
                                     @Override
                                     public LoginResponse call(String header, ServerInfo serverInfo) {

@@ -49,8 +49,8 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
@@ -347,7 +347,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.rv_out_of_range)
                         .setMessage(errorDescriptor.getMessage())
-                        .setNegativeButtonText(android.R.string.cancel)
+                        .setNegativeButtonText(R.string.cancel)
                         .setPositiveButtonText(R.string.rv_dialog_reload)
                         .setTargetFragment(NodeWebViewFragment.this)
                         .setCancelableOnTouchOutside(false)

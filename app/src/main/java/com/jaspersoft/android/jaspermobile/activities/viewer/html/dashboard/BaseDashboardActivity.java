@@ -37,6 +37,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
@@ -44,6 +46,9 @@ import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.JasperWebViewClientListener;
@@ -52,7 +57,7 @@ import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import rx.Subscription;
@@ -82,6 +87,9 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+
+    @Inject
+    protected Analytics analytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +168,11 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         if (itemId == android.R.id.home) {
             onHomeAsUpCalled();
         }
+        if (itemId == R.id.printAction) {
+            analytics.trackPrintEvent();
+            ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
+            JasperPrinter.print(job);
+        }
 
         return true;
     }
@@ -185,7 +198,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     protected void resetZoom() {
-        while(webView.zoomOut());
+        while (webView.zoomOut()) ;
     }
 
     protected void showMessage(CharSequence message) {
@@ -235,7 +248,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
                         new Action1<Boolean>() {
                             @Override
                             public void call(Boolean isRefreshed) {
-                                if (isRefreshed){
+                                if (isRefreshed) {
                                     onSessionRefreshed();
                                 } else {
                                     Toast.makeText(BaseDashboardActivity.this,
@@ -303,7 +316,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setTitle(resource.getLabel())
                 .setMessage(resource.getDescription())
-                .setNegativeButtonText(android.R.string.ok)
+                .setNegativeButtonText(R.string.ok)
                 .show();
     }
 

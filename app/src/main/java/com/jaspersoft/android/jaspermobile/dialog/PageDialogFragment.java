@@ -72,8 +72,8 @@ public class PageDialogFragment extends BaseDialogFragment implements DialogInte
 
         builder.setTitle(R.string.rv_select_page);
         builder.setView(customView);
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.setPositiveButton(android.R.string.ok, null);
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(R.string.ok, null);
 
         Dialog pageDialog = builder.create();
         pageDialog.setOnShowListener(this);

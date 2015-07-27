@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.report.fragment;
 import android.accounts.Account;
 import android.app.ActionBar;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.MenuItem;
@@ -47,7 +48,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.async.request.SaveExportAttachmentRequest;
@@ -126,6 +127,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
 
     private List<SpiceRequest<?>> requests = new ArrayList<SpiceRequest<?>>();
     private File reportFile;
+    private Uri recordUri;
 
     private int mFromPage;
     private int mToPage;
@@ -343,6 +345,11 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         }
     }
 
+    private void removeArtifacts() {
+        removeTemplate();
+        removeRecord();
+    }
+
     private void removeTemplate() {
         if (reportFile == null) return;
 
@@ -352,14 +359,20 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         } catch (IOException e) {
             Timber.w(TAG, "Failed to remove template file", e);
         }
-        Toast.makeText(getActivity(), "Failed to execute report", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), R.string.sr_failed_to_execute_report, Toast.LENGTH_SHORT).show();
+    }
+
+    private void removeRecord() {
+        if (recordUri == null) return;
+
+        getActivity().getContentResolver().delete(recordUri, null, null);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (runningRequests > 0) {
-            removeTemplate();
+            removeArtifacts();
         }
     }
     //---------------------------------------------------------------------
@@ -411,7 +424,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             setRefreshActionButtonState(false);
             enableAllViewsAfterSaving();
             runningRequests--;
-            removeTemplate();
+            removeArtifacts();
         }
 
         @Override
@@ -425,6 +438,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             // save report file
             SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient,
                     executionId, exportOutput, reportFile);
+            requests.add(outputRequest);
             getSpiceManager().execute(outputRequest, new ReportFileSaveListener(outputFormat));
 
             // save attachments
@@ -460,7 +474,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                 runningRequests--;
                 request.cancel();
             }
-            removeTemplate();
+            removeArtifacts();
             setRefreshActionButtonState(false);
             enableAllViewsAfterSaving();
         }

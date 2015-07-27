@@ -28,15 +28,17 @@ import android.annotation.SuppressLint;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.CrashReport;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class ReportWebInterface extends WebInterface implements ReportCallback {
+public final class ReportWebInterface extends WebInterface implements ReportCallback {
 
     private final ReportCallback decoratedCallback;
+    private boolean mLoadDone;
 
     private ReportWebInterface(ReportCallback decoratedCallback) {
         this.decoratedCallback = decoratedCallback;
@@ -55,55 +57,115 @@ public class ReportWebInterface extends WebInterface implements ReportCallback {
     @JavascriptInterface
     @Override
     public void onScriptLoaded() {
-        decoratedCallback.onScriptLoaded();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onScriptLoaded();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
     public void onLoadStart() {
-        decoratedCallback.onLoadStart();
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onLoadStart();
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onLoadDone(String parameters) {
-        decoratedCallback.onLoadDone(parameters);
+    public void onLoadDone(final String parameters) {
+        mLoadDone = true;
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onLoadDone(parameters);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onLoadError(String error) {
-        decoratedCallback.onLoadError(error);
+    public void onLoadError(final String error) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onLoadError(error);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onReportCompleted(String status, int pages, String errorMessage) {
-        decoratedCallback.onReportCompleted(status, pages, errorMessage);
+    public void onReportCompleted(final String status, final int pages, final String errorMessage) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onReportCompleted(status, pages, errorMessage);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onPageChange(int page) {
-        decoratedCallback.onPageChange(page);
+    public void onPageChange(final int page) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onPageChange(page);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onReferenceClick(String type) {
-        decoratedCallback.onReferenceClick(type);
+    public void onReferenceClick(final String type) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onReferenceClick(type);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onReportExecutionClick(String report, String params) {
-        decoratedCallback.onReportExecutionClick(report, params);
+    public void onReportExecutionClick(final String data) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onReportExecutionClick(data);
+            }
+        });
     }
 
     @JavascriptInterface
     @Override
-    public void onMultiPageStateObtained(boolean isMultiPage) {
-        decoratedCallback.onMultiPageStateObtained(isMultiPage);
+    public void onMultiPageStateObtained(final boolean isMultiPage) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onMultiPageStateObtained(isMultiPage);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onWindowError(final String errorMessage) {
+        if (!mLoadDone) {
+            handleCallback(new Runnable() {
+                @Override
+                public void run() {
+                    CrashReport.logException(new RuntimeException(errorMessage));
+                    decoratedCallback.onWindowError(errorMessage);
+                }
+            });
+        }
     }
 
 }

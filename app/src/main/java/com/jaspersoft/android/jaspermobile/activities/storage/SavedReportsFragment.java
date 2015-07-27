@@ -31,21 +31,20 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.repository.fragment.SearchControllerFragment;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.LibraryPref_;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOptions;
-import com.jaspersoft.android.jaspermobile.activities.repository.support.SortOrder;
-import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment_;
-import com.jaspersoft.android.jaspermobile.dialog.FilterSavedItemsDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
+import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -57,33 +56,19 @@ import roboguice.fragment.RoboFragment;
  * @author Tom Koptel
  * @since 1.8
  */
-@EFragment
-@OptionsMenu(R.menu.saved_items_menu)
+@EFragment (R.layout.content_layout)
+@OptionsMenu(R.menu.sort_menu)
 public class SavedReportsFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener{
-    public static final String TAG = SavedReportsFragment.class.getSimpleName();
 
     private SavedItemsControllerFragment savedItemsController;
 
-    @InstanceState
-    FileAdapter.FileType filterType;
-
+    @Bean
+    protected StorageResourceFilter storageResourceFilter;
     @Bean
     protected SortOptions sortOptions;
 
     @Pref
-    LibraryPref_ pref;
-
-
-    private final FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener mFilterSelectedListener =
-            new FilterSavedItemsDialogFragment.FilterSavedItemsDialogListener() {
-        @Override
-        public void onDialogPositiveClick(FileAdapter.FileType _filterType) {
-            if (savedItemsController != null) {
-                savedItemsController.loadItemsByTypes(_filterType);
-                filterType = _filterType;
-            }
-        }
-    };
+    StoragePref_ pref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,44 +82,38 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
 
         if (savedInstanceState == null) {
             // Reset all controls state
-            pref.clear();
+            pref.sortType().put(null);
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
             savedItemsController = SavedItemsControllerFragment_.builder()
-                    .filterType(filterType)
                     .sortOrder(sortOptions.getOrder())
                     .build();
             transaction.replace(R.id.resource_controller, savedItemsController, SavedItemsControllerFragment.TAG);
 
             SavedItemsSearchFragment searchFragment = SavedItemsSearchFragment_.builder().build();
-            transaction.replace(R.id.search_controller, searchFragment, SearchControllerFragment.TAG + TAG);
+            transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
         } else {
-            savedItemsController = (SavedItemsControllerFragment) getFragmentManager()
+            savedItemsController = (SavedItemsControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(SavedItemsControllerFragment.TAG);
         }
+
+        FilterTitleView filterTitleView = new FilterTitleView(getActivity());
+        filterTitleView.init(storageResourceFilter);
+        filterTitleView.setFilterSelectedListener(new FilterChangeListener());
+        ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
+        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        FilterSavedItemsDialogFragment.attachListener(getFragmentManager(), filterType, mFilterSelectedListener);
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sdr_ab_title);
         }
-    }
-
-    @OptionsItem(android.R.id.home)
-    final void goHome() {
-        getActivity().onBackPressed();
-    }
-
-    @OptionsItem(R.id.filter)
-    final void startFiltering() {
-        FilterSavedItemsDialogFragment.show(getFragmentManager(), filterType, mFilterSelectedListener);
     }
 
     @OptionsItem(R.id.sort)
@@ -147,9 +126,17 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
 
     @Override
     public void onOptionSelected(SortOrder sortOrder) {
+        sortOptions.putOrder(sortOrder);
         if (savedItemsController != null) {
             savedItemsController.loadItemsBySortOrder(sortOrder);
-            sortOptions.putOrder(sortOrder);
+        }
+    }
+
+    private class FilterChangeListener implements FilterTitleView.FilterListener {
+        @Override
+        public void onFilter(Filter filter) {
+            storageResourceFilter.persist(filter);
+            savedItemsController.loadItemsByTypes();
         }
     }
 }

@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
-import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -36,31 +35,23 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
+import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.MobileDashboardApi;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardTrigger;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.Template;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.UiThread;
-import org.apache.commons.io.IOUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Tom Koptel
@@ -72,8 +63,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
     protected HyperlinkHelper hyperlinkHelper;
-    @Bean
-    protected ScreenUtil screenUtil;
     @Extra
     protected ResourceLookup resource;
 
@@ -82,8 +71,9 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
-    private AccountServerData accountServerData;
-    private Toast mToast;
+    private DashboardTrigger mDashboardTrigger;
+    private WebInterface mWebInterface;
+    private DashboardExecutor mDashboardExecutor;
 
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
         @Override
@@ -96,12 +86,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
         scrollableTitleHelper.injectTitle(resource.getLabel());
-
-        Account account = JasperAccountManager.get(this).getActiveAccount();
-        accountServerData = AccountServerData.get(this, account);
+        showMenuItems();
     }
 
     @Override
@@ -122,14 +108,18 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     protected void onPause() {
+        if (mWebInterface != null) {
+            mWebInterface.pause();
+        }
         super.onPause();
-        webView.loadUrl("javascript:MobileDashboard.pause()");
     }
 
     @Override
     protected void onResume() {
-        super.onPause();
-        webView.loadUrl("javascript:MobileDashboard.resume()");
+        super.onResume();
+        if (mWebInterface != null) {
+            mWebInterface.resume();
+        }
     }
 
     //---------------------------------------------------------------------
@@ -138,8 +128,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     public void onWebViewConfigured(WebView webView) {
+        mDashboardTrigger = JsDashboardTrigger.with(webView);
+        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, resource);
+        mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
-                .withWebInterface(DashboardWebInterface.from(this));
+                .withWebInterface(mWebInterface);
         loadFlow();
     }
 
@@ -215,9 +208,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onLoadError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        mToast.setText(error);
-        mToast.show();
     }
 
     @UiThread
@@ -234,6 +226,20 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onWindowResizeEnd() {
     }
 
+    @UiThread
+    @Override
+    public void onAuthError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        super.onSessionExpired();
+    }
+
+    @UiThread
+    @Override
+    public void onWindowError(String errorMessage) {
+        showMessage(getString(R.string.failed_load_data));
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
     @Override
     public void onPageFinished() {
     }
@@ -241,16 +247,16 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onRefresh() {
         if (mMaximized) {
-            webView.loadUrl(MobileDashboardApi.refreshDashlet());
+            mDashboardTrigger.refreshDashlet();
         } else {
-            webView.loadUrl(MobileDashboardApi.refresh());
+            mDashboardTrigger.refreshDashboard();
         }
     }
 
     @Override
     public void onHomeAsUpCalled() {
         if (mMaximized && webView != null) {
-            webView.loadUrl(MobileDashboardApi.minimizeDashlet());
+            mDashboardTrigger.minimizeDashlet();
             scrollableTitleHelper.injectTitle(resource.getLabel());
         } else {
             super.onBackPressed();
@@ -267,35 +273,11 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     //---------------------------------------------------------------------
 
     private void loadFlow() {
-        InputStream stream = null;
-        try {
-            stream = getAssets().open("dashboard.html");
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(stream, writer, "UTF-8");
-
-            Map<String, String> data = new HashMap<String, String>();
-            data.put("visualize_url", accountServerData.getServerUrl() + "/client/visualize.js?_opt=true&_showInputControls=true");
-            Template tmpl = Mustache.compiler().compile(writer.toString());
-            String html = tmpl.execute(data);
-
-            webView.loadDataWithBaseURL(accountServerData.getServerUrl(), html, "text/html", "utf-8", null);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (stream != null) {
-                IOUtils.closeQuietly(stream);
-            }
-        }
+        mDashboardExecutor.prepare();
     }
 
     private void runDashboard() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("javascript:MobileDashboard")
-                .append(".configure({ \"diagonal\": %s })")
-                .append(".run({ \"uri\": \"%s\" })");
-        String executeScript = String.format(builder.toString(),
-                screenUtil.getDiagonal(), resource.getUri());
-        webView.loadUrl(executeScript);
+        mDashboardExecutor.execute();
     }
 
     private void showMenuItems() {

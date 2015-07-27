@@ -29,8 +29,8 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
-import com.jaspersoft.android.retrofit.sdk.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 

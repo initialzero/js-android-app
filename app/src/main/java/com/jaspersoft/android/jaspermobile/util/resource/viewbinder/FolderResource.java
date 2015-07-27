@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 
 /**
  * @author Andrew Tivodar

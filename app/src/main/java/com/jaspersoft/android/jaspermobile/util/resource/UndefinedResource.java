@@ -1,7 +1,5 @@
 package com.jaspersoft.android.jaspermobile.util.resource;
 
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceType;
-
 /**
  * @author Andrew Tivodar
  * @since 2.0
@@ -14,6 +12,6 @@ public class UndefinedResource extends JasperResource {
 
     @Override
     public JasperResourceType getResourceType() {
-        return null;
+        return JasperResourceType.undefined;
     }
 }

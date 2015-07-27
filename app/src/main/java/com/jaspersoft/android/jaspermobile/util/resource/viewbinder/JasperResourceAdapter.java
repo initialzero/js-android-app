@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 
 import java.util.ArrayList;
 import java.util.List;

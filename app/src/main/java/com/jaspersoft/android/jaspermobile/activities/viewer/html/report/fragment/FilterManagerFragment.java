@@ -109,7 +109,6 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     private ReportExecutionFragment reportExecutionFragment;
     private RequestExecutor requestExecutor;
     private ReportView reportView;
-    private ResourcePrintJob printJob;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -135,8 +134,11 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         saveReport.setVisible(mShowSaveAndPrintOption);
-        printReport.setVisible(mShowSaveAndPrintOption);
         showFilters.setVisible(mShowFilterOption);
+
+        if (printReport != null) {
+            printReport.setVisible(mShowSaveAndPrintOption);
+        }
     }
 
     @OptionsItem
@@ -252,7 +254,6 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
             boolean showFilterActionVisible = !inputControls.isEmpty();
             mShowFilterOption = showFilterActionVisible;
-            mShowSaveAndPrintOption = false;
             getActivity().supportInvalidateOptionsMenu();
 
             if (showFilterActionVisible) {

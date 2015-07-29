@@ -96,6 +96,8 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
 
 
     public void executeReport(ArrayList<ReportParameter> reportParameters) {
+        getFilterMangerFragment().disableSaveOption();
+
         ReportExecutionRequest executionData = prepareExecutionData(reportParameters);
         final RunReportExecutionRequest request = new RunReportExecutionRequest(jsRestClient, executionData);
         requestExecutor.execute(request, new RunReportExecutionListener(), new RequestExecutor.OnProgressDialogCancelListener() {
@@ -200,6 +202,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
                     handleEmptyReportEvent();
                 } else {
                     getFilterMangerFragment().makeSnapshot();
+                    getFilterMangerFragment().enableSaveOption();
                     paginationManagerFragment.paginateToCurrentSelection();
                     paginationManagerFragment.loadNextPageInBackground();
                 }

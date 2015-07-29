@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
@@ -50,7 +51,7 @@ public class AboutDialogFragment extends SimpleDialogFragment implements DialogI
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.sa_show_about);
         String message = getString(R.string.sa_about_info, BuildConfig.VERSION_NAME);
-        builder.setMessage(message);
+        builder.setMessage(Html.fromHtml(message));
         builder.setNeutralButton(R.string.ok, null);
 
         Dialog dialog = builder.create();

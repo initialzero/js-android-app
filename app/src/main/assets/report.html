@@ -4,10 +4,10 @@
     <title>TIBCO Jaspersoft</title>
     <script type="text/javascript" src="{{visualize_url}}"></script>
     {{#optimized}}
-        <script data-main="file:///android_asset/report-android-mobilejs-sdk.js" type="text/javascript" src="file:///android_asset/require.min.js"></script>
+        <script data-main="**injection**report-android-mobilejs-sdk.js" type="text/javascript" src="**injection**require.min.js"></script>
     {{/optimized}}
     {{^optimized}}
-        <script type="text/javascript" src="file:///android_asset/report-android-mobilejs-sdk.js"></script>
+        <script type="text/javascript" src="**injection**report-android-mobilejs-sdk.js"></script>
     {{/optimized}}
 </head>
 <body>

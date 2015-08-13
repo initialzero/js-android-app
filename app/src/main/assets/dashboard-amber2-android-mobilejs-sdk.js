@@ -200,6 +200,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this.container = dashboard.container();
         this._configureComponents();
         this._defineComponentsClickEvent();
+        this._setupFiltersApperance();
         return this.callback.onLoadDone(this.components);
       };
 
@@ -335,6 +336,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       };
 
       DashboardController.prototype._showDashlets = function() {
+        document.activeElement.blur();
         return this._getDashlets().css("opacity", 1);
       };
 
@@ -344,6 +346,22 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
             return _this.callback.onWindowError(errorMsg);
           };
         })(this);
+      };
+
+      DashboardController.prototype._setupFiltersApperance = function() {
+        var timeout;
+        js_mobile.log("setup filters appearence");
+        timeout = window.setTimeout((function(_this) {
+          return function() {
+            var divHeight;
+            divHeight = jQuery(".msPlaceholder > div").css("height");
+            if (divHeight !== 'undefined') {
+              window.clearInterval(timeout);
+              return jQuery(".msPlaceholder > div").css("height", "");
+            }
+          };
+        })(this), 500);
+        jQuery(".filterRow > div > div").css("height", "");
       };
 
       return DashboardController;

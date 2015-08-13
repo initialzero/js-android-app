@@ -345,6 +345,7 @@
       DashboardController.prototype.initialize = function() {
         this._setGlobalErrorListener();
         this._injectViewport();
+        this._overrideApplyButton();
         this.callback.onLoadStart();
         return jQuery(document).ready((function(_this) {
           return function() {
@@ -466,8 +467,12 @@
         dashlets = jQuery('.customOverlay');
         dashlets.unbind();
         self = this;
-        return dashlets.click(function() {
-          var dashlet, innerLabel, overlay, title;
+        return dashlets.click(function(event) {
+          var dashlet, innerLabel, overlay, targetClass, title;
+          targetClass = jQuery(event.target).attr('class');
+          if (targetClass !== 'overlay') {
+            return;
+          }
           overlay = jQuery(this);
           dashlet = overlay.parent();
           innerLabel = dashlet.find('.innerLabel > p');
@@ -525,6 +530,14 @@
             return _this.callback.onWindowError(errorMsg);
           };
         })(this);
+      };
+
+      DashboardController.prototype._overrideApplyButton = function() {
+        return jQuery(".applyButton").click((function(_this) {
+          return function() {
+            return _this.minimizeDashlet();
+          };
+        })(this));
       };
 
       return DashboardController;

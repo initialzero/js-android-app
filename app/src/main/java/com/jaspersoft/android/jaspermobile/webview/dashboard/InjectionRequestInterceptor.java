@@ -38,14 +38,10 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-public class DashboardRequestInterceptor implements JasperRequestInterceptor {
+public class InjectionRequestInterceptor implements JasperRequestInterceptor {
     public static final String INJECTION_TOKEN = "**injection**";
 
-    private DashboardRequestInterceptor() {}
-
-    public static DashboardRequestInterceptor newInstance() {
-        return new DashboardRequestInterceptor();
-    }
+    public InjectionRequestInterceptor() {}
 
     @Nullable
     @Override

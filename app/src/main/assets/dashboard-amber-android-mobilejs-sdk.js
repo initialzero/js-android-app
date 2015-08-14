@@ -468,11 +468,7 @@
         dashlets.unbind();
         self = this;
         return dashlets.click(function(event) {
-          var dashlet, innerLabel, overlay, targetClass, title;
-          targetClass = jQuery(event.target).attr('class');
-          if (targetClass !== 'overlay') {
-            return;
-          }
+          var dashlet, innerLabel, overlay, title;
           overlay = jQuery(this);
           dashlet = overlay.parent();
           innerLabel = dashlet.find('.innerLabel > p');

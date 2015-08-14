@@ -28,7 +28,7 @@ import android.accounts.Account;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -50,7 +50,7 @@ public class ScriptTagFactory {
     }
 
     public ScriptTagCreator getTagCreator(ResourceLookup resource) {
-        String token = DashboardRequestInterceptor.INJECTION_TOKEN;
+        String token = InjectionRequestInterceptor.INJECTION_TOKEN;
         if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
             return new EmeraldDashboardScriptTagCreator(token);
         }

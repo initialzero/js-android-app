@@ -56,7 +56,7 @@ import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.DashboardRequestInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -297,7 +297,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
                 .withDelegateListener(chromeClientListener);
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
                 .withDelegateListener(this)
-                .withInterceptor(DashboardRequestInterceptor.newInstance())
+                .withInterceptor(new InjectionRequestInterceptor())
                 .withUrlPolicy(defaultPolicy);
 
         WebViewEnvironment.configure(webView)

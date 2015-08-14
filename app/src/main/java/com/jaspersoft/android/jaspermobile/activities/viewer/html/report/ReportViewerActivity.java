@@ -83,6 +83,7 @@ import com.jaspersoft.android.jaspermobile.webview.TimeoutWebViewClientListener;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -591,6 +592,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
 
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+                .withInterceptor(new InjectionRequestInterceptor())
                 .withDelegateListener(clientListener)
                 .withUrlPolicy(defaultPolicy);
 

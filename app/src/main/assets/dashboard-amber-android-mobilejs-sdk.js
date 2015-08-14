@@ -718,14 +718,14 @@
 }).call(this);
 
 (function() {
-  define('js.mobile.debug_log', [],function() {
+  define('js.mobile.release_log', [],function() {
     var Log;
     return Log = (function() {
       function Log() {}
 
       Log.configure = function() {
         window.js_mobile = {};
-        return window.js_mobile.log = console.log.bind(console);
+        return window.js_mobile.log = function() {};
       };
 
       return Log;
@@ -736,12 +736,14 @@
 }).call(this);
 
 (function() {
-  require(['js.mobile.amber.android.dashboard.client', 'js.mobile.debug_log'], function(AndroidClient, Log) {
-    Log.configure();
-    return new AndroidClient().run();
+  require(['js.mobile.amber.android.dashboard.client', 'js.mobile.release_log'], function(AndroidClient, Log) {
+    return (function($) {
+      Log.configure();
+      return new AndroidClient().run();
+    })(jQuery);
   });
 
 }).call(this);
 
-define("android/dashboard/amber/debug_main.js", function(){});
+define("android/dashboard/amber/main.js", function(){});
 

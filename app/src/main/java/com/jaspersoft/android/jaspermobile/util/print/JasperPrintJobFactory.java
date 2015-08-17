@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -76,15 +76,15 @@ public final class JasperPrintJobFactory {
      * @return common abstraction around resource printing
      */
     public static ResourcePrintJob createDashboardPrintJob(WebView webView, ResourceLookup resource) {
-        if (resource.getResourceType() != ResourceLookup.ResourceType.dashboard) {
-            throw new IllegalArgumentException("Incorrect resource type. It should be 'dashboard' but was: " + String.valueOf(resource.getResourceType()));
+        if (resource.getResourceType() != ResourceLookup.ResourceType.dashboard && resource.getResourceType() != ResourceLookup.ResourceType.legacyDashboard) {
+            throw new IllegalArgumentException("Incorrect resource type. It should be 'dashboard' or 'legacyDashboard' but was: " + String.valueOf(resource.getResourceType()));
         }
 
         ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(webView.getContext());
         ServerRelease serverRelease = ServerRelease.parseVersion(serverInfoProvider.getServerVersion());
 
         String printName = resource.getLabel();
-        if (serverRelease.code() >= ServerRelease.AMBER.code()) {
+        if (resource.getResourceType() != ResourceLookup.ResourceType.legacyDashboard || serverRelease.code() >= ServerRelease.AMBER.code()) {
             return new DashboardPicturePrintJob(webView, printName);
         } else {
             return new DashboardWebViewPrintJob(webView, printName);

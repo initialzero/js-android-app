@@ -132,7 +132,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     @Override
     public void clear() {
         super.clear();
-        resetCurrentPosition();
+       // resetCurrentPosition();
     }
 
     private void alterFavoriteIcon() {

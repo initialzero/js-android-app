@@ -36,6 +36,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
@@ -124,6 +125,9 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         defineJasperAccountsState();
         updateActiveAccount();
         handleActiveAccountState();
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE);
 
         super.onCreate(savedInstanceState);
         addToolbar();

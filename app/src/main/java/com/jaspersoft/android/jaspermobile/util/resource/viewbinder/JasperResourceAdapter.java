@@ -1,8 +1,11 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
@@ -16,9 +19,12 @@ import java.util.List;
  */
 public class JasperResourceAdapter extends SelectableAdapter<String> {
 
+    private final static int LOADING_TYPE = -1;
+
     private OnResourceInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
     private ViewType viewType;
+    private boolean mNextPageIsLoading;
 
     public JasperResourceAdapter(List<JasperResource> jasperResources, ViewType viewType) {
         if (jasperResources != null) {
@@ -27,10 +33,16 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
             this.jasperResources = new ArrayList<>();
         }
         this.viewType = viewType;
+        mNextPageIsLoading = true;
     }
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int resourceType) {
+        if (resourceType == LOADING_TYPE) {
+            View itemView = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.item_resource_list_loading, parent, false);
+            return new LoadingViewHolder(itemView);
+        }
         ResourceViewBinder resourceViewBinder = getResViewBinderForResType(parent.getContext(), JasperResourceType.values()[resourceType], viewType);
         BaseViewHolder itemViewHolder = resourceViewBinder.buildViewHolder(parent);
         itemViewHolder.setOnItemInteractionListener(new OnResourceItemClickListener());
@@ -39,17 +51,27 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
 
     @Override
     public void onBindViewHolder(BaseViewHolder baseViewHolder, int position) {
+        if (position == jasperResources.size()) {
+            return;
+        }
         boolean isSelected = mResourceSelector != null && mResourceSelector.isSelected(position);
         baseViewHolder.populateView(jasperResources.get(position), isSelected);
     }
 
     @Override
     public int getItemCount() {
-        return jasperResources.size();
+        int itemCount = jasperResources.size();
+        if (mNextPageIsLoading && itemCount != 0) {
+            itemCount++;
+        }
+        return itemCount;
     }
 
     @Override
     public int getItemViewType(int position) {
+        if (position >= jasperResources.size()) {
+            return LOADING_TYPE;
+        }
         JasperResource resource = jasperResources.get(position);
         return resource.getResourceType().ordinal();
     }
@@ -65,7 +87,15 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
 
     public void clear() {
         jasperResources = new ArrayList<>();
+        mNextPageIsLoading = true;
         notifyDataSetChanged();
+    }
+
+    public void hideLoading() {
+        if (mNextPageIsLoading) {
+            mNextPageIsLoading = false;
+            notifyDataSetChanged();
+        }
     }
 
     private ResourceViewBinder getResViewBinderForResType(Context context, JasperResourceType jasperResourceType, ViewType viewType) {
@@ -115,6 +145,18 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
             if (mResourceSelector != null) {
                 mResourceSelector.changeSelectedState(position);
             }
+        }
+    }
+
+    private class LoadingViewHolder extends BaseViewHolder {
+
+        public LoadingViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        @Override
+        public void populateView(JasperResource resource, boolean isSelected) {
+
         }
     }
 }

@@ -333,10 +333,14 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     }
 
     private void loadNextPage() {
-        if (!mLoading && hasNextPage()) {
-            mSearchCriteria.setOffset(calculateNextOffset());
-            mLoaderState = LOAD_FROM_CACHE;
-            loadResources(mLoaderState);
+        if (!mLoading) {
+            if (hasNextPage()) {
+                mSearchCriteria.setOffset(calculateNextOffset());
+                mLoaderState = LOAD_FROM_CACHE;
+                loadResources(mLoaderState);
+            } else {
+                mAdapter.hideLoading();
+            }
         }
     }
 
@@ -352,10 +356,17 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
 
-        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
-        long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
+        final GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
+        final long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
+
+        android.os.Handler handler = new android.os.Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
+            }
+        }, 2000);
     }
 
     private void showEmptyText(int resId) {

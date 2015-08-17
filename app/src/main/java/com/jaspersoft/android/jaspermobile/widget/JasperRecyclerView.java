@@ -62,7 +62,7 @@ public class JasperRecyclerView extends RecyclerView {
     }
 
     public void setViewType(ViewType viewType) {
-        RecyclerView.LayoutManager listLayoutManager;
+        final RecyclerView.LayoutManager listLayoutManager;
         removeItemDecoration(decoration);
 
         if (viewType == ViewType.LIST) {
@@ -70,6 +70,17 @@ public class JasperRecyclerView extends RecyclerView {
             decoration = new DividerListItemDecoration();
         } else {
             listLayoutManager = new GridLayoutManager(getContext(), MIN_COLUMN_COUNT);
+            ((GridLayoutManager) listLayoutManager).setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    RecyclerView.Adapter adapter = getAdapter();
+                    if (adapter != null) {
+                        return adapter.getItemCount() == position + 1 ? ((GridLayoutManager) listLayoutManager).getSpanCount() : 1 ;
+
+                    }
+                    return 1;
+                }
+            });
             decoration = new DividerGridItemDecoration(MIN_COLUMN_COUNT);
         }
 

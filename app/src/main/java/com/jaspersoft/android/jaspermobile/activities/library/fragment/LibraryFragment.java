@@ -361,12 +361,7 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
 
         android.os.Handler handler = new android.os.Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
-            }
-        }, 2000);
+        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
     private void showEmptyText(int resId) {

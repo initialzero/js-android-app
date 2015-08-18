@@ -51,7 +51,8 @@
         android:name=".JasperMobileApplication_"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
-        android:theme="@style/Theme.JasperMobile" >
+        android:theme="@style/Theme.JasperMobile"
+        android:allowBackup="false">
         <meta-data
             android:name="roboguice.modules"
             android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule" />

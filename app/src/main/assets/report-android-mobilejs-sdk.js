@@ -368,7 +368,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       ReportController.prototype.selectPage = function(page) {
         if (this.report != null) {
-          return this.report.pages(page).run();
+          return this.report.pages(page).run().done(this._notifyPageChange).fail(this._notifyPageChange);
         }
       };
 

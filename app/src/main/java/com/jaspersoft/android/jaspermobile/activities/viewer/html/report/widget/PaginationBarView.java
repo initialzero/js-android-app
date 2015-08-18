@@ -78,6 +78,13 @@ public class PaginationBarView extends AbstractPaginationView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        alterControlStates();
+    }
+
     @AfterViews
     final void init() {
         currentPageLabel.setText(String.valueOf(getCurrentPage()));
@@ -123,7 +130,7 @@ public class PaginationBarView extends AbstractPaginationView {
             progressLayout.setVisibility(View.GONE);
             totalPageLabel.setVisibility(View.VISIBLE);
             totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
-            lastPage.setEnabled(getCurrentPage() != getTotalPages());
+            lastPage.setEnabled(isEnabled() && getCurrentPage() != getTotalPages());
         } else {
             progressLayout.setVisibility(View.VISIBLE);
             totalPageLabel.setVisibility(View.GONE);
@@ -138,10 +145,11 @@ public class PaginationBarView extends AbstractPaginationView {
         boolean isCurrentPageFirst = getCurrentPage() == FIRST_PAGE;
         boolean isCurrentPageLast = getCurrentPage() == getTotalPages();
 
-        previousPage.setEnabled(!isCurrentPageFirst);
-        firstPage.setEnabled(!isCurrentPageFirst);
-        nextPage.setEnabled(!isCurrentPageLast);
-        lastPage.setEnabled(!isCurrentPageLast && isTotalPagesLoaded());
+        previousPage.setEnabled(isEnabled() && !isCurrentPageFirst);
+        firstPage.setEnabled(isEnabled() && !isCurrentPageFirst);
+        nextPage.setEnabled(isEnabled() && !isCurrentPageLast);
+        lastPage.setEnabled(isEnabled() && !isCurrentPageLast && isTotalPagesLoaded());
+        currentPageLabel.setEnabled(isEnabled());
     }
 
 }

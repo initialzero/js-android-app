@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class JasperResourceAdapter extends SelectableAdapter<String> {
 
-    private final static int LOADING_TYPE = -1;
+    public final static int LOADING_TYPE = -1;
 
     private OnResourceInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
@@ -33,7 +33,6 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
             this.jasperResources = new ArrayList<>();
         }
         this.viewType = viewType;
-        mNextPageIsLoading = true;
     }
 
     @Override
@@ -81,21 +80,24 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
     }
 
     public void addAll(List<JasperResource> jasperResources) {
+        int pos = this.jasperResources.size();
         this.jasperResources.addAll(jasperResources);
-        notifyDataSetChanged();
+        notifyItemRangeInserted(pos, jasperResources.size());
     }
 
     public void clear() {
         jasperResources = new ArrayList<>();
-        mNextPageIsLoading = true;
         notifyDataSetChanged();
     }
 
+    public void showLoading() {
+        mNextPageIsLoading = true;
+        notifyItemInserted(jasperResources.size());
+    }
+
     public void hideLoading() {
-        if (mNextPageIsLoading) {
-            mNextPageIsLoading = false;
-            notifyDataSetChanged();
-        }
+        mNextPageIsLoading = false;
+        notifyItemInserted(jasperResources.size());
     }
 
     private ResourceViewBinder getResViewBinderForResType(Context context, JasperResourceType jasperResourceType, ViewType viewType) {

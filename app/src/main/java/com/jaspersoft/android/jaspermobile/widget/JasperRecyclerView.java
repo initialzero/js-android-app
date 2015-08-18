@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.DividerGridItemDecoration;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.DividerListItemDecoration;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 
 /**
  * @author Andrew Tivodar
@@ -75,8 +76,7 @@ public class JasperRecyclerView extends RecyclerView {
                 public int getSpanSize(int position) {
                     RecyclerView.Adapter adapter = getAdapter();
                     if (adapter != null) {
-                        return adapter.getItemCount() == position + 1 ? ((GridLayoutManager) listLayoutManager).getSpanCount() : 1 ;
-
+                        return adapter.getItemViewType(position) == JasperResourceAdapter.LOADING_TYPE ? ((GridLayoutManager) listLayoutManager).getSpanCount() : 1 ;
                     }
                     return 1;
                 }

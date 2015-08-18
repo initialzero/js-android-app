@@ -370,6 +370,9 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         mLoading = refreshing;
         if (!refreshing) {
             swipeRefreshLayout.setRefreshing(false);
+            mAdapter.hideLoading();
+        } else {
+            mAdapter.showLoading();
         }
     }
 

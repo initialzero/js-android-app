@@ -333,14 +333,10 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     }
 
     private void loadNextPage() {
-        if (!mLoading) {
-            if (hasNextPage()) {
-                mSearchCriteria.setOffset(calculateNextOffset());
-                mLoaderState = LOAD_FROM_CACHE;
-                loadResources(mLoaderState);
-            } else {
-                mAdapter.hideLoading();
-            }
+        if (!mLoading && hasNextPage()) {
+            mSearchCriteria.setOffset(calculateNextOffset());
+            mLoaderState = LOAD_FROM_CACHE;
+            loadResources(mLoaderState);
         }
     }
 
@@ -359,8 +355,6 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         final GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
         final long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-
-        android.os.Handler handler = new android.os.Handler();
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
@@ -374,6 +368,9 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         mLoading = refreshing;
         if (!refreshing) {
             swipeRefreshLayout.setRefreshing(false);
+            mAdapter.hideLoading();
+        } else {
+            mAdapter.showLoading();
         }
     }
 

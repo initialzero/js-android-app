@@ -63,6 +63,7 @@
 
     <!-- Repository Activity -->
     <string name="r_browser_nothing_to_display">There are no resources in this folder.</string>
+    <string name="r_library_nothing_to_display" translatable="false">There is no resource here.</string>
     <string name="r_search_nothing_to_display">No items match your search.</string>
 
     <!-- Action Bar -->

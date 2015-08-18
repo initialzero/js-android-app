@@ -258,7 +258,7 @@ public class RecentFragment extends RoboSpiceFragment
             // set refresh states
             setRefreshState(false);
             // If need we show 'empty' message
-            showEmptyText(R.string.r_browser_nothing_to_display);
+            showEmptyText(R.string.r_library_nothing_to_display);
         }
     }
 

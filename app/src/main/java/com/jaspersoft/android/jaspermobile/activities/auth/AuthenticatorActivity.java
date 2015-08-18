@@ -28,7 +28,8 @@ import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
-import android.view.WindowManager;
+
+import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
 
 import roboguice.activity.RoboFragmentActivity;
 
@@ -37,6 +38,8 @@ import roboguice.activity.RoboFragmentActivity;
  * @since 2.0
  */
 public class AuthenticatorActivity extends RoboFragmentActivity {
+    private ActivitySecureDelegate mActivitySecureDelegate;
+
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
 
@@ -59,11 +62,12 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mActivitySecureDelegate = ActivitySecureDelegate.create(this);
+
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
-                WindowManager.LayoutParams.FLAG_SECURE);
+        mActivitySecureDelegate.onCreate(savedInstanceState);
 
         mAccountAuthenticatorResponse =
                 getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);

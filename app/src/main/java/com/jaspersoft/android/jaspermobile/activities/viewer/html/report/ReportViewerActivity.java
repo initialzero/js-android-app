@@ -500,6 +500,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
+    public void onPageLoadError(String errorMessage, int page) {
+        paginationControl.updateCurrentPage(page);
+        paginationControl.setEnabled(true);
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @UiThread
+    @Override
     public void onReferenceClick(String location) {
         String title = getString(R.string.rv_open_link_chooser);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(location));

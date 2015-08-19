@@ -80,6 +80,7 @@
       extend(ReportCallback, superClass);
 
       function ReportCallback() {
+        this.onPageLoadError = bind(this.onPageLoadError, this);
         this.onWindowError = bind(this.onWindowError, this);
         this.onMultiPageStateObtained = bind(this.onMultiPageStateObtained, this);
         this.onRefreshError = bind(this.onRefreshError, this);
@@ -172,6 +173,12 @@
       ReportCallback.prototype.onWindowError = function(message) {
         this.dispatch(function() {
           return Android.onWindowError(message);
+        });
+      };
+
+      ReportCallback.prototype.onPageLoadError = function(error, page) {
+        this.dispatch(function() {
+          return Android.onPageLoadError(error, page);
         });
       };
 
@@ -326,6 +333,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this._parseServerVersion = bind(this._parseServerVersion, this);
         this._getServerVersion = bind(this._getServerVersion, this);
         this._exportResource = bind(this._exportResource, this);
+        this._notifyPageChangeError = bind(this._notifyPageChangeError, this);
         this._notifyPageChange = bind(this._notifyPageChange, this);
         this._openRemoteLink = bind(this._openRemoteLink, this);
         this._navigateToPage = bind(this._navigateToPage, this);
@@ -368,7 +376,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       ReportController.prototype.selectPage = function(page) {
         if (this.report != null) {
-          return this.report.pages(page).run().done(this._notifyPageChange).fail(this._notifyPageChange);
+          return this.report.pages(page).run().done(this._notifyPageChange).fail(this._notifyPageChangeError);
         }
       };
 
@@ -533,6 +541,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       ReportController.prototype._notifyPageChange = function() {
         return this.callback.onPageChange(parseInt(this.report.pages()));
+      };
+
+      ReportController.prototype._notifyPageChangeError = function(error) {
+        return this.callback.onPageLoadError(error.message, parseInt(this.report.pages()));
       };
 
       ReportController.prototype._exportReport = function(format) {

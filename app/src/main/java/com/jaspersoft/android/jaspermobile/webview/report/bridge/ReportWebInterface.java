@@ -168,4 +168,15 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
         }
     }
 
+    @JavascriptInterface
+    @Override
+    public void onPageLoadError(final String errorMessage, final int page) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onPageLoadError(errorMessage, page);
+            }
+        });
+    }
+
 }

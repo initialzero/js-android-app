@@ -102,6 +102,10 @@
             android:name=".activities.viewer.html.SavedReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
+        <activity
+            android:theme="@style/Theme.JasperMobile.NoToolbar"
+            android:name=".activities.info.ResourceInfoActivity_"/>
+
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.dashboard.Amber2DashboardActivity_"

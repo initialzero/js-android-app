@@ -31,4 +31,10 @@
         <attr name="windowToolbar" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="ProportionalRelativeLayout">
+        <attr name="widthToHeightRatio" format="float" />
+        <attr name="widthPercent" format="float" />
+        <attr name="heightPercent" format="float" />
+    </declare-styleable>
+
 </resources>

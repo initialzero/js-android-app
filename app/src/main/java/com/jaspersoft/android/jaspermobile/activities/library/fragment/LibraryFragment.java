@@ -44,6 +44,7 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
@@ -233,8 +234,9 @@ public class LibraryFragment extends RoboSpiceFragment
 
     @ItemClick(android.R.id.list)
     public void onItemClick(ResourceLookup resource) {
-        mAdapter.finishActionMode();
-        resourceOpener.openResource(this, resource);
+        ResourceInfoActivity_.intent(getActivity())
+                .resourceLookup(resource)
+                .start();
     }
 
     //---------------------------------------------------------------------

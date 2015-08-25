@@ -26,10 +26,17 @@ public class ResourceInfoActivity extends RoboToolbarActivity {
         super.onCreate(savedInstanceState);
 
         Fragment resourceInfoFragment = getSupportFragmentManager().findFragmentByTag(ResourceInfoFragment.TAG);
+
         if (resourceInfoFragment == null) {
-            resourceInfoFragment = ResourceInfoFragment_.builder()
-                    .resourceLookup(resourceLookup)
-                    .build();
+            if (resourceLookup.getResourceType() == ResourceLookup.ResourceType.reportUnit) {
+                resourceInfoFragment = ReportInfoFragment_.builder()
+                        .resourceLookup(resourceLookup)
+                        .build();
+            } else {
+                resourceInfoFragment = ResourceInfoFragment_.builder()
+                        .resourceLookup(resourceLookup)
+                        .build();
+            }
         }
         commitContent(resourceInfoFragment, ResourceInfoFragment.TAG);
     }

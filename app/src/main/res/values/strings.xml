@@ -110,6 +110,15 @@
     <string name="ro_run_report_btn">Run Report</string>
     <string name="ro_page_title">Filter Options</string>
 
+    <!-- Resource Info Activity -->
+    <string name="ri_report_option_title">Report options:</string>
+    <string name="ri_type_title">Type:</string>
+    <string name="ri_label_title">Label:</string>
+    <string name="ri_description_title">Description:</string>
+    <string name="ri_uri_title">URI:</string>
+    <string name="ri_modified_title">Modified date:</string>
+    <string name="ri_creation_title">Creation date:</string>
+
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
     <string name="rv_ab_show_filters">Show Filters</string>

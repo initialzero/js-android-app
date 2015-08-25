@@ -1,30 +1,29 @@
 package com.jaspersoft.android.jaspermobile.activities.info;
 
-import android.accounts.Account;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceViewHelper;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.OptionsMenu;
+
+import java.util.ArrayList;
 
 import roboguice.inject.InjectView;
 
@@ -47,23 +46,70 @@ public class ResourceInfoFragment extends RoboSpiceFragment {
     @InjectView(R.id.info_collapsing_toolbar)
     protected CollapsingToolbarLayout toolbarLayout;
 
+    @InjectView(R.id.ri_report_option)
+    protected Spinner reportOption;
+
+    @InjectView(R.id.ri_type)
+    protected TextView resType;
+
+    @InjectView(R.id.ri_label)
+    protected TextView resLabel;
+
+    @InjectView(R.id.ri_descritpion)
+    protected TextView resDescription;
+
+    @InjectView(R.id.ri_uri)
+    protected TextView resUri;
+
+    @InjectView(R.id.ri_modified_date)
+    protected TextView resModidiedDate;
+
+    @InjectView(R.id.ri_creation_date)
+    protected TextView resCreationDate;
+
     @Inject
     protected JsRestClient jsRestClient;
 
-    private  boolean isAmberOrHigher;
+    private ResourceViewHelper viewHelper;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(getActivity(), account);
-        ServerRelease serverRelease = ServerRelease.parseVersion(serverData.getVersionName());
-        isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
-
         setToolbar(view);
-        toolbarLayout.setTitle(resourceLookup.getLabel());
-        showImage();
+
+        showReportOptions();
+        fillWithData();
+
+        viewHelper = new ResourceViewHelper(getActivity());
+        viewHelper.populateView(new InfoHeaderView(toolbarImage, toolbarLayout), resourceLookup);
+    }
+
+    private void fillWithData() {
+        resType.setText(resourceLookup.getResourceType().toString());
+        resLabel.setText(resourceLookup.getLabel());
+        resDescription.setText(resourceLookup.getDescription());
+        resUri.setText(resourceLookup.getUri());
+        resModidiedDate.setText(resourceLookup.getUpdateDate());
+        resCreationDate.setText(resourceLookup.getCreationDate());
+    }
+
+    private void showReportOptions() {
+        ArrayList<String> reportOptions = new ArrayList<>();
+        reportOptions.add("New report options");
+        reportOptions.add("Test option");
+
+        // It's a hack to make spinner width as a selected item width
+        ArrayAdapter<String> reportOptionAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, reportOptions) {
+            @Override
+            public View getView(final int position, final View convertView,
+                                final ViewGroup parent) {
+                int selectedItemPosition = reportOption.getSelectedItemPosition();
+                return super.getView(selectedItemPosition, convertView, parent);
+            }
+        };
+        reportOptionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        reportOption.setAdapter(reportOptionAdapter);
     }
 
     private void setToolbar(View infoView) {
@@ -78,33 +124,6 @@ public class ResourceInfoFragment extends RoboSpiceFragment {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_close);
         }
-    }
-
-    private void showImage(){
-        loadFromNetwork(toolbarImage, resourceLookup.getUri());
-        toolbarImage.setScaleType(TopCropImageView.ScaleType.TOP_CROP);
-        toolbarImage.setBackgroundResource(R.drawable.bg_gradient_blue);
-    }
-
-    private void loadFromNetwork(ImageView imageView, String uri) {
-        String path = "";
-        if (isAmberOrHigher) {
-            path = jsRestClient.generateThumbNailUri(uri);
-        }
-        ImageLoader.getInstance().displayImage(
-                path, imageView, getDisplayImageOptions()
-        );
-    }
-
-    private DisplayImageOptions getDisplayImageOptions() {
-        return new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.drawable.placeholder_report)
-                .showImageForEmptyUri(R.drawable.placeholder_report)
-                .considerExifParams(true)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .build();
     }
 
 }

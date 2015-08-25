@@ -27,6 +27,7 @@
 
     <color name="light_shadow">#55000000</color>
     <color name="dark_shadow">#cc000000</color>
+    <color name="list_divider">#1effffff</color>
 
     <!-- Primary Palette -->
     <color name="js_blue_with_opacity">#990099cc</color>

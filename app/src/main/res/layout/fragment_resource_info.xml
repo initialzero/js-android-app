@@ -14,14 +14,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:contentScrim="@color/js_gray"
+            app:expandedTitleMarginEnd="24dp"
+            app:expandedTitleMarginStart="24dp"
+            app:expandedTitleTextAppearance="@style/Widget.JasperMobile.TextView.Info"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <com.jaspersoft.android.jaspermobile.widget.ProportionalRelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
-                app:widthToHeightRatio="0.66"
-                app:layout_collapseMode="parallax">
+                app:layout_collapseMode="parallax"
+                app:widthToHeightRatio="0.66">
 
                 <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
                     android:id="@+id/toolbarImageView"
@@ -39,6 +42,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:background="@android:color/transparent"
                 app:layout_collapseMode="pin" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
@@ -46,38 +50,87 @@
     </android.support.design.widget.AppBarLayout>
 
     <!-- CONTENT-->
-    <RelativeLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="@dimen/info_content_side_margin_port"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v4.widget.NestedScrollView
+        <LinearLayout
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <RelativeLayout xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            <android.support.v7.widget.CardView
+                style="@style/CardView.Auth"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                card_view:cardBackgroundColor="@color/js_dark_gray"
+                card_view:cardCornerRadius="3dp"
+                card_view:cardElevation="4dp">
 
-                <android.support.v7.widget.CardView
-                    style="@style/CardView.Auth.Container"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="2000dp"
-                    android:layout_margin="8dp"
-                    card_view:cardBackgroundColor="@color/js_dark_gray"
-                    card_view:cardCornerRadius="2dp"
-                    card_view:cardElevation="4dp" />
+                    android:layout_height="match_parent"
+                    android:padding="8dp">
 
-            </RelativeLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_toLeftOf="@+id/btn_run">
 
-        </android.support.v4.widget.NestedScrollView>
+                        <TextView
+                            android:id="@+id/ri_report_option_title"
+                            style="@style/inputControl.label"
+                            android:text="@string/ri_report_option_title" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@drawable/shadow_light" />
+                        <Spinner
+                            android:id="@+id/ri_report_option"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
 
-    </RelativeLayout>
+                    <ImageButton
+                        android:id="@+id/btn_run"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_menu_run_report" />
 
+                </RelativeLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                style="@style/CardView.Auth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                card_view:cardBackgroundColor="@color/js_dark_gray"
+                card_view:cardCornerRadius="3dp"
+                card_view:cardElevation="4dp"
+                android:layout_marginTop="-4dp">
+
+                <include
+                    layout="@layout/view_info_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="8dp"/>
+
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@drawable/shadow_light"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -38,9 +38,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.security.ProviderInstaller;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
@@ -54,7 +57,7 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-public class RoboToolbarActivity extends RoboActionBarActivity {
+public class RoboToolbarActivity extends RoboActionBarActivity implements SimpleDialogFragment.SimpleDialogClickListener{
 
     private static final String TAG = RoboToolbarActivity.class.getSimpleName();
     private static final int AUTHORIZE_CODE = 10;
@@ -164,6 +167,15 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         }
         updateAccountDependentUi();
     }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        //Update the security provider
+        ProviderInstaller.installIfNeededAsync(this, new ProviderInstallListener());
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -309,6 +321,44 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         startActivity(i);
     }
 
+    private void showGooglePlayServicesUpdateDialog(Intent intent){
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setTitle("Update Google Play services")
+                .setMessage("Security provider cannot be updated. All HTTP communication will be vulnerable. Update Google Play services?")
+                .setPositiveButtonText("Update")
+                .setNegativeButtonText("No, thanks")
+                .setRequestCode(1)
+                .show();
+    }
+
+    private void showServiceProviderUpdateErrorDialog(){
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setTitle("Security provider cannot be updated")
+                .setMessage("All HTTP communication will be vulnerable. Continue to use app anywhere?")
+                .setPositiveButtonText("Yes")
+                .setNegativeButtonText("Quit")
+                .setRequestCode(2)
+                .show();
+    }
+
+    @Override
+    public void onPositiveClick(int requestCode) {
+        if (requestCode == 1) {
+            // update services
+        } else {
+            // persist answer
+        }
+    }
+
+    @Override
+    public void onNegativeClick(int requestCode) {
+        if (requestCode == 1) {
+            // persist answer
+        } else {
+            //close app
+        }
+    }
+
     protected void onActiveAccountChanged() {
         restartApp();
     }
@@ -318,5 +368,27 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     public enum JasperAccountsStatus {
         NO_CHANGES, ANY_ACCOUNT_CHANGED, NO_ACTIVE_ACCOUNT, ACTIVE_ACCOUNT_CHANGED, NO_ACCOUNTS
+    }
+
+    private class ProviderInstallListener implements ProviderInstaller.ProviderInstallListener {
+
+        @Override
+        public void onProviderInstalled() {
+            // Provider is up-to-date, app can make secure network calls.
+        }
+
+        @Override
+        public void onProviderInstallFailed(int errorCode, Intent intent) {
+            GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+            if (googleApiAvailability.isUserResolvableError(errorCode)) {
+                // Recoverable error. Show a dialog prompting the user to
+                // install/update/enable Google Play services.
+                showGooglePlayServicesUpdateDialog(intent);
+            } else {
+                // Google Play services is not available.
+                showServiceProviderUpdateErrorDialog();
+            }
+
+        }
     }
 }

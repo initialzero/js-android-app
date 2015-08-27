@@ -41,14 +41,17 @@ import android.widget.FrameLayout;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
 import org.roboguice.shaded.goole.common.collect.Lists;
 
+import roboguice.RoboGuice;
 import roboguice.activity.RoboActionBarActivity;
 import timber.log.Timber;
 
@@ -74,6 +77,9 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
     private boolean windowToolbar;
+
+    @Inject
+    protected SecurityProviderUpdater mSecurityProviderUpdater;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
@@ -124,14 +130,15 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Close activity if flag CLOSE_APP_REQUEST_CODE is active
+        RoboGuice.getInjector(this).injectMembersWithoutViews(this);
 
+        // Close activity if flag CLOSE_APP_REQUEST_CODE is active
         if (getIntent().getBooleanExtra(CLOSE_APP_REQUEST_CODE, false)) {
             finish();
         }
 
         // Lets update Security provider
-        ProviderInstaller.installIfNeededAsync(this, new ProviderInstallListener());
+        mSecurityProviderUpdater.update(this, new ProviderInstallListener());
 
         // Lets check account to be properly setup
         mJasperAccountManager = JasperAccountManager.get(this);
@@ -191,10 +198,9 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
         if (mSecureProviderDialogShown) {
             // We can now safely retry Security provider installation.
-            ProviderInstaller.installIfNeededAsync(this, new ProviderInstallListener());
+            mSecurityProviderUpdater.update(this, new ProviderInstallListener());
         }
     }
-
 
     @Override
     protected void onDestroy() {

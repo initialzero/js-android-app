@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.robospice;
 import android.accounts.Account;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -43,7 +44,6 @@ import com.google.android.gms.security.ProviderInstaller;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
@@ -57,16 +57,19 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-public class RoboToolbarActivity extends RoboActionBarActivity implements SimpleDialogFragment.SimpleDialogClickListener{
+public class RoboToolbarActivity extends RoboActionBarActivity {
 
     private static final String TAG = RoboToolbarActivity.class.getSimpleName();
     private static final int AUTHORIZE_CODE = 10;
+    private static final int SECURITY_PROVIDER_DIALOG_REQUEST_CODE = 1123;
+    private static final String CLOSE_APP_REQUEST_CODE = "close_app";
 
     private Toolbar toolbar;
     private FrameLayout toolbarCustomView;
     private View baseView;
     private ViewGroup contentLayout;
 
+    private boolean mSecureProviderDialogShown;
     private JasperAccountManager mJasperAccountManager;
     private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
@@ -80,7 +83,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity implements Simple
             defineJasperAccountsState();
         }
     };
-
 
     public boolean isDevMode() {
         return BuildConfig.DEBUG && BuildConfig.FLAVOR.equals("dev");
@@ -122,6 +124,15 @@ public class RoboToolbarActivity extends RoboActionBarActivity implements Simple
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Close activity if flag CLOSE_APP_REQUEST_CODE is active
+
+        if (getIntent().getBooleanExtra(CLOSE_APP_REQUEST_CODE, false)) {
+            finish();
+        }
+
+        // Lets update Security provider
+        ProviderInstaller.installIfNeededAsync(this, new ProviderInstallListener());
+
         // Lets check account to be properly setup
         mJasperAccountManager = JasperAccountManager.get(this);
         defineJasperAccountsState();
@@ -150,6 +161,12 @@ public class RoboToolbarActivity extends RoboActionBarActivity implements Simple
             } else {
                 finish();
             }
+        } else if (requestCode == SECURITY_PROVIDER_DIALOG_REQUEST_CODE) {
+            // Adding a fragment via GoogleApiAvailability.showErrorDialogFragment
+            // before the instance state is restored throws an error. So instead,
+            // set a flag here, which will cause the fragment to delay until
+            // onPostResume.
+            mSecureProviderDialogShown = true;
         }
     }
 
@@ -172,8 +189,10 @@ public class RoboToolbarActivity extends RoboActionBarActivity implements Simple
     protected void onPostResume() {
         super.onPostResume();
 
-        //Update the security provider
-        ProviderInstaller.installIfNeededAsync(this, new ProviderInstallListener());
+        if (mSecureProviderDialogShown) {
+            // We can now safely retry Security provider installation.
+            ProviderInstaller.installIfNeededAsync(this, new ProviderInstallListener());
+        }
     }
 
 
@@ -321,42 +340,11 @@ public class RoboToolbarActivity extends RoboActionBarActivity implements Simple
         startActivity(i);
     }
 
-    private void showGooglePlayServicesUpdateDialog(Intent intent){
-        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setTitle("Update Google Play services")
-                .setMessage("Security provider cannot be updated. All HTTP communication will be vulnerable. Update Google Play services?")
-                .setPositiveButtonText("Update")
-                .setNegativeButtonText("No, thanks")
-                .setRequestCode(1)
-                .show();
-    }
-
-    private void showServiceProviderUpdateErrorDialog(){
-        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setTitle("Security provider cannot be updated")
-                .setMessage("All HTTP communication will be vulnerable. Continue to use app anywhere?")
-                .setPositiveButtonText("Yes")
-                .setNegativeButtonText("Quit")
-                .setRequestCode(2)
-                .show();
-    }
-
-    @Override
-    public void onPositiveClick(int requestCode) {
-        if (requestCode == 1) {
-            // update services
-        } else {
-            // persist answer
-        }
-    }
-
-    @Override
-    public void onNegativeClick(int requestCode) {
-        if (requestCode == 1) {
-            // persist answer
-        } else {
-            //close app
-        }
+    private void closeApp() {
+        Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.putExtra(CLOSE_APP_REQUEST_CODE, true);
+        startActivity(i);
     }
 
     protected void onActiveAccountChanged() {
@@ -380,13 +368,23 @@ public class RoboToolbarActivity extends RoboActionBarActivity implements Simple
         @Override
         public void onProviderInstallFailed(int errorCode, Intent intent) {
             GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
-            if (googleApiAvailability.isUserResolvableError(errorCode)) {
+            if (googleApiAvailability.isUserResolvableError(errorCode) && !mSecureProviderDialogShown) {
                 // Recoverable error. Show a dialog prompting the user to
                 // install/update/enable Google Play services.
-                showGooglePlayServicesUpdateDialog(intent);
+                googleApiAvailability.showErrorDialogFragment(
+                        RoboToolbarActivity.this,
+                        errorCode,
+                        SECURITY_PROVIDER_DIALOG_REQUEST_CODE,
+                        new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                // The user chose not to take the recovery action
+                                closeApp();
+                            }
+                        });
             } else {
                 // Google Play services is not available.
-                showServiceProviderUpdateErrorDialog();
+                closeApp();
             }
 
         }

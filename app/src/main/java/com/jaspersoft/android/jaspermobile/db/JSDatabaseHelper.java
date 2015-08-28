@@ -30,7 +30,6 @@ import android.database.sqlite.SQLiteDatabase;
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
 import com.jaspersoft.android.jaspermobile.db.migrate.v2.MigrationV2;
 import com.jaspersoft.android.jaspermobile.db.migrate.v3.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.seed.AccountSeed;
 
 /**
  * @author Tom Koptel
@@ -45,12 +44,6 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        super.onCreate(db);
-        AccountSeed.seed(mContext);
-    }
-
-    @Override
     public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         executePragmas(db);
         switch (oldVersion) {
@@ -62,5 +55,4 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 break;
         }
     }
-
 }

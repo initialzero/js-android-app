@@ -32,9 +32,20 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+
+import java.lang.reflect.Type;
+import java.util.List;
+
+import rx.Observable;
+import rx.functions.Action0;
+import rx.functions.Action1;
+import rx.functions.Actions;
+import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
@@ -46,6 +57,7 @@ public class UtilReceiver extends BroadcastReceiver {
     private static final String REMOVE_ALL_ACCOUNTS = "jaspermobile.util.action.REMOVE_ALL_ACCOUNTS";
     private static final String DOWNGRADE_SERVER_VERSION = "jaspermobile.util.action.DOWNGRADE_SERVER_VERSION";
     private static final String CHANGE_SERVER_EDITION = "jaspermobile.util.action.CHANGE_SERVER_EDITION";
+    private static final String LOAD_PROFILES = "jaspermobile.util.action.LOAD_PROFILES";
 
     private static final String INVALID_COOKIE = "JSESSIONID=5513E1DE5437AE6B9F41CC5C8309B153; " +
             "Path=/jasperserver-pro/; HttpOnlyuserLocale=en_US;Expires=Sat, 23-May-2015 09:15:46 GMT;HttpOnly";
@@ -65,6 +77,8 @@ public class UtilReceiver extends BroadcastReceiver {
         } else if (action.equals(CHANGE_SERVER_EDITION)) {
             changeServerVersion(context, intent);
             overrideTokenWithOldOne(context);
+        } else if (action.equals(LOAD_PROFILES)) {
+            loadProfiles(context, intent);
         }
     }
 
@@ -123,5 +137,39 @@ public class UtilReceiver extends BroadcastReceiver {
                 Toast.makeText(context, "Server edition was changed: " + editionName, Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void loadProfiles(final Context context, Intent intent) {
+        String json  = intent.getStringExtra("source_json");
+        if (TextUtils.isEmpty(json)) {
+            Toast.makeText(context, "Source json is missing", Toast.LENGTH_SHORT).show();
+        } else {
+            populateProfiles(context, json);
+        }
+    }
+
+    private void populateProfiles(final Context context, String json) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<AccountServerData>>() {
+        }.getType();
+
+        final JasperAccountManager accountManager = JasperAccountManager.get(context);
+        List<AccountServerData> datum = gson.fromJson(json, listType);
+        Observable.from(datum).flatMap(new Func1<AccountServerData, Observable<Account>>() {
+            @Override
+            public Observable<Account> call(AccountServerData serverData) {
+                return accountManager.addAccountExplicitly(serverData);
+            }
+        }).subscribe(Actions.empty(), new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Toast.makeText(context, "Failed to add profile: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }, new Action0() {
+            @Override
+            public void call() {
+                Toast.makeText(context, "Profiles loaded.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -37,6 +37,7 @@ import android.text.TextUtils;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
@@ -93,6 +94,10 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
 
         String password = accountManager.getPassword(account);
         Timber.d(String.format("Password for account[%s] : %s", account.name, password));
+        boolean sessionNeedToBeResumed = DefaultPrefHelper_.getInstance_(mContext).isSessionResumable();
+        if (!sessionNeedToBeResumed) {
+            accountManager.clearPassword(account);
+        }
 
         if (TextUtils.isEmpty(password)) {
             return createErrorBundle(JasperAccountManager.TokenException.NO_PASSWORD_ERROR, mContext.getString(R.string.r_error_incorrect_credentials));

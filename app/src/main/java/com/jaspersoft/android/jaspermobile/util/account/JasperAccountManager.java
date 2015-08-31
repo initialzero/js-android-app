@@ -36,7 +36,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import java.io.IOException;
@@ -143,7 +145,8 @@ public class JasperAccountManager {
     public void updateActiveAccountPassword(String newPassword) {
         AccountManager accountManager = AccountManager.get(mContext);
         invalidateActiveToken();
-        accountManager.setPassword(getActiveAccount(), newPassword);
+        String encrypted = encryptPassword(newPassword);
+        accountManager.setPassword(getActiveAccount(), encrypted);
     }
 
     public Account[] getAccounts() {
@@ -178,8 +181,11 @@ public class JasperAccountManager {
                     AccountManager accountManager = AccountManager.get(mContext);
                     Account account = new Account(serverData.getAlias(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
+
+                    String encrypted = encryptPassword(serverData.getPassword());
                     accountManager.addAccountExplicitly(account,
-                            serverData.getPassword(), serverData.toBundle());
+                            encrypted, serverData.toBundle());
+
                     if (!subscriber.isUnsubscribed()) {
                         subscriber.onNext(account);
                         subscriber.onCompleted();
@@ -262,6 +268,12 @@ public class JasperAccountManager {
             JasperMobileApplication app = ((JasperMobileApplication) mContext.getApplicationContext());
             app.initLegacyJsRestClient();
         }
+    }
+
+    private String encryptPassword(String newPassword) {
+        String salt = mContext.getResources().getString(R.string.password_salt_key);
+        PasswordManager passwordManager = PasswordManager.withSalt(salt);
+        return passwordManager.encrypt(newPassword);
     }
 
     //---------------------------------------------------------------------

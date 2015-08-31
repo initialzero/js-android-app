@@ -39,10 +39,10 @@ import android.text.TextUtils;
  * @since 2.0
  */
 public class AccountServerData {
-    private static final String ALIAS_KEY = "ALIAS_KEY";
-    private static final String SERVER_URL_KEY = "SERVER_URL_KEY";
-    private static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
-    private static final String USERNAME_KEY = "USERNAME_KEY";
+    public static final String ALIAS_KEY = "ALIAS_KEY";
+    public static final String SERVER_URL_KEY = "SERVER_URL_KEY";
+    public static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
+    public static final String USERNAME_KEY = "USERNAME_KEY";
 
     public static final String EDITION_KEY = "EDITION_KEY";
     public static final String VERSION_NAME_KEY = "VERSION_NAME_KEY";

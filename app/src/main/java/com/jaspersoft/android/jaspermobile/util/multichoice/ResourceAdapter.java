@@ -175,9 +175,9 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     private static class OrderingByType implements Comparator<ResourceLookup> {
         @Override
         public int compare(ResourceLookup res1, ResourceLookup res2) {
-            ResourceLookup.ResourceType resType1 = res1.getResourceType();
-            ResourceLookup.ResourceType resType2 = res2.getResourceType();
-            return compare(resType1.ordinal(), resType2.ordinal());
+            int lhs = res1.getResourceType() == ResourceLookup.ResourceType.folder ? 0 : 1;
+            int rhs = res2.getResourceType() == ResourceLookup.ResourceType.folder ? 0 : 1;
+            return compare(lhs, rhs);
         }
 
         private static int compare(int lhs, int rhs) {

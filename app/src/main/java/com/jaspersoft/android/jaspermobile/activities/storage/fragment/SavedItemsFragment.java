@@ -231,9 +231,10 @@ public class SavedItemsFragment extends RoboFragment
         ArrayList<String> selectionArgs = new ArrayList<String>();
 
         //Add general items (server id = -1)
-        selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
-                .append("  OR ")
-                .append("(");
+        selection
+                .append("(")
+                .append(SavedItemsTable.ACCOUNT_NAME + " =?")
+                .append("  OR ");
 
         selectionArgs.add(JasperSettings.RESERVED_ACCOUNT_NAME);
 

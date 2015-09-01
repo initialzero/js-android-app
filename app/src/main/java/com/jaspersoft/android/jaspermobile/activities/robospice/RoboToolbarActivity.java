@@ -75,6 +75,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             Timber.d("Accounts list was changed...");
             mJasperAccountsStatus = JasperAccountsStatus.ANY_ACCOUNT_CHANGED;
             defineJasperAccountsState();
+            updateActiveAccount();
         }
     };
 
@@ -148,12 +149,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
                 finish();
             }
         }
-    }
-
-    @Override
-    protected void onStart() {
-        updateActiveAccount();
-        super.onStart();
     }
 
     @Override

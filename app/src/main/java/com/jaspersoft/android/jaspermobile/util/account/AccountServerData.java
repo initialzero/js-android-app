@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.util.account;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 /**
@@ -82,17 +81,6 @@ public class AccountServerData {
     }
 
     public AccountServerData() {
-    }
-
-    public Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putString(ALIAS_KEY, alias);
-        bundle.putString(SERVER_URL_KEY, serverUrl);
-        bundle.putString(ORGANIZATION_KEY, organization);
-        bundle.putString(USERNAME_KEY, username);
-        bundle.putString(EDITION_KEY, edition);
-        bundle.putString(VERSION_NAME_KEY, versionName);
-        return bundle;
     }
 
     public String getAlias() {

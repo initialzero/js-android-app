@@ -41,16 +41,11 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
 public class JsServerProfileCompat {
 
     public static void initLegacyJsRestClient(Context context, JsRestClient jsRestClient) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        if (account != null) {
+        JasperAccountManager jasperAccountManager = JasperAccountManager.get(context);
+        if (jasperAccountManager.isActiveAccountRegistered()) {
+            Account account = jasperAccountManager.getActiveAccount();
             jsRestClient.updateServerProfile(getServerProfile(AccountServerData.get(context, account)));
         }
-    }
-
-    public static JsServerProfile getServerProfile(Context context) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(context, account);
-        return getServerProfile(accountServerData);
     }
 
     public static JsServerProfile getServerProfile(AccountServerData serverData) {

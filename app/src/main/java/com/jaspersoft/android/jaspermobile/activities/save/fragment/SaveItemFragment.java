@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.report.fragment;
+package com.jaspersoft.android.jaspermobile.activities.save.fragment;
 
 import android.accounts.Account;
 import android.app.ActionBar;
@@ -157,14 +157,14 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         if (isReportNameValid()) {
             final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
             String reportName = reportNameInput.getText() + "." + outputFormat;
-            File reportDir = getAccountReportDir(reportName);
+            File reportDir = getReportDir(reportName);
 
             if (reportDir == null) {
                 Toast.makeText(getActivity(), R.string.sr_failed_to_create_local_repo, Toast.LENGTH_SHORT).show();
             } else {
                 reportFile = new File(reportDir, reportName);
 
-                if (reportFile.exists() || getSharedReportDir(reportName).exists()) {
+                if (reportFile.exists()) {
                     // show validation message
                     reportNameInput.setError(getString(R.string.sr_error_report_exists));
                 } else {
@@ -302,7 +302,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     }
 
     @Nullable
-    private File getAccountReportDir(String reportName) {
+    private File getReportDir(String reportName) {
         File appFilesDir = getActivity().getExternalFilesDir(null);
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
         Account account = accountManager.getActiveAccount();
@@ -319,13 +319,6 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         } else {
             return null;
         }
-    }
-
-    private File getSharedReportDir(String reportName) {
-        File appFilesDir = getActivity().getExternalFilesDir(null);
-        File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
-        File accountReportDir = new File(savedReportsDir, JasperMobileApplication.SHARED_DIR);
-        return new File(accountReportDir, reportName);
     }
 
     private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {

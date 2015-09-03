@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
     Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -22,13 +23,11 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout
-        android:id="@+id/input_controls_layout"
-        style="@style/reportOptions.container.layout"
-        android:orientation="vertical" />
-
-</ScrollView>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/runReportAction"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_menu_run_report"
+        android:title="@string/ro_run_report_btn" />
+</menu>

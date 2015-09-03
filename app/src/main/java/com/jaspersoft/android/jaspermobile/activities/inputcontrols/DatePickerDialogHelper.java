@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.report;
+package com.jaspersoft.android.jaspermobile.activities.inputcontrols;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;

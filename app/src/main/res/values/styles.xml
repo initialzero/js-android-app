@@ -159,17 +159,11 @@
     <!-- Report Options Layout -->
     <style name="reportOptions" />
 
-    <style name="reportOptions.scrollView">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:fillViewport">true</item>
-    </style>
-
     <style name="reportOptions.container" />
 
     <style name="reportOptions.container.layout">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">10dp</item>
     </style>
 

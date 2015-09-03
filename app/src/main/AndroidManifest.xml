@@ -72,7 +72,7 @@
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity
-            android:name=".activities.report.ReportOptionsActivity"
+            android:name=".activities.inputcontrols.ReportOptionsActivity_"
             android:configChanges="screenSize|orientation|locale"
             android:label="@string/ro_page_title"
             android:windowSoftInputMode="stateHidden" />
@@ -120,7 +120,7 @@
 
         <!-- Activity that performs report saving to the local storage -->
         <activity
-            android:name=".activities.report.SaveReportActivity_"
+            android:name=".activities.inputcontrols.SaveReportActivity_"
             android:configChanges="screenSize|orientation|locale"
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />

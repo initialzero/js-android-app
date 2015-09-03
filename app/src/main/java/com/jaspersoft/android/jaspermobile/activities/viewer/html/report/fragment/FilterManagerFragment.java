@@ -37,8 +37,9 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
@@ -170,10 +171,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     }
 
     private void showReportOptions() {
-        Intent intent = new Intent(getActivity(), ReportOptionsActivity.class);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
-        startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
+        InputControlsActivity_.intent(this).reportUri(resource.getUri()).startForResult(REQUEST_REPORT_PARAMETERS);
     }
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
@@ -181,7 +179,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         boolean isFirstReportMissing = !hasSnapshot();
 
         if (resultCode == Activity.RESULT_OK) {
-            boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
+            boolean isNewParamsEqualOld = data.getBooleanExtra(InputControlsActivity.RESULT_SAME_PARAMS, false);
             if (isNewParamsEqualOld && !isFirstReportMissing) {
                 return;
             }

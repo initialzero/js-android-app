@@ -46,9 +46,10 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
@@ -393,7 +394,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         boolean isFirstReportMissing = (webView.getVisibility() == View.INVISIBLE);
 
         if (resultCode == Activity.RESULT_OK) {
-            boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
+            boolean isNewParamsEqualOld = data.getBooleanExtra(InputControlsActivity.RESULT_SAME_PARAMS, false);
             if (isNewParamsEqualOld && !isFirstReportMissing) {
                 return;
             }
@@ -644,10 +645,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     private void showInputControlsPage() {
-        Intent intent = new Intent(this, ReportOptionsActivity.class);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
-        startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
+        InputControlsActivity_.intent(this).reportUri(resource.getUri()).startForResult(REQUEST_REPORT_PARAMETERS);
     }
 
     private void runReport(String params) {

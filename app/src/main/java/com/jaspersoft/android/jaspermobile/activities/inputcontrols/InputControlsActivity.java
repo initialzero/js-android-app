@@ -22,18 +22,15 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.report;
+package com.jaspersoft.android.jaspermobile.activities.inputcontrols;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.InputType;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -65,6 +62,14 @@ import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatVa
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.ViewById;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -79,20 +84,19 @@ import java.util.Set;
 
 import roboguice.util.Ln;
 
-import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DATE_DIALOG_ID;
-import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.DEFAULT_DATE_FORMAT;
-import static com.jaspersoft.android.jaspermobile.activities.report.DatePickerDialogHelper.TIME_DIALOG_ID;
+import static com.jaspersoft.android.jaspermobile.activities.inputcontrols.DatePickerDialogHelper.DATE_DIALOG_ID;
+import static com.jaspersoft.android.jaspermobile.activities.inputcontrols.DatePickerDialogHelper.DEFAULT_DATE_FORMAT;
+import static com.jaspersoft.android.jaspermobile.activities.inputcontrols.DatePickerDialogHelper.TIME_DIALOG_ID;
 
 /**
  * @author Ivan Gadzhega
  * @author Tom Koptel
  * @since 1.6
  */
-public class ReportOptionsActivity extends RoboSpiceActivity {
-
+@EActivity(R.layout.report_options_layout)
+@OptionsMenu(R.menu.am_run_report_menu)
+public class InputControlsActivity extends RoboSpiceActivity {
     // Extras
-    public static final String EXTRA_REPORT_LABEL = "ReportOptionsActivity.EXTRA_REPORT_LABEL";
-    public static final String EXTRA_REPORT_URI = "ReportOptionsActivity.EXTRA_REPORT_URI";
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
     @Inject
@@ -100,76 +104,38 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
     @Inject
     protected ReportParamsStorage paramsStorage;
 
-    protected Menu optionsMenu;
+    @OptionsMenuItem(R.id.runReportAction)
+    protected MenuItem runReportAction;
+    @ViewById(R.id.input_controls_layout)
+    protected LinearLayout baseLayout;
+
+    @Extra
     protected String reportUri;
 
     private DatePickerDialogHelper dialogHelper;
     private ArrayList<InputControl> inputControls;
-    private LinearLayout baseLayout;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.report_options_layout);
-        baseLayout = (LinearLayout) findViewById(R.id.input_controls_layout);
-
+    @AfterViews
+    protected void init(){
         // init helper for date/time picker dialogs
         dialogHelper = new DatePickerDialogHelper(this);
-
-        // get report uri from extras
-        reportUri = getIntent().getExtras().getString(EXTRA_REPORT_URI);
 
         // prepare input controls
         initInputControls();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        optionsMenu = menu;
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // use the App Icon for Navigation
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        // settings
-        MenuItem applyMenuItem = menu.add(Menu.NONE, R.id.saveAction, Menu.NONE, R.string.ro_run_report_btn)
-                .setIcon(R.drawable.ic_menu_run_report);
-        applyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.saveAction:
-                setRefreshActionButtonState(true);
-                ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
-                getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
-                return true;
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                // If you don't handle the menu item, you should pass the menu item to the superclass implementation
-                return super.onOptionsItemSelected(item);
-        }
+    @OptionsItem(R.id.runReportAction)
+    final void runReportAction() {
+        setRefreshActionButtonState(true);
+        ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
+        getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
     }
 
     protected void setRefreshActionButtonState(boolean refreshing) {
-        if (optionsMenu != null) {
-            MenuItem refreshItem = optionsMenu.findItem(R.id.saveAction);
-            if (refreshItem != null) {
-                if (refreshing) {
-                    refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
-                } else {
-                    refreshItem.setActionView(null);
-                }
-            }
+        if (refreshing) {
+            runReportAction.setActionView(R.layout.actionbar_indeterminate_progress);
+        } else {
+            runReportAction.setActionView(null);
         }
 
         if (inputControls != null) {
@@ -499,7 +465,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
         Spinner spinner = (Spinner) layoutView.findViewById(R.id.ic_spinner);
         spinner.setPrompt(inputControl.getLabel());
 
-        ArrayAdapter<InputControlOption> lovAdapter = new ArrayAdapter<InputControlOption>(ReportOptionsActivity.this,
+        ArrayAdapter<InputControlOption> lovAdapter = new ArrayAdapter<InputControlOption>(InputControlsActivity.this,
                 android.R.layout.simple_spinner_item, inputControl.getState().getOptions());
         lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(lovAdapter);
@@ -618,7 +584,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
         @Override
         protected Context getContext() {
-            return ReportOptionsActivity.this;
+            return InputControlsActivity.this;
         }
 
         @Override
@@ -651,7 +617,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
                                 case singleSelectRadio:
                                     Spinner spinner = (Spinner) slaveControl.getInputView();
                                     ArrayAdapter<InputControlOption> lovAdapter =
-                                            new ArrayAdapter<InputControlOption>(ReportOptionsActivity.this, android.R.layout.simple_spinner_item, state.getOptions());
+                                            new ArrayAdapter<InputControlOption>(InputControlsActivity.this, android.R.layout.simple_spinner_item, state.getOptions());
                                     lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                     spinner.setAdapter(lovAdapter);
                                     // set initial value for spinner
@@ -691,7 +657,7 @@ public class ReportOptionsActivity extends RoboSpiceActivity {
 
         @Override
         protected Context getContext() {
-            return ReportOptionsActivity.this;
+            return InputControlsActivity.this;
         }
 
         @Override

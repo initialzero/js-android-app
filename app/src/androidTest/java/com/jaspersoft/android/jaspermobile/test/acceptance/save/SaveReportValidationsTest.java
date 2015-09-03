@@ -30,7 +30,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.widget.NumberPicker;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.test.ProtoActivityInstrumentation;
 import com.jaspersoft.android.jaspermobile.test.utils.HackedTestModule;
 import com.jaspersoft.android.jaspermobile.test.utils.TestResources;

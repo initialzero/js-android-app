@@ -25,6 +25,8 @@
 
 <resources>
 
+    <color name="divider_color">#1effffff</color>
+
     <color name="light_shadow">#55000000</color>
     <color name="dark_shadow">#cc000000</color>
 

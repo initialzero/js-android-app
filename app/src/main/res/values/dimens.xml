@@ -33,5 +33,5 @@
     <dimen name="list_item_height">60dp</dimen>
     <dimen name="list_item_image_width">96dp</dimen>
     <dimen name="sample_image_padding">5dp</dimen>
-
+    <dimen name="ic_divider_height">10dp</dimen>
 </resources>

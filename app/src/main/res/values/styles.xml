@@ -77,13 +77,11 @@
     <style name="inputControl.layout">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:paddingBottom">7dp</item>
     </style>
 
     <style name="inputControl.label">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_margin">5dp</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">@color/js_dark_blue</item>
         <item name="android:textStyle">bold</item>
@@ -115,6 +113,7 @@
     <style name="inputControl.singleValue.editText">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:singleLine">true</item>
     </style>
 

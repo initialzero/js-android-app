@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2012 Jaspersoft Corporation. All rights reserved.
     http://community.jaspersoft.com/project/mobile-sdk-android
 
@@ -25,22 +24,42 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/inputControl.layout"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
 
-    <TextView
-        android:id="@+id/ic_text_label"
-        style="@style/inputControl.label"
-    />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <Spinner
-        android:id="@+id/ic_spinner"
-        style="@style/inputControl.select.spinner"
-    />
+        <TextView
+            android:id="@+id/ic_text_label"
+            style="@style/inputControl.label" />
+
+        <TextView
+            android:id="@+id/ic_selected_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ic_text_label"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:layout_toLeftOf="@+id/btn_seelct"
+            android:background="@null" />
+
+        <ImageButton
+            android:id="@+id/btn_seelct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_menu_edit" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/ic_error_text"
         style="@style/inputControl.errorText"
-        android:visibility="gone"
-    />
+        android:visibility="gone" />
 
 </LinearLayout>

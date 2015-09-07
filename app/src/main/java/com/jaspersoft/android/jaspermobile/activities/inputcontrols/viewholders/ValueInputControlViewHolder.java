@@ -19,6 +19,8 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
     protected EditText singleValue;
     protected TextView errorText;
 
+    private ValueChangeListener mValueChangeListener;
+
     public ValueInputControlViewHolder(View itemView) {
         super(itemView);
         singleValue = (EditText) itemView.findViewById(R.id.ic_edit_text);
@@ -38,7 +40,9 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                if (mValueChangeListener != null) {
+                    mValueChangeListener.onValueChanged(getPosition(), s.toString());
+                }
             }
         });
     }
@@ -49,8 +53,14 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
         singleValue.setText(inputControl.getState().getValue());
         label.setText(getUpdatedLabelText(inputControl));
 
-        String error = (inputControl.getState().getError());
-        errorText.setText(error);
-        errorText.setVisibility(error == null ? View.GONE : View.VISIBLE);
+        showError(errorText, inputControl);
+    }
+
+    public void setValueChangeListener(ValueChangeListener valueChangeListener) {
+        this.mValueChangeListener = valueChangeListener;
+    }
+
+    public interface ValueChangeListener{
+        void onValueChanged(int position, String value);
     }
 }

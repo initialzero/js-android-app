@@ -25,18 +25,11 @@
 package com.jaspersoft.android.jaspermobile.activities.inputcontrols;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.Switch;
-import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -44,11 +37,9 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.widget.MultiSelectSpinner;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
-import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
@@ -65,8 +56,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +68,7 @@ import java.util.Set;
  */
 @EActivity(R.layout.report_options_layout)
 @OptionsMenu(R.menu.am_run_report_menu)
-public class InputControlsActivity extends RoboSpiceActivity {
+public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener {
     // Extras
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
@@ -95,16 +85,13 @@ public class InputControlsActivity extends RoboSpiceActivity {
     @Extra
     protected String reportUri;
 
-    private DatePickerDialogHelper dialogHelper;
     private ArrayList<InputControl> inputControls;
+    private InputControlsAdapter mAdapter;
 
     @AfterViews
-    protected void init(){
-        // init helper for date/time picker dialogs
-        dialogHelper = new DatePickerDialogHelper(this);
-
-        // prepare input controls
+    protected void init() {
         initInputControls();
+        showInputControls();
     }
 
     @OptionsItem(R.id.runReportAction)
@@ -114,56 +101,69 @@ public class InputControlsActivity extends RoboSpiceActivity {
         getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
     }
 
-    private void initInputControls(){
-        inputControls = paramsStorage.getInputControls(reportUri);
-        InputControlsAdapter adapter = new InputControlsAdapter(inputControls);
-
-        int dividerHeight = (int) getResources().getDimension(R.dimen.ic_divider_height);
-        inputControlsList.addItemDecoration(new ItemSpaceDecoration(dividerHeight));
-        inputControlsList.setLayoutManager(new LinearLayoutManager(this));
-        inputControlsList.setAdapter(adapter);
+    @Override
+    public void onBooleanStateChanged(InputControl inputControl, boolean newState) {
+        inputControl.getState().setValue(String.valueOf(newState));
+        updateDependentControls(inputControl);
     }
 
-    protected void setRefreshActionButtonState(boolean refreshing) {
+    @Override
+    public void onValueTextChanged(InputControl inputControl, String newValue) {
+        inputControl.getState().setValue(newValue);
+        updateDependentControls(inputControl);
+    }
+
+    @Override
+    public void onSingleSelectIcClicked(InputControl inputControl) {
+    }
+
+    @Override
+    public void onMultiSelectIcClicked(InputControl inputControl) {
+    }
+
+    @Override
+    public void onDateIcClicked(InputControl inputControl) {
+        //showDateDialog(inputControl, TIME_DIALOG_ID, editText, startDate);
+    }
+
+    @Override
+    public void onTimeIcClicked(InputControl inputControl) {
+        //showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
+    }
+
+    @Override
+    public void onDateClear(InputControl inputControl) {
+        inputControl.getState().setValue("");
+        updateDependentControls(inputControl);
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private void initInputControls() {
+        inputControls = paramsStorage.getInputControls(reportUri);
+        updateInputControlsFromReportParams();
+    }
+
+    private void showInputControls() {
+        mAdapter = new InputControlsAdapter(inputControls);
+        int dividerHeight = (int) getResources().getDimension(R.dimen.ic_divider_height);
+
+        inputControlsList.addItemDecoration(new ItemSpaceDecoration(dividerHeight));
+        inputControlsList.setLayoutManager(new LinearLayoutManager(this));
+        inputControlsList.setAdapter(mAdapter);
+    }
+
+    private void setRefreshActionButtonState(boolean refreshing) {
         if (refreshing) {
             runReportAction.setActionView(R.layout.actionbar_indeterminate_progress);
         } else {
             runReportAction.setActionView(null);
         }
 
-        if (inputControls != null) {
-            for (InputControl inputControl : inputControls) {
-                if (inputControl.isVisible() && !inputControl.isReadOnly()) {
-                    inputControl.getInputView().setEnabled(!refreshing);
-                }
-            }
-        }
+        mAdapter.setListEnabled(refreshing);
     }
-
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        return dialogHelper.onCreateDialog(id);
-    }
-
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog) {
-        super.onPrepareDialog(id, dialog);
-        dialogHelper.onPrepareDialog(id, dialog);
-    }
-
-    protected void showDateDialog(InputControl inputControl, int id, TextView dateDisplay, Calendar date) {
-        dialogHelper.showDateDialog(inputControl, id, dateDisplay, date);
-    }
-
-    @Override
-    protected void onStop() {
-        setRefreshActionButtonState(false);
-        super.onStop();
-    }
-
-    //---------------------------------------------------------------------
-    // Helper methods
-    //---------------------------------------------------------------------
 
     private boolean isNewParamsEqualOld(ArrayList<ReportParameter> newParams) {
         ArrayList<ReportParameter> oldParams = paramsStorage.getReportParameters(reportUri);
@@ -206,79 +206,29 @@ public class InputControlsActivity extends RoboSpiceActivity {
         return parameters;
     }
 
-    private void hideAllValidationMessages() {
-        for (InputControl control : inputControls) {
-            TextView textView = (TextView) control.getErrorView();
-            if (textView != null) {
-                textView.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    private void hideValidationMessage(InputControl control) {
-        TextView textView = (TextView) control.getErrorView();
-        if (textView != null) {
-            textView.setVisibility(View.GONE);
-        }
-    }
-
-    private void showValidationMessages(List<InputControlState> invalidStateList) {
-        for (InputControl control : inputControls) {
-            TextView textView = (TextView) control.getErrorView();
-            if (textView != null) {
-                Iterator<InputControlState> iterator = invalidStateList.iterator();
-                while (iterator.hasNext()) {
-                    InputControlState state = iterator.next();
-                    if (control.getId().equals(state.getId())) {
-                        textView.setText(state.getError());
-                        textView.setVisibility(View.VISIBLE);
-                        iterator.remove();
-                        break;
-                    }
+    private void updateInputControls(List<InputControlState> stateList) {
+        for (InputControlState inputControlState : stateList) {
+            for (InputControl inputControl : inputControls) {
+                if (inputControlState.getId().equals(inputControl.getId())) {
+                    inputControl.setState(inputControlState);
                 }
             }
         }
+        mAdapter.updateInputControlList(inputControls);
     }
 
-//    private void initInputControls() {
-//        ArrayList<ReportParameter> reportParams = paramsStorage.getReportParameters(reportUri);
-//        inputControls = paramsStorage.getInputControls(reportUri);
-//
-//        Map<String, Set<String>> hashMap = new HashMap<String, Set<String>>(reportParams.size());
-//        for (ReportParameter reportParameter : reportParams) {
-//            hashMap.put(reportParameter.getName(), reportParameter.getValues());
-//        }
-//
-//        // init UI components for ICs
-//        for (final InputControl inputControl : inputControls) {
-//            updateInputControlState(hashMap, inputControl);
-//
-//            if (inputControl.isVisible()) {
-//                switch (inputControl.getType()) {
-//                    case bool:
-//                        initBooleanControl(inputControl);
-//                        break;
-//                    case singleValueText:
-//                    case singleValueNumber:
-//                        initSingleValueControl(inputControl);
-//                        break;
-//                    case singleValueTime:
-//                    case singleValueDate:
-//                    case singleValueDatetime:
-//                        initDateControl(inputControl);
-//                        break;
-//                    case singleSelect:
-//                    case singleSelectRadio:
-//                        initSingleSelectControl(inputControl);
-//                        break;
-//                    case multiSelect:
-//                    case multiSelectCheckbox:
-//                        initMultiSelectControl(inputControl);
-//                        break;
-//                }
-//            }
-//        }
-//    }
+    private void updateInputControlsFromReportParams() {
+        ArrayList<ReportParameter> reportParams = paramsStorage.getReportParameters(reportUri);
+
+        Map<String, Set<String>> hashMap = new HashMap<String, Set<String>>(reportParams.size());
+        for (ReportParameter reportParameter : reportParams) {
+            hashMap.put(reportParameter.getName(), reportParameter.getValues());
+        }
+
+        for (InputControl inputControl : inputControls) {
+            updateInputControlState(hashMap, inputControl);
+        }
+    }
 
     private void updateInputControlState(Map<String, Set<String>> hashMap, InputControl inputControl) {
         InputControlState state = inputControl.getState();
@@ -310,146 +260,6 @@ public class InputControlsActivity extends RoboSpiceActivity {
             }
         }
     }
-
-//    private void initBooleanControl(final InputControl inputControl) {
-//        LayoutInflater inflater = getLayoutInflater();
-//        Switch switchView = (Switch) inflater.inflate(R.layout.control_boolean_layout, baseLayout, false);
-//        switchView.setText(inputControl.getLabel());
-//        // set default value
-//        if (inputControl.getState().getValue() == null)
-//            inputControl.getState().setValue("false");
-//        switchView.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));
-//        //listener
-//        if (inputControl.isReadOnly()) {
-//            switchView.setEnabled(false);
-//        } else {
-//            switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//                @Override
-//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                    onStringValueChanged(inputControl, String.valueOf(isChecked));
-//                }
-//            });
-//        }
-//        // assign views to the control
-//        inputControl.setInputView(switchView);
-//        // show the control
-//        baseLayout.addView(switchView);
-//    }
-//
-//    private void initSingleValueControl(final InputControl inputControl) {
-//        LayoutInflater inflater = getLayoutInflater();
-//        View layoutView = inflater.inflate(R.layout.view_ic_single_value, baseLayout, false);
-//        updateLabelView(inputControl, layoutView);
-//
-//        EditText editText = (EditText) layoutView.findViewById(R.id.ic_edit_text);
-//        // allow only numbers if data type is numeric
-//        if (inputControl.getType() == InputControl.Type.singleValueNumber) {
-//            editText.setInputType(InputType.TYPE_CLASS_NUMBER
-//                    | InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-//        }
-//        // set default value
-//        editText.setText(inputControl.getState().getValue());
-//        // add listener
-//        if (inputControl.isReadOnly()) {
-//            editText.setEnabled(false);
-//        } else {
-//            editText.addTextChangedListener(new SimpleTextWatcher() {
-//                @Override
-//                public void afterTextChanged(Editable editable) {
-//                    onStringValueChanged(inputControl, editable.toString());
-//                }
-//            });
-//        }
-//
-//        assignViews(inputControl, layoutView, editText);
-//        baseLayout.addView(layoutView);
-//    }
-//
-//    private void initDateControl(final InputControl inputControl) {
-//        LayoutInflater inflater = getLayoutInflater();
-//        View layoutView = inflater.inflate(R.layout.view_ic_single_value_date, baseLayout, false);
-//        updateLabelView(inputControl, layoutView);
-//
-//        final EditText editText = (EditText) layoutView.findViewById(R.id.ic_date_text);
-//        final ImageButton clearDate = (ImageButton) layoutView.findViewById(R.id.ic_date_clear);
-//
-//        String format = DEFAULT_DATE_FORMAT;
-//        for (DateTimeFormatValidationRule validationRule : inputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
-//            format = validationRule.getFormat();
-//        }
-//        Locale current = getResources().getConfiguration().locale;
-//        DateFormat formatter = new SimpleDateFormat(format, current);
-//
-//        // set default value
-//        final Calendar startDate = Calendar.getInstance();
-//        String defaultValue = inputControl.getState().getValue();
-//        if (defaultValue != null) {
-//            try {
-//                startDate.setTime(formatter.parse(defaultValue));
-//                editText.setText(defaultValue);
-//                clearDate.setVisibility(View.VISIBLE);
-//            } catch (ParseException e) {
-//                Ln.w("Unparseable date: %s", defaultValue);
-//            }
-//        }
-//
-//        // get pickers
-//        ImageButton datePicker = (ImageButton) layoutView.findViewById(R.id.ic_date_picker_button);
-//        ImageButton timePicker = (ImageButton) layoutView.findViewById(R.id.ic_time_picker_button);
-//        // add listeners
-//        if (inputControl.isReadOnly()) {
-//            datePicker.setEnabled(false);
-//            timePicker.setEnabled(false);
-//            editText.setEnabled(false);
-//        } else {
-//            boolean isDateTime = (inputControl.getType() == InputControl.Type.singleValueDatetime);
-//            boolean isOnlyTime = (inputControl.getType() == InputControl.Type.singleValueTime);
-//            if (isDateTime || isOnlyTime) {
-//                timePicker.setVisibility(View.VISIBLE);
-//                // add a click listener
-//                timePicker.setOnClickListener(new View.OnClickListener() {
-//                    public void onClick(View v) {
-//                        showDateDialog(inputControl, TIME_DIALOG_ID, editText, startDate);
-//                    }
-//                });
-//            }
-//            if (isOnlyTime) {
-//                datePicker.setVisibility(View.GONE);
-//            } else {
-//                // add a click listener
-//                datePicker.setOnClickListener(new View.OnClickListener() {
-//                    public void onClick(View v) {
-//                        showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
-//                    }
-//                });
-//            }
-//
-//            // add listener for text field
-//            editText.addTextChangedListener(new SimpleTextWatcher() {
-//                @Override
-//                public void afterTextChanged(Editable editable) {
-//                    onStringValueChanged(inputControl, editable.toString());
-//                    if (editable.length() != 0) {
-//                        clearDate.setVisibility(View.VISIBLE);
-//                    } else {
-//                        clearDate.setVisibility(View.GONE);
-//                    }
-//                }
-//            });
-//
-//            // add listener for clearing text
-//            clearDate.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    editText.setText("");
-//                }
-//            });
-//        }
-//
-//        assignViews(inputControl, layoutView, editText);
-//        baseLayout.addView(layoutView);
-//    }
-//
 //    private void initSingleSelectControl(final InputControl inputControl) {
 //        LayoutInflater inflater = getLayoutInflater();
 //        View layoutView = inflater.inflate(R.layout.view_ic_single_select, baseLayout, false);
@@ -548,27 +358,6 @@ public class InputControlsActivity extends RoboSpiceActivity {
 //        baseLayout.addView(layoutView);
 //    }
 
-    private void updateLabelView(InputControl inputControl, View view) {
-        String mandatoryPrefix = (inputControl.isMandatory()) ? "* " : "";
-        TextView textView = (TextView) view.findViewById(R.id.ic_text_label);
-        textView.setText(mandatoryPrefix + inputControl.getLabel() + ":");
-    }
-
-    private void assignViews(InputControl inputControl, View layoutView, View inputView) {
-        TextView errorView = (TextView) layoutView.findViewById(R.id.ic_error_text);
-        inputControl.setInputView(inputView);
-        inputControl.setErrorView(errorView);
-    }
-
-    private void onStringValueChanged(InputControl inputControl, String newValue) {
-        String oldValue = inputControl.getState().getValue();
-        if (newValue != null && !newValue.equals(oldValue)) {
-            inputControl.getState().setValue(newValue);
-            updateDependentControls(inputControl);
-            hideValidationMessage(inputControl);
-        }
-    }
-
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
@@ -588,62 +377,9 @@ public class InputControlsActivity extends RoboSpiceActivity {
 
         @Override
         public void onRequestSuccess(InputControlStatesList stateList) {
-            for (InputControlState state : stateList.getInputControlStates()) {
-                for (InputControl slaveControl : inputControls) {
-                    if (slaveControl.getId().equals(state.getId())) {
-                        slaveControl.setState(state);
-                        if (slaveControl.isVisible()) {
-                            switch (slaveControl.getType()) {
-                                case bool:
-                                    Switch icBool = (Switch) slaveControl.getInputView();
-                                    icBool.setChecked(Boolean.parseBoolean(state.getValue()));
-                                    break;
-                                case singleValueText:
-                                case singleValueNumber:
-                                case singleValueTime:
-                                case singleValueDate:
-                                case singleValueDatetime:
-                                    EditText editText = (EditText) slaveControl.getInputView();
-                                    editText.setText(state.getValue());
-                                    break;
-                                case singleSelect:
-                                case singleSelectRadio:
-                                    Spinner spinner = (Spinner) slaveControl.getInputView();
-                                    ArrayAdapter<InputControlOption> lovAdapter =
-                                            new ArrayAdapter<InputControlOption>(InputControlsActivity.this, android.R.layout.simple_spinner_item, state.getOptions());
-                                    lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                    spinner.setAdapter(lovAdapter);
-                                    // set initial value for spinner
-                                    for (InputControlOption option : state.getOptions()) {
-                                        if (option.isSelected()) {
-                                            int position = lovAdapter.getPosition(option);
-                                            spinner.setSelection(position, false);
-                                        }
-                                    }
-                                    break;
-                                case multiSelect:
-                                case multiSelectCheckbox:
-                                    MultiSelectSpinner<InputControlOption> multiSpinner =
-                                            (MultiSelectSpinner<InputControlOption>) slaveControl.getInputView();
-                                    multiSpinner.setItemsList(state.getOptions(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
-                                    // set selected values
-                                    List<Integer> positions = new ArrayList<Integer>();
-                                    for (InputControlOption option : state.getOptions()) {
-                                        if (option.isSelected()) {
-                                            positions.add(multiSpinner.getItemPosition(option));
-                                        }
-                                    }
-                                    multiSpinner.setSelection(positions);
-                                    break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+            updateInputControls(stateList.getInputControlStates());
             setRefreshActionButtonState(false);
         }
-
     }
 
     private class ValidateInputControlsValuesListener extends SimpleRequestListener<InputControlStatesList> {
@@ -661,16 +397,14 @@ public class InputControlsActivity extends RoboSpiceActivity {
 
         @Override
         public void onRequestSuccess(InputControlStatesList stateList) {
-            hideAllValidationMessages();
             List<InputControlState> invalidStateList = stateList.getInputControlStates();
             if (invalidStateList.isEmpty()) {
                 runReport();
             } else {
-                showValidationMessages(invalidStateList);
+                updateInputControls(invalidStateList);
             }
             setRefreshActionButtonState(false);
         }
-
     }
 
 }

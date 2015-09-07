@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TextView;
 
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
@@ -19,5 +20,16 @@ public abstract class BaseInputControlViewHolder extends RecyclerView.ViewHolder
     protected String getUpdatedLabelText(InputControl inputControl) {
         String mandatoryPrefix = (inputControl.isMandatory()) ? "* " : "";
         return mandatoryPrefix + inputControl.getLabel() + ":";
+    }
+
+    protected void showError(TextView errorView, InputControl inputControl) {
+        String error = inputControl.getState().getError();
+        errorView.setText(error);
+        if (error != null) {
+            errorView.setVisibility(View.VISIBLE);
+            inputControl.getState().setError("");
+        } else {
+            errorView.setVisibility(View.GONE);
+        }
     }
 }

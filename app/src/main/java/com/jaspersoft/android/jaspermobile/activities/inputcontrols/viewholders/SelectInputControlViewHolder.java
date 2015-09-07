@@ -18,6 +18,8 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
     private TextView selectedValue;
     private TextView errorText;
 
+    private ClickListener mClickListener;
+
     public SelectInputControlViewHolder(View itemView) {
         super(itemView);
         selectedValue = (TextView) itemView.findViewById(R.id.ic_selected_value);
@@ -38,9 +40,11 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
         selectedValue.setText(getCurrentSelection(inputControl));
         label.setText(getUpdatedLabelText(inputControl));
 
-        String error = (inputControl.getState().getError());
-        errorText.setText(error);
-        errorText.setVisibility(error == null ? View.GONE : View.VISIBLE);
+        showError(errorText, inputControl);
+    }
+
+    public void setOnSelectListener(ClickListener onSelectListener) {
+        this.mClickListener = onSelectListener;
     }
 
     private String getCurrentSelection(InputControl inputControl){
@@ -51,5 +55,9 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
             }
         }
         return InputControlWrapper.NOTHING_SUBSTITUTE_LABEL;
+    }
+
+    public interface ClickListener{
+        void onClick(int position);
     }
 }

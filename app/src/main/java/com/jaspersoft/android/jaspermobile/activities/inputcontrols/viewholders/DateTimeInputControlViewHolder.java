@@ -38,6 +38,7 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
 
     protected SimpleDateFormat mUserDateFormat;
     private DateFormat mServerDateFormat;
+    private DateTimeClickListener mDateTimeClickListener;
 
     public DateTimeInputControlViewHolder(View itemView) {
         super(itemView);
@@ -56,21 +57,27 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
         btnDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (mDateTimeClickListener != null) {
+                    mDateTimeClickListener.onDateClick(getPosition());
+                }
             }
         });
 
         btnTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (mDateTimeClickListener != null) {
+                    mDateTimeClickListener.onTimeClick(getPosition());
+                }
             }
         });
 
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectedDateTime.setText(InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
+                if (mDateTimeClickListener != null) {
+                    mDateTimeClickListener.onClear(getPosition());
+                }
             }
         });
 
@@ -98,18 +105,14 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
 
         mServerDateFormat = parseServerDateFormat(inputControl);
         String selectedDate = getSelectedDate(inputControl);
-        if (selectedDate != null) {
-            selectedDateTime.setText(selectedDate);
-            setClearButtonVisibility(true);
-        } else {
-            selectedDateTime.setText(InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
-            setClearButtonVisibility(false);
-        }
+        selectedDateTime.setText(selectedDate != null ? selectedDate : InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
         label.setText(getUpdatedLabelText(inputControl));
 
-        String error = (inputControl.getState().getError());
-        errorText.setText(error);
-        errorText.setVisibility(error == null ? View.GONE : View.VISIBLE);
+        showError(errorText, inputControl);
+    }
+
+    public void setDateTimeClickListener(DateTimeClickListener dateTimeClickListener) {
+        this.mDateTimeClickListener = dateTimeClickListener;
     }
 
     private DateFormat parseServerDateFormat(InputControl inputControl) {
@@ -145,5 +148,13 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
         btnDate.setEnabled(enabled && !inputControl.isReadOnly());
         btnTime.setEnabled(enabled && !inputControl.isReadOnly());
         btnClear.setEnabled(enabled && !inputControl.isReadOnly());
+    }
+
+    public interface DateTimeClickListener {
+        void onDateClick(int position);
+
+        void onTimeClick(int position);
+
+        void onClear(int position);
     }
 }

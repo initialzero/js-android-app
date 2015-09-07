@@ -15,6 +15,7 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
 
     private final static boolean DEFAULT_STATE = false;
     private CheckBox icBoolean;
+    private StateChangeListener mStateChangeListener;
 
     public BooleanInputControlViewHolder(View itemView) {
         super(itemView);
@@ -22,9 +23,15 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
         icBoolean.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+                if (mStateChangeListener != null) {
+                    mStateChangeListener.onStateChanged(getPosition(), isChecked);
+                }
             }
         });
+    }
+
+    public void setStateChangeListener(StateChangeListener stateChangeListener) {
+        this.mStateChangeListener = stateChangeListener;
     }
 
     @Override
@@ -37,4 +44,9 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
             icBoolean.setChecked(DEFAULT_STATE);
         }
     }
+
+    public interface StateChangeListener{
+        void onStateChanged(int position, boolean state);
+    }
+
 }

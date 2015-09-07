@@ -37,18 +37,28 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private ArrayList<InputControl> mInputControls;
     private boolean mEnabled;
     private LayoutInflater mLayoutInflater;
+    private InputControlInteractionListener mInteractionListener;
 
     public InputControlsAdapter(ArrayList<InputControl> inputControls) {
         if (inputControls == null) {
             throw new IllegalArgumentException("Input Controls can not be null!");
         }
 
-        this.mInputControls = inputControls;
         this.mEnabled = true;
     }
 
+    public void setInteractionListener(InputControlInteractionListener interactionListener) {
+        this.mInteractionListener = interactionListener;
+    }
+
     public void updateInputControlList(ArrayList<InputControl> inputControls) {
-        this.mInputControls = inputControls;
+        mInputControls = new ArrayList<>();
+        for (InputControl inputControl : inputControls) {
+            if (inputControl.isVisible()) {
+                mInputControls.add(inputControl);
+            }
+        }
+        notifyItemRangeChanged(0, mInputControls.size());
     }
 
     public void setListEnabled(boolean enabled) {
@@ -63,28 +73,44 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         switch (viewType) {
             case IC_BOOLEAN:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_boolean, parent, false);
+                BooleanInputControlViewHolder booleanInputControlViewHolder = new BooleanInputControlViewHolder(listItem);
+                booleanInputControlViewHolder.setStateChangeListener(new BooleanIcInteractionListener());
                 return new BooleanInputControlViewHolder(listItem);
             case IC_VALUE:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_value, parent, false);
-                return new ValueInputControlViewHolder(listItem);
+                ValueInputControlViewHolder valueInputControlViewHolder = new ValueInputControlViewHolder(listItem);
+                valueInputControlViewHolder.setValueChangeListener(new ValueIcInteractionListener());
+                return valueInputControlViewHolder;
             case IC_NUMBER_VALUE:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_value, parent, false);
-                return new NumberValueInputControlViewHolder(listItem);
+                NumberValueInputControlViewHolder numberValueInputControlViewHolder = new NumberValueInputControlViewHolder(listItem);
+                numberValueInputControlViewHolder.setValueChangeListener(new ValueIcInteractionListener());
+                return numberValueInputControlViewHolder;
             case IC_DATE_TIME:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_date, parent, false);
-                return new DateTimeInputControlViewHolder(listItem);
+                DateTimeInputControlViewHolder dateTimeInputControlViewHolder = new DateTimeInputControlViewHolder(listItem);
+                dateTimeInputControlViewHolder.setDateTimeClickListener(new DateIcInteractionListener());
+                return dateTimeInputControlViewHolder;
             case IC_DATE:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_date, parent, false);
-                return new DateInputControlViewHolder(listItem);
+                DateInputControlViewHolder dateInputControlViewHolder = new DateInputControlViewHolder(listItem);
+                dateInputControlViewHolder.setDateTimeClickListener(new DateIcInteractionListener());
+                return (dateInputControlViewHolder);
             case IC_TIME:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_date, parent, false);
-                return new TimeInputControlViewHolder(listItem);
+                TimeInputControlViewHolder timeInputControlViewHolder = new TimeInputControlViewHolder(listItem);
+                timeInputControlViewHolder.setDateTimeClickListener(new DateIcInteractionListener());
+                return timeInputControlViewHolder;
             case IC_SINGLE_SELECT:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_select, parent, false);
-                return new SelectInputControlViewHolder(listItem);
+                SelectInputControlViewHolder singleSelectInputControlViewHolder = new SelectInputControlViewHolder(listItem);
+                singleSelectInputControlViewHolder.setOnSelectListener(new SingleSelectIcInteractionListener());
+                return singleSelectInputControlViewHolder;
             case IC_MULTI_SELECT:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_select, parent, false);
-                return new SelectInputControlViewHolder(listItem);
+                SelectInputControlViewHolder multiSelectInputControlViewHolder = new SelectInputControlViewHolder(listItem);
+                multiSelectInputControlViewHolder.setOnSelectListener(new MultiSelectIcInteractionListener());
+                return multiSelectInputControlViewHolder;
             default:
                 return null;
         }
@@ -123,6 +149,81 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
                 return IC_MULTI_SELECT;
             default:
                 return IC_UNSUPPORTED;
+        }
+    }
+
+    public interface InputControlInteractionListener {
+        void onBooleanStateChanged(InputControl inputControl, boolean newState);
+
+        void onValueTextChanged(InputControl inputControl, String newValue);
+
+        void onSingleSelectIcClicked(InputControl inputControl);
+
+        void onMultiSelectIcClicked(InputControl inputControl);
+
+        void onDateIcClicked(InputControl inputControl);
+
+        void onTimeIcClicked(InputControl inputControl);
+
+        void onDateClear(InputControl inputControl);
+    }
+
+    private class BooleanIcInteractionListener implements BooleanInputControlViewHolder.StateChangeListener{
+        @Override
+        public void onStateChanged(int position, boolean state) {
+            if (mInteractionListener != null) {
+                mInteractionListener.onBooleanStateChanged(mInputControls.get(position), state);
+            }
+        }
+    }
+
+    private class ValueIcInteractionListener implements ValueInputControlViewHolder.ValueChangeListener {
+        @Override
+        public void onValueChanged(int position, String value) {
+            if (mInteractionListener != null) {
+                mInteractionListener.onValueTextChanged(mInputControls.get(position), value);
+            }
+        }
+    }
+
+    private class DateIcInteractionListener implements DateTimeInputControlViewHolder.DateTimeClickListener {
+        @Override
+        public void onDateClick(int position) {
+            if (mInteractionListener != null) {
+                mInteractionListener.onDateIcClicked(mInputControls.get(position));
+            }
+        }
+
+        @Override
+        public void onTimeClick(int position) {
+            if (mInteractionListener != null) {
+                mInteractionListener.onTimeIcClicked(mInputControls.get(position));
+            }
+        }
+
+        @Override
+        public void onClear(int position) {
+            if (mInteractionListener != null) {
+                mInteractionListener.onDateClear(mInputControls.get(position));
+            }
+        }
+    }
+
+    private class SingleSelectIcInteractionListener implements SelectInputControlViewHolder.ClickListener{
+        @Override
+        public void onClick(int position) {
+            if (mInteractionListener != null) {
+                mInteractionListener.onSingleSelectIcClicked(mInputControls.get(position));
+            }
+        }
+    }
+
+    private class MultiSelectIcInteractionListener implements SelectInputControlViewHolder.ClickListener{
+        @Override
+        public void onClick(int position) {
+            if (mInteractionListener != null) {
+                mInteractionListener.onMultiSelectIcClicked(mInputControls.get(position));
+            }
         }
     }
 }

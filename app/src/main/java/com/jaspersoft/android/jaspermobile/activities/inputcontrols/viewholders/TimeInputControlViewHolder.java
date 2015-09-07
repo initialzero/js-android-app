@@ -11,11 +11,11 @@ import java.util.Locale;
  * @author Andrew Tivodar
  * @since 2.2
  */
-public class DateInputControlViewHolder extends DateTimeInputControlViewHolder {
+public class TimeInputControlViewHolder extends DateTimeInputControlViewHolder {
 
-    private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd";
+    private static final String DEFAULT_DATE_TIME_FORMAT = "HH:mm:ss";
 
-    public DateInputControlViewHolder(View itemView) {
+    public TimeInputControlViewHolder(View itemView) {
         super(itemView);
 
         mUserDateFormat = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT, Locale.getDefault());
@@ -25,7 +25,7 @@ public class DateInputControlViewHolder extends DateTimeInputControlViewHolder {
     public void populateView(InputControl inputControl, boolean enabled) {
         super.populateView(inputControl, enabled);
 
-        btnTime.setVisibility(View.GONE);
+        btnDate.setVisibility(View.GONE);
         dateTimeDivider.setVisibility(View.GONE);
     }
 }

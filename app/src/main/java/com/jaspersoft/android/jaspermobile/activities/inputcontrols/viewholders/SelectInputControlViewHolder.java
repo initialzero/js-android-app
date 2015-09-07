@@ -24,7 +24,7 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
         errorText = (TextView) itemView.findViewById(R.id.ic_error_text);
         label = (TextView) itemView.findViewById(R.id.ic_text_label);
 
-        selectedValue.setOnClickListener(new View.OnClickListener() {
+        itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 

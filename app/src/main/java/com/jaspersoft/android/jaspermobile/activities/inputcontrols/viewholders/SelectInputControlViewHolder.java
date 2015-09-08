@@ -29,7 +29,9 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (mClickListener != null) {
+                    mClickListener.onClick(getPosition());
+                }
             }
         });
     }
@@ -47,8 +49,7 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
         this.mClickListener = onSelectListener;
     }
 
-    private String getCurrentSelection(InputControl inputControl){
-        // set initial value for spinner
+    protected String getCurrentSelection(InputControl inputControl) {
         for (InputControlOption option : inputControl.getState().getOptions()) {
             if (option.isSelected()) {
                 return option.getLabel();
@@ -57,7 +58,7 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
         return InputControlWrapper.NOTHING_SUBSTITUTE_LABEL;
     }
 
-    public interface ClickListener{
+    public interface ClickListener {
         void onClick(int position);
     }
 }

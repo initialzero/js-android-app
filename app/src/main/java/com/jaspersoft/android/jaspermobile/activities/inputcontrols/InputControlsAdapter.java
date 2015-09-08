@@ -10,6 +10,7 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.BooleanInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.DateInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.DateTimeInputControlViewHolder;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.MultiSelectInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.NumberValueInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.SelectInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.TimeInputControlViewHolder;
@@ -44,6 +45,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
             throw new IllegalArgumentException("Input Controls can not be null!");
         }
 
+        updateInputControlList(inputControls);
         this.mEnabled = true;
     }
 
@@ -59,6 +61,13 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
             }
         }
         notifyItemRangeChanged(0, mInputControls.size());
+    }
+
+    public void updateInputControl(InputControl inputControl){
+        int position = mInputControls.indexOf(inputControl);
+        if (position != -1) {
+            notifyItemChanged(position);
+        }
     }
 
     public void setListEnabled(boolean enabled) {
@@ -108,7 +117,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
                 return singleSelectInputControlViewHolder;
             case IC_MULTI_SELECT:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_select, parent, false);
-                SelectInputControlViewHolder multiSelectInputControlViewHolder = new SelectInputControlViewHolder(listItem);
+                MultiSelectInputControlViewHolder multiSelectInputControlViewHolder = new MultiSelectInputControlViewHolder(listItem);
                 multiSelectInputControlViewHolder.setOnSelectListener(new MultiSelectIcInteractionListener());
                 return multiSelectInputControlViewHolder;
             default:

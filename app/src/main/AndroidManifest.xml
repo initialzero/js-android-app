@@ -77,6 +77,12 @@
             android:label="@string/ro_page_title"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity
+            android:name=".activities.inputcontrols.IcSelectActivity_"
+            android:configChanges="screenSize|orientation|locale"
+            android:label="@string/ro_page_title"
+            android:windowSoftInputMode="stateHidden" />
+
         <!-- Activity that performs report viewing in HTML format through visualize -->
         <activity
             android:name=".activities.viewer.html.report.ReportViewerActivity_"

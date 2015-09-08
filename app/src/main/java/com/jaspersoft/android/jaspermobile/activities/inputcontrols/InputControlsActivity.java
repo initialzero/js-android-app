@@ -50,6 +50,7 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -70,6 +71,7 @@ import java.util.Set;
 @OptionsMenu(R.menu.am_run_report_menu)
 public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener {
     // Extras
+    public static final int SELECT_IC_REQUEST_CODE = 521;
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
     @Inject
@@ -101,6 +103,17 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
     }
 
+    @OnActivityResult(SELECT_IC_REQUEST_CODE)
+    final void selectIcAction(Intent data) {
+        if (data.hasExtra(IcSelectActivity.SELECT_IC_ARG)) {
+            String inputControlId = data.getStringExtra(IcSelectActivity.SELECT_IC_ARG);
+            InputControl selectInputControl = getInputControl(inputControlId);
+
+            mAdapter.updateInputControl(selectInputControl);
+            updateDependentControls(selectInputControl);
+        }
+    }
+
     @Override
     public void onBooleanStateChanged(InputControl inputControl, boolean newState) {
         inputControl.getState().setValue(String.valueOf(newState));
@@ -115,10 +128,20 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @Override
     public void onSingleSelectIcClicked(InputControl inputControl) {
+        IcSelectActivity_.intent(this)
+                .reportUri(reportUri)
+                .inputControlId(inputControl.getId())
+                .listType(IcSelectActivity.SINGLE_SELECT)
+                .startForResult(SELECT_IC_REQUEST_CODE);
     }
 
     @Override
     public void onMultiSelectIcClicked(InputControl inputControl) {
+        IcSelectActivity_.intent(this)
+                .reportUri(reportUri)
+                .inputControlId(inputControl.getId())
+                .listType(IcSelectActivity.MULTI_SELECT)
+                .startForResult(SELECT_IC_REQUEST_CODE);
     }
 
     @Override
@@ -148,6 +171,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     private void showInputControls() {
         mAdapter = new InputControlsAdapter(inputControls);
+        mAdapter.setInteractionListener(this);
         int dividerHeight = (int) getResources().getDimension(R.dimen.ic_divider_height);
 
         inputControlsList.addItemDecoration(new ItemSpaceDecoration(dividerHeight));
@@ -163,6 +187,15 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         }
 
         mAdapter.setListEnabled(refreshing);
+    }
+
+    private InputControl getInputControl(String id) {
+        for (InputControl inputControl : inputControls) {
+            if (inputControl.getId().equals(id)) {
+                return inputControl;
+            }
+        }
+        return null;
     }
 
     private boolean isNewParamsEqualOld(ArrayList<ReportParameter> newParams) {
@@ -208,10 +241,9 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     private void updateInputControls(List<InputControlState> stateList) {
         for (InputControlState inputControlState : stateList) {
-            for (InputControl inputControl : inputControls) {
-                if (inputControlState.getId().equals(inputControl.getId())) {
-                    inputControl.setState(inputControlState);
-                }
+            InputControl inputControl = getInputControl(inputControlState.getId());
+            if (inputControl != null) {
+                inputControl.setState(inputControlState);
             }
         }
         mAdapter.updateInputControlList(inputControls);
@@ -260,103 +292,6 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
             }
         }
     }
-//    private void initSingleSelectControl(final InputControl inputControl) {
-//        LayoutInflater inflater = getLayoutInflater();
-//        View layoutView = inflater.inflate(R.layout.view_ic_single_select, baseLayout, false);
-//        updateLabelView(inputControl, layoutView);
-//
-//        Spinner spinner = (Spinner) layoutView.findViewById(R.id.ic_spinner);
-//        spinner.setPrompt(inputControl.getLabel());
-//
-//        ArrayAdapter<InputControlOption> lovAdapter = new ArrayAdapter<InputControlOption>(InputControlsActivity.this,
-//                android.R.layout.simple_spinner_item, inputControl.getState().getOptions());
-//        lovAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinner.setAdapter(lovAdapter);
-//
-//        // set initial value for spinner
-//        for (InputControlOption option : inputControl.getState().getOptions()) {
-//            if (option.isSelected()) {
-//                int position = lovAdapter.getPosition(option);
-//                spinner.setSelection(position, false);
-//            }
-//        }
-//
-//        // add listener
-//        if (inputControl.isReadOnly()) {
-//            spinner.setEnabled(false);
-//        } else {
-//            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//                @Override
-//                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                    for (InputControlOption option : inputControl.getState().getOptions()) {
-//                        if (option.equals(parent.getSelectedItem())) {
-//                            if (!option.isSelected()) {
-//                                option.setSelected(true);
-//                                updateDependentControls(inputControl);
-//                                hideValidationMessage(inputControl);
-//                            }
-//                        } else {
-//                            option.setSelected(false);
-//                        }
-//                    }
-//                }
-//
-//                @Override
-//                public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
-//            });
-//        }
-//
-//        assignViews(inputControl, layoutView, spinner);
-//        baseLayout.addView(layoutView);
-//    }
-//
-//    private void initMultiSelectControl(final InputControl inputControl) {
-//        LayoutInflater inflater = getLayoutInflater();
-//        View layoutView = inflater.inflate(R.layout.view_ic_multi_select, baseLayout, false);
-//        updateLabelView(inputControl, layoutView);
-//
-//        MultiSelectSpinner<InputControlOption> multiSpinner =
-//                (MultiSelectSpinner<InputControlOption>) layoutView.findViewById(R.id.ic_multi_spinner);
-//        multiSpinner.setPrompt(inputControl.getLabel());
-//        // init values
-//        multiSpinner.setItemsList(inputControl.getState().getOptions(), InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
-//
-//        // set selected values
-//        List<Integer> positions = new ArrayList<Integer>();
-//        for (InputControlOption option : inputControl.getState().getOptions()) {
-//            if (option.isSelected()) {
-//                positions.add(multiSpinner.getItemPosition(option));
-//            }
-//        }
-//        multiSpinner.setSelection(positions);
-//
-//        // add listener
-//        if (inputControl.isReadOnly()) {
-//            multiSpinner.setEnabled(false);
-//        } else {
-//            multiSpinner.setOnItemsSelectedListener(new MultiSelectSpinner.OnItemsSelectedListener() {
-//                @Override
-//                public void onItemsSelected(List selectedItems) {
-//                    boolean valuesChanged = false;
-//                    // update selected values
-//                    for (InputControlOption option : inputControl.getState().getOptions()) {
-//                        boolean selectedBefore = option.isSelected();
-//                        boolean selectedNow = selectedItems.contains(option);
-//                        if (selectedBefore != selectedNow) valuesChanged = true;
-//                        option.setSelected(selectedNow);
-//                    }
-//                    // update dependent controls if exist
-//                    if (valuesChanged) {
-//                        updateDependentControls(inputControl);
-//                        hideValidationMessage(inputControl);
-//                    }
-//                }
-//            });
-//        }
-//
-//        assignViews(inputControl, layoutView, multiSpinner);
-//        baseLayout.addView(layoutView);
-//    }
 
     //---------------------------------------------------------------------
     // Nested Classes

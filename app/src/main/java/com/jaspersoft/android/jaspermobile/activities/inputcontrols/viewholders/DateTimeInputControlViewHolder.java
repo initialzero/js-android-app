@@ -7,17 +7,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Locale;
-
-import timber.log.Timber;
 
 /**
  * @author Andrew Tivodar
@@ -37,7 +33,6 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
     protected View dateTimeDivider;
 
     protected SimpleDateFormat mUserDateFormat;
-    private DateFormat mServerDateFormat;
     private DateTimeClickListener mDateTimeClickListener;
 
     public DateTimeInputControlViewHolder(View itemView) {
@@ -89,7 +84,7 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setClearButtonVisibility(s.equals(InputControlWrapper.NOTHING_SUBSTITUTE_LABEL));
+                setClearButtonVisibility(!s.toString().equals(InputControlWrapper.NOTHING_SUBSTITUTE_LABEL));
             }
 
             @Override
@@ -103,7 +98,6 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
     public void populateView(InputControl inputControl, boolean enabled) {
         enableViews(inputControl, enabled);
 
-        mServerDateFormat = parseServerDateFormat(inputControl);
         String selectedDate = getSelectedDate(inputControl);
         selectedDateTime.setText(selectedDate != null ? selectedDate : InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
         label.setText(getUpdatedLabelText(inputControl));
@@ -115,25 +109,11 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
         this.mDateTimeClickListener = dateTimeClickListener;
     }
 
-    private DateFormat parseServerDateFormat(InputControl inputControl) {
-        DateFormat dateFormat = mUserDateFormat;
-
-        for (DateTimeFormatValidationRule validationRule : inputControl.getValidationRules(DateTimeFormatValidationRule.class)) {
-            String serverDateFormat = validationRule.getFormat();
-            dateFormat = new SimpleDateFormat(serverDateFormat, Locale.US);
-        }
-        return dateFormat;
-    }
-
     private String getSelectedDate(InputControl inputControl) {
-        String selectedValue = inputControl.getState().getValue();
-        if (selectedValue != null) {
-            try {
-                Date date = mServerDateFormat.parse(selectedValue);
-                return mUserDateFormat.format(date);
-            } catch (ParseException e) {
-                Timber.e("Can not parse date: %s", selectedValue);
-            }
+        Calendar calendarDate = IcDateHelper.convertToDate(inputControl);
+
+        if (calendarDate != null) {
+            return mUserDateFormat.format(calendarDate.getTime());
         }
         return null;
     }

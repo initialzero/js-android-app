@@ -35,7 +35,9 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
@@ -57,6 +59,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +72,7 @@ import java.util.Set;
  */
 @EActivity(R.layout.report_options_layout)
 @OptionsMenu(R.menu.am_run_report_menu)
-public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener {
+public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener, DateDialogFragment.DateDialogClickListener {
     // Extras
     public static final int SELECT_IC_REQUEST_CODE = 521;
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
@@ -146,17 +149,35 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @Override
     public void onDateIcClicked(InputControl inputControl) {
-        //showDateDialog(inputControl, TIME_DIALOG_ID, editText, startDate);
+        DateDialogFragment.createBuilder(getSupportFragmentManager())
+                .setInputControlId(inputControl.getId())
+                .setDate(IcDateHelper.convertToDate(inputControl))
+                .setType(DateDialogFragment.DATE)
+                .show();
     }
 
     @Override
     public void onTimeIcClicked(InputControl inputControl) {
-        //showDateDialog(inputControl, DATE_DIALOG_ID, editText, startDate);
+        DateDialogFragment.createBuilder(getSupportFragmentManager())
+                .setInputControlId(inputControl.getId())
+                .setDate(IcDateHelper.convertToDate(inputControl))
+                .setType(DateDialogFragment.TIME)
+                .show();
     }
 
     @Override
     public void onDateClear(InputControl inputControl) {
         inputControl.getState().setValue("");
+        mAdapter.updateInputControl(inputControl);
+        updateDependentControls(inputControl);
+    }
+
+    @Override
+    public void onDateSelected(String icId, Calendar date) {
+        InputControl inputControl = getInputControl(icId);
+
+        updateDateValue(inputControl, date);
+        mAdapter.updateInputControl(inputControl);
         updateDependentControls(inputControl);
     }
 
@@ -210,6 +231,11 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         }
 
         return true;
+    }
+
+    private void updateDateValue(InputControl inputControl, Calendar newDate) {
+        String newDateString = IcDateHelper.convertToString(inputControl, newDate);
+        inputControl.getState().setValue(newDateString);
     }
 
     private void updateDependentControls(InputControl inputControl) {

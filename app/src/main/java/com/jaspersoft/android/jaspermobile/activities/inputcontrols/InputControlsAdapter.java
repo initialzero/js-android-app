@@ -37,6 +37,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
 
     private ArrayList<InputControl> mInputControls;
     private boolean mEnabled;
+    private boolean mIsBinding;
     private LayoutInflater mLayoutInflater;
     private InputControlInteractionListener mInteractionListener;
 
@@ -66,6 +67,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     public void updateInputControl(InputControl inputControl){
         int position = mInputControls.indexOf(inputControl);
         if (position != -1) {
+            hideError(position);
             notifyItemChanged(position);
         }
     }
@@ -127,7 +129,9 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
 
     @Override
     public void onBindViewHolder(BaseInputControlViewHolder viewHolder, int position) {
+        mIsBinding = true;
         viewHolder.populateView(mInputControls.get(position), mEnabled);
+        mIsBinding = false;
     }
 
     @Override
@@ -161,6 +165,10 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         }
     }
 
+    private void hideError(int position) {
+        mInputControls.get(position).getState().setError(null);
+    }
+
     public interface InputControlInteractionListener {
         void onBooleanStateChanged(InputControl inputControl, boolean newState);
 
@@ -180,6 +188,8 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private class BooleanIcInteractionListener implements BooleanInputControlViewHolder.StateChangeListener{
         @Override
         public void onStateChanged(int position, boolean state) {
+            if (mIsBinding) return;
+
             if (mInteractionListener != null) {
                 mInteractionListener.onBooleanStateChanged(mInputControls.get(position), state);
             }
@@ -189,6 +199,8 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private class ValueIcInteractionListener implements ValueInputControlViewHolder.ValueChangeListener {
         @Override
         public void onValueChanged(int position, String value) {
+            if (mIsBinding) return;
+
             if (mInteractionListener != null) {
                 mInteractionListener.onValueTextChanged(mInputControls.get(position), value);
             }
@@ -198,6 +210,8 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private class DateIcInteractionListener implements DateTimeInputControlViewHolder.DateTimeClickListener {
         @Override
         public void onDateClick(int position) {
+            if (mIsBinding) return;
+
             if (mInteractionListener != null) {
                 mInteractionListener.onDateIcClicked(mInputControls.get(position));
             }
@@ -205,6 +219,8 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
 
         @Override
         public void onTimeClick(int position) {
+            if (mIsBinding) return;
+
             if (mInteractionListener != null) {
                 mInteractionListener.onTimeIcClicked(mInputControls.get(position));
             }
@@ -212,6 +228,8 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
 
         @Override
         public void onClear(int position) {
+            if (mIsBinding) return;
+
             if (mInteractionListener != null) {
                 mInteractionListener.onDateClear(mInputControls.get(position));
             }
@@ -221,6 +239,8 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private class SingleSelectIcInteractionListener implements SelectInputControlViewHolder.ClickListener{
         @Override
         public void onClick(int position) {
+            if (mIsBinding) return;
+
             if (mInteractionListener != null) {
                 mInteractionListener.onSingleSelectIcClicked(mInputControls.get(position));
             }
@@ -230,6 +250,8 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private class MultiSelectIcInteractionListener implements SelectInputControlViewHolder.ClickListener{
         @Override
         public void onClick(int position) {
+            if (mIsBinding) return;
+
             if (mInteractionListener != null) {
                 mInteractionListener.onMultiSelectIcClicked(mInputControls.get(position));
             }

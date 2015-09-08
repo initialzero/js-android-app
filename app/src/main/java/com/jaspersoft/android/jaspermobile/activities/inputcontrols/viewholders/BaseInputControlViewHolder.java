@@ -25,11 +25,6 @@ public abstract class BaseInputControlViewHolder extends RecyclerView.ViewHolder
     protected void showError(TextView errorView, InputControl inputControl) {
         String error = inputControl.getState().getError();
         errorView.setText(error);
-        if (error != null) {
-            errorView.setVisibility(View.VISIBLE);
-            inputControl.getState().setError("");
-        } else {
-            errorView.setVisibility(View.GONE);
-        }
+        errorView.setVisibility(error != null ? View.VISIBLE : View.GONE);
     }
 }

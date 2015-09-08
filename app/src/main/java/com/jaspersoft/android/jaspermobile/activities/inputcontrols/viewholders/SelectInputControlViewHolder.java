@@ -14,6 +14,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
  */
 public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
 
+    private View item;
     private TextView label;
     private TextView selectedValue;
     private TextView errorText;
@@ -25,6 +26,7 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
         selectedValue = (TextView) itemView.findViewById(R.id.ic_selected_value);
         errorText = (TextView) itemView.findViewById(R.id.ic_error_text);
         label = (TextView) itemView.findViewById(R.id.ic_text_label);
+        item = itemView;
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,6 +41,7 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
     @Override
     public void populateView(InputControl inputControl, boolean enabled) {
         selectedValue.setEnabled(enabled && !inputControl.isReadOnly());
+        item.setEnabled(enabled && !inputControl.isReadOnly());
         selectedValue.setText(getCurrentSelection(inputControl));
         label.setText(getUpdatedLabelText(inputControl));
 

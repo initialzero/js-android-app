@@ -120,12 +120,14 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     @Override
     public void onBooleanStateChanged(InputControl inputControl, boolean newState) {
         inputControl.getState().setValue(String.valueOf(newState));
+        mAdapter.updateInputControl(inputControl);
         updateDependentControls(inputControl);
     }
 
     @Override
     public void onValueTextChanged(InputControl inputControl, String newValue) {
         inputControl.getState().setValue(newValue);
+        mAdapter.updateInputControl(inputControl);
         updateDependentControls(inputControl);
     }
 
@@ -207,7 +209,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
             runReportAction.setActionView(null);
         }
 
-        mAdapter.setListEnabled(refreshing);
+        mAdapter.setListEnabled(!refreshing);
     }
 
     private InputControl getInputControl(String id) {

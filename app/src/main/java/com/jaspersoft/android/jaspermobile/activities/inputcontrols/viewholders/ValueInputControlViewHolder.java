@@ -50,7 +50,9 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
     @Override
     public void populateView(InputControl inputControl, boolean enabled) {
         singleValue.setEnabled(enabled && !inputControl.isReadOnly());
-        singleValue.setText(inputControl.getState().getValue());
+        if (!singleValue.getText().toString().equals(inputControl.getState().getValue())) {
+            singleValue.setText(inputControl.getState().getValue());
+        }
         label.setText(getUpdatedLabelText(inputControl));
 
         showError(errorText, inputControl);
@@ -60,7 +62,7 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
         this.mValueChangeListener = valueChangeListener;
     }
 
-    public interface ValueChangeListener{
+    public interface ValueChangeListener {
         void onValueChanged(int position, String value);
     }
 }

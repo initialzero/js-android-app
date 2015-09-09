@@ -62,6 +62,7 @@ public class JasperAccountManager {
 
     private final Context mContext;
     private final SharedPreferences mPreference;
+    private final AccountManager mDelegateManager;
 
     public static JasperAccountManager get(Context context) {
         if (context == null) {
@@ -72,16 +73,17 @@ public class JasperAccountManager {
 
     private JasperAccountManager(Context context) {
         mContext = context;
+        mDelegateManager = AccountManager.get(context);
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
         Timber.tag(PREF_NAME);
     }
 
     public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
-        AccountManager.get(mContext).addOnAccountsUpdatedListener(listener, null, false);
+        mDelegateManager.addOnAccountsUpdatedListener(listener, null, false);
     }
 
     public void removeOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
-        AccountManager.get(mContext).removeOnAccountsUpdatedListener(listener);
+        mDelegateManager.removeOnAccountsUpdatedListener(listener);
     }
 
     public AccountServerData getActiveServerData() throws TokenException {
@@ -120,8 +122,7 @@ public class JasperAccountManager {
     }
 
     public void activateAccount(Account account) {
-        AccountManager accountManager = AccountManager.get(mContext);
-        String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
         invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
 
@@ -130,8 +131,7 @@ public class JasperAccountManager {
 
     public void activateFirstAccount() {
         Account account = getAccounts()[0];
-        AccountManager accountManager = AccountManager.get(mContext);
-        String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
         invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
 
@@ -143,14 +143,17 @@ public class JasperAccountManager {
     }
 
     public void updateActiveAccountPassword(String newPassword) {
-        AccountManager accountManager = AccountManager.get(mContext);
         invalidateActiveToken();
+        updateAccountPassword(getActiveAccount(), newPassword);
+    }
+
+    public void updateAccountPassword(Account account , String newPassword) {
         String encrypted = encryptPassword(newPassword);
-        accountManager.setPassword(getActiveAccount(), encrypted);
+        mDelegateManager.setPassword(account, encrypted);
     }
 
     public Account[] getAccounts() {
-        Account[] accounts = AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        Account[] accounts = mDelegateManager.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
         Timber.d(Arrays.toString(accounts));
         return accounts;
     }
@@ -178,12 +181,11 @@ public class JasperAccountManager {
             @Override
             public void call(Subscriber<? super Account> subscriber) {
                 try {
-                    AccountManager accountManager = AccountManager.get(mContext);
                     Account account = new Account(serverData.getAlias(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
 
                     String encrypted = encryptPassword(serverData.getPassword());
-                    accountManager.addAccountExplicitly(account,
+                    mDelegateManager.addAccountExplicitly(account,
                             encrypted, serverData.toBundle());
 
                     if (!subscriber.isUnsubscribed()) {
@@ -205,14 +207,12 @@ public class JasperAccountManager {
     }
 
     public void invalidateActiveToken() {
-        AccountManager accountManager = AccountManager.get(mContext);
-        String tokenToInvalidate = accountManager.peekAuthToken(getActiveAccount(), JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        String tokenToInvalidate = mDelegateManager.peekAuthToken(getActiveAccount(), JasperSettings.JASPER_AUTH_TOKEN_TYPE);
         invalidateToken(tokenToInvalidate);
     }
 
     public void invalidateToken(String token) {
-        AccountManager accountManager = AccountManager.get(mContext);
-        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
+        mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
     }
 
     //---------------------------------------------------------------------
@@ -229,10 +229,9 @@ public class JasperAccountManager {
         if (account == null)
             throw new TokenException("No accounts", TokenException.NO_ACCOUNTS_ERROR);
 
-        AccountManager accountManager = AccountManager.get(mContext);
         Bundle tokenOutput;
         try {
-            AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
+            AccountManagerFuture<Bundle> future = mDelegateManager.getAuthToken(account,
                     JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, false, null, null);
             tokenOutput = future.getResult();
         } catch (Exception ex) {
@@ -274,6 +273,10 @@ public class JasperAccountManager {
         String salt = mContext.getResources().getString(R.string.password_salt_key);
         PasswordManager passwordManager = PasswordManager.init(mContext, salt);
         return passwordManager.encrypt(newPassword);
+    }
+
+    public String getPassword(Account account) {
+        return mDelegateManager.getPassword(account);
     }
 
     //---------------------------------------------------------------------

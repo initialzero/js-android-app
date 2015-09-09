@@ -25,7 +25,7 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.2
  */
-@EActivity(R.layout.report_options_layout)
+@EActivity(R.layout.view_simple_list)
 public class SingleSelectActivity extends RoboToolbarActivity {
 
     public static final String SELECT_IC_ARG = "select_input_control_id";

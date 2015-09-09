@@ -111,6 +111,7 @@
     <string name="ro_page_title">Filter Options</string>
     <string name="ro_ms_available">Available: %s</string>
     <string name="ro_ms_selected">Selected: %s</string>
+    <string name="ro_no_items_selected">No items selected</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

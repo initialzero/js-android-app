@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -101,6 +102,8 @@ public class MultiSelectActivity extends RoboToolbarActivity {
         private MultiSelectAvailableAdapter mAvailableAdapter;
         private MultiSelectSelectedAdapter mSelectedAdapter;
 
+        private TextView emptyTextSelected;
+
         public MultiSelectViewPagerAdapter() {
             mAvailableAdapter = new MultiSelectAvailableAdapter(mInputControlOptions);
             mSelectedAdapter = new MultiSelectSelectedAdapter(mInputControlOptions);
@@ -132,17 +135,21 @@ public class MultiSelectActivity extends RoboToolbarActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             LayoutInflater layoutInflater = LayoutInflater.from(MultiSelectActivity.this);
-            RecyclerView list = (RecyclerView) layoutInflater.inflate(R.layout.report_options_layout, container, false);
+            View selectView = layoutInflater.inflate(R.layout.view_multi_select, container, false);
+            RecyclerView list = (RecyclerView) selectView.findViewById(R.id.inputControlsList);
             list.setLayoutManager(new LinearLayoutManager(MultiSelectActivity.this));
 
             if (position == TAB_AVAILABLE) {
                 list.setAdapter(mAvailableAdapter);
             } else {
                 list.setAdapter(mSelectedAdapter);
+                emptyTextSelected = (TextView) selectView.findViewById(R.id.empty);
+                emptyTextSelected.setText(getString(R.string.ro_no_items_selected));
+                emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
             }
 
-            container.addView(list, 0);
-            return list;
+            container.addView(selectView, 0);
+            return selectView;
 
         }
 
@@ -167,9 +174,11 @@ public class MultiSelectActivity extends RoboToolbarActivity {
             mSelectedAdapter.selectItem(isSelected, position);
 
             updateTabTitle();
+
+            emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         }
 
-        private void updateTabTitle(){
+        private void updateTabTitle() {
             TabLayout.Tab selectedTab = headerTab.getTabAt(TAB_SELECTED);
             if (selectedTab != null) {
                 selectedTab.setText(getString(R.string.ro_ms_selected, mSelectedAdapter.getItemCount()));

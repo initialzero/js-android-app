@@ -71,7 +71,7 @@ import java.util.Set;
  * @author Tom Koptel
  * @since 1.6
  */
-@EActivity(R.layout.report_options_layout)
+@EActivity(R.layout.view_simple_list)
 @OptionsMenu(R.menu.am_run_report_menu)
 public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener, DateDialogFragment.DateDialogClickListener {
     // Extras

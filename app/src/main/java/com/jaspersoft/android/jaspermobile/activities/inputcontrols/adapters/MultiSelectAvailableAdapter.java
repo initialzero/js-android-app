@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.inputcontrols;
+package com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,11 +15,12 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.2
  */
-public class MultiSelectIcAdapter extends RecyclerView.Adapter<MultiSelectIcAdapter.SingleSelectViewHolder> {
+public class MultiSelectAvailableAdapter extends RecyclerView.Adapter<MultiSelectAvailableAdapter.MultiSelectViewHolder> {
 
     private List<InputControlOption> mInputControlOptions;
+    private ItemSelectListener mItemSelectListener;
 
-    public MultiSelectIcAdapter(List<InputControlOption> inputControlOptions) {
+    public MultiSelectAvailableAdapter(List<InputControlOption> inputControlOptions) {
         if (inputControlOptions == null) {
             throw new IllegalArgumentException("Input Controls Options list can not be null!");
         }
@@ -27,14 +28,14 @@ public class MultiSelectIcAdapter extends RecyclerView.Adapter<MultiSelectIcAdap
     }
 
     @Override
-    public SingleSelectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MultiSelectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View listItem = layoutInflater.inflate(R.layout.item_input_control_boolean, parent, false);
-        return new SingleSelectViewHolder(listItem);
+        return new MultiSelectViewHolder(listItem);
     }
 
     @Override
-    public void onBindViewHolder(SingleSelectViewHolder viewHolder, int position) {
+    public void onBindViewHolder(MultiSelectViewHolder viewHolder, int position) {
         viewHolder.populateView(mInputControlOptions.get(position));
     }
 
@@ -43,23 +44,23 @@ public class MultiSelectIcAdapter extends RecyclerView.Adapter<MultiSelectIcAdap
         return mInputControlOptions.size();
     }
 
-    private void onItemSelected(int position){
-        InputControlOption inputControlOption = mInputControlOptions.get(position);
-        inputControlOption.setSelected(!inputControlOption.isSelected());
-        notifyItemChanged(position);
+    public void setItemSelectListener(ItemSelectListener itemSelectListener) {
+        this.mItemSelectListener = itemSelectListener;
     }
 
-    protected class SingleSelectViewHolder extends RecyclerView.ViewHolder {
+    protected class MultiSelectViewHolder extends RecyclerView.ViewHolder {
 
         private CheckBox cbSingleSelect;
 
-        public SingleSelectViewHolder(View itemView) {
+        public MultiSelectViewHolder(View itemView) {
             super(itemView);
             cbSingleSelect = (CheckBox) itemView;
             cbSingleSelect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemSelected(getPosition());
+                    if (mItemSelectListener != null) {
+                        mItemSelectListener.onItemSelected(getAdapterPosition());
+                    }
                 }
             });
         }
@@ -68,5 +69,9 @@ public class MultiSelectIcAdapter extends RecyclerView.Adapter<MultiSelectIcAdap
             cbSingleSelect.setText(inputControlOption.getLabel());
             cbSingleSelect.setChecked(inputControlOption.isSelected());
         }
+    }
+
+    public interface ItemSelectListener {
+        void onItemSelected(int position);
     }
 }

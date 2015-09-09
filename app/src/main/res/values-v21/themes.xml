@@ -27,7 +27,7 @@
     <style name="Theme.JasperMobile" parent="Base.Theme.AppCompat">
         <item name="android:windowBackground">@drawable/bg_application_main</item>
         <item name="windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
         <item name="android:fontFamily">sans-serif-light</item>
 
         <item name="colorAccent">@color/js_blue</item>

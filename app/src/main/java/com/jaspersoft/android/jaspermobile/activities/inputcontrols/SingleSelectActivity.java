@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.SingleSelectIcAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -25,10 +26,7 @@ import java.util.List;
  * @since 2.2
  */
 @EActivity(R.layout.report_options_layout)
-public class IcSelectActivity extends RoboToolbarActivity {
-
-    public static final int MULTI_SELECT = 0;
-    public static final int SINGLE_SELECT = 1;
+public class SingleSelectActivity extends RoboToolbarActivity {
 
     public static final String SELECT_IC_ARG = "select_input_control_id";
 
@@ -68,17 +66,12 @@ public class IcSelectActivity extends RoboToolbarActivity {
     }
 
     private void showInputControlOptions() {
-        RecyclerView.Adapter adapter;
-        if (listType == SINGLE_SELECT) {
-            adapter = new SingleSelectIcAdapter(mInputControlOptions);
-        } else {
-            adapter = new MultiSelectIcAdapter(mInputControlOptions);
-        }
+        RecyclerView.Adapter adapter = new SingleSelectIcAdapter(mInputControlOptions);
         inputControlsList.setLayoutManager(new LinearLayoutManager(this));
         inputControlsList.setAdapter(adapter);
     }
 
-    private void initInputControlOptions(){
+    private void initInputControlOptions() {
         ArrayList<InputControl> inputControls = paramsStorage.getInputControls(reportUri);
         for (InputControl inputControl : inputControls) {
             if (inputControl.getId().equals(inputControlId)) {

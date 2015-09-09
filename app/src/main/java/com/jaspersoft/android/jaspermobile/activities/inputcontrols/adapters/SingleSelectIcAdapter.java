@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.inputcontrols;
+package com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

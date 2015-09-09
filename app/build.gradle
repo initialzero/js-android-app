@@ -160,9 +160,10 @@ dependencies {
     compile 'org.roboguice:roboguice:3.0.1'
     provided 'org.roboguice:roboblender:3.0.1'
 
-    compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.android.support:cardview-v7:21.0.3'
-    compile 'com.android.support:recyclerview-v7:21.0.3'
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:cardview-v7:22.2.1'
+    compile 'com.android.support:recyclerview-v7:22.2.1'
+    compile 'com.android.support:design:22.2.1'
     compile 'com.google.android.gms:play-services-analytics:7.3.0'
 
     compile("org.androidannotations:androidannotations-api:3.2")

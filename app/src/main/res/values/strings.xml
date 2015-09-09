@@ -109,6 +109,8 @@
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
     <string name="ro_page_title">Filter Options</string>
+    <string name="ro_ms_available">Available: %s</string>
+    <string name="ro_ms_selected">Selected: %s</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

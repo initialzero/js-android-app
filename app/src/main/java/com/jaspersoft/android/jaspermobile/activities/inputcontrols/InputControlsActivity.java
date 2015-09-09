@@ -33,6 +33,7 @@ import android.view.MenuItem;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.InputControlsAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
@@ -108,8 +109,8 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @OnActivityResult(SELECT_IC_REQUEST_CODE)
     final void selectIcAction(Intent data) {
-        if (data.hasExtra(IcSelectActivity.SELECT_IC_ARG)) {
-            String inputControlId = data.getStringExtra(IcSelectActivity.SELECT_IC_ARG);
+        if (data.hasExtra(SingleSelectActivity.SELECT_IC_ARG)) {
+            String inputControlId = data.getStringExtra(SingleSelectActivity.SELECT_IC_ARG);
             InputControl selectInputControl = getInputControl(inputControlId);
 
             mAdapter.updateInputControl(selectInputControl);
@@ -133,19 +134,17 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @Override
     public void onSingleSelectIcClicked(InputControl inputControl) {
-        IcSelectActivity_.intent(this)
+        SingleSelectActivity_.intent(this)
                 .reportUri(reportUri)
                 .inputControlId(inputControl.getId())
-                .listType(IcSelectActivity.SINGLE_SELECT)
                 .startForResult(SELECT_IC_REQUEST_CODE);
     }
 
     @Override
     public void onMultiSelectIcClicked(InputControl inputControl) {
-        IcSelectActivity_.intent(this)
+        MultiSelectActivity_.intent(this)
                 .reportUri(reportUri)
                 .inputControlId(inputControl.getId())
-                .listType(IcSelectActivity.MULTI_SELECT)
                 .startForResult(SELECT_IC_REQUEST_CODE);
     }
 

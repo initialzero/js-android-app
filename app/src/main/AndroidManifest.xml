@@ -80,7 +80,6 @@
         <activity
             android:name=".activities.inputcontrols.SingleSelectActivity_"
             android:configChanges="screenSize|orientation|locale"
-            android:theme="@style/Theme.JasperMobile.NoToolbar"
             android:windowSoftInputMode="stateHidden" />
 
         <activity

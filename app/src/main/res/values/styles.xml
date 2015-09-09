@@ -43,6 +43,10 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
+    <style name="Widget.JasperMobile.CheckBox" parent="android:Widget.Holo.CompoundButton.CheckBox">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
     <style name="Widget.JasperMobile.DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>
         <item name="color">@android:color/white</item>

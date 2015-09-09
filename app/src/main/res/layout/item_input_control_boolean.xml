@@ -25,12 +25,10 @@
 <CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ic_boolean"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="50dp"
     android:background="?attr/selectableItemBackground"
     android:button="@null"
     android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
-    android:paddingBottom="10dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    android:paddingTop="10dp"
     android:singleLine="true" />

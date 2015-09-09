@@ -5,7 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
@@ -33,7 +34,7 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
     @Override
     public MultiSelectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View listItem = layoutInflater.inflate(R.layout.item_input_control_boolean, parent, false);
+        View listItem = layoutInflater.inflate(R.layout.item_multiselect_remove, parent, false);
         return new MultiSelectViewHolder(listItem);
     }
 
@@ -113,12 +114,14 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
 
     protected class MultiSelectViewHolder extends RecyclerView.ViewHolder {
 
-        private CheckBox cbSingleSelect;
+        private TextView tvLabel;
+        private ImageButton btnRemove;
 
         public MultiSelectViewHolder(View itemView) {
             super(itemView);
-            cbSingleSelect = (CheckBox) itemView;
-            cbSingleSelect.setOnClickListener(new View.OnClickListener() {
+            tvLabel = (TextView) itemView.findViewById(R.id.tvMultiSelectLabel);
+            btnRemove = (ImageButton) itemView.findViewById(R.id.btnRemoveMultiSelect);
+            btnRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int selectedPosition = getAdapterPosition();
@@ -131,8 +134,7 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
         }
 
         public void populateView(InputControlOption inputControlOption) {
-            cbSingleSelect.setText(inputControlOption.getLabel());
-            cbSingleSelect.setChecked(inputControlOption.isSelected());
+            tvLabel.setText(inputControlOption.getLabel());
         }
     }
 

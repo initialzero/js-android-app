@@ -62,8 +62,8 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
         super(context);
         mContext = context;
 
-        String salt = mContext.getString(R.string.password_salt_key);
-        mPasswordManager = PasswordManager.withSalt(salt);
+        String secret = mContext.getString(R.string.password_salt_key);
+        mPasswordManager = PasswordManager.init(mContext, secret);
 
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }

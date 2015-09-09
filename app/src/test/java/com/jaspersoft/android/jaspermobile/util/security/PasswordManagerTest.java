@@ -24,9 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.util.security;
 
+import android.provider.Settings;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.core.Is.is;
@@ -41,18 +45,24 @@ import static org.junit.Assert.assertThat;
 @Config(manifest = Config.NONE)
 public class PasswordManagerTest {
 
+    private PasswordManager passwordManager;
+
+    @Before
+    public void setup() {
+        passwordManager = PasswordManager.init(RuntimeEnvironment.application, "secret");
+        Settings.Secure.putString(RuntimeEnvironment.application.getContentResolver(), Settings.Secure.ANDROID_ID, "ROBOLECTRICYOUAREBAD");
+    }
+
     @Test
     public void shouldEncryptPassword() {
-        PasswordManager passwordManager = PasswordManager.withSalt("salt");
         String encrypted = passwordManager.encrypt("1234");
+        System.out.println(encrypted);
         assertThat(encrypted, is(notNullValue()));
     }
 
     @Test
     public void shouldDecryptPassword() {
-        PasswordManager passwordManager = PasswordManager.withSalt("salt");
-        String encrypted = passwordManager.decrypt("c2FsdF8xMjM0");
+        String encrypted = passwordManager.decrypt("eUu9sU6Ah6c=");
         assertThat(encrypted, is("1234"));
     }
-
 }

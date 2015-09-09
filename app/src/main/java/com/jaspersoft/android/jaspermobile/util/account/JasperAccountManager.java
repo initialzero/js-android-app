@@ -272,7 +272,7 @@ public class JasperAccountManager {
 
     private String encryptPassword(String newPassword) {
         String salt = mContext.getResources().getString(R.string.password_salt_key);
-        PasswordManager passwordManager = PasswordManager.withSalt(salt);
+        PasswordManager passwordManager = PasswordManager.init(mContext, salt);
         return passwordManager.encrypt(newPassword);
     }
 

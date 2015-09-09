@@ -152,6 +152,14 @@ public class JasperAccountManager {
         mDelegateManager.setPassword(account, encrypted);
     }
 
+    public void clearAccountsPassword(){
+        AccountManager accountManager = AccountManager.get(mContext);
+        Account[] accounts = getAccounts();
+        for (Account account : accounts) {
+            accountManager.clearPassword(account);
+        }
+    }
+
     public Account[] getAccounts() {
         Account[] accounts = mDelegateManager.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
         Timber.d(Arrays.toString(accounts));

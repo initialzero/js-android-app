@@ -178,10 +178,13 @@
     <string name="st_title">Settings</string>
     <string name="st_category_repo_cache">Repository Cache</string>
     <string name="st_category_connection">Connection</string>
+    <string name="st_category_security" translatable="false">Security</string>
     <string name="st_title_cache_enable">Enable cache</string>
     <string name="st_title_cache_expiration">Cache expiration</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
     <string name="st_title_read_timeout">Data read timeout</string>
+    <string name="st_title_session_resume" translatable="false">Session auto resume</string>
+    <string name="st_send_session_resume_note" translatable="false">NOTE: It will be applied for all accounts.</string>
     <string name="st_title_animations">Animations</string>
     <string name="st_send_crashes">Send crash reports</string>
     <string name="st_send_crashes_note">NOTE: Restart the app after changing this setting.</string>

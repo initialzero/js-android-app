@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -56,10 +57,15 @@ import timber.log.Timber;
 public class JasperAuthenticator extends AbstractAccountAuthenticator {
     private static final String SERVER_DATA_WAS_UPDATED = "Server version or edition has been updated";
     private final Context mContext;
+    private final PasswordManager mPasswordManager;
 
     public JasperAuthenticator(Context context) {
         super(context);
         mContext = context;
+
+        String secret = mContext.getString(R.string.password_salt_key);
+        mPasswordManager = PasswordManager.init(mContext, secret);
+
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }
 
@@ -92,18 +98,20 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
-        String password = accountManager.getPassword(account);
-        Timber.d(String.format("Password for account[%s] : %s", account.name, password));
+        String encrypted = accountManager.getPassword(account);
+        Timber.d(String.format("Password for account[%s] : %s", account.name, encrypted));
         boolean sessionNeedToBeResumed = DefaultPrefHelper_.getInstance_(mContext).isSessionResumable();
         if (!sessionNeedToBeResumed) {
             accountManager.clearPassword(account);
         }
-
-        if (TextUtils.isEmpty(password)) {
-            return createErrorBundle(JasperAccountManager.TokenException.NO_PASSWORD_ERROR, mContext.getString(R.string.r_error_incorrect_credentials));
+        
+        if (TextUtils.isEmpty(encrypted)) {
+            return createErrorBundle(JasperAccountManager.TokenException.NO_PASSWORD_ERROR,
+                    mContext.getString(R.string.r_error_incorrect_credentials));
         }
 
         try {
+            String password = mPasswordManager.decrypt(encrypted);
             AccountServerData serverData = AccountServerData.get(mContext, account);
             JsRestClient2 jsRestClient2 = JsRestClient2
                     .configure()

@@ -109,9 +109,12 @@
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
     <string name="ro_page_title">Filter Options</string>
-    <string name="ro_ms_available">Available: %s</string>
-    <string name="ro_ms_selected">Selected: %s</string>
-    <string name="ro_no_items_selected">No items selected</string>
+    <string name="ro_ms_available" translatable="false">Available: %s</string>
+    <string name="ro_ms_selected" translatable="false">Selected: %s</string>
+    <string name="ro_no_items_selected" translatable="false">No items selected</string>
+    <string name="ro_select_all" translatable="false">Select all</string>
+    <string name="ro_deselect_all" translatable="false">Deselect all</string>
+    <string name="ro_inverse" translatable="false">Inverse</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
@@ -46,25 +47,30 @@ public class MultiSelectAvailableAdapter extends FilterableAdapter<MultiSelectAv
 
     protected class MultiSelectViewHolder extends RecyclerView.ViewHolder {
 
-        private CheckBox cbSingleSelect;
+        private CheckBox cbSelect;
+        private TextView itemTitle;
 
         public MultiSelectViewHolder(View itemView) {
             super(itemView);
-            cbSingleSelect = (CheckBox) itemView;
-            cbSingleSelect.setOnClickListener(new View.OnClickListener() {
+
+            cbSelect = (CheckBox) itemView.findViewById(R.id.ic_boolean);
+            itemTitle = (TextView) itemView.findViewById(R.id.ic_boolean_title);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mItemSelectListener != null) {
                         int filteredPosition = getItemPosition(getAdapterPosition());
                         mItemSelectListener.onItemSelected(filteredPosition);
                     }
+                    cbSelect.performClick();
                 }
             });
         }
 
         public void populateView(InputControlOption inputControlOption) {
-            cbSingleSelect.setText(inputControlOption.getLabel());
-            cbSingleSelect.setChecked(inputControlOption.isSelected());
+            itemTitle.setText(inputControlOption.getLabel());
+            cbSelect.setChecked(inputControlOption.isSelected());
         }
     }
 

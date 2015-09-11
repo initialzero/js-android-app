@@ -79,8 +79,7 @@
 
         <activity
             android:name=".activities.inputcontrols.SingleSelectActivity_"
-            android:configChanges="screenSize|orientation|locale"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="adjustResize"/>
 
         <activity
             android:name=".activities.inputcontrols.MultiSelectActivity_"

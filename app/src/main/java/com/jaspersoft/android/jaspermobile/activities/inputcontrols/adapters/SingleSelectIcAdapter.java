@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
@@ -47,23 +48,30 @@ public class SingleSelectIcAdapter extends FilterableAdapter<SingleSelectIcAdapt
     protected class SingleSelectViewHolder extends RecyclerView.ViewHolder {
 
         private CheckBox cbSingleSelect;
+        private TextView itemTitle;
 
         public SingleSelectViewHolder(View itemView) {
             super(itemView);
-            cbSingleSelect = (CheckBox) itemView;
-            cbSingleSelect.setOnClickListener(new View.OnClickListener() {
+            cbSingleSelect = (CheckBox) itemView.findViewById(R.id.ic_boolean);
+            itemTitle = (TextView) itemView.findViewById(R.id.ic_boolean_title);
+
+            cbSingleSelect.setChecked(true);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mItemSelectListener != null) {
                         int itemPosition = getItemPosition(getAdapterPosition());
                         mItemSelectListener.onItemSelected(itemPosition);
                     }
+                    cbSingleSelect.performClick();
                 }
             });
         }
 
         public void populateView(InputControlOption inputControlOption) {
-            cbSingleSelect.setText(inputControlOption.getLabel());
+            itemTitle.setText(inputControlOption.getLabel());
+            cbSingleSelect.setVisibility(inputControlOption.isSelected() ? View.VISIBLE : View.GONE);
             cbSingleSelect.setChecked(inputControlOption.isSelected());
         }
     }

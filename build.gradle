@@ -42,7 +42,7 @@ subprojects {
     ext.androidApt = '1.4'
     ext.androidBuildToolsVersion = '21.1.2';
     ext.androidMinSdkVersion = 15;
-    ext.androidCompileSdkVersion = 21;
+    ext.androidCompileSdkVersion = 23;
     ext.androidTargetSdkVersion = 21;
 
     ext.jasperSdkVersion = '1.10';

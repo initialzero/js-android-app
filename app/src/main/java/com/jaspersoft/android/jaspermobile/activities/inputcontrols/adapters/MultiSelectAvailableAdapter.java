@@ -15,16 +15,12 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.2
  */
-public class MultiSelectAvailableAdapter extends RecyclerView.Adapter<MultiSelectAvailableAdapter.MultiSelectViewHolder> {
+public class MultiSelectAvailableAdapter extends FilterableAdapter<MultiSelectAvailableAdapter.MultiSelectViewHolder, InputControlOption> {
 
-    private List<InputControlOption> mInputControlOptions;
     private ItemSelectListener mItemSelectListener;
 
     public MultiSelectAvailableAdapter(List<InputControlOption> inputControlOptions) {
-        if (inputControlOptions == null) {
-            throw new IllegalArgumentException("Input Controls Options list can not be null!");
-        }
-        this.mInputControlOptions = inputControlOptions;
+        super(inputControlOptions);
     }
 
     @Override
@@ -36,12 +32,12 @@ public class MultiSelectAvailableAdapter extends RecyclerView.Adapter<MultiSelec
 
     @Override
     public void onBindViewHolder(MultiSelectViewHolder viewHolder, int position) {
-        viewHolder.populateView(mInputControlOptions.get(position));
+        viewHolder.populateView(getItem(position));
     }
 
     @Override
-    public int getItemCount() {
-        return mInputControlOptions.size();
+    protected String getValueForFiltering(InputControlOption item) {
+        return item.getLabel();
     }
 
     public void setItemSelectListener(ItemSelectListener itemSelectListener) {
@@ -59,7 +55,8 @@ public class MultiSelectAvailableAdapter extends RecyclerView.Adapter<MultiSelec
                 @Override
                 public void onClick(View v) {
                     if (mItemSelectListener != null) {
-                        mItemSelectListener.onItemSelected(getAdapterPosition());
+                        int filteredPosition = getItemPosition(getAdapterPosition());
+                        mItemSelectListener.onItemSelected(filteredPosition);
                     }
                 }
             });

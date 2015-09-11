@@ -15,18 +15,12 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.2
  */
-public class SingleSelectIcAdapter extends RecyclerView.Adapter<SingleSelectIcAdapter.SingleSelectViewHolder> {
+public class SingleSelectIcAdapter extends FilterableAdapter<SingleSelectIcAdapter.SingleSelectViewHolder, InputControlOption> {
 
-    private List<InputControlOption> mInputControlOptions;
-    private int mPreviousSelected;
+    private ItemSelectListener mItemSelectListener;
 
     public SingleSelectIcAdapter(List<InputControlOption> inputControlOptions) {
-        if (inputControlOptions == null) {
-            throw new IllegalArgumentException("Input Controls Options list can not be null!");
-        }
-        this.mInputControlOptions = inputControlOptions;
-
-        mPreviousSelected = getSelectedPosition();
+        super(inputControlOptions);
     }
 
     @Override
@@ -38,31 +32,16 @@ public class SingleSelectIcAdapter extends RecyclerView.Adapter<SingleSelectIcAd
 
     @Override
     public void onBindViewHolder(SingleSelectViewHolder viewHolder, int position) {
-        viewHolder.populateView(mInputControlOptions.get(position));
+        viewHolder.populateView(getItem(position));
     }
 
     @Override
-    public int getItemCount() {
-        return mInputControlOptions.size();
+    protected String getValueForFiltering(InputControlOption item) {
+        return item.getLabel();
     }
 
-    private int getSelectedPosition() {
-        for (int i = 0; i < mInputControlOptions.size(); i++) {
-            if (mInputControlOptions.get(i).isSelected()) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private void onItemSelected(int position){
-        mInputControlOptions.get(mPreviousSelected).setSelected(false);
-        mInputControlOptions.get(position).setSelected(true);
-
-        notifyItemChanged(mPreviousSelected);
-        notifyItemChanged(position);
-
-        mPreviousSelected = position;
+    public void setItemSelectListener(ItemSelectListener itemSelectListener) {
+        this.mItemSelectListener = itemSelectListener;
     }
 
     protected class SingleSelectViewHolder extends RecyclerView.ViewHolder {
@@ -75,7 +54,10 @@ public class SingleSelectIcAdapter extends RecyclerView.Adapter<SingleSelectIcAd
             cbSingleSelect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemSelected(getPosition());
+                    if (mItemSelectListener != null) {
+                        int itemPosition = getItemPosition(getAdapterPosition());
+                        mItemSelectListener.onItemSelected(itemPosition);
+                    }
                 }
             });
         }
@@ -84,5 +66,9 @@ public class SingleSelectIcAdapter extends RecyclerView.Adapter<SingleSelectIcAd
             cbSingleSelect.setText(inputControlOption.getLabel());
             cbSingleSelect.setChecked(inputControlOption.isSelected());
         }
+    }
+
+    public interface ItemSelectListener {
+        void onItemSelected(int position);
     }
 }

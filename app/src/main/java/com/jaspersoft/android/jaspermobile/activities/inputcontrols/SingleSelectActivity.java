@@ -4,6 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -16,6 +21,8 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -25,8 +32,9 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.2
  */
-@EActivity(R.layout.view_simple_list)
-public class SingleSelectActivity extends RoboToolbarActivity {
+@EActivity(R.layout.view_select_ic_list)
+@OptionsMenu(R.menu.search_menu)
+public class SingleSelectActivity extends RoboToolbarActivity implements SearchView.OnQueryTextListener {
 
     public static final String SELECT_IC_ARG = "select_input_control_id";
 
@@ -42,16 +50,27 @@ public class SingleSelectActivity extends RoboToolbarActivity {
     @Extra
     protected int listType;
 
+    @OptionsMenuItem(R.id.search)
+    public MenuItem searchMenuItem;
+
     @ViewById(R.id.inputControlsList)
     protected RecyclerView inputControlsList;
 
+    @ViewById(R.id.empty)
+    protected TextView emptyText;
+
+    private SingleSelectIcAdapter mSingleSelectIcAdapter;
     private List<InputControlOption> mInputControlOptions;
     private String mInputControlLabel;
+    private int mPreviousSelected;
 
     @AfterViews
     protected void init() {
         initInputControlOptions();
         showInputControlOptions();
+
+        emptyText.setText(getString(R.string.r_search_nothing_to_display));
+        mPreviousSelected = getSelectedPosition();
 
         getSupportActionBar().setTitle(mInputControlLabel);
     }
@@ -65,10 +84,42 @@ public class SingleSelectActivity extends RoboToolbarActivity {
         super.onBackPressed();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        searchView.setOnQueryTextListener(this);
+        searchView.setQueryHint(getString(R.string.ro_search));
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        mSingleSelectIcAdapter.filter(newText);
+        onFilteringList();
+        return true;
+    }
+
     private void showInputControlOptions() {
-        RecyclerView.Adapter adapter = new SingleSelectIcAdapter(mInputControlOptions);
+        mSingleSelectIcAdapter = new SingleSelectIcAdapter(mInputControlOptions);
         inputControlsList.setLayoutManager(new LinearLayoutManager(this));
-        inputControlsList.setAdapter(adapter);
+        inputControlsList.setAdapter(mSingleSelectIcAdapter);
+        mSingleSelectIcAdapter.setItemSelectListener(new SingleSelectIcAdapter.ItemSelectListener() {
+            @Override
+            public void onItemSelected(int position) {
+                mInputControlOptions.get(mPreviousSelected).setSelected(false);
+                mSingleSelectIcAdapter.updateItem(mPreviousSelected);
+
+                mInputControlOptions.get(position).setSelected(true);
+                mSingleSelectIcAdapter.updateItem(position);
+
+                mPreviousSelected = position;
+            }
+        });
     }
 
     private void initInputControlOptions() {
@@ -80,5 +131,19 @@ public class SingleSelectActivity extends RoboToolbarActivity {
                 break;
             }
         }
+    }
+
+    private void onFilteringList(){
+        emptyText.setVisibility(mSingleSelectIcAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        inputControlsList.scrollToPosition(0);
+    }
+
+    private int getSelectedPosition() {
+        for (int i = 0; i < mInputControlOptions.size(); i++) {
+            if (mInputControlOptions.get(i).isSelected()) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

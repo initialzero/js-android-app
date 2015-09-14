@@ -197,6 +197,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         int dividerHeight = (int) getResources().getDimension(R.dimen.ic_divider_height);
 
         inputControlsList.addItemDecoration(new ItemSpaceDecoration(dividerHeight));
+        inputControlsList.setItemAnimator(null);
         inputControlsList.setLayoutManager(new LinearLayoutManager(this));
         inputControlsList.setAdapter(mAdapter);
     }

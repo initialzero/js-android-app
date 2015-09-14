@@ -32,7 +32,7 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
             @Override
             public void onClick(View v) {
                 if (mClickListener != null) {
-                    mClickListener.onClick(getPosition());
+                    mClickListener.onClick(getAdapterPosition());
                 }
             }
         });

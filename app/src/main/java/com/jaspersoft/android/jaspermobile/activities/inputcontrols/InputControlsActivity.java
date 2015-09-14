@@ -69,6 +69,7 @@ import java.util.Set;
 /**
  * @author Ivan Gadzhega
  * @author Tom Koptel
+ * @author Andrew Tivodar
  * @since 1.6
  */
 @EActivity(R.layout.view_simple_list)

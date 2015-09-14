@@ -63,6 +63,7 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
     private List<InputControlOption> mInputControlOptions;
     private String mInputControlLabel;
     private int mPreviousSelected;
+    private boolean isValueChanged;
 
     @AfterViews
     protected void init() {
@@ -71,6 +72,7 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
 
         emptyText.setText(getString(R.string.r_search_nothing_to_display));
         mPreviousSelected = getSelectedPosition();
+        inputControlsList.scrollToPosition(mPreviousSelected);
 
         getSupportActionBar().setTitle(mInputControlLabel);
     }
@@ -79,7 +81,9 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
     public void onBackPressed() {
         Intent dataIntent = new Intent();
         dataIntent.putExtra(SELECT_IC_ARG, inputControlId);
-        setResult(Activity.RESULT_OK, dataIntent);
+
+        int resultCode = isValueChanged ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+        setResult(resultCode, dataIntent);
 
         super.onBackPressed();
     }
@@ -108,6 +112,7 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
         mSingleSelectIcAdapter = new SingleSelectIcAdapter(mInputControlOptions);
         inputControlsList.setLayoutManager(new LinearLayoutManager(this));
         inputControlsList.setAdapter(mSingleSelectIcAdapter);
+        inputControlsList.setHasFixedSize(true);
         mSingleSelectIcAdapter.setItemSelectListener(new SingleSelectIcAdapter.ItemSelectListener() {
             @Override
             public void onItemSelected(int position) {
@@ -118,6 +123,7 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
                 mSingleSelectIcAdapter.updateItem(position);
 
                 mPreviousSelected = position;
+                isValueChanged = true;
             }
         });
     }

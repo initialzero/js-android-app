@@ -73,6 +73,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
     private String mInputControlLabel;
     private MultiSelectAvailableAdapter mAvailableAdapter;
     private MultiSelectSelectedAdapter mSelectedAdapter;
+    private boolean isValueChanged;
 
     @AfterViews
     protected void init() {
@@ -104,7 +105,9 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
     public void onBackPressed() {
         Intent dataIntent = new Intent();
         dataIntent.putExtra(SELECT_IC_ARG, inputControlId);
-        setResult(Activity.RESULT_OK, dataIntent);
+
+        int resultCode = isValueChanged ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+        setResult(resultCode, dataIntent);
 
         super.onBackPressed();
     }
@@ -217,6 +220,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
         updateSelectedTabTitle();
         emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        isValueChanged = true;
     }
 
     private void onItemsSelectionChange(){
@@ -225,6 +229,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
         updateSelectedTabTitle();
         emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        isValueChanged = true;
     }
 
     private void onFilteringList(){
@@ -265,6 +270,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
             View selectView = layoutInflater.inflate(R.layout.view_select_ic_list, container, false);
             RecyclerView list = (RecyclerView) selectView.findViewById(R.id.inputControlsList);
             list.setLayoutManager(new LinearLayoutManager(MultiSelectActivity.this));
+            list.setHasFixedSize(true);
 
             if (position == TAB_AVAILABLE) {
                 availableList = list;

@@ -41,6 +41,7 @@ import android.widget.FrameLayout;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
@@ -64,6 +65,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     private View baseView;
     private ViewGroup contentLayout;
 
+    private ActivitySecureDelegate mActivitySecureDelegate;
     private JasperAccountManager mJasperAccountManager;
     private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
@@ -77,7 +79,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             defineJasperAccountsState();
         }
     };
-
 
     public boolean isDevMode() {
         return BuildConfig.DEBUG && BuildConfig.FLAVOR.equals("dev");
@@ -119,11 +120,13 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mActivitySecureDelegate = ActivitySecureDelegate.create(this);
         // Lets check account to be properly setup
         mJasperAccountManager = JasperAccountManager.get(this);
         defineJasperAccountsState();
         updateActiveAccount();
         handleActiveAccountState();
+        mActivitySecureDelegate.onCreate(savedInstanceState);
 
         super.onCreate(savedInstanceState);
         addToolbar();

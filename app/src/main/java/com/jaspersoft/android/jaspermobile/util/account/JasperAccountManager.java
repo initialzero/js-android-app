@@ -39,6 +39,8 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
+import org.roboguice.shaded.goole.common.collect.Lists;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -117,6 +119,13 @@ public class JasperAccountManager {
         return new Account(accountName, JasperSettings.JASPER_ACCOUNT_TYPE);
     }
 
+    public boolean isActiveAccountRegistered(){
+        Account account = getActiveAccount();
+        Account[] accounts = getAccounts();
+        boolean activeAccountExists = Lists.newArrayList(accounts).contains(account);
+        return activeAccountExists;
+    }
+
     public void activateAccount(Account account) {
         AccountManager accountManager = AccountManager.get(mContext);
         String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
@@ -178,8 +187,9 @@ public class JasperAccountManager {
                     AccountManager accountManager = AccountManager.get(mContext);
                     Account account = new Account(serverData.getAlias(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
-                    accountManager.addAccountExplicitly(account,
-                            serverData.getPassword(), serverData.toBundle());
+                            accountManager.addAccountExplicitly(account,
+                                    serverData.getPassword(), null);
+                    setUserData(account, serverData);
                     if (!subscriber.isUnsubscribed()) {
                         subscriber.onNext(account);
                         subscriber.onCompleted();
@@ -262,6 +272,21 @@ public class JasperAccountManager {
             JasperMobileApplication app = ((JasperMobileApplication) mContext.getApplicationContext());
             app.initLegacyJsRestClient();
         }
+    }
+
+    /**
+     * Due to bug in AccountManager this is the only way to set account user data
+     * @param account for adding data
+     * @param serverData data
+     */
+    private void setUserData(Account account, AccountServerData serverData){
+        AccountManager accountManager = AccountManager.get(mContext);
+        accountManager.setUserData(account, AccountServerData.ALIAS_KEY, serverData.getAlias());
+        accountManager.setUserData(account, AccountServerData.SERVER_URL_KEY, serverData.getServerUrl());
+        accountManager.setUserData(account, AccountServerData.ORGANIZATION_KEY, serverData.getOrganization());
+        accountManager.setUserData(account, AccountServerData.USERNAME_KEY, serverData.getUsername());
+        accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverData.getEdition());
+        accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverData.getVersionName());
     }
 
     //---------------------------------------------------------------------

@@ -45,7 +45,6 @@ import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
-import org.roboguice.shaded.goole.common.collect.Lists;
 
 import roboguice.activity.RoboActionBarActivity;
 import timber.log.Timber;
@@ -77,6 +76,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             Timber.d("Accounts list was changed...");
             mJasperAccountsStatus = JasperAccountsStatus.ANY_ACCOUNT_CHANGED;
             defineJasperAccountsState();
+            updateActiveAccount();
         }
     };
 
@@ -151,12 +151,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
                 finish();
             }
         }
-    }
-
-    @Override
-    protected void onStart() {
-        updateActiveAccount();
-        super.onStart();
     }
 
     @Override
@@ -236,8 +230,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         if (accounts.length == 0) {
             mJasperAccountsStatus = JasperAccountsStatus.NO_ACCOUNTS;
         } else if (currentAccount != null) {
-            boolean activeAccountExists = Lists.newArrayList(accounts).contains(currentAccount);
-            if (!activeAccountExists) {
+            if (!mJasperAccountManager.isActiveAccountRegistered()) {
                 mJasperAccountsStatus = JasperAccountsStatus.ACTIVE_ACCOUNT_CHANGED;
             }
         } else {

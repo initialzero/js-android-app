@@ -24,7 +24,7 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (mStateChangeListener != null) {
-                    mStateChangeListener.onStateChanged(getPosition(), isChecked);
+                    mStateChangeListener.onStateChanged(getAdapterPosition(), isChecked);
                 }
             }
         });

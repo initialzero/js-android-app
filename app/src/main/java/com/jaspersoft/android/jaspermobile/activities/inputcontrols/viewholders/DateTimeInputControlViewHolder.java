@@ -53,7 +53,7 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
             @Override
             public void onClick(View v) {
                 if (mDateTimeClickListener != null) {
-                    mDateTimeClickListener.onDateClick(getPosition());
+                    mDateTimeClickListener.onDateClick(getAdapterPosition());
                 }
             }
         });
@@ -62,7 +62,7 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
             @Override
             public void onClick(View v) {
                 if (mDateTimeClickListener != null) {
-                    mDateTimeClickListener.onTimeClick(getPosition());
+                    mDateTimeClickListener.onTimeClick(getAdapterPosition());
                 }
             }
         });
@@ -71,7 +71,7 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
             @Override
             public void onClick(View v) {
                 if (mDateTimeClickListener != null) {
-                    mDateTimeClickListener.onClear(getPosition());
+                    mDateTimeClickListener.onClear(getAdapterPosition());
                 }
             }
         });

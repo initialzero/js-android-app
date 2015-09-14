@@ -30,18 +30,16 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
         singleValue.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(Editable editable) {
                 if (mValueChangeListener != null) {
-                    mValueChangeListener.onValueChanged(getPosition(), s.toString());
+                    mValueChangeListener.onValueChanged(getAdapterPosition(), editable.toString());
                 }
             }
         });
@@ -50,8 +48,14 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
     @Override
     public void populateView(InputControl inputControl, boolean enabled) {
         singleValue.setEnabled(enabled && !inputControl.isReadOnly());
-        if (!singleValue.getText().toString().equals(inputControl.getState().getValue())) {
-            singleValue.setText(inputControl.getState().getValue());
+
+        String previousValue = singleValue.getText().toString();
+        String currentValue = inputControl.getState().getValue();
+        /**
+         * Prevents focus reset on the start of EditText
+         */
+        if (!previousValue.equals(currentValue)) {
+            singleValue.setText(currentValue);
         }
         label.setText(getUpdatedLabelText(inputControl));
 

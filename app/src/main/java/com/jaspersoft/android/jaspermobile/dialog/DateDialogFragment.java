@@ -35,13 +35,19 @@ public class DateDialogFragment extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog;
         if (type == DATE) {
-            dialog = new DatePickerDialog(getActivity(), new DateChangeListener(), activeDate.get(Calendar.YEAR), activeDate.get(Calendar.MONTH), activeDate.get(Calendar.DAY_OF_MONTH));
+            return new DatePickerDialog(getActivity(),
+                    new DateChangeListener(),
+                    activeDate.get(Calendar.YEAR),
+                    activeDate.get(Calendar.MONTH),
+                    activeDate.get(Calendar.DAY_OF_MONTH));
         } else {
-            return new TimePickerDialog(getActivity(), new TimeChangeListener(), activeDate.get(Calendar.HOUR_OF_DAY), activeDate.get(Calendar.MINUTE), true);
+            return new TimePickerDialog(getActivity(),
+                    new TimeChangeListener(),
+                    activeDate.get(Calendar.HOUR_OF_DAY),
+                    activeDate.get(Calendar.MINUTE),
+                    true);
         }
-        return dialog;
     }
 
     @Override

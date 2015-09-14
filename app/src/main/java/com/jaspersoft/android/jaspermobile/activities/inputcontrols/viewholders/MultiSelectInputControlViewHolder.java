@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders;
 
+import android.text.TextUtils;
 import android.view.View;
 
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
@@ -30,17 +31,6 @@ public class MultiSelectInputControlViewHolder extends SelectInputControlViewHol
                 if (selectionList.size() > ITEM_TO_SHOW_MAX_COUNT) break;
             }
         }
-        return selectionList.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : listToString(selectionList);
-    }
-
-    private String listToString(List<String> stringList) {
-        String result = "";
-        for (int i = 0; i < stringList.size(); i++) {
-            result += stringList.get(i);
-            if (i != stringList.size() - 1) {
-                result += ", ";
-            }
-        }
-        return result;
+        return selectionList.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : TextUtils.join(", ", selectionList);
     }
 }

@@ -39,4 +39,5 @@ public interface ReportCallback {
     void onReportExecutionClick(String data);
     void onMultiPageStateObtained(boolean isMultiPage);
     void onWindowError(String errorMessage);
+    void onPageLoadError(String errorMessage, int page);
 }

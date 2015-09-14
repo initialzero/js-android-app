@@ -416,13 +416,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public void onPageSelected(int page, int requestCode) {
-        onPageSelected(page);
         paginationControl.updateCurrentPage(page);
+        onPageSelected(page);
     }
 
     @Override
     public void onPageSelected(int currentPage) {
         resetZoom();
+        paginationControl.setEnabled(false);
         selectPageInWebView(currentPage);
     }
 
@@ -494,6 +495,15 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void onPageChange(int page) {
         paginationControl.updateCurrentPage(page);
+        paginationControl.setEnabled(true);
+    }
+
+    @UiThread
+    @Override
+    public void onPageLoadError(String errorMessage, int page) {
+        paginationControl.updateCurrentPage(page);
+        paginationControl.setEnabled(true);
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
     }
 
     @UiThread

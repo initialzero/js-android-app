@@ -30,7 +30,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -51,6 +53,7 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
@@ -149,6 +152,14 @@ public class AuthenticatorFragment extends RoboFragment {
         super.onCreate(savedInstanceState);
         Timber.tag(AuthenticatorFragment.class.getSimpleName());
         setRetainInstance(true);
+    }
+
+    @AfterViews
+    protected void initViews(){
+        aliasEdit.addTextChangedListener(new ErrorTextWatcher(aliasEdit));
+        usernameEdit.addTextChangedListener(new ErrorTextWatcher(usernameEdit));
+        serverUrlEdit.addTextChangedListener(new ErrorTextWatcher(serverUrlEdit));
+        passwordEdit.addTextChangedListener(new ErrorTextWatcher(passwordEdit));
     }
 
     @Override
@@ -415,6 +426,30 @@ public class AuthenticatorFragment extends RoboFragment {
             if (token != null) {
                 inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
             }
+        }
+    }
+
+    private class ErrorTextWatcher implements TextWatcher{
+
+        private EditText mTarget;
+
+        public ErrorTextWatcher(EditText mTarget) {
+            this.mTarget = mTarget;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            mTarget.setError(null);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
         }
     }
 }

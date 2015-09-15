@@ -125,6 +125,7 @@ public class ResourceOpener {
             case AMBER:
             case AMBER_MR1:
             case AMBER_MR2:
+            case AMBER_MR3:
                 ReportViewerActivity_.intent(activity)
                         .resource(resource).start();
                 break;
@@ -153,6 +154,7 @@ public class ResourceOpener {
                 AmberDashboardActivity_.intent(activity).resource(resource).start();
                 break;
             case AMBER_MR2:
+            case AMBER_MR3:
                 Amber2DashboardActivity_.intent(activity).resource(resource).start();
                 break;
             default:

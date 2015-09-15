@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.robospice;
 import android.accounts.Account;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -38,14 +39,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.security.ProviderInstaller;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
 
+import roboguice.RoboGuice;
 import roboguice.activity.RoboActionBarActivity;
 import timber.log.Timber;
 
@@ -58,17 +64,23 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     private static final String TAG = RoboToolbarActivity.class.getSimpleName();
     private static final int AUTHORIZE_CODE = 10;
+    private static final int SECURITY_PROVIDER_DIALOG_REQUEST_CODE = 1123;
+    private static final String CLOSE_APP_REQUEST_CODE = "close_app";
 
     private Toolbar toolbar;
     private FrameLayout toolbarCustomView;
     private View baseView;
     private ViewGroup contentLayout;
 
+    private boolean mSecureProviderDialogShown;
     private ActivitySecureDelegate mActivitySecureDelegate;
     private JasperAccountManager mJasperAccountManager;
     private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
     private boolean windowToolbar;
+
+    @Inject
+    protected SecurityProviderUpdater mSecurityProviderUpdater;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
@@ -120,6 +132,16 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        RoboGuice.getInjector(this).injectMembersWithoutViews(this);
+
+        // Close activity if flag CLOSE_APP_REQUEST_CODE is active
+        if (getIntent().getBooleanExtra(CLOSE_APP_REQUEST_CODE, false)) {
+            finish();
+        }
+
+        // Lets update Security provider
+        mSecurityProviderUpdater.update(this, new ProviderInstallListener());
+
         mActivitySecureDelegate = ActivitySecureDelegate.create(this);
         // Lets check account to be properly setup
         mJasperAccountManager = JasperAccountManager.get(this);
@@ -150,6 +172,12 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             } else {
                 finish();
             }
+        } else if (requestCode == SECURITY_PROVIDER_DIALOG_REQUEST_CODE) {
+            // Adding a fragment via GoogleApiAvailability.showErrorDialogFragment
+            // before the instance state is restored throws an error. So instead,
+            // set a flag here, which will cause the fragment to delay until
+            // onPostResume.
+            mSecureProviderDialogShown = true;
         }
     }
 
@@ -160,6 +188,16 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             ViewServer.get(this).setFocusedWindow(this);
         }
         updateAccountDependentUi();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        if (mSecureProviderDialogShown) {
+            // We can now safely retry Security provider installation.
+            mSecurityProviderUpdater.update(this, new ProviderInstallListener());
+        }
     }
 
     @Override
@@ -305,6 +343,13 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         startActivity(i);
     }
 
+    private void closeApp() {
+        Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.putExtra(CLOSE_APP_REQUEST_CODE, true);
+        startActivity(i);
+    }
+
     protected void onActiveAccountChanged() {
         restartApp();
     }
@@ -314,5 +359,37 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     public enum JasperAccountsStatus {
         NO_CHANGES, ANY_ACCOUNT_CHANGED, NO_ACTIVE_ACCOUNT, ACTIVE_ACCOUNT_CHANGED, NO_ACCOUNTS
+    }
+
+    private class ProviderInstallListener implements ProviderInstaller.ProviderInstallListener {
+
+        @Override
+        public void onProviderInstalled() {
+            // Provider is up-to-date, app can make secure network calls.
+        }
+
+        @Override
+        public void onProviderInstallFailed(int errorCode, Intent intent) {
+            GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+            if (googleApiAvailability.isUserResolvableError(errorCode) && !mSecureProviderDialogShown) {
+                // Recoverable error. Show a dialog prompting the user to
+                // install/update/enable Google Play services.
+                googleApiAvailability.showErrorDialogFragment(
+                        RoboToolbarActivity.this,
+                        errorCode,
+                        SECURITY_PROVIDER_DIALOG_REQUEST_CODE,
+                        new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                // The user chose not to take the recovery action
+                                closeApp();
+                            }
+                        });
+            } else {
+                // Google Play services is not available.
+                closeApp();
+            }
+
+        }
     }
 }

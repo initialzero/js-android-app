@@ -47,6 +47,7 @@ repositories {
 android {
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidBuildToolsVersion
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId PACKAGE_NAME
@@ -133,7 +134,7 @@ android {
     }
 
     lintOptions {
-        abortOnError false
+        checkReleaseBuilds false
     }
 }
 

@@ -113,6 +113,21 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
         inputControlsList.setLayoutManager(new LinearLayoutManager(this));
         inputControlsList.setAdapter(mSingleSelectIcAdapter);
         inputControlsList.setHasFixedSize(true);
+        inputControlsList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                int visibleItemCount = recyclerView.getChildCount();
+                int totalItemCount = recyclerView.getLayoutManager().getItemCount();
+                int firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+
+                if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount) {
+                    mSingleSelectIcAdapter.loadNextItems();
+                }
+            }
+        });
         mSingleSelectIcAdapter.setItemSelectListener(new SingleSelectIcAdapter.ItemSelectListener() {
             @Override
             public void onItemSelected(int position) {

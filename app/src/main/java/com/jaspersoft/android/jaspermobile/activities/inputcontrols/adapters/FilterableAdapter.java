@@ -13,6 +13,9 @@ import java.util.List;
  */
 public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> extends RecyclerView.Adapter<VH> {
 
+    private static final int LIMIT = 30;
+
+    private int mOffset;
     private List<IT> mFilteredItemList;
     private List<IT> mItemsList;
     private String mFilterWord;
@@ -29,7 +32,7 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
         this.mFilterWord = "";
         this.mItemsList = valuesList;
         this.mFilteredItemList = new ArrayList<>();
-        mFilteredItemList.addAll(mItemsList);
+        loadNextItems();
     }
 
     /**
@@ -80,12 +83,21 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
      *
      * @param filterWord Word to filter with. Can not be null.
      */
-    public void filter(String filterWord) {
+    public void filter(final String filterWord) {
         if (filterWord == null) {
             throw new IllegalArgumentException("Filter word can not be null");
         }
-        filterList(filterWord.toLowerCase());
+        String oldFilterWord = mFilterWord;
         mFilterWord = filterWord.toLowerCase();
+
+        List<IT> oldFilteredList = new ArrayList<>();
+        oldFilteredList.addAll(mFilteredItemList);
+        
+        mOffset = 0;
+        mFilteredItemList = new ArrayList<>();
+        mFilteredItemList.addAll(getNextFilteredItems());
+
+        animateList(oldFilteredList, oldFilterWord);
     }
 
     /**
@@ -96,31 +108,55 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
      */
     protected abstract String getValueForFiltering(IT item);
 
-    private void filterList(String newFilterWord){
-        List<IT> newFilteredList = new ArrayList<>();
+    public void loadNextItems() {
+        int previousSize = mFilteredItemList.size();
+        mFilteredItemList.addAll(getNextFilteredItems());
+        int newSize = mFilteredItemList.size();
+        notifyItemRangeInserted(previousSize, newSize - previousSize);
+    }
+
+    private List<IT> getNextFilteredItems() {
+        List<IT> additionalList = new ArrayList<>();
+        int addedItem = 0;
+        while (addedItem < LIMIT || mOffset >= mItemsList.size() - 1) {
+            IT item = mItemsList.get(mOffset);
+            String valueForFiltering = getValueForFiltering(item).toLowerCase();
+            boolean valueContainsFilterWord = valueForFiltering.contains(mFilterWord);
+
+            if (valueContainsFilterWord) {
+                additionalList.add(item);
+                addedItem++;
+            }
+            mOffset++;
+        }
+        return additionalList;
+    }
+
+    private void animateList(List<IT> previousFilterList, String oldFilterWord) {
+        int alreadyAdded = 0;
         int alreadyRemoved = 0;
 
-        for (int i = 0; i < mFilteredItemList.size(); i++) {
-            IT item = mFilteredItemList.get(i);
+        int animCount = Math.min(LIMIT, mItemsList.size());
+        
+        if (previousFilterList.size() > animCount) {
+            notifyItemRangeRemoved(animCount, previousFilterList.size() - animCount);
+        }
+
+        for (int i = 0; i < animCount; i++) {
+            IT item = mItemsList.get(i);
             String valueForFiltering = getValueForFiltering(item).toLowerCase();
-            boolean valueContainsNewFilterWord = valueForFiltering.contains(newFilterWord);
-            if (!valueContainsNewFilterWord) {
-                notifyItemRemoved(i - alreadyRemoved);
+            boolean valueContainsNewFilterWord = valueForFiltering.contains(mFilterWord);
+            boolean valueContainsOldFilterWord = valueForFiltering.contains(oldFilterWord);
+            if (valueContainsNewFilterWord) {
+                if (!valueContainsOldFilterWord) {
+                    notifyItemInserted(alreadyAdded);
+                }
+                alreadyAdded++;
+            } else if (valueContainsOldFilterWord) {
+                int indexToAnim = previousFilterList.indexOf(item);
+                notifyItemRemoved(indexToAnim - alreadyRemoved);
                 alreadyRemoved++;
             }
         }
-        for (IT item : mItemsList) {
-            String valueForFiltering = getValueForFiltering(item).toLowerCase();
-            boolean valueContainsNewFilterWord = valueForFiltering.contains(newFilterWord);
-            boolean valueContainsOldFilterWord = valueForFiltering.contains(mFilterWord);
-
-            if (valueContainsNewFilterWord) {
-                newFilteredList.add(item);
-                if (!valueContainsOldFilterWord) {
-                    notifyItemInserted(newFilteredList.size() - 1);
-                }
-            }
-        }
-        mFilteredItemList = newFilteredList;
     }
 }

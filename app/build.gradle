@@ -208,9 +208,19 @@ dependencies {
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
     androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
 
-    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2') {
         exclude group: 'com.android.support'
     }
+   androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2') {
+        exclude group: 'com.android.support'
+    }
+    androidTestCompile('com.android.support.test:runner:0.3') {
+        exclude group: 'com.android.support'
+    }
+    androidTestCompile('com.android.support.test:rules:0.3') {
+        exclude group: 'com.android.support'
+    }
+
     androidTestCompile('org.mockito:mockito-core:1.9.5') {
         exclude group: "org.hamcrest"
     }

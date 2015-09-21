@@ -29,10 +29,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.test.AndroidTestCase;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
-import com.jaspersoft.android.jaspermobile.db.migrate.v3.SavedItemsMigration;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.test.utils.AccountUtil;
@@ -49,8 +49,8 @@ import java.util.Random;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
 
 /**
  * @author Tom Koptel
@@ -122,7 +122,7 @@ public class AccountResourcesTest extends AndroidTestCase {
         SavedFilesUtil.deleteSavedItems(getContext());
         getContext().getContentResolver().delete(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, null, null);
 
-        Account account = new Account(SavedItemsMigration.SHARED_DIR, JasperSettings.JASPER_ACCOUNT_TYPE);
+        Account account = new Account(JasperMobileApplication.SHARED_DIR, JasperSettings.JASPER_ACCOUNT_TYPE);
         createSavedItemsInstances(account);
 
         Cursor cursor = querySavedItemsForAccount(account);
@@ -156,7 +156,7 @@ public class AccountResourcesTest extends AndroidTestCase {
             Uri uri = getContext().getContentResolver()
                     .insert(MobileDbProvider.FAVORITES_CONTENT_URI, favorite.getContentValues());
             assertThat(uri, notNullValue());
-            assertThat(Long.valueOf(uri.getLastPathSegment()), greaterThan(0L));
+            assertThat(Long.valueOf(uri.getLastPathSegment()), is(not(0L)));
         }
     }
 
@@ -183,7 +183,7 @@ public class AccountResourcesTest extends AndroidTestCase {
             Uri uri = getContext().getContentResolver()
                     .insert(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, savedItems.getContentValues());
             assertThat(uri, notNullValue());
-            assertThat(Long.valueOf(uri.getLastPathSegment()), greaterThan(0L));
+            assertThat(Long.valueOf(uri.getLastPathSegment()), is(not((0L))));
         }
     }
 

@@ -4,13 +4,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
-import android.preference.TwoStatePreference;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
@@ -26,7 +24,6 @@ import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_REPO_CACHE_EXPIRATION;
-import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_SESSION_RESUME;
 
 /**
  * @author Andrew Tivodar
@@ -51,7 +48,6 @@ public class SettingsFragment extends RoboPreferenceFragment {
         EditTextPreference repoCacheExpirationPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_REPO_CACHE_EXPIRATION);
         EditTextPreference connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
         EditTextPreference readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
-        TwoStatePreference sessionResumePref = (TwoStatePreference) getPreferenceScreen().findPreference(KEY_PREF_SESSION_RESUME);
 
         String repoCacheExpiration = sharedPreferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
         String connectTimeout = sharedPreferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
@@ -108,13 +104,15 @@ public class SettingsFragment extends RoboPreferenceFragment {
             }
         });
 
-        sessionResumePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                JasperAccountManager.get(getActivity()).clearAccountsPassword();
-                return true;
-            }
-        });
+        // TODO Enable feature, as soon as proper auto resume flow will be introduced
+//        TwoStatePreference sessionResumePref = (TwoStatePreference) getPreferenceScreen().findPreference(KEY_PREF_SESSION_RESUME);
+//        sessionResumePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//            @Override
+//            public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                JasperAccountManager.get(getActivity()).clearAccountsPassword();
+//                return true;
+//            }
+//        });
     }
 
     private void updateSummary(Preference preference, Object value, int summaryDefaultText) {

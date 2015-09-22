@@ -248,7 +248,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
     private void updateAvailableTabTitle() {
         TabLayout.Tab selectedTab = headerTab.getTabAt(TAB_AVAILABLE);
         if (selectedTab != null) {
-            selectedTab.setText(getString(R.string.ro_ms_available, mAvailableAdapter.getItemCount()));
+            selectedTab.setText(getString(R.string.ro_ms_available, mInputControlOptions.size()));
         }
     }
 
@@ -274,6 +274,21 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
             if (position == TAB_AVAILABLE) {
                 availableList = list;
+                availableList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                        super.onScrolled(recyclerView, dx, dy);
+
+                        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                        int visibleItemCount = recyclerView.getChildCount();
+                        int totalItemCount = recyclerView.getLayoutManager().getItemCount();
+                        int firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+
+                        if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount) {
+                            mAvailableAdapter.loadNextItems();
+                        }
+                    }
+                });
                 list.setAdapter(mAvailableAdapter);
                 emptyTextAvailable = (TextView) selectView.findViewById(R.id.empty);
                 emptyTextAvailable.setText(getString(R.string.r_search_nothing_to_display));

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> extends RecyclerView.Adapter<VH> {
 
-    private static final int LIMIT = 30;
+    private static final int LIMIT = 50;
 
     private int mOffset;
     private List<IT> mFilteredItemList;
@@ -87,17 +87,13 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
         if (filterWord == null) {
             throw new IllegalArgumentException("Filter word can not be null");
         }
-        String oldFilterWord = mFilterWord;
         mFilterWord = filterWord.toLowerCase();
-
-        List<IT> oldFilteredList = new ArrayList<>();
-        oldFilteredList.addAll(mFilteredItemList);
-        
         mOffset = 0;
-        mFilteredItemList = new ArrayList<>();
-        mFilteredItemList.addAll(getNextFilteredItems());
 
-        animateList(oldFilteredList, oldFilterWord);
+        List<IT> newItemList = getNextFilteredItems();
+
+        animateList(newItemList);
+        mFilteredItemList = newItemList;
     }
 
     /**
@@ -118,7 +114,7 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
     private List<IT> getNextFilteredItems() {
         List<IT> additionalList = new ArrayList<>();
         int addedItem = 0;
-        while (addedItem < LIMIT || mOffset >= mItemsList.size() - 1) {
+        while (addedItem < LIMIT && mOffset < mItemsList.size()) {
             IT item = mItemsList.get(mOffset);
             String valueForFiltering = getValueForFiltering(item).toLowerCase();
             boolean valueContainsFilterWord = valueForFiltering.contains(mFilterWord);
@@ -132,31 +128,30 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
         return additionalList;
     }
 
-    private void animateList(List<IT> previousFilterList, String oldFilterWord) {
-        int alreadyAdded = 0;
-        int alreadyRemoved = 0;
+    private void animateList(List<IT> newFilterList) {
+        List<Integer> unRemovalList = new ArrayList<>();
+        List<Integer> addList = new ArrayList<>();
 
-        int animCount = Math.min(LIMIT, mItemsList.size());
-        
-        if (previousFilterList.size() > animCount) {
-            notifyItemRangeRemoved(animCount, previousFilterList.size() - animCount);
+        for (int i = 0; i < newFilterList.size(); i++) {
+            IT item = newFilterList.get(i);
+            int indexInPrevList = mFilteredItemList.indexOf(item);
+            if (indexInPrevList == -1) {
+                addList.add(i);
+            } else {
+                unRemovalList.add(indexInPrevList);
+            }
         }
 
-        for (int i = 0; i < animCount; i++) {
-            IT item = mItemsList.get(i);
-            String valueForFiltering = getValueForFiltering(item).toLowerCase();
-            boolean valueContainsNewFilterWord = valueForFiltering.contains(mFilterWord);
-            boolean valueContainsOldFilterWord = valueForFiltering.contains(oldFilterWord);
-            if (valueContainsNewFilterWord) {
-                if (!valueContainsOldFilterWord) {
-                    notifyItemInserted(alreadyAdded);
-                }
-                alreadyAdded++;
-            } else if (valueContainsOldFilterWord) {
-                int indexToAnim = previousFilterList.indexOf(item);
-                notifyItemRemoved(indexToAnim - alreadyRemoved);
-                alreadyRemoved++;
+        int removedCount = 0;
+        for (int i = 0; i < mFilteredItemList.size(); i++) {
+            if (!unRemovalList.contains(i)) {
+                notifyItemRemoved(i - removedCount);
+                removedCount++;
             }
+        }
+
+        for (Integer index : addList) {
+            notifyItemInserted(index);
         }
     }
 }

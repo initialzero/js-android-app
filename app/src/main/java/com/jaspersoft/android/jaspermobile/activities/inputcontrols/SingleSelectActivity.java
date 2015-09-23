@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.SingleSelectIcAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -104,7 +105,6 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
     @Override
     public boolean onQueryTextChange(String newText) {
         mSingleSelectIcAdapter.filter(newText);
-        onFilteringList();
         return true;
     }
 
@@ -126,6 +126,12 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
                 if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount) {
                     mSingleSelectIcAdapter.loadNextItems();
                 }
+            }
+        });
+        mSingleSelectIcAdapter.setFilterListener(new FilterableAdapter.FilterListener() {
+            @Override
+            public void onFilterDone() {
+                onFilteringList();
             }
         });
         mSingleSelectIcAdapter.setItemSelectListener(new SingleSelectIcAdapter.ItemSelectListener() {

@@ -5,6 +5,14 @@ import android.support.v7.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func0;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.Subscriptions;
+
 /**
  * RecyclerView adapter that support item filtering.
  *
@@ -19,6 +27,8 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
     private List<IT> mFilteredItemList;
     private List<IT> mItemsList;
     private String mFilterWord;
+    private FilterListener mFilterListener;
+    private Subscription filterSubscription;
 
     /**
      * Create adapter using provided data set.
@@ -29,10 +39,15 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
         if (valuesList == null) {
             throw new IllegalArgumentException("Items list can not be null");
         }
+        this.filterSubscription = Subscriptions.empty();
         this.mFilterWord = "";
         this.mItemsList = valuesList;
         this.mFilteredItemList = new ArrayList<>();
         loadNextItems();
+    }
+
+    public void setFilterListener(FilterListener filterListener) {
+        this.mFilterListener = filterListener;
     }
 
     /**
@@ -90,10 +105,28 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
         mFilterWord = filterWord.toLowerCase();
         mOffset = 0;
 
-        List<IT> newItemList = getNextFilteredItems();
+        if (!filterSubscription.isUnsubscribed()) {
+            filterSubscription.unsubscribe();
+        }
 
-        animateList(newItemList);
-        mFilteredItemList = newItemList;
+        filterSubscription = Observable.defer(new Func0<Observable<List<IT>>>() {
+            @Override
+            public Observable<List<IT>> call() {
+                return Observable.just(getNextFilteredItems());
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<IT>>() {
+                    @Override
+                    public void call(List<IT> newItemList) {
+                        animateList(newItemList);
+                        filterSubscription = Subscriptions.empty();
+                        mFilteredItemList = newItemList;
+                        if (mFilterListener != null) {
+                            mFilterListener.onFilterDone();
+                        }
+                    }
+                });
     }
 
     /**
@@ -153,5 +186,9 @@ public abstract class FilterableAdapter<VH extends RecyclerView.ViewHolder, IT> 
         for (Integer index : addList) {
             notifyItemInserted(index);
         }
+    }
+
+    public interface FilterListener {
+        void onFilterDone();
     }
 }

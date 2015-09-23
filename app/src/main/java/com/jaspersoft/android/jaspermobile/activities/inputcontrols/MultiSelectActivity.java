@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectAvailableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectSelectedAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
@@ -147,7 +148,6 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
     @Override
     public boolean onQueryTextChange(String newText) {
         mAvailableAdapter.filter(newText);
-        onFilteringList();
         return true;
     }
 
@@ -155,6 +155,12 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         mAvailableAdapter = new MultiSelectAvailableAdapter(mInputControlOptions);
         mSelectedAdapter = new MultiSelectSelectedAdapter(mInputControlOptions);
 
+        mAvailableAdapter.setFilterListener(new FilterableAdapter.FilterListener() {
+            @Override
+            public void onFilterDone() {
+                onFilteringList();
+            }
+        });
         mAvailableAdapter.setItemSelectListener(new MultiSelectAvailableAdapter.ItemSelectListener() {
             @Override
             public void onItemSelected(int position) {
@@ -214,7 +220,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         }
     }
 
-    private void onItemSelectionChange(int position){
+    private void onItemSelectionChange(int position) {
         mAvailableAdapter.updateItem(position);
         mSelectedAdapter.notifySelectionChanged(mInputControlOptions.get(position).isSelected(), position);
 
@@ -223,7 +229,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         isValueChanged = true;
     }
 
-    private void onItemsSelectionChange(){
+    private void onItemsSelectionChange() {
         mAvailableAdapter.notifyItemRangeChanged(0, mAvailableAdapter.getItemCount());
         mSelectedAdapter.notifySelectionsChanged(mInputControlOptions);
 
@@ -232,7 +238,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         isValueChanged = true;
     }
 
-    private void onFilteringList(){
+    private void onFilteringList() {
         updateAvailableTabTitle();
         emptyTextAvailable.setVisibility(mAvailableAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         availableList.scrollToPosition(0);

@@ -216,7 +216,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
     private void onItemSelectionChange(int position){
         mAvailableAdapter.updateItem(position);
-        mSelectedAdapter.selectItem(mInputControlOptions.get(position).isSelected(), position);
+        mSelectedAdapter.notifySelectionChanged(mInputControlOptions.get(position).isSelected(), position);
 
         updateSelectedTabTitle();
         emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
@@ -225,7 +225,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
     private void onItemsSelectionChange(){
         mAvailableAdapter.notifyItemRangeChanged(0, mAvailableAdapter.getItemCount());
-        mSelectedAdapter.selectItems(mInputControlOptions);
+        mSelectedAdapter.notifySelectionsChanged(mInputControlOptions);
 
         updateSelectedTabTitle();
         emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
@@ -314,7 +314,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         @Override
         public CharSequence getPageTitle(int position) {
             if (position == TAB_AVAILABLE) {
-                return getString(R.string.ro_ms_available, mAvailableAdapter.getItemCount());
+                return getString(R.string.ro_ms_available, mInputControlOptions.size());
             }
             return getString(R.string.ro_ms_selected, mSelectedAdapter.getItemCount());
         }

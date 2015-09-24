@@ -25,6 +25,8 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -35,9 +37,13 @@ import java.util.List;
  * @since 2.2
  */
 @EActivity(R.layout.activity_multi_select)
+@OptionsMenu(R.menu.multi_select_menu)
 public class MultiSelectActivity extends RoboToolbarActivity {
 
     public static final String SELECT_IC_ARG = "select_input_control_id";
+    private final static int TAB_COUNT = 2;
+    private final static int TAB_AVAILABLE = 0;
+    private final static int TAB_SELECTED = 1;
 
     @Inject
     protected ReportParamsStorage paramsStorage;
@@ -51,12 +57,17 @@ public class MultiSelectActivity extends RoboToolbarActivity {
     @ViewById(R.id.tlMultiSelect)
     protected TabLayout headerTab;
 
+    private TextView emptyTextSelected;
+
     private List<InputControlOption> mInputControlOptions;
     private String mInputControlLabel;
+    private MultiSelectAvailableAdapter mAvailableAdapter;
+    private MultiSelectSelectedAdapter mSelectedAdapter;
 
     @AfterViews
     protected void init() {
         initInputControlOptions();
+        initAdapters();
         initViews();
 
         getSupportActionBar().setTitle(mInputControlLabel);
@@ -70,6 +81,39 @@ public class MultiSelectActivity extends RoboToolbarActivity {
         setResult(Activity.RESULT_OK, dataIntent);
 
         super.onBackPressed();
+    }
+
+    @OptionsItem(R.id.selectAll)
+    final void selectAll() {
+        changeAllItemSelectionState(true);
+    }
+
+    @OptionsItem(R.id.deselectAll)
+    final void deselectAll() {
+        changeAllItemSelectionState(false);
+    }
+
+    @OptionsItem(R.id.inverse)
+    final void selectInverse() {
+        changeAllItemSelectionStateToInverse();
+    }
+
+    private void initAdapters(){
+        mAvailableAdapter = new MultiSelectAvailableAdapter(mInputControlOptions);
+        mSelectedAdapter = new MultiSelectSelectedAdapter(mInputControlOptions);
+
+        mAvailableAdapter.setItemSelectListener(new MultiSelectAvailableAdapter.ItemSelectListener() {
+            @Override
+            public void onItemSelected(int position) {
+                changeItemSelectionState(position, !mInputControlOptions.get(position).isSelected());
+            }
+        });
+        mSelectedAdapter.setItemSelectListener(new MultiSelectSelectedAdapter.ItemSelectedListener() {
+            @Override
+            public void onItemUnselected(int position) {
+                changeItemSelectionState(position, false);
+            }
+        });
     }
 
     private void initViews() {
@@ -94,33 +138,51 @@ public class MultiSelectActivity extends RoboToolbarActivity {
         }
     }
 
-    private class MultiSelectViewPagerAdapter extends PagerAdapter {
-        private final static int TAB_COUNT = 2;
-        private final static int TAB_AVAILABLE = 0;
-        private final static int TAB_SELECTED = 1;
-
-        private MultiSelectAvailableAdapter mAvailableAdapter;
-        private MultiSelectSelectedAdapter mSelectedAdapter;
-
-        private TextView emptyTextSelected;
-
-        public MultiSelectViewPagerAdapter() {
-            mAvailableAdapter = new MultiSelectAvailableAdapter(mInputControlOptions);
-            mSelectedAdapter = new MultiSelectSelectedAdapter(mInputControlOptions);
-
-            mAvailableAdapter.setItemSelectListener(new MultiSelectAvailableAdapter.ItemSelectListener() {
-                @Override
-                public void onItemSelected(int position) {
-                    onItemSelectionChanged(position, !mInputControlOptions.get(position).isSelected());
-                }
-            });
-            mSelectedAdapter.setItemSelectListener(new MultiSelectSelectedAdapter.ItemSelectedListener() {
-                @Override
-                public void onItemUnselected(int position) {
-                    onItemSelectionChanged(position, false);
-                }
-            });
+    private void changeAllItemSelectionState(boolean selected){
+        for (InputControlOption inputControlOption : mInputControlOptions) {
+            inputControlOption.setSelected(selected);
         }
+
+        mAvailableAdapter.notifyItemRangeChanged(0, mAvailableAdapter.getItemCount());
+        mSelectedAdapter.selectItems(mInputControlOptions);
+
+        reflectInputControlOptionState();
+    }
+    
+    private void changeAllItemSelectionStateToInverse(){
+        for (InputControlOption inputControlOption : mInputControlOptions) {
+            inputControlOption.setSelected(!inputControlOption.isSelected());
+        }
+
+        mAvailableAdapter.notifyItemRangeChanged(0, mAvailableAdapter.getItemCount());
+        mSelectedAdapter.selectItems(mInputControlOptions);
+
+        reflectInputControlOptionState();
+    }
+
+    private void changeItemSelectionState(int position, boolean isSelected) {
+        InputControlOption inputControlOption = mInputControlOptions.get(position);
+        inputControlOption.setSelected(isSelected);
+
+        mAvailableAdapter.notifyItemChanged(position);
+        mSelectedAdapter.selectItem(isSelected, position);
+
+        reflectInputControlOptionState();
+    }
+
+    private void reflectInputControlOptionState(){
+        updateTabTitle();
+        emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+    }
+
+    private void updateTabTitle() {
+        TabLayout.Tab selectedTab = headerTab.getTabAt(TAB_SELECTED);
+        if (selectedTab != null) {
+            selectedTab.setText(getString(R.string.ro_ms_selected, mSelectedAdapter.getItemCount()));
+        }
+    }
+
+    private class MultiSelectViewPagerAdapter extends PagerAdapter {
 
         @Override
         public int getCount() {
@@ -164,25 +226,6 @@ public class MultiSelectActivity extends RoboToolbarActivity {
                 return getString(R.string.ro_ms_available, mAvailableAdapter.getItemCount());
             }
             return getString(R.string.ro_ms_selected, mSelectedAdapter.getItemCount());
-        }
-
-        private void onItemSelectionChanged(int position, boolean isSelected) {
-            InputControlOption inputControlOption = mInputControlOptions.get(position);
-            inputControlOption.setSelected(isSelected);
-
-            mAvailableAdapter.notifyItemChanged(position);
-            mSelectedAdapter.selectItem(isSelected, position);
-
-            updateTabTitle();
-
-            emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
-        }
-
-        private void updateTabTitle() {
-            TabLayout.Tab selectedTab = headerTab.getTabAt(TAB_SELECTED);
-            if (selectedTab != null) {
-                selectedTab.setText(getString(R.string.ro_ms_selected, mSelectedAdapter.getItemCount()));
-            }
         }
     }
 }

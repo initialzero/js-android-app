@@ -28,7 +28,8 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
             throw new IllegalArgumentException("Input Controls Options list can not be null!");
         }
         this.mInputControlOptions = inputControlOptions;
-        initSelectedList();
+        this.mSelectedList = new SortedList<>(Integer.class, new SelectedListSortCallback());
+        selectItems(mInputControlOptions);
     }
 
     @Override
@@ -66,16 +67,19 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
         }
     }
 
-    private void initSelectedList() {
-        mSelectedList = new SortedList<>(Integer.class, new SelectedListSortCallback());
-        for (int i = 0; i < mInputControlOptions.size(); i++) {
-            if (mInputControlOptions.get(i).isSelected()) {
+    public void selectItems(List<InputControlOption> inputControlOptions) {
+        mSelectedList.beginBatchedUpdates();
+        for (int i = 0; i < inputControlOptions.size(); i++) {
+            if (inputControlOptions.get(i).isSelected()) {
                 mSelectedList.add(i);
+            } else {
+                mSelectedList.remove(i);
             }
         }
+        mSelectedList.endBatchedUpdates();
     }
 
-    private class SelectedListSortCallback extends SortedList.Callback<Integer>{
+    private class SelectedListSortCallback extends SortedList.Callback<Integer> {
         @Override
         public int compare(Integer integer, Integer t21) {
             return integer.compareTo(t21);

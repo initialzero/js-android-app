@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -23,13 +22,13 @@
     <http://www.gnu.org/licenses/lgpl>.
 -->
 
-<Switch xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ic_switch"
+<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ic_boolean"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:background="@drawable/im_input_controls_divider"
-    android:textSize="16sp"
-    android:textOn="@android:string/yes"
-    android:textOff="@android:string/no"/>
+    android:background="?attr/selectableItemBackground"
+    android:button="@null"
+    android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:singleLine="true" />

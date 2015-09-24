@@ -21,20 +21,7 @@
     along with Jaspersoft Mobile for Android. If not, see
     <http://www.gnu.org/licenses/lgpl>.
 -->
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/reportOptions.scrollView">
-
-    <LinearLayout
-        style="@style/reportOptions.container.layout"
-        android:orientation="vertical">
-
-        <!-- Input Controls -->
-        <LinearLayout
-            android:id="@+id/input_controls_layout"
-            style="@style/reportOptions.container.inputControls.layout"
-            android:orientation="vertical" />
-
-    </LinearLayout>
-
-</ScrollView>
+<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/inputControlsList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>

@@ -72,9 +72,20 @@
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity
-            android:name=".activities.report.ReportOptionsActivity"
+            android:name=".activities.inputcontrols.InputControlsActivity_"
             android:configChanges="screenSize|orientation|locale"
             android:label="@string/ro_page_title"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity
+            android:name=".activities.inputcontrols.SingleSelectActivity_"
+            android:configChanges="screenSize|orientation|locale"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity
+            android:name=".activities.inputcontrols.MultiSelectActivity_"
+            android:configChanges="screenSize|orientation|locale"
+            android:theme="@style/Theme.JasperMobile.NoToolbar"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- Activity that performs report viewing in HTML format through visualize -->
@@ -120,7 +131,7 @@
 
         <!-- Activity that performs report saving to the local storage -->
         <activity
-            android:name=".activities.report.SaveReportActivity_"
+            android:name=".activities.inputcontrols.SaveReportActivity_"
             android:configChanges="screenSize|orientation|locale"
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />

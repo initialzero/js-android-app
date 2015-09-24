@@ -27,7 +27,7 @@
     <style name="Theme.JasperMobile" parent="Base.Theme.AppCompat">
         <item name="android:windowBackground">@drawable/bg_application_main</item>
         <item name="windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
         <item name="android:fontFamily">sans-serif-light</item>
 
         <item name="colorAccent">@color/js_blue</item>
@@ -41,6 +41,7 @@
         <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
         <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
         <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
+        <item name="android:checkboxStyle">@style/Widget.JasperMobile.CheckBox</item>
         <item name="android:scrollbarThumbVertical">@drawable/im_scrollbar_thumb</item>
 
         <!--App reference styles-->

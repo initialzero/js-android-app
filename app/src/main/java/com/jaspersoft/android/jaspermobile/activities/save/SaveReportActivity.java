@@ -22,16 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.report;
+package com.jaspersoft.android.jaspermobile.activities.save;
 
 import android.os.Bundle;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment;
-import com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment_;
+import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
+import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EActivity;

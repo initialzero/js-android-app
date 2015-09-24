@@ -8,7 +8,7 @@
         Home screen
     </screenName>
 
-    <screenName name="com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity">
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity">
         Report options screen
     </screenName>
 
@@ -36,7 +36,7 @@
         Dashboard viewer screen (HTTP old)
     </screenName>
 
-    <screenName name="com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_">
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.inputcontrols.SaveReportActivity_">
         Saving report screen
     </screenName>
 

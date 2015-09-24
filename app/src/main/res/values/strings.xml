@@ -116,6 +116,7 @@
     <string name="ro_select_all" translatable="false">Select all</string>
     <string name="ro_deselect_all" translatable="false">Deselect all</string>
     <string name="ro_inverse" translatable="false">Inverse</string>
+    <string name="ro_search" translatable="false">Search list…</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

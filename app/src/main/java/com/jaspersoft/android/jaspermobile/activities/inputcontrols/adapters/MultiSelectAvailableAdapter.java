@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
@@ -15,16 +16,12 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.2
  */
-public class MultiSelectAvailableAdapter extends RecyclerView.Adapter<MultiSelectAvailableAdapter.MultiSelectViewHolder> {
+public class MultiSelectAvailableAdapter extends FilterableAdapter<MultiSelectAvailableAdapter.MultiSelectViewHolder, InputControlOption> {
 
-    private List<InputControlOption> mInputControlOptions;
     private ItemSelectListener mItemSelectListener;
 
     public MultiSelectAvailableAdapter(List<InputControlOption> inputControlOptions) {
-        if (inputControlOptions == null) {
-            throw new IllegalArgumentException("Input Controls Options list can not be null!");
-        }
-        this.mInputControlOptions = inputControlOptions;
+        super(inputControlOptions);
     }
 
     @Override
@@ -36,12 +33,12 @@ public class MultiSelectAvailableAdapter extends RecyclerView.Adapter<MultiSelec
 
     @Override
     public void onBindViewHolder(MultiSelectViewHolder viewHolder, int position) {
-        viewHolder.populateView(mInputControlOptions.get(position));
+        viewHolder.populateView(getItem(position));
     }
 
     @Override
-    public int getItemCount() {
-        return mInputControlOptions.size();
+    protected String getValueForFiltering(InputControlOption item) {
+        return item.getLabel();
     }
 
     public void setItemSelectListener(ItemSelectListener itemSelectListener) {
@@ -50,24 +47,30 @@ public class MultiSelectAvailableAdapter extends RecyclerView.Adapter<MultiSelec
 
     protected class MultiSelectViewHolder extends RecyclerView.ViewHolder {
 
-        private CheckBox cbSingleSelect;
+        private CheckBox cbSelect;
+        private TextView itemTitle;
 
         public MultiSelectViewHolder(View itemView) {
             super(itemView);
-            cbSingleSelect = (CheckBox) itemView;
-            cbSingleSelect.setOnClickListener(new View.OnClickListener() {
+
+            cbSelect = (CheckBox) itemView.findViewById(R.id.ic_boolean);
+            itemTitle = (TextView) itemView.findViewById(R.id.ic_boolean_title);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mItemSelectListener != null) {
-                        mItemSelectListener.onItemSelected(getAdapterPosition());
+                        int filteredPosition = getItemPosition(getAdapterPosition());
+                        mItemSelectListener.onItemSelected(filteredPosition);
                     }
+                    cbSelect.performClick();
                 }
             });
         }
 
         public void populateView(InputControlOption inputControlOption) {
-            cbSingleSelect.setText(inputControlOption.getLabel());
-            cbSingleSelect.setChecked(inputControlOption.isSelected());
+            itemTitle.setText(inputControlOption.getLabel());
+            cbSelect.setChecked(inputControlOption.isSelected());
         }
     }
 

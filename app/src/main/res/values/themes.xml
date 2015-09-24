@@ -30,7 +30,8 @@
         <item name="windowNoTitle">true</item>
         <item name="android:fontFamily">sans-serif-light</item>
 
-        <item name="colorAccent">@android:color/white</item>
+        <item name="colorAccent">@color/js_blue</item>
+        <item name="colorPrimary">@color/js_gray</item>
 
         <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
         <item name="actionModeStyle">@style/Widget.JasperMobile.ActionMode</item>

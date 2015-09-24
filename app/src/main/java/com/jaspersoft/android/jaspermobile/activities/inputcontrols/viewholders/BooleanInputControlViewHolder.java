@@ -2,7 +2,7 @@ package com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders
 
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -15,16 +15,21 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
 
     private final static boolean DEFAULT_STATE = false;
     private CheckBox icBoolean;
+    private TextView icTitle;
     private StateChangeListener mStateChangeListener;
 
     public BooleanInputControlViewHolder(View itemView) {
         super(itemView);
+
         icBoolean = (CheckBox) itemView.findViewById(R.id.ic_boolean);
-        icBoolean.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        icTitle = (TextView) itemView.findViewById(R.id.ic_boolean_title);
+
+        itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onClick(View view) {
+                icBoolean.performClick();
                 if (mStateChangeListener != null) {
-                    mStateChangeListener.onStateChanged(getAdapterPosition(), isChecked);
+                    mStateChangeListener.onStateChanged(getAdapterPosition(), icBoolean.isChecked());
                 }
             }
         });
@@ -37,7 +42,9 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
     @Override
     public void populateView(InputControl inputControl, boolean enabled) {
         icBoolean.setEnabled(enabled && !inputControl.isReadOnly());
-        icBoolean.setText(inputControl.getLabel());
+        icTitle.setEnabled(enabled && !inputControl.isReadOnly());
+
+        icTitle.setText(inputControl.getLabel());
         if (inputControl.getState().getValue() != null) {
             icBoolean.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));
         } else {

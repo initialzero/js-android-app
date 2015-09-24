@@ -109,7 +109,9 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     }
 
     @OnActivityResult(SELECT_IC_REQUEST_CODE)
-    final void selectIcAction(Intent data) {
+    final void selectIcAction(int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_CANCELED) return;
+
         if (data.hasExtra(SingleSelectActivity.SELECT_IC_ARG)) {
             String inputControlId = data.getStringExtra(SingleSelectActivity.SELECT_IC_ARG);
             InputControl selectInputControl = getInputControl(inputControlId);

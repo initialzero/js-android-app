@@ -27,9 +27,11 @@ package com.jaspersoft.android.jaspermobile.activities.inputcontrols;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MenuItem;
+import android.support.v7.widget.Toolbar;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -51,12 +53,11 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OnActivityResult;
-import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ import java.util.Set;
  * @since 1.6
  */
 @EActivity(R.layout.view_simple_list)
-@OptionsMenu(R.menu.am_run_report_menu)
+@OptionsMenu(R.menu.input_control_menu)
 public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener, DateDialogFragment.DateDialogClickListener {
     // Extras
     public static final int SELECT_IC_REQUEST_CODE = 521;
@@ -84,8 +85,8 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     @Inject
     protected ReportParamsStorage paramsStorage;
 
-    @OptionsMenuItem(R.id.runReportAction)
-    protected MenuItem runReportAction;
+    @ViewById(R.id.btnApplyParams)
+    protected FloatingActionButton applyParams;
     @ViewById(R.id.inputControlsList)
     protected RecyclerView inputControlsList;
 
@@ -97,12 +98,13 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @AfterViews
     protected void init() {
+        initToolbar();
         initInputControls();
         showInputControls();
     }
 
-    @OptionsItem(R.id.runReportAction)
-    final void runReportAction() {
+    @Click(R.id.btnApplyParams)
+    protected void applyParamsClick() {
         setRefreshActionButtonState(true);
         ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, inputControls);
         getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
@@ -189,6 +191,16 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void initToolbar(){
+       setSupportActionBar((Toolbar) findViewById(R.id.icToolbar));
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_close);
+        }
+    }
+
     private void initInputControls() {
         inputControls = paramsStorage.getInputControls(reportUri);
         updateInputControlsFromReportParams();
@@ -198,19 +210,20 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         mAdapter = new InputControlsAdapter(inputControls);
         mAdapter.setInteractionListener(this);
         int dividerHeight = (int) getResources().getDimension(R.dimen.ic_divider_height);
+        int topPadding = (int) getResources().getDimension(R.dimen.ic_top_padding);
 
-        inputControlsList.addItemDecoration(new ItemSpaceDecoration(dividerHeight));
+        inputControlsList.addItemDecoration(new ItemSpaceDecoration(dividerHeight, topPadding));
         inputControlsList.setItemAnimator(null);
         inputControlsList.setLayoutManager(new LinearLayoutManager(this));
         inputControlsList.setAdapter(mAdapter);
     }
 
     private void setRefreshActionButtonState(boolean refreshing) {
-        if (refreshing) {
-            runReportAction.setActionView(R.layout.actionbar_indeterminate_progress);
-        } else {
-            runReportAction.setActionView(null);
-        }
+//        if (refreshing) {
+//            runReportAction.setActionView(R.layout.actionbar_indeterminate_progress);
+//        } else {
+//            runReportAction.setActionView(null);
+//        }
 
         mAdapter.setListEnabled(!refreshing);
     }

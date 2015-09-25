@@ -11,21 +11,26 @@ import android.view.View;
  */
 public class ItemSpaceDecoration extends RecyclerView.ItemDecoration {
 
-    private int space;
+    private int mDividerHeight;
+    private int mTopPadding;
 
     /**
      * @param space distance between item in dp
      */
     public ItemSpaceDecoration(int space) {
-        this.space = space;
+        this.mDividerHeight = space;
+    }
+
+    public ItemSpaceDecoration(int dividerHeight, int topPadding) {
+        this.mDividerHeight = dividerHeight;
+        this.mTopPadding = topPadding;
     }
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        outRect.bottom = space;
+        outRect.bottom = mDividerHeight;
 
-        // Add top margin only for the first item to avoid double space between items
-        if (parent.getChildPosition(view) == 0)
-            outRect.top = space;
+        if (parent.getChildLayoutPosition(view) == 0)
+            outRect.top = mTopPadding;
     }
 }

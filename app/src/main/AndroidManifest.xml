@@ -75,6 +75,7 @@
             android:name=".activities.inputcontrols.InputControlsActivity_"
             android:configChanges="screenSize|orientation|locale"
             android:label="@string/ro_page_title"
+            android:theme="@style/Theme.JasperMobile.NoToolbar"
             android:windowSoftInputMode="stateHidden" />
 
         <activity

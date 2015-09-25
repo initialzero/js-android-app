@@ -109,7 +109,9 @@
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
-    <string name="ro_page_title">Filter Options</string>
+    <string name="ro_page_title" translatable="false">Input Controls</string>
+    <string name="ro_default" translatable="false">Reset to default</string>
+    <string name="ro_save_ro" translatable="false">Save report option</string>
     <string name="ro_ms_available" translatable="false">Available: %s</string>
     <string name="ro_ms_selected" translatable="false">Selected: %s</string>
     <string name="ro_no_items_selected" translatable="false">No items selected</string>

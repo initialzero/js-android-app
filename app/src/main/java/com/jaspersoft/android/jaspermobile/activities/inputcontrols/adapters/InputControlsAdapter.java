@@ -18,6 +18,7 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Andrew Tivodar
@@ -35,13 +36,13 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private final static int IC_SINGLE_SELECT = 6;
     private final static int IC_MULTI_SELECT = 7;
 
-    private ArrayList<InputControl> mInputControls;
+    private List<InputControl> mInputControls;
     private boolean mEnabled;
     private boolean mIsBinding;
     private LayoutInflater mLayoutInflater;
     private InputControlInteractionListener mInteractionListener;
 
-    public InputControlsAdapter(ArrayList<InputControl> inputControls) {
+    public InputControlsAdapter(List<InputControl> inputControls) {
         if (inputControls == null) {
             throw new IllegalArgumentException("Input Controls can not be null!");
         }
@@ -54,7 +55,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         this.mInteractionListener = interactionListener;
     }
 
-    public void updateInputControlList(ArrayList<InputControl> inputControls) {
+    public void updateInputControlList(List<InputControl> inputControls) {
         mInputControls = new ArrayList<>();
         for (InputControl inputControl : inputControls) {
             if (inputControl.isVisible()) {

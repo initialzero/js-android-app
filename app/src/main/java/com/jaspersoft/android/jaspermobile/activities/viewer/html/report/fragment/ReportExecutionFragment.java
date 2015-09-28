@@ -55,6 +55,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -95,7 +96,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     }
 
 
-    public void executeReport(ArrayList<ReportParameter> reportParameters) {
+    public void executeReport(List<ReportParameter> reportParameters) {
         getFilterMangerFragment().disableSaveOption();
 
         ReportExecutionRequest executionData = prepareExecutionData(reportParameters);
@@ -127,7 +128,7 @@ public class ReportExecutionFragment extends RoboSpiceFragment {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private ReportExecutionRequest prepareExecutionData(ArrayList<ReportParameter> reportParameters) {
+    private ReportExecutionRequest prepareExecutionData(List<ReportParameter> reportParameters) {
         ReportExecutionRequest executionData = new ReportExecutionRequest();
 
         reportExecutionUtil.setupInteractiveness(executionData);

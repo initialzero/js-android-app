@@ -191,7 +191,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                         }
                     }
 
-                    ArrayList<ReportParameter> reportParameters = paramsStorage.getReportParameters(resource.getUri());
+                    List<ReportParameter> reportParameters = paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
 
                     if (!reportParameters.isEmpty()) {
                         executionData.setParameters(reportParameters);

@@ -25,14 +25,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/defaultInputControls"
-        android:icon="@drawable/ic_menu_restore"
-        android:title="@string/ro_default"
-        app:showAsAction="always" />
+        android:id="@+id/deleteReportOption"
+        android:icon="@drawable/ic_menu_delete"
+        android:title="@string/ro_delete_ro"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/saveReportOption"
         android:icon="@drawable/ic_menu_save"
         android:title="@string/ro_save_ro"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 </menu>

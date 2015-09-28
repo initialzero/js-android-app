@@ -34,20 +34,21 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/icToolbar"
             android:layout_width="match_parent"
-            android:layout_height="?android:actionBarSize"/>
+            android:layout_height="?android:actionBarSize" />
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="72dp"
+            android:background="?android:colorPrimary"
             android:paddingLeft="72dp"
-            android:paddingRight="72dp"
-            android:background="?android:colorPrimary">
+            android:paddingRight="72dp">
 
             <Spinner
                 android:id="@+id/reportOptions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical" />
+                android:layout_gravity="center_vertical"
+                android:visibility="gone" />
 
         </FrameLayout>
 

@@ -33,6 +33,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -69,6 +71,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -102,6 +105,8 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     protected RecyclerView inputControlsList;
     @ViewById(R.id.reportOptions)
     protected Spinner reportOptionsList;
+    @OptionsMenuItem(R.id.deleteReportOption)
+    protected MenuItem deleteAction;
 
     @Extra
     protected String reportUri;
@@ -109,6 +114,8 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     private List<InputControl> mInputControls;
     private List<ReportOption> mReportOptions;
     private InputControlsAdapter mAdapter;
+    private boolean mReportOptionChanged;
+    private ArrayAdapter<String> mReportOptionsAdapter;
 
     @AfterViews
     protected void init() {
@@ -137,6 +144,12 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
             mAdapter.updateInputControl(selectInputControl);
             updateDependentControls(selectInputControl);
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        deleteAction.setVisible(reportOptionsList.getSelectedItemPosition() > 0);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -250,21 +263,31 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     private void showReportOptions() {
         // It's a hack to make spinner width as a selected item width
-        ArrayAdapter<String> reportOptionsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getReportOptionsTitles()) {
+        mReportOptionsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getReportOptionsTitles()) {
             @Override
             public View getView(final int position, final View convertView,
                                 final ViewGroup parent) {
                 int selectedItemPosition = InputControlsActivity.this.reportOptionsList.getSelectedItemPosition();
                 return super.getView(selectedItemPosition, convertView, parent);
             }
+
+            @Override
+            public String getItem(int position) {
+                String reportOptionTitle = super.getItem(position);
+                if (position == reportOptionsList.getSelectedItemPosition() && mReportOptionChanged) {
+                    reportOptionTitle = "* " + reportOptionTitle;
+                }
+                return reportOptionTitle;
+            }
         };
-        reportOptionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        reportOptionsList.setAdapter(reportOptionsAdapter);
+        mReportOptionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        reportOptionsList.setAdapter(mReportOptionsAdapter);
+
+        reportOptionsList.setOnItemSelectedListener(new OnReportOptionSelectListener());
+        reportOptionsList.setVisibility(View.VISIBLE);
 
         int selectedReportOptionPosition = paramsStorage.getInputControlHolder(reportUri).getCurrentReportOption();
         reportOptionsList.setSelection(selectedReportOptionPosition, false);
-        reportOptionsList.setOnItemSelectedListener(new OnReportOptionSelectListener());
-        reportOptionsList.setVisibility(View.VISIBLE);
     }
 
     private void onReportOptionSelected(int position) {
@@ -272,6 +295,10 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         paramsStorage.getInputControlHolder(reportUri).setCurrentReportOption(position);
 
         setProgressDialogState(true);
+        invalidateOptionsMenu();
+
+        mReportOptionChanged = false;
+        mReportOptionsAdapter.notifyDataSetChanged();
 
         GetReportOptionValuesRequest request = new GetReportOptionValuesRequest(jsRestClient, reportOption.getUri());
         getSpiceManager().execute(request, new GetInputControlsValuesListener());
@@ -280,6 +307,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     private void setProgressDialogState(boolean loading) {
         if (loading) {
             ProgressDialogFragment.builder(getSupportFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
                     .setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialog) {
@@ -338,6 +366,8 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
             GetInputControlsValuesRequest request = new GetInputControlsValuesRequest(jsRestClient, reportUri, mInputControls);
             getSpiceManager().execute(request, new GetInputControlsValuesListener());
         }
+        mReportOptionChanged = true;
+        mReportOptionsAdapter.notifyDataSetChanged();
     }
 
     private void runReport() {
@@ -372,7 +402,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     private void updateInputControlsFromReportParams() {
         List<ReportParameter> reportParams = paramsStorage.getInputControlHolder(reportUri).getReportParams();
 
-        Map<String, Set<String>> hashMap = new HashMap<String, Set<String>>(reportParams.size());
+        Map<String, Set<String>> hashMap = new HashMap<>(reportParams.size());
         for (ReportParameter reportParameter : reportParams) {
             hashMap.put(reportParameter.getName(), reportParameter.getValues());
         }

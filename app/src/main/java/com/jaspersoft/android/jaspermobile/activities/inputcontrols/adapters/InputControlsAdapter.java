@@ -87,7 +87,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
                 listItem = layoutInflater.inflate(R.layout.item_input_control_boolean, parent, false);
                 BooleanInputControlViewHolder booleanInputControlViewHolder = new BooleanInputControlViewHolder(listItem);
                 booleanInputControlViewHolder.setStateChangeListener(new BooleanIcInteractionListener());
-                return new BooleanInputControlViewHolder(listItem);
+                return booleanInputControlViewHolder;
             case IC_VALUE:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_value, parent, false);
                 ValueInputControlViewHolder valueInputControlViewHolder = new ValueInputControlViewHolder(listItem);

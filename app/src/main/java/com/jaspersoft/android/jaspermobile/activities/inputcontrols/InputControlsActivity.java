@@ -69,6 +69,7 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -114,8 +115,10 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     private List<InputControl> mInputControls;
     private List<ReportOption> mReportOptions;
     private InputControlsAdapter mAdapter;
-    private boolean mReportOptionChanged;
     private ArrayAdapter<String> mReportOptionsAdapter;
+
+    @InstanceState
+    protected boolean mReportOptionChanged;
 
     @AfterViews
     protected void init() {

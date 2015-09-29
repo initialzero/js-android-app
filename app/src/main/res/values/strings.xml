@@ -287,5 +287,8 @@
     <string name="error_webview_file_not_found_title" translatable="false">File</string>
     <string name="error_webview_io_msg" translatable="false">The server failed to communicate. Try again later.</string>
     <string name="error_webview_io_title" translatable="false">IO Error</string>
+    <!-- Permissions -->
+    <string name="enable_write_permission" translatable="false">Enable \'Storage\' permission inside app permissions setting</string>
+    <string name="explanation_write_permission" translatable="false">We need to save downloaded file on sdcard</string>
 
 </resources>

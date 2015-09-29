@@ -50,12 +50,14 @@ import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
+import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetReportOptionValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.ReportOptionsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
+import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
@@ -69,7 +71,6 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -113,18 +114,15 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     protected String reportUri;
 
     private List<InputControl> mInputControls;
-    private List<ReportOption> mReportOptions;
+    private List<ReportOptionHolder> mReportOptions;
     private InputControlsAdapter mAdapter;
     private ArrayAdapter<String> mReportOptionsAdapter;
-
-    @InstanceState
-    protected boolean mReportOptionChanged;
 
     @AfterViews
     protected void init() {
         initToolbar();
-        initReportOptions();
         initInputControls();
+        initReportOptions();
 
         showInputControls();
     }
@@ -237,7 +235,10 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         mReportOptions = paramsStorage.getInputControlHolder(reportUri).getReportOptions();
         if (mReportOptions.isEmpty()) {
             mReportOptions = new ArrayList<>();
-            mReportOptions.add(0, new ReportOption(reportUri, reportUri, getString(R.string.ro_default)));
+            ReportOption defaultReportOption = new ReportOption(reportUri, reportUri, getString(R.string.ro_default));
+            ReportOptionHolder reportOptionHolder = new ReportOptionHolder(defaultReportOption, mInputControls.hashCode());
+            reportOptionHolder.setSelected(true);
+            mReportOptions.add(reportOptionHolder);
 
             ReportOptionsRequest runReportExecutionRequest = new ReportOptionsRequest(jsRestClient, reportUri);
             getSpiceManager().execute(runReportExecutionRequest, new GetReportOptionsListener());
@@ -277,34 +278,40 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
             @Override
             public String getItem(int position) {
                 String reportOptionTitle = super.getItem(position);
-                if (position == reportOptionsList.getSelectedItemPosition() && mReportOptionChanged) {
-                    reportOptionTitle = "* " + reportOptionTitle;
+                if (position == getSelectedReportOptionPosition()){
+                    int currentHashCode = mInputControls.hashCode();
+                    int reportOptionHashCode = position > -1 ? mReportOptions.get(position).getHashCode() : 0;
+                    if (reportOptionHashCode !=  currentHashCode) {
+                        reportOptionTitle = "* " + reportOptionTitle;
+                    }
                 }
                 return reportOptionTitle;
             }
         };
+
         mReportOptionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         reportOptionsList.setAdapter(mReportOptionsAdapter);
 
         reportOptionsList.setOnItemSelectedListener(new OnReportOptionSelectListener());
         reportOptionsList.setVisibility(View.VISIBLE);
 
-        int selectedReportOptionPosition = paramsStorage.getInputControlHolder(reportUri).getCurrentReportOption();
+        int selectedReportOptionPosition = -1;
+        for (int i = 0; i < mReportOptions.size(); i++) {
+            if (mReportOptions.get(i).isSelected()) {
+                selectedReportOptionPosition = i;
+                break;
+            }
+        }
         reportOptionsList.setSelection(selectedReportOptionPosition, false);
     }
 
     private void onReportOptionSelected(int position) {
-        ReportOption reportOption = mReportOptions.get(position);
-        paramsStorage.getInputControlHolder(reportUri).setCurrentReportOption(position);
+        ReportOption reportOption = mReportOptions.get(position).getReportOption();
 
         setProgressDialogState(true);
-        invalidateOptionsMenu();
-
-        mReportOptionChanged = false;
-        mReportOptionsAdapter.notifyDataSetChanged();
 
         GetReportOptionValuesRequest request = new GetReportOptionValuesRequest(jsRestClient, reportOption.getUri());
-        getSpiceManager().execute(request, new GetInputControlsValuesListener());
+        getSpiceManager().execute(request, new GetReportOptionValuesListener());
     }
 
     private void setProgressDialogState(boolean loading) {
@@ -369,7 +376,6 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
             GetInputControlsValuesRequest request = new GetInputControlsValuesRequest(jsRestClient, reportUri, mInputControls);
             getSpiceManager().execute(request, new GetInputControlsValuesListener());
         }
-        mReportOptionChanged = true;
         mReportOptionsAdapter.notifyDataSetChanged();
     }
 
@@ -412,6 +418,9 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
         for (InputControl inputControl : mInputControls) {
             updateInputControlState(hashMap, inputControl);
+            if (inputControl.getType() == InputControl.Type.bool && inputControl.getState().getValue().equals(InputControlWrapper.NULL_SUBSTITUTE)) {
+                inputControl.getState().setValue("false");
+            }
         }
     }
 
@@ -419,7 +428,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         InputControlState state = inputControl.getState();
         List<InputControlOption> options = state.getOptions();
         Set<String> valueSet = hashMap.get(state.getId());
-        List<String> valueList = new ArrayList<String>();
+        List<String> valueList = new ArrayList<>();
         if (valueSet != null) {
             valueList.addAll(valueSet);
         }
@@ -449,9 +458,16 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     private String[] getReportOptionsTitles() {
         String[] reportOptionsTitles = new String[mReportOptions.size()];
         for (int i = 0; i < mReportOptions.size(); i++) {
-            reportOptionsTitles[i] = mReportOptions.get(i).getLabel();
+            reportOptionsTitles[i] = mReportOptions.get(i).getReportOption().getLabel();
         }
         return reportOptionsTitles;
+    }
+
+    private int getSelectedReportOptionPosition() {
+        for (int i = 0; i < mReportOptions.size(); i++) {
+            if (mReportOptions.get(i).isSelected()) return i;
+        }
+        return -1;
     }
 
     //---------------------------------------------------------------------
@@ -517,11 +533,28 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
         @Override
         public void onRequestSuccess(ReportOptionResponse reportOptionResponse) {
-            mReportOptions.addAll(reportOptionResponse.getOptions());
+            for (ReportOption reportOption : reportOptionResponse.getOptions()) {
+                mReportOptions.add(new ReportOptionHolder(reportOption, null));
+            }
             paramsStorage.getInputControlHolder(reportUri).setReportOptions(mReportOptions);
 
             showReportOptions();
             setProgressDialogState(false);
+        }
+    }
+
+    private class GetReportOptionValuesListener extends GetInputControlsValuesListener {
+        @Override
+        public void onRequestSuccess(InputControlStatesList stateList) {
+            super.onRequestSuccess(stateList);
+
+            mReportOptions.get(getSelectedReportOptionPosition()).setSelected(false);
+            mReportOptions.get(reportOptionsList.getSelectedItemPosition()).setSelected(true);
+
+            mReportOptions.get(getSelectedReportOptionPosition()).setHashCode(mInputControls.hashCode());
+
+            invalidateOptionsMenu();
+            mReportOptionsAdapter.notifyDataSetChanged();
         }
     }
 

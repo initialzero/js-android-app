@@ -2,7 +2,6 @@ package com.jaspersoft.android.jaspermobile.util;
 
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,22 +13,12 @@ import java.util.List;
 public class InputControlHolder{
     private List<ReportParameter> mReportParams;
     private List<InputControl> mInputControls;
-    private List<ReportOption> mReportOptions;
-    private int mCurrentReportOption;
+    private List<ReportOptionHolder> mReportOptions;
 
     public InputControlHolder() {
-        this.mCurrentReportOption = -1;
         this.mInputControls = new ArrayList<>();
         this.mReportOptions = new ArrayList<>();
         this.mReportParams = new ArrayList<>();
-    }
-
-    public int getCurrentReportOption() {
-        return mCurrentReportOption;
-    }
-
-    public void setCurrentReportOption(int currentReportOption) {
-        this.mCurrentReportOption = currentReportOption;
     }
 
     public List<InputControl> getInputControls() {
@@ -40,11 +29,11 @@ public class InputControlHolder{
         this.mInputControls = inputControls;
     }
 
-    public List<ReportOption> getReportOptions() {
+    public List<ReportOptionHolder> getReportOptions() {
         return mReportOptions;
     }
 
-    public void setReportOptions(List<ReportOption> reportOptions) {
+    public void setReportOptions(List<ReportOptionHolder> reportOptions) {
         this.mReportOptions = reportOptions;
     }
 

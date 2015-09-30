@@ -128,11 +128,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       };
 
       DashboardController.prototype.refresh = function() {
-        return this.components.forEach((function(_this) {
-          return function(component) {
-            return _this.dashboard.refresh(component.id).fail(_this._processErrors);
-          };
-        })(this));
+        return this.dashboard.refresh().fail(this._processErrors);
       };
 
       DashboardController.prototype.minimizeDashlet = function() {

@@ -111,7 +111,10 @@
     <string name="ro_run_report_btn">Run Report</string>
     <string name="ro_default" translatable="false">Default</string>
     <string name="ro_page_title" translatable="false">Input Controls</string>
-    <string name="ro_save_ro" translatable="false">Save report option</string>
+    <string name="ro_save_ro" translatable="false">Save values</string>
+    <string name="ro_save_text" translatable="false">The Name for the Saved Values</string>
+    <string name="ro_save_same" translatable="false">This report already has saved values with this name. They will be overwritten.</string>
+    <string name="ro_default_save_name" translatable="false">Report option</string>
     <string name="ro_delete_ro" translatable="false">Delete report option</string>
     <string name="ro_ms_available" translatable="false">Available: %s</string>
     <string name="ro_ms_selected" translatable="false">Selected: %s</string>

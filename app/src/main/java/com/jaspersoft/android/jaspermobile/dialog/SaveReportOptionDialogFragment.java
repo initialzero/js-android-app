@@ -10,11 +10,15 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.util.FileUtils;
+
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.SystemService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +27,21 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.2
  */
-public class SaveReportOptionDialogFragment extends BaseDialogFragment {
+@EFragment
+public class SaveReportOptionDialogFragment extends BaseDialogFragment implements DialogInterface.OnShowListener {
 
     private final static String CURRENTLY_SELECTED_ARG = "currently_selected_report_option";
     private final static String REPORT_OPTIONS_TITLES_ARG = "report_options_titles";
 
     private AlertDialog saveReportOptionDialog;
-    private EditText reportName;
+    private EditText reportOptionName;
     private TextView nameDuplicationIndicator;
 
     private int mCurrentlySelected;
     private List<String> mReportOptionsTitles;
+
+    @SystemService
+    protected InputMethodManager inputMethodManager;
 
     @NonNull
     @Override
@@ -41,15 +49,16 @@ public class SaveReportOptionDialogFragment extends BaseDialogFragment {
         final View customLayout = LayoutInflater.from(getActivity())
                 .inflate(R.layout.dialog_save_report_option, null);
 
-        reportName = (EditText) customLayout.findViewById(R.id.reportOptionName);
+        reportOptionName = (EditText) customLayout.findViewById(R.id.reportOptionName);
         nameDuplicationIndicator = (TextView) customLayout.findViewById(R.id.reportOptionDuplication);
-        reportName.addTextChangedListener(new RenameTextWatcher());
 
         if (mCurrentlySelected > 0) {
             String reportOptionName = mReportOptionsTitles.get(mCurrentlySelected);
-            reportName.setText(reportOptionName);
+            this.reportOptionName.setText(reportOptionName);
             checkNameDuplication(reportOptionName);
         }
+        reportOptionName.addTextChangedListener(new RenameTextWatcher());
+        reportOptionName.setSelection(reportOptionName.getText().length());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(customLayout);
@@ -58,7 +67,7 @@ public class SaveReportOptionDialogFragment extends BaseDialogFragment {
         builder.setPositiveButton(R.string.sp_save_btn, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String reportOptionName = reportName.getText().toString();
+                String reportOptionName = SaveReportOptionDialogFragment.this.reportOptionName.getText().toString();
                 if (mDialogListener != null) {
                     ((SaveReportOptionDialogCallback) mDialogListener).onSaveConfirmed(reportOptionName);
                 }
@@ -67,7 +76,13 @@ public class SaveReportOptionDialogFragment extends BaseDialogFragment {
         builder.setNegativeButton(R.string.cancel, null);
 
         saveReportOptionDialog = builder.create();
+        saveReportOptionDialog.setOnShowListener(this);
         return saveReportOptionDialog;
+    }
+
+    @Override
+    public void onShow(DialogInterface dialog) {
+        inputMethodManager.showSoftInput(reportOptionName, 0);
     }
 
     @Override
@@ -111,7 +126,7 @@ public class SaveReportOptionDialogFragment extends BaseDialogFragment {
             errorMessage = getString(R.string.sdr_rrd_error_characters_not_allowed);
         }
 
-        reportName.setError(errorMessage);
+        reportOptionName.setError(errorMessage);
         if (saveReportOptionDialog != null) {
             saveReportOptionDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(errorMessage == null);
         }
@@ -139,7 +154,7 @@ public class SaveReportOptionDialogFragment extends BaseDialogFragment {
 
         @Override
         protected SaveReportOptionDialogFragment build() {
-            return new SaveReportOptionDialogFragment();
+            return new SaveReportOptionDialogFragment_();
         }
     }
 
@@ -158,7 +173,7 @@ public class SaveReportOptionDialogFragment extends BaseDialogFragment {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            reportName.setError(null);
+            reportOptionName.setError(null);
             String reportOptionName = s.toString();
 
             checkNameDuplication(reportOptionName);

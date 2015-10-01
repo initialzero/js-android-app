@@ -35,4 +35,10 @@
         android:icon="@drawable/ic_menu_save"
         android:title="@string/ro_save_ro"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/resetReportOption"
+        android:icon="@drawable/ic_menu_restore"
+        android:title="@string/ro_reset_ro"
+        app:showAsAction="ifRoom" />
 </menu>

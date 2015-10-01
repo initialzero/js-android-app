@@ -176,6 +176,11 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
                 .show();
     }
 
+    @OptionsItem(R.id.resetReportOption)
+    protected void resetReportOptionAction() {
+        onReportOptionSelected(getSelectedReportOptionPosition());
+    }
+
     @Click(R.id.btnApplyParams)
     protected void applyParamsClick() {
         setApplyButtonState(true);
@@ -538,6 +543,38 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         return -1;
     }
 
+    private void addReportOption(ReportOption reportOption) {
+        String savedReportOptionTitle = reportOption.getLabel();
+        ReportOptionHolder reportOptionHolder = new ReportOptionHolder(reportOption, mInputControls.hashCode());
+        reportOptionHolder.setSelected(true);
+
+        List<String> reportOptionsNames = new ArrayList<>();
+        for (ReportOptionHolder mReportOption : mReportOptions) {
+            String reportOptionTitle = mReportOption.getReportOption().getLabel();
+            reportOptionsNames.add(reportOptionTitle);
+        }
+
+        boolean added = false;
+        for (int i = 1; i < reportOptionsNames.size(); i++) {
+            if (savedReportOptionTitle.compareToIgnoreCase(reportOptionsNames.get(i)) < 0) {
+                mReportOptions.add(i, reportOptionHolder);
+                reportOptionsList.setSelection(i);
+                added = true;
+                break;
+            } else if (savedReportOptionTitle.compareToIgnoreCase(reportOptionsNames.get(i)) == 0) {
+                mReportOptions.set(i, reportOptionHolder);
+                reportOptionsList.setSelection(i);
+                added = true;
+                break;
+            }
+        }
+
+        if (!added) {
+            mReportOptions.add(reportOptionHolder);
+            reportOptionsList.setSelection(reportOptionsNames.size());
+        }
+    }
+
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
@@ -572,7 +609,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         @Override
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
-            setProgressDialogState(false);
+            setApplyButtonState(false);
         }
 
         @Override
@@ -583,7 +620,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
             } else {
                 updateInputControls(invalidStateList);
             }
-            setProgressDialogState(false);
+            setApplyButtonState(false);
         }
     }
 
@@ -670,31 +707,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         public void onRequestSuccess(ReportOption reportOption) {
             mReportOptions.get(getSelectedReportOptionPosition()).setSelected(false);
 
-            String savedReportOptionTitle = reportOption.getLabel();
-            ReportOptionHolder reportOptionHolder = new ReportOptionHolder(reportOption, mInputControls.hashCode());
-            reportOptionHolder.setSelected(true);
-
-            List<String> reportOptionsNames = new ArrayList<>();
-            for (ReportOptionHolder mReportOption : mReportOptions) {
-                String reportOptionTitle = mReportOption.getReportOption().getLabel();
-                reportOptionsNames.add(reportOptionTitle);
-            }
-
-            for (int i = 1; i < reportOptionsNames.size(); i++) {
-                if (savedReportOptionTitle.compareToIgnoreCase(reportOptionsNames.get(i)) < 0) {
-                    mReportOptions.add(i, reportOptionHolder);
-                    reportOptionsList.setSelection(i);
-                    break;
-                } else if (savedReportOptionTitle.compareToIgnoreCase(reportOptionsNames.get(i)) == 0) {
-                    mReportOptions.set(i, reportOptionHolder);
-                    reportOptionsList.setSelection(i);
-                    break;
-                } else if (i == reportOptionsNames.size() - 1) {
-                    mReportOptions.add(reportOptionHolder);
-                    reportOptionsList.setSelection(reportOptionsNames.size());
-                }
-            }
-
+            addReportOption(reportOption);
             updateReportOptionsTitlesList();
             mReportOptionsAdapter.notifyDataSetChanged();
 

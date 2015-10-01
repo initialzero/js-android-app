@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.SingleSelectIcAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -104,7 +105,6 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
     @Override
     public boolean onQueryTextChange(String newText) {
         mSingleSelectIcAdapter.filter(newText);
-        onFilteringList();
         return true;
     }
 
@@ -113,6 +113,27 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
         inputControlsList.setLayoutManager(new LinearLayoutManager(this));
         inputControlsList.setAdapter(mSingleSelectIcAdapter);
         inputControlsList.setHasFixedSize(true);
+        inputControlsList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                int visibleItemCount = recyclerView.getChildCount();
+                int totalItemCount = recyclerView.getLayoutManager().getItemCount();
+                int firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+
+                if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount) {
+                    mSingleSelectIcAdapter.loadNextItems();
+                }
+            }
+        });
+        mSingleSelectIcAdapter.setFilterListener(new FilterableAdapter.FilterListener() {
+            @Override
+            public void onFilterDone() {
+                onFilteringList();
+            }
+        });
         mSingleSelectIcAdapter.setItemSelectListener(new SingleSelectIcAdapter.ItemSelectListener() {
             @Override
             public void onItemSelected(int position) {

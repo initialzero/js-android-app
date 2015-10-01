@@ -1,6 +1,5 @@
 package com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters;
 
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +10,7 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,7 +20,7 @@ import java.util.List;
 public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelectSelectedAdapter.MultiSelectViewHolder> {
 
     private List<InputControlOption> mInputControlOptions;
-    private SortedList<Integer> mSelectedList;
+    private List<OptionContainer> mSelectedList;
     private ItemSelectedListener mItemSelectListener;
 
     public MultiSelectSelectedAdapter(List<InputControlOption> inputControlOptions) {
@@ -28,8 +28,7 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
             throw new IllegalArgumentException("Input Controls Options list can not be null!");
         }
         this.mInputControlOptions = inputControlOptions;
-        this.mSelectedList = new SortedList<>(Integer.class, new SelectedListSortCallback());
-        selectItems(mInputControlOptions);
+        notifySelectionsChanged(mInputControlOptions);
     }
 
     @Override
@@ -41,13 +40,8 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
 
     @Override
     public void onBindViewHolder(MultiSelectViewHolder viewHolder, int position) {
-        int itemPosition = mSelectedList.get(position);
-        viewHolder.populateView(mInputControlOptions.get(itemPosition));
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return mSelectedList.get(position);
+        InputControlOption item = mSelectedList.get(position).getOption();
+        viewHolder.populateView(item);
     }
 
     @Override
@@ -59,60 +53,50 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
         this.mItemSelectListener = itemSelectListener;
     }
 
-    public void selectItem(boolean isSelected, int itemIndex) {
+    public void notifySelectionChanged(boolean isSelected, int itemIndex) {
+        int selectedIndex = getSortedIndex(itemIndex);
         if (isSelected) {
-            mSelectedList.add(itemIndex);
+            mSelectedList.add(selectedIndex, new OptionContainer(mInputControlOptions.get(itemIndex), itemIndex));
+            notifyItemInserted(selectedIndex);
         } else {
-            mSelectedList.remove(itemIndex);
+            mSelectedList.remove(selectedIndex - 1);
+            notifyItemRemoved(selectedIndex - 1);
         }
     }
 
-    public void selectItems(List<InputControlOption> inputControlOptions) {
-        mSelectedList.beginBatchedUpdates();
+    public void notifySelectionsChanged(List<InputControlOption> inputControlOptions) {
+        this.mSelectedList = new ArrayList<>();
         for (int i = 0; i < inputControlOptions.size(); i++) {
             if (inputControlOptions.get(i).isSelected()) {
-                mSelectedList.add(i);
-            } else {
-                mSelectedList.remove(i);
+                OptionContainer selectedContainer = new OptionContainer(inputControlOptions.get(i), i);
+                mSelectedList.add(selectedContainer);
             }
         }
-        mSelectedList.endBatchedUpdates();
+        notifyDataSetChanged();
     }
 
-    private class SelectedListSortCallback extends SortedList.Callback<Integer> {
-        @Override
-        public int compare(Integer integer, Integer t21) {
-            return integer.compareTo(t21);
+    private int getSortedIndex(int index){
+        for (int i = 0; i < mSelectedList.size(); i++) {
+            if (index < mSelectedList.get(i).getIndex()) return i;
+        }
+        return mSelectedList.size();
+    }
+
+    private class OptionContainer {
+        private int index;
+        private InputControlOption option;
+
+        public OptionContainer(InputControlOption option, int index) {
+            this.option = option;
+            this.index = index;
         }
 
-        @Override
-        public void onInserted(int position, int count) {
-            notifyItemRangeInserted(position, count);
+        public int getIndex() {
+            return index;
         }
 
-        @Override
-        public void onRemoved(int position, int count) {
-            notifyItemRangeRemoved(position, count);
-        }
-
-        @Override
-        public void onMoved(int fromPosition, int toPosition) {
-            notifyItemMoved(fromPosition, toPosition);
-        }
-
-        @Override
-        public void onChanged(int position, int count) {
-            notifyItemRangeChanged(position, count);
-        }
-
-        @Override
-        public boolean areContentsTheSame(Integer integer, Integer t21) {
-            return integer.equals(t21);
-        }
-
-        @Override
-        public boolean areItemsTheSame(Integer integer, Integer t21) {
-            return integer.equals(t21);
+        public InputControlOption getOption() {
+            return option;
         }
     }
 
@@ -130,7 +114,7 @@ public class MultiSelectSelectedAdapter extends RecyclerView.Adapter<MultiSelect
                 public void onClick(View v) {
                     int selectedPosition = getAdapterPosition();
                     if (mItemSelectListener != null && selectedPosition > -1) {
-                        int itemPosition = (int) MultiSelectSelectedAdapter.this.getItemId(selectedPosition);
+                        int itemPosition = mSelectedList.get(selectedPosition).getIndex();
                         mItemSelectListener.onItemUnselected(itemPosition);
                     }
                 }

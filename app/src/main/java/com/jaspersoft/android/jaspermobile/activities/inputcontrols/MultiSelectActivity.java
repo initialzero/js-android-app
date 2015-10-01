@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectAvailableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectSelectedAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
@@ -147,7 +148,6 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
     @Override
     public boolean onQueryTextChange(String newText) {
         mAvailableAdapter.filter(newText);
-        onFilteringList();
         return true;
     }
 
@@ -155,6 +155,12 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         mAvailableAdapter = new MultiSelectAvailableAdapter(mInputControlOptions);
         mSelectedAdapter = new MultiSelectSelectedAdapter(mInputControlOptions);
 
+        mAvailableAdapter.setFilterListener(new FilterableAdapter.FilterListener() {
+            @Override
+            public void onFilterDone() {
+                onFilteringList();
+            }
+        });
         mAvailableAdapter.setItemSelectListener(new MultiSelectAvailableAdapter.ItemSelectListener() {
             @Override
             public void onItemSelected(int position) {
@@ -214,25 +220,25 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         }
     }
 
-    private void onItemSelectionChange(int position){
+    private void onItemSelectionChange(int position) {
         mAvailableAdapter.updateItem(position);
-        mSelectedAdapter.selectItem(mInputControlOptions.get(position).isSelected(), position);
+        mSelectedAdapter.notifySelectionChanged(mInputControlOptions.get(position).isSelected(), position);
 
         updateSelectedTabTitle();
         emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         isValueChanged = true;
     }
 
-    private void onItemsSelectionChange(){
+    private void onItemsSelectionChange() {
         mAvailableAdapter.notifyItemRangeChanged(0, mAvailableAdapter.getItemCount());
-        mSelectedAdapter.selectItems(mInputControlOptions);
+        mSelectedAdapter.notifySelectionsChanged(mInputControlOptions);
 
         updateSelectedTabTitle();
         emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         isValueChanged = true;
     }
 
-    private void onFilteringList(){
+    private void onFilteringList() {
         updateAvailableTabTitle();
         emptyTextAvailable.setVisibility(mAvailableAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         availableList.scrollToPosition(0);
@@ -248,7 +254,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
     private void updateAvailableTabTitle() {
         TabLayout.Tab selectedTab = headerTab.getTabAt(TAB_AVAILABLE);
         if (selectedTab != null) {
-            selectedTab.setText(getString(R.string.ro_ms_available, mAvailableAdapter.getItemCount()));
+            selectedTab.setText(getString(R.string.ro_ms_available, mInputControlOptions.size()));
         }
     }
 
@@ -274,6 +280,21 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
             if (position == TAB_AVAILABLE) {
                 availableList = list;
+                availableList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                        super.onScrolled(recyclerView, dx, dy);
+
+                        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                        int visibleItemCount = recyclerView.getChildCount();
+                        int totalItemCount = recyclerView.getLayoutManager().getItemCount();
+                        int firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+
+                        if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount) {
+                            mAvailableAdapter.loadNextItems();
+                        }
+                    }
+                });
                 list.setAdapter(mAvailableAdapter);
                 emptyTextAvailable = (TextView) selectView.findViewById(R.id.empty);
                 emptyTextAvailable.setText(getString(R.string.r_search_nothing_to_display));
@@ -299,7 +320,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         @Override
         public CharSequence getPageTitle(int position) {
             if (position == TAB_AVAILABLE) {
-                return getString(R.string.ro_ms_available, mAvailableAdapter.getItemCount());
+                return getString(R.string.ro_ms_available, mInputControlOptions.size());
             }
             return getString(R.string.ro_ms_selected, mSelectedAdapter.getItemCount());
         }

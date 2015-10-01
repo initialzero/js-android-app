@@ -37,7 +37,6 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private final static int IC_MULTI_SELECT = 7;
 
     private List<InputControl> mInputControls;
-    private boolean mEnabled;
     private boolean mIsBinding;
     private LayoutInflater mLayoutInflater;
     private InputControlInteractionListener mInteractionListener;
@@ -48,7 +47,6 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         }
 
         updateInputControlList(inputControls);
-        this.mEnabled = true;
     }
 
     public void setInteractionListener(InputControlInteractionListener interactionListener) {
@@ -71,11 +69,6 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
             hideError(position);
             notifyItemChanged(position);
         }
-    }
-
-    public void setListEnabled(boolean enabled) {
-        mEnabled = enabled;
-        notifyItemRangeChanged(0, mInputControls.size());
     }
 
     @Override
@@ -131,7 +124,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     @Override
     public void onBindViewHolder(BaseInputControlViewHolder viewHolder, int position) {
         mIsBinding = true;
-        viewHolder.populateView(mInputControls.get(position), mEnabled);
+        viewHolder.populateView(mInputControls.get(position));
         mIsBinding = false;
     }
 

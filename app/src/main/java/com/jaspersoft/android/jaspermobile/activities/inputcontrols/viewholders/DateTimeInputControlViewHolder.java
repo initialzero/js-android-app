@@ -95,9 +95,7 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
     }
 
     @Override
-    public void populateView(InputControl inputControl, boolean enabled) {
-        enableViews(inputControl, enabled);
-
+    public void populateView(InputControl inputControl) {
         String selectedDate = getSelectedDate(inputControl);
         selectedDateTime.setText(selectedDate != null ? selectedDate : InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
         label.setText(getUpdatedLabelText(inputControl));
@@ -121,13 +119,6 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
     private void setClearButtonVisibility(boolean visible) {
         btnClear.setVisibility(visible ? View.VISIBLE : View.GONE);
         clearDivider.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    private void enableViews(InputControl inputControl, boolean enabled) {
-        selectedDateTime.setEnabled(enabled && !inputControl.isReadOnly());
-        btnDate.setEnabled(enabled && !inputControl.isReadOnly());
-        btnTime.setEnabled(enabled && !inputControl.isReadOnly());
-        btnClear.setEnabled(enabled && !inputControl.isReadOnly());
     }
 
     public interface DateTimeClickListener {

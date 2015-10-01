@@ -46,9 +46,7 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
     }
 
     @Override
-    public void populateView(InputControl inputControl, boolean enabled) {
-        singleValue.setEnabled(enabled && !inputControl.isReadOnly());
-
+    public void populateView(InputControl inputControl) {
         String previousValue = singleValue.getText().toString();
         String currentValue = inputControl.getState().getValue();
         /**

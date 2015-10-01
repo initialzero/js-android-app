@@ -16,8 +16,8 @@ public class NumberValueInputControlViewHolder extends ValueInputControlViewHold
     }
 
     @Override
-    public void populateView(InputControl inputControl, boolean enabled) {
-        super.populateView(inputControl, enabled);
+    public void populateView(InputControl inputControl) {
+        super.populateView(inputControl);
 
         // allow only numbers if data type is numeric
         if (inputControl.getType() == InputControl.Type.singleValueNumber) {

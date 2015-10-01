@@ -15,7 +15,7 @@ public abstract class BaseInputControlViewHolder extends RecyclerView.ViewHolder
         super(itemView);
     }
 
-    public abstract void populateView(InputControl inputControl, boolean enabled);
+    public abstract void populateView(InputControl inputControl);
 
     protected String getUpdatedLabelText(InputControl inputControl) {
         String mandatoryPrefix = (inputControl.isMandatory()) ? "* " : "";

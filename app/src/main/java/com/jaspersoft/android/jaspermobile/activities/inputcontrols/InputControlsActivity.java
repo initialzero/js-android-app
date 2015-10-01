@@ -183,7 +183,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @Click(R.id.btnApplyParams)
     protected void applyParamsClick() {
-        setApplyButtonState(true);
+        setProgressDialogState(true);
         ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, mInputControls);
         getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
     }
@@ -394,16 +394,6 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         }
     }
 
-    private void setApplyButtonState(boolean refreshing) {
-//        if (refreshing) {
-//            runReportAction.setActionView(R.layout.actionbar_indeterminate_progress);
-//        } else {
-//            runReportAction.setActionView(null);
-//        }
-
-        mAdapter.setListEnabled(!refreshing);
-    }
-
     private InputControl getInputControl(String id) {
         for (InputControl inputControl : mInputControls) {
             if (inputControl.getId().equals(id)) {
@@ -609,7 +599,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         @Override
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
-            setApplyButtonState(false);
+            setProgressDialogState(false);
         }
 
         @Override
@@ -620,7 +610,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
             } else {
                 updateInputControls(invalidStateList);
             }
-            setApplyButtonState(false);
+            setProgressDialogState(false);
         }
     }
 

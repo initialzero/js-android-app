@@ -39,9 +39,7 @@ public class SelectInputControlViewHolder extends BaseInputControlViewHolder {
     }
 
     @Override
-    public void populateView(InputControl inputControl, boolean enabled) {
-        selectedValue.setEnabled(enabled && !inputControl.isReadOnly());
-        item.setEnabled(enabled && !inputControl.isReadOnly());
+    public void populateView(InputControl inputControl) {
         selectedValue.setText(getCurrentSelection(inputControl));
         label.setText(getUpdatedLabelText(inputControl));
 

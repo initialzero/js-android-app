@@ -161,20 +161,14 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     @OptionsItem
     final void saveAction() {
         if (canMakeSmores()) {
-            boolean permissionGranted =
-                    (ContextCompat.checkSelfPermission(getActivity(), WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-            if (permissionGranted) {
-                performSaveAction();
-            } else {
-                if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
-                    Toast.makeText(getActivity(), R.string.explanation_write_permission, Toast.LENGTH_LONG).show();
-                }
-
+            boolean permissionDenied =
+                    (ContextCompat.checkSelfPermission(getActivity(), WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED);
+            if (permissionDenied) {
                 requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                return;
             }
-        } else {
-            performSaveAction();
         }
+        performSaveAction();
     }
 
     @Override

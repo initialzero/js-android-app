@@ -111,6 +111,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this._startReportExecution = bind(this._startReportExecution, this);
         this._processLinkClicks = bind(this._processLinkClicks, this);
         this._processErrors = bind(this._processErrors, this);
+        this._refreshSuccess = bind(this._refreshSuccess, this);
         this._processSuccess = bind(this._processSuccess, this);
         this._executeDashboard = bind(this._executeDashboard, this);
         this.uri = params.uri, this.session = params.session;
@@ -128,7 +129,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       };
 
       DashboardController.prototype.refresh = function() {
-        return this.dashboard.refresh().fail(this._processErrors);
+        return this.dashboard.refresh().done(this._refreshSuccess).fail(this._processErrors);
       };
 
       DashboardController.prototype.minimizeDashlet = function() {
@@ -198,6 +199,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this._defineComponentsClickEvent();
         this._setupFiltersApperance();
         this._overrideApplyButton();
+        return this.callback.onLoadDone(this.components);
+      };
+
+      DashboardController.prototype._refreshSuccess = function(dashboard) {
         return this.callback.onLoadDone(this.components);
       };
 

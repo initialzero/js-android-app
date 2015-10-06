@@ -164,16 +164,9 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @OptionsItem(R.id.saveReportOption)
     protected void saveReportOptionAction() {
-        List<String> reportOptionsNames = new ArrayList<>();
-        for (ReportOptionHolder reportOption : mReportOptions) {
-            String reportOptionTitle = reportOption.getReportOption().getLabel();
-            reportOptionsNames.add(reportOptionTitle);
-        }
-
-        SaveReportOptionDialogFragment.createBuilder(getSupportFragmentManager())
-                .setCurrentlySelected(getSelectedReportOptionPosition())
-                .setReportOptionsTitles(reportOptionsNames)
-                .show();
+        setApplyButtonState(true);
+        ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, mInputControls);
+        getSpiceManager().execute(request, new ValidateReportOptionsValuesListener());
     }
 
     @OptionsItem(R.id.resetReportOption)
@@ -361,6 +354,19 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         ReportOption currentReportOption = mReportOptions.get(getSelectedReportOptionPosition()).getReportOption();
         DeleteReportOptionRequest request = new DeleteReportOptionRequest(jsRestClient, reportUri, currentReportOption.getId());
         getSpiceManager().execute(request, new DeleteReportOptionListener());
+    }
+
+    private void showSaveDialog() {
+        List<String> reportOptionsNames = new ArrayList<>();
+        for (ReportOptionHolder reportOption : mReportOptions) {
+            String reportOptionTitle = reportOption.getReportOption().getLabel();
+            reportOptionsNames.add(reportOptionTitle);
+        }
+
+        SaveReportOptionDialogFragment.createBuilder(getSupportFragmentManager())
+                .setCurrentlySelected(getSelectedReportOptionPosition())
+                .setReportOptionsTitles(reportOptionsNames)
+                .show();
     }
 
     private void saveReportOption(String reportOptionName) {
@@ -616,11 +622,22 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         public void onRequestSuccess(InputControlStatesList stateList) {
             List<InputControlState> invalidStateList = stateList.getInputControlStates();
             if (invalidStateList.isEmpty()) {
-                runReport();
+                onValidationPassed();
             } else {
                 updateInputControls(invalidStateList);
             }
             setApplyButtonState(false);
+        }
+
+        protected void onValidationPassed(){
+            runReport();
+        }
+    }
+
+    private class ValidateReportOptionsValuesListener extends ValidateInputControlsValuesListener {
+        @Override
+        protected void onValidationPassed() {
+            showSaveDialog();
         }
     }
 

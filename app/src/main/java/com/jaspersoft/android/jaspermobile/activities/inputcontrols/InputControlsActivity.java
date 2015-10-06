@@ -37,6 +37,8 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.Inp
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment_;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -74,7 +76,7 @@ import java.util.Set;
  */
 @EActivity(R.layout.view_simple_list)
 @OptionsMenu(R.menu.am_run_report_menu)
-public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener, DateDialogFragment.DateDialogClickListener {
+public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener, DateDialogFragment.DateDialogClickListener, TextInputControlDialogFragment.InputControlValueDialogCallback {
     // Extras
     public static final int SELECT_IC_REQUEST_CODE = 521;
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
@@ -129,10 +131,10 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     }
 
     @Override
-    public void onValueTextChanged(InputControl inputControl, String newValue) {
-        inputControl.getState().setValue(newValue);
-        mAdapter.updateInputControl(inputControl);
-        updateDependentControls(inputControl);
+    public void onValueTextChanged(InputControl inputControl) {
+        TextInputControlDialogFragment_.createBuilder(getSupportFragmentManager())
+                .setInputControl(inputControl)
+                .show();
     }
 
     @Override
@@ -181,6 +183,13 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         InputControl inputControl = getInputControl(icId);
 
         updateDateValue(inputControl, date);
+        mAdapter.updateInputControl(inputControl);
+        updateDependentControls(inputControl);
+    }
+
+    @Override
+    public void onTextValueEntered(InputControl inputControl, String name) {
+        inputControl.getState().setValue(name);
         mAdapter.updateInputControl(inputControl);
         updateDependentControls(inputControl);
     }

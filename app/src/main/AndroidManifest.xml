@@ -74,8 +74,7 @@
         <activity
             android:name=".activities.inputcontrols.InputControlsActivity_"
             android:configChanges="screenSize|orientation|locale"
-            android:label="@string/ro_page_title"
-            android:windowSoftInputMode="stateHidden" />
+            android:label="@string/ro_page_title" />
 
         <activity
             android:name=".activities.inputcontrols.SingleSelectActivity_"

@@ -164,7 +164,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent();
+        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(getActivity(), jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);

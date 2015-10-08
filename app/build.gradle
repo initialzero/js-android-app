@@ -59,6 +59,12 @@ android {
 
         versionCode 2_02_00_000
         versionName "2.2.0"
+
+        if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
+            resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
+        } else {
+            resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
+        }
     }
 
     if (project.hasProperty('JMA_STORE_FILE')) {
@@ -124,11 +130,6 @@ android {
                 // remove setup in AppConfiguratorImpl for production flavor
                 manifestPlaceholders = [crashlyticsApiKey: ""]
                 ext.enableCrashlytics = false
-            }
-            if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
-                resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
-            } else {
-                resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
             }
         }
     }

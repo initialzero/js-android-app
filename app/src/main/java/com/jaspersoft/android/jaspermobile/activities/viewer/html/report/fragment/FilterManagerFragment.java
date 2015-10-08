@@ -105,9 +105,6 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     private boolean mPageWasLoadedAtLeastOnce;
 
-    private ArrayList<ReportParameter> reportParameters;
-    private ArrayList<InputControl> inputControls;
-
     private ReportExecutionFragment reportExecutionFragment;
     private RequestExecutor requestExecutor;
     private ReportView reportView;
@@ -167,7 +164,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     final void printAction() {
         analytics.trackPrintEvent();
         ResourcePrintJob job = JasperPrintJobFactory
-                .createReportPrintJob(getActivity(), jsRestClient, resource, reportParameters);
+                .createReportPrintJob(getActivity(), jsRestClient, resource, paramsStorage.getInputControlHolder(resource.getUri()).getReportParams());
         JasperPrinter.print(job);
     }
 
@@ -247,10 +244,11 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
-            paramsStorage.getInputControlHolder(resource.getUri()).setInputControls(new ArrayList<InputControl>(controlsList.getInputControls()));
+            List<InputControl> icList = new ArrayList<>(controlsList.getInputControls());
+            paramsStorage.getInputControlHolder(resource.getUri()).setInputControls(icList);
             reportView.hideErrorView();
 
-            boolean showFilterActionVisible = !inputControls.isEmpty();
+            boolean showFilterActionVisible = !icList.isEmpty();
             mShowFilterOption = showFilterActionVisible;
             getActivity().supportInvalidateOptionsMenu();
 

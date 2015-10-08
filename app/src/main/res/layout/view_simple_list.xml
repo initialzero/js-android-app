@@ -39,7 +39,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="72dp"
-            android:background="?android:colorPrimary"
+            android:background="?colorPrimary"
             android:paddingLeft="72dp"
             android:paddingRight="72dp">
 

@@ -12,8 +12,7 @@ import com.google.android.gms.analytics.Tracker;
  */
 public class JasperAnalytics implements Analytics {
 
-    // google analytics session timeout in sec
-    private static final int SESSION_TIMEOUT = 1800;
+    private static final String TRACKER_ID_KEY = "&tid";
 
     private static final String CLICK_LABEL = "User click";
     private static final String PRINT_CATEGORY = "Print";
@@ -26,9 +25,7 @@ public class JasperAnalytics implements Analytics {
         analytics.enableAutoActivityReports(appContext);
 
         tracker = analytics.newTracker(R.xml.analytics_tracker);
-        tracker.setSessionTimeout(SESSION_TIMEOUT);
-        tracker.enableAutoActivityTracking(true);
-        tracker.enableExceptionReporting(true);
+        tracker.set(TRACKER_ID_KEY, appContext.getString(R.string.google_analytics_tracking_id));
     }
 
     @Override

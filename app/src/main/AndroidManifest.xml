@@ -62,7 +62,7 @@
 
         <meta-data
             android:name="com.google.android.gms.analytics.globalConfigResource"
-            android:resource="@xml/analytics_tracker" />
+            android:resource="@xml/global_tracker" />
 
         <meta-data
             android:name="com.google.android.gms.version"

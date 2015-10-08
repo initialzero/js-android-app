@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.inputcontrols;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -55,6 +56,8 @@ import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.CreateReportOptionsRequest;
 import com.jaspersoft.android.sdk.client.async.request.DeleteReportOptionRequest;
@@ -116,6 +119,8 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     protected Spinner reportOptionsList;
     @OptionsMenuItem(R.id.deleteReportOption)
     protected MenuItem deleteAction;
+    @OptionsMenuItem(R.id.saveReportOption)
+    protected MenuItem saveAction;
 
     @Extra
     protected String reportUri;
@@ -125,10 +130,15 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     private List<String> mReportOptionsTitles;
     private InputControlsAdapter mAdapter;
     private ArrayAdapter<String> mReportOptionsAdapter;
+    private boolean mIsProJrs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Account account = JasperAccountManager.get(this).getActiveAccount();
+        AccountServerData serverData = AccountServerData.get(this, account);
+        mIsProJrs = serverData.getEdition().equals("PRO");
 
         mInputControls = paramsStorage.getInputControlHolder(reportUri).getInputControls();
         mReportOptions = paramsStorage.getInputControlHolder(reportUri).getReportOptions();
@@ -203,7 +213,8 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        deleteAction.setVisible(reportOptionsList.getSelectedItemPosition() > 0);
+        deleteAction.setVisible(reportOptionsList.getSelectedItemPosition() > 0 && mIsProJrs);
+        saveAction.setVisible(mIsProJrs);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -307,9 +318,11 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
         reportOptionHolder.setSelected(true);
         mReportOptions.add(reportOptionHolder);
 
-        ReportOptionsRequest runReportExecutionRequest = new ReportOptionsRequest(jsRestClient, reportUri);
-        getSpiceManager().execute(runReportExecutionRequest, new GetReportOptionsListener());
-        setProgressDialogState(true);
+        if (mIsProJrs) {
+            ReportOptionsRequest runReportExecutionRequest = new ReportOptionsRequest(jsRestClient, reportUri);
+            getSpiceManager().execute(runReportExecutionRequest, new GetReportOptionsListener());
+            setProgressDialogState(true);
+        }
     }
 
     private void showInputControls() {
@@ -344,6 +357,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
         int selectedReportOptionPosition = getSelectedReportOptionPosition();
         reportOptionsList.setSelection(selectedReportOptionPosition, false);
+        reportOptionsList.setVisibility(mIsProJrs ? View.VISIBLE : View.GONE);
     }
 
     private void onReportOptionSelected(int position) {

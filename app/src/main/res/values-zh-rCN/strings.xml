@@ -213,7 +213,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">请求的页面超出范围。</string>
     <string name="rv_open_link_chooser">打开链接，使用</string>
-    <string name="rv_no_viewer_identified">无法确定JRS版本：%s 的浏览器</string>
 
 
     <!-- Save Report Activity -->

@@ -214,7 +214,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">La page demandée est hors de portée.</string>
     <string name="rv_open_link_chooser">Ouvrir le lien dans</string>
-    <string name="rv_no_viewer_identified">Impossible d\'identifier le visionneur pour la version JRS : %s</string>
 
 
     <!-- Save Report Activity -->

@@ -46,7 +46,6 @@ public class DefaultPrefHelper {
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
     public static final String KEY_PREF_READ_TIMEOUT = "pref_read_timeout";
-    public static final String KEY_PREF_SESSION_RESUME = "pref_session_resume_enabled";
     public static final String KEY_PREF_ANIMATION_ENABLED = "pref_animation_enabled";
     public static final String KEY_PREF_SEND_CRASHES = "pref_crash_reports";
 
@@ -70,11 +69,6 @@ public class DefaultPrefHelper {
         String value = preferences.getString(
                 KEY_PREF_READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
         return (int) TimeUnit.SECONDS.toMillis(Integer.parseInt(value));
-    }
-
-    public boolean isSessionResumable(){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(KEY_PREF_SESSION_RESUME, true);
     }
 
     public boolean isAnimationEnabled() {

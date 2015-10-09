@@ -58,17 +58,6 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/st_category_security">
-
-        <SwitchPreference
-            android:key="pref_session_resume_enabled"
-            android:defaultValue="true"
-            android:title="@string/st_title_session_resume"
-            android:summary="@string/st_send_session_resume_note"/>
-
-    </PreferenceCategory>
-
-
     <PreferenceCategory android:title="@string/st_category_more">
 
         <SwitchPreference

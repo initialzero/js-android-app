@@ -58,16 +58,15 @@
 
     </PreferenceCategory>
 
-    <!-- TODO Feature is not ready for production. We have no proper auto resuming on UI part. -->
-    <!--<PreferenceCategory android:title="@string/st_category_security">-->
+    <PreferenceCategory android:title="@string/st_category_security">
 
-        <!--<CheckBoxPreference-->
-            <!--android:key="pref_session_resume_enabled"-->
-            <!--android:defaultValue="true"-->
-            <!--android:title="@string/st_title_session_resume"-->
-            <!--android:summary="@string/st_send_session_resume_note"/>-->
+        <CheckBoxPreference
+            android:key="pref_session_resume_enabled"
+            android:defaultValue="true"
+            android:title="@string/st_title_session_resume"
+            android:summary="@string/st_send_session_resume_note"/>
 
-    <!--</PreferenceCategory>-->
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/st_category_more">
 

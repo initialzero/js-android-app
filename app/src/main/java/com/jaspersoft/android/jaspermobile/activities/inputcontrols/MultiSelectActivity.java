@@ -34,7 +34,6 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -210,7 +209,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
     }
 
     private void initInputControlOptions() {
-        ArrayList<InputControl> inputControls = paramsStorage.getInputControls(reportUri);
+        List<InputControl> inputControls = paramsStorage.getInputControlHolder(reportUri).getInputControls();
         for (InputControl inputControl : inputControls) {
             if (inputControl.getId().equals(inputControlId)) {
                 mInputControlLabel = inputControl.getLabel();

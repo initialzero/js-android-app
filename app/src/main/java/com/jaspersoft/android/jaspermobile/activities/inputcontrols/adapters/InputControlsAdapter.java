@@ -18,6 +18,7 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Andrew Tivodar
@@ -35,26 +36,24 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     private final static int IC_SINGLE_SELECT = 6;
     private final static int IC_MULTI_SELECT = 7;
 
-    private ArrayList<InputControl> mInputControls;
-    private boolean mEnabled;
+    private List<InputControl> mInputControls;
     private boolean mIsBinding;
     private LayoutInflater mLayoutInflater;
     private InputControlInteractionListener mInteractionListener;
 
-    public InputControlsAdapter(ArrayList<InputControl> inputControls) {
+    public InputControlsAdapter(List<InputControl> inputControls) {
         if (inputControls == null) {
             throw new IllegalArgumentException("Input Controls can not be null!");
         }
 
         updateInputControlList(inputControls);
-        this.mEnabled = true;
     }
 
     public void setInteractionListener(InputControlInteractionListener interactionListener) {
         this.mInteractionListener = interactionListener;
     }
 
-    public void updateInputControlList(ArrayList<InputControl> inputControls) {
+    public void updateInputControlList(List<InputControl> inputControls) {
         mInputControls = new ArrayList<>();
         for (InputControl inputControl : inputControls) {
             if (inputControl.isVisible()) {
@@ -72,11 +71,6 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         }
     }
 
-    public void setListEnabled(boolean enabled) {
-        mEnabled = enabled;
-        notifyItemRangeChanged(0, mInputControls.size());
-    }
-
     @Override
     public BaseInputControlViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
@@ -86,7 +80,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
                 listItem = layoutInflater.inflate(R.layout.item_input_control_boolean, parent, false);
                 BooleanInputControlViewHolder booleanInputControlViewHolder = new BooleanInputControlViewHolder(listItem);
                 booleanInputControlViewHolder.setStateChangeListener(new BooleanIcInteractionListener());
-                return new BooleanInputControlViewHolder(listItem);
+                return booleanInputControlViewHolder;
             case IC_VALUE:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_value, parent, false);
                 ValueInputControlViewHolder valueInputControlViewHolder = new ValueInputControlViewHolder(listItem);
@@ -130,7 +124,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     @Override
     public void onBindViewHolder(BaseInputControlViewHolder viewHolder, int position) {
         mIsBinding = true;
-        viewHolder.populateView(mInputControls.get(position), mEnabled);
+        viewHolder.populateView(mInputControls.get(position));
         mIsBinding = false;
     }
 

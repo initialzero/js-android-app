@@ -210,7 +210,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">Die angeforderte Seite ist außer Reichweite.</string>
     <string name="rv_open_link_chooser">Link öffnen in</string>
-    <string name="rv_no_viewer_identified">Viewer für JRS-Version konnten nicht identifiziert werden: %s</string>
 
 
     <!-- Save Report Activity -->

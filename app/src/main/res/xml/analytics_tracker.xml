@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="ga_autoActivityTracking">true</bool>
+    <integer name="ga_sessionTimeout">1800</integer>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_">
+        Home screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_">
+        Input controls screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.inputcontrols.SingleSelectActivity_">
+        Single select IC screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.inputcontrols.MultiSelectActivity_">
+        Multi select IC screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_">
+        Report viewer screen (visualize)
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_">
+        Report viewer screen (REST)
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_">
+        Saved html files screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_">
+        Dashboard viewer screen (visualize)
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_">
+        Dashboard viewer screen (HTTP new)
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_">
+        Dashboard viewer screen (HTTP old)
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_">
+        Saving report screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_">
+        Settings screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.library.LibrarySearchableActivity_">
+        Library search screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.repository.RepositorySearchableActivity_">
+        Repository search screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.storage.SavedItemsSearchableActivity_">
+        Saved items search screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesSearchableActivity_">
+        Favorites search screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.PrivacyPolicyActivity_">
+        Privacy Policy screen
+    </screenName>
+
+    <screenName name="com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity">
+        Add account screen
+    </screenName>
+</resources>

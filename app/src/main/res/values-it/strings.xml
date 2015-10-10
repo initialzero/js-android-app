@@ -214,7 +214,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">La pagina richiesta non è compresa nell\'intervallo.</string>
     <string name="rv_open_link_chooser">Apri il collegamento su</string>
-    <string name="rv_no_viewer_identified">Impossibile identificare il visualizzatore per la versione JRS: %s</string>
 
 
     <!-- Save Report Activity -->

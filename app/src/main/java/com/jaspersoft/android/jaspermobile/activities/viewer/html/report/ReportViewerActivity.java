@@ -114,6 +114,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import rx.Subscription;
@@ -203,7 +204,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         super.onCreate(savedInstanceState);
 
         mHasInitialParameters = !reportParameters.isEmpty();
-        paramsStorage.putReportParameters(resource.getUri(), reportParameters);
+        paramsStorage.getInputControlHolder(resource.getUri()).setReportParams(reportParameters);
 
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
@@ -300,6 +301,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             webView.removeAllViews();
             webView.destroy();
         }
+        paramsStorage.clearInputControlHolder(resource.getUri());
     }
 
     //---------------------------------------------------------------------
@@ -357,7 +359,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent();
+        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(this, jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);
@@ -693,12 +695,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
         webView.loadUrl(String.format("javascript:MobileReport.applyReportParams(%s)", reportParams));
     }
 
-    private ArrayList<InputControl> getInputControls() {
-        return paramsStorage.getInputControls(resource.getUri());
+    private List<InputControl> getInputControls() {
+        return paramsStorage.getInputControlHolder(resource.getUri()).getInputControls();
     }
 
-    private ArrayList<ReportParameter> getReportParameters() {
-        return paramsStorage.getReportParameters(resource.getUri());
+    private List<ReportParameter> getReportParameters() {
+        return paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
     }
 
     private void selectPageInWebView(int page) {

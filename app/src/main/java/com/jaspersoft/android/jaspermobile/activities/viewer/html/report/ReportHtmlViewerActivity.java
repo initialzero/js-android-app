@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.FilterManagerFragment;
@@ -40,6 +41,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragmen
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportActionFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportExecutionFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.ReportExecutionFragment_;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -65,6 +67,9 @@ public class ReportHtmlViewerActivity extends RoboToolbarActivity implements Rep
     protected ResourceLookup resource;
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
+
+    @Inject
+    protected ReportParamsStorage paramsStorage;
 
     @ViewById(android.R.id.empty)
     protected TextView emptyView;
@@ -123,5 +128,9 @@ public class ReportHtmlViewerActivity extends RoboToolbarActivity implements Rep
         }
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        paramsStorage.clearInputControlHolder(resource.getUri());
+    }
 }

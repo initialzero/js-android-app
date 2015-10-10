@@ -22,8 +22,8 @@ public class TimeInputControlViewHolder extends DateTimeInputControlViewHolder {
     }
 
     @Override
-    public void populateView(InputControl inputControl, boolean enabled) {
-        super.populateView(inputControl, enabled);
+    public void populateView(InputControl inputControl) {
+        super.populateView(inputControl);
 
         btnDate.setVisibility(View.GONE);
         dateTimeDivider.setVisibility(View.GONE);

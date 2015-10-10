@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
@@ -37,10 +36,10 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Ambe
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
-import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
-import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
+import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -107,57 +106,22 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        if (isCeJrs) {
+        if (isCeJrs || serverRelease.code() < ServerRelease.AMBER.code()) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
-            return;
-        }
-
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-            case EMERALD_MR4:
-                ReportHtmlViewerActivity_.intent(activity)
-                        .resource(resource).start();
-                break;
-            case AMBER:
-            case AMBER_MR1:
-            case AMBER_MR2:
-                ReportViewerActivity_.intent(activity)
-                        .resource(resource).start();
-                break;
-            default:
-                ReportViewerActivity_.intent(activity)
-                        .resource(resource).start();
+        } else {
+            ReportViewerActivity_.intent(activity)
+                    .resource(resource).start();
         }
     }
 
     private void runDashboard(ResourceLookup resource) {
-        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
+        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard || serverRelease.code() < ServerRelease.AMBER.code()) {
             LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
-            return;
-        }
-
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-            case EMERALD_MR4:
-                LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
-                break;
-            case AMBER:
-            case AMBER_MR1:
-                AmberDashboardActivity_.intent(activity).resource(resource).start();
-                break;
-            case AMBER_MR2:
-                Amber2DashboardActivity_.intent(activity).resource(resource).start();
-                break;
-            default:
-                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
-                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+        } else if (serverRelease.code() == ServerRelease.AMBER_MR1.code()) {
+            AmberDashboardActivity_.intent(activity).resource(resource).start();
+        } else {
+            Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
     }
 }

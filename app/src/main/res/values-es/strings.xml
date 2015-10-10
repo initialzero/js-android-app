@@ -215,7 +215,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">La página solicitada está fuera de rango.</string>
     <string name="rv_open_link_chooser">Abrir enlace en</string>
-    <string name="rv_no_viewer_identified">No se pudo identificar el visor para la versión de JRS: %s</string>
 
 
     <!-- Save Report Activity -->

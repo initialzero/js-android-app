@@ -40,10 +40,7 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
     }
 
     @Override
-    public void populateView(InputControl inputControl, boolean enabled) {
-        icBoolean.setEnabled(enabled && !inputControl.isReadOnly());
-        icTitle.setEnabled(enabled && !inputControl.isReadOnly());
-
+    public void populateView(InputControl inputControl) {
         icTitle.setText(inputControl.getLabel());
         if (inputControl.getState().getValue() != null) {
             icBoolean.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));

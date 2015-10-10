@@ -52,13 +52,22 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
         android:theme="@style/Theme.JasperMobile"
-        android:allowBackup="false">
+        android:allowBackup="false"
+        android:largeHeap="true">
         <meta-data
             android:name="roboguice.modules"
             android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule" />
         <meta-data
             android:name="roboguice.annotations.packages"
             android:value="com.jaspersoft.android.jaspermobile" />
+
+        <meta-data
+            android:name="com.google.android.gms.analytics.globalConfigResource"
+            android:resource="@xml/global_tracker" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <!-- Main activity -->
         <activity
@@ -73,8 +82,8 @@
         <!-- Activity that allows to specify the report options before running it -->
         <activity
             android:name=".activities.inputcontrols.InputControlsActivity_"
-            android:configChanges="screenSize|orientation|locale"
-            android:label="@string/ro_page_title" />
+            android:label="@string/ro_page_title"
+            android:theme="@style/Theme.JasperMobile.NoToolbar"/>
 
         <activity
             android:name=".activities.inputcontrols.SingleSelectActivity_"
@@ -216,6 +225,10 @@
         <service
             android:name=".network.XmlSpiceService"
             android:exported="false" />
+
+        <service android:name="com.google.android.gms.analytics.AnalyticsService"
+            android:enabled="true"
+            android:exported="false"/>
 
         <provider
             android:name=".db.MobileDbProvider"

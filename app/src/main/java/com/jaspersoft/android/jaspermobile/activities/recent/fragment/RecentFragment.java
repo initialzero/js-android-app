@@ -132,7 +132,7 @@ public class RecentFragment extends RoboSpiceFragment
                 R.color.js_dark_blue);
 
         listView.setOnScrollListener(new ScrollListener());
-        setDataAdapter(savedInstanceState);
+        setDataAdapter();
         loadResources();
     }
 
@@ -179,8 +179,8 @@ public class RecentFragment extends RoboSpiceFragment
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void setDataAdapter(Bundle savedInstanceState) {
-        mAdapter = new ResourceAdapter(getActivity(), savedInstanceState, viewType);
+    private void setDataAdapter() {
+        mAdapter = new ResourceAdapter(getActivity(), null, viewType);
         mAdapter.setResourcesInteractionListener(this);
         mAdapter.setAdapterView(listView);
         listView.setAdapter(mAdapter);

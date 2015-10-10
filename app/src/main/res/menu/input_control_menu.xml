@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright © 2015 TIBCO Software, Inc. All rights reserved.
     http://community.jaspersoft.com/project/jaspermobile-android
 
@@ -26,8 +25,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/runReportAction"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_menu_run_report"
-        android:title="@string/ro_run_report_btn" />
+        android:id="@+id/deleteReportOption"
+        android:icon="@drawable/ic_menu_delete"
+        android:title="@string/ro_delete_ro"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/saveReportOption"
+        android:icon="@drawable/ic_menu_save"
+        android:title="@string/ro_save_ro"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/resetReportOption"
+        android:icon="@drawable/ic_menu_restore"
+        android:title="@string/ro_reset_ro"
+        app:showAsAction="ifRoom" />
 </menu>

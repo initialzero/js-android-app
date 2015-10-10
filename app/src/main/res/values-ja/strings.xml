@@ -213,7 +213,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">要求されたページは範囲外です。</string>
     <string name="rv_open_link_chooser">次の項目でリンクを開きます</string>
-    <string name="rv_no_viewer_identified">JRSバージョンのビューアを認識できませんでした：%s</string>
 
 
     <!-- Save Report Activity -->

@@ -1,9 +1,6 @@
 package com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -13,33 +10,27 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
  * @author Andrew Tivodar
  * @since 2.2
  */
-public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
+public abstract class ValueInputControlViewHolder extends BaseInputControlViewHolder {
 
-    protected TextView label;
-    protected EditText singleValue;
-    protected TextView errorText;
+    private View item;
+    private TextView label;
+    private TextView value;
+    private TextView errorText;
 
-    private ValueChangeListener mValueChangeListener;
+    private ClickListener mClickListener;
 
     public ValueInputControlViewHolder(View itemView) {
         super(itemView);
-        singleValue = (EditText) itemView.findViewById(R.id.ic_edit_text);
+        value = (TextView) itemView.findViewById(R.id.ic_value);
         errorText = (TextView) itemView.findViewById(R.id.ic_error_text);
         label = (TextView) itemView.findViewById(R.id.ic_text_label);
+        item = itemView;
 
-        singleValue.addTextChangedListener(new TextWatcher() {
+        itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (mValueChangeListener != null) {
-                    mValueChangeListener.onValueChanged(getAdapterPosition(), editable.toString());
+            public void onClick(View v) {
+                if (mClickListener != null) {
+                    mClickListener.onClick(getAdapterPosition());
                 }
             }
         });
@@ -47,24 +38,19 @@ public class ValueInputControlViewHolder extends BaseInputControlViewHolder {
 
     @Override
     public void populateView(InputControl inputControl) {
-        String previousValue = singleValue.getText().toString();
-        String currentValue = inputControl.getState().getValue();
-        /**
-         * Prevents focus reset on the start of EditText
-         */
-        if (!previousValue.equals(currentValue)) {
-            singleValue.setText(currentValue);
-        }
+        value.setText(getCurrentValue(inputControl));
         label.setText(getUpdatedLabelText(inputControl));
 
         showError(errorText, inputControl);
     }
 
-    public void setValueChangeListener(ValueChangeListener valueChangeListener) {
-        this.mValueChangeListener = valueChangeListener;
+    public void setOnSelectListener(ClickListener onSelectListener) {
+        this.mClickListener = onSelectListener;
     }
 
-    public interface ValueChangeListener {
-        void onValueChanged(int position, String value);
+    protected abstract String getCurrentValue(InputControl inputControl);
+
+    public interface ClickListener {
+        void onClick(int position);
     }
 }

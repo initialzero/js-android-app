@@ -11,8 +11,8 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.DateInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.DateTimeInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.MultiSelectInputControlViewHolder;
-import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.NumberValueInputControlViewHolder;
-import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.SelectInputControlViewHolder;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.SingleSelectInputControlViewHolder;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.TextInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.TimeInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ValueInputControlViewHolder;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -82,15 +82,11 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
                 booleanInputControlViewHolder.setStateChangeListener(new BooleanIcInteractionListener());
                 return booleanInputControlViewHolder;
             case IC_VALUE:
-                listItem = layoutInflater.inflate(R.layout.item_input_control_value, parent, false);
-                ValueInputControlViewHolder valueInputControlViewHolder = new ValueInputControlViewHolder(listItem);
-                valueInputControlViewHolder.setValueChangeListener(new ValueIcInteractionListener());
-                return valueInputControlViewHolder;
             case IC_NUMBER_VALUE:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_value, parent, false);
-                NumberValueInputControlViewHolder numberValueInputControlViewHolder = new NumberValueInputControlViewHolder(listItem);
-                numberValueInputControlViewHolder.setValueChangeListener(new ValueIcInteractionListener());
-                return numberValueInputControlViewHolder;
+                TextInputControlViewHolder textInputControlViewHolder = new TextInputControlViewHolder(listItem);
+                textInputControlViewHolder.setOnSelectListener(new ValueIcInteractionListener());
+                return textInputControlViewHolder;
             case IC_DATE_TIME:
                 listItem = layoutInflater.inflate(R.layout.item_input_control_date, parent, false);
                 DateTimeInputControlViewHolder dateTimeInputControlViewHolder = new DateTimeInputControlViewHolder(listItem);
@@ -107,12 +103,12 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
                 timeInputControlViewHolder.setDateTimeClickListener(new DateIcInteractionListener());
                 return timeInputControlViewHolder;
             case IC_SINGLE_SELECT:
-                listItem = layoutInflater.inflate(R.layout.item_input_control_select, parent, false);
-                SelectInputControlViewHolder singleSelectInputControlViewHolder = new SelectInputControlViewHolder(listItem);
+                listItem = layoutInflater.inflate(R.layout.item_input_control_value, parent, false);
+                SingleSelectInputControlViewHolder singleSelectInputControlViewHolder = new SingleSelectInputControlViewHolder(listItem);
                 singleSelectInputControlViewHolder.setOnSelectListener(new SingleSelectIcInteractionListener());
                 return singleSelectInputControlViewHolder;
             case IC_MULTI_SELECT:
-                listItem = layoutInflater.inflate(R.layout.item_input_control_select, parent, false);
+                listItem = layoutInflater.inflate(R.layout.item_input_control_value, parent, false);
                 MultiSelectInputControlViewHolder multiSelectInputControlViewHolder = new MultiSelectInputControlViewHolder(listItem);
                 multiSelectInputControlViewHolder.setOnSelectListener(new MultiSelectIcInteractionListener());
                 return multiSelectInputControlViewHolder;
@@ -166,7 +162,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
     public interface InputControlInteractionListener {
         void onBooleanStateChanged(InputControl inputControl, boolean newState);
 
-        void onValueTextChanged(InputControl inputControl, String newValue);
+        void onValueTextChanged(InputControl inputControl);
 
         void onSingleSelectIcClicked(InputControl inputControl);
 
@@ -190,13 +186,13 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         }
     }
 
-    private class ValueIcInteractionListener implements ValueInputControlViewHolder.ValueChangeListener {
+    private class ValueIcInteractionListener implements ValueInputControlViewHolder.ClickListener{
         @Override
-        public void onValueChanged(int position, String value) {
+        public void onClick(int position) {
             if (mIsBinding) return;
 
             if (mInteractionListener != null) {
-                mInteractionListener.onValueTextChanged(mInputControls.get(position), value);
+                mInteractionListener.onValueTextChanged(mInputControls.get(position));
             }
         }
     }
@@ -230,7 +226,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         }
     }
 
-    private class SingleSelectIcInteractionListener implements SelectInputControlViewHolder.ClickListener{
+    private class SingleSelectIcInteractionListener implements ValueInputControlViewHolder.ClickListener{
         @Override
         public void onClick(int position) {
             if (mIsBinding) return;
@@ -241,7 +237,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         }
     }
 
-    private class MultiSelectIcInteractionListener implements SelectInputControlViewHolder.ClickListener{
+    private class MultiSelectIcInteractionListener implements ValueInputControlViewHolder.ClickListener{
         @Override
         public void onClick(int position) {
             if (mIsBinding) return;

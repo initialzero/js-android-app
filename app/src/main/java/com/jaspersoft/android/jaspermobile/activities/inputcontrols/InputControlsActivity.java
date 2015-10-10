@@ -52,6 +52,8 @@ import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SaveReportOptionDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment_;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
@@ -100,8 +102,13 @@ import java.util.Set;
  */
 @EActivity(R.layout.view_simple_list)
 @OptionsMenu(R.menu.input_control_menu)
-public class InputControlsActivity extends RoboSpiceActivity implements InputControlsAdapter.InputControlInteractionListener,
-        DateDialogFragment.DateDialogClickListener, SimpleDialogFragment.SimpleDialogClickListener, SaveReportOptionDialogFragment.SaveReportOptionDialogCallback {
+public class InputControlsActivity extends RoboSpiceActivity
+        implements InputControlsAdapter.InputControlInteractionListener,
+        DateDialogFragment.DateDialogClickListener,
+        SimpleDialogFragment.SimpleDialogClickListener,
+        SaveReportOptionDialogFragment.SaveReportOptionDialogCallback,
+        TextInputControlDialogFragment.InputControlValueDialogCallback
+{
     // Extras
     public static final int SELECT_IC_REQUEST_CODE = 521;
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
@@ -174,7 +181,7 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @OptionsItem(R.id.saveReportOption)
     protected void saveReportOptionAction() {
-        setApplyButtonState(true);
+        setProgressDialogState(true);
         ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClient, reportUri, mInputControls);
         getSpiceManager().execute(request, new ValidateReportOptionsValuesListener());
     }
@@ -219,10 +226,10 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
     }
 
     @Override
-    public void onValueTextChanged(InputControl inputControl, String newValue) {
-        inputControl.getState().setValue(newValue);
-        mAdapter.updateInputControl(inputControl);
-        updateDependentControls(inputControl);
+    public void onValueTextChanged(InputControl inputControl) {
+        TextInputControlDialogFragment_.createBuilder(getSupportFragmentManager())
+                .setInputControl(inputControl)
+                .show();
     }
 
     @Override
@@ -282,12 +289,18 @@ public class InputControlsActivity extends RoboSpiceActivity implements InputCon
 
     @Override
     public void onNegativeClick(int requestCode) {
-
     }
 
     @Override
     public void onSaveConfirmed(String name) {
         saveReportOption(name);
+    }
+
+    @Override
+    public void onTextValueEntered(InputControl inputControl, String text) {
+        inputControl.getState().setValue(text);
+        mAdapter.updateInputControl(inputControl);
+        updateDependentControls(inputControl);
     }
 
     //---------------------------------------------------------------------

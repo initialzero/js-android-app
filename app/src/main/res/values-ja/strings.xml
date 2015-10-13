@@ -48,9 +48,6 @@
     <string name="sp_error_url_not_valid">URL が有効ではありません。</string>
     <string name="sp_error_duplicate_alias">重複するエイリアス。</string>
 
-    <!-- Repository Activity -->
-    <string name="r_browser_nothing_to_display">このフォルダにリソースはありません。</string>
-
     <!-- Action Bar -->
     <string name="r_ab_switch">ビューの切り替え</string>
     <string name="r_ab_search">検索</string>

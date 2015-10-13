@@ -316,7 +316,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if whole list is correct
         clickFilterMenuItem();
-        onOverflowView(getActivity(), withText(R.string.si_fd_option_all)).perform(click());
+        onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(reportsNames.length));
     }

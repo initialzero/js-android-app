@@ -65,7 +65,6 @@ android {
         } else {
             resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
         }
-    }
 
         if (project.hasProperty('PASSWORD_SALT_KEY')) {
             resValue "string", "password_salt_key", PASSWORD_SALT_KEY
@@ -143,96 +142,96 @@ android {
     lintOptions {
         checkReleaseBuilds false
     }
-}
 
-android.variantFilter { variant ->
-    if (variant.buildType.name.equals('debug') && variant.getFlavors().get(0).name.equals('production')) {
-        variant.setIgnore(true);
-    }
-}
-
-apt {
-    arguments {
-        androidManifestFile variant.outputs[0].processResources.manifestFile
-        resourcePackageName PACKAGE_NAME
-        guiceAnnotationDatabasePackageName "com.jaspersoft.android.jaspermobile"
-        logLevel "WARN"
-    }
-}
-
-
-dependencies {
-    provided project(':database-generator')
-    compile project(':sdk')
-
-    compile 'org.roboguice:roboguice:3.0.1'
-    provided 'org.roboguice:roboblender:3.0.1'
-
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:cardview-v7:23.0.1'
-    compile 'com.android.support:recyclerview-v7:23.0.1'
-    compile 'com.android.support:design:23.0.1'
-    compile 'com.google.android.gms:play-services-analytics:7.3.0'
-
-    compile("org.androidannotations:androidannotations-api:3.2")
-    apt "org.androidannotations:androidannotations:3.2"
-    apt 'org.roboguice:roboblender:3.0.1'
-
-    // For action mode support within list views
-    compile('com.github.manuelpeinado.multichoiceadapter:multichoiceadapter-abc:3.1.0') {
-        exclude group: 'com.android.support'
+    android.variantFilter { variant ->
+        if (variant.buildType.name.equals('debug') && variant.getFlavors().get(0).name.equals('production')) {
+            variant.setIgnore(true);
+        }
     }
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.2.1@aar') {
-        transitive = true;
+    apt {
+        arguments {
+            androidManifestFile variant.outputs[0].processResources.manifestFile
+            resourcePackageName PACKAGE_NAME
+            guiceAnnotationDatabasePackageName "com.jaspersoft.android.jaspermobile"
+            logLevel "WARN"
+        }
     }
 
-    // Remove gradle dependency
-    // When all required testing for JRS will be completed
-    compile 'com.google.code.gson:gson:2.3'
 
-    // Dependency for image loading management
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+    dependencies {
+        provided project(':database-generator')
+        compile project(':sdk')
 
-    // Template rendering
-    compile 'com.samskivert:jmustache:1.10'
+        compile 'org.roboguice:roboguice:3.0.1'
+        provided 'org.roboguice:roboblender:3.0.1'
 
-    // Unit tests dependencies
-    testCompile 'junit:junit:4.12'
-    // JunitParams
-    testCompile('pl.pragmatists:JUnitParams:1.0.4') {
-        exclude group: 'org.hamcrest'
-    }
-    testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
-    testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile('org.robolectric:shadows-support-v4:3.0-rc3') {
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
+        compile 'com.android.support:appcompat-v7:23.0.1'
+        compile 'com.android.support:cardview-v7:23.0.1'
+        compile 'com.android.support:recyclerview-v7:23.0.1'
+        compile 'com.android.support:design:23.0.1'
+        compile 'com.google.android.gms:play-services-analytics:7.3.0'
 
-    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
-    androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
+        compile("org.androidannotations:androidannotations-api:3.2")
+        apt "org.androidannotations:androidannotations:3.2"
+        apt 'org.roboguice:roboblender:3.0.1'
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2') {
-        exclude group: 'com.android.support'
-    }
-   androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2') {
-        exclude group: 'com.android.support'
-    }
-    androidTestCompile('com.android.support.test:runner:0.3') {
-        exclude group: 'com.android.support'
-    }
-    androidTestCompile('com.android.support.test:rules:0.3') {
-        exclude group: 'com.android.support'
-    }
+        // For action mode support within list views
+        compile('com.github.manuelpeinado.multichoiceadapter:multichoiceadapter-abc:3.1.0') {
+            exclude group: 'com.android.support'
+        }
 
-    androidTestCompile('org.mockito:mockito-core:1.9.5') {
-        exclude group: "org.hamcrest"
-    }
-    androidTestCompile('com.google.dexmaker:dexmaker:1.0') {
-        exclude group: "org.mockito"
-    }
-    androidTestCompile('com.google.dexmaker:dexmaker-mockito:1.0') {
-        exclude group: "org.mockito"
+        compile('com.crashlytics.sdk.android:crashlytics:2.2.1@aar') {
+            transitive = true;
+        }
+
+        // Remove gradle dependency
+        // When all required testing for JRS will be completed
+        compile 'com.google.code.gson:gson:2.3'
+
+        // Dependency for image loading management
+        compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+
+        // Template rendering
+        compile 'com.samskivert:jmustache:1.10'
+
+        // Unit tests dependencies
+        testCompile 'junit:junit:4.12'
+        // JunitParams
+        testCompile('pl.pragmatists:JUnitParams:1.0.4') {
+            exclude group: 'org.hamcrest'
+        }
+        testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
+        testCompile 'org.mockito:mockito-core:1.9.5'
+        testCompile('org.robolectric:shadows-support-v4:3.0-rc3') {
+            exclude group: 'commons-logging', module: 'commons-logging'
+            exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+        }
+
+        androidTestCompile 'com.squareup.okhttp:mockwebserver:2.1.0'
+        androidTestCompile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
+
+        androidTestCompile('com.android.support.test.espresso:espresso-core:2.2') {
+            exclude group: 'com.android.support'
+        }
+        androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2') {
+            exclude group: 'com.android.support'
+        }
+        androidTestCompile('com.android.support.test:runner:0.3') {
+            exclude group: 'com.android.support'
+        }
+        androidTestCompile('com.android.support.test:rules:0.3') {
+            exclude group: 'com.android.support'
+        }
+
+        androidTestCompile('org.mockito:mockito-core:1.9.5') {
+            exclude group: "org.hamcrest"
+        }
+        androidTestCompile('com.google.dexmaker:dexmaker:1.0') {
+            exclude group: "org.mockito"
+        }
+        androidTestCompile('com.google.dexmaker:dexmaker-mockito:1.0') {
+            exclude group: "org.mockito"
+        }
     }
 }

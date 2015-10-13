@@ -27,20 +27,23 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
-import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
-import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
+import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -100,7 +103,12 @@ public class ResourceOpener {
                         .resourceUri(resource.getUri())
                         .prefTag(preftag)
                         .build();
-        fragment.getFragmentManager().beginTransaction()
+        FragmentTransaction transaction = fragment.getFragmentManager().beginTransaction();
+        RepositorySearchFragment searchControllerFragment =
+                RepositorySearchFragment_.builder()
+                        .build();
+        transaction
+                .replace(R.id.search_controller, searchControllerFragment)
                 .addToBackStack(resource.getUri())
                 .replace(R.id.resource_controller, newControllerFragment)
                 .commit();
@@ -125,6 +133,7 @@ public class ResourceOpener {
             case AMBER:
             case AMBER_MR1:
             case AMBER_MR2:
+            case AMBER_MR3:
                 ReportViewerActivity_.intent(activity)
                         .resource(resource).start();
                 break;
@@ -153,6 +162,7 @@ public class ResourceOpener {
                 AmberDashboardActivity_.intent(activity).resource(resource).start();
                 break;
             case AMBER_MR2:
+            case AMBER_MR3:
                 Amber2DashboardActivity_.intent(activity).resource(resource).start();
                 break;
             default:

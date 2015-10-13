@@ -174,7 +174,7 @@ public class SaveReportOptionDialogFragment extends BaseDialogFragment implement
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             reportOptionName.setError(null);
-            String reportOptionName = s.toString();
+            String reportOptionName = s.toString().trim();
 
             checkNameDuplication(reportOptionName);
             checkNameIsCorrect(reportOptionName);

@@ -55,7 +55,6 @@ import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -259,7 +258,7 @@ public class FavoritesFragment extends RoboFragment
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
-            setEmptyText(searchQuery == null ? R.string.f_empty_list_msg : R.string.r_search_nothing_to_display);
+            setEmptyText(searchQuery == null ? R.string.f_empty_list_msg : R.string.resources_not_found);
         }
     }
 

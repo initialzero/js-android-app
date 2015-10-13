@@ -412,7 +412,7 @@ public class RepositoryFragment extends RoboSpiceFragment
             mAdapter.notifyDataSetChanged();
 
             setRefreshState(false);
-            showEmptyText(R.string.r_browser_nothing_to_display);
+            showEmptyText(R.string.resources_not_found);
         }
     }
 
@@ -449,7 +449,7 @@ public class RepositoryFragment extends RoboSpiceFragment
             // set refresh states
             setRefreshState(false);
             // If need we show 'empty' message
-            showEmptyText(R.string.r_browser_nothing_to_display);
+            showEmptyText(R.string.resources_not_found);
         }
     }
 

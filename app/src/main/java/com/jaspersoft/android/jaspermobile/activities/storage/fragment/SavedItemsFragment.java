@@ -286,7 +286,7 @@ public class SavedItemsFragment extends RoboFragment
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
-            setEmptyText(searchQuery == null ? R.string.sdr_ab_list_msg : R.string.r_search_nothing_to_display);
+            setEmptyText(searchQuery == null ? R.string.sdr_ab_list_msg : R.string.resources_not_found);
         }
     }
 

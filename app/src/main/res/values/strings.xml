@@ -110,11 +110,11 @@
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Run Report</string>
     <string name="ro_default" translatable="false">Default</string>
-    <string name="ro_page_title" translatable="false">Input Controls</string>
+    <string name="ro_page_title" translatable="false">Filters</string>
     <string name="ro_save_ro" translatable="false">Save values</string>
     <string name="ro_save_text" translatable="false">The Name for the Saved Values</string>
     <string name="ro_save_same" translatable="false">This report already has saved values with this name. They will be overwritten.</string>
-    <string name="ro_default_save_name" translatable="false">Report option</string>
+    <string name="ro_default_save_name" translatable="false">Options</string>
     <string name="ro_delete_ro" translatable="false">Delete saved values</string>
     <string name="ro_reset_ro" translatable="false">Reset values</string>
     <string name="ro_ms_available" translatable="false">Available: %s</string>

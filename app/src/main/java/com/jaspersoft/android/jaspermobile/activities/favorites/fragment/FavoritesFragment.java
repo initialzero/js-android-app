@@ -100,9 +100,6 @@ public class FavoritesFragment extends RoboFragment
 
     @FragmentArg
     protected ViewType viewType;
-    @FragmentArg
-    @InstanceState
-    protected SortOrder sortOrder;
 
     @InjectView(android.R.id.list)
     AbsListView listView;
@@ -132,7 +129,11 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
+        if (savedInstanceState == null) {
+            sortOptions.putOrder(SortOrder.LABEL);
+        }
     }
 
     @Override
@@ -238,7 +239,7 @@ public class FavoritesFragment extends RoboFragment
 
         //Add sorting type to WHERE params
         String sortOrderString;
-        if (sortOrder != null && sortOrder.getValue().equals(SortOrder.CREATION_DATE.getValue())) {
+        if (sortOptions.getOrder() != null && sortOptions.getOrder().getValue().equals(SortOrder.CREATION_DATE.getValue())) {
             sortOrderString = FavoritesTable.CREATION_TIME + " ASC";
         } else {
             sortOrderString = FavoritesTable.TITLE + " COLLATE NOCASE ASC";
@@ -325,11 +326,6 @@ public class FavoritesFragment extends RoboFragment
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
-    public void showFavoritesBySortOrder(SortOrder selectedSortOrder) {
-        sortOrder = selectedSortOrder;
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
-    }
-
     //---------------------------------------------------------------------
     // SortDialogFragment.SortDialogClickListener
     //---------------------------------------------------------------------
@@ -337,7 +333,7 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onOptionSelected(SortOrder sortOrder) {
         sortOptions.putOrder(sortOrder);
-        showFavoritesBySortOrder(sortOrder);
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
     //---------------------------------------------------------------------

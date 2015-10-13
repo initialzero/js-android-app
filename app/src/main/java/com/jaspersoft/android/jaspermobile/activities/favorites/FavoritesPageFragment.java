@@ -33,12 +33,9 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import roboguice.fragment.RoboFragment;
 
@@ -54,24 +51,15 @@ public class FavoritesPageFragment extends RoboFragment {
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
     protected boolean initialStart;
-    @Bean
-    protected SortOptions sortOptions;
-
-    @Pref
-    protected FavoritesPref_ pref;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
-            // Reset all controls state
-            pref.sortType().put(null);
-
             FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
             favoritesController = FavoritesControllerFragment_.builder()
-                    .sortOrder(sortOptions.getOrder())
                     .build();
             transaction.replace(R.id.resource_controller, favoritesController, FavoritesControllerFragment.TAG);
 

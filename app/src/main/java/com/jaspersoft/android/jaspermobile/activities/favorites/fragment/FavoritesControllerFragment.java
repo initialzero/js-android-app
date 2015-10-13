@@ -29,7 +29,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -45,10 +44,6 @@ public class FavoritesControllerFragment extends ControllerFragment {
     public static final String PREF_TAG = "favorites_pref";
 
     private FavoritesFragment contentFragment;
-
-    @FragmentArg
-    @InstanceState
-    SortOrder sortOrder;
 
     @FragmentArg
     @InstanceState
@@ -78,7 +73,6 @@ public class FavoritesControllerFragment extends ControllerFragment {
     public Fragment getContentFragment() {
         contentFragment = FavoritesFragment_.builder()
                 .viewType(getViewType())
-                .sortOrder(sortOrder)
                 .searchQuery(searchQuery)
                 .build();
         return contentFragment;
@@ -88,12 +82,4 @@ public class FavoritesControllerFragment extends ControllerFragment {
     protected String getContentFragmentTag() {
         return FavoritesFragment.TAG;
     }
-
-    public void loadItemsBySortOrder(SortOrder _sortOrder) {
-        if (contentFragment != null) {
-            contentFragment.showFavoritesBySortOrder(_sortOrder);
-        }
-        sortOrder = _sortOrder;
-    }
-
 }

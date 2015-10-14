@@ -36,6 +36,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
@@ -55,6 +56,7 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.SystemService;
+import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
 import org.springframework.http.HttpStatus;
 
@@ -207,6 +209,11 @@ public class AuthenticatorFragment extends RoboFragment {
 
         loginDemoTask = bindFragment(this, loginObservable.cache());
         requestCustomLogin();
+    }
+
+    @TextChange({R.id.aliasEdit, R.id.usernameEdit, R.id.serverUrlEdit, R.id.passwordEdit})
+    protected void removeValidationErrorOnTextChange(TextView editText, CharSequence text) {
+        editText.setError(null);
     }
 
     private void requestCustomLogin() {

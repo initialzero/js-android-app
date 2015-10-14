@@ -28,7 +28,6 @@ import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
@@ -115,7 +114,8 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        if (isCeJrs || serverRelease.code() < ServerRelease.AMBER.code()) {
+        boolean isRestEngine = serverRelease.code() < ServerRelease.AMBER.code();
+        if (isCeJrs || isRestEngine) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
         } else {
@@ -125,11 +125,24 @@ public class ResourceOpener {
     }
 
     private void runDashboard(ResourceLookup resource) {
-        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard || serverRelease.code() < ServerRelease.AMBER.code()) {
+        double code = serverRelease.code();
+        boolean isLegacyDashboard = (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard);
+
+        boolean isLegacyEngine = code < ServerRelease.AMBER.code();
+        boolean isFlowEngine = code >= ServerRelease.AMBER.code() && code < ServerRelease.AMBER_MR2.code();
+        boolean isVisualizeEngine = code >= ServerRelease.AMBER_MR2.code();
+
+        if (isLegacyDashboard || isLegacyEngine) {
             LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
-        } else if (serverRelease.code() == ServerRelease.AMBER_MR1.code()) {
+            return;
+        }
+
+        if (isFlowEngine) {
             AmberDashboardActivity_.intent(activity).resource(resource).start();
-        } else {
+            return;
+        }
+
+        if (isVisualizeEngine) {
             Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
     }

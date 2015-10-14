@@ -34,6 +34,9 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -65,6 +68,7 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
@@ -105,6 +109,8 @@ public class FavoritesFragment extends RoboFragment
     AbsListView listView;
     @InjectView(android.R.id.empty)
     TextView emptyText;
+    @OptionsMenuItem(R.id.sort)
+    MenuItem sortAction;
 
     @Inject
     JsRestClient jsRestClient;
@@ -167,6 +173,12 @@ public class FavoritesFragment extends RoboFragment
         listView.setAdapter(mAdapter);
 
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        sortAction.setVisible(searchQuery == null);
     }
 
     @Override

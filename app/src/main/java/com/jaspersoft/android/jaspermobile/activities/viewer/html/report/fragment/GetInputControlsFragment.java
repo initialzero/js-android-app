@@ -71,7 +71,6 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
     protected MenuItem showFilters;
 
     private OnInputControlsListener mListener = new NullListener();
-    private ArrayList<InputControl> inputControls;
 
     private boolean mShowFilterMenuItem, mLoading, mLoaded;
     private ReportView reportView;
@@ -154,13 +153,13 @@ public class GetInputControlsFragment extends RoboSpiceFragment {
             mLoading = false;
             mLoaded = true;
 
-            inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+            ArrayList<InputControl> inputControls = new ArrayList<>(controlsList.getInputControls());
             mShowFilterMenuItem = !inputControls.isEmpty();
 
             getActivity().supportInvalidateOptionsMenu();
             ProgressDialogFragment.dismiss(getFragmentManager());
 
-            paramsStorage.putInputControls(resourceUri, inputControls);
+            paramsStorage.getInputControlHolder(resourceUri).setInputControls(inputControls);
             mListener.onLoaded();
         }
     }

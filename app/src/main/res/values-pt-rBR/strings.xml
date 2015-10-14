@@ -48,9 +48,6 @@
     <string name="sp_error_url_not_valid">O URL não é válido.</string>
     <string name="sp_error_duplicate_alias">Alias duplicado.</string>
 
-    <!-- Repository Activity -->
-    <string name="r_browser_nothing_to_display">Não há recursos nesta pasta.</string>
-
     <!-- Action Bar -->
     <string name="r_ab_switch">Alternar visualização</string>
     <string name="r_ab_search">Procurar</string>
@@ -214,7 +211,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">A página solicitada está fora do intervalo.</string>
     <string name="rv_open_link_chooser">Abrir link com</string>
-    <string name="rv_no_viewer_identified">Não foi possível identificar o visualizador para a versão %s do JRS</string>
 
 
     <!-- Save Report Activity -->

@@ -40,6 +40,7 @@ public class FilterTitleView extends Spinner {
      * @return true if view initialized successfully. False if there is only one available filters
      */
     public boolean init(final ResourceFilter resourceFilter) {
+        setId(R.id.filter);
 
         if (resourceFilter.getFilters().size() == 1) {
             setVisibility(GONE);

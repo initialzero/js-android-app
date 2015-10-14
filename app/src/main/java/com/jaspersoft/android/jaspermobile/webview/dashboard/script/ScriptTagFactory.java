@@ -71,6 +71,7 @@ public class ScriptTagFactory {
             case AMBER_MR1:
                 return new AmberDashboardScriptTagCreator(token);
             case AMBER_MR2:
+            case AMBER_MR3:
                 return new Amber2DashboardScriptTagCreator(token);
             default:
                 throw new UnsupportedOperationException("Could not script creator for current versionName: " + versionName);

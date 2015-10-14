@@ -48,9 +48,6 @@
     <string name="sp_error_url_not_valid">L\'URL n\'est pas valide.</string>
     <string name="sp_error_duplicate_alias">Alias en double.</string>
 
-    <!-- Repository Activity -->
-    <string name="r_browser_nothing_to_display">Ce dossier ne contient aucune ressource.</string>
-
     <!-- Action Bar -->
     <string name="r_ab_switch">Changer d\'affichage</string>
     <string name="r_ab_search">Rechercher</string>
@@ -214,7 +211,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">La page demandée est hors de portée.</string>
     <string name="rv_open_link_chooser">Ouvrir le lien dans</string>
-    <string name="rv_no_viewer_identified">Impossible d\'identifier le visionneur pour la version JRS : %s</string>
 
 
     <!-- Save Report Activity -->

@@ -231,9 +231,10 @@ public class SavedItemsFragment extends RoboFragment
         ArrayList<String> selectionArgs = new ArrayList<String>();
 
         //Add general items (server id = -1)
-        selection.append(SavedItemsTable.ACCOUNT_NAME + " =?")
-                .append("  OR ")
-                .append("(");
+        selection
+                .append("(")
+                .append(SavedItemsTable.ACCOUNT_NAME + " =?")
+                .append("  OR ");
 
         selectionArgs.add(JasperSettings.RESERVED_ACCOUNT_NAME);
 
@@ -285,7 +286,7 @@ public class SavedItemsFragment extends RoboFragment
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
-            setEmptyText(searchQuery == null ? R.string.sdr_ab_list_msg : R.string.r_search_nothing_to_display);
+            setEmptyText(searchQuery == null ? R.string.sdr_ab_list_msg : R.string.resources_not_found);
         }
     }
 

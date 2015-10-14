@@ -43,6 +43,10 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
+    <style name="Widget.JasperMobile.CheckBox" parent="android:Widget.Holo.CompoundButton.CheckBox">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
     <style name="Widget.JasperMobile.DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>
         <item name="color">@android:color/white</item>
@@ -77,13 +81,11 @@
     <style name="inputControl.layout">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:paddingBottom">7dp</item>
     </style>
 
     <style name="inputControl.label">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_margin">5dp</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">@color/js_dark_blue</item>
         <item name="android:textStyle">bold</item>
@@ -92,8 +94,6 @@
     <style name="inputControl.errorText">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_marginLeft">5dp</item>
-        <item name="android:layout_marginRight">5dp</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">@android:color/holo_red_dark</item>
     </style>
@@ -115,6 +115,7 @@
     <style name="inputControl.singleValue.editText">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:singleLine">true</item>
     </style>
 
@@ -159,17 +160,11 @@
     <!-- Report Options Layout -->
     <style name="reportOptions" />
 
-    <style name="reportOptions.scrollView">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:fillViewport">true</item>
-    </style>
-
     <style name="reportOptions.container" />
 
     <style name="reportOptions.container.layout">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">10dp</item>
     </style>
 

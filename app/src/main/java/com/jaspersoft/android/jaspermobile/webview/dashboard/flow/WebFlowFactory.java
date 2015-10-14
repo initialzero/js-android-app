@@ -77,6 +77,7 @@ public final class WebFlowFactory {
                 case AMBER:
                 case AMBER_MR1:
                 case AMBER_MR2:
+                case AMBER_MR3:
                     webFlow = new AmberWebFlow();
                     break;
                 default:

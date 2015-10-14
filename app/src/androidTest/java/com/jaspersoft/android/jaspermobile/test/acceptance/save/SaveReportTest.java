@@ -61,7 +61,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.jaspersoft.android.jaspermobile.activities.report.fragment.SaveItemFragment.OutputFormat;
+import static com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment.OutputFormat;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasErrorText;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.hasTotalCount;
 import static com.jaspersoft.android.jaspermobile.test.utils.espresso.JasperMatcher.onOverflowView;
@@ -316,7 +316,7 @@ public class SaveReportTest extends ProtoActivityInstrumentation<ReportHtmlViewe
 
         // Check if whole list is correct
         clickFilterMenuItem();
-        onOverflowView(getActivity(), withText(R.string.si_fd_option_all)).perform(click());
+        onOverflowView(getActivity(), withText(R.string.s_fd_option_all)).perform(click());
 
         onView(withId(android.R.id.list)).check(hasTotalCount(reportsNames.length));
     }

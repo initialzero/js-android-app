@@ -46,9 +46,10 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
@@ -113,6 +114,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import rx.Subscription;
@@ -202,7 +204,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         super.onCreate(savedInstanceState);
 
         mHasInitialParameters = !reportParameters.isEmpty();
-        paramsStorage.putReportParameters(resource.getUri(), reportParameters);
+        paramsStorage.getInputControlHolder(resource.getUri()).setReportParams(reportParameters);
 
         scrollableTitleHelper.injectTitle(resource.getLabel());
 
@@ -299,6 +301,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             webView.removeAllViews();
             webView.destroy();
         }
+        paramsStorage.clearInputControlHolder(resource.getUri());
     }
 
     //---------------------------------------------------------------------
@@ -356,7 +359,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent();
+        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(this, jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);
@@ -393,7 +396,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         boolean isFirstReportMissing = (webView.getVisibility() == View.INVISIBLE);
 
         if (resultCode == Activity.RESULT_OK) {
-            boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
+            boolean isNewParamsEqualOld = data.getBooleanExtra(InputControlsActivity.RESULT_SAME_PARAMS, false);
             if (isNewParamsEqualOld && !isFirstReportMissing) {
                 return;
             }
@@ -416,13 +419,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public void onPageSelected(int page, int requestCode) {
-        onPageSelected(page);
         paginationControl.updateCurrentPage(page);
+        onPageSelected(page);
     }
 
     @Override
     public void onPageSelected(int currentPage) {
         resetZoom();
+        paginationControl.setEnabled(false);
         selectPageInWebView(currentPage);
     }
 
@@ -494,6 +498,15 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void onPageChange(int page) {
         paginationControl.updateCurrentPage(page);
+        paginationControl.setEnabled(true);
+    }
+
+    @UiThread
+    @Override
+    public void onPageLoadError(String errorMessage, int page) {
+        paginationControl.updateCurrentPage(page);
+        paginationControl.setEnabled(true);
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
     }
 
     @UiThread
@@ -644,10 +657,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     private void showInputControlsPage() {
-        Intent intent = new Intent(this, ReportOptionsActivity.class);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
-        startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
+        InputControlsActivity_.intent(this).reportUri(resource.getUri()).startForResult(REQUEST_REPORT_PARAMETERS);
     }
 
     private void runReport(String params) {
@@ -685,12 +695,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
         webView.loadUrl(String.format("javascript:MobileReport.applyReportParams(%s)", reportParams));
     }
 
-    private ArrayList<InputControl> getInputControls() {
-        return paramsStorage.getInputControls(resource.getUri());
+    private List<InputControl> getInputControls() {
+        return paramsStorage.getInputControlHolder(resource.getUri()).getInputControls();
     }
 
-    private ArrayList<ReportParameter> getReportParameters() {
-        return paramsStorage.getReportParameters(resource.getUri());
+    private List<ReportParameter> getReportParameters() {
+        return paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
     }
 
     private void selectPageInWebView(int page) {

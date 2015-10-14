@@ -48,9 +48,6 @@
     <string name="sp_error_url_not_valid">La URL no es válida.</string>
     <string name="sp_error_duplicate_alias">Alias duplicado.</string>
 
-    <!-- Repository Activity -->
-    <string name="r_browser_nothing_to_display">No hay recursos en esta carpeta.</string>
-
     <!-- Action Bar -->
     <string name="r_ab_switch">Conmutar vista</string>
     <string name="r_ab_search">Buscar</string>
@@ -215,7 +212,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">La página solicitada está fuera de rango.</string>
     <string name="rv_open_link_chooser">Abrir enlace en</string>
-    <string name="rv_no_viewer_identified">No se pudo identificar el visor para la versión de JRS: %s</string>
 
 
     <!-- Save Report Activity -->

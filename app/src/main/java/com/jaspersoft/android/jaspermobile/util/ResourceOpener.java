@@ -27,20 +27,22 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.widget.Toast;
+import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
-import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
-import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
+import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -100,64 +102,48 @@ public class ResourceOpener {
                         .resourceUri(resource.getUri())
                         .prefTag(preftag)
                         .build();
-        fragment.getFragmentManager().beginTransaction()
+        FragmentTransaction transaction = fragment.getFragmentManager().beginTransaction();
+        RepositorySearchFragment searchControllerFragment =
+                RepositorySearchFragment_.builder()
+                        .build();
+        transaction
+                .replace(R.id.search_controller, searchControllerFragment)
                 .addToBackStack(resource.getUri())
                 .replace(R.id.resource_controller, newControllerFragment)
                 .commit();
     }
 
     private void runReport(final ResourceLookup resource) {
-        if (isCeJrs) {
+        boolean isRestEngine = serverRelease.code() < ServerRelease.AMBER.code();
+        if (isCeJrs || isRestEngine) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
-            return;
-        }
-
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-            case EMERALD_MR4:
-                ReportHtmlViewerActivity_.intent(activity)
-                        .resource(resource).start();
-                break;
-            case AMBER:
-            case AMBER_MR1:
-            case AMBER_MR2:
-                ReportViewerActivity_.intent(activity)
-                        .resource(resource).start();
-                break;
-            default:
-                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
-                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+        } else {
+            ReportViewerActivity_.intent(activity)
+                    .resource(resource).start();
         }
     }
 
     private void runDashboard(ResourceLookup resource) {
-        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
+        double code = serverRelease.code();
+        boolean isLegacyDashboard = (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard);
+
+        boolean isLegacyEngine = code < ServerRelease.AMBER.code();
+        boolean isFlowEngine = code >= ServerRelease.AMBER.code() && code < ServerRelease.AMBER_MR2.code();
+        boolean isVisualizeEngine = code >= ServerRelease.AMBER_MR2.code();
+
+        if (isLegacyDashboard || isLegacyEngine) {
             LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
             return;
         }
 
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-            case EMERALD_MR4:
-                LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
-                break;
-            case AMBER:
-            case AMBER_MR1:
-                AmberDashboardActivity_.intent(activity).resource(resource).start();
-                break;
-            case AMBER_MR2:
-                Amber2DashboardActivity_.intent(activity).resource(resource).start();
-                break;
-            default:
-                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
-                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+        if (isFlowEngine) {
+            AmberDashboardActivity_.intent(activity).resource(resource).start();
+            return;
+        }
+
+        if (isVisualizeEngine) {
+            Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
     }
 }

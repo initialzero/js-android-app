@@ -233,6 +233,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         mSelectedAdapter.notifySelectionsChanged(mInputControlOptions);
 
         updateSelectedTabTitle();
+        searchMenuItem.collapseActionView();
         emptyTextSelected.setVisibility(mSelectedAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         isValueChanged = true;
     }

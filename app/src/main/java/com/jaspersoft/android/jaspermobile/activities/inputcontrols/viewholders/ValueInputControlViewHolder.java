@@ -38,6 +38,9 @@ public abstract class ValueInputControlViewHolder extends BaseInputControlViewHo
 
     @Override
     public void populateView(InputControl inputControl) {
+        value.setEnabled(!inputControl.isReadOnly());
+        item.setEnabled(!inputControl.isReadOnly());
+
         value.setText(getCurrentValue(inputControl));
         label.setText(getUpdatedLabelText(inputControl));
 

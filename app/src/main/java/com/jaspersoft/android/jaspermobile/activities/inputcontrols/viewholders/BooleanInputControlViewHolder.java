@@ -14,6 +14,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
 
     private final static boolean DEFAULT_STATE = false;
+    private View itemView;
     private CheckBox icBoolean;
     private TextView icTitle;
     private StateChangeListener mStateChangeListener;
@@ -21,6 +22,7 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
     public BooleanInputControlViewHolder(View itemView) {
         super(itemView);
 
+        this.itemView = itemView;
         icBoolean = (CheckBox) itemView.findViewById(R.id.ic_boolean);
         icTitle = (TextView) itemView.findViewById(R.id.ic_boolean_title);
 
@@ -41,6 +43,10 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
 
     @Override
     public void populateView(InputControl inputControl) {
+        icBoolean.setEnabled(!inputControl.isReadOnly());
+        icTitle.setEnabled(!inputControl.isReadOnly());
+        itemView.setEnabled(!inputControl.isReadOnly());
+
         icTitle.setText(inputControl.getLabel());
         if (inputControl.getState().getValue() != null) {
             icBoolean.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));

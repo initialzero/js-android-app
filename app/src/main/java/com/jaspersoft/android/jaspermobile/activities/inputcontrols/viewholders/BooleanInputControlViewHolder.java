@@ -41,7 +41,7 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
 
     @Override
     public void populateView(InputControl inputControl) {
-        icTitle.setText(inputControl.getLabel());
+        icTitle.setText(getUpdatedLabelText(inputControl));
         if (inputControl.getState().getValue() != null) {
             icBoolean.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));
         } else {

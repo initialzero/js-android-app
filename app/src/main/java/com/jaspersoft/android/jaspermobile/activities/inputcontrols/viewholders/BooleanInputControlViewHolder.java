@@ -47,7 +47,7 @@ public class BooleanInputControlViewHolder extends BaseInputControlViewHolder {
         icTitle.setEnabled(!inputControl.isReadOnly());
         itemView.setEnabled(!inputControl.isReadOnly());
 
-        icTitle.setText(inputControl.getLabel());
+        icTitle.setText(getUpdatedLabelText(inputControl));
         if (inputControl.getState().getValue() != null) {
             icBoolean.setChecked(Boolean.parseBoolean(inputControl.getState().getValue()));
         } else {

@@ -36,33 +36,34 @@
             style="@style/CardView.Auth.Container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             card_view:cardBackgroundColor="@color/js_dark_gray"
-            card_view:contentPadding="20dp"
-            android:layout_gravity="center_vertical">
+            card_view:contentPadding="20dp">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/im_name_ine_lines" />
-
-                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_toLeftOf="@+id/credentialsContainer"
+                    android:src="@drawable/im_logo_double_line" />
+
+                <LinearLayout
+                    android:id="@+id/credentialsContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="center_vertical"
                     android:orientation="vertical">
 
                     <EditText
                         android:id="@+id/aliasEdit"
                         style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:hint="@string/hint_alias"
                         android:inputType="textUri" />
@@ -70,8 +71,6 @@
                     <EditText
                         android:id="@+id/serverUrlEdit"
                         style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="@string/hint_server_url"
                         android:inputType="textUri" />
@@ -79,8 +78,6 @@
                     <EditText
                         android:id="@+id/organizationEdit"
                         style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="@string/hint_organization"
                         android:inputType="textPersonName" />
@@ -88,8 +85,6 @@
                     <EditText
                         android:id="@+id/usernameEdit"
                         style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="@string/hint_username"
                         android:inputType="textPersonName" />
@@ -97,8 +92,6 @@
                     <EditText
                         android:id="@+id/passwordEdit"
                         style="@style/editTextAccount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="@string/hint_password"
                         android:inputType="textPassword" />
@@ -151,7 +144,7 @@
 
                 </LinearLayout>
 
-            </LinearLayout>
+            </RelativeLayout>
 
         </android.support.v7.widget.CardView>
 

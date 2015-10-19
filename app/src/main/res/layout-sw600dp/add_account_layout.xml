@@ -36,7 +36,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/im_logo_blue"
+            android:src="@drawable/im_logo_double_line"
             android:layout_marginTop="30dp" />
 
         <android.support.v7.widget.CardView
@@ -56,26 +56,15 @@
                 android:focusableInTouchMode="true"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/im_full_name" />
-
                 <EditText
                     android:id="@+id/aliasEdit"
                     style="@style/editTextAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
                     android:hint="@string/hint_alias"
                     android:inputType="textUri" />
 
                 <EditText
                     android:id="@+id/serverUrlEdit"
                     style="@style/editTextAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="@string/hint_server_url"
                     android:inputType="textUri" />
@@ -83,8 +72,6 @@
                 <EditText
                     android:id="@+id/organizationEdit"
                     style="@style/editTextAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="@string/hint_organization"
                     android:inputType="textPersonName" />
@@ -92,8 +79,6 @@
                 <EditText
                     android:id="@+id/usernameEdit"
                     style="@style/editTextAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="@string/hint_username"
                     android:inputType="textPersonName" />
@@ -101,8 +86,6 @@
                 <EditText
                     android:id="@+id/passwordEdit"
                     style="@style/editTextAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="@string/hint_password"
                     android:inputType="textPassword" />

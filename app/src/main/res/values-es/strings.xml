@@ -81,7 +81,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">Acerca de</string>
-    <string name="sa_about_info"><![CDATA[TIBCO JasperMobile™ v%s<br><br>Herramienta de gestión y visualización de informes para JasperReports Server 5.5 y superior.<br><br>Para mayor información visite:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"<br>http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>Para información de la política de privacidad, visite:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Derechos reservados © 2005-2015 TIBCO Software, Inc.]]></string>
+    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Herramienta de gestión y visualización de informes para JasperReports Server 5.5 y superior.<br><br>Para mayor información visite:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"<br>http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>Para información de la política de privacidad, visite:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Derechos reservados © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Política de Privacidad</string>
 
     <!-- Report Options Activity -->

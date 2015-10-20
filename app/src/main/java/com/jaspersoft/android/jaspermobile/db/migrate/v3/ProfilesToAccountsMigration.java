@@ -25,34 +25,40 @@
 package com.jaspersoft.android.jaspermobile.db.migrate.v3;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
-import com.jaspersoft.android.jaspermobile.db.database.table.ServerProfilesTable;
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
-import com.jaspersoft.android.jaspermobile.db.model.ServerProfiles;
 import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-
-import java.util.List;
-
-import rx.functions.Action1;
-import rx.functions.Actions;
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
 final class ProfilesToAccountsMigration implements Migration {
+    private final static String TABLE_NAME = "server_profiles";
+
+    private final static String _ID = "_id";
+    private final static String ALIAS = "alias";
+    private final static String SERVER_URL = "server_url";
+    private final static String ORGANIZATION = "organization";
+    private final static String USERNAME = "username";
+    private final static String PASSWORD = "password";
+    private final static String EDITION = "edition";
+    private final static String VERSION_CODE = "version_code";
+    private final static String[] ALL_COLUMNS = new String[]{_ID, ALIAS, SERVER_URL, ORGANIZATION, USERNAME, PASSWORD, EDITION, VERSION_CODE};
+
     private final Context mContext;
+    private final AccountManager mAccountManager;
 
     ProfilesToAccountsMigration(Context context) {
         mContext = context;
+        mAccountManager = AccountManager.get(mContext);
     }
 
     @Override
@@ -62,48 +68,52 @@ final class ProfilesToAccountsMigration implements Migration {
     }
 
     private void adaptProfilesToAccounts(SQLiteDatabase db) {
-        AccountServerData data;
-        JasperAccountManager util = JasperAccountManager.get(mContext);
-        Cursor cursor = db.query(ServerProfilesTable.TABLE_NAME,
-                ServerProfilesTable.ALL_COLUMNS, null, null, null, null, null);
+        Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, null, null, null, null, null);
         try {
-            List<ServerProfiles> profiles = ServerProfiles.listFromCursor(cursor);
-            Timber.d("The number of previously saved accounts are: " + profiles.size());
-            for (final ServerProfiles profile : profiles) {
-                data = new AccountServerData()
-                        .setAlias(profile.getAlias())
-                        .setServerUrl(profile.getServerUrl())
-                        .setOrganization(profile.getOrganization())
-                        .setUsername(profile.getUsername())
-                        .setPassword(profile.getPassword())
-                        .setEdition(TextUtils.isEmpty(profile.getEdition()) ? "?" : profile.getEdition())
-                        .setVersionName(String.valueOf(profile.getVersionCode()));
-                util.addAccountExplicitly(data).subscribe(Actions.empty(), new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Timber.w(throwable, "Mis-configured profile '" + profile.getAlias() + "' skipping it");
-                    }
-                });
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    adaptProfile(cursor);
+                } while (cursor.moveToNext());
             }
         } finally {
             cursor.close();
         }
     }
 
+    private void adaptProfile(Cursor cursor) {
+        String alias = cursor.getString(cursor.getColumnIndex(ALIAS));
+        String serverUrl = cursor.getString(cursor.getColumnIndex(SERVER_URL));
+        String organization = cursor.getString(cursor.getColumnIndex(ORGANIZATION));
+        String username = cursor.getString(cursor.getColumnIndex(USERNAME));
+        String password = cursor.getString(cursor.getColumnIndex(PASSWORD));
+        String versionName = cursor.getString(cursor.getColumnIndex(VERSION_CODE));
+
+        String edition = cursor.getString(cursor.getColumnIndex(EDITION));
+        edition = TextUtils.isEmpty(edition) ? "?" : edition;
+
+        Account account = new Account(alias, "com.jaspersoft");
+        mAccountManager.addAccountExplicitly(account, password, null);
+
+        mAccountManager.setUserData(account, "ALIAS_KEY", alias);
+        mAccountManager.setUserData(account, "SERVER_URL_KEY", serverUrl);
+        mAccountManager.setUserData(account, "ORGANIZATION_KEY", organization);
+        mAccountManager.setUserData(account, "USERNAME_KEY", username);
+        mAccountManager.setUserData(account, "EDITION_KEY", edition);
+        mAccountManager.setUserData(account, "VERSION_NAME_KEY", versionName);
+    }
+
     private void activateAccount(SQLiteDatabase db) {
         GeneralPref_ pref = new GeneralPref_(mContext);
         long profileId = pref.currentProfileId().get();
-        Cursor cursor = db.query(ServerProfilesTable.TABLE_NAME,
-                ServerProfilesTable.ALL_COLUMNS,
-                ServerProfilesTable._ID + "=" + profileId,
+        Cursor cursor = db.query(TABLE_NAME,
+                ALL_COLUMNS, _ID + "=" + profileId,
                 null, null, null, null);
         try {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
-                ServerProfiles profile = new ServerProfiles(cursor);
-                Account account = new Account(profile.getAlias(), JasperSettings.JASPER_ACCOUNT_TYPE);
-                JasperAccountManager.get(mContext).activateAccount(account);
-                Timber.d("Account[" + account + "] was activated");
+                String alias = cursor.getString(cursor.getColumnIndex(ALIAS));
+                SharedPreferences preference = mContext.getSharedPreferences("JasperAccountManager", Activity.MODE_PRIVATE);
+                preference.edit().putString("ACCOUNT_NAME_KEY", alias).apply();
             }
         } finally {
             cursor.close();

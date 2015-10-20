@@ -30,7 +30,6 @@ buildscript {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
         classpath 'io.fabric.tools:gradle:1.19.2'
-        classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
     }
 }
 
@@ -203,7 +202,7 @@ android {
         }
         testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
         testCompile 'org.mockito:mockito-core:1.9.5'
-        testCompile('org.robolectric:shadows-support-v4:3.0-rc3') {
+        testCompile('org.robolectric:shadows-support-v4:3.0') {
             exclude group: 'commons-logging', module: 'commons-logging'
             exclude group: 'org.apache.httpcomponents', module: 'httpclient'
         }

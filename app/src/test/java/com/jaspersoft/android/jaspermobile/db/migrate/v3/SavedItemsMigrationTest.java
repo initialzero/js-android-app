@@ -28,6 +28,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
@@ -64,7 +65,7 @@ public class SavedItemsMigrationTest {
 
     private ResourceDatabase resourceDatabase;
     private SQLiteDatabase database;
-    private SavedItemsMigration migration;
+    private Migration migration;
 
     @Before
     public void setup() {
@@ -72,7 +73,7 @@ public class SavedItemsMigrationTest {
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        migration = new SavedItemsMigration(RuntimeEnvironment.application);
+        migration = new MigrationV3.SavedItemsMigration(RuntimeEnvironment.application);
     }
 
     @After

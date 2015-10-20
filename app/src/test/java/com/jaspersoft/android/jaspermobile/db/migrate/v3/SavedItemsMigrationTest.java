@@ -28,7 +28,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
@@ -61,8 +60,8 @@ import static org.hamcrest.core.IsNull.notNullValue;
         sdk = 21
 )
 public class SavedItemsMigrationTest {
+    private static final String SHARED_DIR = "com.jaspersoft.account.none";
 
-    private final String SHARED_DIR = JasperMobileApplication.SHARED_DIR;
     private ResourceDatabase resourceDatabase;
     private SQLiteDatabase database;
     private SavedItemsMigration migration;

@@ -28,9 +28,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import java.io.File;
@@ -46,8 +44,10 @@ import timber.log.Timber;
  * @since 2.0
  */
 final class SavedItemsMigration implements Migration {
+    private static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+    private static final String SHARED_DIR = "com.jaspersoft.account.none";
 
-    private static final String TAG = JasperAccountManager.class.getSimpleName();
+    private static final String TAG = SavedItemsMigration.class.getSimpleName();
     private final Context mContext;
 
     public SavedItemsMigration(Context context) {
@@ -85,7 +85,7 @@ final class SavedItemsMigration implements Migration {
 
     @Nullable
     private File createShareDirectory(File savedItemsDir) {
-        File sharedDir = new File(savedItemsDir, JasperMobileApplication.SHARED_DIR);
+        File sharedDir = new File(savedItemsDir, SHARED_DIR);
         if (!sharedDir.exists() && !sharedDir.mkdir()) return null;
         return sharedDir;
     }
@@ -93,7 +93,7 @@ final class SavedItemsMigration implements Migration {
     @Nullable
     private File getSavedItemsDir() {
         File appFilesDir = mContext.getExternalFilesDir(null);
-        File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
+        File savedReportsDir = new File(appFilesDir, SAVED_REPORTS_DIR_NAME);
 
         if (!savedReportsDir.exists()) {
             boolean created = savedReportsDir.mkdir();

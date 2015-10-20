@@ -53,7 +53,6 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 new MigrationV2().migrate(db);
             case 3:
                 new MigrationV3(mContext).migrate(db);
-                break;
             case 4:
                 new MigrationV4(mContext).migrate(db);
                 break;

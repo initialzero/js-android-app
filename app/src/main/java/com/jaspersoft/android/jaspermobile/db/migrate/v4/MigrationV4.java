@@ -25,21 +25,45 @@
 package com.jaspersoft.android.jaspermobile.db.migrate.v4;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.Settings;
+import android.util.Base64;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+
+import java.io.UnsupportedEncodingException;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
 
 /**
  * @author Tom Koptel
  * @since 2.1.2
  */
 public final class MigrationV4 implements Migration {
-    private final JasperAccountManager accountManager;
+    private final Context mContext;
+    private final AccountManager accountManager;
+
+    private static int ITERATION_COUNT = 1000;
+    private  static final String UTF8 = "utf-8";
+    private final char[] mSecret;
+
 
     public MigrationV4(Context context) {
-        accountManager = JasperAccountManager.get(context);
+        mContext = context;
+        accountManager = AccountManager.get(context);
+
+        String salt = mContext.getResources().getString(R.string.password_salt_key);
+        mSecret = salt.toCharArray();
     }
 
     @Override
@@ -52,6 +76,37 @@ public final class MigrationV4 implements Migration {
 
     private void encryptAccountPassword(Account account) {
         String oldPassword = accountManager.getPassword(account);
-        accountManager.updateAccountPassword(account, oldPassword);
+        String encryptedPass = encrypt(oldPassword);
+        accountManager.setPassword(account, encryptedPass);
+    }
+
+    private String encrypt(String value) {
+        try {
+            final byte[] bytes = value != null ? value.getBytes(UTF8) : new byte[0];
+
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+            KeySpec keySpec = new PBEKeySpec(mSecret);
+            SecretKey key = keyFactory.generateSecret(keySpec);
+
+            Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
+            AlgorithmParameterSpec spec = new PBEParameterSpec(fetchSalt(), ITERATION_COUNT);
+
+            pbeCipher.init(Cipher.ENCRYPT_MODE, key, spec);
+
+            return toBase64(pbeCipher.doFinal(bytes));
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private static String toBase64(byte[] bytes) throws UnsupportedEncodingException {
+        return new String(Base64.encode(bytes, Base64.NO_WRAP), UTF8);
+    }
+
+    private byte[] fetchSalt() throws UnsupportedEncodingException {
+        String id = Settings.Secure.getString(mContext.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
+        return Arrays.copyOf(id.getBytes(UTF8), 8);
     }
 }

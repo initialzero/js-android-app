@@ -68,7 +68,7 @@ public final class MigrationV4 implements Migration {
 
     @Override
     public void migrate(SQLiteDatabase database) {
-        Account[] accounts = accountManager.getAccounts();
+        Account[] accounts = accountManager.getAccountsByType("com.jaspersoft");
         for (Account account : accounts) {
             encryptAccountPassword(account);
         }

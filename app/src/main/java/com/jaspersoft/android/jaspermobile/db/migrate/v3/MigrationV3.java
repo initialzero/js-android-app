@@ -36,8 +36,9 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
-import com.jaspersoft.android.jaspermobile.util.GeneralPref_;
-import com.jaspersoft.android.sdk.util.FileUtils;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -161,8 +162,9 @@ public final class MigrationV3 implements Migration {
         }
 
         private void activateAccount(SQLiteDatabase db) {
-            GeneralPref_ pref = new GeneralPref_(mContext);
-            long profileId = pref.currentProfileId().get();
+            SharedPreferences pref = mContext.getSharedPreferences("GeneralPref", 0);
+            long profileId = pref.getLong("currentProfileId", 0);
+
             Cursor cursor = db.query(TABLE_NAME,
                     ALL_COLUMNS, _ID + "=" + profileId,
                     null, null, null, null);
@@ -306,8 +308,7 @@ public final class MigrationV3 implements Migration {
         private void moveToSharedDir(File[] savedItems, File sharedDir) {
             for (File savedItem : savedItems) {
                 try {
-                    org.apache.commons.io.FileUtils
-                            .moveDirectoryToDirectory(savedItem, sharedDir, false);
+                    FileUtils.moveDirectoryToDirectory(savedItem, sharedDir, false);
                 } catch (IOException e) {
                     Timber.w(e, "Failed to move file to shared destination");
                 }
@@ -323,8 +324,8 @@ public final class MigrationV3 implements Migration {
             File savedReport;
             for (File savedItem : savedItems) {
                 savedReport = new File(savedItem, savedItem.getName());
-                fileName = FileUtils.getBaseName(savedItem.getName());
-                fileFormat = FileUtils.getExtension(savedItem.getName()).toUpperCase(Locale.getDefault());
+                fileName = FilenameUtils.getBaseName(savedItem.getName());
+                fileFormat = FilenameUtils.getExtension(savedItem.getName()).toUpperCase(Locale.getDefault());
                 creationTime = savedItem.lastModified();
 
                 contentValues.clear();

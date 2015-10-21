@@ -24,9 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.XmlSpiceService;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -45,6 +47,8 @@ public class JsSpiceManager extends SpiceManager {
 
     @Inject
     JsRestClient jsRestClient;
+    @Inject
+    Context mContext;
 
     @Inject
     public JsSpiceManager() {
@@ -53,9 +57,10 @@ public class JsSpiceManager extends SpiceManager {
 
     @Override
     public <T> void execute(final CachedSpiceRequest<T> cachedSpiceRequest, final RequestListener<T> requestListener) {
-        if (isRestClientValid()) {
-            super.execute(cachedSpiceRequest, requestListener);
+        if (!isRestClientValid()) {
+            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClient);
         }
+        super.execute(cachedSpiceRequest, requestListener);
     }
 
     private boolean isRestClientValid() {

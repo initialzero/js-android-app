@@ -35,10 +35,6 @@
 
     <!-- Allows an application to create accounts using Android infrastructure -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <!-- Allows the app to read the sync settings for an account. For example, this can determine whether the People app is synced with an account.-->
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
-    <!-- Allows an app to modify the sync settings for an account. For example, this can be used to enable sync of the People app with an account.-->
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />

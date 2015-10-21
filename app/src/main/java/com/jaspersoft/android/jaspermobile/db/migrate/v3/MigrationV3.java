@@ -145,8 +145,8 @@ public final class MigrationV3 implements Migration {
             String organization = cursor.getString(cursor.getColumnIndex(ORGANIZATION));
             String username = cursor.getString(cursor.getColumnIndex(USERNAME));
             String password = cursor.getString(cursor.getColumnIndex(PASSWORD));
-            String versionName = cursor.getString(cursor.getColumnIndex(VERSION_CODE));
 
+            double versionName = cursor.getDouble(cursor.getColumnIndex(VERSION_CODE));
             String edition = cursor.getString(cursor.getColumnIndex(EDITION));
             edition = TextUtils.isEmpty(edition) ? "?" : edition;
 
@@ -158,7 +158,7 @@ public final class MigrationV3 implements Migration {
             mAccountManager.setUserData(account, "ORGANIZATION_KEY", organization);
             mAccountManager.setUserData(account, "USERNAME_KEY", username);
             mAccountManager.setUserData(account, "EDITION_KEY", edition);
-            mAccountManager.setUserData(account, "VERSION_NAME_KEY", versionName);
+            mAccountManager.setUserData(account, "VERSION_NAME_KEY", String.valueOf(versionName));
         }
 
         private void activateAccount(SQLiteDatabase db) {

@@ -29,7 +29,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
@@ -67,14 +66,14 @@ public class FavoritesMigrationTest {
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        Migration migration = new FavoritesMigration();
+        MigrationV3 migration = new MigrationV3(RuntimeEnvironment.application);
 
         String insertProfileSql = TestResource.get("insert_mobile_profile.sql").asString();
         String insertFavoriteSql = TestResource.get("insert_favorite.sql").asString();
 
         resourceDatabase.performSql(insertProfileSql);
         resourceDatabase.performSql(insertFavoriteSql);
-        migration.migrate(database);
+        migration.migrateFavorites(database);
     }
 
     @After

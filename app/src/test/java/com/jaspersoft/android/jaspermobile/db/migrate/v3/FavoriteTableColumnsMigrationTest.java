@@ -66,7 +66,7 @@ public class FavoriteTableColumnsMigrationTest {
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        Migration migration = new FavoriteTableColumnsMigration();
+        Migration migration = new MigrationV3.FavoriteTableColumnsMigration();
 
         String insertFavoriteSql = TestResource.get("insert_favorite.sql").asString();
 

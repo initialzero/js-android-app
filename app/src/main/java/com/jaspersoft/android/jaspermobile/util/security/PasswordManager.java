@@ -97,7 +97,7 @@ public final class PasswordManager {
 
             return new String(pbeCipher.doFinal(bytes), UTF8);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            return null;
         }
     }
 

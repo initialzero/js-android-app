@@ -74,7 +74,7 @@ public class LegacyProfileMigrationTest {
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        migration = new LegacyProfileMigration();
+        migration = new MigrationV3.LegacyProfileMigration();
 
         insertMobileProfileSql = TestResource.get("insert_mobile_profile.sql").asString();
         insertMobilesProfileSql = SqlTestResource.get("insert_mobile_profiles.sql");

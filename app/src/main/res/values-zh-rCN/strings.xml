@@ -82,7 +82,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">关于</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ V%s<br><br>JasperReports Server 5.5及以上版本的管理工具和报告查看器。<br><br>欲了解更多信息，请访问：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>欲查看隐私政策信息，请访问：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>©2005-2015 TIBCO Software, Inc.版权所有]]></string>
+    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ V%s<br><br>JasperReports® Server 5.5及以上版本的管理工具和报告查看器。<br><br>欲了解更多信息，请访问：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>欲查看隐私政策信息，请访问：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>©2005-2015 TIBCO Software, Inc.版权所有]]></string>
     <string name="sa_about_privacy">隐私政策</string>
 
     <!-- Report Options Activity -->
@@ -173,7 +173,7 @@
     <string name="rv_error_empty_report_title">报告为空</string>
     <string name="h_rd_later">稍后提醒我</string>
     <string name="h_rd_never">不，谢谢</string>
-    <string name="h_rd_rate">给TIBCO JasperMobile评分</string>
+    <string name="h_rd_rate">给TIBCO® JasperMobile™评分</string>
 
     <!-- Navigation Drawer -->
     <string name="nd_drawer_open">打开</string>
@@ -186,7 +186,7 @@
     <string name="h_ad_label_wrong_password">用户名或密码不正确。重新输入。</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">如果您喜欢使用TIBCO JasperMobile，请花点时间来评价一下。评价过程不会超过一分钟。感谢您的支持！</string>
+    <string name="h_rd_description">如果您喜欢使用TIBCO® JasperMobile™，请花点时间来评价一下。评价过程不会超过一分钟。感谢您的支持！</string>
 
     <!-- Error messages -->
     <string name="sp_error_reserved_alias">别名保留。</string>

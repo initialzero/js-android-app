@@ -82,7 +82,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">バージョン情報</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>JasperReports Server 5.5以上向けの管理ツールおよびレポートビューア<br><br>詳細について：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>個人情報保護方針について：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
+    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>JasperReports® Server 5.5以上向けの管理ツールおよびレポートビューア<br><br>詳細について：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>個人情報保護方針について：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">個人情報保護方針</string>
 
     <!-- Report Options Activity -->
@@ -173,7 +173,7 @@
     <!-- Rate Dialog -->
     <string name="h_rd_later">後で見る</string>
     <string name="h_rd_never">いいえ</string>
-    <string name="h_rd_rate">TIBCO JasperMobileの評価</string>
+    <string name="h_rd_rate">TIBCO® JasperMobile™の評価</string>
 
     <!-- Navigation Drawer -->
     <string name="nd_drawer_open">開く</string>
@@ -186,7 +186,7 @@
     <string name="h_ad_label_wrong_password">ユーザー名またはパスワードが正しくありません。正しい情報を再入力してください。</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">もしTIBCO JasperMobileを気に入って頂けましたら、少しお時間をとって評価をして頂けると幸いです。これには１分もかかりません。ご協力ありがとうございます！</string>
+    <string name="h_rd_description">もしTIBCO® JasperMobile™を気に入って頂けましたら、少しお時間をとって評価をして頂けると幸いです。これには１分もかかりません。ご協力ありがとうございます！</string>
 
     <!-- Error messages -->
     <string name="sp_error_reserved_alias">エイリアスは既に使用されています。</string>

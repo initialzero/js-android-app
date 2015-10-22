@@ -68,7 +68,7 @@
 
     <!-- Settings Activity -->
     <string name="s_hint">Ressources de recherche</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Outil de gestion et visionneur de rapport pour JasperReports Server 5.5 et plus.<br><br>Pour plus d\'informations, consulter:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>Pour les informations de la politique de confidentialité, consulter:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android </a><br><br>Droits d\'auteurs © 2005-2015 TIBCO Software, Inc.]]></string>
+    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Outil de gestion et visionneur de rapport pour JasperReports® Server 5.5 et plus.<br><br>Pour plus d\'informations, consulter:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>Pour les informations de la politique de confidentialité, consulter:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android </a><br><br>Droits d\'auteurs © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Politique de confidentialité</string>
 
     <!-- Action Bar -->
@@ -174,7 +174,7 @@
     <!-- Rate Dialog -->
     <string name="h_rd_later">Me rappeler plus tard</string>
     <string name="h_rd_never">Non, merci</string>
-    <string name="h_rd_rate">Évaluer TIBCO JasperMobile</string>
+    <string name="h_rd_rate">Évaluer TIBCO® JasperMobile™</string>
 
     <!-- Navigation Drawer -->
     <string name="nd_drawer_open">ouvrir</string>
@@ -187,7 +187,7 @@
     <string name="h_ad_label_wrong_password">Le nom d\'utilisateur ou mot de passe est incorrect. Saisissez à nouveau vos identifiants.</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">Si vous aimez utiliser TIBCO JasperMobile, veuillez prendre un moment pour donner une note. Cela ne prendra pas plus d\'une minute. Merci de votre aide !</string>
+    <string name="h_rd_description">Si vous aimez utiliser TIBCO® JasperMobile™, veuillez prendre un moment pour donner une note. Cela ne prendra pas plus d\'une minute. Merci de votre aide !</string>
 
     <!-- Error messages -->
     <string name="sp_error_reserved_alias">Alias ​​réservés.</string>

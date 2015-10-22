@@ -1,9 +1,9 @@
 TIBCO® JasperMobile? for Android
 ========================
 
-TIBCO® JasperMobile? for Android is a native application which allows you to browse your JasperReports® Server repository and view reports in several formats.
+TIBCO® JasperMobile? for Android is a native application which allows you to browse your TIBCO JasperReports® Server repository and view reports in several formats.
 
-It is built using the TIBCO® JasperMobile? SDK for Android, and is compatible with JasperReports® Server 5.5 or higher.
+It is built using the TIBCO® JasperMobile? SDK for Android, and is compatible with TIBCO JasperReports® Server 5.5 or higher.
 
 The source code of TIBCO® JasperMobile? for Android is freely available and can be used as a good example of how to integrate reporting and analysis services of TIBCO® JasperReports® Server with their native applications.
 

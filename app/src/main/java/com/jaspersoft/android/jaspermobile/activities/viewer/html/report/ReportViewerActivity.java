@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -116,6 +117,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import rx.Subscription;
 import rx.functions.Action1;
@@ -573,11 +575,19 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onWebViewError(String title, String message) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        progressBar.setVisibility(View.GONE);
-        webView.setVisibility(View.GONE);
-        showErrorView(title + "\n" + message);
+    public void onWebViewError(String title, String message, String failingUrl, int errorCode) {
+        String baseUrl = accountServerData.getServerUrl();
+        boolean isReportPage = baseUrl.equals(failingUrl);
+        boolean isTimeout = (errorCode == WebViewClient.ERROR_TIMEOUT);
+
+        if (isReportPage && isTimeout) {
+            showErrorView(getString(R.string.rv_webview_still_loading));
+        } else {
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+            progressBar.setVisibility(View.GONE);
+            webView.setVisibility(View.GONE);
+            showErrorView(title + "\n" + message);
+        }
     }
 
     //---------------------------------------------------------------------
@@ -602,7 +612,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .withDelegateListener(chromeClientListener);
 
         JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(this, this);
-        JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
+        JasperWebViewClientListener clientListener = TimeoutWebViewClientListener
+                .wrap(errorListener)
+                .withTimeout(TimeUnit.SECONDS.toMillis(15));
 
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
                 .withInterceptor(new InjectionRequestInterceptor())

@@ -28,6 +28,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
@@ -50,6 +52,8 @@ public class RepositoryPageFragment extends RoboFragment {
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
     protected boolean initialStart;
+    @Inject
+    protected Analytics analytics;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,5 +79,12 @@ public class RepositoryPageFragment extends RoboFragment {
         }
 
         ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        analytics.sendScreenView(Analytics.EventLabel.REPOSITORY.getValue());
     }
 }

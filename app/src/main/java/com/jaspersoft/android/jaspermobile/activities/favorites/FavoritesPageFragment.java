@@ -28,6 +28,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
@@ -47,6 +49,8 @@ import roboguice.fragment.RoboFragment;
 public class FavoritesPageFragment extends RoboFragment {
 
     private FavoritesControllerFragment favoritesController;
+    @Inject
+    protected Analytics analytics;
 
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
@@ -71,5 +75,12 @@ public class FavoritesPageFragment extends RoboFragment {
             favoritesController = (FavoritesControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        analytics.sendScreenView(Analytics.EventLabel.FAVORITES.getValue());
     }
 }

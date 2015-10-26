@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
@@ -62,6 +63,8 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected Analytics analytics;
 
     @Pref
     protected LibraryPref_ pref;
@@ -111,6 +114,13 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
         } else {
             ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        analytics.sendScreenView(Analytics.EventLabel.LIBRARY.getValue());
     }
 
     @OptionsItem(R.id.sort)

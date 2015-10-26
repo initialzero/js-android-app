@@ -359,7 +359,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
+        analytics.sendEvent(Analytics.EventCategory.PRINT.getValue(), Analytics.EventAction.CLICK.getValue(), Analytics.EventLabel.REPORT.getValue());
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(this, jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);

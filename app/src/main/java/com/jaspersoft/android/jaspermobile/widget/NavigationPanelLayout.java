@@ -102,7 +102,7 @@ public class NavigationPanelLayout extends RelativeLayout {
     }
 
     public void setItemSelected(int viewId) {
-        navigationMenuItemSelect(findViewById(viewId));
+        changeSelection(findViewById(viewId));
     }
 
     public void notifyAccountChange() {
@@ -180,11 +180,7 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items, R.id.vg_recent})
     final void navigationMenuItemSelect(View newSelectItem) {
-        if (selectedItemView != null) {
-            setItemSelected(selectedItemView, false);
-        }
-        setItemSelected(newSelectItem, true);
-        selectedItemView = newSelectItem;
+        changeSelection(newSelectItem);
 
         if (mListener != null) {
             mListener.onNavigate(newSelectItem.getId());
@@ -232,6 +228,14 @@ public class NavigationPanelLayout extends RelativeLayout {
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void changeSelection(View newSelectItem){
+        if (selectedItemView != null) {
+            setItemSelected(selectedItemView, false);
+        }
+        setItemSelected(newSelectItem, true);
+        selectedItemView = newSelectItem;
+    }
 
     private void showActivatedPanel(boolean isShowingMenu) {
         if (!isShowingMenu) {

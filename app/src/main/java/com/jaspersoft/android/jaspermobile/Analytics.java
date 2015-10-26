@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -32,10 +32,64 @@ import android.app.Application;
  */
 public interface Analytics {
     void init(Application appContext);
-    void trackPrintEvent(PrintType printType);
+    void sendScreenView(String categoryName);
+    void sendEvent(String eventCategory, String eventAction, String eventLabel);
+    void sendUserChangedEvent();
+    void setServerInfo(String serverVersion, String serverEdition);
 
-    enum PrintType{
-        REPORT,
-        DASHBOARD
+    enum EventCategory{
+        PRINT("Print"),
+        MENU("Menu");
+
+        String mName;
+
+        EventCategory(String name) {
+            mName = name;
+        }
+
+        public String getValue(){
+            return mName;
+        }
     }
+
+    enum EventAction{
+        CLICK("Click");
+
+        String mName;
+
+        EventAction(String name) {
+            mName = name;
+        }
+
+        public String getValue(){
+            return mName;
+        }
+    }
+
+    enum EventLabel{
+        LIBRARY("Library"),
+        REPOSITORY("Repository"),
+        RECENTLY_VIEWED("Recently viewed"),
+        FAVORITES("Favorites"),
+        SAVED_ITEMS("Saved items"),
+        ADD_ACCOUNT("Add account"),
+        MANAGE_ACCOUNT("Manage account"),
+        CHANGE_ACCOUNT("Change account"),
+        SETTINGS("Settings"),
+        FEEDBACK("Feedback"),
+        ABOUT("About"),
+        REPORT("Report"),
+        DASHBOARD("Dashboard");
+
+        String mName;
+
+        EventLabel(String name) {
+            mName = name;
+        }
+
+        public String getValue(){
+            return mName;
+        }
+    }
+
 }

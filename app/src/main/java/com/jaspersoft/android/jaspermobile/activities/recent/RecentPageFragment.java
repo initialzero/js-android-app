@@ -29,6 +29,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentControllerFragment_;
@@ -45,6 +47,9 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment (R.layout.content_layout)
 public class RecentPageFragment extends RoboFragment {
+
+    @Inject
+    protected Analytics analytics;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,5 +77,11 @@ public class RecentPageFragment extends RoboFragment {
         }
 
         ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        analytics.sendScreenView(Analytics.EventLabel.RECENTLY_VIEWED.getValue());
     }
 }

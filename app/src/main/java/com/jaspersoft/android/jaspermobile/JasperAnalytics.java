@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -37,34 +37,61 @@ import com.google.android.gms.analytics.Tracker;
 public class JasperAnalytics implements Analytics {
 
     private static final String TRACKER_ID_KEY = "&tid";
+    private static final String SERVER_VERSION_KEY = "&cd1";
+    private static final String SERVER_EDITION_KEY = "&cd2";
 
-    private static final String CLICK_LABEL = "User click";
-    private static final String PRINT_CATEGORY = "Print";
-
-    private Tracker tracker;
+    private Tracker mTracker;
 
     @Override
     public void init(Application appContext) {
         GoogleAnalytics analytics = GoogleAnalytics.getInstance(appContext);
-        analytics.enableAutoActivityReports(appContext);
 
-        tracker = analytics.newTracker(R.xml.analytics_tracker);
-        tracker.set(TRACKER_ID_KEY, appContext.getString(R.string.google_analytics_tracking_id));
+        mTracker = analytics.newTracker(R.xml.analytics_tracker);
+        mTracker.set(TRACKER_ID_KEY, appContext.getString(R.string.google_analytics_tracking_id));
     }
 
     @Override
-    public void trackPrintEvent(PrintType printType) {
+    public void sendScreenView(String categoryName) {
         checkTracker();
-        tracker.send(new HitBuilders.EventBuilder()
-                .setCategory(PRINT_CATEGORY)
-                .setAction(printType.name())
-                .setLabel(CLICK_LABEL)
+
+        mTracker.setScreenName(categoryName);
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    }
+
+    @Override
+    public void sendEvent(String eventCategory, String eventAction, String eventLabel) {
+        checkTracker();
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory(eventCategory)
+                .setAction(eventAction)
+                .setLabel(eventLabel)
                 .build());
     }
 
+    @Override
+    public void sendUserChangedEvent() {
+        checkTracker();
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setNewSession()
+                .setCategory(EventCategory.MENU.getValue())
+                .setAction(EventAction.CLICK.getValue())
+                .setLabel(EventLabel.CHANGE_ACCOUNT.getValue())
+                .build());
+    }
+
+    @Override
+    public void setServerInfo(String serverVersion, String serverEdition) {
+        checkTracker();
+
+        mTracker.set(SERVER_VERSION_KEY, serverVersion);
+        mTracker.set(SERVER_EDITION_KEY, serverEdition);
+    }
+
     private void checkTracker() {
-        if (tracker == null) {
-            throw new IllegalStateException("Analytics tracker has not been initialized");
+        if (mTracker == null) {
+            throw new IllegalStateException("Analytics mTracker has not been initialized");
         }
     }
 }

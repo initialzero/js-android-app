@@ -25,7 +25,7 @@
 
 <resources>
     <int name="ga_dispatchPeriod">15</int>
-    <bool name="ga_dryRun">false</bool>
+     <bool name="ga_dryRun">true</bool>
     <string name="ga_logLevel">verbose</string>
 
 </resources>

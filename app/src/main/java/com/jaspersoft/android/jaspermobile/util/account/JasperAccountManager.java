@@ -35,6 +35,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
@@ -47,6 +49,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import roboguice.RoboGuice;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
@@ -61,6 +64,9 @@ import timber.log.Timber;
 public class JasperAccountManager {
     private static final String PREF_NAME = JasperAccountManager.class.getSimpleName();
     private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";
+
+    @Inject
+    protected Analytics analytics;
 
     private final Context mContext;
     private final SharedPreferences mPreference;
@@ -78,6 +84,8 @@ public class JasperAccountManager {
         mDelegateManager = AccountManager.get(context);
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
         Timber.tag(PREF_NAME);
+
+        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
     }
 
     public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
@@ -273,6 +281,8 @@ public class JasperAccountManager {
     }
 
     private void syncJsRestClient() {
+        analytics.sendUserChangedEvent();
+
         if (mContext.getApplicationContext() instanceof JasperMobileApplication) {
             JasperMobileApplication app = ((JasperMobileApplication) mContext.getApplicationContext());
             app.initLegacyJsRestClient();

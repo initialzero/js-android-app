@@ -55,7 +55,8 @@ public class JasperAnalytics implements Analytics {
         checkTracker();
 
         mTracker.setScreenName(categoryName);
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        mTracker.send(new HitBuilders.ScreenViewBuilder()
+                .build());
     }
 
     @Override
@@ -75,8 +76,8 @@ public class JasperAnalytics implements Analytics {
 
         mTracker.send(new HitBuilders.EventBuilder()
                 .setNewSession()
-                .setCategory(EventCategory.MENU.getValue())
-                .setAction(EventAction.CLICK.getValue())
+                .setCategory(EventCategory.ACCOUNT.getValue())
+                .setAction(EventAction.SYSTEM.getValue())
                 .setLabel(EventLabel.CHANGE_ACCOUNT.getValue())
                 .build());
     }

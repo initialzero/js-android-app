@@ -39,6 +39,7 @@ public interface Analytics {
 
     enum EventCategory{
         PRINT("Print"),
+        ACCOUNT("Account"),
         MENU("Menu");
 
         String mName;
@@ -53,7 +54,8 @@ public interface Analytics {
     }
 
     enum EventAction{
-        CLICK("Click");
+        CLICK("Click"),
+        SYSTEM("System");
 
         String mName;
 

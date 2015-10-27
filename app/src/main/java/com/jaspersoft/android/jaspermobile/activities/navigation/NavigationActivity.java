@@ -305,7 +305,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     private void activateAccount(@NonNull Account account) {
-        analytics.sendUserChangedEvent();
+        analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICK.getValue(), Analytics.EventLabel.CHANGE_ACCOUNT.getValue());
 
         JasperAccountManager.get(this).activateAccount(account);
 

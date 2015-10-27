@@ -94,7 +94,11 @@ public class JasperMobileApplication extends Application {
         Account account = JasperAccountManager.get(this).getActiveAccount();
         if (account != null) {
             AccountServerData serverData = AccountServerData.get(this, account);
-            analytics.setServerInfo(serverData.getVersionName(), serverData.getEdition());
+            String serverVersion = serverData.getVersionName();
+            if (serverData.isDemo()) {
+                serverVersion = serverVersion + " DEMO";
+            }
+            analytics.setServerInfo(serverVersion, serverData.getEdition());
         }
     }
 

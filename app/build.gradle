@@ -59,7 +59,7 @@ android {
         if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
             resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
         } else {
-            resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
+            resValue "string", "google_analytics_tracking_id", "UA-59444864-3"
         }
 
         if (project.hasProperty('PASSWORD_SALT_KEY')) {

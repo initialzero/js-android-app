@@ -57,7 +57,7 @@ android {
         versionName "2.2.0"
 
         if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
-            resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
+            resValue "string", "google_analytics_tracking_id", "UA-59444864-3"
         } else {
             resValue "string", "google_analytics_tracking_id", "UA-59444864-3"
         }

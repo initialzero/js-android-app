@@ -82,6 +82,6 @@ public class RecentPageFragment extends RoboFragment {
     @Override
     public void onResume() {
         super.onResume();
-        analytics.sendScreenView(Analytics.EventLabel.RECENTLY_VIEWED.getValue());
+        analytics.sendScreenView(Analytics.ScreenName.RECENTLY_VIEWED.getValue());
     }
 }

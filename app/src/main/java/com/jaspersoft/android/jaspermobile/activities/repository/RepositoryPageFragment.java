@@ -85,6 +85,6 @@ public class RepositoryPageFragment extends RoboFragment {
     public void onResume() {
         super.onResume();
 
-        analytics.sendScreenView(Analytics.EventLabel.REPOSITORY.getValue());
+        analytics.sendScreenView(Analytics.ScreenName.REPOSITORY.getValue());
     }
 }

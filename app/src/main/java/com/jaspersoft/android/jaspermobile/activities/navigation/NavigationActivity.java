@@ -234,6 +234,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
 
             @Override
             public void onProfileChange(Account account) {
+                analytics.sendEvent(Analytics.EventCategory.ACCOUNT.getValue(), Analytics.EventAction.CHANGED.getValue(), Analytics.EventLabel.CLICK.getValue());
                 activateAccount(account);
             }
         });
@@ -245,36 +246,38 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     private void handleNavigationAction(int viewId, boolean isUserAction) {
-        String selectedMenu = "";
+        String category = "";
+        String action = Analytics.EventAction.OPEN.getValue();
         switch (viewId) {
             case R.id.vg_library:
                 currentSelection = R.id.vg_library;
                 commitContent(LibraryPageFragment_.builder().build());
-                selectedMenu = Analytics.EventLabel.LIBRARY.getValue();
+                category = Analytics.EventCategory.LIBRARY.getValue();
                 break;
             case R.id.vg_repository:
                 currentSelection = R.id.vg_repository;
                 commitContent(RepositoryPageFragment_.builder().build());
-                selectedMenu = Analytics.EventLabel.REPOSITORY.getValue();
+                category = Analytics.EventCategory.REPOSITORY.getValue();
                 break;
             case R.id.vg_recent:
                 currentSelection = R.id.vg_recent;
                 commitContent(RecentPageFragment_.builder().build());
-                selectedMenu = Analytics.EventLabel.RECENTLY_VIEWED.getValue();
+                category = Analytics.EventCategory.RECENTLY_VIEWED.getValue();
                 break;
             case R.id.vg_saved_items:
                 currentSelection = R.id.vg_saved_items;
                 commitContent(SavedReportsFragment_.builder().build());
-                selectedMenu = Analytics.EventLabel.SAVED_ITEMS.getValue();
+                category = Analytics.EventCategory.SAVED_ITEMS.getValue();
                 break;
             case R.id.vg_favorites:
                 currentSelection = R.id.vg_favorites;
                 commitContent(FavoritesPageFragment_.builder().build());
-                selectedMenu = Analytics.EventLabel.FAVORITES.getValue();
+                category = Analytics.EventCategory.FAVORITES.getValue();
                 break;
             case R.id.vg_add_account:
                 startActivityForResult(new Intent(this, AuthenticatorActivity.class), NEW_ACCOUNT);
-                selectedMenu = Analytics.EventLabel.ADD_ACCOUNT.getValue();
+                category = Analytics.EventCategory.ACCOUNT.getValue();
+                action = Analytics.EventAction.ADD.getValue();
                 break;
             case R.id.vg_manage_accounts:
                 String[] authorities = {getString(R.string.jasper_account_authority)};
@@ -285,28 +288,27 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(this, getString(R.string.wrong_action), Toast.LENGTH_SHORT).show();
                 }
-                selectedMenu = Analytics.EventLabel.MANAGE_ACCOUNT.getValue();
+                category = Analytics.EventCategory.ACCOUNT.getValue();
+                action = Analytics.EventAction.MANAGE.getValue();
                 break;
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
-                selectedMenu = Analytics.EventLabel.SETTINGS.getValue();
+                category = Analytics.EventCategory.SETTINGS.getValue();
                 break;
             case R.id.tv_feedback:
                 sendFeedback();
-                selectedMenu = Analytics.EventLabel.FEEDBACK.getValue();
+                category = Analytics.EventCategory.FEEDBACK.getValue();
                 break;
             case R.id.tv_about:
                 AboutDialogFragment.createBuilder(this, getSupportFragmentManager()).show();
-                selectedMenu = Analytics.EventLabel.ABOUT.getValue();
+                category = Analytics.EventCategory.ABOUT.getValue();
         }
         if (isUserAction) {
-            analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICK.getValue(), selectedMenu);
+            analytics.sendEvent(category, action, Analytics.EventLabel.CLICK.getValue());
         }
     }
 
     private void activateAccount(@NonNull Account account) {
-        analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICK.getValue(), Analytics.EventLabel.CHANGE_ACCOUNT.getValue());
-
         JasperAccountManager.get(this).activateAccount(account);
 
         onActiveAccountChanged();

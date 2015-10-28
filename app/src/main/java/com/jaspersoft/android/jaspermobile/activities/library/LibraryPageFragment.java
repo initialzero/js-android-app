@@ -120,11 +120,13 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
     public void onResume() {
         super.onResume();
 
-        analytics.sendScreenView(Analytics.EventLabel.LIBRARY.getValue());
+        analytics.sendScreenView(Analytics.ScreenName.LIBRARY.getValue());
     }
 
     @OptionsItem(R.id.sort)
     final void startSorting() {
+        analytics.sendEvent(Analytics.EventCategory.LIBRARY.getValue(), Analytics.EventAction.SORT.getValue(), Analytics.EventLabel.CLICK.getValue());
+
         SortDialogFragment.createBuilder(getFragmentManager())
                 .setInitialSortOption(sortOptions.getOrder())
                 .setTargetFragment(this)
@@ -133,6 +135,7 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
 
     @Override
     public void onOptionSelected(SortOrder sortOrder) {
+        analytics.sendEvent(Analytics.EventCategory.LIBRARY.getValue(), Analytics.EventAction.SORT.getValue(), Analytics.EventLabel.PASSIVE.getValue());
         sortOptions.putOrder(sortOrder);
 
         if (libraryControllerFragment != null) {

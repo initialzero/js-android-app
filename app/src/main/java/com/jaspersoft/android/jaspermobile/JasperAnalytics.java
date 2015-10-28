@@ -36,7 +36,6 @@ import com.google.android.gms.analytics.Tracker;
  */
 public class JasperAnalytics implements Analytics {
 
-    private static final String TRACKER_ID_KEY = "&tid";
     private static final String SERVER_VERSION_KEY = "&cd1";
     private static final String SERVER_EDITION_KEY = "&cd2";
 
@@ -46,15 +45,15 @@ public class JasperAnalytics implements Analytics {
     public void init(Application appContext) {
         GoogleAnalytics analytics = GoogleAnalytics.getInstance(appContext);
 
-        mTracker = analytics.newTracker(R.xml.analytics_tracker);
-        mTracker.set(TRACKER_ID_KEY, appContext.getString(R.string.google_analytics_tracking_id));
+        mTracker = analytics.newTracker(appContext.getString(R.string.google_analytics_tracking_id));
+        mTracker.setSessionTimeout(600);
     }
 
     @Override
-    public void sendScreenView(String categoryName) {
+    public void sendScreenView(String screenName) {
         checkTracker();
 
-        mTracker.setScreenName(categoryName);
+        mTracker.setScreenName(screenName);
         mTracker.send(new HitBuilders.ScreenViewBuilder()
                 .build());
     }
@@ -71,14 +70,26 @@ public class JasperAnalytics implements Analytics {
     }
 
     @Override
+    public void sendEvent(String eventCategory, String eventAction, String eventLabel, Dimension dimension) {
+        checkTracker();
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory(eventCategory)
+                .setAction(eventAction)
+                .setLabel(eventLabel)
+                .setCustomDimension(dimension.getIndex(), dimension.getValue())
+                .build());
+    }
+
+    @Override
     public void sendUserChangedEvent() {
         checkTracker();
 
         mTracker.send(new HitBuilders.EventBuilder()
                 .setNewSession()
                 .setCategory(EventCategory.ACCOUNT.getValue())
-                .setAction(EventAction.SYSTEM.getValue())
-                .setLabel(EventLabel.CHANGE_ACCOUNT.getValue())
+                .setAction(EventAction.CHANGED.getValue())
+                .setLabel(EventLabel.PASSIVE.getValue())
                 .build());
     }
 

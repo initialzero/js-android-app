@@ -169,7 +169,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
-            analytics.sendEvent(Analytics.EventCategory.PRINT.getValue(), Analytics.EventAction.CLICK.getValue(), Analytics.EventLabel.DASHBOARD.getValue());
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINT.getValue(), Analytics.EventLabel.CLICK.getValue());
             ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
             JasperPrinter.print(job);
         }

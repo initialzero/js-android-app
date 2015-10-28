@@ -32,15 +32,41 @@ import android.app.Application;
  */
 public interface Analytics {
     void init(Application appContext);
-    void sendScreenView(String categoryName);
+    void sendScreenView(String screenName);
     void sendEvent(String eventCategory, String eventAction, String eventLabel);
+    void sendEvent(String eventCategory, String eventAction, String eventLabel, Dimension dimension);
     void sendUserChangedEvent();
     void setServerInfo(String serverVersion, String serverEdition);
 
-    enum EventCategory{
-        PRINT("Print"),
+    enum ScreenName {
+        LIBRARY("Library screen"),
+        REPOSITORY("Repository screen"),
+        RECENTLY_VIEWED("Recently viewed screen"),
+        FAVORITES("Favorites screen"),
+        SAVED_ITEMS("Saved items screen");
+
+        String mName;
+
+        ScreenName(String name) {
+            mName = name;
+        }
+
+        public String getValue() {
+            return mName;
+        }
+    }
+
+    enum EventCategory {
         ACCOUNT("Account"),
-        MENU("Menu");
+        LIBRARY("Library"),
+        REPOSITORY("Repository"),
+        RECENTLY_VIEWED("Recently viewed"),
+        FAVORITES("Favorites"),
+        SAVED_ITEMS("Saved items"),
+        SETTINGS("Settings"),
+        FEEDBACK("Feedback"),
+        ABOUT("About"),
+        RESOURCE("Resource");
 
         String mName;
 
@@ -48,14 +74,20 @@ public interface Analytics {
             mName = name;
         }
 
-        public String getValue(){
+        public String getValue() {
             return mName;
         }
     }
 
-    enum EventAction{
-        CLICK("Click"),
-        SYSTEM("System");
+    enum EventAction {
+        OPEN("Open"),
+        SORT("Sort"),
+        FILTER("Filter"),
+        VIEW_TYPE("Change view type"),
+        ADD("Add"),
+        MANAGE("Manage"),
+        CHANGED("Changed"),
+        PRINT("Print");
 
         String mName;
 
@@ -63,25 +95,14 @@ public interface Analytics {
             mName = name;
         }
 
-        public String getValue(){
+        public String getValue() {
             return mName;
         }
     }
 
-    enum EventLabel{
-        LIBRARY("Library"),
-        REPOSITORY("Repository"),
-        RECENTLY_VIEWED("Recently viewed"),
-        FAVORITES("Favorites"),
-        SAVED_ITEMS("Saved items"),
-        ADD_ACCOUNT("Add account"),
-        MANAGE_ACCOUNT("Manage account"),
-        CHANGE_ACCOUNT("Change account"),
-        SETTINGS("Settings"),
-        FEEDBACK("Feedback"),
-        ABOUT("About"),
-        REPORT("Report"),
-        DASHBOARD("Dashboard");
+    enum EventLabel {
+        CLICK("Click"),
+        PASSIVE("Passive");
 
         String mName;
 
@@ -89,9 +110,26 @@ public interface Analytics {
             mName = name;
         }
 
-        public String getValue(){
+        public String getValue() {
             return mName;
         }
     }
 
+    class Dimension {
+        private int mIndex;
+        private String mValue;
+
+        public Dimension(int index, String value) {
+            this.mIndex = index;
+            this.mValue = value;
+        }
+
+        public int getIndex() {
+            return mIndex;
+        }
+
+        public String getValue() {
+            return mValue;
+        }
+    }
 }

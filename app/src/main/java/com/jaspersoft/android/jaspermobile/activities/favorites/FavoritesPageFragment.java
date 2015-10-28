@@ -81,6 +81,6 @@ public class FavoritesPageFragment extends RoboFragment {
     public void onResume() {
         super.onResume();
 
-        analytics.sendScreenView(Analytics.EventLabel.FAVORITES.getValue());
+        analytics.sendScreenView(Analytics.ScreenName.FAVORITES.getValue());
     }
 }

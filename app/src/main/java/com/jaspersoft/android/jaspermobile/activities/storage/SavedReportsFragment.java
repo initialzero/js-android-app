@@ -118,7 +118,7 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
         if (actionBar != null) {
             actionBar.setTitle(R.string.sdr_ab_title);
         }
-        analytics.sendScreenView(Analytics.EventLabel.SAVED_ITEMS.getValue());
+        analytics.sendScreenView(Analytics.ScreenName.SAVED_ITEMS.getValue());
     }
 
     @OptionsItem(R.id.sort)

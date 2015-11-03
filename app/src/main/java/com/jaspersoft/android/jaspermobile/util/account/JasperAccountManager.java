@@ -2,23 +2,23 @@
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
  * the following license terms apply:
  *
- * This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -36,7 +36,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
 import org.roboguice.shaded.goole.common.collect.Lists;
@@ -62,6 +64,7 @@ public class JasperAccountManager {
 
     private final Context mContext;
     private final SharedPreferences mPreference;
+    private final AccountManager mDelegateManager;
 
     public static JasperAccountManager get(Context context) {
         if (context == null) {
@@ -72,16 +75,17 @@ public class JasperAccountManager {
 
     private JasperAccountManager(Context context) {
         mContext = context;
+        mDelegateManager = AccountManager.get(context);
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
         Timber.tag(PREF_NAME);
     }
 
     public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
-        AccountManager.get(mContext).addOnAccountsUpdatedListener(listener, null, false);
+        mDelegateManager.addOnAccountsUpdatedListener(listener, null, false);
     }
 
     public void removeOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
-        AccountManager.get(mContext).removeOnAccountsUpdatedListener(listener);
+        mDelegateManager.removeOnAccountsUpdatedListener(listener);
     }
 
     public AccountServerData getActiveServerData() throws TokenException {
@@ -127,8 +131,7 @@ public class JasperAccountManager {
     }
 
     public void activateAccount(Account account) {
-        AccountManager accountManager = AccountManager.get(mContext);
-        String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
         invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
 
@@ -137,8 +140,7 @@ public class JasperAccountManager {
 
     public void activateFirstAccount() {
         Account account = getAccounts()[0];
-        AccountManager accountManager = AccountManager.get(mContext);
-        String tokenToInvalidate = accountManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
         invalidateToken(tokenToInvalidate);
         mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
 
@@ -150,13 +152,17 @@ public class JasperAccountManager {
     }
 
     public void updateActiveAccountPassword(String newPassword) {
-        AccountManager accountManager = AccountManager.get(mContext);
         invalidateActiveToken();
-        accountManager.setPassword(getActiveAccount(), newPassword);
+        updateAccountPassword(getActiveAccount(), newPassword);
+    }
+
+    public void updateAccountPassword(Account account , String newPassword) {
+        String encrypted = encryptPassword(newPassword);
+        mDelegateManager.setPassword(account, encrypted);
     }
 
     public Account[] getAccounts() {
-        Account[] accounts = AccountManager.get(mContext).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        Account[] accounts = mDelegateManager.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
         Timber.d(Arrays.toString(accounts));
         return accounts;
     }
@@ -184,12 +190,14 @@ public class JasperAccountManager {
             @Override
             public void call(Subscriber<? super Account> subscriber) {
                 try {
-                    AccountManager accountManager = AccountManager.get(mContext);
                     Account account = new Account(serverData.getAlias(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
-                            accountManager.addAccountExplicitly(account,
-                                    serverData.getPassword(), null);
+
+                    String encrypted = encryptPassword(serverData.getPassword());
+                    mDelegateManager.addAccountExplicitly(account,
+                            encrypted, null);
                     setUserData(account, serverData);
+                    
                     if (!subscriber.isUnsubscribed()) {
                         subscriber.onNext(account);
                         subscriber.onCompleted();
@@ -209,14 +217,12 @@ public class JasperAccountManager {
     }
 
     public void invalidateActiveToken() {
-        AccountManager accountManager = AccountManager.get(mContext);
-        String tokenToInvalidate = accountManager.peekAuthToken(getActiveAccount(), JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        String tokenToInvalidate = mDelegateManager.peekAuthToken(getActiveAccount(), JasperSettings.JASPER_AUTH_TOKEN_TYPE);
         invalidateToken(tokenToInvalidate);
     }
 
     public void invalidateToken(String token) {
-        AccountManager accountManager = AccountManager.get(mContext);
-        accountManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
+        mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
     }
 
     //---------------------------------------------------------------------
@@ -233,10 +239,9 @@ public class JasperAccountManager {
         if (account == null)
             throw new TokenException("No accounts", TokenException.NO_ACCOUNTS_ERROR);
 
-        AccountManager accountManager = AccountManager.get(mContext);
         Bundle tokenOutput;
         try {
-            AccountManagerFuture<Bundle> future = accountManager.getAuthToken(account,
+            AccountManagerFuture<Bundle> future = mDelegateManager.getAuthToken(account,
                     JasperSettings.JASPER_AUTH_TOKEN_TYPE, null, false, null, null);
             tokenOutput = future.getResult();
         } catch (Exception ex) {
@@ -287,6 +292,16 @@ public class JasperAccountManager {
         accountManager.setUserData(account, AccountServerData.USERNAME_KEY, serverData.getUsername());
         accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverData.getEdition());
         accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverData.getVersionName());
+    }
+
+    private String encryptPassword(String newPassword) {
+        String salt = mContext.getResources().getString(R.string.password_salt_key);
+        PasswordManager passwordManager = PasswordManager.init(mContext, salt);
+        return passwordManager.encrypt(newPassword);
+    }
+
+    public String getPassword(Account account) {
+        return mDelegateManager.getPassword(account);
     }
 
     //---------------------------------------------------------------------

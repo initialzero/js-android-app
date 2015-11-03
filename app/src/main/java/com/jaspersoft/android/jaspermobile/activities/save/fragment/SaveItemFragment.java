@@ -2,23 +2,23 @@
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
  * the following license terms apply:
  *
- * This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -157,14 +157,14 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         if (isReportNameValid()) {
             final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
             String reportName = reportNameInput.getText() + "." + outputFormat;
-            File reportDir = getReportDir(reportName);
+            File reportDir = getAccountReportDir(reportName);
 
             if (reportDir == null) {
                 Toast.makeText(getActivity(), R.string.sr_failed_to_create_local_repo, Toast.LENGTH_SHORT).show();
             } else {
                 reportFile = new File(reportDir, reportName);
 
-                if (reportFile.exists()) {
+                if (reportFile.exists() || getSharedReportDir(reportName).exists()) {
                     // show validation message
                     reportNameInput.setError(getString(R.string.sr_error_report_exists));
                 } else {
@@ -302,7 +302,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     }
 
     @Nullable
-    private File getReportDir(String reportName) {
+    private File getAccountReportDir(String reportName) {
         File appFilesDir = getActivity().getExternalFilesDir(null);
         File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
         Account account = accountManager.getActiveAccount();
@@ -319,6 +319,13 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         } else {
             return null;
         }
+    }
+
+    private File getSharedReportDir(String reportName) {
+        File appFilesDir = getActivity().getExternalFilesDir(null);
+        File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
+        File accountReportDir = new File(savedReportsDir, JasperMobileApplication.SHARED_DIR);
+        return new File(accountReportDir, reportName);
     }
 
     private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {

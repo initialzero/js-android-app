@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.util;
@@ -27,10 +27,13 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
+import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
@@ -99,14 +102,20 @@ public class ResourceOpener {
                         .resourceUri(resource.getUri())
                         .prefTag(preftag)
                         .build();
-        fragment.getFragmentManager().beginTransaction()
+        FragmentTransaction transaction = fragment.getFragmentManager().beginTransaction();
+        RepositorySearchFragment searchControllerFragment =
+                RepositorySearchFragment_.builder()
+                        .build();
+        transaction
+                .replace(R.id.search_controller, searchControllerFragment)
                 .addToBackStack(resource.getUri())
                 .replace(R.id.resource_controller, newControllerFragment)
                 .commit();
     }
 
     private void runReport(final ResourceLookup resource) {
-        if (isCeJrs || serverRelease.code() < ServerRelease.AMBER.code()) {
+        boolean isRestEngine = serverRelease.code() < ServerRelease.AMBER.code();
+        if (isCeJrs || isRestEngine) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
         } else {
@@ -116,11 +125,24 @@ public class ResourceOpener {
     }
 
     private void runDashboard(ResourceLookup resource) {
-        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard || serverRelease.code() < ServerRelease.AMBER.code()) {
+        double code = serverRelease.code();
+        boolean isLegacyDashboard = (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard);
+
+        boolean isLegacyEngine = code < ServerRelease.AMBER.code();
+        boolean isFlowEngine = code >= ServerRelease.AMBER.code() && code < ServerRelease.AMBER_MR2.code();
+        boolean isVisualizeEngine = code >= ServerRelease.AMBER_MR2.code();
+
+        if (isLegacyDashboard || isLegacyEngine) {
             LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
-        } else if (serverRelease.code() == ServerRelease.AMBER_MR1.code()) {
+            return;
+        }
+
+        if (isFlowEngine) {
             AmberDashboardActivity_.intent(activity).resource(resource).start();
-        } else {
+            return;
+        }
+
+        if (isVisualizeEngine) {
             Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
     }

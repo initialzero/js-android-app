@@ -277,6 +277,5 @@
     <string name="recent_card_label">Zuletzt angesehen</string>
     <string name="cancel">Abbrechen</string>
     <string name="ok">OK</string>
-    <string name="sa_about_info" translatable="false"></string>
 
 </resources>

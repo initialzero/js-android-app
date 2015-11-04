@@ -82,12 +82,10 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">バージョン情報</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>JasperReports® Server 5.5以上向けの管理ツールおよびレポートビューア<br><br>詳細について：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>個人情報保護方針について：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">個人情報保護方針</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">レポートの実行</string>
-    <string name="ro_page_title">フィルターオプション</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">レポートの保存</string>

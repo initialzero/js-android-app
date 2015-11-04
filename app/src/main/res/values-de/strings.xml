@@ -78,12 +78,10 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">Info</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Management-Tool und Report-Viewer für JasperReports® Server 5.5 oder höher.<br><br>Für weitere Informationen besuchen Sie:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>Informationen zu Datenschutzbestimmungen finden Sie unter:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Datenschutzerklärung</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Bericht ausführen</string>
-    <string name="ro_page_title">Filteroptionen</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Bericht speichern</string>
@@ -279,5 +277,6 @@
     <string name="recent_card_label">Zuletzt angesehen</string>
     <string name="cancel">Abbrechen</string>
     <string name="ok">OK</string>
+    <string name="sa_about_info" translatable="false"></string>
 
 </resources>

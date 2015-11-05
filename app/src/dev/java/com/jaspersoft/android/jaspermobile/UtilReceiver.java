@@ -36,7 +36,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.lang.reflect.Type;
 import java.util.List;

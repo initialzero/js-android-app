@@ -31,7 +31,7 @@ import android.support.v4.app.FragmentActivity;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -47,7 +47,7 @@ import java.util.List;
 @EBean
 public class RecentlyViewedResourceFilter extends ResourceFilter {
 
-    private ServerRelease serverRelease;
+    private ServerVersion serverVersion;
 
     @RootContext
     protected FragmentActivity activity;
@@ -70,7 +70,7 @@ public class RecentlyViewedResourceFilter extends ResourceFilter {
     protected void initFilter() {
         Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(activity, account);
-        this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+        this.serverVersion = ServerVersion.defaultParser().parse(accountServerData.getVersionName());
     }
 
     @Override
@@ -100,7 +100,7 @@ public class RecentlyViewedResourceFilter extends ResourceFilter {
     private Filter getFilterAll() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
-        filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.dashboard(serverVersion));
 
         return new Filter(RecentlyViewedFilterCategory.all.name(), filterValues);
     }

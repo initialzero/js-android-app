@@ -29,7 +29,7 @@ import android.accounts.AccountManager;
 import android.provider.Settings;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.junit.Before;
 import org.junit.Test;

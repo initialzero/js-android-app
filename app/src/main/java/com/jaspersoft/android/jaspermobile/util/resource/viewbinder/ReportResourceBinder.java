@@ -35,8 +35,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -59,8 +59,8 @@ class ReportResourceBinder extends ResourceBinder {
 
         Account account = JasperAccountManager.get(context).getActiveAccount();
         AccountServerData serverData = AccountServerData.get(context, account);
-        ServerRelease serverRelease = ServerRelease.parseVersion(serverData.getVersionName());
-        isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
+        ServerVersion serverVersion = ServerVersion.defaultParser().parse(serverData.getVersionName());
+        isAmberOrHigher = serverVersion.getVersionCode() >= ServerVersion.AMBER.getVersionCode();
     }
 
     @Override

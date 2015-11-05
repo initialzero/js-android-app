@@ -27,12 +27,12 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.script;
 import android.accounts.Account;
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
@@ -58,23 +58,17 @@ public class ScriptTagFactory {
         Account account = JasperAccountManager.get(mContext).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(mContext, account);
         String versionName = accountServerData.getVersionName();
-        ServerRelease serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+        ServerVersion serverVersion = ServerVersion.defaultParser().parse(accountServerData.getVersionName());
 
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-            case EMERALD_MR4:
-                return new EmeraldDashboardScriptTagCreator(token);
-            case AMBER:
-            case AMBER_MR1:
-                return new AmberDashboardScriptTagCreator(token);
-            case AMBER_MR2:
-            case AMBER_MR3:
-                return new Amber2DashboardScriptTagCreator(token);
-            default:
-                throw new UnsupportedOperationException("Could not script creator for current versionName: " + versionName);
+        if (serverVersion.getVersionCode() <= ServerVersion.EMERALD_MR4.getVersionCode()) {
+            return new EmeraldDashboardScriptTagCreator(token);
+        } else if (serverVersion.getVersionCode() >= ServerVersion.AMBER.getVersionCode() &&
+                serverVersion.getVersionCode() <= ServerVersion.AMBER_MR1.getVersionCode()) {
+            return new AmberDashboardScriptTagCreator(token);
+        } else if (serverVersion.getVersionCode() >= ServerVersion.AMBER_MR2.getVersionCode()) {
+            return new Amber2DashboardScriptTagCreator(token);
+        } else {
+            throw new UnsupportedOperationException("Could not script creator for current versionName: " + versionName);
         }
-    }
+   }
 }

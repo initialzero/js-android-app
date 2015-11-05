@@ -29,8 +29,8 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
@@ -61,27 +61,17 @@ public final class WebFlowFactory {
      */
     public WebFlowStrategy createFlow(String versionName, ResourceLookup resource) {
         WebFlow webFlow;
-        ServerRelease serverRelease = ServerRelease.parseVersion(versionName);
+        ServerVersion serverVersion = ServerVersion.defaultParser().parse(versionName);
 
         if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
             webFlow = new EmeraldWebFlow();
         } else {
-            switch (serverRelease) {
-                case EMERALD:
-                case EMERALD_MR1:
-                case EMERALD_MR2:
-                case EMERALD_MR3:
-                case EMERALD_MR4:
-                    webFlow = new EmeraldWebFlow();
-                    break;
-                case AMBER:
-                case AMBER_MR1:
-                case AMBER_MR2:
-                case AMBER_MR3:
-                    webFlow = new AmberWebFlow();
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);
+            if (serverVersion.getVersionCode() <= ServerVersion.EMERALD_MR4.getVersionCode()) {
+                webFlow = new EmeraldWebFlow();
+            } else if (serverVersion.getVersionCode() >= ServerVersion.AMBER.getVersionCode()) {
+                webFlow = new AmberWebFlow();
+            } else {
+                throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);
             }
         }
 

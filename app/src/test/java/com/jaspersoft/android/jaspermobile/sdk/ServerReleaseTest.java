@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.sdk;
 
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.retrofit.sdk.server.ServerVersion;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,19 +43,19 @@ import static org.hamcrest.core.Is.is;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class ServerReleaseTest {
+public class ServerVersionTest {
     @Test
     public void shouldParseSemanticVersioning() {
-        Map<String, ServerRelease> doubleMap = new HashMap<String, ServerRelease>();
-        doubleMap.put("5.0.0", ServerRelease.EMERALD);
-        doubleMap.put("5.2.0", ServerRelease.EMERALD_MR1);
-        doubleMap.put("5.5.0", ServerRelease.EMERALD_MR2);
-        doubleMap.put("5.6.0", ServerRelease.EMERALD_MR3);
-        doubleMap.put("6.0", ServerRelease.AMBER);
-        doubleMap.put("20.0", ServerRelease.UNKNOWN);
+        Map<String, ServerVersion> doubleMap = new HashMap<String, ServerVersion>();
+        doubleMap.put("5.0.0", ServerVersion.EMERALD);
+        doubleMap.put("5.2.0", ServerVersion.EMERALD_MR1);
+        doubleMap.put("5.5.0", ServerVersion.EMERALD_MR2);
+        doubleMap.put("5.6.0", ServerVersion.EMERALD_MR3);
+        doubleMap.put("6.0", ServerVersion.AMBER);
+        doubleMap.put("20.0", ServerVersion.UNKNOWN);
 
-        for (Map.Entry<String, ServerRelease> entry : doubleMap.entrySet()) {
-            assertThat(ServerRelease.parseVersion(entry.getKey()), is(entry.getValue())) ;
+        for (Map.Entry<String, ServerVersion> entry : doubleMap.entrySet()) {
+            assertThat(ServerVersion.parseVersion(entry.getKey()), is(entry.getValue())) ;
         }
     }
 
@@ -63,7 +63,7 @@ public class ServerReleaseTest {
     public void shouldParseNonSemanticVersioning() {
         String[] nonSemanticOne = {"5.6.0 Preview", "5.6.0-BETA"};
         for (String nonSemanticVersion : nonSemanticOne) {
-            assertThat(ServerRelease.parseVersion(nonSemanticVersion), is(ServerRelease.EMERALD_MR3));
+            assertThat(ServerVersion.parseVersion(nonSemanticVersion), is(ServerVersion.EMERALD_MR3));
         }
     }
 }

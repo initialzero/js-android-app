@@ -25,16 +25,19 @@
 buildscript {
     repositories {
         maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://raw.github.com/xujiaao/mvn-repository/master/releases' }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
         classpath 'io.fabric.tools:gradle:1.19.2'
+        classpath 'com.github.xujiaao:aarLinkSources:1.0.0'
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
+apply plugin: 'aar-link-sources'
 apply plugin: 'io.fabric'
 apply from: 'build_utils.gradle'
 apply from: 'resources.gradle'
@@ -157,7 +160,8 @@ android {
 
     dependencies {
         provided project(':database-generator')
-        compile project(':sdk')
+
+        compile 'com.jakewharton.timber:timber:2.5.0'
 
         compile 'org.roboguice:roboguice:3.0.1'
         provided 'org.roboguice:roboblender:3.0.1'
@@ -181,15 +185,27 @@ android {
             transitive = true;
         }
 
-        // Remove gradle dependency
-        // When all required testing for JRS will be completed
-        compile 'com.google.code.gson:gson:2.3'
-
         // Dependency for image loading management
         compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
 
         // Template rendering
         compile 'com.samskivert:jmustache:1.10'
+
+        compile("com.jaspersoft.android.sdk:js-android-sdk-core:2.0-SNAPSHOT")
+        compile 'commons-io:commons-io:2.4'
+        compile('org.simpleframework:simple-xml:2.7') {
+            exclude group: 'stax'
+            exclude group: 'xpp3'
+        }
+        compile('com.octo.android.robospice:robospice-spring-android:1.4.14') {
+            exclude group: 'org.apache.commons', module: 'commons-io'
+        }
+        compile("com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}") {
+            transitive = false
+        }
+        aarLinkSources "com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}:sources@jar"
+
+        compile 'io.reactivex:rxandroid:0.24.0'
 
         // Unit tests dependencies
         testCompile 'junit:junit:4.12'
@@ -197,7 +213,6 @@ android {
         testCompile('pl.pragmatists:JUnitParams:1.0.4') {
             exclude group: 'org.hamcrest'
         }
-        testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
         testCompile 'org.mockito:mockito-core:1.9.5'
         testCompile('org.robolectric:shadows-support-v4:3.0') {
             exclude group: 'commons-logging', module: 'commons-logging'

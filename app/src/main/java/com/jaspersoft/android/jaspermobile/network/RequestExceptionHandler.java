@@ -44,7 +44,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.net.UnknownHostException;
 
-import retrofit.RetrofitError;
 
 /**
  * @author Ivan Gadzhega
@@ -102,8 +101,6 @@ public class RequestExceptionHandler {
             }else if (tokenCause instanceof UnknownHostException) {
                 return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
             }
-        } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
-            return ((RetrofitError) exception).getResponse().getStatus();
         } else if (exception instanceof JasperAccountManager.TokenException) {
             return ((JasperAccountManager.TokenException) exception).getErrorCode();
         }

@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
-    http://community.jaspersoft.com/project/jaspermobile-android
+  ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+  ~ http://community.jaspersoft.com/project/jaspermobile-android
+  ~
+  ~ Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+  ~ the following license terms apply:
+  ~
+  ~ This program is part of TIBCO Jaspersoft Mobile for Android.
+  ~
+  ~ TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with TIBCO Jaspersoft Mobile for Android. If not, see
+  ~ <http://www.gnu.org/licenses/lgpl>.
+  -->
 
-    Unless you have purchased a commercial license agreement from Jaspersoft,
-    the following license terms apply:
-
-    This program is part of Jaspersoft Mobile for Android.
-
-    Jaspersoft Mobile is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Jaspersoft Mobile is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with Jaspersoft Mobile for Android. If not, see
-    <http://www.gnu.org/licenses/lgpl>.
--->
 <resources>
     <!-- Images content description -->
     <string name="img_cd_list_item">列表项预览</string>
@@ -47,9 +48,6 @@
     <string name="sp_error_field_required">此字段是必填字段。</string>
     <string name="sp_error_url_not_valid">URL 无效。</string>
     <string name="sp_error_duplicate_alias">重复别名。</string>
-
-    <!-- Repository Activity -->
-    <string name="r_browser_nothing_to_display">此文件夹中没有资源。</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">切换视图</string>
@@ -84,12 +82,10 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">关于</string>
-    <string name="sa_about_info"><![CDATA[TIBCO JasperMobile™ V%s<br><br>JasperReports Server 5.5及以上版本的管理工具和报告查看器。<br><br>欲了解更多信息，请访问：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>欲查看隐私政策信息，请访问：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>©2005-2015 TIBCO Software, Inc.版权所有]]></string>
     <string name="sa_about_privacy">隐私政策</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">运行报告</string>
-    <string name="ro_page_title">筛选选项</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">保存报告</string>
@@ -175,7 +171,7 @@
     <string name="rv_error_empty_report_title">报告为空</string>
     <string name="h_rd_later">稍后提醒我</string>
     <string name="h_rd_never">不，谢谢</string>
-    <string name="h_rd_rate">给TIBCO JasperMobile评分</string>
+    <string name="h_rd_rate">给TIBCO® JasperMobile™评分</string>
 
     <!-- Navigation Drawer -->
     <string name="nd_drawer_open">打开</string>
@@ -188,7 +184,7 @@
     <string name="h_ad_label_wrong_password">用户名或密码不正确。重新输入。</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">如果您喜欢使用TIBCO JasperMobile，请花点时间来评价一下。评价过程不会超过一分钟。感谢您的支持！</string>
+    <string name="h_rd_description">如果您喜欢使用TIBCO® JasperMobile™，请花点时间来评价一下。评价过程不会超过一分钟。感谢您的支持！</string>
 
     <!-- Error messages -->
     <string name="sp_error_reserved_alias">别名保留。</string>

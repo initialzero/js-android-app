@@ -134,6 +134,7 @@
     <string name="rv_out_of_range">The requested page is out of range.</string>
     <string name="rv_dialog_reload">Reload</string>
     <string name="rv_open_link_chooser">Open link in</string>
+    <string name="rv_webview_still_loading" translatable="false">Its taking too much time to load. Please, wait or try again later.</string>
 
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">The external memory card is not available. Please insert the card and try again.</string>

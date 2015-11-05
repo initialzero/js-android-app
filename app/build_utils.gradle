@@ -254,21 +254,6 @@ String generateApkName(String versionName) {
     return "${baseAppName}-${versionName}"
 }
 
-void updateVersionNumberInFile(currentAppVersion, revision) {
-    Properties appVersion = new Properties()
-    appVersion['major'] = currentAppVersion['major']
-    appVersion['minor'] = currentAppVersion['minor']
-    appVersion['patch'] = currentAppVersion['patch']
-    appVersion['revision'] = revision.toString()
-
-    def stream = new FileOutputStream(versionFile)
-    try {
-        appVersion.store(stream, null)
-    } finally {
-        if (stream != null) stream.close()
-    }
-}
-
 void renameApk(flavor, String apkName, String versionNumber) {
     def outputs = flavor.outputs
 

@@ -28,6 +28,7 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import timber.log.Timber;
 
@@ -45,6 +46,7 @@ abstract class ResourceBinder {
     }
 
     public void bindView(ResourceView resourceView, ResourceLookup item) {
+        ImageLoader.getInstance().cancelDisplayTask(resourceView.getImageView());
         setIcon(resourceView.getImageView(), item.getUri());
         resourceView.setTitle(item.getLabel());
         resourceView.setSubTitle(item.getDescription());

@@ -45,7 +45,7 @@ subprojects {
     ext.androidCompileSdkVersion = 23;
     ext.androidTargetSdkVersion = 21;
 
-    ext.jasperSdkVersion = '1.11-SNAPSHOT';
+    ext.jasperSdkVersion = '1.12-SNAPSHOT';
 
     repositories {
         // Local .m2 repo, usually living at home dir

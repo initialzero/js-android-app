@@ -28,6 +28,9 @@ import android.app.Application;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
+import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerAppComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -50,6 +53,8 @@ import timber.log.Timber;
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
     public static final String SHARED_DIR = "com.jaspersoft.account.none";
+
+    private AppComponent mComponent;
 
     @Inject
     AppConfigurator appConfigurator;
@@ -105,5 +110,27 @@ public class JasperMobileApplication extends Application {
         ImageLoader.getInstance().init(config);
         // Ignoring all log from UIL
         L.writeLogs(false);
+    }
+
+    public AppComponent getComponent() {
+        if (mComponent == null) {
+            synchronized (JasperMobileApplication.class) {
+                if (mComponent == null) {
+                    mComponent = createDefaultComponent();
+                }
+            }
+        }
+
+        return mComponent;
+    }
+
+    public void setComponent(AppComponent component) {
+        mComponent = component;
+    }
+
+    private AppComponent createDefaultComponent() {
+        return DaggerAppComponent.builder()
+                .appModule(new AppModule(this))
+                .build();
     }
 }

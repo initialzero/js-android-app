@@ -25,9 +25,9 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
-import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
 /**
  * @author Tom Koptel
@@ -40,9 +40,9 @@ class UnknownResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(ImageView imageView, String uri) {
+    public void setIcon(TopCropImageView imageView, String uri) {
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
         imageView.setImageResource(R.drawable.ic_undefined);
     }
 

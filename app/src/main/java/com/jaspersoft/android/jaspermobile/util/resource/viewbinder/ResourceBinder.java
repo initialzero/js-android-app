@@ -25,10 +25,9 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
-import android.widget.ImageView;
 
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import timber.log.Timber;
 
@@ -46,15 +45,18 @@ abstract class ResourceBinder {
     }
 
     public void bindView(ResourceView resourceView, ResourceLookup item) {
-        ImageLoader.getInstance().cancelDisplayTask(resourceView.getImageView());
         setIcon(resourceView.getImageView(), item.getUri());
         resourceView.setTitle(item.getLabel());
         resourceView.setSubTitle(item.getDescription());
+    }
+
+    public void unbindView(){
+
     }
 
     public Context getContext() {
         return mContext;
     }
 
-    public abstract void setIcon(ImageView imageView, String uri);
+    public abstract void setIcon(TopCropImageView imageView, String uri);
 }

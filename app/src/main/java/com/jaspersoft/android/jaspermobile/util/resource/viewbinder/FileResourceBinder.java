@@ -8,6 +8,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetFileResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
@@ -25,6 +26,7 @@ public class FileResourceBinder extends ResourceBinder {
     private final SpiceManager mSpiceManager;
     @Inject
     protected JsRestClient jsRestClient;
+    private GetFileResourceRequest mFileResourceRequest;
 
     public FileResourceBinder(Context context) {
         super(context);
@@ -33,17 +35,24 @@ public class FileResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(ImageView imageView, String uri) {
+    public void setIcon(TopCropImageView imageView, String uri) {
+        imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imageView.setImageResource(R.drawable.ic_file);
         loadFileType(imageView, uri);
     }
 
+    @Override
+    public void unbindView() {
+        if (mFileResourceRequest != null) {
+            mFileResourceRequest.cancel();
+        }
+    }
+
     private void loadFileType(final ImageView imageView, String uri) {
-        GetFileResourceRequest fileResourceRequest = new GetFileResourceRequest(jsRestClient, uri);
+        mFileResourceRequest = new GetFileResourceRequest(jsRestClient, uri);
         long cacheExpiryDuration = DefaultPrefHelper_.getInstance_(getContext()).getRepoCacheExpirationValue();
-        mSpiceManager.execute(fileResourceRequest, fileResourceRequest.createCacheKey(), cacheExpiryDuration, new SimpleRequestListener<FileLookup>() {
+        mSpiceManager.execute(mFileResourceRequest, mFileResourceRequest.createCacheKey(), cacheExpiryDuration, new SimpleRequestListener<FileLookup>() {
             @Override
             protected Context getContext() {
                 return FileResourceBinder.this.getContext();
@@ -58,20 +67,39 @@ public class FileResourceBinder extends ResourceBinder {
             public void onRequestSuccess(FileLookup fileLookup) {
                 int resId;
                 switch (fileLookup.getFileType()) {
-                    case pdf:
-                        resId = R.drawable.ic_saved_pdf;
+                    case csv:
+                        resId = R.drawable.ic_file_csv;
                         break;
-                    case xls:
-                        resId = R.drawable.ic_saved_xls;
+                    case docx:
+                        resId = R.drawable.ic_file_doc;
                         break;
                     case html:
-                        resId = R.drawable.ic_saved_html;
+                        resId = R.drawable.ic_file_html;
                         break;
                     case img:
-                        resId = R.drawable.ic_img;
+                        resId = R.drawable.ic_file_img;
                         break;
-                    default :
-                        resId = R.drawable.ic_undefined;
+                    case json:
+                        resId = R.drawable.ic_file_json;
+                        break;
+                    case ods:
+                        resId = R.drawable.ic_file_ods;
+                        break;
+                    case odt:
+                        resId = R.drawable.ic_file_odt;
+                        break;
+                    case pdf:
+                        resId = R.drawable.ic_file_pdf;
+                        break;
+                    case pptx:
+                        resId = R.drawable.ic_file_pptx;
+                        break;
+                    case xls:
+                    case xlsx:
+                        resId = R.drawable.ic_file_xls;
+                        break;
+                    default:
+                        resId = R.drawable.ic_file;
                         break;
                 }
                 imageView.setImageResource(resId);

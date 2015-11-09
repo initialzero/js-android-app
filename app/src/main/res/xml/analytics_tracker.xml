@@ -95,7 +95,7 @@
         Privacy Policy screen
     </screenName>
 
-    <screenName name="com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity">
+    <screenName name="com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity">
         Add account screen
     </screenName>
 </resources>

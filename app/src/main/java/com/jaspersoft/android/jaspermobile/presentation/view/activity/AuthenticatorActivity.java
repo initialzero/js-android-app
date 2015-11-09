@@ -22,23 +22,20 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.auth;
+package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
 
-import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
-
-import roboguice.activity.RoboFragmentActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment_;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class AuthenticatorActivity extends RoboFragmentActivity {
-    private ActivitySecureDelegate mActivitySecureDelegate;
+public class AuthenticatorActivity extends BaseActivity {
 
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
@@ -62,12 +59,8 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mActivitySecureDelegate = ActivitySecureDelegate.create(this);
-
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-
-        mActivitySecureDelegate.onCreate(savedInstanceState);
 
         mAccountAuthenticatorResponse =
                 getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
@@ -77,10 +70,14 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, AuthenticatorFragment_.builder().build())
-                    .commit();
+            injectAuthView();
         }
+    }
+
+    private void injectAuthView() {
+        getSupportFragmentManager().beginTransaction()
+                .add(android.R.id.content, AuthenticatorFragment_.builder().build())
+                .commit();
     }
 
     /**

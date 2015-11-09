@@ -210,6 +210,8 @@ android {
 
         compile 'io.reactivex:rxandroid:0.24.0'
 
+        // hashcode & equality verifier
+        testCompile 'nl.jqno.equalsverifier:equalsverifier:1.7.5'
         // Unit tests dependencies
         testCompile 'junit:junit:4.12'
         // JunitParams

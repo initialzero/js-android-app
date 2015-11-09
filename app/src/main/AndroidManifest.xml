@@ -134,6 +134,9 @@
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity
+            android:name=".activities.file.FileViewerActivity_"/>
+
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"

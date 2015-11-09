@@ -30,6 +30,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
@@ -90,6 +91,8 @@ public class ResourceOpener {
             case dashboard:
                 runDashboard(resource);
                 break;
+            case file:
+                showFile(resource);
             default:
                 break;
         }
@@ -145,5 +148,9 @@ public class ResourceOpener {
         if (isVisualizeEngine) {
             Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
+    }
+
+    public void showFile(ResourceLookup resource){
+        FileViewerActivity_.intent(activity).resourceLookup(resource).start();
     }
 }

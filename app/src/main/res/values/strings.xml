@@ -91,6 +91,12 @@
     <string name="s_ab_filter_by">Filter by</string>
     <string name="s_ab_sort_by">Sort by</string>
 
+    <!-- File viewing -->
+    <string name="fv_can_not_open_btn">Try again</string>
+    <string name="fv_can_not_open_message">Can not open this file. Please download appropriate application and try again</string>
+    <string name="fv_can_open_btn">Open file</string>
+    <string name="fv_can_open_message">File can be download and viewed via 3-rd party app</string>
+
     <!-- Filter Dialog -->
     <string name="s_fd_option_all">All</string>
     <string name="s_fd_option_reports">Reports</string>

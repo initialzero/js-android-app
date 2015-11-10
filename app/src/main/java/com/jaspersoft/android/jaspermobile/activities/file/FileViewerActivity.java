@@ -92,6 +92,9 @@ public class FileViewerActivity extends RoboSpiceActivity {
                 case html:
                     break;
                 case img:
+                    fileFragment = ImageOpenFragment_.builder()
+                            .imageUri(fileLookup.getUri())
+                            .build();
                     break;
                 case pdf:
                 case xls:

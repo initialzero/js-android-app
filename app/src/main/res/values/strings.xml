@@ -94,6 +94,7 @@
     <!-- File viewing -->
     <string name="fv_can_not_open_btn" translatable="false">Try again</string>
     <string name="fv_can_not_open_message" translatable="false">Can not open this file. Please download appropriate application and try again</string>
+    <string name="fv_can_not_show_image_message" translatable="false">Can not show image</string>
     <string name="fv_can_open_message" translatable="false">Opening file...</string>
 
     <!-- Filter Dialog -->

@@ -13,9 +13,10 @@
         android:gravity="center_horizontal"/>
 
     <Button
-        android:id="@+id/btnOpenFile"
+        android:id="@+id/btnTryToOpen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp" />
+        android:layout_marginTop="12dp"
+        android:text="@string/fv_can_not_open_btn"/>
 
 </LinearLayout>

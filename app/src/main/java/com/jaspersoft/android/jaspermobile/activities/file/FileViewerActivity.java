@@ -41,17 +41,22 @@ public class FileViewerActivity extends RoboSpiceActivity {
         showFileTitle();
         if (savedInstanceState == null) {
             getFileInfo();
-            ProgressDialogFragment.builder(getSupportFragmentManager())
-                    .setLoadingMessage(R.string.loading_msg)
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                             @Override
-                                             public void onCancel(DialogInterface dialog) {
-                                                 finish();
-                                             }
-                                         }
-                    )
-                    .show();
+            showProgressDialog();
         }
+    }
+
+    private void showProgressDialog() {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(
+                        new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                finish();
+                            }
+                        }
+                )
+                .show();
     }
 
     private void showFileTitle() {
@@ -64,48 +69,51 @@ public class FileViewerActivity extends RoboSpiceActivity {
     private void getFileInfo() {
         GetFileResourceRequest fileResourceRequest = new GetFileResourceRequest(jsRestClient, resourceLookup.getUri());
         long cacheExpiryDuration = DefaultPrefHelper_.getInstance_(this).getRepoCacheExpirationValue();
-        getSpiceManager().execute(fileResourceRequest, fileResourceRequest.createCacheKey(), cacheExpiryDuration, new SimpleRequestListener<FileLookup>() {
-            @Override
-            protected Context getContext() {
-                return FileViewerActivity.this;
-            }
+        getSpiceManager().execute(fileResourceRequest, fileResourceRequest.createCacheKey(), cacheExpiryDuration, new FileInfoListener());
+    }
 
-            @Override
-            public void onRequestFailure(SpiceException spiceException) {
-                super.onRequestFailure(spiceException);
-                finish();
-            }
+    private class FileInfoListener extends SimpleRequestListener<FileLookup> {
+        @Override
+        protected Context getContext() {
+            return FileViewerActivity.this;
+        }
 
-            @Override
-            public void onRequestSuccess(FileLookup fileLookup) {
-                ProgressDialogFragment.dismiss(getSupportFragmentManager());
-                Fragment fileFragment = null;
-                switch (fileLookup.getFileType()) {
-                    case html:
-                        break;
-                    case img:
-                    case pdf:
-                    case xls:
-                    case xlsx:
-                    case docx:
-                    case ods:
-                    case odt:
-                    case pptx:
-                    case rtf:
-                        fileFragment = FileOpenFragment_.builder()
-                                .fileType(fileLookup.getFileType())
-                                .fileUri(fileLookup.getUri())
-                                .build();
-                        break;
-                    default:
-                        break;
-                }
-                if (fileFragment != null) {
-                    getSupportFragmentManager().beginTransaction()
-                            .add(R.id.main_frame, fileFragment)
-                            .commit();
-                }
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+            super.onRequestFailure(spiceException);
+            finish();
+        }
+
+        @Override
+        public void onRequestSuccess(FileLookup fileLookup) {
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+            Fragment fileFragment = null;
+            switch (fileLookup.getFileType()) {
+                case html:
+                    break;
+                case img:
+                    break;
+                case pdf:
+                case xls:
+                case xlsx:
+                case docx:
+                case ods:
+                case odt:
+                case pptx:
+                case rtf:
+                    fileFragment = FileOpenFragment_.builder()
+                            .fileType(fileLookup.getFileType())
+                            .fileUri(fileLookup.getUri())
+                            .build();
+                    break;
+                default:
+                    break;
             }
-        });
+            if (fileFragment != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.main_frame, fileFragment)
+                        .commit();
+            }
+        }
     }
 }

@@ -297,7 +297,11 @@ public class JasperAccountManager {
     private String encryptPassword(String newPassword) {
         String salt = mContext.getResources().getString(R.string.password_salt_key);
         PasswordManager passwordManager = PasswordManager.init(mContext, salt);
-        return passwordManager.encrypt(newPassword);
+        try {
+            return passwordManager.encrypt(newPassword);
+        } catch (PasswordManager.EncryptionError encryptionError) {
+            throw new RuntimeException(encryptionError);
+        }
     }
 
     public String getPassword(Account account) {

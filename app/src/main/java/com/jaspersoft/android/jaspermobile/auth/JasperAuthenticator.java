@@ -95,7 +95,11 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
 
         String password = null;
         if (!TextUtils.isEmpty(encrypted)) {
-            password = mPasswordManager.decrypt(encrypted);
+            try {
+                password = mPasswordManager.decrypt(encrypted);
+            } catch (PasswordManager.DecryptionError decryptionError) {
+                password = null;
+            }
             Timber.d(String.format("Password for account[%s] : %s", account.name, password));
         }
 

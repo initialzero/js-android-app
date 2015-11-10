@@ -24,11 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Context;
+
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * @author Tom Koptel
@@ -36,12 +42,37 @@ import javax.inject.Inject;
  */
 @PerActivity
 public final class CredentialsCacheImpl implements CredentialsCache {
+    public static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
+    public static final String USERNAME_KEY = "USERNAME_KEY";
+
+    private final Context mContext;
+    private final PasswordManager mPasswordManger;
+    private final String mAccountType;
+
     @Inject
-    public CredentialsCacheImpl() {
+    public CredentialsCacheImpl(Context context,
+                                PasswordManager passwordManager,
+                                @Named("accountType") String accountType) {
+        mContext = context;
+        mPasswordManger = passwordManager;
+        mAccountType = accountType;
     }
 
     @Override
     public boolean put(Profile profile, BaseCredentials credentials) {
-        return false;
+        AccountManager accountManager = AccountManager.get(mContext);
+        Account account = new Account(profile.getKey(), mAccountType);
+
+        try {
+            String encryptedPassword = mPasswordManger.encrypt(credentials.getPassword());
+            accountManager.setPassword(account, encryptedPassword);
+        } catch (PasswordManager.EncryptionError encryptionError) {
+            return false;
+        }
+
+        accountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
+        accountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
+
+        return true;
     }
 }

@@ -55,19 +55,19 @@ public class PasswordManagerTest {
     }
 
     @Test
-    public void shouldEncryptPassword() {
+    public void shouldEncryptPassword() throws Exception {
         String encrypted = passwordManager.encrypt("1234");
         assertThat(encrypted, is(notNullValue()));
     }
 
     @Test
-    public void shouldDecryptPassword() {
+    public void shouldDecryptPassword() throws Exception {
         String decrypted = passwordManager.decrypt("eUu9sU6Ah6c=");
         assertThat(decrypted, is("1234"));
     }
 
     @Test
-    public void shouldReturnNullIfErrorEncountered() {
+    public void shouldReturnNullIfErrorEncountered() throws Exception {
         PasswordManager passwordManager2 = PasswordManager.init(RuntimeEnvironment.application, "secret2");
         String encrypted = passwordManager.encrypt("1234");
         String decrypted = passwordManager2.decrypt(encrypted);

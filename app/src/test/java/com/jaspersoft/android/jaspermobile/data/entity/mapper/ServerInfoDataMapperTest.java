@@ -22,9 +22,9 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.entity.mapper;
+package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 
-import com.jaspersoft.android.jaspermobile.data.server.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
 import com.jaspersoft.android.sdk.service.data.server.ServerEdition;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;

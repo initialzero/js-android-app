@@ -22,14 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.validator;
+package com.jaspersoft.android.jaspermobile.data.validator;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.data.Profile;
-import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidator;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 
 import java.util.Arrays;
 import java.util.HashSet;

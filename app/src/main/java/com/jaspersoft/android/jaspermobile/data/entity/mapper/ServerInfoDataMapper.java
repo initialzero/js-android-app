@@ -22,50 +22,31 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data;
+package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 
 import android.support.annotation.NonNull;
+
+import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
+import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public final class Profile {
-    private final String key;
-
-    private Profile(String key) {
-        this.key = key;
-    }
+@Singleton
+public class ServerInfoDataMapper {
+    @Inject
+    public ServerInfoDataMapper() {}
 
     @NonNull
-    public String getKey() {
-        return key;
-    }
-
-    @NonNull
-    public static Profile create(String key){
-        return new Profile(key);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Profile profile = (Profile) o;
-
-        return !(key != null ? !key.equals(profile.key) : profile.key != null);
-    }
-
-    @Override
-    public int hashCode() {
-        return key != null ? key.hashCode() : 0;
-    }
-
-    @Override
-    public String toString() {
-        return "Profile{" +
-                "key='" + key + '\'' +
-                '}';
+    public JasperServer transform(String baseUrl, ServerInfo serverInfo) {
+        JasperServer.Builder builder = JasperServer.builder();
+        builder.setBaseUrl(baseUrl);
+        builder.setEdition(serverInfo.getEdition().name());
+        builder.setVersion(serverInfo.getVersion().getVersionCode());
+        return builder.create();
     }
 }

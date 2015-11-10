@@ -22,9 +22,9 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.validator;
+package com.jaspersoft.android.jaspermobile.data.validator;
 
-import com.jaspersoft.android.jaspermobile.data.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
 import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 

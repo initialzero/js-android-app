@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.data;
+package com.jaspersoft.android.jaspermobile.domain;
 
 import org.junit.Test;
 

@@ -22,12 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.server;
+package com.jaspersoft.android.jaspermobile.domain.validator;
+
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface JasperServerFactory {
-    JasperServer create(String baseUrl);
+public interface CredentialsValidator {
+    boolean validate(BaseCredentials credentials);
 }

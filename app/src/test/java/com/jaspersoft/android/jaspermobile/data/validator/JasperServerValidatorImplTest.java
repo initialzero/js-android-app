@@ -22,19 +22,44 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.server;
+package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
+
+import org.junit.Before;
 import org.junit.Test;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class JasperServerTest {
+public class JasperServerValidatorImplTest {
+
+    JasperServerValidatorImpl validator;
+
+    @Before
+    public void setUp() throws Exception {
+        validator = new JasperServerValidatorImpl();
+    }
+
     @Test
-    public void equalsContract() {
-        EqualsVerifier.forClass(JasperServer.class).verify();
+    public void serverThatIsEquals5_5IsValid() throws Exception {
+        boolean isValid = validator.validate(JasperServer.builder().setVersion(5.5d).create());
+        assertThat(isValid, is(true));
+    }
+
+    @Test
+    public void serverThatIsHigherThan5_5IsValid() throws Exception {
+        boolean isValid = validator.validate(JasperServer.builder().setVersion(6.0d).create());
+        assertThat(isValid, is(true));
+    }
+
+    @Test
+    public void serverThatIsEquals5_0IsNotValid() throws Exception {
+        boolean isValid = validator.validate(JasperServer.builder().setVersion(5.0d).create());
+        assertThat(isValid, is(false));
     }
 }

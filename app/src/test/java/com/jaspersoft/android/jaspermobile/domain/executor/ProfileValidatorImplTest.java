@@ -27,8 +27,8 @@ package com.jaspersoft.android.jaspermobile.domain.executor;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 
-import com.jaspersoft.android.jaspermobile.data.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidatorImpl;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.junit.Before;

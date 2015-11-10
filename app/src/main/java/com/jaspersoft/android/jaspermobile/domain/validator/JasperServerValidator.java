@@ -24,24 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.domain.validator;
 
-import com.jaspersoft.android.jaspermobile.data.server.JasperServer;
-import com.jaspersoft.android.jaspermobile.data.validator.JasperServerValidator;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
-public final class JasperServerValidatorImpl implements JasperServerValidator {
-    @Inject
-    public JasperServerValidatorImpl() {}
-
-    @Override
-    public boolean validate(JasperServer instance) {
-        double version = instance.getVersion();
-        return version >= 5.5d;
-    }
+public interface JasperServerValidator {
+    boolean validate(JasperServer instance);
 }

@@ -22,14 +22,50 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.validator;
+package com.jaspersoft.android.jaspermobile.domain;
 
-import com.jaspersoft.android.jaspermobile.data.BaseCredentials;
+import android.support.annotation.NonNull;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface CredentialsValidator {
-    boolean validate(BaseCredentials credentials);
+public final class Profile {
+    private final String key;
+
+    private Profile(String key) {
+        this.key = key;
+    }
+
+    @NonNull
+    public String getKey() {
+        return key;
+    }
+
+    @NonNull
+    public static Profile create(String key){
+        return new Profile(key);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Profile profile = (Profile) o;
+
+        return !(key != null ? !key.equals(profile.key) : profile.key != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return key != null ? key.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Profile{" +
+                "key='" + key + '\'' +
+                '}';
+    }
 }

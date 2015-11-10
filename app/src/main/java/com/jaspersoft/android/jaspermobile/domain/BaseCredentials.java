@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.data;
+package com.jaspersoft.android.jaspermobile.domain;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

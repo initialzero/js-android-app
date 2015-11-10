@@ -66,13 +66,12 @@ public class SpringCredentialsValidatorTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        validator = new SpringCredentialsValidator(mJrsAuthenticator);
-
         credentialsUnderTest = BaseCredentials.builder()
                 .setPassword("1234")
                 .setUsername("username")
                 .setOrganization("organization")
                 .create();
+        validator = new SpringCredentialsValidator(credentialsUnderTest, mJrsAuthenticator);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class SpringCredentialsValidatorTest {
                 .organization("organization")
                 .build();
 
-        validator.validate(credentialsUnderTest);
+        validator.validate();
         verify(mJrsAuthenticator).authenticate(credentials);
     }
 
@@ -93,14 +92,14 @@ public class SpringCredentialsValidatorTest {
         mException.expectMessage("Client has passed either invalid password or username/organization combination");
 
         mockRestException(401);
-        validator.validate(credentialsUnderTest);
+        validator.validate();
     }
 
     @Test
     public void shouldReThrowHttpException() throws Exception {
         mException.expect(RestError.class);
         mockRestException(500);
-        validator.validate(credentialsUnderTest);
+        validator.validate();
     }
 
     private void mockRestException(int code) {

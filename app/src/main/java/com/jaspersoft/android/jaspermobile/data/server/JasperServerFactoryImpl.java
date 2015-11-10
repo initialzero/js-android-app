@@ -24,54 +24,37 @@
 
 package com.jaspersoft.android.jaspermobile.data.server;
 
-import android.support.annotation.VisibleForTesting;
-
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.ServerInfoDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServerFactory;
-import com.jaspersoft.android.jaspermobile.data.entity.mapper.ServerInfoDataMapper;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.server.ServerInfoService;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.inject.Named;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
 public class JasperServerFactoryImpl implements JasperServerFactory {
+    private final String mBaseUrl;
+    private final ServerInfoService mService;
     private final ServerInfoDataMapper mDataMapper;
 
     @Inject
-    public JasperServerFactoryImpl(ServerInfoDataMapper dataMapper) {
+    public JasperServerFactoryImpl(
+            @Named("baseUrl") String baseUrl,
+            ServerInfoService infoService,
+            ServerInfoDataMapper dataMapper) {
+        mBaseUrl = baseUrl;
+        mService = infoService;
         mDataMapper = dataMapper;
     }
 
     @Override
-    public JasperServer create(String baseUrl) {
-        ServerInfoService infoService = ServerInfoService.create(baseUrl);
-        Helper helper = new Helper(infoService, mDataMapper);
-        ServerInfo info = helper.requestInfo();
-        return helper.adapt(baseUrl, info);
-    }
-
-    @VisibleForTesting
-    static class Helper {
-        private final ServerInfoService mService;
-        private final ServerInfoDataMapper mDataMapper;
-
-        Helper(ServerInfoService service, ServerInfoDataMapper dataMapper) {
-            mService = service;
-            mDataMapper = dataMapper;
-        }
-
-        public ServerInfo requestInfo() {
-            return mService.requestServerInfo();
-        }
-
-        public JasperServer adapt(String baseUrl, ServerInfo info) {
-            return mDataMapper.transform(baseUrl, info);
-        }
+    public JasperServer create() {
+        ServerInfo info = mService.requestServerInfo();
+        return mDataMapper.transform(mBaseUrl, info);
     }
 }

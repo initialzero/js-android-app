@@ -33,5 +33,5 @@ import com.jaspersoft.android.sdk.network.RestError;
  * @since 2.3
  */
 public interface CredentialsValidator {
-    void validate(BaseCredentials credentials) throws InvalidCredentialsException, RestError;
+    BaseCredentials validate() throws InvalidCredentialsException, RestError;
 }

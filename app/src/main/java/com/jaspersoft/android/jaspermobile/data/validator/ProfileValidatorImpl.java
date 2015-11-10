@@ -31,6 +31,7 @@ import android.content.Context;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,35 +39,41 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
+@PerActivity
 public final class ProfileValidatorImpl implements ProfileValidator {
     private final Context mContext;
     private final String mAccountType;
+    private final Profile mProfile;
 
     @Inject
-    public ProfileValidatorImpl(Context context, @Named("accountType") String accountType) {
+    public ProfileValidatorImpl(Context context,
+                                @Named("accountType") String accountType,
+                                Profile profile) {
         mContext = context;
         mAccountType = accountType;
+        mProfile = profile;
     }
 
     @Override
-    public void validate(Profile profile) throws DuplicateProfileException {
+    public Profile validate() throws DuplicateProfileException {
         AccountManager accountManager = AccountManager.get(mContext);
         Account[] accounts = accountManager.getAccountsByType(mAccountType);
         Set<Account> accountsSet = new HashSet<>(Arrays.asList(accounts));
-        Account profileAccount = new Account(profile.getKey(), mAccountType);
+
+        String profileName = mProfile.getKey();
+        Account profileAccount = new Account(profileName, mAccountType);
 
         if (accountsSet.contains(profileAccount)) {
             String[] availableNames = getAvailableNames(accounts);
-            String profileName = profile.getKey();
             throw new DuplicateProfileException(profileName, availableNames);
         }
+
+        return mProfile;
     }
 
     private String[] getAvailableNames(Account[] accounts) {

@@ -7,6 +7,7 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.BaseActivity;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Component;
@@ -23,4 +24,6 @@ public interface AppComponent {
     Context appContext();
     PreExecutionThread preExecutionThread();
     PostExecutionThread postExecutionThread();
+    @Named("accountType")
+    String provideAccountType();
 }

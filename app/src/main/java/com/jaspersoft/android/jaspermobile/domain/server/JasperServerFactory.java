@@ -29,5 +29,5 @@ package com.jaspersoft.android.jaspermobile.domain.server;
  * @since 2.3
  */
 public interface JasperServerFactory {
-    JasperServer create(String baseUrl);
+    JasperServer create();
 }

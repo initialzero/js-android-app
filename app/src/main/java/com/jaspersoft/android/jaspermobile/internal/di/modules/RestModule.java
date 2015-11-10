@@ -22,31 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.entity.mapper;
+package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
-import android.support.annotation.NonNull;
+import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
+import com.jaspersoft.android.sdk.service.server.ServerInfoService;
 
-import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import javax.inject.Named;
 
-import javax.inject.Inject;
+import dagger.Module;
+import dagger.Provides;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
-public class ServerInfoDataMapper {
-    @Inject
-    public ServerInfoDataMapper() {}
+@Module
+public final class RestModule {
+    @Provides
+    ServerInfoService providesServerInfoService(@Named("baseUrl") String baseUrl) {
+        return ServerInfoService.create(baseUrl);
+    }
 
-    @NonNull
-    public JasperServer transform(String baseUrl, ServerInfo serverInfo) {
-        JasperServer.Builder builder = JasperServer.builder();
-        builder.setBaseUrl(baseUrl);
-        builder.setEdition(serverInfo.getEdition().name());
-        builder.setVersion(serverInfo.getVersion().getVersionCode());
-        return builder.create();
+    @Provides
+    JrsAuthenticator providesAuthenticator(@Named("baseUrl") String baseUrl) {
+        return JrsAuthenticator.create(baseUrl);
     }
 }

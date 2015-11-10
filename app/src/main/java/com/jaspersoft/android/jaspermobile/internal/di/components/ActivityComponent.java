@@ -22,31 +22,21 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.entity.mapper;
+package com.jaspersoft.android.jaspermobile.internal.di.components;
 
-import android.support.annotation.NonNull;
+import android.app.Activity;
 
-import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
 
-import javax.inject.Inject;
+import dagger.Component;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 @PerActivity
-public class ServerInfoDataMapper {
-    @Inject
-    public ServerInfoDataMapper() {}
-
-    @NonNull
-    public JasperServer transform(String baseUrl, ServerInfo serverInfo) {
-        JasperServer.Builder builder = JasperServer.builder();
-        builder.setBaseUrl(baseUrl);
-        builder.setEdition(serverInfo.getEdition().name());
-        builder.setVersion(serverInfo.getVersion().getVersionCode());
-        return builder.create();
-    }
+@Component(dependencies = AppComponent.class, modules = ActivityModule.class)
+public interface ActivityComponent {
+    Activity activity();
 }

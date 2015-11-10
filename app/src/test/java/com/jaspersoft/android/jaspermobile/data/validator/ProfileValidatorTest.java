@@ -58,7 +58,8 @@ public class ProfileValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        validator = new ProfileValidatorImpl(RuntimeEnvironment.application, JasperSettings.JASPER_ACCOUNT_TYPE);
+        Profile profile = Profile.create("name");
+        validator = new ProfileValidatorImpl(RuntimeEnvironment.application, JasperSettings.JASPER_ACCOUNT_TYPE, profile);
     }
 
     @Test
@@ -71,7 +72,7 @@ public class ProfileValidatorTest {
         assertThat("Precondition failed. Test account is missing", accounts.length > 0);
 
         try {
-            validator.validate(Profile.create("name"));
+            validator.validate();
             fail("Account should not be valid");
         } catch (DuplicateProfileException ex) {
             assertThat(ex.requestedProfile(), is("name"));
@@ -86,7 +87,7 @@ public class ProfileValidatorTest {
         assertThat(Arrays.asList(accounts), is(empty()));
 
         try {
-            validator.validate(Profile.create("name"));
+            validator.validate();
         } catch (DuplicateProfileException e) {
             fail("Account should be valid");
         }

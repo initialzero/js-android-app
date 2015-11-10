@@ -48,7 +48,7 @@ public final class AppModule {
     @Provides
     @Singleton
     @Named("accountType")
-    String provideAccounType() {
+    String provideAccountType() {
         return JasperSettings.JASPER_ACCOUNT_TYPE;
     }
 }

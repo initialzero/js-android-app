@@ -22,31 +22,36 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.entity.mapper;
+package com.jaspersoft.android.jaspermobile.internal.di.components;
 
-import android.support.annotation.NonNull;
-
-import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.RestModule;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment;
 
-import javax.inject.Inject;
+import javax.inject.Named;
+
+import dagger.Component;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 @PerActivity
-public class ServerInfoDataMapper {
-    @Inject
-    public ServerInfoDataMapper() {}
+@Component(dependencies = AppComponent.class,
+        modules = {
+                ActivityModule.class,
+                SaveProfileModule.class,
+                RestModule.class
+        })
+public interface SaveProfileComponent extends ActivityComponent {
+    void inject(AuthenticatorFragment authFragment);
 
-    @NonNull
-    public JasperServer transform(String baseUrl, ServerInfo serverInfo) {
-        JasperServer.Builder builder = JasperServer.builder();
-        builder.setBaseUrl(baseUrl);
-        builder.setEdition(serverInfo.getEdition().name());
-        builder.setVersion(serverInfo.getVersion().getVersionCode());
-        return builder.create();
-    }
+    Profile provideProfile();
+    BaseCredentials provideCredentials();
+    @Named("baseUrl")
+    String provideBaseUrl();
 }

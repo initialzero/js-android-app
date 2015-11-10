@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.data.server;
 
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ServerInfoDataMapper;
+import com.jaspersoft.android.jaspermobile.domain.server.JasperServerFactory;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.server.ServerInfoService;
 
@@ -51,22 +52,17 @@ public class JasperServerFactoryImplTest {
     @Mock
     ServerInfoDataMapper mDataMapper;
 
-    JasperServerFactoryImpl.Helper factoryHelper;
+    JasperServerFactory jasperFactory;
 
     @Before
     public void setup() {
-        factoryHelper = new JasperServerFactoryImpl.Helper(mInfoService, mDataMapper);
+        jasperFactory = new JasperServerFactoryImpl("http://localhost/", mInfoService, mDataMapper);
     }
 
     @Test
-    public void testShouldRequestServerInfo() {
-        factoryHelper.requestInfo();
+    public void testCreate() {
+        jasperFactory.create();
         verify(mInfoService).requestServerInfo();
-    }
-
-    @Test
-    public void testShouldMapInfoToServerInstance() {
-        factoryHelper.adapt("http://localhost/", mInfo);
         verify(mDataMapper).transform("http://localhost/", mInfo);
     }
 }

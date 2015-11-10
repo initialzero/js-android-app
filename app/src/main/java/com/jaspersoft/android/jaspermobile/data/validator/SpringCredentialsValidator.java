@@ -33,33 +33,35 @@ import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
 import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
 public final class SpringCredentialsValidator implements CredentialsValidator {
     private final JrsAuthenticator mAuthenticator;
+    private final BaseCredentials mCredentials;
 
     @Inject
-    public SpringCredentialsValidator(JrsAuthenticator authenticator) {
+    public SpringCredentialsValidator(BaseCredentials baseCredentials,
+                                      JrsAuthenticator authenticator) {
+        mCredentials = baseCredentials;
         mAuthenticator = authenticator;
     }
 
     @Override
-    public void validate(BaseCredentials credentials) throws InvalidCredentialsException, RestError {
+    public BaseCredentials validate() throws InvalidCredentialsException, RestError {
         Credentials springCredentials = SpringCredentials.builder()
-                .password(credentials.getPassword())
-                .username(credentials.getUsername())
-                .organization(credentials.getOrganization())
+                .password(mCredentials.getPassword())
+                .username(mCredentials.getUsername())
+                .organization(mCredentials.getOrganization())
                 .build();
         try {
             mAuthenticator.authenticate(springCredentials);
+            return mCredentials;
         } catch (RestError restError) {
             if (restError.code() == 401) {
-                throw new InvalidCredentialsException(credentials);
+                throw new InvalidCredentialsException(mCredentials);
             } else {
                 throw restError;
             }

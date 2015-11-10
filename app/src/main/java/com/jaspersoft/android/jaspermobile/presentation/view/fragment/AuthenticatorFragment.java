@@ -34,9 +34,17 @@ import android.webkit.URLUtil;
 import android.widget.EditText;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerSaveProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.SaveProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
+import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
@@ -46,6 +54,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
@@ -68,6 +78,35 @@ public class AuthenticatorFragment extends BaseFragment {
 
     @SystemService
     protected InputMethodManager inputMethodManager;
+
+    @Inject
+    AuthenticationPresenter mPresenter;
+
+    @Click
+    void addAccount() {
+        if (isFormValid()) {
+            createSaveProfileComponent().inject(this);
+        }
+    }
+
+    private SaveProfileComponent createSaveProfileComponent() {
+        String alias = aliasEdit.getText().toString();
+        String serverUrl = serverUrlEdit.getText().toString();
+        String username = usernameEdit.getText().toString();
+        String password = passwordEdit.getText().toString();
+        String organization = organizationEdit.getText().toString();
+
+        Profile profile = Profile.create(alias);
+        BaseCredentials credentials = BaseCredentials.builder()
+                .setUsername(username)
+                .setPassword(password)
+                .setOrganization(organization)
+                .create();
+        return DaggerSaveProfileComponent.builder()
+                .activityModule(new ActivityModule(getActivity()))
+                .saveProfileModule(new SaveProfileModule(serverUrl, profile, credentials))
+                .build();
+    }
 
     private boolean isFormValid() {
         String serverUrl = serverUrlEdit.getText().toString();

@@ -32,5 +32,5 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateP
  * @since 2.3
  */
 public interface ProfileValidator {
-    void validate(Profile profile) throws DuplicateProfileException;
+    Profile validate() throws DuplicateProfileException;
 }

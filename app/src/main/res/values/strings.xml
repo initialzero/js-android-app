@@ -93,6 +93,7 @@
 
     <!-- File viewing -->
     <string name="fv_can_not_open_btn" translatable="false">Try again</string>
+    <string name="fv_error_message" translatable="false">Can not open file</string>
     <string name="fv_can_not_open_message" translatable="false">Can not open this file. Please download appropriate application and try again</string>
     <string name="fv_can_open_message" translatable="false">Opening file...</string>
 

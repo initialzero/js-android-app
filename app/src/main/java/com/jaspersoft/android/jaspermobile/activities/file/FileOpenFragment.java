@@ -79,36 +79,33 @@ public class FileOpenFragment extends RoboSpiceFragment {
 
     private void tryToOpen() {
         if (canBeOpened()) {
-            File resource = loadFile();
-            openFile(resource);
+            loadFile();
 
-            showFileCanBeOpenedMessage();
+            showMessageMessage(getString(R.string.fv_can_open_message));
             tryToOpen.setVisibility(View.GONE);
         } else {
-            showErrorMessage();
+            showMessageMessage(getString(R.string.fv_can_not_open_message));
             tryToOpen.setVisibility(View.VISIBLE);
         }
     }
 
-    private void showFileCanBeOpenedMessage() {
-        messageView.setText(R.string.fv_can_open_message);
-    }
-
-    private File loadFile() {
+    private void loadFile() {
         File tempResource = getTempFile(fileUri);
-        if (tempResource != null) {
-            if (!tempResource.exists()) {
-                GetFileContentRequest fileContentRequest = new GetFileContentRequest(jsRestClient, tempResource, fileUri);
-                getSpiceManager().execute(fileContentRequest, new FileContentListener());
-                showProgressDialog();
-
-            }
-            return tempResource;
+        if (tempResource == null) {
+            showMessageMessage(getString(R.string.fv_error_message));
+            return;
         }
-        return null;
+
+        if (!tempResource.exists()) {
+            GetFileContentRequest fileContentRequest = new GetFileContentRequest(jsRestClient, tempResource, fileUri);
+            getSpiceManager().execute(fileContentRequest, new FileContentListener());
+            showProgressDialog();
+        } else {
+            openFile(tempResource);
+        }
     }
 
-    private void openFile(File file){
+    private void openFile(File file) {
         String mimeType = "application/" + fileType.name();
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.setDataAndType(Uri.fromFile(file), mimeType);
@@ -134,11 +131,11 @@ public class FileOpenFragment extends RoboSpiceFragment {
             }
             return new File(accountReportDir, resourceUri);
         }
-       return null;
+        return null;
     }
 
-    private void showErrorMessage() {
-        messageView.setText(R.string.fv_can_not_open_message);
+    private void showMessageMessage(String message) {
+        messageView.setText(message);
     }
 
     private void showProgressDialog() {
@@ -148,7 +145,7 @@ public class FileOpenFragment extends RoboSpiceFragment {
                         new DialogInterface.OnCancelListener() {
                             @Override
                             public void onCancel(DialogInterface dialog) {
-
+                                getActivity().finish();
                             }
                         }
                 )
@@ -177,6 +174,7 @@ public class FileOpenFragment extends RoboSpiceFragment {
         @Override
         public void onRequestSuccess(File file) {
             ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+            openFile(file);
         }
     }
 }

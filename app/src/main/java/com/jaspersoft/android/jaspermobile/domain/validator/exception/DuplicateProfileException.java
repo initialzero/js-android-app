@@ -22,15 +22,31 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.validator;
+package com.jaspersoft.android.jaspermobile.domain.validator.exception;
 
-import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+import java.util.Locale;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface ProfileValidator {
-    void validate(Profile profile) throws DuplicateProfileException;
+public class DuplicateProfileException extends Exception {
+    private final String profileName;
+    private final String[] availableNames;
+
+    public DuplicateProfileException(String profileName, String[] availableNames) {
+        super(String.format(Locale.getDefault(),
+                "Profile with name \"%s\" alredy registered in system",
+                profileName));
+        this.profileName = profileName;
+        this.availableNames = availableNames;
+    }
+
+    public String requestedProfile() {
+        return profileName;
+    }
+
+    public String[] availableNames() {
+        return availableNames;
+    }
 }

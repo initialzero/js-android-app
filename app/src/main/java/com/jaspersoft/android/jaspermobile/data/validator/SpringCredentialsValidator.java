@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
+import com.jaspersoft.android.sdk.network.RestError;
 import com.jaspersoft.android.sdk.service.auth.Credentials;
 import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
 import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
@@ -47,13 +49,20 @@ public final class SpringCredentialsValidator implements CredentialsValidator {
     }
 
     @Override
-    public boolean validate(BaseCredentials credentials) {
+    public void validate(BaseCredentials credentials) throws InvalidCredentialsException, RestError {
         Credentials springCredentials = SpringCredentials.builder()
                 .password(credentials.getPassword())
                 .username(credentials.getUsername())
                 .organization(credentials.getOrganization())
                 .build();
-        String token = mAuthenticator.authenticate(springCredentials);
-        return token != null;
+        try {
+            mAuthenticator.authenticate(springCredentials);
+        } catch (RestError restError) {
+            if (restError.code() == 401) {
+                throw new InvalidCredentialsException(credentials);
+            } else {
+                throw restError;
+            }
+        }
     }
 }

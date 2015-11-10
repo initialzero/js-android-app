@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.validator.JasperServerValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,8 +41,10 @@ public final class JasperServerValidatorImpl implements JasperServerValidator {
     public JasperServerValidatorImpl() {}
 
     @Override
-    public boolean validate(JasperServer instance) {
+    public void validate(JasperServer instance) throws ServerVersionNotSupportedException {
         double version = instance.getVersion();
-        return version >= 5.5d;
+        if (version < 5.5d) {
+            throw new ServerVersionNotSupportedException(version);
+        }
     }
 }

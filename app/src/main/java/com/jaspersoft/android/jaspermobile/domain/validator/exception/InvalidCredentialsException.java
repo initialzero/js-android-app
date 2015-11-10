@@ -22,15 +22,23 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.validator;
+package com.jaspersoft.android.jaspermobile.domain.validator.exception;
 
-import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface ProfileValidator {
-    void validate(Profile profile) throws DuplicateProfileException;
+public class InvalidCredentialsException extends Exception {
+    private final BaseCredentials mCredentials;
+
+    public InvalidCredentialsException(BaseCredentials credentials) {
+        super("Client has passed either invalid password or username/organization combination");
+        mCredentials = credentials;
+    }
+
+    public BaseCredentials getCredentials() {
+        return mCredentials;
+    }
 }

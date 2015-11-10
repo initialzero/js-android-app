@@ -25,20 +25,26 @@
 package com.jaspersoft.android.jaspermobile.data.validator;
 
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.fail;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class JasperServerValidatorImplTest {
+public class JasperServerValidatorTest {
 
+    public static final String MINIMU_SUPPORTED_VERSION_MESSAGE = "Server with version with 5.5 is a minimum we support!";
     JasperServerValidatorImpl validator;
+
+    @Rule
+    public ExpectedException mException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -46,20 +52,27 @@ public class JasperServerValidatorImplTest {
     }
 
     @Test
-    public void serverThatIsEquals5_5IsValid() throws Exception {
-        boolean isValid = validator.validate(JasperServer.builder().setVersion(5.5d).create());
-        assertThat(isValid, is(true));
+    public void serverThatIsEquals5_5IsValid() {
+        try {
+            validator.validate(JasperServer.builder().setVersion(5.5d).create());
+        } catch (ServerVersionNotSupportedException e) {
+            fail(MINIMU_SUPPORTED_VERSION_MESSAGE);
+        }
     }
 
     @Test
     public void serverThatIsHigherThan5_5IsValid() throws Exception {
-        boolean isValid = validator.validate(JasperServer.builder().setVersion(6.0d).create());
-        assertThat(isValid, is(true));
+        try {
+            validator.validate(JasperServer.builder().setVersion(6.0d).create());
+        } catch (ServerVersionNotSupportedException e) {
+            fail(MINIMU_SUPPORTED_VERSION_MESSAGE);
+        }
     }
 
     @Test
     public void serverThatIsEquals5_0IsNotValid() throws Exception {
-        boolean isValid = validator.validate(JasperServer.builder().setVersion(5.0d).create());
-        assertThat(isValid, is(false));
+        mException.expect(ServerVersionNotSupportedException.class);
+        mException.expectMessage("Version of server should be 5.5 of higher, but was: 5.0");
+        validator.validate(JasperServer.builder().setVersion(5.0d).create());
     }
 }

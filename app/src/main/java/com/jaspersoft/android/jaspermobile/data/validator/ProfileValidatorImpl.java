@@ -30,6 +30,7 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -55,11 +56,25 @@ public final class ProfileValidatorImpl implements ProfileValidator {
     }
 
     @Override
-    public boolean validate(Profile profile) {
+    public void validate(Profile profile) throws DuplicateProfileException {
         AccountManager accountManager = AccountManager.get(mContext);
         Account[] accounts = accountManager.getAccountsByType(mAccountType);
         Set<Account> accountsSet = new HashSet<>(Arrays.asList(accounts));
         Account profileAccount = new Account(profile.getKey(), mAccountType);
-        return !accountsSet.contains(profileAccount);
+
+        if (accountsSet.contains(profileAccount)) {
+            String[] availableNames = getAvailableNames(accounts);
+            String profileName = profile.getKey();
+            throw new DuplicateProfileException(profileName, availableNames);
+        }
+    }
+
+    private String[] getAvailableNames(Account[] accounts) {
+        String[] names = new String[accounts.length];
+        int count = names.length;
+        for (int i = 0; i < count; i++) {
+            names[i] = accounts[i].name;
+        }
+        return names;
     }
 }

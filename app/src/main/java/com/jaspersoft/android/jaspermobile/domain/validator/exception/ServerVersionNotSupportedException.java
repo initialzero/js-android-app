@@ -22,15 +22,21 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.validator;
-
-import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+package com.jaspersoft.android.jaspermobile.domain.validator.exception;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface ProfileValidator {
-    void validate(Profile profile) throws DuplicateProfileException;
+public class ServerVersionNotSupportedException extends Exception {
+    private final double mSuppliedVersion;
+
+    public ServerVersionNotSupportedException(double version) {
+        super("Version of server should be 5.5 of higher, but was: " + version);
+        mSuppliedVersion = version;
+    }
+
+    public double getSuppliedVersion() {
+        return mSuppliedVersion;
+    }
 }

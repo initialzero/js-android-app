@@ -25,11 +25,13 @@
 package com.jaspersoft.android.jaspermobile.domain.validator;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
+import com.jaspersoft.android.sdk.network.RestError;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public interface CredentialsValidator {
-    boolean validate(BaseCredentials credentials);
+    void validate(BaseCredentials credentials) throws InvalidCredentialsException, RestError;
 }

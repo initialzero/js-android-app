@@ -7,7 +7,9 @@ import com.jaspersoft.android.jaspermobile.BackgroundThread;
 import com.jaspersoft.android.jaspermobile.UIThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -41,5 +43,12 @@ public final class AppModule {
     @Singleton
     PreExecutionThread providePreExecutionThread(BackgroundThread backgroundThread) {
         return backgroundThread;
+    }
+
+    @Provides
+    @Singleton
+    @Named("accountType")
+    String provideAccounType() {
+        return JasperSettings.JASPER_ACCOUNT_TYPE;
     }
 }

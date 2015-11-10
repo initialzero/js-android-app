@@ -24,6 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
@@ -34,23 +38,33 @@ import javax.inject.Inject;
  * @since 2.3
  */
 @PerActivity
-public class ProfileActiveCacheImpl implements ProfileActiveCache {
+public final class ProfileActiveCacheImpl implements ProfileActiveCache {
+    private static final String PREF_NAME = "JasperAccountManager";
+    private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";
+
+    private final SharedPreferences mPreference;
+
     @Inject
-    public ProfileActiveCacheImpl() {
+    public ProfileActiveCacheImpl(Context context) {
+        mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
     }
 
     @Override
     public void put(Profile profile) {
-
+        mPreference.edit().putString(ACCOUNT_NAME_KEY, profile.getKey()).apply();
     }
 
     @Override
-    public Profile get(Profile profile) {
-        return null;
+    public Profile get() {
+        String key = mPreference.getString(ACCOUNT_NAME_KEY, null);
+        if (key == null) {
+            return null;
+        }
+        return Profile.create(key);
     }
 
     @Override
     public void evict() {
-
+        mPreference.edit().remove(ACCOUNT_NAME_KEY).apply();
     }
 }

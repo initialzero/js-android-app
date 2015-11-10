@@ -43,7 +43,7 @@ import javax.inject.Named;
  * @since 2.3
  */
 @PerActivity
-public class ProfileCacheImpl implements ProfileCache {
+public final class ProfileCacheImpl implements ProfileCache {
     private final Context mContext;
     private final String mAccountType;
 

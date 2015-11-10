@@ -32,6 +32,6 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
  */
 public interface ProfileActiveCache {
     void put(Profile profile);
-    Profile get(Profile profile);
+    Profile get();
     void evict();
 }

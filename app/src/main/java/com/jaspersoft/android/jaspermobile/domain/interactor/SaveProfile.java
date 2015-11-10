@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.domain.interactor;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToCreateProfile;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServerFactory;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
@@ -50,6 +52,7 @@ public final class SaveProfile extends UseCase {
     private final JasperServerValidator mServerValidator;
     private final ProfileValidator mProfileValidator;
     private final JasperServerFactory mServerFactory;
+    private final ProfileRepository mProfileRepository;
 
     @Inject
     public SaveProfile(
@@ -57,6 +60,7 @@ public final class SaveProfile extends UseCase {
             CredentialsValidator credentialsValidator,
             JasperServerValidator serverValidator,
             ProfileValidator profileValidator,
+            ProfileRepository profileRepository,
             PreExecutionThread threadExecutor,
             PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
@@ -64,6 +68,7 @@ public final class SaveProfile extends UseCase {
         mCredentialsValidator = credentialsValidator;
         mServerValidator = serverValidator;
         mProfileValidator = profileValidator;
+        mProfileRepository = profileRepository;
     }
 
     @Override
@@ -75,6 +80,7 @@ public final class SaveProfile extends UseCase {
                     return Observable.just(performAddition());
                 } catch (InvalidCredentialsException |
                         ServerVersionNotSupportedException |
+                        FailedToCreateProfile |
                         DuplicateProfileException e) {
                     return Observable.error(e);
                 }
@@ -85,12 +91,17 @@ public final class SaveProfile extends UseCase {
     public Profile performAddition()
             throws InvalidCredentialsException,
             ServerVersionNotSupportedException,
-            DuplicateProfileException {
+            DuplicateProfileException,
+            FailedToCreateProfile {
         Profile profile = mProfileValidator.validate();
         JasperServer server = mServerFactory.create();
         mServerValidator.validate(server);
         mCredentialsValidator.validate();
 
+        boolean isSaved = mProfileRepository.saveProfile(profile);
+        if (!isSaved) {
+            throw new FailedToCreateProfile(profile);
+        }
         return profile;
     }
 }

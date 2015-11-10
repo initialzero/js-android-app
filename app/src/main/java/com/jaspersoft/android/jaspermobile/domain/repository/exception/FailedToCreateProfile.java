@@ -22,30 +22,23 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.repository;
+package com.jaspersoft.android.jaspermobile.domain.repository.exception;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-
-import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
-public class ProfileDataRepository implements ProfileRepository {
-    private final ProfileCache mProfileCache;
+public class FailedToCreateProfile extends Exception {
+    private final Profile mProfile;
 
-    @Inject
-    public ProfileDataRepository(ProfileCache profileCache) {
-        mProfileCache = profileCache;
+    public FailedToCreateProfile(Profile profile) {
+        super("Failed to create profile. It is either in cache or account system encountered error");
+        mProfile = profile;
     }
 
-    @Override
-    public boolean saveProfile(Profile profile) {
-        return !mProfileCache.hasProfile(profile) && mProfileCache.put(profile);
+    public Profile getProfile() {
+        return mProfile;
     }
 }

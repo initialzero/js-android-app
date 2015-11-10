@@ -29,25 +29,26 @@ import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.inject.Named;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
+@PerActivity
 public class ProfileCacheImpl implements ProfileCache {
     private final Context mContext;
     private final String mAccountType;
 
     @Inject
-    public ProfileCacheImpl(Context context, String accountType) {
+    public ProfileCacheImpl(Context context, @Named("accountType") String accountType) {
         mContext = context;
         mAccountType = accountType;
     }

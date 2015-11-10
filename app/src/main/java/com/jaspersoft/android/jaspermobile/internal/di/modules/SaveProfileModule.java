@@ -24,7 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
+import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ServerInfoDataMapper;
+import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
 import com.jaspersoft.android.jaspermobile.data.server.JasperServerFactoryImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.JasperServerValidatorImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
@@ -35,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.UseCase;
+import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServerFactory;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.JasperServerValidator;
@@ -104,6 +108,18 @@ public final class SaveProfileModule {
         return new JasperServerFactoryImpl(baseUrl, infoService, dataMapper);
     }
 
+    @PerActivity
+    @Provides
+    ProfileCache provideProfileCache(ProfileCacheImpl profileCache) {
+        return profileCache;
+    }
+
+    @PerActivity
+    @Provides
+    ProfileRepository providesProfileRepository(ProfileDataRepository dataRepository) {
+        return dataRepository;
+    }
+
     @Provides
     @PerActivity
     @Named("saveProfile")
@@ -112,6 +128,7 @@ public final class SaveProfileModule {
             CredentialsValidator credentialsValidator,
             JasperServerValidator serverValidator,
             ProfileValidator profileValidator,
+            ProfileRepository repository,
             PreExecutionThread threadExecutor,
             PostExecutionThread postExecutionThread) {
         return new SaveProfile(
@@ -119,6 +136,7 @@ public final class SaveProfileModule {
                 credentialsValidator,
                 serverValidator,
                 profileValidator,
+                repository,
                 threadExecutor,
                 postExecutionThread);
     }

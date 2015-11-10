@@ -24,11 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
+import android.content.Context;
+
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ServerInfoDataMapper;
+import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
 import com.jaspersoft.android.jaspermobile.data.server.JasperServerFactoryImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.JasperServerValidatorImpl;
@@ -40,12 +46,14 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.UseCase;
+import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServerFactory;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.JasperServerValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
 import com.jaspersoft.android.sdk.service.server.ServerInfoService;
 
@@ -128,6 +136,20 @@ public final class SaveProfileModule {
         return dataRepository;
     }
 
+    @PerActivity
+    @Provides
+    CredentialsCache provideCredentialsCache(Context context, @Named("accountType") String accountType) {
+        String secret = context.getString(R.string.password_salt_key);
+        PasswordManager passwordManager = PasswordManager.init(context, secret);
+        return new CredentialsCacheImpl(context, passwordManager, accountType);
+    }
+
+    @PerActivity
+    @Provides
+    CredentialsRepository providesCredentialsRepository(CredentialsCache credentialsCache) {
+        return new CredentialsDataRepository(credentialsCache);
+    }
+
     @Provides
     @PerActivity
     @Named("saveProfile")
@@ -136,7 +158,8 @@ public final class SaveProfileModule {
             CredentialsValidator credentialsValidator,
             JasperServerValidator serverValidator,
             ProfileValidator profileValidator,
-            ProfileRepository repository,
+            ProfileRepository profileRepo,
+            CredentialsRepository credentialsRepo,
             PreExecutionThread threadExecutor,
             PostExecutionThread postExecutionThread) {
         return new SaveProfile(
@@ -144,7 +167,8 @@ public final class SaveProfileModule {
                 credentialsValidator,
                 serverValidator,
                 profileValidator,
-                repository,
+                profileRepo,
+                credentialsRepo,
                 threadExecutor,
                 postExecutionThread);
     }

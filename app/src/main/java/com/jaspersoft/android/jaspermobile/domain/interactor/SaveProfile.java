@@ -24,11 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToCreateProfile;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServerFactory;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
@@ -53,6 +56,7 @@ public final class SaveProfile extends UseCase {
     private final ProfileValidator mProfileValidator;
     private final JasperServerFactory mServerFactory;
     private final ProfileRepository mProfileRepository;
+    private final CredentialsRepository mCredentialsRepository;
 
     @Inject
     public SaveProfile(
@@ -61,6 +65,7 @@ public final class SaveProfile extends UseCase {
             JasperServerValidator serverValidator,
             ProfileValidator profileValidator,
             ProfileRepository profileRepository,
+            CredentialsRepository credentialsRepository,
             PreExecutionThread threadExecutor,
             PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
@@ -69,6 +74,7 @@ public final class SaveProfile extends UseCase {
         mServerValidator = serverValidator;
         mProfileValidator = profileValidator;
         mProfileRepository = profileRepository;
+        mCredentialsRepository = credentialsRepository;
     }
 
     @Override
@@ -80,8 +86,9 @@ public final class SaveProfile extends UseCase {
                     return Observable.just(performAddition());
                 } catch (InvalidCredentialsException |
                         ServerVersionNotSupportedException |
-                        FailedToCreateProfile |
-                        DuplicateProfileException e) {
+                        DuplicateProfileException |
+                        FailedToSaveProfile |
+                        FailedToSaveCredentials e) {
                     return Observable.error(e);
                 }
             }
@@ -92,16 +99,22 @@ public final class SaveProfile extends UseCase {
             throws InvalidCredentialsException,
             ServerVersionNotSupportedException,
             DuplicateProfileException,
-            FailedToCreateProfile {
+            FailedToSaveProfile,
+            FailedToSaveCredentials {
         Profile profile = mProfileValidator.validate();
         JasperServer server = mServerFactory.create();
         mServerValidator.validate(server);
-        mCredentialsValidator.validate();
+        BaseCredentials credentials = mCredentialsValidator.validate();
 
-        boolean isSaved = mProfileRepository.saveProfile(profile);
-        if (!isSaved) {
-            throw new FailedToCreateProfile(profile);
+        boolean isProfileSaved = mProfileRepository.saveProfile(profile);
+        if (!isProfileSaved) {
+            throw new FailedToSaveProfile(profile);
         }
+        boolean isCredentialsSaved = mCredentialsRepository.saveCredentials(profile, credentials);
+        if (!isCredentialsSaved) {
+            throw new FailedToSaveCredentials(credentials);
+        }
+
         mProfileRepository.activate(profile);
         return profile;
     }

@@ -30,10 +30,10 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
  * @author Tom Koptel
  * @since 2.3
  */
-public class FailedToCreateProfile extends Exception {
+public final class FailedToSaveProfile extends Exception {
     private final Profile mProfile;
 
-    public FailedToCreateProfile(Profile profile) {
+    public FailedToSaveProfile(Profile profile) {
         super("Failed to create profile. It is either in cache or account system encountered error");
         mProfile = profile;
     }

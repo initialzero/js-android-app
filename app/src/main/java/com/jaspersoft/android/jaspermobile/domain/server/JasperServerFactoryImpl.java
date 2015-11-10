@@ -53,7 +53,7 @@ public class JasperServerFactoryImpl implements JasperServerFactory {
         ServerInfoService infoService = ServerInfoService.create(baseUrl);
         Helper helper = new Helper(infoService, mDataMapper);
         ServerInfo info = helper.requestInfo();
-        return helper.adapt(info);
+        return helper.adapt(baseUrl, info);
     }
 
     @VisibleForTesting
@@ -70,8 +70,8 @@ public class JasperServerFactoryImpl implements JasperServerFactory {
             return mService.requestServerInfo();
         }
 
-        public JasperServer adapt(ServerInfo info) {
-            return mDataMapper.transform(info);
+        public JasperServer adapt(String baseUrl, ServerInfo info) {
+            return mDataMapper.transform(baseUrl, info);
         }
     }
 }

@@ -22,24 +22,19 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.entity.mapper;
+package com.jaspersoft.android.jaspermobile.data.server;
 
-import com.jaspersoft.android.jaspermobile.data.server.JasperServer;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import org.junit.Test;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
-public class ServerInfoDataMapper {
-    @Inject
-    public ServerInfoDataMapper() {}
-
-    public JasperServer transform(String baseUrl, ServerInfo serverInfo) {
-        throw new UnsupportedOperationException();
+public class JasperServerTest {
+    @Test
+    public void equalsContract() {
+        EqualsVerifier.forClass(JasperServer.class).verify();
     }
 }

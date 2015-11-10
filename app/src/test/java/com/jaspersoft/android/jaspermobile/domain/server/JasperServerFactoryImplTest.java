@@ -66,7 +66,7 @@ public class JasperServerFactoryImplTest {
 
     @Test
     public void testShouldMapInfoToServerInstance() {
-        factoryHelper.adapt(mInfo);
-        verify(mDataMapper).transform(mInfo);
+        factoryHelper.adapt("http://localhost/", mInfo);
+        verify(mDataMapper).transform("http://localhost/", mInfo);
     }
 }

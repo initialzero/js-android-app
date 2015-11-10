@@ -8,9 +8,9 @@ import nl.jqno.equalsverifier.EqualsVerifier;
  * @author Tom Koptel
  * @since 2.3
  */
-public class SpringCredentialsTest {
+public class BaseCredentialsTest {
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(SpringCredentials.class).verify();
+        EqualsVerifier.forClass(BaseCredentials.class).verify();
     }
 }

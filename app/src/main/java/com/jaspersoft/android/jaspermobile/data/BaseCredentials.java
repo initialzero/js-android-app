@@ -7,12 +7,12 @@ import android.support.annotation.Nullable;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class SpringCredentials extends Credentials {
+public final class BaseCredentials {
     private final String username;
     private final String password;
     private final String organization;
 
-    public SpringCredentials(String username, String password, String organization) {
+    public BaseCredentials(String username, String password, String organization) {
         this.username = username;
         this.password = password;
         this.organization = organization;
@@ -20,14 +20,6 @@ public final class SpringCredentials extends Credentials {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    @Override
-    public String toString() {
-        return "SpringCredentials{" +
-                "username='" + username + '\'' +
-                ", organization='" + organization + '\'' +
-                '}';
     }
 
     @NonNull
@@ -50,24 +42,32 @@ public final class SpringCredentials extends Credentials {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SpringCredentials that = (SpringCredentials) o;
+        BaseCredentials that = (BaseCredentials) o;
 
-        if (!username.equals(that.username)) return false;
-        if (!password.equals(that.password)) return false;
+        if (username != null ? !username.equals(that.username) : that.username != null)
+            return false;
+        if (password != null ? !password.equals(that.password) : that.password != null)
+            return false;
         return !(organization != null ? !organization.equals(that.organization) : that.organization != null);
-
     }
 
     @Override
     public int hashCode() {
-        int result = username.hashCode();
-        result = 31 * result + password.hashCode();
+        int result = username != null ? username.hashCode() : 0;
+        result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (organization != null ? organization.hashCode() : 0);
         return result;
     }
 
-    public static class Builder {
+    @Override
+    public String toString() {
+        return "BaseCredentials{" +
+                "organization='" + organization + '\'' +
+                ", username='" + username + '\'' +
+                '}';
+    }
 
+    public static class Builder {
         private String mUsername;
         private String mPassword;
         private String mOrganization;
@@ -89,8 +89,8 @@ public final class SpringCredentials extends Credentials {
             return this;
         }
 
-        public SpringCredentials create() {
-            return new SpringCredentials(mUsername, mPassword, mOrganization);
+        public BaseCredentials create() {
+            return new BaseCredentials(mUsername, mPassword, mOrganization);
         }
     }
 }

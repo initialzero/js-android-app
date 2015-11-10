@@ -3,11 +3,9 @@ package com.jaspersoft.android.jaspermobile.activities.file;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
@@ -34,20 +32,20 @@ import timber.log.Timber;
  * @author Andrew Tivodar
  * @since 2.3
  */
-@EFragment(R.layout.fragment_image_open)
-public class ImageOpenFragment extends RoboSpiceFragment {
+@EFragment(R.layout.fragment_html_open)
+public class HtmlOpenFragment extends RoboSpiceFragment {
 
     @Inject
     protected JsRestClient jsRestClient;
 
-    @InjectView(R.id.resourceImage)
-    protected ImageView resourceImage;
+    @InjectView(R.id.resourceView)
+    protected WebView resourceView;
     @InjectView(R.id.error_text)
     protected TextView errorText;
 
     @InstanceState
     @FragmentArg
-    protected String imageUri;
+    protected String htmlUri;
 
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
@@ -57,31 +55,29 @@ public class ImageOpenFragment extends RoboSpiceFragment {
     }
 
     private void loadFile() {
-        File tempResource = getTempFile(imageUri);
+        File tempResource = getTempFile(htmlUri);
         if (tempResource == null) {
             showError();
             return;
         }
 
         if (!tempResource.exists()) {
-            GetFileContentRequest fileContentRequest = new GetFileContentRequest(jsRestClient, tempResource, imageUri);
+            GetFileContentRequest fileContentRequest = new GetFileContentRequest(jsRestClient, tempResource, htmlUri);
             getSpiceManager().execute(fileContentRequest, new ImageContentListener());
             showProgressDialog();
             return;
         }
-        showImage(tempResource);
+        showHtml(tempResource);
     }
 
-    private void showImage(File file) {
+    private void showHtml(File file) {
         if (file == null) {
             showError();
             return;
         }
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-        resourceImage.setImageBitmap(bitmap);
+        String fileUrl = "file:///" + file.getAbsolutePath();
+        resourceView.loadUrl(fileUrl);
     }
 
     private void showError(){
@@ -134,7 +130,7 @@ public class ImageOpenFragment extends RoboSpiceFragment {
         @Override
         public void onRequestSuccess(File file) {
             ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
-            showImage(file);
+            showHtml(file);
         }
     }
 }

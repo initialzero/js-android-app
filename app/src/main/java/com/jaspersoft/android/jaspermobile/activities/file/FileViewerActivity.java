@@ -90,6 +90,9 @@ public class FileViewerActivity extends RoboSpiceActivity {
             Fragment fileFragment = null;
             switch (fileLookup.getFileType()) {
                 case html:
+                    fileFragment = HtmlOpenFragment_.builder()
+                            .htmlUri(fileLookup.getUri())
+                            .build();
                     break;
                 case img:
                     fileFragment = ImageOpenFragment_.builder()

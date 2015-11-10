@@ -102,6 +102,7 @@ public final class SaveProfile extends UseCase {
         if (!isSaved) {
             throw new FailedToCreateProfile(profile);
         }
+        mProfileRepository.activate(profile);
         return profile;
     }
 }

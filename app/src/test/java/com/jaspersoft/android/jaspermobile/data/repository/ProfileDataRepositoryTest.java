@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
+import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
@@ -34,6 +35,8 @@ import org.mockito.MockitoAnnotations;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
@@ -44,6 +47,8 @@ public class ProfileDataRepositoryTest {
 
     @Mock
     ProfileCache mCache;
+    @Mock
+    ProfileActiveCache mActiveCache;
 
     ProfileDataRepository repositoryUnderTest;
     Profile fakeProfile;
@@ -52,7 +57,7 @@ public class ProfileDataRepositoryTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         fakeProfile = Profile.create("any");
-        repositoryUnderTest = new ProfileDataRepository(mCache);
+        repositoryUnderTest = new ProfileDataRepository(mCache, mActiveCache);
     }
 
     @Test
@@ -68,14 +73,23 @@ public class ProfileDataRepositoryTest {
         assertThat("Should save profile for the first time", saveProfile());
     }
 
-    private boolean saveProfile() {
-        return repositoryUnderTest.saveProfile(fakeProfile);
-    }
-
     @Test
     public void shouldNotSaveProfileIfCacheFailedToPerformOperation() {
         when(mCache.hasProfile(any(Profile.class))).thenReturn(false);
         when(mCache.put(any(Profile.class))).thenReturn(false);
         assertThat("If cache failed, should not save profile", !saveProfile());
+    }
+
+    @Test
+    public void testActivate() throws Exception {
+        repositoryUnderTest.activate(fakeProfile);
+        verify(mActiveCache).put(fakeProfile);
+        verifyNoMoreInteractions(mActiveCache);
+    }
+
+    //---------------------------------------------------------------------
+
+    private boolean saveProfile() {
+        return repositoryUnderTest.saveProfile(fakeProfile);
     }
 }

@@ -32,4 +32,5 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
  */
 public interface ProfileRepository {
     boolean saveProfile(Profile profile);
+    void activate(Profile profile);
 }

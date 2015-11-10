@@ -22,12 +22,9 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.repository;
+package com.jaspersoft.android.jaspermobile.data.cache;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import javax.inject.Inject;
@@ -37,23 +34,23 @@ import javax.inject.Inject;
  * @since 2.3
  */
 @PerActivity
-public class ProfileDataRepository implements ProfileRepository {
-    private final ProfileCache mProfileCache;
-    private final ProfileActiveCache mProfileActiveCache;
-
+public class ProfileActiveCacheImpl implements ProfileActiveCache {
     @Inject
-    public ProfileDataRepository(ProfileCache profileCache, ProfileActiveCache profileActiveCache) {
-        mProfileCache = profileCache;
-        mProfileActiveCache = profileActiveCache;
+    public ProfileActiveCacheImpl() {
     }
 
     @Override
-    public boolean saveProfile(Profile profile) {
-        return !mProfileCache.hasProfile(profile) && mProfileCache.put(profile);
+    public void put(Profile profile) {
+
     }
 
     @Override
-    public void activate(Profile profile) {
-        mProfileActiveCache.put(profile);
+    public Profile get(Profile profile) {
+        return null;
+    }
+
+    @Override
+    public void evict() {
+
     }
 }

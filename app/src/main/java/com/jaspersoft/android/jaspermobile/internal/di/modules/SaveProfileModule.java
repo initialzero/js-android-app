@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
+import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ServerInfoDataMapper;
@@ -106,6 +108,12 @@ public final class SaveProfileModule {
                                              ServerInfoService infoService,
                                              ServerInfoDataMapper dataMapper) {
         return new JasperServerFactoryImpl(baseUrl, infoService, dataMapper);
+    }
+
+    @PerActivity
+    @Provides
+    ProfileActiveCache provideProfileActiveCache(ProfileActiveCacheImpl profileCache) {
+        return profileCache;
     }
 
     @PerActivity

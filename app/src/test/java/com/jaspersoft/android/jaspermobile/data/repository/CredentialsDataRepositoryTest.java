@@ -24,36 +24,42 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
-import javax.inject.Inject;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
-public final class ProfileDataRepository implements ProfileRepository {
-    private final ProfileCache mProfileCache;
-    private final ProfileActiveCache mProfileActiveCache;
+public class CredentialsDataRepositoryTest {
+    @Mock
+    CredentialsCache mCredentialsCache;
+    CredentialsDataRepository repoUnderTest;
+    Profile fakeProfile;
+    BaseCredentials fakeCredentials;
 
-    @Inject
-    public ProfileDataRepository(ProfileCache profileCache, ProfileActiveCache profileActiveCache) {
-        mProfileCache = profileCache;
-        mProfileActiveCache = profileActiveCache;
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        repoUnderTest = new CredentialsDataRepository(mCredentialsCache);
+        fakeProfile = Profile.create("name");
+        fakeCredentials = BaseCredentials.builder()
+                .setPassword("1234").setUsername("nay").create();
     }
 
-    @Override
-    public boolean saveProfile(Profile profile) {
-        return !mProfileCache.hasProfile(profile) && mProfileCache.put(profile);
-    }
-
-    @Override
-    public void activate(Profile profile) {
-        mProfileActiveCache.put(profile);
+    @Test
+    public void testSaveCredentials() throws Exception {
+        repoUnderTest.saveCredentials(fakeProfile, fakeCredentials);
+        verify(mCredentialsCache).put(fakeProfile, fakeCredentials);
+        verifyNoMoreInteractions(mCredentialsCache);
     }
 }

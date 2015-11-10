@@ -24,36 +24,28 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-
-import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 @PerActivity
-public final class ProfileDataRepository implements ProfileRepository {
-    private final ProfileCache mProfileCache;
-    private final ProfileActiveCache mProfileActiveCache;
+public final class CredentialsDataRepository implements CredentialsRepository {
+    private final CredentialsCache mCredentialsCache;
 
     @Inject
-    public ProfileDataRepository(ProfileCache profileCache, ProfileActiveCache profileActiveCache) {
-        mProfileCache = profileCache;
-        mProfileActiveCache = profileActiveCache;
+    public CredentialsDataRepository(CredentialsCache credentialsCache) {
+        mCredentialsCache = credentialsCache;
     }
 
     @Override
-    public boolean saveProfile(Profile profile) {
-        return !mProfileCache.hasProfile(profile) && mProfileCache.put(profile);
-    }
-
-    @Override
-    public void activate(Profile profile) {
-        mProfileActiveCache.put(profile);
+    public boolean saveCredentials(Profile profile, BaseCredentials credentials) {
+        return mCredentialsCache.put(profile, credentials);
     }
 }

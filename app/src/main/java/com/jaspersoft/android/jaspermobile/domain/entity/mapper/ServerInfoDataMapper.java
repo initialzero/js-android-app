@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.domain.entity.mapper;
 
+import android.support.annotation.NonNull;
+
 import com.jaspersoft.android.jaspermobile.data.server.JasperServer;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 
@@ -39,7 +41,12 @@ public class ServerInfoDataMapper {
     @Inject
     public ServerInfoDataMapper() {}
 
+    @NonNull
     public JasperServer transform(String baseUrl, ServerInfo serverInfo) {
-        throw new UnsupportedOperationException();
+        JasperServer.Builder builder = JasperServer.builder();
+        builder.setBaseUrl(baseUrl);
+        builder.setEdition(serverInfo.getEdition().name());
+        builder.setVersion(serverInfo.getVersion().getVersionCode());
+        return builder.create();
     }
 }

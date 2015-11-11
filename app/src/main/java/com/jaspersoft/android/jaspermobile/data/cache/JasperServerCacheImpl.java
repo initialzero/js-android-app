@@ -33,6 +33,7 @@ import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * @author Tom Koptel
@@ -47,7 +48,7 @@ public final class JasperServerCacheImpl implements JasperServerCache {
     private final String mAccountType;
 
     @Inject
-    public JasperServerCacheImpl(Context context, String accountType) {
+    public JasperServerCacheImpl(Context context, @Named("accountType") String accountType) {
         mContext = context;
         mAccountType = accountType;
     }

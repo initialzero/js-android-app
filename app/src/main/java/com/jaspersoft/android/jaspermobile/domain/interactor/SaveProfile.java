@@ -29,6 +29,7 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
@@ -57,6 +58,7 @@ public final class SaveProfile extends UseCase {
     private final JasperServerFactory mServerFactory;
     private final ProfileRepository mProfileRepository;
     private final CredentialsRepository mCredentialsRepository;
+    private final JasperServerRepository mServerRepository;
 
     @Inject
     public SaveProfile(
@@ -66,6 +68,7 @@ public final class SaveProfile extends UseCase {
             ProfileValidator profileValidator,
             ProfileRepository profileRepository,
             CredentialsRepository credentialsRepository,
+            JasperServerRepository serverRepository,
             PreExecutionThread threadExecutor,
             PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
@@ -75,6 +78,7 @@ public final class SaveProfile extends UseCase {
         mProfileValidator = profileValidator;
         mProfileRepository = profileRepository;
         mCredentialsRepository = credentialsRepository;
+        mServerRepository = serverRepository;
     }
 
     @Override
@@ -114,7 +118,7 @@ public final class SaveProfile extends UseCase {
         if (!isCredentialsSaved) {
             throw new FailedToSaveCredentials(credentials);
         }
-
+        mServerRepository.saveServer(profile, server);
         mProfileRepository.activate(profile);
         return profile;
     }

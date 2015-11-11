@@ -29,12 +29,15 @@ import android.content.Context;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCacheImpl;
+import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ServerInfoDataMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
+import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
 import com.jaspersoft.android.jaspermobile.data.server.JasperServerFactoryImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.JasperServerValidatorImpl;
@@ -47,6 +50,7 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.UseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.domain.server.JasperServerFactory;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
@@ -150,6 +154,18 @@ public final class SaveProfileModule {
         return new CredentialsDataRepository(credentialsCache);
     }
 
+    @PerActivity
+    @Provides
+    JasperServerCache providesJasperSeverCache(JasperServerCacheImpl cache) {
+        return cache;
+    }
+
+    @PerActivity
+    @Provides
+    JasperServerRepository providesServerRepository(JasperServerDataRepository repository) {
+        return repository;
+    }
+
     @Provides
     @PerActivity
     @Named("saveProfile")
@@ -160,6 +176,7 @@ public final class SaveProfileModule {
             ProfileValidator profileValidator,
             ProfileRepository profileRepo,
             CredentialsRepository credentialsRepo,
+            JasperServerRepository serverRepo,
             PreExecutionThread threadExecutor,
             PostExecutionThread postExecutionThread) {
         return new SaveProfile(
@@ -169,6 +186,7 @@ public final class SaveProfileModule {
                 profileValidator,
                 profileRepo,
                 credentialsRepo,
+                serverRepo,
                 threadExecutor,
                 postExecutionThread);
     }

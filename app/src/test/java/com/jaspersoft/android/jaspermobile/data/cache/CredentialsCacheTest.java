@@ -63,6 +63,7 @@ public class CredentialsCacheTest {
     CredentialsCacheImpl cacheUnderTest;
     Profile fakeProfile;
     BaseCredentials fakeCredentials;
+    FakeAccount fakeAccount;
 
     @Before
     public void setUp() throws Exception {
@@ -75,18 +76,19 @@ public class CredentialsCacheTest {
                 .setOrganization("organization")
                 .setUsername("nay")
                 .create();
+        fakeAccount = new FakeAccount(RuntimeEnvironment.application, fakeProfile);
     }
 
     @Test
     public void testHappyPutCase() throws Exception {
         when(mPasswordManager.encrypt(anyString())).thenReturn("encrypted");
-        setupFakeAccount();
+        fakeAccount.setup();
 
         assertThat("Put operation should save credentials if PasswordManager succeed",
                 cacheUnderTest.put(fakeProfile, fakeCredentials)
         );
 
-        Account account = getFakeAccount();
+        Account account = fakeAccount.get();
         assertThat("Password should be injected in cache",
                 accountManager.getPassword(account) != null);
         assertThat("Username should be injected in cache",
@@ -103,24 +105,9 @@ public class CredentialsCacheTest {
         when(mPasswordManager.encrypt(anyString())).thenThrow(
                 new PasswordManager.EncryptionError(new BadPaddingException())
         );
-        setupFakeAccount();
+        fakeAccount.setup();
         assertThat("Put operation should not save credentials if PasswordManager failed",
                 !cacheUnderTest.put(fakeProfile, fakeCredentials)
         );
-    }
-
-    //---------------------------------------------------------------------
-
-    private void setupFakeAccount() {
-        assertThat("Failed precondition. Can not create account for profile: " + fakeProfile,
-                accountManager.addAccountExplicitly(new Account(fakeProfile.getKey(), ACCOUNT_TYPE), null, null)
-        );
-        assertThat("Fake account should be registered in system",
-                accountManager.getAccountsByType(ACCOUNT_TYPE).length > 0
-        );
-    }
-
-    private Account getFakeAccount() {
-        return accountManager.getAccountsByType(ACCOUNT_TYPE)[0];
     }
 }

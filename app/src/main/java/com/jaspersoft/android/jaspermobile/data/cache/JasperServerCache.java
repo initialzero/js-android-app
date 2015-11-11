@@ -25,7 +25,7 @@
 package com.jaspersoft.android.jaspermobile.data.cache;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 
 /**
  * @author Tom Koptel

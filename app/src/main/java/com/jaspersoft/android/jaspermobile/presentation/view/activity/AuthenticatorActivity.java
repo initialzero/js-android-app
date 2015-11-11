@@ -29,13 +29,17 @@ import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
 
+import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerSaveProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.SaveProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment_;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class AuthenticatorActivity extends BaseActivity {
+public class AuthenticatorActivity extends BaseActivity implements HasComponent<SaveProfileComponent> {
 
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
@@ -95,5 +99,13 @@ public class AuthenticatorActivity extends BaseActivity {
             mAccountAuthenticatorResponse = null;
         }
         super.finish();
+    }
+
+    @Override
+    public SaveProfileComponent getComponent() {
+        return DaggerSaveProfileComponent.builder()
+                .activityModule(getActivityModule())
+                .saveProfileModule(new SaveProfileModule())
+                .build();
     }
 }

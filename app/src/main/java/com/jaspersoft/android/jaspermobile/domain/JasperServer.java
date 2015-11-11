@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.server;
+package com.jaspersoft.android.jaspermobile.domain;
 
 import android.support.annotation.NonNull;
 

@@ -24,10 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-
+import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.validator.Validation;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
@@ -42,9 +41,7 @@ import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
 
 /**
  * @author Tom Koptel
@@ -55,41 +52,31 @@ import static org.junit.Assert.fail;
 public class ProfileValidatorTest {
 
     private ProfileValidatorImpl validator;
+    private Profile fakeProfile;
+    private FakeAccount fakeAccount;
 
     @Before
     public void setUp() throws Exception {
-        Profile profile = Profile.create("name");
-        validator = new ProfileValidatorImpl(RuntimeEnvironment.application, JasperSettings.JASPER_ACCOUNT_TYPE, profile);
+        fakeProfile = Profile.create("name");
+        fakeAccount = new FakeAccount(RuntimeEnvironment.application, fakeProfile);
+        validator = new ProfileValidatorImpl(RuntimeEnvironment.application, JasperSettings.JASPER_ACCOUNT_TYPE);
     }
 
     @Test
     public void shouldRejectProfileIfAccountAlreadyRegistered() throws Exception {
-        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        boolean isAdded = accountManager.addAccountExplicitly(new Account("name", JasperSettings.JASPER_ACCOUNT_TYPE), null, null);
-        assertThat("Precondition failed. Could not add test account", isAdded);
+        fakeAccount.setup();
 
-        Account[] accounts = accountManager.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
-        assertThat("Precondition failed. Test account is missing", accounts.length > 0);
+        Validation validation = validator.create(fakeProfile);
+        assertThat("Validation rule should not pass", !validation.perform());
 
-        try {
-            validator.validate();
-            fail("Account should not be valid");
-        } catch (DuplicateProfileException ex) {
-            assertThat(ex.requestedProfile(), is("name"));
-            assertThat(Arrays.asList(ex.availableNames()), contains("name"));
-        }
+        DuplicateProfileException ex = (DuplicateProfileException) validation.getCheckedException();
+        assertThat(ex.requestedProfile(), is("name"));
+        assertThat(Arrays.asList(ex.availableNames()), contains("name"));
     }
 
     @Test
     public void shouldAcceptProfileIfUnique() {
-        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        Account[] accounts = accountManager.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
-        assertThat(Arrays.asList(accounts), is(empty()));
-
-        try {
-            validator.validate();
-        } catch (DuplicateProfileException e) {
-            fail("Account should be valid");
-        }
+        Validation validation = validator.create(fakeProfile);
+        assertThat("Validation rule should pass", validation.perform());
     }
 }

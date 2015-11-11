@@ -22,15 +22,41 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.validator;
+package com.jaspersoft.android.jaspermobile.data;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface ProfileValidator {
-    Profile validate() throws DuplicateProfileException;
+public final class FakeAccount {
+    public static final String ACCOUNT_TYPE = "com.jaspersoft";
+
+    private final Profile fakeProfile;
+    private final AccountManager accountManager;
+
+    public FakeAccount(Context context, Profile fakeProfile) {
+        this.accountManager = AccountManager.get(context);
+        this.fakeProfile = fakeProfile;
+    }
+
+    public void setup() {
+        assertThat("Failed precondition. Can not create account for profile: " + fakeProfile,
+                accountManager.addAccountExplicitly(new Account(fakeProfile.getKey(), ACCOUNT_TYPE), null, null)
+        );
+        assertThat("Fake account should be registered in system",
+                accountManager.getAccountsByType(ACCOUNT_TYPE).length > 0
+        );
+    }
+
+    public Account get() {
+        return accountManager.getAccountsByType(ACCOUNT_TYPE)[0];
+    }
 }

@@ -27,8 +27,9 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 
+import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 
 import org.junit.Before;
 import org.junit.Test;

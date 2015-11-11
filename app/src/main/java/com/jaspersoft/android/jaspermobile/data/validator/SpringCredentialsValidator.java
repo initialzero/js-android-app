@@ -24,13 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidationFactory;
+import com.jaspersoft.android.jaspermobile.domain.validator.Validation;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.sdk.network.RestError;
-import com.jaspersoft.android.sdk.service.auth.Credentials;
-import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
-import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 
 import javax.inject.Inject;
 
@@ -38,33 +39,36 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class SpringCredentialsValidator implements CredentialsValidator {
-    private final JrsAuthenticator mAuthenticator;
-    private final BaseCredentials mCredentials;
+@PerActivity
+public final class SpringCredentialsValidator implements CredentialsValidationFactory {
+    private final Authenticator.Factory mAuthFactory;
 
     @Inject
-    public SpringCredentialsValidator(BaseCredentials baseCredentials,
-                                      JrsAuthenticator authenticator) {
-        mCredentials = baseCredentials;
-        mAuthenticator = authenticator;
+    public SpringCredentialsValidator(Authenticator.Factory authFactory) {
+        mAuthFactory = authFactory;
     }
 
     @Override
-    public BaseCredentials validate() throws InvalidCredentialsException, RestError {
-        Credentials springCredentials = SpringCredentials.builder()
-                .password(mCredentials.getPassword())
-                .username(mCredentials.getUsername())
-                .organization(mCredentials.getOrganization())
-                .build();
-        try {
-            mAuthenticator.authenticate(springCredentials);
-            return mCredentials;
-        } catch (RestError restError) {
-            if (restError.code() == 401) {
-                throw new InvalidCredentialsException(mCredentials);
-            } else {
-                throw restError;
+    public Validation<InvalidCredentialsException> create(final JasperServer server, final BaseCredentials credentials) {
+        return new Validation<InvalidCredentialsException>() {
+            @Override
+            public InvalidCredentialsException getCheckedException() {
+                return new InvalidCredentialsException(credentials);
             }
-        }
+
+            @Override
+            public boolean perform() {
+                try {
+                    mAuthFactory.create(server.getBaseUrl()).authenticate(credentials);
+                } catch (RestError restError) {
+                    if (restError.code() == 401) {
+                        return false;
+                    } else {
+                        throw restError;
+                    }
+                }
+                return true;
+            }
+        };
     }
 }

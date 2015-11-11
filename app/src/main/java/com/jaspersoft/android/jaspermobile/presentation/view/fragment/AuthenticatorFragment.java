@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
 import android.accounts.Account;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.View;
@@ -36,10 +37,7 @@ import android.widget.EditText;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerSaveProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.SaveProfileComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -82,30 +80,28 @@ public class AuthenticatorFragment extends BaseFragment {
     @Inject
     AuthenticationPresenter mPresenter;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getComponent(SaveProfileComponent.class).inject(this);
+    }
+
     @Click
     void addAccount() {
         if (isFormValid()) {
-            createSaveProfileComponent().inject(this);
+            String alias = aliasEdit.getText().toString();
+            String serverUrl = serverUrlEdit.getText().toString();
+            String username = usernameEdit.getText().toString();
+            String password = passwordEdit.getText().toString();
+            String organization = organizationEdit.getText().toString();
+
+            Profile profile = Profile.create(alias);
+            BaseCredentials credentials = BaseCredentials.builder()
+                    .setUsername(username)
+                    .setPassword(password)
+                    .setOrganization(organization)
+                    .create();
         }
-    }
-
-    private SaveProfileComponent createSaveProfileComponent() {
-        String alias = aliasEdit.getText().toString();
-        String serverUrl = serverUrlEdit.getText().toString();
-        String username = usernameEdit.getText().toString();
-        String password = passwordEdit.getText().toString();
-        String organization = organizationEdit.getText().toString();
-
-        Profile profile = Profile.create(alias);
-        BaseCredentials credentials = BaseCredentials.builder()
-                .setUsername(username)
-                .setPassword(password)
-                .setOrganization(organization)
-                .create();
-        return DaggerSaveProfileComponent.builder()
-                .activityModule(new ActivityModule(getActivity()))
-                .saveProfileModule(new SaveProfileModule(serverUrl, profile, credentials))
-                .build();
     }
 
     private boolean isFormValid() {

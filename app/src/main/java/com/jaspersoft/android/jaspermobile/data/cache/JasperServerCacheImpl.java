@@ -29,7 +29,7 @@ import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.server.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import javax.inject.Inject;

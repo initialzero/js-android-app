@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.domain.server;
 
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+
 import org.junit.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;

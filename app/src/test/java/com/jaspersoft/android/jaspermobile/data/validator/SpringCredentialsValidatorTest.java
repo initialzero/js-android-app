@@ -25,23 +25,23 @@
 package com.jaspersoft.android.jaspermobile.data.validator;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
+import com.jaspersoft.android.jaspermobile.domain.validator.Validation;
 import com.jaspersoft.android.sdk.network.RestError;
-import com.jaspersoft.android.sdk.service.auth.Credentials;
 import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
-import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -53,57 +53,56 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PrepareForTest({JrsAuthenticator.class, RestError.class})
 public class SpringCredentialsValidatorTest {
     @Mock
-    JrsAuthenticator mJrsAuthenticator;
+    Authenticator.Factory mAuthenticatorFactory;
+    @Mock
+    Authenticator mAuthenticator;
     @Mock
     RestError mRestError;
 
     SpringCredentialsValidator validator;
-    BaseCredentials credentialsUnderTest;
-
-    @Rule
-    public ExpectedException mException = ExpectedException.none();
+    BaseCredentials fakeCredentials;
+    JasperServer fakeServer;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        credentialsUnderTest = BaseCredentials.builder()
+        fakeServer = JasperServer.builder()
+                .setBaseUrl("http://localhost")
+                .setVersion(6.0d)
+                .setEdition("CE")
+                .create();
+        fakeCredentials = BaseCredentials.builder()
                 .setPassword("1234")
                 .setUsername("username")
                 .setOrganization("organization")
                 .create();
-        validator = new SpringCredentialsValidator(credentialsUnderTest, mJrsAuthenticator);
+
+        when(mAuthenticatorFactory.create(anyString())).thenReturn(mAuthenticator);
+        validator = new SpringCredentialsValidator(mAuthenticatorFactory);
     }
 
     @Test
     public void testValidate() throws Exception {
-        SpringCredentials credentials = SpringCredentials.builder()
-                .password("1234")
-                .username("username")
-                .organization("organization")
-                .build();
-
-        validator.validate();
-        verify(mJrsAuthenticator).authenticate(credentials);
+        validator.create(fakeServer, fakeCredentials).perform();
+        verify(mAuthenticatorFactory).create(fakeServer.getBaseUrl());
     }
 
     @Test
     public void shouldThrowCheckedExceptionIfServerEncountered401() throws Exception {
-        mException.expect(InvalidCredentialsException.class);
-        mException.expectMessage("Client has passed either invalid password or username/organization combination");
-
         mockRestException(401);
-        validator.validate();
+
+        Validation validation = validator.create(fakeServer, fakeCredentials);
+        assertThat("Should be invalid as soon as API respond with 401", !validation.perform());
     }
 
-    @Test
+    @Test(expected = RestError.class)
     public void shouldReThrowHttpException() throws Exception {
-        mException.expect(RestError.class);
         mockRestException(500);
-        validator.validate();
+        validator.create(fakeServer, fakeCredentials).perform();
     }
 
     private void mockRestException(int code) {
         when(mRestError.code()).thenReturn(code);
-        when(mJrsAuthenticator.authenticate(any(Credentials.class))).thenThrow(mRestError);
+        when(mAuthenticator.authenticate(any(BaseCredentials.class))).thenThrow(mRestError);
     }
 }

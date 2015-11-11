@@ -24,15 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.components;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.RestModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment;
-
-import javax.inject.Named;
 
 import dagger.Component;
 
@@ -45,13 +40,7 @@ import dagger.Component;
         modules = {
                 ActivityModule.class,
                 SaveProfileModule.class,
-                RestModule.class
         })
 public interface SaveProfileComponent extends ActivityComponent {
     void inject(AuthenticatorFragment authFragment);
-
-    Profile provideProfile();
-    BaseCredentials provideCredentials();
-    @Named("baseUrl")
-    String provideBaseUrl();
 }

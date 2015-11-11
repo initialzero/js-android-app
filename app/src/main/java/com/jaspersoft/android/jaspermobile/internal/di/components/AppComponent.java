@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
+import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
+import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.BaseActivity;
 
@@ -24,6 +27,10 @@ public interface AppComponent {
     Context appContext();
     PreExecutionThread preExecutionThread();
     PostExecutionThread postExecutionThread();
+    CompositeUseCase compositeUseCase();
+    ServerApi.Factory serverApiFactory();
+    Authenticator.Factory authApiFactory();
+
     @Named("accountType")
     String provideAccountType();
 }

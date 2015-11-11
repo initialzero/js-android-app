@@ -35,31 +35,23 @@ import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
-import com.jaspersoft.android.jaspermobile.data.entity.mapper.ServerInfoDataMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
-import com.jaspersoft.android.jaspermobile.data.server.JasperServerFactoryImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.JasperServerValidatorImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.SpringCredentialsValidator;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
-import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
-import com.jaspersoft.android.jaspermobile.domain.interactor.UseCase;
+import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.domain.server.JasperServerFactory;
-import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
-import com.jaspersoft.android.jaspermobile.domain.validator.JasperServerValidator;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidationFactory;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidationFactory;
+import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidationFactory;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
-import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
-import com.jaspersoft.android.sdk.service.server.ServerInfoService;
 
 import javax.inject.Named;
 
@@ -72,54 +64,23 @@ import dagger.Provides;
  */
 @Module
 public final class SaveProfileModule {
-    private final String mBaseUrl;
-    private final Profile mProfile;
-    private final BaseCredentials mCredentials;
 
-    public SaveProfileModule(String baseUrl, Profile profile, BaseCredentials credentials) {
-        mBaseUrl = baseUrl;
-        mProfile = profile;
-        mCredentials = credentials;
-    }
-
+    @PerActivity
     @Provides
-    @Named("baseUrl")
-    String providesBaseUrl() {
-        return mBaseUrl;
-    }
-
-    @Provides
-    BaseCredentials provideCredentials() {
-        return mCredentials;
-    }
-
-    @Provides
-    Profile providesProfile() {
-        return mProfile;
-    }
-
-    @Provides
-    ProfileValidator provideProfileValidator(ProfileValidatorImpl profileValidator) {
+    ProfileValidationFactory provideProfileValidator(ProfileValidatorImpl profileValidator) {
         return profileValidator;
     }
 
-    @Provides
     @PerActivity
-    JasperServerValidator providesServerValidator(JasperServerValidatorImpl validator) {
+    @Provides
+    ServerValidationFactory providesServerValidator(JasperServerValidatorImpl validator) {
         return validator;
     }
 
+    @PerActivity
     @Provides
-    CredentialsValidator providesCredentialsValidator(BaseCredentials baseCredentials,
-                                                      JrsAuthenticator authenticator) {
-        return new SpringCredentialsValidator(baseCredentials, authenticator);
-    }
-
-    @Provides
-    JasperServerFactory provideServerFactory(@Named("baseUrl") String baseUrl,
-                                             ServerInfoService infoService,
-                                             ServerInfoDataMapper dataMapper) {
-        return new JasperServerFactoryImpl(baseUrl, infoService, dataMapper);
+    CredentialsValidationFactory providesCredentialsValidator(SpringCredentialsValidator validator) {
+        return validator;
     }
 
     @PerActivity
@@ -168,17 +129,15 @@ public final class SaveProfileModule {
 
     @Provides
     @PerActivity
-    @Named("saveProfile")
-    UseCase provideAddProfileUseCase(
-            JasperServerFactory serverFactory,
-            CredentialsValidator credentialsValidator,
-            JasperServerValidator serverValidator,
-            ProfileValidator profileValidator,
+    SaveProfile provideAddProfileUseCase(
+            ServerApi.Factory serverFactory,
+            CredentialsValidationFactory credentialsValidator,
+            ServerValidationFactory serverValidator,
+            ProfileValidationFactory profileValidator,
             ProfileRepository profileRepo,
             CredentialsRepository credentialsRepo,
             JasperServerRepository serverRepo,
-            PreExecutionThread threadExecutor,
-            PostExecutionThread postExecutionThread) {
+            CompositeUseCase compositeUseCase) {
         return new SaveProfile(
                 serverFactory,
                 credentialsValidator,
@@ -187,7 +146,6 @@ public final class SaveProfileModule {
                 profileRepo,
                 credentialsRepo,
                 serverRepo,
-                threadExecutor,
-                postExecutionThread);
+                compositeUseCase);
     }
 }

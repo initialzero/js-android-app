@@ -1,11 +1,10 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
-import com.jaspersoft.android.jaspermobile.domain.interactor.UseCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * @author Tom Koptel
@@ -15,10 +14,10 @@ import javax.inject.Named;
 public final class AuthenticationPresenter implements Presenter {
     private AuthenticationView mView;
 
-    private final UseCase saveProfileUseCase;
+    private final SaveProfile saveProfileUseCase;
 
     @Inject
-    public AuthenticationPresenter(@Named("saveProfile") UseCase saveProfileUseCase) {
+    public AuthenticationPresenter(SaveProfile saveProfileUseCase) {
         this.saveProfileUseCase = saveProfileUseCase;
     }
 

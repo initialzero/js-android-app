@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 
+import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;

@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -26,9 +27,10 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 
 import roboguice.inject.InjectView;
+import rx.Subscription;
+import rx.functions.Action1;
 import timber.log.Timber;
 
 /**
@@ -50,11 +52,35 @@ public class HtmlOpenFragment extends RoboSpiceFragment {
     @FragmentArg
     protected String htmlUri;
 
+    private Subscription mCookieSubscription;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mCookieSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(
+                new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean aBoolean) {
+                        loadFile();
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        showError();
+                    }
+                });
+    }
 
-        loadFile();
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mCookieSubscription.unsubscribe();
     }
 
     private void loadFile() {

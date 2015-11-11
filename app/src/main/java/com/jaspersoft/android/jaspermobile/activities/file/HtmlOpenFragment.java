@@ -22,8 +22,11 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 
 import roboguice.inject.InjectView;
 import timber.log.Timber;
@@ -76,8 +79,20 @@ public class HtmlOpenFragment extends RoboSpiceFragment {
             return;
         }
 
-        String fileUrl = "file:///" + file.getAbsolutePath();
-        resourceView.loadUrl(fileUrl);
+        String resourceData;
+        try {
+            resourceData = FileUtils.readFileToString(file);
+        } catch (IOException e) {
+            showError();
+            return;
+        }
+        resourceView.getSettings().setUseWideViewPort(true);
+        resourceView.getSettings().setLoadWithOverviewMode(true);
+        resourceView.loadDataWithBaseURL(getBaseUrl(), resourceData, null, "UTF-8", null);
+    }
+
+    private String getBaseUrl(){
+        return jsRestClient.getServerProfile().getServerUrl() + "/fileview/fileview" + htmlUri.subSequence(0, (htmlUri.lastIndexOf('/') + 1));
     }
 
     private void showError(){

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -25,29 +24,9 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <item
-        android:id="@+id/saveReport"
-        android:icon="@drawable/ic_menu_save"
-        android:title="@string/rv_ab_save_report"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/jive"
-        android:icon="@drawable/ic_menu_edit"
-        android:title="@string/rv_ab_save_report"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/favoriteAction"
-        android:icon="@drawable/ic_menu_star_outline"
-        android:title="@string/r_cm_add_to_favorites"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/aboutAction"
-        android:icon="@drawable/ic_menu_info"
-        android:title="@string/r_cm_view_details"
-        app:showAsAction="never" />
-
+        android:id="@+id/changeChartType"
+        android:icon="@drawable/ic_visibility_white_24dp"
+        android:title="Change chart type"
+        app:showAsAction="ifRoom" />
 </menu>

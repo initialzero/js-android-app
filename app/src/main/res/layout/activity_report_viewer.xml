@@ -64,4 +64,35 @@
         android:background="#454850"
         android:padding="4dp"
         />
+
+    <RelativeLayout
+        android:id="@+id/rootContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_alignParentBottom="true"
+            android:background="#454850"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <ImageButton
+                android:id="@+id/btnPrevChart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_pagination_previous" />
+
+            <ImageButton
+                android:id="@+id/btnNextChart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_pagination_next" />
+        </LinearLayout>
+
+    </RelativeLayout>
 </RelativeLayout>

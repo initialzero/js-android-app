@@ -374,6 +374,26 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         return this.report.params(parameters).run().done(this._processSuccess).fail(this._processErrors);
       };
 
+      ReportController.prototype.changeChartType = function(newChartType, number) {
+             js_mobile.log("change chart type");
+             var components = this.report.data().components
+             var chartNumber = 0
+             var chart
+
+             for (i = 0; i < components.length; i++) {
+                 if (components[i].componentType === "chart") {
+                    if (number == chartNumber) {
+                        chart = components[i];
+                        break;
+                    } else {
+                    chartNumber = chartNumber + 1
+                    }
+                 }
+             }
+             this.callback.onLoadStart();
+             return this.report.updateComponent(chart.id, {chartType: newChartType}).done(this._processSuccess).fail(this._processErrors);
+           };
+
       ReportController.prototype.selectPage = function(page) {
         if (this.report != null) {
           return this.report.pages(page).run().done(this._notifyPageChange).fail(this._notifyPageChangeError);
@@ -800,6 +820,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         return this._instance._applyReportParams(params);
       };
 
+       MobileReport.changeChartType = function(newChartType, number) {
+              return this._instance._changeChartType(newChartType, number);
+            };
+
       MobileReport.updateComponent = function(chartType) {
         return this._instance._updateComponent(chartType);
       };
@@ -850,6 +874,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       MobileReport.prototype._applyReportParams = function(params) {
         return this._controller.applyReportParams(params);
       };
+
+      MobileReport.prototype._changeChartType = function(newChartType, number) {
+              return this._controller.changeChartType(newChartType, number);
+            };
 
       MobileReport.prototype._updateComponent = function(chartType) {
         return this._controller._updateComponent(chartType);

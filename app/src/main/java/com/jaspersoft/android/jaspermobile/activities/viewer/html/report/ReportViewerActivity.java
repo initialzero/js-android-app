@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.view.ActionMode;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +40,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,6 +100,7 @@ import com.samskivert.mustache.Template;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
@@ -157,6 +160,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected ProgressBar progressBar;
     @ViewById
     protected PaginationBarView paginationControl;
+    @ViewById
+    protected RelativeLayout rootContainer;
 
     @Extra
     protected ResourceLookup resource;
@@ -190,6 +195,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
     private WebInterface mWebInterface;
     private boolean isFlowLoaded;
+    private int currentChart;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
@@ -214,6 +220,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
         accountServerData = AccountServerData.get(this, account);
+
+        currentChart = -1;
     }
 
     @AfterViews
@@ -304,9 +312,63 @@ public class ReportViewerActivity extends RoboToolbarActivity
         paramsStorage.clearInputControlHolder(resource.getUri());
     }
 
+    @Click(R.id.btnNextChart)
+    void nextChart() {
+        if (currentChart < 5) {
+            hideBorder(currentChart);
+            currentChart++;
+            drawBorder(currentChart);
+        }
+    }
+
+    @Click(R.id.btnPrevChart)
+    void prevChart() {
+        if (currentChart > 0) {
+            hideBorder(currentChart);
+            currentChart--;
+            drawBorder(currentChart);
+        }
+    }
+
+    public void runScript(String script) {
+        webView.evaluateJavascript(script, null);
+    }
+
     //---------------------------------------------------------------------
     // Menu items callbacks
     //---------------------------------------------------------------------
+
+    @OptionsItem(R.id.jive)
+    final void editMode() {
+        startSupportActionMode(new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                showEditMode();
+                mode.setTitle("Edit Mode");
+                mode.getMenuInflater().inflate(R.menu.edit_mode_chart_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if (item.getItemId() == R.id.changeChartType ) {
+                    webView.loadUrl(String.format("javascript:MobileReport.changeChartType('SpiderColumn', %s)", currentChart));
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                hideEditMode();
+            }
+        });
+    }
 
     @OptionsItem
     final void showLog() {
@@ -464,6 +526,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .builder(getSupportFragmentManager())
                 .setOnCancelListener(cancelListener).show();
         webView.setVisibility(View.INVISIBLE);
+        rootContainer.setVisibility(View.GONE);
     }
 
     @UiThread
@@ -471,6 +534,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     public void onLoadDone(String parameters) {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
         webView.setVisibility(View.VISIBLE);
+        rootContainer.setVisibility(currentChart > -1 ? View.VISIBLE : View.GONE);
+        drawBorder(currentChart);
     }
 
     @UiThread
@@ -583,6 +648,32 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void showEditMode() {
+        rootContainer.setVisibility(View.VISIBLE);
+
+        currentChart = 0;
+        drawBorder(currentChart);
+    }
+
+    private void hideEditMode() {
+        rootContainer.setVisibility(View.GONE);
+
+        hideBorder(currentChart);
+        currentChart = -1;
+    }
+
+    private void drawBorder(int index) {
+        if(index > -1) {
+            String javascript = "document.getElementsByClassName('highcharts_parent_container')[" + index + "].style.border = '#ff0000 2px solid';";
+            runScript(javascript);
+        }
+    }
+
+    private void hideBorder(int index) {
+        String javascript = "document.getElementsByClassName('highcharts_parent_container')[" + index + "].style.border = null;";
+        runScript(javascript);
+    }
 
     protected void resetZoom() {
         while (webView.zoomOut()) ;

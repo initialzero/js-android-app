@@ -58,11 +58,13 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.dialog.ChartTypesDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -138,7 +140,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,
-        ErrorWebViewClientListener.OnWebViewErrorListener
+        ErrorWebViewClientListener.OnWebViewErrorListener,
+        ChartTypesDialogFragment.ChartTypeDialogClickListener
 {
 
     @Bean
@@ -338,6 +341,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
     // Menu items callbacks
     //---------------------------------------------------------------------
 
+    @Override
+    public void onChartTypeSelected(String chartType) {
+        hideBorder(currentChart);
+        webView.loadUrl(String.format("javascript:MobileReport.changeChartType('" + chartType + "', %s)", currentChart));
+    }
+
     @OptionsItem(R.id.jive)
     final void editMode() {
         startSupportActionMode(new ActionMode.Callback() {
@@ -357,7 +366,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 if (item.getItemId() == R.id.changeChartType ) {
-                    webView.loadUrl(String.format("javascript:MobileReport.changeChartType('SpiderColumn', %s)", currentChart));
+                    ChartTypesDialogFragment.createBuilder(getSupportFragmentManager())
+                            .show();
                     return true;
                 }
                 return false;
@@ -665,13 +675,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     private void drawBorder(int index) {
         if(index > -1) {
-            String javascript = "document.getElementsByClassName('highcharts_parent_container')[" + index + "].style.border = '#ff0000 2px solid';";
+            String javascript = "var chart = document.getElementsByClassName('highcharts_parent_container')[" + index + "];chart.style.border = '#ff0000 2px solid';var container = document.getElementById('container');var newdiv = document.createElement('div');var divIdName = 'shadowDivForChartType';newdiv.setAttribute('id', divIdName);container.appendChild(newdiv);var rect = chart.getBoundingClientRect();newdiv.style.position = \"absolute\";newdiv.style.top = parseInt(rect.top, 10) + \"px\";newdiv.style.left = parseInt(rect.left, 10) + \"px\"; newdiv.style.width = parseInt(rect.width, 10) + \"px\";newdiv.style.height = parseInt(rect.height, 10) + \"px\";newdiv.style.boxShadow = \"0 0 0 99999px rgba(0, 0, 0, .5)\"";
             runScript(javascript);
         }
     }
 
     private void hideBorder(int index) {
-        String javascript = "document.getElementsByClassName('highcharts_parent_container')[" + index + "].style.border = null;";
+        String javascript = "var chart = document.getElementsByClassName('highcharts_parent_container')[" + index + "];chart.style.border = null;var container = document.getElementById('container');var newdiv = document.getElementById('shadowDivForChartType');container.removeChild(newdiv);";
         runScript(javascript);
     }
 

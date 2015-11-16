@@ -108,7 +108,6 @@ public class AuthenticationPresenterTest {
 
         presenterUnderTest.saveProfile(uiProfile);
 
-        verify(mAuthenticationView).hideRetry();
         verify(mAuthenticationView).showLoading();
 
         verify(mProfileDataMapper).transform(uiProfile);

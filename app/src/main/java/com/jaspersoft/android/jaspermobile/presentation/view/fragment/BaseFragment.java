@@ -1,16 +1,15 @@
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
-
-import roboguice.fragment.RoboFragment;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-abstract class BaseFragment extends RoboFragment {
+abstract class BaseFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

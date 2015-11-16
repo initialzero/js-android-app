@@ -104,6 +104,7 @@ public class AuthenticatorActivity extends BaseActivity implements HasComponent<
     @Override
     public SaveProfileComponent getComponent() {
         return DaggerSaveProfileComponent.builder()
+                .appComponent(getAppComponent())
                 .activityModule(getActivityModule())
                 .saveProfileModule(new SaveProfileModule())
                 .build();

@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -64,6 +65,11 @@ public class ProfileCacheImplTest {
         );
         assertThat("Failed to put profile in cache",
                 cacheUnderTest.put(fakeProfile)
+        );
+        Account account = new Account("name", JasperSettings.JASPER_ACCOUNT_TYPE);
+        String alias = accountManager.getUserData(account, "ALIAS_KEY");
+        assertThat("Failed to put profile alias in cache",
+                alias != null
         );
     }
 

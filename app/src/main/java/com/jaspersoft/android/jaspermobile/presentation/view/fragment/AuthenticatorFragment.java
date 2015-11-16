@@ -24,6 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
+import android.accounts.AccountManager;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -37,6 +40,8 @@ import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -194,6 +199,29 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
 
     @Override
     public void navigateToApp() {
-        // no op
+        String alias = aliasEdit.getText().toString();
+
+        Bundle data = new Bundle();
+        data.putString(AccountManager.KEY_ACCOUNT_NAME, alias);
+        data.putString(AccountManager.KEY_ACCOUNT_TYPE, JasperSettings.JASPER_ACCOUNT_TYPE);
+        getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
+
+        Toast.makeText(getActivity(),
+                getString(R.string.success_add_account, alias),
+                Toast.LENGTH_SHORT).show();
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtras(data);
+        getActivity().setResult(Activity.RESULT_OK, resultIntent);
+        getActivity().finish();
+    }
+
+    private AuthenticatorActivity getAccountAuthenticatorActivity() {
+        if (getActivity() instanceof AuthenticatorActivity) {
+            return (AuthenticatorActivity) getActivity();
+        } else {
+            throw new IllegalStateException("Fragment can only be consumed " +
+                    "within com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity");
+        }
     }
 }

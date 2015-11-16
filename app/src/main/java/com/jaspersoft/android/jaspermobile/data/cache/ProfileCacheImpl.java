@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
@@ -44,6 +45,8 @@ import javax.inject.Named;
  */
 @PerActivity
 public final class ProfileCacheImpl implements ProfileCache {
+    private static final String ALIAS_KEY = "ALIAS_KEY";
+
     private final Context mContext;
     private final String mAccountType;
 
@@ -57,7 +60,9 @@ public final class ProfileCacheImpl implements ProfileCache {
     public boolean put(Profile profile) {
         AccountManager accountManager = AccountManager.get(mContext);
         Account accountProfile = new Account(profile.getKey(), mAccountType);
-        return accountManager.addAccountExplicitly(accountProfile, null, null);
+        Bundle userData = new Bundle();
+        userData.putString(ALIAS_KEY, profile.getKey());
+        return accountManager.addAccountExplicitly(accountProfile, null, userData);
     }
 
     @Override

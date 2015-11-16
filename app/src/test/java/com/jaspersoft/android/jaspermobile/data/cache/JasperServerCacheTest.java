@@ -73,12 +73,15 @@ public class JasperServerCacheTest {
 
         Account account = fakeAccount.get();
 
+        String serverUrl = accountManager.getUserData(account, "SERVER_URL_KEY");
+        String edition = accountManager.getUserData(account, "EDITION_KEY");
+        String versionName = accountManager.getUserData(account, "VERSION_NAME_KEY");
         assertThat("Server url should be injected in cache",
-                fakeServer.getBaseUrl().equals(accountManager.getUserData(account, "SERVER_URL_KEY")));
+                fakeServer.getBaseUrl().equals(serverUrl));
         assertThat("Edition should be injected in cache",
-                fakeServer.getEdition().equals(accountManager.getUserData(account, "EDITION_KEY")));
+                fakeServer.getEdition().equals(edition));
         assertThat("Version should be injected in cache",
                 String.valueOf(fakeServer.getVersion())
-                        .equals(accountManager.getUserData(account, "VERSION_NAME_KEY")));
+                        .equals(versionName));
     }
 }

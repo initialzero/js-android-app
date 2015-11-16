@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class BaseCredentials {
+public class BaseCredentials {
     private final String username;
     private final String password;
     private final String organization;

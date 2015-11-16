@@ -50,7 +50,7 @@ import rx.functions.Func0;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class SaveProfile {
+public class SaveProfile {
     private final ServerApi.Factory mServerFactory;
     private final CredentialsValidationFactory mCredentialsValidator;
     private final ServerValidationFactory mServerValidator;

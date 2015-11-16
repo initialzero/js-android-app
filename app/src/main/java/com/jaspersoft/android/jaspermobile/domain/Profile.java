@@ -30,7 +30,7 @@ import android.support.annotation.NonNull;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class Profile {
+public class Profile {
     private final String key;
 
     private Profile(String key) {

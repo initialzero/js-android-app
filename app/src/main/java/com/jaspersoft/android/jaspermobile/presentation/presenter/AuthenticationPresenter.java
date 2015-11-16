@@ -78,7 +78,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
 
             Profile domainProfile = mProfileDataMapper.transform(profileModel);
             BaseCredentials domainCredentials = mCredentialsDataMapper.transform(profileModel.getCredentials());
-            String baseUrl = profileModel.getBaseUrl();
+            String baseUrl = profileModel.getServerUrl();
 
             mSaveProfileUseCase.execute(baseUrl, domainProfile, domainCredentials, new ProfileSaveListener());
         }

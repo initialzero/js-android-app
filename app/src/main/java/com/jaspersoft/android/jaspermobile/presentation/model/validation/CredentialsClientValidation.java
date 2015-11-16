@@ -42,6 +42,15 @@ public class CredentialsClientValidation {
     }
 
     public void validate(CredentialsModel credentialsModel) throws UsernameMissingException, PasswordMissingException {
-
+        String username = credentialsModel.getUsername();
+        if (username == null ||
+                username.trim().length() == 0) {
+            throw new UsernameMissingException();
+        }
+        String password = credentialsModel.getPassword();
+        if (password == null ||
+                password.trim().length() == 0) {
+            throw new PasswordMissingException();
+        }
     }
 }

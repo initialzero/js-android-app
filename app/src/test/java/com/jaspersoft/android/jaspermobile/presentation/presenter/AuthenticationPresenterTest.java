@@ -104,7 +104,7 @@ public class AuthenticationPresenterTest {
 
     @Test
     public void testSaveProfile() throws Exception {
-        when(uiProfile.getBaseUrl()).thenReturn("http://localhost");
+        when(uiProfile.getServerUrl()).thenReturn("http://localhost");
 
         presenterUnderTest.saveProfile(uiProfile);
 

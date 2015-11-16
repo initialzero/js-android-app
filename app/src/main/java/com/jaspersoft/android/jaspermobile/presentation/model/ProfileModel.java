@@ -32,12 +32,12 @@ import android.support.annotation.NonNull;
  */
 public class ProfileModel {
     private final String mAlias;
-    private final String mBaseUrl;
+    private final String mServerUrl;
     private final CredentialsModel mCredentials;
 
-    private ProfileModel(@NonNull String alias, @NonNull String baseUrl, @NonNull CredentialsModel credentials) {
+    private ProfileModel(@NonNull String alias, @NonNull String serverUrl, @NonNull CredentialsModel credentials) {
         mAlias = alias;
-        mBaseUrl = baseUrl;
+        mServerUrl = serverUrl;
         mCredentials = credentials;
     }
 
@@ -47,8 +47,8 @@ public class ProfileModel {
     }
 
     @NonNull
-    public String getBaseUrl() {
-        return mBaseUrl;
+    public String getServerUrl() {
+        return mServerUrl;
     }
 
     @NonNull
@@ -64,7 +64,7 @@ public class ProfileModel {
         ProfileModel that = (ProfileModel) o;
 
         if (mAlias != null ? !mAlias.equals(that.mAlias) : that.mAlias != null) return false;
-        if (mBaseUrl != null ? !mBaseUrl.equals(that.mBaseUrl) : that.mBaseUrl != null)
+        if (mServerUrl != null ? !mServerUrl.equals(that.mServerUrl) : that.mServerUrl != null)
             return false;
         return !(mCredentials != null ? !mCredentials.equals(that.mCredentials) : that.mCredentials != null);
     }
@@ -72,7 +72,7 @@ public class ProfileModel {
     @Override
     public int hashCode() {
         int result = mAlias != null ? mAlias.hashCode() : 0;
-        result = 31 * result + (mBaseUrl != null ? mBaseUrl.hashCode() : 0);
+        result = 31 * result + (mServerUrl != null ? mServerUrl.hashCode() : 0);
         result = 31 * result + (mCredentials != null ? mCredentials.hashCode() : 0);
         return result;
     }
@@ -81,7 +81,7 @@ public class ProfileModel {
     public String toString() {
         return "ProfileModel{" +
                 "mAlias='" + mAlias + '\'' +
-                ", mBaseUrl='" + mBaseUrl + '\'' +
+                ", mServerUrl='" + mServerUrl + '\'' +
                 '}';
     }
 

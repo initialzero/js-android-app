@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.model.validation;
 
+import android.webkit.URLUtil;
+
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.AliasMissingException;
@@ -43,6 +45,16 @@ public class ProfileClientValidation {
     }
 
     public void validate(ProfileModel profileModel) throws AliasMissingException, ServerUrlMissingException, ServerUrlFormatException {
-
+        String alias = profileModel.getAlias();
+        if (alias == null || alias.trim().length() == 0) {
+            throw new AliasMissingException();
+        }
+        String serverUrl = profileModel.getServerUrl();
+        if (serverUrl == null || serverUrl.trim().length() == 0) {
+            throw new ServerUrlMissingException();
+        }
+        if (!URLUtil.isNetworkUrl(serverUrl)) {
+            throw new ServerUrlFormatException();
+        }
     }
 }

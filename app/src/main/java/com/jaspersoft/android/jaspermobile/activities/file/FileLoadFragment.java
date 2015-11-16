@@ -1,18 +1,8 @@
 package com.jaspersoft.android.jaspermobile.activities.file;
 
 import android.accounts.Account;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
@@ -31,25 +21,18 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 
 import java.io.File;
-import java.util.List;
 
-import roboguice.inject.InjectView;
 import timber.log.Timber;
 
 /**
  * @author Andrew Tivodar
  * @since 2.3
  */
-@EFragment(R.layout.fragment_file_open)
-public class FileOpenFragment extends RoboSpiceFragment {
+@EFragment
+public abstract class FileLoadFragment extends RoboSpiceFragment {
 
     @Inject
     protected JsRestClient jsRestClient;
-
-    @InjectView(R.id.btnTryToOpen)
-    protected Button tryToOpen;
-    @InjectView(android.R.id.message)
-    protected TextView messageView;
 
     @InstanceState
     @FragmentArg
@@ -59,65 +42,20 @@ public class FileOpenFragment extends RoboSpiceFragment {
     @FragmentArg
     protected String fileUri;
 
-    @Override
-    public void onViewCreated(View view, final Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        tryToOpen.setOnClickListener(new TryAgainClickListener());
+    protected abstract void onFileReady(File file);
 
-        tryToOpen();
-    }
+    protected abstract void showErrorMessage();
 
-    private boolean canBeOpened() {
-        String mimeType = "application/" + fileType.name();
-
-        Intent openIntent = new Intent(Intent.ACTION_VIEW);
-        openIntent.setDataAndType(null, mimeType);
-        PackageManager packageManager = getActivity().getPackageManager();
-        List<ResolveInfo> suitableApps = packageManager.queryIntentActivities(openIntent, PackageManager.GET_INTENT_FILTERS);
-        return suitableApps.size() > 0;
-    }
-
-    private void tryToOpen() {
-        if (canBeOpened()) {
-            File resource = loadFile();
-            openFile(resource);
-
-            showFileCanBeOpenedMessage();
-            tryToOpen.setVisibility(View.GONE);
-        } else {
-            showErrorMessage();
-            tryToOpen.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void showFileCanBeOpenedMessage() {
-        messageView.setText(R.string.fv_can_open_message);
-    }
-
-    private File loadFile() {
+    protected void loadFile() {
         File tempResource = getTempFile(fileUri);
         if (tempResource != null) {
             if (!tempResource.exists()) {
                 GetFileContentRequest fileContentRequest = new GetFileContentRequest(jsRestClient, tempResource, fileUri);
                 getSpiceManager().execute(fileContentRequest, new FileContentListener());
                 showProgressDialog();
-
+            } else {
+                new FileContentListener().onRequestSuccess(tempResource);
             }
-            return tempResource;
-        }
-        return null;
-    }
-
-    private void openFile(File file){
-        String mimeType = "application/" + fileType.name();
-        Intent openIntent = new Intent(Intent.ACTION_VIEW);
-        openIntent.setDataAndType(Uri.fromFile(file), mimeType);
-        openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            getActivity().startActivity(openIntent);
-            getActivity().finish();
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(getActivity(), getString(R.string.fv_can_not_open_message), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -137,10 +75,6 @@ public class FileOpenFragment extends RoboSpiceFragment {
        return null;
     }
 
-    private void showErrorMessage() {
-        messageView.setText(R.string.fv_can_not_open_message);
-    }
-
     private void showProgressDialog() {
         ProgressDialogFragment.builder(getActivity().getSupportFragmentManager())
                 .setLoadingMessage(R.string.loading_msg)
@@ -148,18 +82,11 @@ public class FileOpenFragment extends RoboSpiceFragment {
                         new DialogInterface.OnCancelListener() {
                             @Override
                             public void onCancel(DialogInterface dialog) {
-
+                                getActivity().finish();
                             }
                         }
                 )
                 .show();
-    }
-
-    private class TryAgainClickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            tryToOpen();
-        }
     }
 
     private class FileContentListener extends SimpleRequestListener<File> {
@@ -172,11 +99,13 @@ public class FileOpenFragment extends RoboSpiceFragment {
         public void onRequestFailure(SpiceException spiceException) {
             super.onRequestFailure(spiceException);
             ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+            showErrorMessage();
         }
 
         @Override
         public void onRequestSuccess(File file) {
             ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+            onFileReady(file);
         }
     }
 }

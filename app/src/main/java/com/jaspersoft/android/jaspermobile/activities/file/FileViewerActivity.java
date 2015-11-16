@@ -90,13 +90,15 @@ public class FileViewerActivity extends RoboSpiceActivity {
             Fragment fileFragment = null;
             switch (fileLookup.getFileType()) {
                 case html:
-                    fileFragment = HtmlOpenFragment_.builder()
-                            .htmlUri(fileLookup.getUri())
+                    fileFragment = HtmlFileViewFragment_.builder()
+                            .fileType(fileLookup.getFileType())
+                            .fileUri(fileLookup.getUri())
                             .build();
                     break;
                 case img:
-                    fileFragment = ImageOpenFragment_.builder()
-                            .imageUri(fileLookup.getUri())
+                    fileFragment = ImageFileViewFragment_.builder()
+                            .fileType(fileLookup.getFileType())
+                            .fileUri(fileLookup.getUri())
                             .build();
                     break;
                 case pdf:
@@ -107,7 +109,7 @@ public class FileViewerActivity extends RoboSpiceActivity {
                 case odt:
                 case pptx:
                 case rtf:
-                    fileFragment = FileOpenFragment_.builder()
+                    fileFragment = ExternalOpenFragment_.builder()
                             .fileType(fileLookup.getFileType())
                             .fileUri(fileLookup.getUri())
                             .build();

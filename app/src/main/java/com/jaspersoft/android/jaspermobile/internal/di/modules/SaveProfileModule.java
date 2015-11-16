@@ -51,6 +51,8 @@ import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidatio
 import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidationFactory;
 import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidationFactory;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Named;
@@ -125,6 +127,12 @@ public final class SaveProfileModule {
     @Provides
     JasperServerRepository providesServerRepository(JasperServerDataRepository repository) {
         return repository;
+    }
+
+    @PerActivity
+    @Provides
+    ProfileActionListener provideProfileActionListener(AuthenticationPresenter presenter) {
+        return presenter;
     }
 
     @Provides

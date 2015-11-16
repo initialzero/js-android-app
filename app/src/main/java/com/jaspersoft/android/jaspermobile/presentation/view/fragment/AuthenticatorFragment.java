@@ -24,34 +24,21 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
-import android.accounts.Account;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.text.TextUtils;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.URLUtil;
 import android.widget.EditText;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.SaveProfileComponent;
+import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
+import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
-import com.jaspersoft.android.jaspermobile.util.JasperSettings;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -60,7 +47,7 @@ import javax.inject.Inject;
  * @since 2.0
  */
 @EFragment(R.layout.add_account_layout)
-public class AuthenticatorFragment extends BaseFragment {
+public class AuthenticatorFragment extends BaseFragment implements AuthenticationView {
     @ViewById
     protected EditText aliasEdit;
     @ViewById
@@ -74,100 +61,113 @@ public class AuthenticatorFragment extends BaseFragment {
     @ViewById(R.id.tryDemoContainer)
     protected ViewGroup tryDemoLayout;
 
-    @SystemService
-    protected InputMethodManager inputMethodManager;
-
     @Inject
     AuthenticationPresenter mPresenter;
+    @Inject
+    ProfileActionListener mProfileActionListener;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        injectComponents();
+    }
+
+    private void injectComponents() {
         getComponent(SaveProfileComponent.class).inject(this);
+        mPresenter.setView(this);
     }
 
     @Click
     void addAccount() {
-        if (isFormValid()) {
-            String alias = aliasEdit.getText().toString();
-            String serverUrl = serverUrlEdit.getText().toString();
-            String username = usernameEdit.getText().toString();
-            String password = passwordEdit.getText().toString();
-            String organization = organizationEdit.getText().toString();
-
-            Profile profile = Profile.create(alias);
-            BaseCredentials credentials = BaseCredentials.builder()
-                    .setUsername(username)
-                    .setPassword(password)
-                    .setOrganization(organization)
-                    .create();
-        }
-    }
-
-    private boolean isFormValid() {
-        String serverUrl = serverUrlEdit.getText().toString();
         String alias = aliasEdit.getText().toString();
+        String serverUrl = serverUrlEdit.getText().toString();
+        String username = usernameEdit.getText().toString();
+        String password = passwordEdit.getText().toString();
+        String organization = organizationEdit.getText().toString();
 
-        Map<EditText, String> valueMap = new HashMap<EditText, String>();
-        valueMap.put(aliasEdit, alias);
-        valueMap.put(serverUrlEdit, serverUrl);
-        valueMap.put(usernameEdit, usernameEdit.getText().toString());
-        valueMap.put(passwordEdit, passwordEdit.getText().toString());
-
-        boolean isFieldValid;
-        boolean formValid = true;
-        for (Map.Entry<EditText, String> entry : valueMap.entrySet()) {
-            isFieldValid = !TextUtils.isEmpty(entry.getValue().trim());
-            if (!isFieldValid) {
-                entry.getKey().setError(getString(R.string.sp_error_field_required));
-                entry.getKey().requestFocus();
-            }
-            formValid &= isFieldValid;
-        }
-
-        if (!TextUtils.isEmpty(serverUrl)) {
-            String url = trimUrl(serverUrl);
-            if (!URLUtil.isNetworkUrl(url)) {
-                serverUrlEdit.setError(getString(R.string.sp_error_url_not_valid));
-                serverUrlEdit.requestFocus();
-                formValid &= false;
-            }
-        }
-
-        if (!TextUtils.isEmpty(alias)) {
-            Account account = new Account(alias, JasperSettings.JASPER_ACCOUNT_TYPE);
-            List<Account> accountList = new ArrayList<Account>();
-            Collections.addAll(accountList, JasperAccountManager.get(getActivity()).getAccounts());
-            if (accountList.contains(account)) {
-                aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
-                aliasEdit.requestFocus();
-                formValid &= false;
-            }
-
-            if (alias.equals(JasperSettings.RESERVED_ACCOUNT_NAME)) {
-                aliasEdit.setError(getString(R.string.sp_error_reserved_alias));
-                aliasEdit.requestFocus();
-                formValid &= false;
-            }
-        }
-
-        return formValid;
+        CredentialsModel credentials = CredentialsModel.builder()
+                .setUsername(username)
+                .setPassword(password)
+                .setOrganization(organization)
+                .create();
+        ProfileModel profile = ProfileModel.builder()
+                .setAlias(alias)
+                .setBaseUrl(serverUrl)
+                .setCredentials(credentials)
+                .create();
+        mProfileActionListener.saveProfile(profile);
     }
 
-    private String trimUrl(String url) {
-        if (!TextUtils.isEmpty(url) && url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
-        }
-        return url;
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPresenter.resume();
     }
 
-    private void hideKeyboard() {
-        View focus = getActivity().getCurrentFocus();
-        if (focus != null) {
-            IBinder token = focus.getWindowToken();
-            if (token != null) {
-                inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
-            }
-        }
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPresenter.pause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mPresenter.destroy();
+    }
+
+    @Override
+    public void showLoading() {
+        // no op
+    }
+
+    @Override
+    public void hideLoading() {
+        // no op
+    }
+
+    @Override
+    public void showRetry() {
+        // no op
+    }
+
+    @Override
+    public void hideRetry() {
+        // no op
+    }
+
+    @Override
+    public void showError(String message) {
+        // no op
+    }
+
+    @Override
+    public void showAliasDuplicateError() {
+        // no op
+    }
+
+    @Override
+    public void showAliasReservedError() {
+        // no op
+    }
+
+    @Override
+    public void showAliasRequiredError() {
+        // no op
+    }
+
+    @Override
+    public void showServerUrlFormatError() {
+        // no op
+    }
+
+    @Override
+    public void showServerUrlRequiredError() {
+        // no op
+    }
+
+    @Override
+    public void showUsernameRequiredError() {
+        // no op
     }
 }

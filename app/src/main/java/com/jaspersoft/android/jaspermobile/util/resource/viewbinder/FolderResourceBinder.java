@@ -41,8 +41,8 @@ class FolderResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(TopCropImageView imageView, String uri) {
-        imageView.setScaleType(TopCropImageView.ScaleType.FIT_XY);
-        imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
-        imageView.setImageResource(R.drawable.placeholder_folder);
+        imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
+        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
+        imageView.setImageResource(R.drawable.ic_folder);
     }
 }

@@ -55,7 +55,7 @@ public class ExternalOpenFragment extends FileLoadFragment {
     }
 
     private void showFileOpeningMessage() {
-        messageView.setText(R.string.fv_can_open_message);
+        messageView.setText(R.string.fv_opening_message);
     }
 
     private void tryToShowFile() {

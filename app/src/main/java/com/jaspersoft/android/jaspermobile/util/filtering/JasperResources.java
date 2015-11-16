@@ -29,10 +29,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.ArrayList;
 
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.dashboard;
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.folder;
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.legacyDashboard;
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.reportUnit;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.*;
 
 /**
  * @author Andrew Tivodar
@@ -48,6 +45,14 @@ public class JasperResources {
         return JasperFilter.REPORT.getAsList();
     }
 
+    public static ArrayList<String> savedValues() {
+        return JasperFilter.SAVED_VALUES.getAsList();
+    }
+
+    public static ArrayList<String> files() {
+        return JasperFilter.FILES.getAsList();
+    }
+
     public static ArrayList<String> dashboard(ServerRelease serverRelease) {
         boolean isPreAmber = serverRelease.code() < ServerRelease.AMBER.code();
         if (isPreAmber) {
@@ -57,11 +62,18 @@ public class JasperResources {
         }
     }
 
+    public static ArrayList<String> unknown() {
+        return JasperFilter.UNKNOWN.getAsList();
+    }
+
     private enum JasperFilter {
         FOLDER(folder),
         REPORT(reportUnit),
+        SAVED_VALUES(reportOptions),
         DASHBOARD_PRE_AMBER(dashboard),
-        DASHBOARD_AMBER(legacyDashboard, dashboard);
+        DASHBOARD_AMBER(legacyDashboard, dashboard),
+        FILES(file),
+        UNKNOWN(unknown);
 
         private final ArrayList<String> mTypes = new ArrayList<String>();
 

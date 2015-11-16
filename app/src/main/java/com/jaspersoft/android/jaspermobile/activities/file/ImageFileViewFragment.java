@@ -1,13 +1,13 @@
 package com.jaspersoft.android.jaspermobile.activities.file;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.androidannotations.annotations.EFragment;
 
@@ -50,9 +50,7 @@ public class ImageFileViewFragment extends FileLoadFragment {
             return;
         }
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-        resourceImage.setImageBitmap(bitmap);
+        String decodedImgUri = Uri.fromFile(file).toString();
+        ImageLoader.getInstance().displayImage(decodedImgUri, resourceImage);
     }
 }

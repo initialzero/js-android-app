@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
@@ -94,6 +95,7 @@ public class ResourceOpener {
             case file:
                 showFile(resource);
             default:
+                showUnsupported();
                 break;
         }
     }
@@ -152,5 +154,9 @@ public class ResourceOpener {
 
     public void showFile(ResourceLookup resource){
         FileViewerActivity_.intent(activity).resourceLookup(resource).start();
+    }
+
+    public void showUnsupported(){
+        Toast.makeText(activity, R.string.fv_undefined_message, Toast.LENGTH_SHORT).show();
     }
 }

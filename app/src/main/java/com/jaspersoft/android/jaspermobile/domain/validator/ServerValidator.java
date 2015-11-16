@@ -7,6 +7,6 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVers
  * @author Tom Koptel
  * @since 2.3
  */
-public interface ServerValidationFactory {
-    Validation<ServerVersionNotSupportedException> create(JasperServer server);
+public interface ServerValidator {
+    void validate(JasperServer server) throws ServerVersionNotSupportedException;
 }

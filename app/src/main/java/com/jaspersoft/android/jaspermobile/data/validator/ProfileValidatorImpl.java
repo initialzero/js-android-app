@@ -29,10 +29,11 @@ import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidationFactory;
-import com.jaspersoft.android.jaspermobile.domain.validator.Validation;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -46,7 +47,7 @@ import javax.inject.Named;
  * @since 2.3
  */
 @PerActivity
-public final class ProfileValidatorImpl implements ProfileValidationFactory {
+public final class ProfileValidatorImpl implements ProfileValidator {
     private final Context mContext;
     private final String mAccountType;
 
@@ -58,22 +59,17 @@ public final class ProfileValidatorImpl implements ProfileValidationFactory {
     }
 
     @Override
-    public Validation<DuplicateProfileException> create(Profile profile) {
+    public void validate(Profile profile) throws DuplicateProfileException, ProfileReservedException {
         final String profileName = profile.getKey();
+        if (JasperSettings.RESERVED_ACCOUNT_NAME.equals(profileName)) {
+            throw new ProfileReservedException();
+        }
+
         final String[] availableNames = getAvailableNames();
-
-        return new Validation<DuplicateProfileException>() {
-            @Override
-            public DuplicateProfileException getCheckedException() {
-                return new DuplicateProfileException(profileName, availableNames);
-            }
-
-            @Override
-            public boolean perform() {
-                Account profileAccount = new Account(profileName, mAccountType);
-                return !getAccountSet().contains(profileAccount);
-            }
-        };
+        Account profileAccount = new Account(profileName, mAccountType);
+        if (getAccountSet().contains(profileAccount)) {
+            throw new DuplicateProfileException(profileName, availableNames);
+        }
     }
 
     private Set<Account> getAccountSet() {

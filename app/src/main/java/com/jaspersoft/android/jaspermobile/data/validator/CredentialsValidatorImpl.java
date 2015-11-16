@@ -24,11 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidationFactory;
-import com.jaspersoft.android.jaspermobile.domain.validator.Validation;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
+import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.sdk.network.RestError;
 
 import javax.inject.Inject;
 
@@ -37,24 +39,24 @@ import javax.inject.Inject;
  * @since 2.3
  */
 @PerActivity
-public final class JasperServerValidatorImpl implements ServerValidationFactory {
+public final class CredentialsValidatorImpl implements CredentialsValidator {
+    private final Authenticator.Factory mAuthFactory;
+
     @Inject
-    public JasperServerValidatorImpl() {
+    public CredentialsValidatorImpl(Authenticator.Factory authFactory) {
+        mAuthFactory = authFactory;
     }
 
     @Override
-    public Validation<ServerVersionNotSupportedException> create(JasperServer server) {
-        final double version = server.getVersion();
-        return new Validation<ServerVersionNotSupportedException>() {
-            @Override
-            public ServerVersionNotSupportedException getCheckedException() {
-                return new ServerVersionNotSupportedException(version);
+    public void validate(JasperServer server, BaseCredentials credentials) throws InvalidCredentialsException {
+        try {
+            mAuthFactory.create(server.getBaseUrl()).authenticate(credentials);
+        } catch (RestError restError) {
+            if (restError.code() == 401) {
+                throw new InvalidCredentialsException(credentials);
+            } else {
+                throw restError;
             }
-
-            @Override
-            public boolean perform() {
-                return (version >= 5.5d);
-            }
-        };
+        }
     }
 }

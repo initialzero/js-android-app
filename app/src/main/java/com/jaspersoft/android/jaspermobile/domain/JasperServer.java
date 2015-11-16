@@ -30,7 +30,7 @@ import android.support.annotation.NonNull;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class JasperServer {
+public class JasperServer {
     private final String baseUrl;
     private final String edition;
     private final double version;

@@ -8,6 +8,6 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCre
  * @author Tom Koptel
  * @since 2.3
  */
-public interface CredentialsValidationFactory {
-    Validation<InvalidCredentialsException> create(JasperServer server, BaseCredentials credentials);
+public interface CredentialsValidator {
+    void validate(JasperServer server, BaseCredentials credentials) throws InvalidCredentialsException;
 }

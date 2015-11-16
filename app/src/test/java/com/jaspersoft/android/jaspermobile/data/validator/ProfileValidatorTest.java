@@ -26,8 +26,8 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.Validation;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.junit.Before;
@@ -42,6 +42,7 @@ import java.util.Arrays;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.fail;
 
 /**
  * @author Tom Koptel
@@ -52,31 +53,43 @@ import static org.hamcrest.core.Is.is;
 public class ProfileValidatorTest {
 
     private ProfileValidatorImpl validator;
-    private Profile fakeProfile;
-    private FakeAccount fakeAccount;
 
     @Before
     public void setUp() throws Exception {
-        fakeProfile = Profile.create("name");
-        fakeAccount = new FakeAccount(RuntimeEnvironment.application, fakeProfile);
         validator = new ProfileValidatorImpl(RuntimeEnvironment.application, JasperSettings.JASPER_ACCOUNT_TYPE);
     }
 
     @Test
     public void shouldRejectProfileIfAccountAlreadyRegistered() throws Exception {
+        Profile fakeProfile = Profile.create("name");
+        FakeAccount fakeAccount = new FakeAccount(RuntimeEnvironment.application, fakeProfile);
         fakeAccount.setup();
 
-        Validation validation = validator.create(fakeProfile);
-        assertThat("Validation rule should not pass", !validation.perform());
+        try {
+            validator.validate(fakeProfile);
+            fail("Account should not be valid");
+        } catch (DuplicateProfileException ex) {
+            assertThat(ex.requestedProfile(), is("name"));
+            assertThat(Arrays.asList(ex.availableNames()), contains("name"));
+        }
+    }
 
-        DuplicateProfileException ex = (DuplicateProfileException) validation.getCheckedException();
-        assertThat(ex.requestedProfile(), is("name"));
-        assertThat(Arrays.asList(ex.availableNames()), contains("name"));
+   @Test
+    public void shouldRejectProfileIfAccountNameIsReserved() throws Exception {
+        try {
+            validator.validate(Profile.create(JasperSettings.RESERVED_ACCOUNT_NAME));
+            fail("Account should not be valid");
+        } catch (ProfileReservedException ex) {
+        }
     }
 
     @Test
-    public void shouldAcceptProfileIfUnique() {
-        Validation validation = validator.create(fakeProfile);
-        assertThat("Validation rule should pass", validation.perform());
+    public void shouldAcceptProfileIfUnique() throws Exception {
+        try {
+            Profile fakeProfile = Profile.create("name");
+            validator.validate(fakeProfile);
+        } catch (DuplicateProfileException e) {
+            fail("Account should be valid");
+        }
     }
 }

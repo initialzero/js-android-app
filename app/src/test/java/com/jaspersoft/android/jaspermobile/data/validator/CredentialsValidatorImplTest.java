@@ -27,19 +27,20 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
-import com.jaspersoft.android.jaspermobile.domain.validator.Validation;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 import com.jaspersoft.android.sdk.network.RestError;
-import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -50,55 +51,55 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @since 2.3
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({JrsAuthenticator.class, RestError.class})
-public class SpringCredentialsValidatorTest {
+@PrepareForTest({RestError.class})
+public class CredentialsValidatorImplTest {
     @Mock
-    Authenticator.Factory mAuthenticatorFactory;
+    RestError mRestError;
+    @Mock
+    Authenticator.Factory mFactory;
     @Mock
     Authenticator mAuthenticator;
     @Mock
-    RestError mRestError;
-
-    SpringCredentialsValidator validator;
-    BaseCredentials fakeCredentials;
+    BaseCredentials credentialsUnderTest;
+    @Mock
     JasperServer fakeServer;
+
+    CredentialsValidator validator;
+
+    @Rule
+    public ExpectedException mException = ExpectedException.none();
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        fakeServer = JasperServer.builder()
-                .setBaseUrl("http://localhost")
-                .setVersion(6.0d)
-                .setEdition("CE")
-                .create();
-        fakeCredentials = BaseCredentials.builder()
-                .setPassword("1234")
-                .setUsername("username")
-                .setOrganization("organization")
-                .create();
-
-        when(mAuthenticatorFactory.create(anyString())).thenReturn(mAuthenticator);
-        validator = new SpringCredentialsValidator(mAuthenticatorFactory);
+        when(mFactory.create(anyString())).thenReturn(mAuthenticator);
+        validator = new CredentialsValidatorImpl(mFactory);
     }
 
     @Test
     public void testValidate() throws Exception {
-        validator.create(fakeServer, fakeCredentials).perform();
-        verify(mAuthenticatorFactory).create(fakeServer.getBaseUrl());
+        performValidation();
+        verify(mAuthenticator).authenticate(credentialsUnderTest);
     }
 
     @Test
     public void shouldThrowCheckedExceptionIfServerEncountered401() throws Exception {
-        mockRestException(401);
+        mException.expect(InvalidCredentialsException.class);
+        mException.expectMessage("Client has passed either invalid password or username/organization combination");
 
-        Validation validation = validator.create(fakeServer, fakeCredentials);
-        assertThat("Should be invalid as soon as API respond with 401", !validation.perform());
+        mockRestException(401);
+        performValidation();
     }
 
-    @Test(expected = RestError.class)
+    @Test
     public void shouldReThrowHttpException() throws Exception {
+        mException.expect(RestError.class);
         mockRestException(500);
-        validator.create(fakeServer, fakeCredentials).perform();
+        performValidation();
+    }
+
+    private void performValidation() throws InvalidCredentialsException {
+        validator.validate(fakeServer, credentialsUnderTest);
     }
 
     private void mockRestException(int code) {

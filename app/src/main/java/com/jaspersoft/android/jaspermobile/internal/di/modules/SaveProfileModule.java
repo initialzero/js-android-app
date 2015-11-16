@@ -38,18 +38,18 @@ import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
-import com.jaspersoft.android.jaspermobile.data.validator.JasperServerValidatorImpl;
+import com.jaspersoft.android.jaspermobile.data.validator.ServerValidatorImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
-import com.jaspersoft.android.jaspermobile.data.validator.SpringCredentialsValidator;
+import com.jaspersoft.android.jaspermobile.data.validator.CredentialsValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidationFactory;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidationFactory;
-import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidationFactory;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
@@ -69,19 +69,19 @@ public final class SaveProfileModule {
 
     @PerActivity
     @Provides
-    ProfileValidationFactory provideProfileValidator(ProfileValidatorImpl profileValidator) {
+    ProfileValidator provideProfileValidator(ProfileValidatorImpl profileValidator) {
         return profileValidator;
     }
 
     @PerActivity
     @Provides
-    ServerValidationFactory providesServerValidator(JasperServerValidatorImpl validator) {
+    ServerValidator providesServerValidator(ServerValidatorImpl validator) {
         return validator;
     }
 
     @PerActivity
     @Provides
-    CredentialsValidationFactory providesCredentialsValidator(SpringCredentialsValidator validator) {
+    CredentialsValidator providesCredentialsValidator(CredentialsValidatorImpl validator) {
         return validator;
     }
 
@@ -139,9 +139,9 @@ public final class SaveProfileModule {
     @PerActivity
     SaveProfile provideAddProfileUseCase(
             ServerApi.Factory serverFactory,
-            CredentialsValidationFactory credentialsValidator,
-            ServerValidationFactory serverValidator,
-            ProfileValidationFactory profileValidator,
+            CredentialsValidator credentialsValidator,
+            ServerValidator serverValidator,
+            ProfileValidator profileValidator,
             ProfileRepository profileRepo,
             CredentialsRepository credentialsRepo,
             JasperServerRepository serverRepo,

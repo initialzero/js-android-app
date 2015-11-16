@@ -33,12 +33,12 @@ import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidationFactory;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidationFactory;
-import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidationFactory;
-import com.jaspersoft.android.jaspermobile.domain.validator.Validation;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 
 import javax.inject.Inject;
@@ -52,9 +52,9 @@ import rx.functions.Func0;
  */
 public class SaveProfile {
     private final ServerApi.Factory mServerFactory;
-    private final CredentialsValidationFactory mCredentialsValidator;
-    private final ServerValidationFactory mServerValidator;
-    private final ProfileValidationFactory mProfileValidator;
+    private final CredentialsValidator mCredentialsValidator;
+    private final ServerValidator mServerValidator;
+    private final ProfileValidator mProfileValidator;
     private final ProfileRepository mProfileRepository;
     private final CredentialsRepository mCredentialsRepository;
     private final JasperServerRepository mServerRepository;
@@ -64,9 +64,9 @@ public class SaveProfile {
     @Inject
     public SaveProfile(
             ServerApi.Factory jasperServerFactory,
-            CredentialsValidationFactory credentialsValidator,
-            ServerValidationFactory serverValidator,
-            ProfileValidationFactory profileValidator,
+            CredentialsValidator credentialsValidator,
+            ServerValidator serverValidator,
+            ProfileValidator profileValidator,
             ProfileRepository profileRepository,
             CredentialsRepository credentialsRepository,
             JasperServerRepository serverRepository,
@@ -97,6 +97,7 @@ public class SaveProfile {
                 } catch (InvalidCredentialsException |
                         ServerVersionNotSupportedException |
                         DuplicateProfileException |
+                        ProfileReservedException |
                         FailedToSaveProfile |
                         FailedToSaveCredentials e) {
                     return Observable.error(e);
@@ -109,6 +110,7 @@ public class SaveProfile {
             throws InvalidCredentialsException,
             ServerVersionNotSupportedException,
             DuplicateProfileException,
+            ProfileReservedException,
             FailedToSaveProfile,
             FailedToSaveCredentials {
 
@@ -149,24 +151,15 @@ public class SaveProfile {
     }
 
     private void validateCredentials(JasperServer server, BaseCredentials credentials) throws InvalidCredentialsException {
-        Validation<InvalidCredentialsException> credentialsValidation = mCredentialsValidator.create(server, credentials);
-        if (credentialsValidation.perform()) {
-            throw credentialsValidation.getCheckedException();
-        }
+        mCredentialsValidator.validate(server, credentials);
     }
 
     private void validateServer(JasperServer server) throws ServerVersionNotSupportedException {
-        Validation<ServerVersionNotSupportedException> serverValidation = mServerValidator.create(server);
-        if (serverValidation.perform()) {
-            throw serverValidation.getCheckedException();
-        }
+        mServerValidator.validate(server);
     }
 
-    private void validateProfile(Profile profile) throws DuplicateProfileException {
-        Validation<DuplicateProfileException> profileValidation = mProfileValidator.create(profile);
-        if (profileValidation.perform()) {
-            throw profileValidation.getCheckedException();
-        }
+    private void validateProfile(Profile profile) throws DuplicateProfileException, ProfileReservedException {
+        mProfileValidator.validate(profile);
     }
 
     public void unsubscribe() {

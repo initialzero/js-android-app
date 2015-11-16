@@ -94,6 +94,7 @@ public class ResourceOpener {
                 break;
             case file:
                 showFile(resource);
+                break;
             default:
                 showUnsupported();
                 break;

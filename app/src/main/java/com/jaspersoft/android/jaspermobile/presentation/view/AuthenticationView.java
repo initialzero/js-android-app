@@ -12,5 +12,8 @@ public interface AuthenticationView extends LoadDataView {
     void showServerUrlRequiredError();
     void showUsernameRequiredError();
     void showPasswordRequiredError();
+    void showServerVersionNotSupported();
+    void showCredentialsError();
+    void showFailedToAddProfile(String message);
     void navigateToApp();
 }

@@ -27,8 +27,10 @@ package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.internal.di.components.SaveProfileComponent;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
@@ -118,62 +120,76 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
 
     @Override
     public void showLoading() {
-        // no op
+        ProgressDialogFragment.builder(getFragmentManager())
+                .setLoadingMessage(R.string.account_add)
+                .show();
     }
 
     @Override
     public void hideLoading() {
-        // no op
-    }
-
-    @Override
-    public void showRetry() {
-        // no op
-    }
-
-    @Override
-    public void hideRetry() {
-        // no op
+        ProgressDialogFragment.dismiss(getFragmentManager());
     }
 
     @Override
     public void showError(String message) {
-        // no op
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void showAliasDuplicateError() {
-        // no op
+        aliasEdit.setError(getString(R.string.sp_error_duplicate_alias));
+        aliasEdit.requestFocus();
     }
 
     @Override
     public void showAliasReservedError() {
-        // no op
+        aliasEdit.setError(getString(R.string.sp_error_reserved_alias));
+        aliasEdit.requestFocus();
     }
 
     @Override
     public void showAliasRequiredError() {
-        // no op
+        aliasEdit.setError(getString(R.string.sp_error_field_required));
+        aliasEdit.requestFocus();
     }
 
     @Override
     public void showServerUrlFormatError() {
-        // no op
+        serverUrlEdit.setError(getString(R.string.sp_error_url_not_valid));
+        serverUrlEdit.requestFocus();
     }
 
     @Override
     public void showServerUrlRequiredError() {
-        // no op
+        serverUrlEdit.setError(getString(R.string.sp_error_field_required));
+        serverUrlEdit.requestFocus();
     }
 
     @Override
     public void showUsernameRequiredError() {
-        // no op
+        usernameEdit.setError(getString(R.string.sp_error_field_required));
+        usernameEdit.requestFocus();
     }
 
     @Override
     public void showPasswordRequiredError() {
-        // no op
+        passwordEdit.setError(getString(R.string.sp_error_field_required));
+        passwordEdit.requestFocus();
+    }
+
+    @Override
+    public void showServerVersionNotSupported() {
+        showError(getString(R.string.r_error_server_not_supported));
+    }
+
+    @Override
+    public void showCredentialsError() {
+        showError(getString(R.string.r_error_incorrect_credentials));
+    }
+
+    @Override
+    public void showFailedToAddProfile(String message) {
+        showError(getString(R.string.failure_add_account, message));
     }
 
     @Override

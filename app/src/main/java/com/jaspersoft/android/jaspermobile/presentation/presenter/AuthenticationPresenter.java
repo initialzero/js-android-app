@@ -3,8 +3,12 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.mapper.CredentialsDataMapper;
@@ -73,7 +77,6 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
     @Override
     public void saveProfile(ProfileModel profileModel) {
         if (isClientDataValid(profileModel)) {
-            mView.hideRetry();
             mView.showLoading();
 
             Profile domainProfile = mProfileDataMapper.transform(profileModel);
@@ -124,6 +127,14 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
             mView.showAliasDuplicateError();
         } else if (e instanceof ProfileReservedException) {
             mView.showAliasReservedError();
+        } else if (e instanceof InvalidCredentialsException) {
+            mView.showCredentialsError();
+        } else if (e instanceof ServerVersionNotSupportedException) {
+            mView.showServerVersionNotSupported();
+        } else if (e instanceof FailedToSaveProfile) {
+            mView.showFailedToAddProfile(e.getMessage());
+        } else if (e instanceof FailedToSaveCredentials) {
+            mView.showFailedToAddProfile(e.getMessage());
         } else {
             mView.showError(e.getMessage());
         }

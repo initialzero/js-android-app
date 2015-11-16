@@ -170,4 +170,9 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     public void showUsernameRequiredError() {
         // no op
     }
+
+    @Override
+    public void navigateToApp() {
+        // no op
+    }
 }

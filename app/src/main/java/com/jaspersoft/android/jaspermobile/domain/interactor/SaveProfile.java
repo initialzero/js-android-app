@@ -168,4 +168,8 @@ public class SaveProfile {
             throw profileValidation.getCheckedException();
         }
     }
+
+    public void unsubscribe() {
+        mCompositeUseCase.unsubscribe();
+    }
 }

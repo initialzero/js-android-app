@@ -172,6 +172,11 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     }
 
     @Override
+    public void showPasswordRequiredError() {
+        // no op
+    }
+
+    @Override
     public void navigateToApp() {
         // no op
     }

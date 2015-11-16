@@ -22,14 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.validator.exception;
+package com.jaspersoft.android.jaspermobile.presentation.model.validation.exception;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class UsernameMissingException extends Exception {
-    public UsernameMissingException() {
-        super("Username missing exception");
+public class ServerUrlMissingException extends Exception {
+    public ServerUrlMissingException() {
+        super("Client has not supplied server url");
     }
 }

@@ -11,5 +11,6 @@ public interface AuthenticationView extends LoadDataView {
     void showServerUrlFormatError();
     void showServerUrlRequiredError();
     void showUsernameRequiredError();
+    void showPasswordRequiredError();
     void navigateToApp();
 }

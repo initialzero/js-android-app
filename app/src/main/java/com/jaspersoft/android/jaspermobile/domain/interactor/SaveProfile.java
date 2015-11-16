@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
@@ -32,7 +33,6 @@ import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerReposit
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
@@ -106,6 +106,10 @@ public class SaveProfile {
         });
     }
 
+    public void unsubscribe() {
+        mCompositeUseCase.unsubscribe();
+    }
+
     private Profile performAddition(String baseUrl, Profile profile, BaseCredentials credentials)
             throws InvalidCredentialsException,
             ServerVersionNotSupportedException,
@@ -128,19 +132,16 @@ public class SaveProfile {
         return profile;
     }
 
-    private void activateProfile(Profile profile) {
-        mProfileRepository.activate(profile);
+    private void validateProfile(Profile profile) throws DuplicateProfileException, ProfileReservedException {
+        mProfileValidator.validate(profile);
     }
 
-    private void saveServer(Profile profile, JasperServer server) {
-        mServerRepository.saveServer(profile, server);
+    private void validateServer(JasperServer server) throws ServerVersionNotSupportedException {
+        mServerValidator.validate(server);
     }
 
-    private void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials {
-        boolean isCredentialsSaved = mCredentialsRepository.saveCredentials(profile, credentials);
-        if (!isCredentialsSaved) {
-            throw new FailedToSaveCredentials(credentials);
-        }
+    private void validateCredentials(JasperServer server, BaseCredentials credentials) throws InvalidCredentialsException {
+        mCredentialsValidator.validate(server, credentials);
     }
 
     private void saveProfile(Profile profile) throws FailedToSaveProfile {
@@ -150,19 +151,18 @@ public class SaveProfile {
         }
     }
 
-    private void validateCredentials(JasperServer server, BaseCredentials credentials) throws InvalidCredentialsException {
-        mCredentialsValidator.validate(server, credentials);
+    private void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials {
+        boolean isCredentialsSaved = mCredentialsRepository.saveCredentials(profile, credentials);
+        if (!isCredentialsSaved) {
+            throw new FailedToSaveCredentials(credentials);
+        }
     }
 
-    private void validateServer(JasperServer server) throws ServerVersionNotSupportedException {
-        mServerValidator.validate(server);
+    private void saveServer(Profile profile, JasperServer server) {
+        mServerRepository.saveServer(profile, server);
     }
 
-    private void validateProfile(Profile profile) throws DuplicateProfileException, ProfileReservedException {
-        mProfileValidator.validate(profile);
-    }
-
-    public void unsubscribe() {
-        mCompositeUseCase.unsubscribe();
+    private void activateProfile(Profile profile) {
+        mProfileRepository.activate(profile);
     }
 }

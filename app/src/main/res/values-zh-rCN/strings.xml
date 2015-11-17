@@ -245,7 +245,7 @@
     <string name="sdr_dfd_msg">您真的要删除“%s”吗？</string>
 
     <!-- Settings activity -->
-    <string name="st_send_crashes_note">注意：更改此设置后，请重新启动应用程序。</string>
+    <string name="st_restart_note">注意：更改此设置后，请重新启动应用程序。</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">未找到服务器。</string>

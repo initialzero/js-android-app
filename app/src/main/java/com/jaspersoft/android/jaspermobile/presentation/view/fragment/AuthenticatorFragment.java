@@ -55,6 +55,12 @@ import javax.inject.Inject;
  */
 @EFragment(R.layout.add_account_layout)
 public class AuthenticatorFragment extends BaseFragment implements AuthenticationView {
+    private static final String ALIAS = "Mobile Demo";
+    private static final String SERVER_URL = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
+    private static final String ORGANIZATION = "organization_1";
+    private static final String USERNAME = "phoneuser";
+    private static final String PASSWORD = "phoneuser";
+
     @ViewById
     protected EditText aliasEdit;
     @ViewById
@@ -91,18 +97,12 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
         String username = usernameEdit.getText().toString();
         String password = passwordEdit.getText().toString();
         String organization = organizationEdit.getText().toString();
+        saveProfile(alias, serverUrl, username, password, organization);
+    }
 
-        CredentialsModel credentials = CredentialsModel.builder()
-                .setUsername(username)
-                .setPassword(password)
-                .setOrganization(organization)
-                .create();
-        ProfileModel profile = ProfileModel.builder()
-                .setAlias(alias)
-                .setBaseUrl(serverUrl)
-                .setCredentials(credentials)
-                .create();
-        mProfileActionListener.saveProfile(profile);
+    @Click
+    void tryDemo() {
+        saveProfile(ALIAS, SERVER_URL, USERNAME, PASSWORD, ORGANIZATION);
     }
 
     @Override
@@ -223,5 +223,21 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
             throw new IllegalStateException("Fragment can only be consumed " +
                     "within com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity");
         }
+    }
+
+    private void saveProfile(String alias, String serverUrl,
+                             String username, String password,
+                             String organization) {
+        CredentialsModel credentials = CredentialsModel.builder()
+                .setUsername(username)
+                .setPassword(password)
+                .setOrganization(organization)
+                .create();
+        ProfileModel profile = ProfileModel.builder()
+                .setAlias(alias)
+                .setBaseUrl(serverUrl)
+                .setCredentials(credentials)
+                .create();
+        mProfileActionListener.saveProfile(profile);
     }
 }

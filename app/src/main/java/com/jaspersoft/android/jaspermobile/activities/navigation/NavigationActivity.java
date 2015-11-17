@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.activities.navigation;
@@ -54,6 +54,7 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -118,6 +119,7 @@ public class NavigationActivity extends RoboToolbarActivity {
     @Override
     protected void onActiveAccountChanged() {
         navigateToCurrentSelection();
+        enableRecentlyViewedSection();
     }
 
     @Override
@@ -186,6 +188,19 @@ public class NavigationActivity extends RoboToolbarActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void enableRecentlyViewedSection() {
+        Account account = JasperAccountManager.get(this).getActiveAccount();
+        AccountServerData serverData = AccountServerData.get(this, account);
+        boolean isProJrs = serverData.getEdition().equals("PRO");
+
+        View recentlyView = findViewById(R.id.vg_recent);
+        if (isProJrs) {
+            recentlyView.setVisibility(View.VISIBLE);
+        } else {
+            recentlyView.setVisibility(View.GONE);
+        }
+    }
+
     private void setupNavDrawer() {
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, getToolbar(),
                 R.string.nd_drawer_open, R.string.nd_drawer_close) {
@@ -210,6 +225,7 @@ public class NavigationActivity extends RoboToolbarActivity {
     }
 
     private void setupNavPanel() {
+        enableRecentlyViewedSection();
         navigationPanelLayout.setListener(new NavigationPanelLayout.NavigationListener() {
             @Override
             public void onNavigate(int viewId) {

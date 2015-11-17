@@ -1,26 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><!--
-    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
-    http://community.jaspersoft.com/project/jaspermobile-android
+  ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+  ~ http://community.jaspersoft.com/project/jaspermobile-android
+  ~
+  ~ Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+  ~ the following license terms apply:
+  ~
+  ~ This program is part of TIBCO Jaspersoft Mobile for Android.
+  ~
+  ~ TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with TIBCO Jaspersoft Mobile for Android. If not, see
+  ~ <http://www.gnu.org/licenses/lgpl>.
+  -->
 
-    Unless you have purchased a commercial license agreement from Jaspersoft,
-    the following license terms apply:
-
-    This program is part of Jaspersoft Mobile for Android.
-
-    Jaspersoft Mobile is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Jaspersoft Mobile is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with Jaspersoft Mobile for Android. If not, see
-    <http://www.gnu.org/licenses/lgpl>.
--->
 <resources>
     <!-- Images content description -->
     <string name="img_cd_list_item">Vista previa de lista de ítems</string>
@@ -47,9 +48,6 @@
     <string name="sp_error_field_required">Este campo es obligatorio.</string>
     <string name="sp_error_url_not_valid">La URL no es válida.</string>
     <string name="sp_error_duplicate_alias">Alias duplicado.</string>
-
-    <!-- Repository Activity -->
-    <string name="r_browser_nothing_to_display">No hay recursos en esta carpeta.</string>
 
     <!-- Action Bar -->
     <string name="r_ab_switch">Conmutar vista</string>
@@ -84,7 +82,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">Acerca de</string>
-    <string name="sa_about_info">TIBCO JasperMobile™ v%s\n\nHerramienta de gestión y visualización de informes para JasperReports Server 5.5 y superior.\n\nPara mayor información visite:\n\n\nDerechos reservados © 2005-2015 TIBCO Software, Inc.</string>
+    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Herramienta de gestión y visualización de informes para JasperReports® Server 5.5 y superior.<br><br>Para mayor información visite:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"<br>http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>Para información de la política de privacidad, visite:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Derechos reservados © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Política de Privacidad</string>
 
     <!-- Report Options Activity -->
@@ -175,7 +173,7 @@
     <string name="rv_error_empty_report_title">El informe está vacío</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_rate">Valorar TIBCO JasperMobile</string>
+    <string name="h_rd_rate">Valorar TIBCO® JasperMobile™</string>
     <string name="h_rd_never">No, gracias</string>
     <string name="h_rd_later">Recordar más tarde</string>
 
@@ -190,7 +188,7 @@
     <string name="h_ad_label_wrong_password">El nombre de usuario o la contraseña es incorrecta. Por favor introduzca sus credenciales nuevamente.</string>
 
     <!-- Rate Dialog -->
-    <string name="h_rd_description">Si disfruta usar TIBCO JasperMobile, por favor dedique un momento a calificarla. No le tomará más de un minuto. ¡Gracias por su apoyo!</string>
+    <string name="h_rd_description">Si disfruta usar TIBCO® JasperMobile™, por favor dedique un momento a calificarla. No le tomará más de un minuto. ¡Gracias por su apoyo!</string>
 
     <!-- Error messages -->
     <string name="sp_error_reserved_alias">Alias reservado.</string>
@@ -215,7 +213,6 @@
     <!-- Report Viewer Activity -->
     <string name="rv_out_of_range">La página solicitada está fuera de rango.</string>
     <string name="rv_open_link_chooser">Abrir enlace en</string>
-    <string name="rv_no_viewer_identified">No se pudo identificar el visor para la versión de JRS: %s</string>
 
 
     <!-- Save Report Activity -->

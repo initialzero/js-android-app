@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile;
@@ -32,9 +32,20 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+
+import java.lang.reflect.Type;
+import java.util.List;
+
+import rx.Observable;
+import rx.functions.Action0;
+import rx.functions.Action1;
+import rx.functions.Actions;
+import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
@@ -46,6 +57,7 @@ public class UtilReceiver extends BroadcastReceiver {
     private static final String REMOVE_ALL_ACCOUNTS = "jaspermobile.util.action.REMOVE_ALL_ACCOUNTS";
     private static final String DOWNGRADE_SERVER_VERSION = "jaspermobile.util.action.DOWNGRADE_SERVER_VERSION";
     private static final String CHANGE_SERVER_EDITION = "jaspermobile.util.action.CHANGE_SERVER_EDITION";
+    private static final String LOAD_PROFILES = "jaspermobile.util.action.LOAD_PROFILES";
 
     private static final String INVALID_COOKIE = "JSESSIONID=5513E1DE5437AE6B9F41CC5C8309B153; " +
             "Path=/jasperserver-pro/; HttpOnlyuserLocale=en_US;Expires=Sat, 23-May-2015 09:15:46 GMT;HttpOnly";
@@ -65,6 +77,8 @@ public class UtilReceiver extends BroadcastReceiver {
         } else if (action.equals(CHANGE_SERVER_EDITION)) {
             changeServerVersion(context, intent);
             overrideTokenWithOldOne(context);
+        } else if (action.equals(LOAD_PROFILES)) {
+            loadProfiles(context, intent);
         }
     }
 
@@ -123,5 +137,39 @@ public class UtilReceiver extends BroadcastReceiver {
                 Toast.makeText(context, "Server edition was changed: " + editionName, Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void loadProfiles(final Context context, Intent intent) {
+        String json  = intent.getStringExtra("source_json");
+        if (TextUtils.isEmpty(json)) {
+            Toast.makeText(context, "Source json is missing", Toast.LENGTH_SHORT).show();
+        } else {
+            populateProfiles(context, json);
+        }
+    }
+
+    private void populateProfiles(final Context context, String json) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<AccountServerData>>() {
+        }.getType();
+
+        final JasperAccountManager accountManager = JasperAccountManager.get(context);
+        List<AccountServerData> datum = gson.fromJson(json, listType);
+        Observable.from(datum).flatMap(new Func1<AccountServerData, Observable<Account>>() {
+            @Override
+            public Observable<Account> call(AccountServerData serverData) {
+                return accountManager.addAccountExplicitly(serverData);
+            }
+        }).subscribe(Actions.empty(), new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Toast.makeText(context, "Failed to add profile: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }, new Action0() {
+            @Override
+            public void call() {
+                Toast.makeText(context, "Profiles loaded.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

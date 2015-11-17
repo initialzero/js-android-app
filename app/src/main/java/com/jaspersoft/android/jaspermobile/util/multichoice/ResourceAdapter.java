@@ -2,23 +2,23 @@
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
  * the following license terms apply:
  *
- * This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -44,7 +44,9 @@ import com.jaspersoft.android.jaspermobile.widget.ListItemView_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 
 public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
@@ -106,7 +108,6 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     @Override
     public void addAll(Collection<? extends ResourceLookup> collection) {
         super.addAll(collection);
-        sortByType();
         // Because of rotation we are loosing content of adapter. For that
         // reason we are altering ActionMode icon if it visible state to
         // the required value.
@@ -131,7 +132,7 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
     @Override
     public void clear() {
         super.clear();
-        resetCurrentPosition();
+       // resetCurrentPosition();
     }
 
     private void alterFavoriteIcon() {
@@ -166,16 +167,17 @@ public class ResourceAdapter extends SingleChoiceArrayAdapter<ResourceLookup> {
         return true;
     }
 
-    private void sortByType() {
-        super.sort(new OrderingByType());
+    public void addAllByType(List<ResourceLookup> datum) {
+        Collections.sort(datum, new OrderingByType());
+        addAll(datum);
     }
 
     private static class OrderingByType implements Comparator<ResourceLookup> {
         @Override
         public int compare(ResourceLookup res1, ResourceLookup res2) {
-            ResourceLookup.ResourceType resType1 = res1.getResourceType();
-            ResourceLookup.ResourceType resType2 = res2.getResourceType();
-            return compare(resType1.ordinal(), resType2.ordinal());
+            int lhs = res1.getResourceType() == ResourceLookup.ResourceType.folder ? 0 : 1;
+            int rhs = res2.getResourceType() == ResourceLookup.ResourceType.folder ? 0 : 1;
+            return compare(lhs, rhs);
         }
 
         private static int compare(int lhs, int rhs) {

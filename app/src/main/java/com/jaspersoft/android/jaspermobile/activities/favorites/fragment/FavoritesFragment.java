@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
@@ -46,6 +46,7 @@ import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -65,6 +66,9 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
@@ -84,9 +88,11 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @since 1.9
  */
 @EFragment(R.layout.fragment_resource)
+@OptionsMenu(R.menu.sort_menu)
 public class FavoritesFragment extends RoboFragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        DeleteDialogFragment.DeleteDialogClickListener {
+        DeleteDialogFragment.DeleteDialogClickListener,
+        SortDialogFragment.SortDialogClickListener {
 
     public static final String TAG = FavoritesFragment.class.getSimpleName();
     private final int FAVORITES_LOADER_ID = 20;
@@ -98,14 +104,13 @@ public class FavoritesFragment extends RoboFragment
 
     @FragmentArg
     protected ViewType viewType;
-    @FragmentArg
-    @InstanceState
-    protected SortOrder sortOrder;
 
     @InjectView(android.R.id.list)
     JasperRecyclerView listView;
     @InjectView(android.R.id.empty)
     TextView emptyText;
+    @OptionsMenuItem(R.id.sort)
+    MenuItem sortAction;
 
     @Inject
     JsRestClient jsRestClient;
@@ -121,10 +126,23 @@ public class FavoritesFragment extends RoboFragment
     private JasperResourceAdapter mAdapter;
     private JasperResourceConverter jasperResourceConverter;
 
+
+    @OptionsItem(R.id.sort)
+    final void startSorting() {
+        SortDialogFragment.createBuilder(getFragmentManager())
+                .setInitialSortOption(sortOptions.getOrder())
+                .setTargetFragment(this)
+                .show();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
+        if (savedInstanceState == null) {
+            sortOptions.putOrder(SortOrder.LABEL);
+        }
         jasperResourceConverter = new JasperResourceConverter(getActivity());
     }
 
@@ -149,6 +167,12 @@ public class FavoritesFragment extends RoboFragment
         setDataAdapter(savedInstanceState);
 
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        sortAction.setVisible(searchQuery == null);
     }
 
     @Override
@@ -177,11 +201,6 @@ public class FavoritesFragment extends RoboFragment
     }
 
     public void showFavoritesByFilter() {
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
-    }
-
-    public void showFavoritesBySortOrder(SortOrder selectedSortOrder) {
-        sortOrder = selectedSortOrder;
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
@@ -238,7 +257,7 @@ public class FavoritesFragment extends RoboFragment
 
         //Add sorting type to WHERE params
         String sortOrderString;
-        if (sortOrder != null && sortOrder.getValue().equals(SortOrder.CREATION_DATE.getValue())) {
+        if (sortOptions.getOrder() != null && sortOptions.getOrder().getValue().equals(SortOrder.CREATION_DATE.getValue())) {
             sortOrderString = FavoritesTable.CREATION_TIME + " ASC";
         } else {
             sortOrderString = FavoritesTable.TITLE + " COLLATE NOCASE ASC";
@@ -275,7 +294,7 @@ public class FavoritesFragment extends RoboFragment
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
-            setEmptyText(searchQuery == null ? R.string.f_empty_list_msg : R.string.r_search_nothing_to_display);
+            setEmptyText(searchQuery == null ? R.string.f_empty_list_msg : R.string.resources_not_found);
         }
     }
 
@@ -300,6 +319,16 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onDeleteCanceled() {
+    }
+
+    //---------------------------------------------------------------------
+    // SortDialogFragment.SortDialogClickListener
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onOptionSelected(SortOrder sortOrder) {
+        sortOptions.putOrder(sortOrder);
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
     //---------------------------------------------------------------------

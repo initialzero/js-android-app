@@ -51,7 +51,7 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
-public class JasperMobileModule extends AbstractModule {
+public class  JasperMobileModule extends AbstractModule {
     private final Context mContext;
 
     public JasperMobileModule(Application application) {

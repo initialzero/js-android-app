@@ -191,7 +191,7 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
                 R.color.js_dark_blue);
 
         listView.addOnScrollListener(new ScrollListener());
-        setDataAdapter(savedInstanceState);
+        setDataAdapter();
         updatePaginationPolicy();
         loadPage();
     }
@@ -224,14 +224,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     public void onPause() {
         swipeRefreshLayout.clearAnimation();
         super.onPause();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (mSelectionModeHelper != null) {
-            mSelectionModeHelper.saveState(outState);
-        }
-        super.onSaveInstanceState(outState);
     }
 
     public void setQuery(String query) {
@@ -284,7 +276,7 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         resourceOpener.openResource(this, prefTag, resource);
     }
 
-    private void setDataAdapter(Bundle savedInstanceState) {
+    private void setDataAdapter() {
         JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
 
         List<ResourceLookup> resourceLookupList = null;
@@ -299,7 +291,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
         mSelectionModeHelper = new RepositorySelectionModeHelper(mAdapter);
-        mSelectionModeHelper.restoreState(savedInstanceState);
     }
 
     private void updatePaginationPolicy() {

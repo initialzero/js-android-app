@@ -164,7 +164,7 @@ public class FavoritesFragment extends RoboFragment
         super.onViewCreated(view, savedInstanceState);
 
         setEmptyText(0);
-        setDataAdapter(savedInstanceState);
+        setDataAdapter();
 
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
@@ -182,12 +182,6 @@ public class FavoritesFragment extends RoboFragment
         if (actionBar != null) {
             actionBar.setTitle(searchQuery == null ? getString(R.string.f_title) : getString(R.string.search_result_format, searchQuery));
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        mSelectionModeHelper.saveState(outState);
-        super.onSaveInstanceState(outState);
     }
 
     @UiThread
@@ -211,7 +205,7 @@ public class FavoritesFragment extends RoboFragment
         resourceOpener.openResource(this, FavoritesControllerFragment.PREF_TAG, resource);
     }
 
-    private void setDataAdapter(Bundle savedInstanceState) {
+    private void setDataAdapter() {
         Cursor cursor = null;
         mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(cursor, null, null), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
@@ -225,7 +219,6 @@ public class FavoritesFragment extends RoboFragment
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
         mSelectionModeHelper = new FavoriteSelectionModeHelper(mAdapter);
-        mSelectionModeHelper.restoreState(savedInstanceState);
     }
 
     //---------------------------------------------------------------------

@@ -1,6 +1,5 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
-import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 
@@ -11,8 +10,6 @@ import java.util.ArrayList;
  * @since 2.0
  */
 public abstract class SelectionModeHelper<T> implements ActionMode.Callback, ResourceSelector {
-
-    private final static String SELECTED_ITEMS_ARG = "selected_resources_list";
 
     private ArrayList<Integer> mSelectedItems;
 
@@ -61,19 +58,6 @@ public abstract class SelectionModeHelper<T> implements ActionMode.Callback, Res
     public void finishSelectionMode() {
         if (mActionMode != null) {
             mActionMode.finish();
-        }
-    }
-
-    public void saveState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            savedInstanceState.putIntegerArrayList(SELECTED_ITEMS_ARG, mSelectedItems);
-        }
-    }
-
-    public void restoreState(Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_ITEMS_ARG)) {
-            mSelectedItems = savedInstanceState.getIntegerArrayList(SELECTED_ITEMS_ARG);
-            handleSelectionState();
         }
     }
 

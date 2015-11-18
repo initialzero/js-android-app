@@ -134,15 +134,9 @@ public class SavedItemsFragment extends RoboFragment
         super.onViewCreated(view, savedInstanceState);
 
         setEmptyText(0);
-        setDataAdapter(savedInstanceState);
+        setDataAdapter();
 
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        mSelectionModeHelper.saveState(outState);
-        super.onSaveInstanceState(outState);
     }
 
     @UiThread
@@ -198,7 +192,7 @@ public class SavedItemsFragment extends RoboFragment
         }
     }
 
-    private void setDataAdapter(Bundle savedInstanceState) {
+    private void setDataAdapter() {
         Cursor cursor = null;
         mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(cursor, null, null), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
@@ -216,7 +210,6 @@ public class SavedItemsFragment extends RoboFragment
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
         mSelectionModeHelper = new SavedItemsSelectionModeHelper(mAdapter);
-        mSelectionModeHelper.restoreState(savedInstanceState);
     }
 
     //---------------------------------------------------------------------

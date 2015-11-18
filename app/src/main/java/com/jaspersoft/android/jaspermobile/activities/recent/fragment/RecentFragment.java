@@ -154,14 +154,6 @@ public class RecentFragment extends RoboSpiceFragment
         super.onPause();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (mSelectionModeHelper != null) {
-            mSelectionModeHelper.saveState(outState);
-        }
-        super.onSaveInstanceState(outState);
-    }
-
     //---------------------------------------------------------------------
     // Implements SwipeRefreshLayout.OnRefreshListener
     //---------------------------------------------------------------------
@@ -211,7 +203,6 @@ public class RecentFragment extends RoboSpiceFragment
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
         mSelectionModeHelper = new RecentlyViewedSelectionModeHelper(mAdapter);
-        mSelectionModeHelper.restoreState(null);
     }
 
     private void loadResources() {

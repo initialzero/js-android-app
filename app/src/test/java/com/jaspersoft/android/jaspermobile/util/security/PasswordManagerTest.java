@@ -35,7 +35,6 @@ import org.robolectric.annotation.Config;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -66,11 +65,10 @@ public class PasswordManagerTest {
         assertThat(decrypted, is("1234"));
     }
 
-    @Test
-    public void shouldReturnNullIfErrorEncountered() throws Exception {
-        PasswordManager passwordManager2 = PasswordManager.init(RuntimeEnvironment.application, "secret2");
+    @Test(expected = PasswordManager.DecryptionError.class)
+    public void shouldThrowDecryptionErrorIfErrorEncountered() throws Exception {
+        PasswordManager passwordManager2 = PasswordManager.init(RuntimeEnvironment.application, "qwerty123445");
         String encrypted = passwordManager.encrypt("1234");
-        String decrypted = passwordManager2.decrypt(encrypted);
-        assertThat(decrypted, is(nullValue()));
+        passwordManager2.decrypt(encrypted);
     }
 }

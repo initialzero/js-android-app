@@ -24,13 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.model.validation;
 
-import android.webkit.URLUtil;
-
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.AliasMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.ServerUrlFormatException;
 import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.ServerUrlMissingException;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.inject.Inject;
 
@@ -53,8 +54,14 @@ public class ProfileClientValidation {
         if (serverUrl == null || serverUrl.trim().length() == 0) {
             throw new ServerUrlMissingException();
         }
-        if (!URLUtil.isNetworkUrl(serverUrl)) {
+
+        try {
+            new URL(serverUrl);
+        } catch (MalformedURLException e) {
             throw new ServerUrlFormatException();
         }
+//        if (!URLUtil.isNetworkUrl(serverUrl)) {
+//            throw new ServerUrlFormatException();
+//        }
     }
 }

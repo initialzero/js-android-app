@@ -38,9 +38,9 @@ public class BaseCredentials {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof BaseCredentials)) return false;
 
         BaseCredentials that = (BaseCredentials) o;
 
@@ -52,7 +52,7 @@ public class BaseCredentials {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         int result = username != null ? username.hashCode() : 0;
         result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (organization != null ? organization.hashCode() : 0);

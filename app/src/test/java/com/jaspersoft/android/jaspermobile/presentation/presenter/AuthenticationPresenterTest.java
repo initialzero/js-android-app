@@ -52,7 +52,6 @@ import org.mockito.MockitoAnnotations;
 import rx.Subscriber;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -168,14 +167,14 @@ public class AuthenticationPresenterTest {
     public void testPresenterHandlesSeverVersionNotSupported() throws Exception {
         presenterUnderTest.handleProfileSaveFailure(new ServerVersionNotSupportedException(5.0d));
         verify(mAuthenticationView).hideLoading();
-        verify(mAuthenticationView).showError(anyString());
+        verify(mAuthenticationView).showServerVersionNotSupported();
     }
 
     @Test
     public void testPresenterHandlesInvalidCredentials() throws Exception {
         presenterUnderTest.handleProfileSaveFailure(new InvalidCredentialsException(null));
         verify(mAuthenticationView).hideLoading();
-        verify(mAuthenticationView).showError(anyString());
+        verify(mAuthenticationView).showCredentialsError();
     }
 
     @Test

@@ -27,19 +27,17 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
+import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
-import com.jaspersoft.android.sdk.network.RestError;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -50,11 +48,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @author Tom Koptel
  * @since 2.3
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({RestError.class})
 public class CredentialsValidatorImplTest {
     @Mock
-    RestError mRestError;
+    RestStatusException mRestError;
     @Mock
     Authenticator.Factory mFactory;
     @Mock
@@ -87,22 +83,22 @@ public class CredentialsValidatorImplTest {
         mException.expect(InvalidCredentialsException.class);
         mException.expectMessage("Client has passed either invalid password or username/organization combination");
 
-        mockRestException(401);
+        mockRestException(RestErrorCodes.AUTHORIZATION_ERROR);
         performValidation();
     }
 
     @Test
     public void shouldReThrowHttpException() throws Exception {
-        mException.expect(RestError.class);
-        mockRestException(500);
+        mException.expect(RestStatusException.class);
+        mockRestException(RestErrorCodes.INTERNAL_ERROR);
         performValidation();
     }
 
-    private void performValidation() throws InvalidCredentialsException {
+    private void performValidation() throws Exception {
         validator.validate(fakeServer, credentialsUnderTest);
     }
 
-    private void mockRestException(int code) {
+    private void mockRestException(int code) throws Exception {
         when(mRestError.code()).thenReturn(code);
         when(mAuthenticator.authenticate(any(BaseCredentials.class))).thenThrow(mRestError);
     }

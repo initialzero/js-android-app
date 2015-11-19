@@ -7,7 +7,7 @@ import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
  * @since 2.3
  */
 public interface Authenticator {
-    String authenticate(BaseCredentials credentials);
+    String authenticate(BaseCredentials credentials) throws RestStatusException;
 
     interface Factory {
         Authenticator create(String baseUrl);

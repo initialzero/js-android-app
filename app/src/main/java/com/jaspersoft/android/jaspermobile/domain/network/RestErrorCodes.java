@@ -22,50 +22,28 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain;
-
-import android.support.annotation.NonNull;
+package com.jaspersoft.android.jaspermobile.domain.network;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class Profile {
-    private final String key;
+public final class RestErrorCodes {
+    public static final int UNDEFINED_ERROR = 1;
+    public static final int NETWORK_ERROR = 2;
+    public static final int CLIENT_ERROR = 3;
+    public static final int INTERNAL_ERROR = 4;
+    public static final int PERMISSION_DENIED_ERROR = 5;
+    public static final int AUTHORIZATION_ERROR = 6;
 
-    private Profile(String key) {
-        this.key = key;
-    }
+    // EXPORT
+    public static final int EXPORT_PAGE_OUT_OF_RANGE = 100;
+    public static final int EXPORT_EXECUTION_CANCELLED = 101;
+    public static final int EXPORT_EXECUTION_FAILED = 102;
 
-    @NonNull
-    public String getKey() {
-        return key;
-    }
+    // REPORT
+    public static final int REPORT_EXECUTION_CANCELLED = 201;
+    public static final int REPORT_EXECUTION_FAILED = 202;
 
-    @NonNull
-    public static Profile create(String key){
-        return new Profile(key);
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Profile)) return false;
-
-        Profile profile = (Profile) o;
-
-        return !(key != null ? !key.equals(profile.key) : profile.key != null);
-    }
-
-    @Override
-    public final int hashCode() {
-        return key != null ? key.hashCode() : 0;
-    }
-
-    @Override
-    public String toString() {
-        return "Profile{" +
-                "key='" + key + '\'' +
-                '}';
-    }
+    private RestErrorCodes() {}
 }

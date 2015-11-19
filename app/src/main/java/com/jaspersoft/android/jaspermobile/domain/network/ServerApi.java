@@ -7,7 +7,7 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
  * @since 2.3
  */
 public interface ServerApi {
-    JasperServer requestServer();
+    JasperServer requestServer() throws RestStatusException;
 
     interface Factory {
         ServerApi create(String baseUrl);

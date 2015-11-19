@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.domain.interactor;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
@@ -87,19 +88,14 @@ public class SaveProfile {
     }
 
     private Observable buildUseCaseObservable(final String baseUrl,
-                                                final Profile profile,
-                                                final BaseCredentials credentials) {
+                                              final Profile profile,
+                                              final BaseCredentials credentials) {
         return Observable.defer(new Func0<Observable<Profile>>() {
             @Override
             public rx.Observable<Profile> call() {
                 try {
                     return Observable.just(performAddition(baseUrl, profile, credentials));
-                } catch (InvalidCredentialsException |
-                        ServerVersionNotSupportedException |
-                        DuplicateProfileException |
-                        ProfileReservedException |
-                        FailedToSaveProfile |
-                        FailedToSaveCredentials e) {
+                } catch (Exception e) {
                     return Observable.error(e);
                 }
             }
@@ -110,14 +106,8 @@ public class SaveProfile {
         mCompositeUseCase.unsubscribe();
     }
 
-    private Profile performAddition(String baseUrl, Profile profile, BaseCredentials credentials)
-            throws InvalidCredentialsException,
-            ServerVersionNotSupportedException,
-            DuplicateProfileException,
-            ProfileReservedException,
-            FailedToSaveProfile,
-            FailedToSaveCredentials {
-
+    private Profile performAddition(String baseUrl, Profile profile,
+                                    BaseCredentials credentials) throws Exception {
         validateProfile(profile);
         JasperServer server = mServerFactory.create(baseUrl).requestServer();
         validateServer(server);
@@ -140,7 +130,8 @@ public class SaveProfile {
         mServerValidator.validate(server);
     }
 
-    private void validateCredentials(JasperServer server, BaseCredentials credentials) throws InvalidCredentialsException {
+    private void validateCredentials(JasperServer server, BaseCredentials credentials)
+            throws RestStatusException, InvalidCredentialsException {
         mCredentialsValidator.validate(server, credentials);
     }
 

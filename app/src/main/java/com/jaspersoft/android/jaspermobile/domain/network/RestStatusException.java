@@ -22,50 +22,21 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain;
-
-import android.support.annotation.NonNull;
+package com.jaspersoft.android.jaspermobile.domain.network;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class Profile {
-    private final String key;
+public class RestStatusException extends Exception {
+    private final int mCode;
 
-    private Profile(String key) {
-        this.key = key;
+    public RestStatusException(String message, Throwable cause, int code) {
+        super(message, cause);
+        mCode = code;
     }
 
-    @NonNull
-    public String getKey() {
-        return key;
-    }
-
-    @NonNull
-    public static Profile create(String key){
-        return new Profile(key);
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Profile)) return false;
-
-        Profile profile = (Profile) o;
-
-        return !(key != null ? !key.equals(profile.key) : profile.key != null);
-    }
-
-    @Override
-    public final int hashCode() {
-        return key != null ? key.hashCode() : 0;
-    }
-
-    @Override
-    public String toString() {
-        return "Profile{" +
-                "key='" + key + '\'' +
-                '}';
+    public int code() {
+        return mCode;
     }
 }

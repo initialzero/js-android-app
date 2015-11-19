@@ -30,17 +30,17 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class CredentialsCacheImpl implements CredentialsCache {
     public static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
     public static final String USERNAME_KEY = "USERNAME_KEY";

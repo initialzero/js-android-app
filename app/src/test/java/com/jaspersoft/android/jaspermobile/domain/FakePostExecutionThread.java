@@ -22,36 +22,24 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.repository;
+package com.jaspersoft.android.jaspermobile.domain;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import rx.Scheduler;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
-public final class JasperServerDataRepository implements JasperServerRepository {
-    private final JasperServerCache mJasperServerCache;
-
-    @Inject
-    public JasperServerDataRepository(JasperServerCache jasperServerCache) {
-        mJasperServerCache = jasperServerCache;
-    }
-
-    @Override
-    public void saveServer(Profile profile, JasperServer jasperServer) {
-        mJasperServerCache.put(profile, jasperServer);
-    }
-
-    @Override
-    public JasperServer getServer(Profile profile) {
-        throw new UnsupportedOperationException("Not yet implemented");
+public final class FakePostExecutionThread {
+    public static PostExecutionThread create() {
+        return new PostExecutionThread() {
+            @Override
+            public Scheduler getScheduler() {
+                return Schedulers.immediate();
+            }
+        };
     }
 }

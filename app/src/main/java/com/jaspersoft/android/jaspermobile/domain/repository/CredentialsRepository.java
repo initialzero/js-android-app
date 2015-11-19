@@ -33,4 +33,5 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
  */
 public interface CredentialsRepository {
     boolean saveCredentials(Profile profile, BaseCredentials credentials);
+    BaseCredentials getCredentials(Profile profile);
 }

@@ -24,23 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
-import android.content.Context;
-
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
-import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCacheImpl;
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCacheImpl;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCacheImpl;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
-import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
-import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
-import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
-import com.jaspersoft.android.jaspermobile.data.validator.ServerValidatorImpl;
-import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.CredentialsValidatorImpl;
+import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
+import com.jaspersoft.android.jaspermobile.data.validator.ServerValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
@@ -53,9 +39,6 @@ import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
-
-import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
@@ -87,56 +70,12 @@ public final class SaveProfileModule {
 
     @PerActivity
     @Provides
-    ProfileActiveCache provideProfileActiveCache(ProfileActiveCacheImpl profileCache) {
-        return profileCache;
-    }
-
-    @PerActivity
-    @Provides
-    ProfileCache provideProfileCache(ProfileCacheImpl profileCache) {
-        return profileCache;
-    }
-
-    @PerActivity
-    @Provides
-    ProfileRepository providesProfileRepository(ProfileDataRepository dataRepository) {
-        return dataRepository;
-    }
-
-    @PerActivity
-    @Provides
-    CredentialsCache provideCredentialsCache(Context context, @Named("accountType") String accountType) {
-        String secret = context.getString(R.string.password_salt_key);
-        PasswordManager passwordManager = PasswordManager.init(context, secret);
-        return new CredentialsCacheImpl(context, passwordManager, accountType);
-    }
-
-    @PerActivity
-    @Provides
-    CredentialsRepository providesCredentialsRepository(CredentialsCache credentialsCache) {
-        return new CredentialsDataRepository(credentialsCache);
-    }
-
-    @PerActivity
-    @Provides
-    JasperServerCache providesJasperSeverCache(JasperServerCacheImpl cache) {
-        return cache;
-    }
-
-    @PerActivity
-    @Provides
-    JasperServerRepository providesServerRepository(JasperServerDataRepository repository) {
-        return repository;
-    }
-
-    @PerActivity
-    @Provides
     ProfileActionListener provideProfileActionListener(AuthenticationPresenter presenter) {
         return presenter;
     }
 
-    @Provides
     @PerActivity
+    @Provides
     SaveProfile provideAddProfileUseCase(
             ServerApi.Factory serverFactory,
             CredentialsValidator credentialsValidator,

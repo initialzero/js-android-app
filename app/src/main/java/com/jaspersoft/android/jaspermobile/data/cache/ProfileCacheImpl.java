@@ -30,7 +30,6 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,12 +37,13 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class ProfileCacheImpl implements ProfileCache {
     private static final String ALIAS_KEY = "ALIAS_KEY";
 

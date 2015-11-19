@@ -24,18 +24,19 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class CredentialsDataRepository implements CredentialsRepository {
     private final CredentialsCache mCredentialsCache;
 
@@ -47,5 +48,10 @@ public final class CredentialsDataRepository implements CredentialsRepository {
     @Override
     public boolean saveCredentials(Profile profile, BaseCredentials credentials) {
         return mCredentialsCache.put(profile, credentials);
+    }
+
+    @Override
+    public BaseCredentials getCredentials(Profile profile) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

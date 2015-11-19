@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
@@ -110,6 +111,10 @@ public class JasperMobileApplication extends Application {
         ImageLoader.getInstance().init(config);
         // Ignoring all log from UIL
         L.writeLogs(false);
+    }
+
+    public static AppComponent getComponent(Context context) {
+        return ((JasperMobileApplication) context.getApplicationContext()).getComponent();
     }
 
     public AppComponent getComponent() {

@@ -28,18 +28,18 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class JasperServerCacheImpl implements JasperServerCache {
     public static final String SERVER_URL_KEY = "SERVER_URL_KEY";
     public static final String EDITION_KEY = "EDITION_KEY";

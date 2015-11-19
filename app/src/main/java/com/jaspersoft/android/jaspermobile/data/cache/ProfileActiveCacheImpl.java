@@ -29,15 +29,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class ProfileActiveCacheImpl implements ProfileActiveCache {
     private static final String PREF_NAME = "JasperAccountManager";
     private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";

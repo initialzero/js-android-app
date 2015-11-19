@@ -33,4 +33,5 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
  */
 public interface JasperServerRepository {
     void saveServer(Profile profile, JasperServer jasperServer);
+    JasperServer getServer(Profile profile);
 }

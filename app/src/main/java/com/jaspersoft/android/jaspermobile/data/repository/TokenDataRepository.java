@@ -24,10 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
+import com.jaspersoft.android.jaspermobile.domain.repository.TokenRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,21 +37,13 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class JasperServerDataRepository implements JasperServerRepository {
-    private final JasperServerCache mJasperServerCache;
-
+public final class TokenDataRepository implements TokenRepository {
     @Inject
-    public JasperServerDataRepository(JasperServerCache jasperServerCache) {
-        mJasperServerCache = jasperServerCache;
+    public TokenDataRepository() {
     }
 
     @Override
-    public void saveServer(Profile profile, JasperServer jasperServer) {
-        mJasperServerCache.put(profile, jasperServer);
-    }
-
-    @Override
-    public JasperServer getServer(Profile profile) {
+    public String getToken(JasperServer server, BaseCredentials credentials) throws RestStatusException {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }

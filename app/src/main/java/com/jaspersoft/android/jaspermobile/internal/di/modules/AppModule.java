@@ -5,13 +5,13 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.BackgroundThread;
 import com.jaspersoft.android.jaspermobile.UIThread;
-import com.jaspersoft.android.jaspermobile.data.network.ServerApiFactory;
-import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.data.network.AuthenticatorFactory;
-import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
+import com.jaspersoft.android.jaspermobile.data.network.ServerApiFactory;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
+import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
+import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import javax.inject.Named;

@@ -28,15 +28,15 @@ import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class ProfileDataRepository implements ProfileRepository {
     private final ProfileCache mProfileCache;
     private final ProfileActiveCache mProfileActiveCache;

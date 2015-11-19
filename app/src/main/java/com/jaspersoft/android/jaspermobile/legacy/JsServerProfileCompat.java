@@ -2,23 +2,23 @@
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
  * the following license terms apply:
  *
- * This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -41,16 +41,11 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
 public class JsServerProfileCompat {
 
     public static void initLegacyJsRestClient(Context context, JsRestClient jsRestClient) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        if (account != null) {
+        JasperAccountManager jasperAccountManager = JasperAccountManager.get(context);
+        if (jasperAccountManager.isActiveAccountRegistered()) {
+            Account account = jasperAccountManager.getActiveAccount();
             jsRestClient.updateServerProfile(getServerProfile(AccountServerData.get(context, account)));
         }
-    }
-
-    public static JsServerProfile getServerProfile(Context context) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(context, account);
-        return getServerProfile(accountServerData);
     }
 
     public static JsServerProfile getServerProfile(AccountServerData serverData) {

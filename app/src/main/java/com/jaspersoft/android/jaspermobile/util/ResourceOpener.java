@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.util;
@@ -28,7 +28,6 @@ import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
@@ -115,59 +114,36 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        if (isCeJrs) {
+        boolean isRestEngine = serverRelease.code() < ServerRelease.AMBER.code();
+        if (isCeJrs || isRestEngine) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
-            return;
-        }
-
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-            case EMERALD_MR4:
-                ReportHtmlViewerActivity_.intent(activity)
-                        .resource(resource).start();
-                break;
-            case AMBER:
-            case AMBER_MR1:
-            case AMBER_MR2:
-            case AMBER_MR3:
-                ReportViewerActivity_.intent(activity)
-                        .resource(resource).start();
-                break;
-            default:
-                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
-                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+        } else {
+            ReportViewerActivity_.intent(activity)
+                    .resource(resource).start();
         }
     }
 
     private void runDashboard(ResourceLookup resource) {
-        if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
+        double code = serverRelease.code();
+        boolean isLegacyDashboard = (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard);
+
+        boolean isLegacyEngine = code < ServerRelease.AMBER.code();
+        boolean isFlowEngine = code >= ServerRelease.AMBER.code() && code < ServerRelease.AMBER_MR2.code();
+        boolean isVisualizeEngine = code >= ServerRelease.AMBER_MR2.code();
+
+        if (isLegacyDashboard || isLegacyEngine) {
             LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
             return;
         }
 
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-            case EMERALD_MR4:
-                LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();
-                break;
-            case AMBER:
-            case AMBER_MR1:
-                AmberDashboardActivity_.intent(activity).resource(resource).start();
-                break;
-            case AMBER_MR2:
-            case AMBER_MR3:
-                Amber2DashboardActivity_.intent(activity).resource(resource).start();
-                break;
-            default:
-                String message = activity.getString(R.string.rv_no_viewer_identified, String.valueOf(serverRelease.code()));
-                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+        if (isFlowEngine) {
+            AmberDashboardActivity_.intent(activity).resource(resource).start();
+            return;
+        }
+
+        if (isVisualizeEngine) {
+            Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
     }
 }

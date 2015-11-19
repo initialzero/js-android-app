@@ -27,4 +27,7 @@
     <!-- Minimum width for an action button in the menu area of an action bar -->
     <dimen name="abs__action_button_min_width">64dip</dimen>
 
+    <dimen name="info_content_side_margin_port">12dp</dimen>
+    <dimen name="info_content_side_margin_land">100dp</dimen>
+
 </resources>

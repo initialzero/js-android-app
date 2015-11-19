@@ -2,23 +2,23 @@
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
  * the following license terms apply:
  *
- * This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -39,6 +39,7 @@ import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity
 import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -55,10 +56,15 @@ import timber.log.Timber;
 public class JasperAuthenticator extends AbstractAccountAuthenticator {
     private static final String SERVER_DATA_WAS_UPDATED = "Server version or edition has been updated";
     private final Context mContext;
+    private final PasswordManager mPasswordManager;
 
     public JasperAuthenticator(Context context) {
         super(context);
         mContext = context;
+
+        String secret = mContext.getString(R.string.password_salt_key);
+        mPasswordManager = PasswordManager.init(mContext, secret);
+
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }
 
@@ -91,8 +97,14 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
-        String password = accountManager.getPassword(account);
-        Timber.d(String.format("Password for account[%s] : %s", account.name, password));
+        String encrypted = accountManager.getPassword(account);
+        Timber.d(String.format("Encrypted Password for account[%s] : %s", account.name, encrypted));
+
+        String password = null;
+        if (!TextUtils.isEmpty(encrypted)) {
+            password = mPasswordManager.decrypt(encrypted);
+            Timber.d(String.format("Password for account[%s] : %s", account.name, password));
+        }
 
         if (TextUtils.isEmpty(password)) {
             return createErrorBundle(JasperAccountManager.TokenException.NO_PASSWORD_ERROR, mContext.getString(R.string.r_error_incorrect_credentials));

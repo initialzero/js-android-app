@@ -2,23 +2,23 @@
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
  * the following license terms apply:
  *
- * This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -29,6 +29,8 @@ import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
 
+import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
+
 import roboguice.activity.RoboFragmentActivity;
 
 /**
@@ -36,6 +38,8 @@ import roboguice.activity.RoboFragmentActivity;
  * @since 2.0
  */
 public class AuthenticatorActivity extends RoboFragmentActivity {
+    private ActivitySecureDelegate mActivitySecureDelegate;
+
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
 
@@ -58,8 +62,12 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mActivitySecureDelegate = ActivitySecureDelegate.create(this);
+
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
+
+        mActivitySecureDelegate.onCreate(savedInstanceState);
 
         mAccountAuthenticatorResponse =
                 getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);

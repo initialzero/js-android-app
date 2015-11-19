@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment;
@@ -37,9 +37,10 @@ import android.widget.Toast;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.report.ReportOptionsActivity;
-import com.jaspersoft.android.jaspermobile.activities.report.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.support.RequestExecutor;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -67,6 +68,7 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
@@ -102,9 +104,6 @@ public class FilterManagerFragment extends RoboSpiceFragment {
     protected boolean mShowSaveAndPrintOption;
 
     private boolean mPageWasLoadedAtLeastOnce;
-
-    private ArrayList<ReportParameter> reportParameters;
-    private ArrayList<InputControl> inputControls;
 
     private ReportExecutionFragment reportExecutionFragment;
     private RequestExecutor requestExecutor;
@@ -163,17 +162,14 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent();
+        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
         ResourcePrintJob job = JasperPrintJobFactory
-                .createReportPrintJob(getActivity(), jsRestClient, resource, reportParameters);
+                .createReportPrintJob(getActivity(), jsRestClient, resource, paramsStorage.getInputControlHolder(resource.getUri()).getReportParams());
         JasperPrinter.print(job);
     }
 
     private void showReportOptions() {
-        Intent intent = new Intent(getActivity(), ReportOptionsActivity.class);
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_URI, resource.getUri());
-        intent.putExtra(ReportOptionsActivity.EXTRA_REPORT_LABEL, resource.getLabel());
-        startActivityForResult(intent, REQUEST_REPORT_PARAMETERS);
+        InputControlsActivity_.intent(this).reportUri(resource.getUri()).startForResult(REQUEST_REPORT_PARAMETERS);
     }
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
@@ -181,7 +177,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         boolean isFirstReportMissing = !hasSnapshot();
 
         if (resultCode == Activity.RESULT_OK) {
-            boolean isNewParamsEqualOld = data.getBooleanExtra(ReportOptionsActivity.RESULT_SAME_PARAMS, false);
+            boolean isNewParamsEqualOld = data.getBooleanExtra(InputControlsActivity.RESULT_SAME_PARAMS, false);
             if (isNewParamsEqualOld && !isFirstReportMissing) {
                 return;
             }
@@ -203,8 +199,8 @@ public class FilterManagerFragment extends RoboSpiceFragment {
         return reportExecutionFragment;
     }
 
-    private ArrayList<ReportParameter> getReportParameters() {
-        return paramsStorage.getReportParameters(resource.getUri());
+    private List<ReportParameter> getReportParameters() {
+        return paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
     }
 
     public boolean hasSnapshot() {
@@ -248,18 +244,16 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
         @Override
         public void onRequestSuccess(InputControlsList controlsList) {
-            reportParameters = new ArrayList<ReportParameter>();
-            inputControls = new ArrayList<InputControl>(controlsList.getInputControls());
+            List<InputControl> icList = new ArrayList<>(controlsList.getInputControls());
+            paramsStorage.getInputControlHolder(resource.getUri()).setInputControls(icList);
             reportView.hideErrorView();
 
-            boolean showFilterActionVisible = !inputControls.isEmpty();
+            boolean showFilterActionVisible = !icList.isEmpty();
             mShowFilterOption = showFilterActionVisible;
             getActivity().supportInvalidateOptionsMenu();
 
             if (showFilterActionVisible) {
                 ProgressDialogFragment.dismiss(getFragmentManager());
-                paramsStorage.putReportParameters(resource.getUri(), reportParameters);
-                paramsStorage.putInputControls(resource.getUri(), inputControls);
                 showReportOptions();
             } else {
                 getReportExecutionFragment().executeReport();

@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.activities.robospice;
@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.robospice;
 import android.accounts.Account;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -38,14 +39,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.security.ProviderInstaller;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
-import org.roboguice.shaded.goole.common.collect.Lists;
 
+import roboguice.RoboGuice;
 import roboguice.activity.RoboActionBarActivity;
 import timber.log.Timber;
 
@@ -58,16 +64,23 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     private static final String TAG = RoboToolbarActivity.class.getSimpleName();
     private static final int AUTHORIZE_CODE = 10;
+    private static final int SECURITY_PROVIDER_DIALOG_REQUEST_CODE = 1123;
+    private static final String CLOSE_APP_REQUEST_CODE = "close_app";
 
     private Toolbar toolbar;
     private FrameLayout toolbarCustomView;
     private View baseView;
     private ViewGroup contentLayout;
 
+    private boolean mSecureProviderDialogShown;
+    private ActivitySecureDelegate mActivitySecureDelegate;
     private JasperAccountManager mJasperAccountManager;
     private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
     private boolean windowToolbar;
+
+    @Inject
+    protected SecurityProviderUpdater mSecurityProviderUpdater;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
@@ -75,9 +88,9 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             Timber.d("Accounts list was changed...");
             mJasperAccountsStatus = JasperAccountsStatus.ANY_ACCOUNT_CHANGED;
             defineJasperAccountsState();
+            updateActiveAccount();
         }
     };
-
 
     public boolean isDevMode() {
         return BuildConfig.DEBUG && BuildConfig.FLAVOR.equals("dev");
@@ -119,11 +132,23 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        RoboGuice.getInjector(this).injectMembersWithoutViews(this);
+
+        // Close activity if flag CLOSE_APP_REQUEST_CODE is active
+        if (getIntent().getBooleanExtra(CLOSE_APP_REQUEST_CODE, false)) {
+            finish();
+        }
+
+        // Lets update Security provider
+        mSecurityProviderUpdater.update(this, new ProviderInstallListener());
+
+        mActivitySecureDelegate = ActivitySecureDelegate.create(this);
         // Lets check account to be properly setup
         mJasperAccountManager = JasperAccountManager.get(this);
         defineJasperAccountsState();
         updateActiveAccount();
         handleActiveAccountState();
+        mActivitySecureDelegate.onCreate(savedInstanceState);
 
         super.onCreate(savedInstanceState);
         addToolbar();
@@ -147,13 +172,13 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             } else {
                 finish();
             }
+        } else if (requestCode == SECURITY_PROVIDER_DIALOG_REQUEST_CODE) {
+            // Adding a fragment via GoogleApiAvailability.showErrorDialogFragment
+            // before the instance state is restored throws an error. So instead,
+            // set a flag here, which will cause the fragment to delay until
+            // onPostResume.
+            mSecureProviderDialogShown = true;
         }
-    }
-
-    @Override
-    protected void onStart() {
-        updateActiveAccount();
-        super.onStart();
     }
 
     @Override
@@ -163,6 +188,16 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             ViewServer.get(this).setFocusedWindow(this);
         }
         updateAccountDependentUi();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        if (mSecureProviderDialogShown) {
+            // We can now safely retry Security provider installation.
+            mSecurityProviderUpdater.update(this, new ProviderInstallListener());
+        }
     }
 
     @Override
@@ -201,7 +236,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            super.onBackPressed();
+            onBackPressed();
             return true;
         } else return super.onOptionsItemSelected(item);
     }
@@ -233,8 +268,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         if (accounts.length == 0) {
             mJasperAccountsStatus = JasperAccountsStatus.NO_ACCOUNTS;
         } else if (currentAccount != null) {
-            boolean activeAccountExists = Lists.newArrayList(accounts).contains(currentAccount);
-            if (!activeAccountExists) {
+            if (!mJasperAccountManager.isActiveAccountRegistered()) {
                 mJasperAccountsStatus = JasperAccountsStatus.ACTIVE_ACCOUNT_CHANGED;
             }
         } else {
@@ -309,6 +343,13 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         startActivity(i);
     }
 
+    private void closeApp() {
+        Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.putExtra(CLOSE_APP_REQUEST_CODE, true);
+        startActivity(i);
+    }
+
     protected void onActiveAccountChanged() {
         restartApp();
     }
@@ -318,5 +359,37 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     public enum JasperAccountsStatus {
         NO_CHANGES, ANY_ACCOUNT_CHANGED, NO_ACTIVE_ACCOUNT, ACTIVE_ACCOUNT_CHANGED, NO_ACCOUNTS
+    }
+
+    private class ProviderInstallListener implements ProviderInstaller.ProviderInstallListener {
+
+        @Override
+        public void onProviderInstalled() {
+            // Provider is up-to-date, app can make secure network calls.
+        }
+
+        @Override
+        public void onProviderInstallFailed(int errorCode, Intent intent) {
+            GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+            if (googleApiAvailability.isUserResolvableError(errorCode) && !mSecureProviderDialogShown) {
+                // Recoverable error. Show a dialog prompting the user to
+                // install/update/enable Google Play services.
+                googleApiAvailability.showErrorDialogFragment(
+                        RoboToolbarActivity.this,
+                        errorCode,
+                        SECURITY_PROVIDER_DIALOG_REQUEST_CODE,
+                        new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                // The user chose not to take the recovery action
+                                closeApp();
+                            }
+                        });
+            } else {
+                // Google Play services is not available.
+                closeApp();
+            }
+
+        }
     }
 }

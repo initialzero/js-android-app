@@ -18,7 +18,6 @@ This software includes third party software subject to the associated copyrights
 - Google Analytics 7.3.0 (Apache 2.0) - https://developers.google.com/analytics/devguides/collection/android/v4/
 
 * Software for testing case
-- Espresso 2.0 (Apache 2.0) - https://code.google.com/p/android-test-kit/
 - Robolectric 2.4 (MIT) - https://github.com/robolectric/robolectric/blob/master/LICENSE.txt
 - Retrofit Mock 1.8.0 (MIT) - https://github.com/square/retrofit/tree/master/retrofit-mock
 - Mockito 1.9.5 (MIT) - https://code.google.com/p/mockito/

@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright © 2015 TIBCO Software, Inc. All rights reserved.
-    http://community.jaspersoft.com/project/jaspermobile-android
-
-    Unless you have purchased a commercial license agreement from Jaspersoft,
-    the following license terms apply:
-
-    This program is part of Jaspersoft Mobile for Android.
-
-    Jaspersoft Mobile is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Jaspersoft Mobile is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with Jaspersoft Mobile for Android. If not, see
-    <http://www.gnu.org/licenses/lgpl>.
--->
+  ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+  ~ http://community.jaspersoft.com/project/jaspermobile-android
+  ~
+  ~ Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+  ~ the following license terms apply:
+  ~
+  ~ This program is part of TIBCO Jaspersoft Mobile for Android.
+  ~
+  ~ TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with TIBCO Jaspersoft Mobile for Android. If not, see
+  ~ <http://www.gnu.org/licenses/lgpl>.
+  -->
 
 <resources>
     <style name="Theme.JasperMobile" parent="Base.Theme.AppCompat">
@@ -30,7 +30,8 @@
         <item name="windowNoTitle">true</item>
         <item name="android:fontFamily">sans-serif-light</item>
 
-        <item name="colorAccent">@android:color/white</item>
+        <item name="colorAccent">@color/js_blue</item>
+        <item name="colorPrimary">@color/js_gray</item>
 
         <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
         <item name="actionModeStyle">@style/Widget.JasperMobile.ActionMode</item>
@@ -38,6 +39,7 @@
         <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
         <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
         <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
+        <item name="android:checkboxStyle">@style/Widget.JasperMobile.CheckBox</item>
 
         <!--App reference styles-->
         <item name="listLayoutStyle">@style/list2.item.layout</item>

@@ -154,7 +154,6 @@ android {
         }
     }
 
-
     dependencies {
         provided project(':database-generator')
         compile project(':sdk')
@@ -171,11 +170,6 @@ android {
         compile("org.androidannotations:androidannotations-api:3.2")
         apt "org.androidannotations:androidannotations:3.2"
         apt 'org.roboguice:roboblender:3.0.1'
-
-        // For action mode support within list views
-        compile('com.github.manuelpeinado.multichoiceadapter:multichoiceadapter-abc:3.1.0') {
-            exclude group: 'com.android.support'
-        }
 
         compile('com.crashlytics.sdk.android:crashlytics:2.2.1@aar') {
             transitive = true;

@@ -11,7 +11,7 @@
         android:id="@android:id/icon"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@android:id/text1"
+        android:layout_above="@+id/container"
         android:background="@android:color/white"
         android:contentDescription="@string/img_cd_grid_item"
         android:scaleType="fitXY"
@@ -22,13 +22,34 @@
         android:layout_height="match_parent"
         android:background="@drawable/bg_resource_item" />
 
-    <CheckedTextView
-        android:id="@android:id/text1"
-        style="@style/grid.item.title"
+    <RelativeLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:ellipsize="end"
-        tools:text="Large Text" />
+        android:gravity="center_vertical">
+
+        <CheckedTextView
+            android:id="@android:id/text1"
+            style="@style/grid.item.title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            tools:text="Large Text"
+            android:layout_toLeftOf="@+id/showInfo"
+            android:gravity="center_vertical" />
+
+        <ImageButton
+            android:id="@+id/showInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/resource_item_padding"
+            android:background="@drawable/bg_resource_info_btn"
+            android:padding="8dp"
+            android:src="@drawable/ic_info"/>
+
+    </RelativeLayout>
 
 </com.jaspersoft.android.jaspermobile.widget.ProportionalRelativeLayout>

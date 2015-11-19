@@ -21,12 +21,13 @@
     <CheckedTextView
         android:id="@android:id/text1"
         style="@style/list2.item.title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginTop="8dp"
         android:layout_toEndOf="@android:id/icon"
+        android:layout_toLeftOf="@+id/showInfo"
         android:layout_toRightOf="@android:id/icon"
         android:ellipsize="end"
         android:textColor="@color/list_label_grey"
@@ -35,15 +36,27 @@
     <CheckedTextView
         android:id="@android:id/text2"
         style="@style/list2.item.subTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@android:id/text1"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:layout_toEndOf="@android:id/icon"
+        android:layout_toLeftOf="@+id/showInfo"
         android:layout_toRightOf="@android:id/icon"
         android:ellipsize="end"
         android:textColor="@color/list_label_light_grey"
         tools:text="Small Text" />
+
+    <ImageButton
+        android:id="@+id/showInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/resource_item_padding"
+        android:background="@drawable/bg_resource_info_btn"
+        android:padding="8dp"
+        android:src="@drawable/ic_info"/>
 </RelativeLayout>

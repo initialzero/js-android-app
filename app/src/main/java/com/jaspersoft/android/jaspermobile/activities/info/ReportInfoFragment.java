@@ -1,6 +1,5 @@
 package com.jaspersoft.android.jaspermobile.activities.info;
 
-import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -28,13 +27,6 @@ public class ReportInfoFragment extends ResourceInfoFragment {
 
     @InjectView(R.id.ri_report_option_container)
     protected View roContainer;
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        showReportOptions();
-    }
 
     @OptionsItem(R.id.saveAction)
     protected void saveReport() {

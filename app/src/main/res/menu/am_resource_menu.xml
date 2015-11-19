@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -26,13 +25,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/showAction"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_menu_info"
-        android:title="@string/r_cm_view_details" />
-    <item
         android:id="@+id/favoriteAction"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_menu_star"
-        android:title="@string/r_cm_remove_from_favorites" />
+        android:title="@string/r_cm_remove_from_favorites"
+        app:showAsAction="ifRoom" />
 </menu>

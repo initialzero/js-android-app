@@ -45,6 +45,7 @@ public class JasperRecyclerView extends RecyclerView {
             array.recycle();
         }
         setHasFixedSize(true);
+        getItemAnimator().setChangeDuration(0);
     }
 
     @Override

@@ -85,6 +85,8 @@ public class SavedItemViewBinder extends ResourceViewBinder {
 
             SavedItemResource savedItemResource = ((SavedItemResource) resource);
             setThumbnail(ivIcon, savedItemResource.getFileType());
+
+            btnInfo.setVisibility(View.GONE);
         }
     }
 
@@ -101,6 +103,8 @@ public class SavedItemViewBinder extends ResourceViewBinder {
 
             SavedItemResource savedItemResource = ((SavedItemResource) resource);
             setThumbnail(ivIcon, savedItemResource.getFileType());
+
+            btnInfo.setVisibility(View.GONE);
         }
     }
 }

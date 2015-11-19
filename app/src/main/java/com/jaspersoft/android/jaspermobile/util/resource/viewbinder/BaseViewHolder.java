@@ -33,6 +33,6 @@ public abstract class BaseViewHolder extends RecyclerView.ViewHolder {
     //---------------------------------------------------------------------
     public interface OnViewClickListener {
         void onViewSingleClick(int position);
-        void onViewLongClick(int position);
+        void onViewInfoClick(int position);
     }
 }

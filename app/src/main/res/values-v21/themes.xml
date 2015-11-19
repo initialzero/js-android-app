@@ -54,6 +54,9 @@
 
     <style name="Theme.JasperMobile.NoToolbar" parent="Theme.JasperMobile">
         <item name="windowToolbar">false</item>
+    </style>
+
+    <style name="Theme.JasperMobile.NoToolbar.TransparentStatusBar" parent="Theme.JasperMobile.NoToolbar">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 

@@ -112,7 +112,7 @@
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
         <activity
-            android:theme="@style/Theme.JasperMobile.NoToolbar"
+            android:theme="@style/Theme.JasperMobile.NoToolbar.TransparentStatusBar"
             android:name=".activities.info.ResourceInfoActivity_"/>
 
         <!-- Activity that performs dashboard viewing in HTML format -->

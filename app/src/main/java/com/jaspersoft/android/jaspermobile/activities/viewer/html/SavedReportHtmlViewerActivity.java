@@ -2,23 +2,23 @@
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
- * Unless you have purchased a commercial license agreement from Jaspersoft,
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
  * the following license terms apply:
  *
- * This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -29,7 +29,6 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 
@@ -40,6 +39,9 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -57,7 +59,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     protected File reportFile;
 
     @Extra
-    protected long reportId;
+    protected String recordUri;
 
     @Extra
     protected String resourceLabel;
@@ -87,12 +89,11 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void deleteItem() {
-        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                String.valueOf(reportId));
+        Uri uri = Uri.parse(recordUri);
 
         DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setFile(reportFile)
-                .setRecordUri(uri)
+                .setFiles(Collections.singletonList(reportFile))
+                .setRecordsUri(new ArrayList<>(Collections.singletonList(uri.toString())))
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -106,8 +107,8 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete) {
-        long id = Long.valueOf(itemToDelete.getLastPathSegment());
+    public void onDeleteConfirmed(List<String> itemsToDelete, List<File> filesToDelete) {
+        long id = Long.valueOf(Uri.parse(itemsToDelete.get(0)).getLastPathSegment());
         savedItemHelper.deleteSavedItem(reportFile, id);
         finish();
     }

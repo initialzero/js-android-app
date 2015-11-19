@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
@@ -33,41 +33,48 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
+import android.support.v7.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.favorites.adapter.FavoritesAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.SelectionModeHelper;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
+import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -80,11 +87,12 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
+@EFragment(R.layout.fragment_resource)
+@OptionsMenu(R.menu.sort_menu)
 public class FavoritesFragment extends RoboFragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        FavoritesAdapter.FavoritesInteractionListener,
-        DeleteDialogFragment.DeleteDialogClickListener {
+        DeleteDialogFragment.DeleteDialogClickListener,
+        SortDialogFragment.SortDialogClickListener {
 
     public static final String TAG = FavoritesFragment.class.getSimpleName();
     private final int FAVORITES_LOADER_ID = 20;
@@ -96,14 +104,13 @@ public class FavoritesFragment extends RoboFragment
 
     @FragmentArg
     protected ViewType viewType;
-    @FragmentArg
-    @InstanceState
-    protected SortOrder sortOrder;
 
     @InjectView(android.R.id.list)
-    AbsListView listView;
+    JasperRecyclerView listView;
     @InjectView(android.R.id.empty)
     TextView emptyText;
+    @OptionsMenuItem(R.id.sort)
+    MenuItem sortAction;
 
     @Inject
     JsRestClient jsRestClient;
@@ -114,12 +121,29 @@ public class FavoritesFragment extends RoboFragment
     @FragmentArg
     @InstanceState
     String searchQuery;
-    private FavoritesAdapter mAdapter;
+
+    private SelectionModeHelper mSelectionModeHelper;
+    private JasperResourceAdapter mAdapter;
+    private JasperResourceConverter jasperResourceConverter;
+
+
+    @OptionsItem(R.id.sort)
+    final void startSorting() {
+        SortDialogFragment.createBuilder(getFragmentManager())
+                .setInitialSortOption(sortOptions.getOrder())
+                .setTargetFragment(this)
+                .show();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
+        if (savedInstanceState == null) {
+            sortOptions.putOrder(SortOrder.LABEL);
+        }
+        jasperResourceConverter = new JasperResourceConverter(getActivity());
     }
 
     @Override
@@ -136,23 +160,19 @@ public class FavoritesFragment extends RoboFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(
-                (viewType == ViewType.LIST) ? R.layout.common_list_layout : R.layout.common_grid_layout,
-                container, false);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        setEmptyText(0);
+        setDataAdapter();
+
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setEmptyText(0);
-
-        mAdapter = new FavoritesAdapter(getActivity(), savedInstanceState, viewType);
-        mAdapter.setAdapterView(listView);
-        mAdapter.setFavoritesInteractionListener(this);
-        listView.setAdapter(mAdapter);
-
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        sortAction.setVisible(searchQuery == null);
     }
 
     @Override
@@ -164,28 +184,6 @@ public class FavoritesFragment extends RoboFragment
         }
     }
 
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        mAdapter.save(outState);
-        super.onSaveInstanceState(outState);
-    }
-
-    @ItemClick(android.R.id.list)
-    final void itemClick(int position) {
-        mAdapter.finishActionMode();
-        Cursor cursor = mAdapter.getCursor();
-        cursor.moveToPosition(position);
-
-        ResourceLookup resource = new ResourceLookup();
-        resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
-        resource.setDescription(cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION)));
-        resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
-        resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
-
-        resourceOpener.openResource(this, FavoritesControllerFragment.PREF_TAG, resource);
-    }
-
     @UiThread
     protected void setEmptyText(int resId) {
         if (resId == 0) {
@@ -194,6 +192,33 @@ public class FavoritesFragment extends RoboFragment
             emptyText.setVisibility(View.VISIBLE);
             emptyText.setText(resId);
         }
+    }
+
+    public void showFavoritesByFilter() {
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+    }
+
+    private void onViewSingleClick(ResourceLookup resource) {
+        if (mSelectionModeHelper != null) {
+            mSelectionModeHelper.finishSelectionMode();
+        }
+        resourceOpener.openResource(this, FavoritesControllerFragment.PREF_TAG, resource);
+    }
+
+    private void setDataAdapter() {
+        Cursor cursor = null;
+        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(cursor, null, null), viewType);
+        mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
+            @Override
+            public void onResourceItemClicked(String id) {
+                ResourceLookup resource = jasperResourceConverter.convertToResourceLookup(id, getActivity());
+                onViewSingleClick(resource);
+            }
+        });
+
+        listView.setViewType(viewType);
+        listView.setAdapter(mAdapter);
+        mSelectionModeHelper = new FavoriteSelectionModeHelper(mAdapter);
     }
 
     //---------------------------------------------------------------------
@@ -225,7 +250,7 @@ public class FavoritesFragment extends RoboFragment
 
         //Add sorting type to WHERE params
         String sortOrderString;
-        if (sortOrder != null && sortOrder.getValue().equals(SortOrder.CREATION_DATE.getValue())) {
+        if (sortOptions.getOrder() != null && sortOptions.getOrder().getValue().equals(SortOrder.CREATION_DATE.getValue())) {
             sortOrderString = FavoritesTable.CREATION_TIME + " ASC";
         } else {
             sortOrderString = FavoritesTable.TITLE + " COLLATE NOCASE ASC";
@@ -255,43 +280,21 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        mAdapter.swapCursor(cursor);
+        mAdapter.clear();
+        mAdapter.addAll(jasperResourceConverter.convertToJasperResource(cursor, FavoritesTable._ID, JasperMobileDbProvider.FAVORITES_CONTENT_URI));
+        mAdapter.notifyDataSetChanged();
+
         if (cursor.getCount() > 0) {
             setEmptyText(0);
         } else {
-            setEmptyText(searchQuery == null ? R.string.f_empty_list_msg : R.string.r_search_nothing_to_display);
+            setEmptyText(searchQuery == null ? R.string.f_empty_list_msg : R.string.resources_not_found);
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        mAdapter.swapCursor(null);
-    }
-
-    //---------------------------------------------------------------------
-    // Implements FavoritesAdapter.FavoritesInteractionListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onDelete(String itemTitle, Uri recordUri) {
-        DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setRecordUri(recordUri)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.sdr_dfd_title)
-                .setMessage(getActivity().getString(R.string.sdr_dfd_msg, itemTitle))
-                .setPositiveButtonText(R.string.spm_delete_btn)
-                .setNegativeButtonText(R.string.cancel)
-                .setTargetFragment(this)
-                .show();
-    }
-
-    @Override
-    public void onInfo(String itemTitle, String itemDescription) {
-        SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setTitle(itemTitle)
-                .setMessage(itemDescription)
-                .setPositiveButtonText(getString(R.string.ok))
-                .show();
+        mAdapter.clear();
+        mAdapter.notifyDataSetChanged();
     }
 
     //---------------------------------------------------------------------
@@ -299,21 +302,25 @@ public class FavoritesFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(Uri recordUri, File itemFile) {
-        getActivity().getContentResolver().delete(recordUri, null, null);
-        mAdapter.finishActionMode();
+    public void onDeleteConfirmed(List<String> recordsUri, List<File> itemsFile) {
+        for (String recordUri : recordsUri) {
+            getActivity().getContentResolver().delete(Uri.parse(recordUri), null, null);
+        }
+        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+        mSelectionModeHelper.finishSelectionMode();
     }
 
     @Override
     public void onDeleteCanceled() {
     }
 
-    public void showFavoritesByFilter() {
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
-    }
+    //---------------------------------------------------------------------
+    // SortDialogFragment.SortDialogClickListener
+    //---------------------------------------------------------------------
 
-    public void showFavoritesBySortOrder(SortOrder selectedSortOrder) {
-        sortOrder = selectedSortOrder;
+    @Override
+    public void onOptionSelected(SortOrder sortOrder) {
+        sortOptions.putOrder(sortOrder);
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
 
@@ -326,6 +333,76 @@ public class FavoritesFragment extends RoboFragment
         public void onFilter(Filter filter) {
             favoritesResourceFilter.persist(filter);
             showFavoritesByFilter();
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Library selection mode helper
+    //---------------------------------------------------------------------
+
+    private class FavoriteSelectionModeHelper extends SelectionModeHelper<String> {
+
+        public FavoriteSelectionModeHelper(JasperResourceAdapter resourceAdapter) {
+            super(((ActionBarActivity) getActivity()), resourceAdapter);
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            MenuInflater inflater = actionMode.getMenuInflater();
+            inflater.inflate(R.menu.am_favorites_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            menu.findItem(R.id.showAction).setVisible(getSelectedItemCount() == 1);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            ArrayList<String> selectedItemIds = getSelectedItemsKey();
+            if (selectedItemIds.size() == 0) return false;
+
+            ResourceLookup selectedItem;
+            switch (menuItem.getItemId()) {
+                case R.id.showAction:
+                    selectedItem = jasperResourceConverter.convertToResourceLookup(selectedItemIds.get(0), getActivity());
+                    String resourceTitle = selectedItem.getLabel();
+                    String resourceDescription = selectedItem.getDescription();
+
+                    showInfo(resourceTitle, resourceDescription);
+                    return true;
+                case R.id.removeFromFavorites:
+                    String deleteMessage;
+                    if (selectedItemIds.size() > 1) {
+                        deleteMessage = getActivity().getString(R.string.sdr_dfd_msg_multi, selectedItemIds.size());
+                    } else {
+                        selectedItem = jasperResourceConverter.convertToResourceLookup(selectedItemIds.get(0), getActivity());
+                        deleteMessage = getActivity().getString(R.string.sdr_dfd_msg, selectedItem.getLabel());
+                    }
+                    DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                            .setRecordsUri(selectedItemIds)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle(R.string.sdr_dfd_title)
+                            .setMessage(deleteMessage)
+                            .setPositiveButtonText(R.string.spm_delete_btn)
+                            .setNegativeButtonText(R.string.cancel)
+                            .setTargetFragment(FavoritesFragment.this)
+                            .show();
+                    invalidateSelectionMode();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void showInfo(String resourceTitle, String resourceDescription) {
+            SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                    .setTitle(resourceTitle)
+                    .setMessage(resourceDescription)
+                    .setPositiveButtonText(getString(R.string.ok))
+                    .show();
         }
     }
 }

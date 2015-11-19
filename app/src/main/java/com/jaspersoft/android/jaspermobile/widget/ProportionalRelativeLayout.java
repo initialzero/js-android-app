@@ -12,7 +12,7 @@ import com.jaspersoft.android.jaspermobile.R;
  * @since 2.2
  */
 public class ProportionalRelativeLayout extends RelativeLayout {
-
+    
     private float widthToHeightRatio;
     private float widthPercent;
     private float heightPercent;

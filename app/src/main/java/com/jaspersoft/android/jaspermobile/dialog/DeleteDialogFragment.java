@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.dialog;
@@ -27,9 +27,12 @@ package com.jaspersoft.android.jaspermobile.dialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Andrew Tivodar
@@ -39,8 +42,8 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
 
     private final static String RECORD_URI_ARG = "record_uri";
     private final static String FILE_URI_ARG = "file_uri";
-    private Uri recordUri;
-    private File itemFile;
+    private List<String> recordsUri;
+    private List<File> itemsFile;
 
     @Override
     protected Class<DeleteDialogClickListener> getDialogCallbackClass() {
@@ -52,13 +55,18 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
         super.initDialogParams();
 
         Bundle args = getArguments();
-        if (args!= null) {
+        if (args != null) {
             if (args.containsKey(RECORD_URI_ARG)) {
-                recordUri = args.getParcelable(RECORD_URI_ARG);
+                recordsUri = args.getStringArrayList(RECORD_URI_ARG);
             }
             if (args.containsKey(FILE_URI_ARG)) {
-                Uri fileUri = args.getParcelable(FILE_URI_ARG);
-                itemFile = new File(fileUri.getPath());
+                Parcelable[] filesParcel = args.getParcelableArray(FILE_URI_ARG);
+                itemsFile = new ArrayList<>();
+
+                for (Parcelable parcelable : filesParcel) {
+                    File itemFile = new File(((Uri) parcelable).getPath());
+                    itemsFile.add(itemFile);
+                }
             }
         }
     }
@@ -70,7 +78,7 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
 
     @Override
     protected void onPositiveClick() {
-        ((DeleteDialogClickListener) mDialogListener).onDeleteConfirmed(recordUri, itemFile);
+        ((DeleteDialogClickListener) mDialogListener).onDeleteConfirmed(recordsUri, itemsFile);
     }
 
     public static DeleteDialogFragmentBuilder createBuilder(Context context, FragmentManager fragmentManager) {
@@ -87,13 +95,17 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
             super(context, fragmentManager);
         }
 
-        public DeleteDialogFragmentBuilder setRecordUri(Uri recordUri) {
-            args.putParcelable(RECORD_URI_ARG, recordUri);
+        public DeleteDialogFragmentBuilder setRecordsUri(ArrayList<String> recordsUri) {
+            args.putStringArrayList(RECORD_URI_ARG, recordsUri);
             return this;
         }
 
-        public DeleteDialogFragmentBuilder setFile(File file) {
-            args.putParcelable(FILE_URI_ARG, Uri.fromFile(file));
+        public DeleteDialogFragmentBuilder setFiles(List<File> files) {
+            List<Uri> filesUriList = new ArrayList<>();
+            for (File file : files) {
+                filesUriList.add(Uri.fromFile(file));
+            }
+            args.putParcelableArray(FILE_URI_ARG, filesUriList.toArray(new Uri[filesUriList.size()]));
             return this;
         }
 
@@ -107,9 +119,10 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
     // Dialog Callback
     //---------------------------------------------------------------------
 
-    public interface DeleteDialogClickListener extends DialogClickListener{
-        public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete);
-        public void onDeleteCanceled();
+    public interface DeleteDialogClickListener extends DialogClickListener {
+        void onDeleteConfirmed(List<String> itemToDelete, List<File> fileToDelete);
+
+        void onDeleteCanceled();
     }
 
 }

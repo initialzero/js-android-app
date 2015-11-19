@@ -1,25 +1,25 @@
 /*
  * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- *  http://community.jaspersoft.com/project/jaspermobile-android
+ * http://community.jaspersoft.com/project/jaspermobile-android
  *
- *  Unless you have purchased a commercial license agreement from Jaspersoft,
- *  the following license terms apply:
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
  *
- *  This program is part of Jaspersoft Mobile for Android.
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- *  Jaspersoft Mobile is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Jaspersoft Mobile is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with Jaspersoft Mobile for Android. If not, see
- *  <http://www.gnu.org/licenses/lgpl>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget;
@@ -78,6 +78,13 @@ public class PaginationBarView extends AbstractPaginationView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        alterControlStates();
+    }
+
     @AfterViews
     final void init() {
         currentPageLabel.setText(String.valueOf(getCurrentPage()));
@@ -123,7 +130,7 @@ public class PaginationBarView extends AbstractPaginationView {
             progressLayout.setVisibility(View.GONE);
             totalPageLabel.setVisibility(View.VISIBLE);
             totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
-            lastPage.setEnabled(getCurrentPage() != getTotalPages());
+            lastPage.setEnabled(isEnabled() && getCurrentPage() != getTotalPages());
         } else {
             progressLayout.setVisibility(View.VISIBLE);
             totalPageLabel.setVisibility(View.GONE);
@@ -138,10 +145,11 @@ public class PaginationBarView extends AbstractPaginationView {
         boolean isCurrentPageFirst = getCurrentPage() == FIRST_PAGE;
         boolean isCurrentPageLast = getCurrentPage() == getTotalPages();
 
-        previousPage.setEnabled(!isCurrentPageFirst);
-        firstPage.setEnabled(!isCurrentPageFirst);
-        nextPage.setEnabled(!isCurrentPageLast);
-        lastPage.setEnabled(!isCurrentPageLast && isTotalPagesLoaded());
+        previousPage.setEnabled(isEnabled() && !isCurrentPageFirst);
+        firstPage.setEnabled(isEnabled() && !isCurrentPageFirst);
+        nextPage.setEnabled(isEnabled() && !isCurrentPageLast);
+        lastPage.setEnabled(isEnabled() && !isCurrentPageLast && isTotalPagesLoaded());
+        currentPageLabel.setEnabled(isEnabled());
     }
 
 }

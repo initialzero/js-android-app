@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:background="@android:color/white">
+
+    <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
+        android:id="@android:id/icon"
+        android:layout_width="@dimen/list_item_image_width"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:contentDescription="@string/img_cd_list_item"
+        android:scaleType="fitXY" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_resource_item"/>
+
+    <CheckedTextView
+        android:id="@android:id/text1"
+        style="@style/list2.item.title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_toEndOf="@android:id/icon"
+        android:layout_toRightOf="@android:id/icon"
+        android:ellipsize="end"
+        android:textColor="@color/list_label_grey"
+        tools:text="Large Text" />
+
+    <CheckedTextView
+        android:id="@android:id/text2"
+        style="@style/list2.item.subTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@android:id/text1"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_toEndOf="@android:id/icon"
+        android:layout_toRightOf="@android:id/icon"
+        android:ellipsize="end"
+        android:textColor="@color/list_label_light_grey"
+        tools:text="Small Text" />
+</RelativeLayout>

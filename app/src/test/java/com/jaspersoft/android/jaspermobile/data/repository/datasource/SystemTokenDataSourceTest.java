@@ -22,19 +22,39 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.repository;
+package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.data.cache.TokenCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface TokenRepository {
-    String getToken(Profile profile, JasperServer server, BaseCredentials credentials)
-            throws RestStatusException, PasswordManager.DecryptionError;
+public class SystemTokenDataSourceTest {
+    @Mock
+    TokenCache mTokenCache;
+    @Mock
+    Profile mProfile;
+
+    SystemTokenDataSource dataStore;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        dataStore = new SystemTokenDataSource(mProfile, mTokenCache);
+    }
+
+    @Test
+    public void testRetrieveToken() throws Exception {
+        dataStore.retrieveToken();
+        verify(mTokenCache).get(mProfile);
+    }
 }

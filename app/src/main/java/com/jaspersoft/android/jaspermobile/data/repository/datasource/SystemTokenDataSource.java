@@ -22,19 +22,26 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.repository;
+package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.data.cache.TokenCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface TokenRepository {
-    String getToken(Profile profile, JasperServer server, BaseCredentials credentials)
-            throws RestStatusException, PasswordManager.DecryptionError;
+public final class SystemTokenDataSource implements TokenDataSource {
+    private final TokenCache mTokenCache;
+    private final Profile mProfile;
+
+    public SystemTokenDataSource(Profile profile, TokenCache tokenCache) {
+        mProfile = profile;
+        mTokenCache = tokenCache;
+    }
+
+    @Override
+    public String retrieveToken() {
+        return mTokenCache.get(mProfile);
+    }
 }

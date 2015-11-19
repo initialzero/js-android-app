@@ -61,6 +61,6 @@ public final class GetTokenUseCase {
     public String execute(Profile profile) throws RestStatusException, PasswordManager.DecryptionError {
         JasperServer server = mServerRepository.getServer(profile);
         BaseCredentials credentials = mCredentialsRepository.getCredentials(profile);
-        return mTokenRepository.getToken(server, credentials);
+        return mTokenRepository.getToken(profile, server, credentials);
     }
 }

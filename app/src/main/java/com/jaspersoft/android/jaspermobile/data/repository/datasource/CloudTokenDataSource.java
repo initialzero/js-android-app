@@ -22,19 +22,43 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.repository;
+package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
+import com.jaspersoft.android.jaspermobile.data.cache.TokenCache;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface TokenRepository {
-    String getToken(Profile profile, JasperServer server, BaseCredentials credentials)
-            throws RestStatusException, PasswordManager.DecryptionError;
+public final class CloudTokenDataSource implements TokenDataSource {
+    private final TokenCache mTokenCache;
+    private final JasperServer mServer;
+    private final Profile mProfile;
+    private final BaseCredentials mCredentials;
+    private final Authenticator.Factory mAuthFactory;
+
+    public CloudTokenDataSource(TokenCache tokenCache,
+                                Authenticator.Factory authFactory,
+                                Profile profile,
+                                JasperServer server,
+                                BaseCredentials credentials) {
+        mAuthFactory = authFactory;
+        mTokenCache = tokenCache;
+        mProfile = profile;
+        mServer = server;
+        mCredentials = credentials;
+    }
+
+    @Override
+    public String retrieveToken() throws RestStatusException {
+        Authenticator authenticator = mAuthFactory.create(mServer.getBaseUrl());
+        String token = authenticator.authenticate(mCredentials);
+        mTokenCache.put(mProfile, token);
+        return token;
+    }
 }

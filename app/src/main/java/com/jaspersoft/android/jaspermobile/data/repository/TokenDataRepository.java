@@ -24,8 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
+import com.jaspersoft.android.jaspermobile.data.repository.datasource.TokenDataSource;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.TokenRepository;
 
@@ -38,12 +40,16 @@ import javax.inject.Singleton;
  */
 @Singleton
 public final class TokenDataRepository implements TokenRepository {
+    private final TokenDataSource.Factory mTokenDataStoreFactory;
+
     @Inject
-    public TokenDataRepository() {
+    public TokenDataRepository(TokenDataSource.Factory tokenFactory) {
+        mTokenDataStoreFactory = tokenFactory;
     }
 
     @Override
-    public String getToken(JasperServer server, BaseCredentials credentials) throws RestStatusException {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public String getToken(Profile profile, JasperServer server, BaseCredentials credentials) throws RestStatusException {
+        TokenDataSource store = mTokenDataStoreFactory.create(profile, server, credentials);
+        return store.retrieveToken();
     }
 }

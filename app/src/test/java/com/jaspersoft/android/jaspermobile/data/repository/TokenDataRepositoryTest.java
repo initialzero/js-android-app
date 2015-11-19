@@ -22,19 +22,53 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.repository;
+package com.jaspersoft.android.jaspermobile.data.repository;
 
+import com.jaspersoft.android.jaspermobile.data.repository.datasource.TokenDataSource;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface TokenRepository {
-    String getToken(Profile profile, JasperServer server, BaseCredentials credentials)
-            throws RestStatusException, PasswordManager.DecryptionError;
+public class TokenDataRepositoryTest {
+
+    @Mock
+    JasperServer mJasperServer;
+    @Mock
+    BaseCredentials mBaseCredentials;
+    @Mock
+    Profile mProfile;
+
+    @Mock
+    TokenDataSource.Factory mFactory;
+    @Mock
+    TokenDataSource mDataSource;
+
+    TokenDataRepository repository;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        repository = new TokenDataRepository(mFactory);
+        when(mFactory.create(any(Profile.class), any(JasperServer.class), any(BaseCredentials.class))).thenReturn(mDataSource);
+    }
+
+    @Test
+    public void testGetTokenFromCache() throws Exception {
+        repository.getToken(mProfile, mJasperServer, mBaseCredentials);
+        verify(mFactory).create(mProfile, mJasperServer, mBaseCredentials);
+        verify(mDataSource).retrieveToken();
+    }
 }

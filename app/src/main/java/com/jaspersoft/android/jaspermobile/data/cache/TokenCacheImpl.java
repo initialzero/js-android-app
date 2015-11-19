@@ -22,19 +22,36 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.repository;
+package com.jaspersoft.android.jaspermobile.data.cache;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface TokenRepository {
-    String getToken(Profile profile, JasperServer server, BaseCredentials credentials)
-            throws RestStatusException, PasswordManager.DecryptionError;
+@Singleton
+public final class TokenCacheImpl implements TokenCache {
+
+    @Inject
+    public TokenCacheImpl() {
+    }
+
+    @Override
+    public String get(Profile profile) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void put(Profile profile, String token) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public boolean isCached(Profile profile) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }

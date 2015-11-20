@@ -35,11 +35,16 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Tom Koptel
@@ -53,8 +58,13 @@ public class JasperServerCacheImplTest {
     Profile fakeProfile;
     JasperServer fakeServer;
 
+    @Mock
+    ProfileCache mProfileCache;
+
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+
         accountManager = AccountManager.get(RuntimeEnvironment.application);
         fakeProfile = Profile.create("name");
         fakeServer = JasperServer.builder()
@@ -63,7 +73,7 @@ public class JasperServerCacheImplTest {
                 .setEdition("CE")
                 .create();
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new JasperServerCacheImpl(accountManager, FakeAccountDataMapper.get());
+        cacheUnderTest = new JasperServerCacheImpl(accountManager, FakeAccountDataMapper.get(), mProfileCache);
     }
 
     @Test
@@ -97,5 +107,66 @@ public class JasperServerCacheImplTest {
                 6.0d == server.getVersion());
         assertThat("Failed to retrieve edition for profile " + fakeAccount,
                 "CE".equals(server.getEdition()));
+    }
+
+    @Test
+    public void testHasServerIfExistsAccountAndHasUserData() throws Exception {
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
+        FakeAccount.injectAccount(fakeProfile)
+                .injectServer(fakeServer)
+                .done();
+
+        assertThat("Cache should contain injected server",
+                cacheUnderTest.hasServer(fakeProfile));
+
+        verify(mProfileCache).hasProfile(fakeProfile);
+    }
+
+    @Test
+    public void testServerMissingIfServerUrlMissing() throws Exception {
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
+        FakeAccount.injectAccount(fakeProfile)
+                .injectServer(
+                        JasperServer.builder()
+                                .setEdition("CE")
+                                .setVersion(5.5d)
+                                .create()
+                ).done();
+
+
+        assertThat("Cache should not contain injected server, because server url missing",
+                !cacheUnderTest.hasServer(fakeProfile));
+    }
+
+    @Test
+    public void testServerMissingIfEditionMissing() throws Exception {
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
+        FakeAccount.injectAccount(fakeProfile)
+                .injectServer(
+                        JasperServer.builder()
+                                .setBaseUrl("http://localhost/")
+                                .setVersion(5.5d)
+                                .create()
+                ).done();
+
+
+        assertThat("Cache should not contain injected server, because edition missing",
+                !cacheUnderTest.hasServer(fakeProfile));
+    }
+
+    @Test
+    public void testServerMissingIfVersionMissing() throws Exception {
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
+        FakeAccount.injectAccount(fakeProfile)
+                .injectServer(
+                        JasperServer.builder()
+                                .setBaseUrl("http://localhost/")
+                                .setEdition("CE")
+                                .create()
+                ).done();
+
+
+        assertThat("Cache should not contain injected server, because version missing",
+                !cacheUnderTest.hasServer(fakeProfile));
     }
 }

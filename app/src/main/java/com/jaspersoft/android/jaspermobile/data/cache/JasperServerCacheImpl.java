@@ -26,12 +26,14 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -46,11 +48,15 @@ public final class JasperServerCacheImpl implements JasperServerCache {
 
     private final AccountManager mAccountManager;
     private final AccountDataMapper mAccountDataMapper;
+    private final ProfileCache mProfileAccountCache;
 
     @Inject
-    public JasperServerCacheImpl(AccountManager accountManager, AccountDataMapper accountDataMapper) {
+    public JasperServerCacheImpl(AccountManager accountManager,
+                                 AccountDataMapper accountDataMapper,
+                                 @Named("profileAccountCache") ProfileCache profileAccountCache) {
         mAccountManager = accountManager;
         mAccountDataMapper = accountDataMapper;
+        mProfileAccountCache = profileAccountCache;
     }
 
     @Override
@@ -78,7 +84,16 @@ public final class JasperServerCacheImpl implements JasperServerCache {
     }
 
     @Override
-    public boolean hasServer(Profile fakeProfile) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public boolean hasServer(Profile profile) {
+        if (mProfileAccountCache.hasProfile(profile)) {
+            Account accountProfile = mAccountDataMapper.transform(profile);
+
+            String baseUrl = mAccountManager.getUserData(accountProfile, SERVER_URL_KEY);
+            String edition = mAccountManager.getUserData(accountProfile, EDITION_KEY);
+            String versionString = mAccountManager.getUserData(accountProfile, VERSION_NAME_KEY);
+
+            return !(TextUtils.isEmpty(baseUrl) && TextUtils.isEmpty(edition) && TextUtils.isEmpty(versionString));
+        }
+        return false;
     }
 }

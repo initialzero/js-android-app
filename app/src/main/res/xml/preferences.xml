@@ -25,7 +25,7 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="@string/st_category_repo_cache">
+    <PreferenceCategory android:title="@string/st_category_resource_cache">
 
         <CheckBoxPreference
             android:key="pref_repo_cache_enabled"

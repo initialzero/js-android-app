@@ -1,8 +1,10 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
@@ -17,12 +19,14 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 public class SimpleGridViewHolder extends BaseViewHolder {
     protected TopCropImageView ivIcon;
     protected TextView tvName;
+    protected ImageButton btnInfo;
 
     public SimpleGridViewHolder(View itemView) {
         super(itemView);
 
         this.ivIcon = (TopCropImageView) itemView.findViewById(android.R.id.icon);
         this.tvName = (TextView) itemView.findViewById(android.R.id.text1);
+        this.btnInfo = (ImageButton) itemView.findViewById(R.id.showInfo);
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,14 +37,12 @@ public class SimpleGridViewHolder extends BaseViewHolder {
             }
         });
 
-        itemView.setOnLongClickListener(new View.OnLongClickListener() {
+        btnInfo.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 if (mItemInteractionListener != null) {
-                    mItemInteractionListener.onViewLongClick(getAdapterPosition());
-                    return true;
+                    mItemInteractionListener.onViewInfoClick(getAdapterPosition());
                 }
-                return false;
             }
         });
     }

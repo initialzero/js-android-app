@@ -131,6 +131,7 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
     //---------------------------------------------------------------------
     public interface OnResourceInteractionListener {
         void onResourceItemClicked(String id);
+        void onResourceInfoClicked(String id);
     }
 
     private class OnResourceItemClickListener implements BaseViewHolder.OnViewClickListener {
@@ -143,9 +144,9 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
         }
 
         @Override
-        public void onViewLongClick(int position) {
-            if (mResourceSelector != null) {
-                mResourceSelector.changeSelectedState(position);
+        public void onViewInfoClick(int position) {
+            if (mItemInteractionListener != null) {
+                mItemInteractionListener.onResourceInfoClicked(jasperResources.get(position).getId());
             }
         }
     }

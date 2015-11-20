@@ -58,6 +58,10 @@
 
     <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
 
+    <style name="Widget.JasperMobile.TextView.Info" parent="Widget.JasperMobile.TextView">
+        <item name="android:textSize">24sp</item>
+    </style>
+
     <style name="CardView.Auth">
         <item name="cardBackgroundColor">@null</item>
         <item name="cardCornerRadius">0dp</item>

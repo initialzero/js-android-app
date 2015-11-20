@@ -26,30 +26,23 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.accounts.Account;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -63,7 +56,6 @@ import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3Pagi
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.SelectionModeHelper;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -154,7 +146,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     @Bean
     protected FavoritesHelper favoritesHelper;
 
-    private SelectionModeHelper mSelectionModeHelper;
     private JasperResourceAdapter mAdapter;
     private PaginationPolicy mPaginationPolicy;
     private AccountServerData mServerData;
@@ -259,7 +250,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     private void clearData() {
         mResourceLookupHashMap.clear();
         mAdapter.clear();
-        mSelectionModeHelper.finishSelectionMode();
     }
 
     private void addData(List<ResourceLookup> data) {
@@ -270,9 +260,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     }
 
     private void onViewSingleClick(ResourceLookup resource) {
-        if (mSelectionModeHelper != null) {
-            mSelectionModeHelper.finishSelectionMode();
-        }
         resourceOpener.openResource(this, prefTag, resource);
     }
 
@@ -286,11 +273,17 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
             public void onResourceItemClicked(String id) {
                 onViewSingleClick(mResourceLookupHashMap.get(id));
             }
+
+            @Override
+            public void onResourceInfoClicked(String id) {
+                ResourceInfoActivity_.intent(getActivity())
+                        .resourceLookup(mResourceLookupHashMap.get(id))
+                        .start();
+            }
         });
 
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
-        mSelectionModeHelper = new RepositorySelectionModeHelper(mAdapter);
     }
 
     private void updatePaginationPolicy() {
@@ -472,105 +465,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         private void enableRefreshLayout(RecyclerView listView) {
             boolean enable = !listView.canScrollVertically(-1);
             swipeRefreshLayout.setEnabled(enable);
-        }
-    }
-
-    //---------------------------------------------------------------------
-    // Library selection mode helper
-    //---------------------------------------------------------------------
-
-    private class RepositorySelectionModeHelper extends SelectionModeHelper<String> {
-
-        public RepositorySelectionModeHelper(JasperResourceAdapter resourceAdapter) {
-            super(((ActionBarActivity) getActivity()), resourceAdapter);
-        }
-
-        @Override
-        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            MenuInflater inflater = actionMode.getMenuInflater();
-            inflater.inflate(R.menu.am_resource_menu, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-            menu.findItem(R.id.showAction).setVisible(getSelectedItemCount() == 1);
-            MenuItem favoriteMenuItem = menu.findItem(R.id.favoriteAction);
-
-            boolean allItemsAreFavorite = isAllItemsFavorite();
-            favoriteMenuItem.setIcon(allItemsAreFavorite ? R.drawable.ic_menu_star : R.drawable.ic_menu_star_outline);
-            favoriteMenuItem.setTitle(allItemsAreFavorite ? R.string.r_cm_remove_from_favorites : R.string.r_cm_add_to_favorites);
-
-            return true;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-            ArrayList<String> selectedItemIds = getSelectedItemsKey();
-            if (selectedItemIds.size() == 0) return false;
-
-            ResourceLookup selectedItem;
-            switch (menuItem.getItemId()) {
-                case R.id.showAction:
-                    selectedItem = mResourceLookupHashMap.get(selectedItemIds.get(0));
-                    String resourceTitle = selectedItem.getLabel();
-                    String resourceDescription = selectedItem.getDescription();
-
-                    showInfo(resourceTitle, resourceDescription);
-                    return true;
-                case R.id.favoriteAction:
-                    handleFavoriteMenuAction();
-                    invalidateSelectionMode();
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private boolean isAllItemsFavorite() {
-            ArrayList<String> selectedItemIds = getSelectedItemsKey();
-
-            int favoritesCount = 0;
-
-            for (String selectedItem : selectedItemIds) {
-                ResourceLookup resource = mResourceLookupHashMap.get(selectedItem);
-                if (resource == null) continue;
-
-                Cursor cursor = favoritesHelper.queryFavoriteByResource(resource);
-
-                if (cursor != null) {
-                    boolean alreadyFavorite = (cursor.getCount() > 0);
-                    if (alreadyFavorite) favoritesCount++;
-                    cursor.close();
-                }
-            }
-
-            return favoritesCount == getSelectedItemCount();
-        }
-
-        private void handleFavoriteMenuAction() {
-            ArrayList<String> selectedItemIds = getSelectedItemsKey();
-
-            boolean allItemsAreFavorite = isAllItemsFavorite();
-
-            for (String selectedItem : selectedItemIds) {
-                ResourceLookup resource = mResourceLookupHashMap.get(selectedItem);
-                Uri uri = favoritesHelper.queryFavoriteUri(resource);
-
-                if (allItemsAreFavorite || uri == null) {
-                    favoritesHelper.handleFavoriteMenuAction(uri, resource, null);
-                }
-            }
-
-        }
-
-        private void showInfo(String resourceTitle, String resourceDescription) {
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            SimpleDialogFragment.createBuilder(getActivity(), fm)
-                    .setTitle(resourceTitle)
-                    .setMessage(resourceDescription)
-                    .setNegativeButtonText(R.string.ok)
-                    .show();
         }
     }
 }

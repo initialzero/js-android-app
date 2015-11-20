@@ -53,6 +53,9 @@
        <item name="windowToolbar">false</item>
     </style>
 
+    <style name="Theme.JasperMobile.NoToolbar.TransparentStatusBar" parent="Theme.JasperMobile.NoToolbar">
+    </style>
+
     <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile">
         <item name="android:editTextStyle">@android:style/Widget.Holo.EditText</item>
     </style>

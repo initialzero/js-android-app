@@ -30,16 +30,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.ActionMode;
-import android.text.format.DateUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.TextView;
@@ -52,14 +45,12 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.SelectionModeHelper;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
@@ -119,7 +110,6 @@ public class SavedItemsFragment extends RoboFragment
     @Bean
     protected SavedItemHelper savedItemHelper;
 
-    private SelectionModeHelper mSelectionModeHelper;
     private JasperResourceAdapter mAdapter;
     private JasperResourceConverter jasperResourceConverter;
 
@@ -199,17 +189,16 @@ public class SavedItemsFragment extends RoboFragment
             @Override
             public void onResourceItemClicked(String id) {
                 File file = jasperResourceConverter.convertToFile(id, getActivity());
-
-                if (mSelectionModeHelper != null) {
-                    mSelectionModeHelper.finishSelectionMode();
-                }
                 openReportFile(file, id);
+            }
+
+            @Override
+            public void onResourceInfoClicked(String id) {
             }
         });
 
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
-        mSelectionModeHelper = new SavedItemsSelectionModeHelper(mAdapter);
     }
 
     //---------------------------------------------------------------------
@@ -303,8 +292,6 @@ public class SavedItemsFragment extends RoboFragment
         }
 
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
-
-        mSelectionModeHelper.finishSelectionMode();
     }
 
     @Override
@@ -323,122 +310,5 @@ public class SavedItemsFragment extends RoboFragment
         getActivity().getContentResolver().update(recordUri, savedItemsEntry.getContentValues(), null, null);
 
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
-
-        mSelectionModeHelper.finishSelectionMode();
-    }
-
-    //---------------------------------------------------------------------
-    // Library selection mode helper
-    //---------------------------------------------------------------------
-
-    private class SavedItemsSelectionModeHelper extends SelectionModeHelper<String> {
-
-        public SavedItemsSelectionModeHelper(JasperResourceAdapter resourceAdapter) {
-            super(((ActionBarActivity) getActivity()), resourceAdapter);
-        }
-
-        @Override
-        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            MenuInflater inflater = actionMode.getMenuInflater();
-            inflater.inflate(R.menu.am_saved_items_menu, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-            menu.findItem(R.id.showAction).setVisible(getSelectedItemCount() == 1);
-            menu.findItem(R.id.renameItem).setVisible(getSelectedItemCount() == 1);
-            return true;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-            ArrayList<String> selectedItemIds = getSelectedItemsKey();
-            if (selectedItemIds.size() == 0) return false;
-
-            List<File> selectedFiles = new ArrayList<>();
-            for (String selectedItemId : selectedItemIds) {
-                selectedFiles.add(jasperResourceConverter.convertToFile(selectedItemId, getActivity()));
-            }
-
-            switch (menuItem.getItemId()) {
-                case R.id.showAction:
-                    Cursor cursor = getActivity().getContentResolver().query(Uri.parse(selectedItemIds.get(0)), null, null, null, null);
-                    cursor.moveToFirst();
-
-                    String title = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
-                    long creationTime = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.CREATION_TIME));
-
-                    String description = String.format("%s \n %s", getFormattedDateModified(creationTime),
-                            getHumanReadableFileSize(selectedFiles.get(0)));
-                    onInfo(title, description);
-                    return true;
-                case R.id.deleteItem:
-                    onDelete(selectedFiles, selectedItemIds);
-                    invalidateSelectionMode();
-                    return true;
-                case R.id.renameItem:
-                    cursor = getActivity().getContentResolver().query(Uri.parse(selectedItemIds.get(0)), null, null, null, null);
-                    cursor.moveToFirst();
-
-                    String fileExtension = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
-                    onRename(selectedFiles.get(0).getParentFile(), Uri.parse(selectedItemIds.get(0)), fileExtension);
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        public void onRename(File itemFile, Uri recordUri, String fileExtension) {
-            RenameDialogFragment.createBuilder(getFragmentManager())
-                    .setSelectedFile(itemFile)
-                    .setExtension(fileExtension)
-                    .setRecordUri(recordUri)
-                    .setTargetFragment(SavedItemsFragment.this)
-                    .show();
-        }
-
-        public void onDelete(List<File> itemsFile, ArrayList<String> recordsUri) {
-            String deleteMessage;
-            if (itemsFile.size() > 1) {
-                deleteMessage = getActivity().getString(R.string.sdr_drd_msg_multi, itemsFile.size());
-            } else {
-                deleteMessage = getActivity().getString(R.string.sdr_drd_msg, itemsFile.get(0).getName());
-            }
-            DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                    .setFiles(itemsFile)
-                    .setRecordsUri(recordsUri)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(R.string.sdr_drd_title)
-                    .setMessage(deleteMessage)
-                    .setPositiveButtonText(R.string.spm_delete_btn)
-                    .setNegativeButtonText(R.string.cancel)
-                    .setTargetFragment(SavedItemsFragment.this)
-                    .show();
-        }
-
-        public void onInfo(String title, String description) {
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            SimpleDialogFragment.createBuilder(getActivity(), fm)
-                    .setTitle(title)
-                    .setMessage(description)
-                    .setPositiveButtonText(R.string.ok)
-                    .show();
-        }
-
-        private String getFormattedDateModified(long creationTime) {
-            return DateUtils.formatDateTime(getActivity(), creationTime,
-                    DateUtils.FORMAT_SHOW_DATE |
-                            DateUtils.FORMAT_SHOW_TIME |
-                            DateUtils.FORMAT_SHOW_YEAR |
-                            DateUtils.FORMAT_NUMERIC_DATE |
-                            DateUtils.FORMAT_24HOUR
-            );
-        }
-
-        private String getHumanReadableFileSize(File file) {
-            long byteSize = FileUtils.calculateFileSize(file.getParentFile());
-            return FileUtils.getHumanReadableByteCount(byteSize);
-        }
     }
 }

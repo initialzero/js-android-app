@@ -136,10 +136,7 @@ public class SaveProfile {
     }
 
     private void saveProfile(Profile profile) throws FailedToSaveProfile {
-        boolean isProfileSaved = mProfileRepository.saveProfile(profile);
-        if (!isProfileSaved) {
-            throw new FailedToSaveProfile(profile);
-        }
+        mProfileRepository.saveProfile(profile);
     }
 
     private void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials {

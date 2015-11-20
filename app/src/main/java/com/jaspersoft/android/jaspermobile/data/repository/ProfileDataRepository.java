@@ -28,6 +28,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -48,8 +49,11 @@ public final class ProfileDataRepository implements ProfileRepository {
     }
 
     @Override
-    public boolean saveProfile(Profile profile) {
-        return !mProfileCache.hasProfile(profile) && mProfileCache.put(profile);
+    public void saveProfile(Profile profile) throws FailedToSaveProfile {
+        boolean isSaved = (!mProfileCache.hasProfile(profile) && mProfileCache.put(profile));
+        if (!isSaved) {
+            throw new FailedToSaveProfile(profile);
+        }
     }
 
     @Override

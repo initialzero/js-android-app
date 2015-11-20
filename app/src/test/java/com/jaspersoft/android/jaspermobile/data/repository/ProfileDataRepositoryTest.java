@@ -27,13 +27,14 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -63,21 +64,34 @@ public class ProfileDataRepositoryTest {
     @Test
     public void shouldNotSaveProfileIfInCache() throws Exception {
         when(mCache.hasProfile(any(Profile.class))).thenReturn(true);
-        assertThat("Should not save profile. It is already in cache", !saveProfile());
+
+        try {
+            saveProfile();
+            fail("Should not save profile. It is already in cache");
+        } catch (FailedToSaveProfile ex) {
+        }
     }
 
     @Test
     public void shouldSaveProfileForTheFirstTime() throws Exception {
         when(mCache.hasProfile(any(Profile.class))).thenReturn(false);
         when(mCache.put(any(Profile.class))).thenReturn(true);
-        assertThat("Should save profile for the first time", saveProfile());
+        try {
+            saveProfile();
+        } catch (FailedToSaveProfile ex) {
+            fail("Should save profile for the first time");
+        }
     }
 
     @Test
     public void shouldNotSaveProfileIfCacheFailedToPerformOperation() {
         when(mCache.hasProfile(any(Profile.class))).thenReturn(false);
         when(mCache.put(any(Profile.class))).thenReturn(false);
-        assertThat("If cache failed, should not save profile", !saveProfile());
+        try {
+            saveProfile();
+            fail("If cache failed, should not save profile");
+        } catch (FailedToSaveProfile ex) {
+        }
     }
 
     @Test
@@ -89,7 +103,7 @@ public class ProfileDataRepositoryTest {
 
     //---------------------------------------------------------------------
 
-    private boolean saveProfile() {
-        return repositoryUnderTest.saveProfile(fakeProfile);
+    private void saveProfile() throws FailedToSaveProfile {
+        repositoryUnderTest.saveProfile(fakeProfile);
     }
 }

@@ -53,7 +53,8 @@ public class ProfileCacheImplTest {
 
     @Before
     public void setUp() throws Exception {
-        cacheUnderTest = new ProfileCacheImpl(RuntimeEnvironment.application, ACCOUNT_TYPE);
+        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
+        cacheUnderTest = new ProfileCacheImpl(accountManager, ACCOUNT_TYPE);
         fakeProfile = Profile.create("name");
     }
 

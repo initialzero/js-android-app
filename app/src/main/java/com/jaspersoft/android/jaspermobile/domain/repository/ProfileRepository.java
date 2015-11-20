@@ -25,12 +25,13 @@
 package com.jaspersoft.android.jaspermobile.domain.repository;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public interface ProfileRepository {
-    boolean saveProfile(Profile profile);
+    void saveProfile(Profile profile) throws FailedToSaveProfile;
     void activate(Profile profile);
 }

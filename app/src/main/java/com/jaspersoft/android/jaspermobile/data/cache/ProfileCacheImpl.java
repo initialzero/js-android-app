@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.content.Context;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -47,28 +46,26 @@ import javax.inject.Singleton;
 public final class ProfileCacheImpl implements ProfileCache {
     private static final String ALIAS_KEY = "ALIAS_KEY";
 
-    private final Context mContext;
     private final String mAccountType;
+    private final AccountManager mAccountManager;
 
     @Inject
-    public ProfileCacheImpl(Context context, @Named("accountType") String accountType) {
-        mContext = context;
+    public ProfileCacheImpl(AccountManager accountManager, @Named("accountType") String accountType) {
+        mAccountManager = accountManager;
         mAccountType = accountType;
     }
 
     @Override
     public boolean put(Profile profile) {
-        AccountManager accountManager = AccountManager.get(mContext);
         Account accountProfile = new Account(profile.getKey(), mAccountType);
         Bundle userData = new Bundle();
         userData.putString(ALIAS_KEY, profile.getKey());
-        return accountManager.addAccountExplicitly(accountProfile, null, userData);
+        return mAccountManager.addAccountExplicitly(accountProfile, null, userData);
     }
 
     @Override
     public boolean hasProfile(Profile profile) {
-        AccountManager accountManager = AccountManager.get(mContext);
-        Account[] accounts = accountManager.getAccountsByType(mAccountType);
+        Account[] accounts = mAccountManager.getAccountsByType(mAccountType);
         Account accountProfile = new Account(profile.getKey(), mAccountType);
         Set<Account> accountsSet = new HashSet<>(Arrays.asList(accounts));
         return accountsSet.contains(accountProfile);

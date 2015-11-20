@@ -22,7 +22,6 @@ import rx.Scheduler;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,8 +76,6 @@ public class SaveProfileTest {
 
     @Test
     public void testExecute() throws Exception {
-        when(mProfileRepository.saveProfile(any(Profile.class))).thenReturn(true);
-
         saveProfile.execute("http://localhost", mProfile, mCredentials, new TestSubscriber());
 
         verify(mProfileValidator).validate(mProfile);

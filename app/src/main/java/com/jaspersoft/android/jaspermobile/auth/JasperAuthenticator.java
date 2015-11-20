@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetTokenUseCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateServerUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
@@ -59,7 +60,9 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     private final PasswordManager mPasswordManager;
 
     @Inject
-    GetTokenUseCase mGetTokenUseCase;
+    GetTokenUseCase getToken;
+    @Inject
+    UpdateServerUseCase updateServer;
 
     public JasperAuthenticator(Context context) {
         super(context);
@@ -96,29 +99,27 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     public Bundle getAuthToken(final AccountAuthenticatorResponse response,
                                final Account account,
                                final String authTokenType, Bundle options) throws NetworkErrorException {
+
+        Profile profile = Profile.create(account.name);
         try {
-            Profile profile = Profile.create(account.name);
-            String authToken = mGetTokenUseCase.execute(profile);
-
-            Bundle result = new Bundle();
-            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-            result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-
-            return result;
-        } catch (RestStatusException restEx) {
-            int status;
-            String message;
-
-            if (restEx.code() == RestErrorCodes.NETWORK_ERROR) {
-                status = JasperAccountManager.TokenException.SERVER_NOT_FOUND;
-                message = mContext.getString(R.string.r_error_server_not_found);
+            boolean serverWasUpdated = updateServer.execute(profile);
+            if (serverWasUpdated) {
+                return createErrorBundle(
+                        JasperAccountManager.TokenException.SERVER_UPDATED_ERROR,
+                        mContext.getString(R.string.r_error_server_not_found)
+                );
             } else {
-                status = restEx.code();
-                message = restEx.getMessage();
-            }
+                String authToken = getToken.execute(profile);
 
-            return createErrorBundle(status, message);
+                Bundle result = new Bundle();
+                result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+                result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+                result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+
+                return result;
+            }
+        } catch (RestStatusException restEx) {
+            return createRestErrorBundle(restEx);
         } catch (FailedToRetrieveCredentials failedToRetrieveCredentials) {
             return createErrorBundle(
                     JasperAccountManager.TokenException.NO_PASSWORD_ERROR,
@@ -140,6 +141,21 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
         return null;
+    }
+
+    private Bundle createRestErrorBundle(RestStatusException restEx) {
+        int status;
+        String message;
+
+        if (restEx.code() == RestErrorCodes.NETWORK_ERROR) {
+            status = JasperAccountManager.TokenException.SERVER_NOT_FOUND;
+            message = mContext.getString(R.string.r_error_server_not_found);
+        } else {
+            status = restEx.code();
+            message = restEx.getMessage();
+        }
+
+        return createErrorBundle(status, message);
     }
 
     private Bundle createErrorBundle(int status, String message) {

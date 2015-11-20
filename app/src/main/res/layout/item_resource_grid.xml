@@ -1,55 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.jaspersoft.android.jaspermobile.widget.ProportionalRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="@dimen/grid_item_size"
-    android:layout_height="match_parent"
-    app:widthToHeightRatio="0.85"
+    android:layout_height="wrap_content"
     android:background="@android:color/white">
 
-    <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
-        android:id="@android:id/icon"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/container"
-        android:background="@android:color/white"
-        android:contentDescription="@string/img_cd_grid_item"
-        android:scaleType="fitXY"
-        tools:background="@drawable/bg_gradient_grey" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bg_resource_item" />
-
     <RelativeLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:gravity="center_vertical">
+        app:layout_widthPercent="100%"
+        app:layout_aspectRatio="120%">
 
-        <CheckedTextView
-            android:id="@android:id/text1"
-            style="@style/grid.item.title"
+        <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
+            android:id="@android:id/icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/container"
+            android:background="@android:color/white"
+            android:contentDescription="@string/img_cd_grid_item"
+            android:scaleType="fitXY"
+            tools:background="@drawable/bg_gradient_grey" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_resource_item" />
+
+        <RelativeLayout
+            android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            tools:text="Large Text"
-            android:layout_toLeftOf="@+id/showInfo"
-            android:gravity="center_vertical" />
+            android:layout_alignParentBottom="true"
+            android:gravity="center_vertical">
 
-        <ImageButton
-            android:id="@+id/showInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="@dimen/resource_item_padding"
-            android:background="@drawable/bg_resource_item"
-            android:padding="8dp"
-            android:src="@drawable/ic_info"/>
+            <CheckedTextView
+                android:id="@android:id/text1"
+                style="@style/grid.item.title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                tools:text="Large Text"
+                android:layout_toLeftOf="@+id/showInfo"
+                android:gravity="center_vertical" />
+
+            <ImageButton
+                android:id="@+id/showInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/resource_item_padding"
+                android:background="@drawable/bg_resource_item"
+                android:padding="8dp"
+                android:src="@drawable/ic_info"/>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
-</com.jaspersoft.android.jaspermobile.widget.ProportionalRelativeLayout>
+</android.support.percent.PercentFrameLayout>

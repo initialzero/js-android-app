@@ -4,22 +4,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.jaspersoft.android.jaspermobile.widget.ProportionalRelativeLayout
+    <android.support.percent.PercentFrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:heightPercent="0.9">
+        android:layout_height="match_parent">
 
-        <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
-            android:id="@+id/toolbarImageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        <RelativeLayout
+            app:layout_heightPercent="90%"
+            app:layout_widthPercent="100%">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#80000000" />
+            <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
+                android:id="@+id/toolbarImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-    </com.jaspersoft.android.jaspermobile.widget.ProportionalRelativeLayout>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#80000000" />
+
+        </RelativeLayout>
+
+    </android.support.percent.PercentFrameLayout>
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -36,11 +41,16 @@
             app:expandedTitleTextAppearance="@style/Widget.JasperMobile.TextView.Info"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <com.jaspersoft.android.jaspermobile.widget.ProportionalRelativeLayout
+            <android.support.percent.PercentFrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:heightPercent="0.5"
-                app:layout_collapseMode="none" />
+                app:layout_collapseMode="none">
+
+                <View
+                    app:layout_heightPercent="50%"
+                    app:layout_widthPercent="100%"/>
+
+            </android.support.percent.PercentFrameLayout>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -120,8 +130,8 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:background="@color/list_divider"
-                            android:layout_alignParentBottom="true" />
+                            android:layout_alignParentBottom="true"
+                            android:background="@color/list_divider" />
 
                     </RelativeLayout>
 

@@ -24,8 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
+import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
+import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,17 +40,25 @@ import javax.inject.Singleton;
 @Singleton
 public final class CloudServerDataSource implements ServerDataSource {
 
+    private final ServerApi.Factory mServerApiFactory;
+    private final JasperServerCache mServerCache;
+
     @Inject
-    public CloudServerDataSource() {
+    public CloudServerDataSource(ServerApi.Factory serverApiFactory, JasperServerCache serverCache) {
+        mServerApiFactory = serverApiFactory;
+        mServerCache = serverCache;
     }
 
     @Override
-    public JasperServer getServer(Profile profile) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public JasperServer getServer(Profile profile) throws RestStatusException {
+        JasperServer server = mServerCache.get(profile);
+        String baseUrl = server.getBaseUrl();
+        ServerApi serverApi = mServerApiFactory.create(baseUrl);
+        return serverApi.requestServer();
     }
 
     @Override
     public void saveServer(Profile profile, JasperServer server) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        throw new UnsupportedOperationException();
     }
 }

@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,8 +36,8 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 public interface ServerDataSource {
-    JasperServer getServer(Profile profile);
-    void saveServer(Profile profile, JasperServer server);
+    JasperServer getServer(Profile profile) throws RestStatusException;
+    void saveServer(Profile profile, JasperServer server) throws RestStatusException;
 
     @Singleton
     class Factory {

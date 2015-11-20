@@ -49,7 +49,14 @@ public final class JasperServerDataRepository implements JasperServerRepository 
     @Override
     public void saveServer(Profile profile, JasperServer jasperServer) {
         ServerDataSource source = mDataSourceFactory.createDiskDataSource();
-        source.saveServer(profile, jasperServer);
+        try {
+            source.saveServer(profile, jasperServer);
+        } catch (RestStatusException e) {
+            /**
+             * This exception literary should not happen at all as soon as disk data source do no network calls
+             */
+            throw new IllegalStateException("Boom! Disk data source threw REST exception!");
+        }
     }
 
     @Override

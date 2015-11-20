@@ -28,29 +28,42 @@ import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
-public final class DiskServerDataSource implements ServerDataSource {
-    private final JasperServerCache mServerCache;
+public class DiskServerDataSourceTest {
 
-    @Inject
-    public DiskServerDataSource(JasperServerCache serverCache) {
-        mServerCache = serverCache;
+    @Mock
+    JasperServerCache mServerCache;
+    @Mock
+    JasperServer mJasperServer;
+
+    private DiskServerDataSource serverDataSource;
+    private final Profile fakeProfile = Profile.create("alias");
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        serverDataSource = new DiskServerDataSource(mServerCache);
     }
 
-    @Override
-    public JasperServer getServer(Profile profile) {
-        return mServerCache.get(profile);
+    @Test
+    public void testGetServer() throws Exception {
+        serverDataSource.getServer(fakeProfile);
+        verify(mServerCache).get(fakeProfile);
     }
 
-    @Override
-    public void saveServer(Profile profile, JasperServer server) {
-        mServerCache.put(profile, server);
+    @Test
+    public void testSaveServer() throws Exception {
+        serverDataSource.saveServer(fakeProfile, mJasperServer);
+        verify(mServerCache).put(fakeProfile, mJasperServer);
     }
 }

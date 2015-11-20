@@ -32,10 +32,9 @@ import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCacheImpl;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCacheImpl;
+import com.jaspersoft.android.jaspermobile.data.cache.PreferencesProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ProfileAccountCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.TokenCache;
 import com.jaspersoft.android.jaspermobile.data.cache.TokenCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
@@ -70,13 +69,15 @@ public final class ProfileModule {
 
     @Singleton
     @Provides
-    ProfileActiveCache provideProfileActiveCache(ProfileActiveCacheImpl profileCache) {
+    @Named("profilePreferencesCache")
+    ProfileCache providesPreferencesProfileCache(PreferencesProfileCache profileCache) {
         return profileCache;
     }
 
     @Singleton
     @Provides
-    ProfileCache provideProfileCache(ProfileCacheImpl profileCache) {
+    @Named("profileAccountCache")
+    ProfileCache providesProfileAccountCache(ProfileAccountCache profileCache) {
         return profileCache;
     }
 

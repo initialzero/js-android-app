@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
@@ -47,9 +46,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class ProfileDataRepositoryTest {
 
     @Mock
-    ProfileCache mCache;
+    ProfileCache mAccountCache;
     @Mock
-    ProfileActiveCache mActiveCache;
+    ProfileCache mPreferencesCache;
 
     ProfileDataRepository repositoryUnderTest;
     Profile fakeProfile;
@@ -58,12 +57,12 @@ public class ProfileDataRepositoryTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         fakeProfile = Profile.create("any");
-        repositoryUnderTest = new ProfileDataRepository(mCache, mActiveCache);
+        repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache);
     }
 
     @Test
     public void shouldNotSaveProfileIfInCache() throws Exception {
-        when(mCache.hasProfile(any(Profile.class))).thenReturn(true);
+        when(mAccountCache.hasProfile(any(Profile.class))).thenReturn(true);
 
         try {
             saveProfile();
@@ -74,8 +73,8 @@ public class ProfileDataRepositoryTest {
 
     @Test
     public void shouldSaveProfileForTheFirstTime() throws Exception {
-        when(mCache.hasProfile(any(Profile.class))).thenReturn(false);
-        when(mCache.put(any(Profile.class))).thenReturn(true);
+        when(mAccountCache.hasProfile(any(Profile.class))).thenReturn(false);
+        when(mAccountCache.put(any(Profile.class))).thenReturn(true);
         try {
             saveProfile();
         } catch (FailedToSaveProfile ex) {
@@ -85,8 +84,8 @@ public class ProfileDataRepositoryTest {
 
     @Test
     public void shouldNotSaveProfileIfCacheFailedToPerformOperation() {
-        when(mCache.hasProfile(any(Profile.class))).thenReturn(false);
-        when(mCache.put(any(Profile.class))).thenReturn(false);
+        when(mAccountCache.hasProfile(any(Profile.class))).thenReturn(false);
+        when(mAccountCache.put(any(Profile.class))).thenReturn(false);
         try {
             saveProfile();
             fail("If cache failed, should not save profile");
@@ -97,8 +96,8 @@ public class ProfileDataRepositoryTest {
     @Test
     public void testActivate() throws Exception {
         repositoryUnderTest.activate(fakeProfile);
-        verify(mActiveCache).put(fakeProfile);
-        verifyNoMoreInteractions(mActiveCache);
+        verify(mPreferencesCache).put(fakeProfile);
+        verifyNoMoreInteractions(mPreferencesCache);
     }
 
     //---------------------------------------------------------------------

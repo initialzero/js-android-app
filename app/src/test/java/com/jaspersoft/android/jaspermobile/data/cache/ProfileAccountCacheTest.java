@@ -47,14 +47,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class ProfileCacheImplTest {
-    ProfileCacheImpl cacheUnderTest;
+public class ProfileAccountCacheTest {
+    ProfileAccountCache cacheUnderTest;
     Profile fakeProfile;
 
     @Before
     public void setUp() throws Exception {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new ProfileCacheImpl(accountManager, FakeAccountDataMapper.get());
+        cacheUnderTest = new ProfileAccountCache(accountManager, FakeAccountDataMapper.get());
         fakeProfile = Profile.create("name");
     }
 

@@ -43,16 +43,21 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class ProfileCacheImpl implements ProfileCache {
+public final class ProfileAccountCache implements ProfileCache {
     private static final String ALIAS_KEY = "ALIAS_KEY";
 
     private final AccountManager mAccountManager;
     private final AccountDataMapper mAccountDataMapper;
 
     @Inject
-    public ProfileCacheImpl(AccountManager accountManager, AccountDataMapper accountDataMapper) {
+    public ProfileAccountCache(AccountManager accountManager, AccountDataMapper accountDataMapper) {
         mAccountManager = accountManager;
         mAccountDataMapper = accountDataMapper;
+    }
+
+    @Override
+    public Profile get() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
@@ -69,5 +74,10 @@ public final class ProfileCacheImpl implements ProfileCache {
         Account[] accounts = mAccountManager.getAccountsByType(accountProfile.type);
         Set<Account> accountsSet = new HashSet<>(Arrays.asList(accounts));
         return accountsSet.contains(accountProfile);
+    }
+
+    @Override
+    public void evict() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

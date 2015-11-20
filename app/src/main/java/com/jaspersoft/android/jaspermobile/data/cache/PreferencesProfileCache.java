@@ -38,20 +38,15 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class ProfileActiveCacheImpl implements ProfileActiveCache {
+public final class PreferencesProfileCache implements ProfileCache {
     private static final String PREF_NAME = "JasperAccountManager";
     private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";
 
     private final SharedPreferences mPreference;
 
     @Inject
-    public ProfileActiveCacheImpl(Context context) {
+    public PreferencesProfileCache(Context context) {
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
-    }
-
-    @Override
-    public void put(Profile profile) {
-        mPreference.edit().putString(ACCOUNT_NAME_KEY, profile.getKey()).apply();
     }
 
     @Override
@@ -61,6 +56,17 @@ public final class ProfileActiveCacheImpl implements ProfileActiveCache {
             return null;
         }
         return Profile.create(key);
+    }
+
+    @Override
+    public boolean put(Profile profile) {
+        mPreference.edit().putString(ACCOUNT_NAME_KEY, profile.getKey()).apply();
+        return true;
+    }
+
+    @Override
+    public boolean hasProfile(Profile profile) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override

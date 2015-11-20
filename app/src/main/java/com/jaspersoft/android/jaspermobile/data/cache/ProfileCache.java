@@ -31,6 +31,8 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
  * @since 2.3
  */
 public interface ProfileCache {
+    Profile get();
     boolean put(Profile profile);
     boolean hasProfile(Profile profile);
+    void evict();
 }

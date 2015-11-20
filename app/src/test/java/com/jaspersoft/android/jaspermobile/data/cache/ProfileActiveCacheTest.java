@@ -46,13 +46,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Config(manifest = Config.NONE)
 public class ProfileActiveCacheTest {
 
-    private ProfileActiveCacheImpl cacheUnderTest;
+    private PreferencesProfileCache cacheUnderTest;
     private Profile fakeProfile;
     private SharedPreferences store;
 
     @Before
     public void setUp() throws Exception {
-        cacheUnderTest = new ProfileActiveCacheImpl(RuntimeEnvironment.application);
+        cacheUnderTest = new PreferencesProfileCache(RuntimeEnvironment.application);
         store = RuntimeEnvironment.application.getSharedPreferences("JasperAccountManager", Activity.MODE_PRIVATE);
         fakeProfile = Profile.create("name");
 

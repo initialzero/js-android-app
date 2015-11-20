@@ -24,13 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileActiveCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -40,12 +40,13 @@ import javax.inject.Singleton;
 @Singleton
 public final class ProfileDataRepository implements ProfileRepository {
     private final ProfileCache mProfileCache;
-    private final ProfileActiveCache mProfileActiveCache;
+    private final ProfileCache mProfileActiveCache;
 
     @Inject
-    public ProfileDataRepository(ProfileCache profileCache, ProfileActiveCache profileActiveCache) {
-        mProfileCache = profileCache;
-        mProfileActiveCache = profileActiveCache;
+    public ProfileDataRepository(@Named("profileAccountCache") ProfileCache accountProfileCache,
+                                 @Named("profilePreferencesCache") ProfileCache preferencesProfileCache) {
+        mProfileCache = accountProfileCache;
+        mProfileActiveCache = preferencesProfileCache;
     }
 
     @Override

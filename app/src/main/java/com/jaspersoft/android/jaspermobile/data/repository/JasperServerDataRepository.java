@@ -61,7 +61,7 @@ public final class JasperServerDataRepository implements JasperServerRepository 
 
     @Override
     public JasperServer getServer(Profile profile) throws RestStatusException {
-        ServerDataSource source = mDataSourceFactory.createDataSource();
+        ServerDataSource source = mDataSourceFactory.createDataSource(profile);
         return source.getServer(profile);
     }
 

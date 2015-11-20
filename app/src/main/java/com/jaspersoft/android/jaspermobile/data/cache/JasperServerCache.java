@@ -34,4 +34,5 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 public interface JasperServerCache {
     void put(Profile profile, JasperServer jasperServer);
     JasperServer get(Profile fakeProfile);
+    boolean hasServer(Profile fakeProfile);
 }

@@ -30,20 +30,15 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
 public final class CloudServerDataSource implements ServerDataSource {
 
     private final ServerApi.Factory mServerApiFactory;
     private final JasperServerCache mServerCache;
 
-    @Inject
     public CloudServerDataSource(ServerApi.Factory serverApiFactory, JasperServerCache serverCache) {
         mServerApiFactory = serverApiFactory;
         mServerCache = serverCache;

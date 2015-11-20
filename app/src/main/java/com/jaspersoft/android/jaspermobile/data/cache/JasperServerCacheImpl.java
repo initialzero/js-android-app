@@ -76,4 +76,9 @@ public final class JasperServerCacheImpl implements JasperServerCache {
 
         return serverBuilder.create();
     }
+
+    @Override
+    public boolean hasServer(Profile fakeProfile) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }

@@ -66,7 +66,8 @@ public class JasperServerDataRepositoryTest {
 
         when(mDataSourceFactory.createCloudDataSource()).thenReturn(mCloudDataSource);
         when(mDataSourceFactory.createDiskDataSource()).thenReturn(mDiskDataSource);
-        when(mDataSourceFactory.createDataSource()).thenReturn(mDiskDataSource);
+        when(mDataSourceFactory.createDataSource(any(Profile.class))).thenReturn(mDiskDataSource);
+
         when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
         when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
 
@@ -89,7 +90,7 @@ public class JasperServerDataRepositoryTest {
     @Test
     public void testGetServer() throws Exception {
         repoUnderTest.getServer(fakeProfile);
-        verify(mDataSourceFactory).createDataSource();
+        verify(mDataSourceFactory).createDataSource(fakeProfile);
         verify(mDiskDataSource).getServer(fakeProfile);
     }
 

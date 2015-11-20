@@ -28,18 +28,13 @@ import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
 public final class DiskServerDataSource implements ServerDataSource {
     private final JasperServerCache mServerCache;
 
-    @Inject
     public DiskServerDataSource(JasperServerCache serverCache) {
         mServerCache = serverCache;
     }

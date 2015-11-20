@@ -299,8 +299,8 @@ public class JasperAccountManager {
         PasswordManager passwordManager = PasswordManager.init(mContext, salt);
         try {
             return passwordManager.encrypt(newPassword);
-        } catch (PasswordManager.EncryptionError encryptionError) {
-            throw new RuntimeException(encryptionError);
+        } catch (PasswordManager.EncryptionException encryptionException) {
+            throw new RuntimeException(encryptionException);
         }
     }
 

@@ -103,7 +103,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
 
             return result;
-        } catch (PasswordManager.DecryptionError e) {
+        } catch (PasswordManager.DecryptionException e) {
             return createErrorBundle(
                     JasperAccountManager.TokenException.NO_PASSWORD_ERROR,
                     mContext.getString(R.string.r_error_incorrect_credentials)

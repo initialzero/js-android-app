@@ -78,7 +78,6 @@ public class SaveProfileTest {
     @Test
     public void testExecute() throws Exception {
         when(mProfileRepository.saveProfile(any(Profile.class))).thenReturn(true);
-        when(mCredentialsRepository.saveCredentials(any(Profile.class), any(BaseCredentials.class))).thenReturn(true);
 
         saveProfile.execute("http://localhost", mProfile, mCredentials, new TestSubscriber());
 

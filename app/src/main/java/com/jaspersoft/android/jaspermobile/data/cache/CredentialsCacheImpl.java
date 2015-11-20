@@ -59,25 +59,19 @@ public final class CredentialsCacheImpl implements CredentialsCache {
     }
 
     @Override
-    public boolean put(Profile profile, BaseCredentials credentials) {
+    public void put(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException {
         AccountManager accountManager = AccountManager.get(mContext);
         Account account = new Account(profile.getKey(), mAccountType);
 
-        try {
-            String encryptedPassword = mPasswordManger.encrypt(credentials.getPassword());
-            accountManager.setPassword(account, encryptedPassword);
-        } catch (PasswordManager.EncryptionError encryptionError) {
-            return false;
-        }
+        String encryptedPassword = mPasswordManger.encrypt(credentials.getPassword());
+        accountManager.setPassword(account, encryptedPassword);
 
         accountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
         accountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
-
-        return true;
     }
 
     @Override
-    public BaseCredentials get(Profile profile) throws PasswordManager.DecryptionError {
+    public BaseCredentials get(Profile profile) throws PasswordManager.DecryptionException {
         AccountManager accountManager = AccountManager.get(mContext);
         Account account = new Account(profile.getKey(), mAccountType);
 

@@ -44,6 +44,7 @@ import org.robolectric.annotation.Config;
 import javax.crypto.BadPaddingException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -85,17 +86,15 @@ public class CredentialsCacheTest {
         Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
         when(mPasswordManager.encrypt(anyString())).thenReturn("encrypted");
 
-        assertThat("Put operation should save credentials if PasswordManager succeed",
-                cacheUnderTest.put(fakeProfile, fakeCredentials)
-        );
+        cacheUnderTest.put(fakeProfile, fakeCredentials);
 
         assertThat("Password should be injected in cache",
-                accountManager.getPassword(fakeAccount) != null);
+                "1234".equals(accountManager.getPassword(fakeAccount)));
         assertThat("Username should be injected in cache",
-                fakeCredentials.getUsername().equals(accountManager.getUserData(fakeAccount, "USERNAME_KEY"))
+                "nay".equals(accountManager.getUserData(fakeAccount, "USERNAME_KEY"))
         );
-        assertThat("Username should be injected in cache",
-                fakeCredentials.getOrganization().equals(accountManager.getUserData(fakeAccount, "ORGANIZATION_KEY"))
+        assertThat("Organization should be injected in cache",
+                "organization".equals(accountManager.getUserData(fakeAccount, "ORGANIZATION_KEY"))
         );
         verify(mPasswordManager).encrypt(fakeCredentials.getPassword());
     }
@@ -103,11 +102,13 @@ public class CredentialsCacheTest {
     @Test
     public void putOperationShouldReturnFalseIfExceptionOccurred() throws Exception {
         when(mPasswordManager.encrypt(anyString())).thenThrow(
-                new PasswordManager.EncryptionError(new BadPaddingException())
+                new PasswordManager.EncryptionException(new BadPaddingException())
         );
-        assertThat("Put operation should not save credentials if PasswordManager failed",
-                !cacheUnderTest.put(fakeProfile, fakeCredentials)
-        );
+        try {
+            cacheUnderTest.put(fakeProfile, fakeCredentials);
+            fail("Put operation should not save credentials if PasswordManager failed");
+        } catch (PasswordManager.EncryptionException ex) {
+        }
     }
 
     @Test

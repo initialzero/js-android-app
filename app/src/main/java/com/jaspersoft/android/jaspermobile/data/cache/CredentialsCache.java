@@ -33,6 +33,6 @@ import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
  * @since 2.3
  */
 public interface CredentialsCache {
-    boolean put(Profile profile, BaseCredentials credentials);
-    BaseCredentials get(Profile fakeProfile) throws PasswordManager.DecryptionError;
+    void put(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException;
+    BaseCredentials get(Profile fakeProfile) throws PasswordManager.DecryptionException;
 }

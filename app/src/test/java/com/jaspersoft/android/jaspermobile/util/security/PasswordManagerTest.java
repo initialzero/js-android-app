@@ -65,7 +65,7 @@ public class PasswordManagerTest {
         assertThat(decrypted, is("1234"));
     }
 
-    @Test(expected = PasswordManager.DecryptionError.class)
+    @Test(expected = PasswordManager.DecryptionException.class)
     public void shouldThrowDecryptionErrorIfErrorEncountered() throws Exception {
         PasswordManager passwordManager2 = PasswordManager.init(RuntimeEnvironment.application, "qwerty123445");
         String encrypted = passwordManager.encrypt("1234");

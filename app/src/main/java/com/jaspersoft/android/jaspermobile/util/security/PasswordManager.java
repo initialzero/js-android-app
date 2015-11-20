@@ -70,7 +70,7 @@ public class PasswordManager {
         return new PasswordManager(context, secret);
     }
 
-    public String encrypt(String value) throws EncryptionError {
+    public String encrypt(String value) throws EncryptionException {
         try {
             final byte[] bytes = value != null ? value.getBytes(UTF8) : new byte[0];
 
@@ -88,11 +88,11 @@ public class PasswordManager {
                 BadPaddingException | UnsupportedEncodingException |
                 NoSuchPaddingException | InvalidKeySpecException |
                 InvalidAlgorithmParameterException | InvalidKeyException e) {
-            throw new EncryptionError(e);
+            throw new EncryptionException(e);
         }
     }
 
-    public String decrypt(String value) throws DecryptionError {
+    public String decrypt(String value) throws DecryptionException {
         try {
             final byte[] bytes = value != null ? fromBase64(value) : new byte[0];
 
@@ -110,7 +110,7 @@ public class PasswordManager {
                 BadPaddingException | UnsupportedEncodingException |
                 NoSuchPaddingException | InvalidKeySpecException |
                 InvalidAlgorithmParameterException | InvalidKeyException e) {
-            throw new DecryptionError(e);
+            throw new DecryptionException(e);
         }
     }
 
@@ -129,14 +129,14 @@ public class PasswordManager {
         return Arrays.copyOf(id.getBytes(UTF8), 8);
     }
 
-    public static class EncryptionError extends Exception {
-        public EncryptionError(Throwable throwable) {
+    public static class EncryptionException extends Exception {
+        public EncryptionException(Throwable throwable) {
             super(throwable);
         }
     }
 
-    public static class DecryptionError extends Exception {
-        public DecryptionError(Throwable throwable) {
+    public static class DecryptionException extends Exception {
+        public DecryptionException(Throwable throwable) {
             super(throwable);
         }
     }

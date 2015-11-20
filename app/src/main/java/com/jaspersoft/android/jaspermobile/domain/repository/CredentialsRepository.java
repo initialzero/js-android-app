@@ -33,6 +33,6 @@ import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
  * @since 2.3
  */
 public interface CredentialsRepository {
-    boolean saveCredentials(Profile profile, BaseCredentials credentials);
-    BaseCredentials getCredentials(Profile profile) throws PasswordManager.DecryptionError;
+    void saveCredentials(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException;
+    BaseCredentials getCredentials(Profile profile) throws PasswordManager.DecryptionException;
 }

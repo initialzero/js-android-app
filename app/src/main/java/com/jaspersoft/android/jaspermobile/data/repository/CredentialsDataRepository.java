@@ -47,12 +47,12 @@ public final class CredentialsDataRepository implements CredentialsRepository {
     }
 
     @Override
-    public boolean saveCredentials(Profile profile, BaseCredentials credentials) {
-        return mCredentialsCache.put(profile, credentials);
+    public void saveCredentials(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException {
+        mCredentialsCache.put(profile, credentials);
     }
 
     @Override
-    public BaseCredentials getCredentials(Profile profile) throws PasswordManager.DecryptionError {
+    public BaseCredentials getCredentials(Profile profile) throws PasswordManager.DecryptionException {
         return mCredentialsCache.get(profile);
     }
 }

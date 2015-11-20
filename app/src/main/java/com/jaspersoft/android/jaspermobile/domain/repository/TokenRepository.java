@@ -36,5 +36,5 @@ import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
  */
 public interface TokenRepository {
     String getToken(Profile profile, JasperServer server, BaseCredentials credentials)
-            throws RestStatusException, PasswordManager.DecryptionError;
+            throws RestStatusException, PasswordManager.DecryptionException;
 }

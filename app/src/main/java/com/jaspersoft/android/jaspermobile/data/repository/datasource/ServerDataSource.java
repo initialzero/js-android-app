@@ -22,18 +22,39 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.repository;
+package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
-import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface JasperServerRepository {
-    void saveServer(Profile profile, JasperServer jasperServer);
-    JasperServer getServer(Profile profile) throws RestStatusException;
-    boolean updateServer(Profile profile) throws RestStatusException;
+public interface ServerDataSource {
+    JasperServer getServer(Profile profile);
+    void saveServer(Profile profile, JasperServer server);
+
+    @Singleton
+    class Factory {
+
+        @Inject
+        public Factory() {
+        }
+
+        public ServerDataSource createCloudDataSource() {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        public ServerDataSource createDataSource() {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        public ServerDataSource createDiskDataSource() {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+    }
 }

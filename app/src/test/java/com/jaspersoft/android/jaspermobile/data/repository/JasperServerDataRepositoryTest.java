@@ -24,17 +24,19 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.data.repository.datasource.ServerDataSource;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Tom Koptel
@@ -43,7 +45,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 public class JasperServerDataRepositoryTest {
 
     @Mock
-    JasperServerCache mServerCache;
+    ServerDataSource.Factory mDataSourceFactory;
+    @Mock
+    ServerDataSource mCloudDataSource;
+    @Mock
+    ServerDataSource mDiskDataSource;
+
+    JasperServer server5_5, server6_0, serverCE, serverPRO;
     JasperServerDataRepository repoUnderTest;
     Profile fakeProfile;
     JasperServer fakeServer;
@@ -51,7 +59,18 @@ public class JasperServerDataRepositoryTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        repoUnderTest = new JasperServerDataRepository(mServerCache);
+
+        JasperServer.Builder serverBuilder = JasperServer.builder().setBaseUrl("http://localhost");
+        server5_5 = serverCE = serverBuilder.setVersion(5.5d).setEdition("CE").create();
+        server6_0 = serverPRO = serverBuilder.setVersion(6.0d).setEdition("PRO").create();
+
+        when(mDataSourceFactory.createCloudDataSource()).thenReturn(mCloudDataSource);
+        when(mDataSourceFactory.createDiskDataSource()).thenReturn(mDiskDataSource);
+        when(mDataSourceFactory.createDataSource()).thenReturn(mDiskDataSource);
+        when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
+        when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
+
+        repoUnderTest = new JasperServerDataRepository(mDataSourceFactory);
         fakeProfile = Profile.create("name");
         fakeServer = JasperServer.builder()
                 .setBaseUrl("http://localhost")
@@ -63,14 +82,55 @@ public class JasperServerDataRepositoryTest {
     @Test
     public void testSaveServer() throws Exception {
         repoUnderTest.saveServer(fakeProfile, fakeServer);
-        verify(mServerCache).put(fakeProfile, fakeServer);
-        verifyNoMoreInteractions(mServerCache);
+        verify(mDataSourceFactory).createDiskDataSource();
+        verify(mDiskDataSource).saveServer(fakeProfile, fakeServer);
     }
 
     @Test
     public void testGetServer() throws Exception {
         repoUnderTest.getServer(fakeProfile);
-        verify(mServerCache).get(fakeProfile);
-        verifyNoMoreInteractions(mServerCache);
+        verify(mDataSourceFactory).createDataSource();
+        verify(mDiskDataSource).getServer(fakeProfile);
+    }
+
+    @Test
+    public void testUpdateServer() throws Exception {
+        repoUnderTest.updateServer(fakeProfile);
+        verify(mDataSourceFactory).createDiskDataSource();
+        verify(mDataSourceFactory).createCloudDataSource();
+        verify(mCloudDataSource).getServer(fakeProfile);
+        verify(mDiskDataSource).getServer(fakeProfile);
+    }
+
+    @Test
+    public void testUpdateServerIfVersionUpdated() throws Exception {
+        when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
+        when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(server6_0);
+
+        assertThat("Server should be updated while versions differ",
+                repoUnderTest.updateServer(fakeProfile)
+        );
+        verify(mDiskDataSource).saveServer(fakeProfile, server6_0);
+    }
+
+    @Test
+    public void testUpdateServerIfEditionUpdated() throws Exception {
+        when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(serverCE);
+        when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(serverPRO);
+
+        assertThat("Server should be updated while editions differ",
+                repoUnderTest.updateServer(fakeProfile)
+        );
+        verify(mDiskDataSource).saveServer(fakeProfile, serverPRO);
+    }
+
+    @Test
+    public void testShouldNotUpdateServerIfInstancesEqual() throws Exception {
+        when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
+        when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
+
+        assertThat("Server should not be updated",
+                !repoUnderTest.updateServer(fakeProfile)
+        );
     }
 }

@@ -24,9 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
+import com.jaspersoft.android.jaspermobile.data.repository.datasource.ServerDataSource;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 
 import javax.inject.Inject;
@@ -38,20 +39,36 @@ import javax.inject.Singleton;
  */
 @Singleton
 public final class JasperServerDataRepository implements JasperServerRepository {
-    private final JasperServerCache mJasperServerCache;
+    private final ServerDataSource.Factory mDataSourceFactory;
 
     @Inject
-    public JasperServerDataRepository(JasperServerCache jasperServerCache) {
-        mJasperServerCache = jasperServerCache;
+    public JasperServerDataRepository(ServerDataSource.Factory dataSourceFactory) {
+        mDataSourceFactory = dataSourceFactory;
     }
 
     @Override
     public void saveServer(Profile profile, JasperServer jasperServer) {
-        mJasperServerCache.put(profile, jasperServer);
+        ServerDataSource source = mDataSourceFactory.createDiskDataSource();
+        source.saveServer(profile, jasperServer);
     }
 
     @Override
-    public JasperServer getServer(Profile profile) {
-        return mJasperServerCache.get(profile);
+    public JasperServer getServer(Profile profile) throws RestStatusException {
+        ServerDataSource source = mDataSourceFactory.createDataSource();
+        return source.getServer(profile);
+    }
+
+    @Override
+    public boolean updateServer(Profile profile) throws RestStatusException {
+        ServerDataSource diskSource = mDataSourceFactory.createDiskDataSource();
+        ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
+        JasperServer cachedServer = diskSource.getServer(profile);
+        JasperServer networkServer = cloudSource.getServer(profile);
+
+        boolean needUpdate = !cachedServer.equals(networkServer);
+        if (needUpdate) {
+            diskSource.saveServer(profile, networkServer);
+        }
+        return needUpdate;
     }
 }

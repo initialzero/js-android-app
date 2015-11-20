@@ -22,18 +22,41 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.repository;
+package com.jaspersoft.android.jaspermobile.domain.interactor;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
+import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface JasperServerRepository {
-    void saveServer(Profile profile, JasperServer jasperServer);
-    JasperServer getServer(Profile profile) throws RestStatusException;
-    boolean updateServer(Profile profile) throws RestStatusException;
+public class UpdateServerUseCaseTest {
+
+    private UpdateServerUseCase updateUseCase;
+    private Profile fakeProfile = Profile.create("alias");
+
+    @Mock
+    JasperServerRepository serverRepository;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        updateUseCase = new UpdateServerUseCase(serverRepository);
+    }
+
+    @Test
+    public void testExecute() throws Exception {
+        updateUseCase.execute(fakeProfile);
+        verify(serverRepository).updateServer(fakeProfile);
+        verifyNoMoreInteractions(serverRepository);
+    }
 }

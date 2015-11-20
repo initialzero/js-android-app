@@ -44,17 +44,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class ProfileActiveCacheTest {
+public class PreferencesProfileCacheTest {
 
     private PreferencesProfileCache cacheUnderTest;
-    private Profile fakeProfile;
+    private final Profile fakeProfile = Profile.create("name");
     private SharedPreferences store;
 
     @Before
     public void setUp() throws Exception {
         cacheUnderTest = new PreferencesProfileCache(RuntimeEnvironment.application);
         store = RuntimeEnvironment.application.getSharedPreferences("JasperAccountManager", Activity.MODE_PRIVATE);
-        fakeProfile = Profile.create("name");
 
         assertThat("Precondition failed. Store should be empty",
                 store.getAll().isEmpty()
@@ -83,6 +82,14 @@ public class ProfileActiveCacheTest {
         cacheUnderTest.evict();
         assertThat("Failed to evict profile",
                 store.getAll().isEmpty()
+        );
+    }
+
+    @Test
+    public void testHasProfile() throws Exception {
+        store.edit().putString("ACCOUNT_NAME_KEY", "name").apply();
+        assertThat("Should contain profile, as soon as preferences has key",
+                cacheUnderTest.hasProfile(fakeProfile)
         );
     }
 }

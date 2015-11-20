@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
@@ -66,7 +67,7 @@ public final class PreferencesProfileCache implements ProfileCache {
 
     @Override
     public boolean hasProfile(Profile profile) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return !TextUtils.isEmpty(mPreference.getString(ACCOUNT_NAME_KEY, null));
     }
 
     @Override

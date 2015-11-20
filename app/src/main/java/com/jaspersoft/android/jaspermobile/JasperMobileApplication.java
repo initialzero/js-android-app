@@ -49,6 +49,7 @@ import timber.log.Timber;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+    public static final String RESOURCES_CACHE_DIR_NAME = "resources";
     public static final String SHARED_DIR = "com.jaspersoft.account.none";
 
     @Inject

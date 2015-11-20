@@ -91,10 +91,19 @@
     <string name="s_ab_filter_by">Filter by</string>
     <string name="s_ab_sort_by">Sort by</string>
 
+    <!-- File viewing -->
+    <string name="fv_try_again_btn" translatable="false">Try again</string>
+    <string name="fv_can_not_show_message" translatable="false">Can not show file content</string>
+    <string name="fv_undefined_message" translatable="false">Can not open. Resource type undefined</string>
+    <string name="fv_opening_message" translatable="false">Opening file...</string>
+
     <!-- Filter Dialog -->
     <string name="s_fd_option_all">All</string>
     <string name="s_fd_option_reports">Reports</string>
+    <string name="s_fd_option_saved_values" translatable="false">Saved values</string>
     <string name="s_fd_option_dashboards">Dashboards</string>
+    <string name="s_fd_option_files" translatable="false">Files</string>
+    <string name="s_fd_option_others" translatable="false">Others</string>
     <string name="s_fd_sort_label">Label</string>
     <string name="s_fd_sort_date">Creation date</string>
 

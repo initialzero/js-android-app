@@ -25,32 +25,24 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
-import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 class DashboardResourceBinder extends ResourceBinder {
+
     public DashboardResourceBinder(Context context) {
         super(context);
     }
 
     @Override
-    public void setIcon(ImageView imageView, String uri) {
-        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+    public void setIcon(TopCropImageView imageView, String uri) {
+        imageView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
-        ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions());
-    }
-
-    private DisplayImageOptions getDisplayImageOptions() {
-        return new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(R.drawable.placeholder_dashboard)
-                .build();
+        imageView.setImageResource(R.drawable.placeholder_dashboard);
     }
 }

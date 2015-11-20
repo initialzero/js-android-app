@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.accounts.Account;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.view.View;
 import android.widget.ImageView;
 
 import com.google.inject.Inject;
@@ -39,7 +38,6 @@ import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import roboguice.RoboGuice;
 
@@ -64,9 +62,10 @@ class ReportResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(ImageView imageView, String uri) {
+    public void setIcon(TopCropImageView imageView, String uri) {
+        imageView.setScaleType(TopCropImageView.ScaleType.TOP_CROP);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        imageView.setImageResource(R.drawable.placeholder_report);
         loadFromNetwork(imageView, uri);
     }
 
@@ -76,30 +75,16 @@ class ReportResourceBinder extends ResourceBinder {
             path = jsRestClient.generateThumbNailUri(uri);
         }
         ImageLoader.getInstance().displayImage(
-                path, imageView, getDisplayImageOptions(),
-                new ImageLoadingListener()
+                path, imageView, getDisplayImageOptions()
         );
     }
 
     private DisplayImageOptions getDisplayImageOptions() {
         return new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.drawable.placeholder_report)
-                .showImageForEmptyUri(R.drawable.placeholder_report)
                 .considerExifParams(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
     }
-
-    private static class ImageLoadingListener extends SimpleImageLoadingListener {
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            if (view != null) {
-                ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.MATRIX);
-                ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.TOP_CROP);
-            }
-        }
-    }
-
 }

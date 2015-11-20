@@ -28,6 +28,9 @@ import android.content.Context;
 
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -35,15 +38,28 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 public class ResourceViewHelper {
 
     private final Context mContext;
+    private Map<String, ResourceBinder> resourceViewMap;
 
     public ResourceViewHelper(Context context) {
         mContext = context;
+
+        resourceViewMap = new HashMap<>();
     }
 
     public void populateView(ResourceView resourceView, ResourceLookup item) {
         String type = item.getResourceType().toString();
         ResourceBinder resourceBinder = ResourceBinderFactory.create(mContext, type);
+
+        unbindPreviousBinder(item.getUri());
+        resourceViewMap.put(item.getUri(), resourceBinder);
+
         resourceBinder.bindView(resourceView, item);
     }
 
+    private void unbindPreviousBinder(String resourceUri) {
+        ResourceBinder resourceBinder = resourceViewMap.get(resourceUri);
+        if (resourceBinder != null) {
+            resourceBinder.unbindView();
+        }
+    }
 }

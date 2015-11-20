@@ -161,7 +161,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Extra
     protected ResourceLookup resource;
     @Extra
-    protected ArrayList<ReportParameter> reportParameters = new ArrayList<ReportParameter>();
+    protected ArrayList<ReportParameter> reportParameters;
 
     @InstanceState
     protected Uri favoriteEntryUri;
@@ -202,6 +202,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (reportParameters == null) {
+            reportParameters = new ArrayList<>(paramsStorage.getInputControlHolder(resource.getUri()).getReportParams());
+        }
 
         mHasInitialParameters = !reportParameters.isEmpty();
         paramsStorage.getInputControlHolder(resource.getUri()).setReportParams(reportParameters);

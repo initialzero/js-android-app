@@ -75,4 +75,21 @@ public final class CredentialsCacheImpl implements CredentialsCache {
 
         return true;
     }
+
+    @Override
+    public BaseCredentials get(Profile profile) throws PasswordManager.DecryptionError {
+        AccountManager accountManager = AccountManager.get(mContext);
+        Account account = new Account(profile.getKey(), mAccountType);
+
+        String password = accountManager.getPassword(account);
+        String decryptedPassword = mPasswordManger.decrypt(password);
+        String username = accountManager.getUserData(account, USERNAME_KEY);
+        String organization = accountManager.getUserData(account, ORGANIZATION_KEY);
+
+        BaseCredentials.Builder credentialsBuilder = BaseCredentials.builder();
+        credentialsBuilder.setPassword(decryptedPassword);
+        credentialsBuilder.setUsername(username);
+        credentialsBuilder.setOrganization(organization);
+        return credentialsBuilder.create();
+    }
 }

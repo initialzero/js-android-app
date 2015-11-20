@@ -28,6 +28,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,7 +52,7 @@ public final class CredentialsDataRepository implements CredentialsRepository {
     }
 
     @Override
-    public BaseCredentials getCredentials(Profile profile) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public BaseCredentials getCredentials(Profile profile) throws PasswordManager.DecryptionError {
+        return mCredentialsCache.get(profile);
     }
 }

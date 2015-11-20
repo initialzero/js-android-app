@@ -64,11 +64,12 @@ public class CredentialsCacheTest {
     CredentialsCacheImpl cacheUnderTest;
     Profile fakeProfile;
     BaseCredentials fakeCredentials;
-    FakeAccount fakeAccount;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        when(mPasswordManager.decrypt(anyString())).thenReturn("1234");
+
         accountManager = AccountManager.get(RuntimeEnvironment.application);
         cacheUnderTest = new CredentialsCacheImpl(RuntimeEnvironment.application, mPasswordManager, ACCOUNT_TYPE);
         fakeProfile = Profile.create("name");
@@ -77,13 +78,12 @@ public class CredentialsCacheTest {
                 .setOrganization("organization")
                 .setUsername("nay")
                 .create();
-        fakeAccount = new FakeAccount(RuntimeEnvironment.application, fakeProfile);
     }
 
     @Test
     public void testHappyPutCase() throws Exception {
+        FakeAccount fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
         when(mPasswordManager.encrypt(anyString())).thenReturn("encrypted");
-        fakeAccount.setup();
 
         assertThat("Put operation should save credentials if PasswordManager succeed",
                 cacheUnderTest.put(fakeProfile, fakeCredentials)
@@ -106,9 +106,23 @@ public class CredentialsCacheTest {
         when(mPasswordManager.encrypt(anyString())).thenThrow(
                 new PasswordManager.EncryptionError(new BadPaddingException())
         );
-        fakeAccount.setup();
         assertThat("Put operation should not save credentials if PasswordManager failed",
                 !cacheUnderTest.put(fakeProfile, fakeCredentials)
         );
+    }
+
+    @Test
+    public void testHappyGetCase() throws Exception {
+        FakeAccount.injectAccount(fakeProfile)
+                .injectCredentials(fakeCredentials)
+                .done();
+
+        BaseCredentials credentials = cacheUnderTest.get(fakeProfile);
+        assertThat("Failed to retrieve password for profile " + fakeProfile,
+                "1234".equals(credentials.getPassword()));
+        assertThat("Failed to retrieve username for profile " + fakeProfile,
+                "nay".equals(credentials.getUsername()));
+        assertThat("Failed to retrieve organization for profile " + fakeProfile,
+                "organization".equals(credentials.getOrganization()));
     }
 }

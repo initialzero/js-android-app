@@ -62,13 +62,12 @@ public class JasperServerCacheTest {
                 .setVersion(6.0d)
                 .setEdition("CE")
                 .create();
-        fakeAccount = new FakeAccount(RuntimeEnvironment.application, fakeProfile);
+        fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
         cacheUnderTest = new JasperServerCacheImpl(RuntimeEnvironment.application, FakeAccount.ACCOUNT_TYPE);
     }
 
     @Test
     public void testPut() throws Exception {
-        fakeAccount.setup();
         cacheUnderTest.put(fakeProfile, fakeServer);
 
         Account account = fakeAccount.get();

@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.domain.repository;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 /**
  * @author Tom Koptel
@@ -33,5 +34,5 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
  */
 public interface CredentialsRepository {
     boolean saveCredentials(Profile profile, BaseCredentials credentials);
-    BaseCredentials getCredentials(Profile profile);
+    BaseCredentials getCredentials(Profile profile) throws PasswordManager.DecryptionError;
 }

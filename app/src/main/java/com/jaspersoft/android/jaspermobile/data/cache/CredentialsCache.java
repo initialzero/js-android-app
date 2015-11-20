@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 /**
  * @author Tom Koptel
@@ -33,4 +34,5 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
  */
 public interface CredentialsCache {
     boolean put(Profile profile, BaseCredentials credentials);
+    BaseCredentials get(Profile fakeProfile) throws PasswordManager.DecryptionError;
 }

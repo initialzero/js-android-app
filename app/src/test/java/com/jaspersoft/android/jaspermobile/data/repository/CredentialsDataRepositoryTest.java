@@ -62,4 +62,10 @@ public class CredentialsDataRepositoryTest {
         verify(mCredentialsCache).put(fakeProfile, fakeCredentials);
         verifyNoMoreInteractions(mCredentialsCache);
     }
+
+    @Test
+    public void testGetCredentials() throws Exception {
+        repoUnderTest.getCredentials(fakeProfile);
+        verify(mCredentialsCache).get(fakeProfile);
+    }
 }

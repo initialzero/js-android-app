@@ -28,7 +28,10 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+
+import org.robolectric.RuntimeEnvironment;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -39,24 +42,63 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public final class FakeAccount {
     public static final String ACCOUNT_TYPE = "com.jaspersoft";
 
-    private final Profile fakeProfile;
-    private final AccountManager accountManager;
+    private final Account mAccount;
 
-    public FakeAccount(Context context, Profile fakeProfile) {
-        this.accountManager = AccountManager.get(context);
-        this.fakeProfile = fakeProfile;
-    }
-
-    public void setup() {
-        assertThat("Failed precondition. Can not create account for profile: " + fakeProfile,
-                accountManager.addAccountExplicitly(new Account(fakeProfile.getKey(), ACCOUNT_TYPE), null, null)
-        );
-        assertThat("Fake account should be registered in system",
-                accountManager.getAccountsByType(ACCOUNT_TYPE).length > 0
-        );
+    public FakeAccount(Account account) {
+        mAccount = account;
     }
 
     public Account get() {
-        return accountManager.getAccountsByType(ACCOUNT_TYPE)[0];
+        return mAccount;
+    }
+
+    public static SetupCredentialsBuilder injectAccount(Profile profile) {
+        return new SetupAccountBuilder(RuntimeEnvironment.application).injectAccount(profile);
+    }
+
+    public static class SetupAccountBuilder {
+        private final Context mContext;
+
+        private SetupAccountBuilder(Context context) {
+            mContext = context;
+        }
+
+        public SetupCredentialsBuilder injectAccount(Profile profile) {
+            Account account = new Account(profile.getKey(), ACCOUNT_TYPE);
+            AccountManager accountManager = AccountManager.get(mContext);
+
+            assertThat("Failed precondition. Can not create account for profile: " + profile,
+                    accountManager.addAccountExplicitly(account, null, null)
+            );
+            assertThat("Fake account should be registered in system",
+                    accountManager.getAccountsByType(ACCOUNT_TYPE).length > 0
+            );
+            return new SetupCredentialsBuilder(mContext, account);
+        }
+    }
+
+    public static class SetupCredentialsBuilder {
+        private static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
+        private static final String USERNAME_KEY = "USERNAME_KEY";
+
+        private final Context mContext;
+        private final Account mAccount;
+
+        private SetupCredentialsBuilder(Context context, Account account) {
+            mContext = context;
+            mAccount = account;
+        }
+
+        public SetupCredentialsBuilder injectCredentials(BaseCredentials credentials) {
+            AccountManager accountManager = AccountManager.get(mContext);
+            accountManager.setUserData(mAccount, ORGANIZATION_KEY, credentials.getOrganization());
+            accountManager.setUserData(mAccount, USERNAME_KEY, credentials.getUsername());
+            accountManager.setPassword(mAccount, credentials.getPassword());
+            return this;
+        }
+
+        public FakeAccount done() {
+            return new FakeAccount(mAccount);
+        }
     }
 }

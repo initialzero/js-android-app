@@ -62,8 +62,7 @@ public class ProfileValidatorTest {
     @Test
     public void shouldRejectProfileIfAccountAlreadyRegistered() throws Exception {
         Profile fakeProfile = Profile.create("name");
-        FakeAccount fakeAccount = new FakeAccount(RuntimeEnvironment.application, fakeProfile);
-        fakeAccount.setup();
+        FakeAccount.injectAccount(fakeProfile).done();
 
         try {
             validator.validate(fakeProfile);

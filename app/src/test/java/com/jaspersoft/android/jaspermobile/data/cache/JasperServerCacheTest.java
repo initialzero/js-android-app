@@ -51,7 +51,6 @@ public class JasperServerCacheTest {
     JasperServerCacheImpl cacheUnderTest;
     Profile fakeProfile;
     JasperServer fakeServer;
-    FakeAccount fakeAccount;
 
     @Before
     public void setUp() throws Exception {
@@ -62,19 +61,19 @@ public class JasperServerCacheTest {
                 .setVersion(6.0d)
                 .setEdition("CE")
                 .create();
-        fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
         cacheUnderTest = new JasperServerCacheImpl(RuntimeEnvironment.application, FakeAccount.ACCOUNT_TYPE);
     }
 
     @Test
     public void testPut() throws Exception {
+        FakeAccount fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
         cacheUnderTest.put(fakeProfile, fakeServer);
 
         Account account = fakeAccount.get();
-
         String serverUrl = accountManager.getUserData(account, "SERVER_URL_KEY");
         String edition = accountManager.getUserData(account, "EDITION_KEY");
         String versionName = accountManager.getUserData(account, "VERSION_NAME_KEY");
+
         assertThat("Server url should be injected in cache",
                 fakeServer.getBaseUrl().equals(serverUrl));
         assertThat("Edition should be injected in cache",
@@ -82,5 +81,20 @@ public class JasperServerCacheTest {
         assertThat("Version should be injected in cache",
                 String.valueOf(fakeServer.getVersion())
                         .equals(versionName));
+    }
+
+    @Test
+    public void testGet() throws Exception {
+        FakeAccount fakeAccount = FakeAccount.injectAccount(fakeProfile)
+                .injectServer(fakeServer)
+                .done();
+        JasperServer server = cacheUnderTest.get(fakeProfile);
+
+        assertThat("Failed to retrieve base url for profile " + fakeAccount,
+                "http://localhost".equals(server.getBaseUrl()));
+        assertThat("Failed to retrieve version for profile " + fakeAccount,
+                6.0d == server.getVersion());
+        assertThat("Failed to retrieve edition for profile " + fakeAccount,
+                "CE".equals(server.getEdition()));
     }
 }

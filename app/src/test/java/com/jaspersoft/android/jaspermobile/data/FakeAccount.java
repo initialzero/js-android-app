@@ -29,6 +29,7 @@ import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import org.robolectric.RuntimeEnvironment;
@@ -78,9 +79,6 @@ public final class FakeAccount {
     }
 
     public static class SetupCredentialsBuilder {
-        private static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
-        private static final String USERNAME_KEY = "USERNAME_KEY";
-
         private final Context mContext;
         private final Account mAccount;
 
@@ -91,9 +89,17 @@ public final class FakeAccount {
 
         public SetupCredentialsBuilder injectCredentials(BaseCredentials credentials) {
             AccountManager accountManager = AccountManager.get(mContext);
-            accountManager.setUserData(mAccount, ORGANIZATION_KEY, credentials.getOrganization());
-            accountManager.setUserData(mAccount, USERNAME_KEY, credentials.getUsername());
+            accountManager.setUserData(mAccount, "ORGANIZATION_KEY", credentials.getOrganization());
+            accountManager.setUserData(mAccount, "USERNAME_KEY", credentials.getUsername());
             accountManager.setPassword(mAccount, credentials.getPassword());
+            return this;
+        }
+
+        public SetupCredentialsBuilder injectServer(JasperServer fakeServer) {
+            AccountManager accountManager = AccountManager.get(mContext);
+            accountManager.setUserData(mAccount, "SERVER_URL_KEY", fakeServer.getBaseUrl());
+            accountManager.setUserData(mAccount, "EDITION_KEY", fakeServer.getEdition());
+            accountManager.setUserData(mAccount, "VERSION_NAME_KEY", String.valueOf(fakeServer.getVersion()));
             return this;
         }
 

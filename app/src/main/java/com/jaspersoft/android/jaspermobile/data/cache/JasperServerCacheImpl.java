@@ -61,4 +61,21 @@ public final class JasperServerCacheImpl implements JasperServerCache {
         accountManager.setUserData(accountProfile, EDITION_KEY, jasperServer.getEdition());
         accountManager.setUserData(accountProfile, VERSION_NAME_KEY, String.valueOf(jasperServer.getVersion()));
     }
+
+    @Override
+    public JasperServer get(Profile profile) {
+        AccountManager accountManager = AccountManager.get(mContext);
+        Account accountProfile = new Account(profile.getKey(), mAccountType);
+
+        String baseUrl = accountManager.getUserData(accountProfile, SERVER_URL_KEY);
+        String edition = accountManager.getUserData(accountProfile, EDITION_KEY);
+        String versionString = accountManager.getUserData(accountProfile, VERSION_NAME_KEY);
+
+        JasperServer.Builder serverBuilder = JasperServer.builder();
+        serverBuilder.setBaseUrl(baseUrl);
+        serverBuilder.setEdition(edition);
+        serverBuilder.setVersion(Double.valueOf(versionString));
+
+        return serverBuilder.create();
+    }
 }

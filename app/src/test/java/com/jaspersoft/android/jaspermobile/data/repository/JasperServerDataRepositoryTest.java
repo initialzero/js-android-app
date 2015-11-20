@@ -66,4 +66,11 @@ public class JasperServerDataRepositoryTest {
         verify(mServerCache).put(fakeProfile, fakeServer);
         verifyNoMoreInteractions(mServerCache);
     }
+
+    @Test
+    public void testGetServer() throws Exception {
+        repoUnderTest.getServer(fakeProfile);
+        verify(mServerCache).get(fakeProfile);
+        verifyNoMoreInteractions(mServerCache);
+    }
 }

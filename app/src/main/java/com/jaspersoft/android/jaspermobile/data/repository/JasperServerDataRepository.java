@@ -52,6 +52,6 @@ public final class JasperServerDataRepository implements JasperServerRepository 
 
     @Override
     public JasperServer getServer(Profile profile) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return mJasperServerCache.get(profile);
     }
 }

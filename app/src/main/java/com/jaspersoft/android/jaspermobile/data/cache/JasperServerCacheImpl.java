@@ -26,13 +26,12 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -44,32 +43,31 @@ public final class JasperServerCacheImpl implements JasperServerCache {
     public static final String SERVER_URL_KEY = "SERVER_URL_KEY";
     public static final String EDITION_KEY = "EDITION_KEY";
     public static final String VERSION_NAME_KEY = "VERSION_NAME_KEY";
-    private final Context mContext;
-    private final String mAccountType;
+
+    private final AccountManager mAccountManager;
+    private final AccountDataMapper mAccountDataMapper;
 
     @Inject
-    public JasperServerCacheImpl(Context context, @Named("accountType") String accountType) {
-        mContext = context;
-        mAccountType = accountType;
+    public JasperServerCacheImpl(AccountManager accountManager, AccountDataMapper accountDataMapper) {
+        mAccountManager = accountManager;
+        mAccountDataMapper = accountDataMapper;
     }
 
     @Override
     public void put(Profile profile, JasperServer jasperServer) {
-        AccountManager accountManager = AccountManager.get(mContext);
-        Account accountProfile = new Account(profile.getKey(), mAccountType);
-        accountManager.setUserData(accountProfile, SERVER_URL_KEY, jasperServer.getBaseUrl());
-        accountManager.setUserData(accountProfile, EDITION_KEY, jasperServer.getEdition());
-        accountManager.setUserData(accountProfile, VERSION_NAME_KEY, String.valueOf(jasperServer.getVersion()));
+        Account accountProfile = mAccountDataMapper.transform(profile);
+        mAccountManager.setUserData(accountProfile, SERVER_URL_KEY, jasperServer.getBaseUrl());
+        mAccountManager.setUserData(accountProfile, EDITION_KEY, jasperServer.getEdition());
+        mAccountManager.setUserData(accountProfile, VERSION_NAME_KEY, String.valueOf(jasperServer.getVersion()));
     }
 
     @Override
     public JasperServer get(Profile profile) {
-        AccountManager accountManager = AccountManager.get(mContext);
-        Account accountProfile = new Account(profile.getKey(), mAccountType);
+        Account accountProfile = mAccountDataMapper.transform(profile);
 
-        String baseUrl = accountManager.getUserData(accountProfile, SERVER_URL_KEY);
-        String edition = accountManager.getUserData(accountProfile, EDITION_KEY);
-        String versionString = accountManager.getUserData(accountProfile, VERSION_NAME_KEY);
+        String baseUrl = mAccountManager.getUserData(accountProfile, SERVER_URL_KEY);
+        String edition = mAccountManager.getUserData(accountProfile, EDITION_KEY);
+        String versionString = mAccountManager.getUserData(accountProfile, VERSION_NAME_KEY);
 
         JasperServer.Builder serverBuilder = JasperServer.builder();
         serverBuilder.setBaseUrl(baseUrl);

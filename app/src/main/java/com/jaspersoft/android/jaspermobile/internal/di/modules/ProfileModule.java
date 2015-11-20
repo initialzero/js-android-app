@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
+import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -37,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCacheImpl;
 import com.jaspersoft.android.jaspermobile.data.cache.TokenCache;
 import com.jaspersoft.android.jaspermobile.data.cache.TokenCacheImpl;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
@@ -59,6 +61,12 @@ import dagger.Provides;
  */
 @Module
 public final class ProfileModule {
+
+    @Singleton
+    @Provides
+    AccountDataMapper providesAccountDataMapper(@Named("accountType") String accountType) {
+        return new AccountDataMapper(accountType);
+    }
 
     @Singleton
     @Provides
@@ -86,10 +94,10 @@ public final class ProfileModule {
 
     @Singleton
     @Provides
-    CredentialsCache provideCredentialsCache(Context context, @Named("accountType") String accountType) {
+    CredentialsCache provideCredentialsCache(Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
         String secret = context.getString(R.string.password_salt_key);
         PasswordManager passwordManager = PasswordManager.init(context, secret);
-        return new CredentialsCacheImpl(context, passwordManager, accountType);
+        return new CredentialsCacheImpl(accountManager, passwordManager, accountDataMapper);
     }
 
     @Singleton

@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
+import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 
@@ -46,7 +47,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class JasperServerCacheTest {
+public class JasperServerCacheImplTest {
     AccountManager accountManager;
     JasperServerCacheImpl cacheUnderTest;
     Profile fakeProfile;
@@ -61,7 +62,8 @@ public class JasperServerCacheTest {
                 .setVersion(6.0d)
                 .setEdition("CE")
                 .create();
-        cacheUnderTest = new JasperServerCacheImpl(RuntimeEnvironment.application, FakeAccount.ACCOUNT_TYPE);
+        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
+        cacheUnderTest = new JasperServerCacheImpl(accountManager, FakeAccountDataMapper.get());
     }
 
     @Test

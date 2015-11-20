@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
+import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import org.junit.Before;
@@ -53,7 +54,7 @@ public class TokenCacheImplTest {
     @Before
     public void setUp() throws Exception {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new TokenCacheImpl(accountManager, "com.jaspersoft");
+        cacheUnderTest = new TokenCacheImpl(accountManager, FakeAccountDataMapper.get());
     }
 
     @Test

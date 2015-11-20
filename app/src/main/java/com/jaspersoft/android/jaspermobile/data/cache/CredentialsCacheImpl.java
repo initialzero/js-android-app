@@ -26,14 +26,13 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -45,40 +44,39 @@ public final class CredentialsCacheImpl implements CredentialsCache {
     public static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
     public static final String USERNAME_KEY = "USERNAME_KEY";
 
-    private final Context mContext;
+    private final AccountManager mAccountManager;
     private final PasswordManager mPasswordManger;
-    private final String mAccountType;
+    private final AccountDataMapper mAccountDataMapper;
 
     @Inject
-    public CredentialsCacheImpl(Context context,
+    public CredentialsCacheImpl(AccountManager accountManager,
                                 PasswordManager passwordManager,
-                                @Named("accountType") String accountType) {
-        mContext = context;
+                                AccountDataMapper accountDataMapper) {
+        mAccountManager = accountManager;
         mPasswordManger = passwordManager;
-        mAccountType = accountType;
+        mAccountDataMapper = accountDataMapper;
     }
 
     @Override
     public void put(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException {
-        AccountManager accountManager = AccountManager.get(mContext);
-        Account account = new Account(profile.getKey(), mAccountType);
+        Account account = mAccountDataMapper.transform(profile);
 
         String encryptedPassword = mPasswordManger.encrypt(credentials.getPassword());
-        accountManager.setPassword(account, encryptedPassword);
+        mAccountManager.setPassword(account, encryptedPassword);
 
-        accountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
-        accountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
+        mAccountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
+        mAccountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
     }
 
     @Override
     public BaseCredentials get(Profile profile) throws PasswordManager.DecryptionException {
-        AccountManager accountManager = AccountManager.get(mContext);
-        Account account = new Account(profile.getKey(), mAccountType);
+        Account account = mAccountDataMapper.transform(profile);
 
-        String password = accountManager.getPassword(account);
+        String password = mAccountManager.getPassword(account);
         String decryptedPassword = mPasswordManger.decrypt(password);
-        String username = accountManager.getUserData(account, USERNAME_KEY);
-        String organization = accountManager.getUserData(account, ORGANIZATION_KEY);
+
+        String username = mAccountManager.getUserData(account, USERNAME_KEY);
+        String organization = mAccountManager.getUserData(account, ORGANIZATION_KEY);
 
         BaseCredentials.Builder credentialsBuilder = BaseCredentials.builder();
         credentialsBuilder.setPassword(decryptedPassword);

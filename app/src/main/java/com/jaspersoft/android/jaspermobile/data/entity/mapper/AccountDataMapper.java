@@ -22,13 +22,10 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.cache;
+package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.text.TextUtils;
 
-import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import javax.inject.Inject;
@@ -40,32 +37,15 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class TokenCacheImpl implements TokenCache {
-    private static final String JASPER_AUTH_TOKEN_TYPE = "FULL ACCESS";
-
-    private final AccountManager mAccountManager;
-    private final AccountDataMapper mAccountDataMapper;
+public final class AccountDataMapper {
+    private final String mAccountType;
 
     @Inject
-    public TokenCacheImpl(AccountManager accountManager, AccountDataMapper accountDataMapper) {
-        mAccountManager = accountManager;
-        mAccountDataMapper = accountDataMapper;
+    public AccountDataMapper(@Named("accountType") String accountType) {
+        mAccountType = accountType;
     }
 
-    @Override
-    public String get(Profile profile) {
-        Account account = mAccountDataMapper.transform(profile);
-        return mAccountManager.peekAuthToken(account, JASPER_AUTH_TOKEN_TYPE);
-    }
-
-    @Override
-    public void put(Profile profile, String token) {
-        Account account = mAccountDataMapper.transform(profile);
-        mAccountManager.setAuthToken(account, JASPER_AUTH_TOKEN_TYPE, token);
-    }
-
-    @Override
-    public boolean isCached(Profile profile) {
-        return !TextUtils.isEmpty(get(profile));
+    public Account transform(Profile profile) {
+        return new Account(profile.getKey(), mAccountType);
     }
 }

@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 
+import com.jaspersoft.android.jaspermobile.data.FakeAccount;
+import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
@@ -46,15 +48,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
 public class ProfileCacheImplTest {
-    private static final String ACCOUNT_TYPE = "com.jaspersoft";
-
     ProfileCacheImpl cacheUnderTest;
     Profile fakeProfile;
 
     @Before
     public void setUp() throws Exception {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new ProfileCacheImpl(accountManager, ACCOUNT_TYPE);
+        cacheUnderTest = new ProfileCacheImpl(accountManager, FakeAccountDataMapper.get());
         fakeProfile = Profile.create("name");
     }
 
@@ -62,7 +62,7 @@ public class ProfileCacheImplTest {
     public void testPut() throws Exception {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         assertThat("Failed precondition. There should be no accounts",
-                accountManager.getAccountsByType(ACCOUNT_TYPE).length == 0
+                accountManager.getAccountsByType(FakeAccount.TYPE).length == 0
         );
         assertThat("Failed to put profile in cache",
                 cacheUnderTest.put(fakeProfile)
@@ -78,10 +78,10 @@ public class ProfileCacheImplTest {
     public void testHasProfile() throws Exception {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         assertThat("Failed precondition. Account was not add",
-                accountManager.addAccountExplicitly(new Account("name", ACCOUNT_TYPE), null, null)
+                accountManager.addAccountExplicitly(new Account("name", FakeAccount.TYPE), null, null)
         );
         assertThat("Failed precondition. Account was add but missing",
-                accountManager.getAccountsByType(ACCOUNT_TYPE).length > 0
+                accountManager.getAccountsByType(FakeAccount.TYPE).length > 0
         );
         assertThat("Cache should contain profile with key: 'name'",
                 cacheUnderTest.hasProfile(fakeProfile)

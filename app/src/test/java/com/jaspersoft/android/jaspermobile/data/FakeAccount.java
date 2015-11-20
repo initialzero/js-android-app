@@ -41,7 +41,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @since 2.3
  */
 public final class FakeAccount {
-    public static final String ACCOUNT_TYPE = "com.jaspersoft";
+    public static final String TYPE = "com.jaspersoft";
 
     private FakeAccount() {}
 
@@ -57,14 +57,14 @@ public final class FakeAccount {
         }
 
         public SetupCredentialsBuilder injectAccount(Profile profile) {
-            Account account = new Account(profile.getKey(), ACCOUNT_TYPE);
+            Account account = new Account(profile.getKey(), TYPE);
             AccountManager accountManager = AccountManager.get(mContext);
 
             assertThat("Failed precondition. Can not create account for profile: " + profile,
                     accountManager.addAccountExplicitly(account, null, null)
             );
             assertThat("Fake account should be registered in system",
-                    accountManager.getAccountsByType(ACCOUNT_TYPE).length > 0
+                    accountManager.getAccountsByType(TYPE).length > 0
             );
             return new SetupCredentialsBuilder(mContext, account);
         }

@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.os.Bundle;
 
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import java.util.Arrays;
@@ -35,7 +36,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -46,18 +46,18 @@ import javax.inject.Singleton;
 public final class ProfileCacheImpl implements ProfileCache {
     private static final String ALIAS_KEY = "ALIAS_KEY";
 
-    private final String mAccountType;
     private final AccountManager mAccountManager;
+    private final AccountDataMapper mAccountDataMapper;
 
     @Inject
-    public ProfileCacheImpl(AccountManager accountManager, @Named("accountType") String accountType) {
+    public ProfileCacheImpl(AccountManager accountManager, AccountDataMapper accountDataMapper) {
         mAccountManager = accountManager;
-        mAccountType = accountType;
+        mAccountDataMapper = accountDataMapper;
     }
 
     @Override
     public boolean put(Profile profile) {
-        Account accountProfile = new Account(profile.getKey(), mAccountType);
+        Account accountProfile = mAccountDataMapper.transform(profile);
         Bundle userData = new Bundle();
         userData.putString(ALIAS_KEY, profile.getKey());
         return mAccountManager.addAccountExplicitly(accountProfile, null, userData);
@@ -65,8 +65,8 @@ public final class ProfileCacheImpl implements ProfileCache {
 
     @Override
     public boolean hasProfile(Profile profile) {
-        Account[] accounts = mAccountManager.getAccountsByType(mAccountType);
-        Account accountProfile = new Account(profile.getKey(), mAccountType);
+        Account accountProfile = mAccountDataMapper.transform(profile);
+        Account[] accounts = mAccountManager.getAccountsByType(accountProfile.type);
         Set<Account> accountsSet = new HashSet<>(Arrays.asList(accounts));
         return accountsSet.contains(accountProfile);
     }

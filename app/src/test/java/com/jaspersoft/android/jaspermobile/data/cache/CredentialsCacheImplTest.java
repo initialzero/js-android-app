@@ -28,6 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
+import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
@@ -55,9 +56,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class CredentialsCacheTest {
-    private static final String ACCOUNT_TYPE = "com.jaspersoft";
-
+public class CredentialsCacheImplTest {
     @Mock
     PasswordManager mPasswordManager;
 
@@ -71,7 +70,8 @@ public class CredentialsCacheTest {
         when(mPasswordManager.encrypt(anyString())).thenReturn("encrypted");
         when(mPasswordManager.decrypt(anyString())).thenReturn("1234");
 
-        cacheUnderTest = new CredentialsCacheImpl(RuntimeEnvironment.application, mPasswordManager, ACCOUNT_TYPE);
+        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
+        cacheUnderTest = new CredentialsCacheImpl(accountManager, mPasswordManager, FakeAccountDataMapper.get());
         fakeProfile = Profile.create("name");
         fakeCredentials = BaseCredentials.builder()
                 .setPassword("1234")

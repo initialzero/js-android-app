@@ -129,15 +129,12 @@
 
     <!-- Settings activity -->
     <string name="st_title">設定</string>
-    <string name="st_category_repo_cache">リポジトリキャッシュ</string>
     <string name="st_category_connection">接続</string>
     <string name="st_title_cache_enable">キャッシュを有効にする</string>
-    <string name="st_title_cache_expiration">キャッシュの有効期限</string>
     <string name="st_title_connect_timeout">接続タイムアウト</string>
     <string name="st_title_read_timeout">データ読み込みタイムアウト</string>
     <string name="st_title_animations">アニメーション</string>
     <string name="st_send_crashes">クラッシュレポートを送信</string>
-    <string name="st_summary_cache_enable">指定した時間のキャッシュリポジトリリクエスト</string>
     <string name="st_summary_sec">%s 秒</string>
     <string name="st_summary_h">%s 時間</string>
     <string name="st_invalid_number_format">無効な数値フォーマット</string>

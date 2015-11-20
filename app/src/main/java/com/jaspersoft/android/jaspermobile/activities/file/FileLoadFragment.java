@@ -119,7 +119,7 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
             long currentDate = new Date().getTime();
             long cacheExpiration = prefHelper.getRepoCacheExpirationValue();
             long lastModifiedDate = cacheFile.lastModified();
-            if (lastModifiedDate + cacheExpiration >= currentDate) return true;
+            return lastModifiedDate + cacheExpiration >= currentDate;
         }
         return false;
     }

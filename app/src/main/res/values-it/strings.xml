@@ -248,7 +248,7 @@
     <string name="sdr_dfd_msg">Rimuovere davvero \"%s\"?</string>
 
     <!-- Settings activity -->
-    <string name="st_send_crashes_note">NOTA: Riavviare l\'applicazione dopo aver modificato questa impostazione.</string>
+    <string name="st_restart_note">NOTA: Riavviare l\'applicazione dopo aver modificato questa impostazione.</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Server non trovato.</string>

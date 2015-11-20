@@ -82,21 +82,20 @@ public class CredentialsCacheTest {
 
     @Test
     public void testHappyPutCase() throws Exception {
-        FakeAccount fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
+        Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
         when(mPasswordManager.encrypt(anyString())).thenReturn("encrypted");
 
         assertThat("Put operation should save credentials if PasswordManager succeed",
                 cacheUnderTest.put(fakeProfile, fakeCredentials)
         );
 
-        Account account = fakeAccount.get();
         assertThat("Password should be injected in cache",
-                accountManager.getPassword(account) != null);
+                accountManager.getPassword(fakeAccount) != null);
         assertThat("Username should be injected in cache",
-                fakeCredentials.getUsername().equals(accountManager.getUserData(account, "USERNAME_KEY"))
+                fakeCredentials.getUsername().equals(accountManager.getUserData(fakeAccount, "USERNAME_KEY"))
         );
         assertThat("Username should be injected in cache",
-                fakeCredentials.getOrganization().equals(accountManager.getUserData(account, "ORGANIZATION_KEY"))
+                fakeCredentials.getOrganization().equals(accountManager.getUserData(fakeAccount, "ORGANIZATION_KEY"))
         );
         verify(mPasswordManager).encrypt(fakeCredentials.getPassword());
     }

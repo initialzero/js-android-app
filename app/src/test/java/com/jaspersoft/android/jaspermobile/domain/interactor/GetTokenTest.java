@@ -46,7 +46,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @author Tom Koptel
  * @since 2.3
  */
-public class GetTokenUseCaseTest {
+public class GetTokenTest {
     @Mock
     TokenRepository mTokenRepository;
     @Mock

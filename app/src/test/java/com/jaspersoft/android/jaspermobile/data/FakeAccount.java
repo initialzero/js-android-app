@@ -43,15 +43,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public final class FakeAccount {
     public static final String ACCOUNT_TYPE = "com.jaspersoft";
 
-    private final Account mAccount;
-
-    public FakeAccount(Account account) {
-        mAccount = account;
-    }
-
-    public Account get() {
-        return mAccount;
-    }
+    private FakeAccount() {}
 
     public static SetupCredentialsBuilder injectAccount(Profile profile) {
         return new SetupAccountBuilder(RuntimeEnvironment.application).injectAccount(profile);
@@ -103,8 +95,14 @@ public final class FakeAccount {
             return this;
         }
 
-        public FakeAccount done() {
-            return new FakeAccount(mAccount);
+        public SetupCredentialsBuilder injectToken(String token) {
+            AccountManager accountManager = AccountManager.get(mContext);
+            accountManager.setAuthToken(mAccount, "FULL ACCESS", token);
+            return this;
+        }
+
+        public Account done() {
+            return mAccount;
         }
     }
 }

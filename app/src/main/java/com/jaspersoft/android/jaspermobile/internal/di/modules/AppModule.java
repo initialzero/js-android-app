@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
+import android.accounts.AccountManager;
 import android.app.Application;
 import android.content.Context;
 
@@ -73,5 +74,11 @@ public final class AppModule {
     @Singleton
     Authenticator.Factory providesAuthenticatorFactory(AuthenticatorFactory factory) {
         return factory;
+    }
+
+    @Provides
+    @Singleton
+    AccountManager providesAccountManager(Context context) {
+        return AccountManager.get(context);
     }
 }

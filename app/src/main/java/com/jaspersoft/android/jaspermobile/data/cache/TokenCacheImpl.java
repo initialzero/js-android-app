@@ -24,9 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.text.TextUtils;
+
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -35,23 +40,32 @@ import javax.inject.Singleton;
  */
 @Singleton
 public final class TokenCacheImpl implements TokenCache {
+    private static final String JASPER_AUTH_TOKEN_TYPE = "FULL ACCESS";
+
+    private final String mAccountType;
+    private final AccountManager mAccountManager;
 
     @Inject
-    public TokenCacheImpl() {
+    public TokenCacheImpl(AccountManager accountManager,
+                          @Named("accountType") String accountType) {
+        mAccountManager = accountManager;
+        mAccountType = accountType;
     }
 
     @Override
     public String get(Profile profile) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        Account account = new Account(profile.getKey(), mAccountType);
+        return mAccountManager.peekAuthToken(account, JASPER_AUTH_TOKEN_TYPE);
     }
 
     @Override
     public void put(Profile profile, String token) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        Account account = new Account(profile.getKey(), mAccountType);
+        mAccountManager.setAuthToken(account, JASPER_AUTH_TOKEN_TYPE, token);
     }
 
     @Override
     public boolean isCached(Profile profile) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return !TextUtils.isEmpty(get(profile));
     }
 }

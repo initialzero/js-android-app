@@ -22,17 +22,23 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.repository;
+package com.jaspersoft.android.jaspermobile.domain.repository.exception;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface TokenRepository {
-    String getToken(Profile profile, JasperServer server, BaseCredentials credentials) throws RestStatusException;
+public final class FailedToRetrieveCredentials extends Exception {
+    private final Profile mProfile;
+
+    public FailedToRetrieveCredentials(Profile profile, Throwable cause) {
+        super("Failed to retrieve credentials, for profile" + profile, cause);
+        mProfile = profile;
+    }
+
+    public Profile getProfile() {
+        return mProfile;
+    }
 }

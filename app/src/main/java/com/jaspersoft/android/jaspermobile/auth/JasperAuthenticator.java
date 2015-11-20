@@ -39,6 +39,7 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetTokenUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -92,7 +93,9 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle getAuthToken(final AccountAuthenticatorResponse response, final Account account, final String authTokenType, Bundle options) throws NetworkErrorException {
+    public Bundle getAuthToken(final AccountAuthenticatorResponse response,
+                               final Account account,
+                               final String authTokenType, Bundle options) throws NetworkErrorException {
         try {
             Profile profile = Profile.create(account.name);
             String authToken = mGetTokenUseCase.execute(profile);
@@ -103,11 +106,6 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
 
             return result;
-        } catch (PasswordManager.DecryptionException e) {
-            return createErrorBundle(
-                    JasperAccountManager.TokenException.NO_PASSWORD_ERROR,
-                    mContext.getString(R.string.r_error_incorrect_credentials)
-            );
         } catch (RestStatusException restEx) {
             int status;
             String message;
@@ -121,6 +119,11 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             }
 
             return createErrorBundle(status, message);
+        } catch (FailedToRetrieveCredentials failedToRetrieveCredentials) {
+            return createErrorBundle(
+                    JasperAccountManager.TokenException.NO_PASSWORD_ERROR,
+                    mContext.getString(R.string.r_error_incorrect_credentials)
+            );
         }
     }
 

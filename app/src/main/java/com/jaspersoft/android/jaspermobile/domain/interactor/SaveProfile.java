@@ -41,7 +41,6 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateP
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
 
@@ -144,11 +143,7 @@ public class SaveProfile {
     }
 
     private void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials {
-        try {
-            mCredentialsRepository.saveCredentials(profile, credentials);
-        } catch (PasswordManager.EncryptionException encryptionException) {
-            throw new FailedToSaveCredentials(credentials);
-        }
+        mCredentialsRepository.saveCredentials(profile, credentials);
     }
 
     private void saveServer(Profile profile, JasperServer server) {

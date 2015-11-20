@@ -33,7 +33,7 @@ import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.TokenRepository;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -58,7 +58,7 @@ public final class GetTokenUseCase {
     }
 
     @NonNull
-    public String execute(Profile profile) throws RestStatusException, PasswordManager.DecryptionException {
+    public String execute(Profile profile) throws RestStatusException, FailedToRetrieveCredentials {
         JasperServer server = mServerRepository.getServer(profile);
         BaseCredentials credentials = mCredentialsRepository.getCredentials(profile);
         return mTokenRepository.getToken(profile, server, credentials);

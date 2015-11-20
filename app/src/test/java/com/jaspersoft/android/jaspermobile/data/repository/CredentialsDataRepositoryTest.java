@@ -27,14 +27,21 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Tom Koptel
@@ -67,5 +74,29 @@ public class CredentialsDataRepositoryTest {
     public void testGetCredentials() throws Exception {
         repoUnderTest.getCredentials(fakeProfile);
         verify(mCredentialsCache).get(fakeProfile);
+    }
+
+    @Test
+    public void testSaveCredentialsEncountersEncryptionError() throws Exception {
+        doThrow(new PasswordManager.EncryptionException(null))
+                .when(mCredentialsCache)
+                .put(any(Profile.class), any(BaseCredentials.class));
+
+        try {
+            repoUnderTest.saveCredentials(fakeProfile, fakeCredentials);
+            fail("Save credentials should rethrow FailedToSaveCredentials if password encryption operation failed");
+        } catch (FailedToSaveCredentials ex) {
+        }
+    }
+
+    @Test
+    public void testGetCredentials1() throws Exception {
+        when(mCredentialsCache.get(any(Profile.class))).thenThrow(new PasswordManager.DecryptionException(null));
+
+        try {
+            repoUnderTest.getCredentials(fakeProfile);
+            fail("Get credentials should rethrow FailedToRetrieveCredentials if password decryption operation failed");
+        } catch (FailedToRetrieveCredentials ex) {
+        }
     }
 }

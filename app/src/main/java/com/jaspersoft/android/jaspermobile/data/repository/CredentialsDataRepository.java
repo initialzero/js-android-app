@@ -28,6 +28,8 @@ import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
@@ -47,12 +49,20 @@ public final class CredentialsDataRepository implements CredentialsRepository {
     }
 
     @Override
-    public void saveCredentials(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException {
-        mCredentialsCache.put(profile, credentials);
+    public void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials {
+        try {
+            mCredentialsCache.put(profile, credentials);
+        } catch (PasswordManager.EncryptionException e) {
+            throw new FailedToSaveCredentials(credentials);
+        }
     }
 
     @Override
-    public BaseCredentials getCredentials(Profile profile) throws PasswordManager.DecryptionException {
-        return mCredentialsCache.get(profile);
+    public BaseCredentials getCredentials(Profile profile) throws FailedToRetrieveCredentials {
+        try {
+            return mCredentialsCache.get(profile);
+        } catch (PasswordManager.DecryptionException e) {
+            throw new FailedToRetrieveCredentials(profile, e);
+        }
     }
 }

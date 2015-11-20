@@ -61,7 +61,6 @@ public class CredentialsCacheTest {
     @Mock
     PasswordManager mPasswordManager;
 
-    AccountManager accountManager;
     CredentialsCacheImpl cacheUnderTest;
     Profile fakeProfile;
     BaseCredentials fakeCredentials;
@@ -69,9 +68,9 @@ public class CredentialsCacheTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        when(mPasswordManager.encrypt(anyString())).thenReturn("encrypted");
         when(mPasswordManager.decrypt(anyString())).thenReturn("1234");
 
-        accountManager = AccountManager.get(RuntimeEnvironment.application);
         cacheUnderTest = new CredentialsCacheImpl(RuntimeEnvironment.application, mPasswordManager, ACCOUNT_TYPE);
         fakeProfile = Profile.create("name");
         fakeCredentials = BaseCredentials.builder()
@@ -83,13 +82,13 @@ public class CredentialsCacheTest {
 
     @Test
     public void testHappyPutCase() throws Exception {
+        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
-        when(mPasswordManager.encrypt(anyString())).thenReturn("encrypted");
 
         cacheUnderTest.put(fakeProfile, fakeCredentials);
 
         assertThat("Password should be injected in cache",
-                "1234".equals(accountManager.getPassword(fakeAccount)));
+                "encrypted".equals(accountManager.getPassword(fakeAccount)));
         assertThat("Username should be injected in cache",
                 "nay".equals(accountManager.getUserData(fakeAccount, "USERNAME_KEY"))
         );

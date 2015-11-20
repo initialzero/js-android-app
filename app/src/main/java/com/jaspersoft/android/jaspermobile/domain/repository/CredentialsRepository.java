@@ -26,13 +26,14 @@ package com.jaspersoft.android.jaspermobile.domain.repository;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public interface CredentialsRepository {
-    void saveCredentials(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException;
-    BaseCredentials getCredentials(Profile profile) throws PasswordManager.DecryptionException;
+    void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials;
+    BaseCredentials getCredentials(Profile profile) throws FailedToRetrieveCredentials;
 }

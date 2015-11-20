@@ -87,7 +87,7 @@ public class FileViewerActivity extends RoboSpiceActivity {
         @Override
         public void onRequestSuccess(FileLookup fileLookup) {
             ProgressDialogFragment.dismiss(getSupportFragmentManager());
-            Fragment fileFragment = null;
+            Fragment fileFragment;
             switch (fileLookup.getFileType()) {
                 case html:
                     fileFragment = HtmlFileViewFragment_.builder()
@@ -109,19 +109,22 @@ public class FileViewerActivity extends RoboSpiceActivity {
                 case odt:
                 case pptx:
                 case rtf:
+                case csv:
                     fileFragment = ExternalOpenFragment_.builder()
                             .fileType(fileLookup.getFileType())
                             .fileUri(fileLookup.getUri())
                             .build();
                     break;
                 default:
+                    fileFragment = UnsupportedFilesFragment_.builder()
+                            .fileType(fileLookup.getFileType())
+                            .fileUri(fileLookup.getUri())
+                            .build();
                     break;
             }
-            if (fileFragment != null) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.main_frame, fileFragment)
-                        .commit();
-            }
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.main_frame, fileFragment)
+                    .commit();
         }
     }
 }

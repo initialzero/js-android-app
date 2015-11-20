@@ -57,7 +57,7 @@ public final class ProfileAccountCache implements ProfileCache {
 
     @Override
     public Profile get() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        throw new UnsupportedOperationException("There is no way we can retrieve active account from AccountManager");
     }
 
     @Override
@@ -78,6 +78,6 @@ public final class ProfileAccountCache implements ProfileCache {
 
     @Override
     public void evict() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        throw new UnsupportedOperationException("Application does not support account removal!");
     }
 }

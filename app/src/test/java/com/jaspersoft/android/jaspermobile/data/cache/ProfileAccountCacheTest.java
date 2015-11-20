@@ -33,7 +33,9 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
@@ -50,6 +52,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ProfileAccountCacheTest {
     ProfileAccountCache cacheUnderTest;
     Profile fakeProfile;
+
+    @Rule
+    public ExpectedException mException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -86,5 +91,19 @@ public class ProfileAccountCacheTest {
         assertThat("Cache should contain profile with key: 'name'",
                 cacheUnderTest.hasProfile(fakeProfile)
         );
+    }
+
+    @Test
+    public void testGet() throws Exception {
+        mException.expect(UnsupportedOperationException.class);
+        mException.expectMessage("There is no way we can retrieve active account from AccountManager");
+        cacheUnderTest.get();
+    }
+
+    @Test
+    public void testEvict() throws Exception {
+        mException.expect(UnsupportedOperationException.class);
+        mException.expectMessage("Application does not support account removal!");
+        cacheUnderTest.evict();
     }
 }

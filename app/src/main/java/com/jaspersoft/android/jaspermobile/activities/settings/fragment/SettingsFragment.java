@@ -37,7 +37,10 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import roboguice.fragment.provided.RoboPreferenceFragment;
@@ -45,6 +48,7 @@ import roboguice.fragment.provided.RoboPreferenceFragment;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_REPO_CACHE_EXPIRATION;
+import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_CLEAR_CACHE;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_REPO_CACHE_EXPIRATION;
@@ -72,6 +76,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
         EditTextPreference repoCacheExpirationPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_REPO_CACHE_EXPIRATION);
         EditTextPreference connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
         EditTextPreference readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
+        Preference clearCache = getPreferenceScreen().findPreference(KEY_PREF_CLEAR_CACHE);
 
         String repoCacheExpiration = sharedPreferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
         String connectTimeout = sharedPreferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
@@ -127,11 +132,35 @@ public class SettingsFragment extends RoboPreferenceFragment {
                 }
             }
         });
+
+        clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                String cleanCacheMessage;
+                if (clearCache()) {
+                    cleanCacheMessage = getString(R.string.st_action_clear_cache);
+                } else {
+                    cleanCacheMessage = getString(R.string.st_action_clear_cache_fail);
+                }
+                Toast.makeText(getActivity(), cleanCacheMessage, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
     }
 
     private void updateSummary(Preference preference, Object value, int summaryDefaultText) {
         String summary = getString(summaryDefaultText, value);
         preference.setSummary(summary);
+    }
+
+    private boolean clearCache() {
+        File cacheDir = getActivity().getExternalCacheDir();
+        try {
+            FileUtils.deleteDirectory(cacheDir);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
 }

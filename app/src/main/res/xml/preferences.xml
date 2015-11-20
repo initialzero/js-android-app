@@ -40,6 +40,11 @@
             android:inputType="number"
             android:title="@string/st_title_cache_expiration"/>
 
+        <Preference
+            android:key="pref_clear_cache"
+            android:title="@string/st_title_clear_cache"
+            android:summary="@string/st_summary_clear_cache"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/st_category_connection">

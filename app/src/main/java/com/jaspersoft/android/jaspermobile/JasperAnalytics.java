@@ -30,6 +30,8 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import java.util.List;
+
 /**
  * @author Andrew Tivodar
  * @since 2.0
@@ -70,15 +72,21 @@ public class JasperAnalytics implements Analytics {
     }
 
     @Override
-    public void sendEvent(String eventCategory, String eventAction, String eventLabel, Dimension dimension) {
+    public void sendEvent(String eventCategory, String eventAction, String eventLabel, List<Dimension> dimensions) {
         checkTracker();
 
-        mTracker.send(new HitBuilders.EventBuilder()
+        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
                 .setCategory(eventCategory)
                 .setAction(eventAction)
-                .setLabel(eventLabel)
-                .setCustomDimension(dimension.getIndex(), dimension.getValue())
-                .build());
+                .setLabel(eventLabel);
+
+        if (dimensions != null) {
+            for (Dimension dimension : dimensions) {
+                eventBuilder.setCustomDimension(dimension.getKey(), dimension.getValue());
+            }
+        }
+
+        mTracker.send(eventBuilder.build());
     }
 
     @Override
@@ -89,7 +97,6 @@ public class JasperAnalytics implements Analytics {
                 .setNewSession()
                 .setCategory(EventCategory.ACCOUNT.getValue())
                 .setAction(EventAction.CHANGED.getValue())
-                .setLabel(EventLabel.PASSIVE.getValue())
                 .build());
     }
 

@@ -43,6 +43,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
@@ -76,6 +77,7 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemClick;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -126,6 +128,8 @@ public class LibraryFragment extends RoboSpiceFragment
     @Inject
     @Named("THRESHOLD")
     protected int mTreshold;
+    @Inject
+    protected Analytics analytics;
 
     @InstanceState
     protected boolean mLoading;
@@ -159,6 +163,13 @@ public class LibraryFragment extends RoboSpiceFragment
         }
         if (sortOrder != null) {
             mSearchCriteria.setSortBy(sortOrder.getValue());
+        }
+
+        if (savedInstanceState == null) {
+            List<Analytics.Dimension> viewDimension = new ArrayList<>();
+            viewDimension.add(new Analytics.Dimension(Analytics.Dimension.SORT_TYPE_KEY, sortOrder.getValue()));
+            viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.LIBRARY.getValue(), viewDimension);
         }
     }
 
@@ -254,12 +265,16 @@ public class LibraryFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
 
     public void loadResourcesByTypes() {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.FILTER.getValue(), libraryResourceFilter.getCurrent().getName());
+
         mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
         mAdapter.clear();
         loadFirstPage();
     }
 
     public void loadResourcesBySortOrder(SortOrder order) {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.SORT.getValue(), sortOrder.name());
+
         sortOrder = order;
         mSearchCriteria.setSortBy(order.getValue());
         mAdapter.clear();

@@ -50,6 +50,9 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import roboguice.fragment.RoboFragment;
 
 
@@ -100,6 +103,8 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
                     .build();
             transaction.replace(R.id.search_controller, searchControllerFragment);
             transaction.commit();
+
+
         } else {
             libraryControllerFragment = (LibraryControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(LibraryControllerFragment.TAG);
@@ -125,8 +130,6 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
 
     @OptionsItem(R.id.sort)
     final void startSorting() {
-        analytics.sendEvent(Analytics.EventCategory.LIBRARY.getValue(), Analytics.EventAction.SORT.getValue(), Analytics.EventLabel.CLICK.getValue());
-
         SortDialogFragment.createBuilder(getFragmentManager())
                 .setInitialSortOption(sortOptions.getOrder())
                 .setTargetFragment(this)
@@ -135,7 +138,6 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
 
     @Override
     public void onOptionSelected(SortOrder sortOrder) {
-        analytics.sendEvent(Analytics.EventCategory.LIBRARY.getValue(), Analytics.EventAction.SORT.getValue(), Analytics.EventLabel.PASSIVE.getValue());
         sortOptions.putOrder(sortOrder);
 
         if (libraryControllerFragment != null) {

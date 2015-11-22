@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
 
+import java.util.List;
+
 /**
  * @author Andrew Tivodar
  * @since 2.1
@@ -34,7 +36,7 @@ public interface Analytics {
     void init(Application appContext);
     void sendScreenView(String screenName);
     void sendEvent(String eventCategory, String eventAction, String eventLabel);
-    void sendEvent(String eventCategory, String eventAction, String eventLabel, Dimension dimension);
+    void sendEvent(String eventCategory, String eventAction, String eventLabel, List<Dimension> dimension);
     void sendUserChangedEvent();
     void setServerInfo(String serverVersion, String serverEdition);
 
@@ -57,15 +59,10 @@ public interface Analytics {
     }
 
     enum EventCategory {
+        MENU("Menu"),
         ACCOUNT("Account"),
-        LIBRARY("Library"),
-        REPOSITORY("Repository"),
-        RECENTLY_VIEWED("Recently viewed"),
-        FAVORITES("Favorites"),
-        SAVED_ITEMS("Saved items"),
+        CATALOG("Catalog"),
         SETTINGS("Settings"),
-        FEEDBACK("Feedback"),
-        ABOUT("About"),
         RESOURCE("Resource");
 
         String mName;
@@ -81,6 +78,8 @@ public interface Analytics {
 
     enum EventAction {
         OPEN("Open"),
+        CLICK("Click"),
+        VIEWED("Viewed"),
         SORT("Sort"),
         FILTER("Filter"),
         VIEW_TYPE("Change view type"),
@@ -101,8 +100,20 @@ public interface Analytics {
     }
 
     enum EventLabel {
-        CLICK("Click"),
-        PASSIVE("Passive");
+        LIBRARY("Library"),
+        REPOSITORY("Repository"),
+        RECENTLY_VIEWED("Recently viewed"),
+        FAVORITES("Favorites"),
+        SAVED_ITEMS("Saved items"),
+        ADD_ACCOUNT("Add account"),
+        SETTINGS("Settings"),
+        FEEDBACK("Feedback"),
+        ABOUT("About"),
+        MANAGE_ACCOUNT("Manage account"),
+        REPORT("Report"),
+        DASHBOARD("Dashboard"),
+        FOLDER("Folder"),
+        SHOWN("Shown");
 
         String mName;
 
@@ -116,16 +127,19 @@ public interface Analytics {
     }
 
     class Dimension {
-        private int mIndex;
+        public static final int SORT_TYPE_KEY = 3;
+        public static final int RESOURCE_VIEW_KEY = 4;
+
+        private int mKey;
         private String mValue;
 
-        public Dimension(int index, String value) {
-            this.mIndex = index;
+        public Dimension(int key, String value) {
+            this.mKey = key;
             this.mValue = value;
         }
 
-        public int getIndex() {
-            return mIndex;
+        public int getKey() {
+            return mKey;
         }
 
         public String getValue() {

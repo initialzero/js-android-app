@@ -2,7 +2,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
+import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
@@ -36,19 +36,19 @@ import rx.Subscriber;
 public final class AuthenticationPresenter implements Presenter, ProfileActionListener {
     private AuthenticationView mView;
 
-    private final SaveProfile mSaveProfileUseCase;
+    private final SaveProfileUseCase mSaveProfileUseCaseUseCase;
     private final ProfileDataMapper mProfileDataMapper;
     private final CredentialsDataMapper mCredentialsDataMapper;
     private final CredentialsClientValidation mCredentialsClientValidation;
     private final ProfileClientValidation mProfileClientValidation;
 
     @Inject
-    public AuthenticationPresenter(SaveProfile saveProfileUseCase,
+    public AuthenticationPresenter(SaveProfileUseCase saveProfileUseCaseUseCase,
                                    ProfileDataMapper profileDataMapper,
                                    CredentialsDataMapper credentialsDataMapper,
                                    CredentialsClientValidation credentialsClientValidation,
                                    ProfileClientValidation profileClientValidation) {
-        mSaveProfileUseCase = saveProfileUseCase;
+        mSaveProfileUseCaseUseCase = saveProfileUseCaseUseCase;
         mProfileDataMapper = profileDataMapper;
         mCredentialsDataMapper = credentialsDataMapper;
         mCredentialsClientValidation = credentialsClientValidation;
@@ -71,7 +71,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
 
     @Override
     public void destroy() {
-        mSaveProfileUseCase.unsubscribe();
+        mSaveProfileUseCaseUseCase.unsubscribe();
     }
 
     @Override
@@ -83,7 +83,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
             BaseCredentials domainCredentials = mCredentialsDataMapper.transform(profileModel.getCredentials());
             String baseUrl = profileModel.getServerUrl();
 
-            mSaveProfileUseCase.execute(baseUrl, domainProfile, domainCredentials, new ProfileSaveListener());
+            mSaveProfileUseCaseUseCase.execute(baseUrl, domainProfile, domainCredentials, new ProfileSaveListener());
         }
     }
 

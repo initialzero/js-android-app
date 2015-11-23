@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
+import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
@@ -81,7 +81,7 @@ public class AuthenticationPresenterTest {
 
     // Domain mock components
     @Mock
-    SaveProfile mSaveProfile;
+    SaveProfileUseCase mSaveProfileUseCase;
     @Mock
     Profile domainProfile;
     @Mock
@@ -92,7 +92,7 @@ public class AuthenticationPresenterTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        presenterUnderTest = new AuthenticationPresenter(mSaveProfile, mProfileDataMapper, mCredentialsDataMapper,
+        presenterUnderTest = new AuthenticationPresenter(mSaveProfileUseCase, mProfileDataMapper, mCredentialsDataMapper,
                 credentialsClientValidation, profileClientValidation);
         presenterUnderTest.setView(mAuthenticationView);
 
@@ -111,7 +111,7 @@ public class AuthenticationPresenterTest {
 
         verify(mProfileDataMapper).transform(uiProfile);
         verify(mCredentialsDataMapper).transform(uiCredentials);
-        verify(mSaveProfile).execute(eq("http://localhost"), eq(domainProfile), eq(domainCredentials), any(Subscriber.class));
+        verify(mSaveProfileUseCase).execute(eq("http://localhost"), eq(domainProfile), eq(domainCredentials), any(Subscriber.class));
     }
 
     @Test
@@ -192,6 +192,6 @@ public class AuthenticationPresenterTest {
     @Test
     public void testPresenterUnsubscribesDuringDestroy() {
         presenterUnderTest.destroy();
-        verify(mSaveProfile).unsubscribe();
+        verify(mSaveProfileUseCase).unsubscribe();
     }
 }

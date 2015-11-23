@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 2.3
  */
-public class SaveProfileTest {
+public class SaveProfileUseCaseTest {
     @Mock
     ServerApi.Factory mServerFactory;
     @Mock
@@ -55,7 +55,7 @@ public class SaveProfileTest {
     @Mock
     BaseCredentials mCredentials;
 
-    private SaveProfile saveProfile;
+    private SaveProfileUseCase mSaveProfileUseCase;
 
     @Before
     public void setUp() throws Exception {
@@ -64,7 +64,7 @@ public class SaveProfileTest {
                 new PostExecutionThreadImpl(),
                 new PreExecutionThreadImpl()
         );
-        saveProfile = new SaveProfile(
+        mSaveProfileUseCase = new SaveProfileUseCase(
                 mServerFactory, mCredentialsValidator,
                 mServerValidator, mProfileValidator,
                 mProfileRepository, mCredentialsRepository,
@@ -76,7 +76,7 @@ public class SaveProfileTest {
 
     @Test
     public void testExecute() throws Exception {
-        saveProfile.execute("http://localhost", mProfile, mCredentials, new TestSubscriber());
+        mSaveProfileUseCase.execute("http://localhost", mProfile, mCredentials, new TestSubscriber());
 
         verify(mProfileValidator).validate(mProfile);
         verify(mServerValidator).validate(mJasperServer);

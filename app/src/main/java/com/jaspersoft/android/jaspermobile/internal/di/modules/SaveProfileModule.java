@@ -28,7 +28,7 @@ import com.jaspersoft.android.jaspermobile.data.validator.CredentialsValidatorIm
 import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
 import com.jaspersoft.android.jaspermobile.data.validator.ServerValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfile;
+import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
@@ -76,7 +76,7 @@ public final class SaveProfileModule {
 
     @PerActivity
     @Provides
-    SaveProfile provideAddProfileUseCase(
+    SaveProfileUseCase provideAddProfileUseCase(
             ServerApi.Factory serverFactory,
             CredentialsValidator credentialsValidator,
             ServerValidator serverValidator,
@@ -85,7 +85,7 @@ public final class SaveProfileModule {
             CredentialsRepository credentialsRepo,
             JasperServerRepository serverRepo,
             CompositeUseCase compositeUseCase) {
-        return new SaveProfile(
+        return new SaveProfileUseCase(
                 serverFactory,
                 credentialsValidator,
                 serverValidator,

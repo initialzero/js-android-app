@@ -51,7 +51,7 @@ import rx.functions.Func0;
  * @author Tom Koptel
  * @since 2.3
  */
-public class SaveProfile {
+public final class SaveProfileUseCase {
     private final ServerApi.Factory mServerFactory;
     private final CredentialsValidator mCredentialsValidator;
     private final ServerValidator mServerValidator;
@@ -63,7 +63,7 @@ public class SaveProfile {
     private final CompositeUseCase mCompositeUseCase;
 
     @Inject
-    public SaveProfile(
+    public SaveProfileUseCase(
             ServerApi.Factory jasperServerFactory,
             CredentialsValidator credentialsValidator,
             ServerValidator serverValidator,

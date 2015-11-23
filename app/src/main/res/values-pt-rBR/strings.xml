@@ -246,7 +246,7 @@
     <string name="sdr_dfd_msg">Tem certeza de que deseja remover \"%s\"?</string>
 
     <!-- Settings activity -->
-    <string name="st_send_crashes_note">OBSERVAÇÃO: Reinicie o app após alterar essa configuração.</string>
+    <string name="st_restart_note">OBSERVAÇÃO: Reinicie o app após alterar essa configuração.</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Servidor não encontrado.</string>

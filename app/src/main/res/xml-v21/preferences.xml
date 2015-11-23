@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -72,8 +73,14 @@
         <SwitchPreference
             android:defaultValue="true"
             android:key="pref_crash_reports"
-            android:summary="@string/st_send_crashes_note"
+            android:summary="@string/st_restart_note"
             android:title="@string/st_send_crashes" />
+
+        <SwitchPreference
+            android:key="pref_screen_capturing_enabled"
+            android:defaultValue="false"
+            android:title="@string/st_screenshot_enable"
+            android:summary="@string/st_restart_note"/>
 
     </PreferenceCategory>
 

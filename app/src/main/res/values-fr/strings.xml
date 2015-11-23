@@ -245,7 +245,7 @@
     <string name="sdr_dfd_msg">Voulez-vous vraiment supprimer \"%s\" ?</string>
 
     <!-- Settings activity -->
-    <string name="st_send_crashes_note">REMARQUE : Redémarrer l\'application après avoir modifié ce paramètre.</string>
+    <string name="st_restart_note">REMARQUE : Redémarrer l\'application après avoir modifié ce paramètre.</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Serveur introuvable.</string>

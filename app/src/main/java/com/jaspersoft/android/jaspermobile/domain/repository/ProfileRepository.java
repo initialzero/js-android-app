@@ -24,14 +24,35 @@
 
 package com.jaspersoft.android.jaspermobile.domain.repository;
 
+import android.accounts.AccountManager;
+
+import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 
 /**
+ * Abstraction around profile CRUD operations.
+ * Additionally supports activation of {@link Profile}
+ * <br/>
+ *
+ * Implemented by {@link ProfileDataRepository}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
 public interface ProfileRepository {
+    /**
+     * Persists profile data in system
+
+     * @param profile target {@link Profile} we would like to cache
+     * @throws FailedToSaveProfile {@link AccountManager} failed to persist profile
+     */
     void saveProfile(Profile profile) throws FailedToSaveProfile;
+
+    /**
+     * Makes target profile active
+     *
+     * @param profile target {@link Profile} we would like to activate
+     */
     void activate(Profile profile);
 }

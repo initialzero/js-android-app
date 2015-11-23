@@ -34,6 +34,8 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
+ * Implementation of repo pattern for {@link Profile}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -49,6 +51,9 @@ public final class ProfileDataRepository implements ProfileRepository {
         mProfileActiveCache = preferencesProfileCache;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void saveProfile(Profile profile) throws FailedToSaveProfile {
         boolean isSaved = (!mProfileCache.hasProfile(profile) && mProfileCache.put(profile));
@@ -57,6 +62,9 @@ public final class ProfileDataRepository implements ProfileRepository {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void activate(Profile profile) {
         mProfileActiveCache.put(profile);

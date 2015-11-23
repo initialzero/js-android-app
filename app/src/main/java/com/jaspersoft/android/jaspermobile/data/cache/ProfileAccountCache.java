@@ -39,6 +39,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Implementation of profile cache around {@link AccountManager}. This cache used in order to persist
+ * new profiles in system. Also used for validation purposes of weather profile in cache or not.
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -55,11 +58,19 @@ public final class ProfileAccountCache implements ProfileCache {
         mAccountDataMapper = accountDataMapper;
     }
 
+    /**
+     * This operation does not supported by {@link AccountManager}, as soon as there is no way to mark account as active
+     *
+     * @throws UnsupportedOperationException
+     */
     @Override
     public Profile get() {
         throw new UnsupportedOperationException("There is no way we can retrieve active account from AccountManager");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean put(Profile profile) {
         Account accountProfile = mAccountDataMapper.transform(profile);
@@ -68,6 +79,9 @@ public final class ProfileAccountCache implements ProfileCache {
         return mAccountManager.addAccountExplicitly(accountProfile, null, userData);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasProfile(Profile profile) {
         Account accountProfile = mAccountDataMapper.transform(profile);
@@ -76,6 +90,12 @@ public final class ProfileAccountCache implements ProfileCache {
         return accountsSet.contains(accountProfile);
     }
 
+    /**
+     * We do not support any delete operation for profiles stored in {@link AccountManager}.
+     * Corresponding functional already shipped with Android OS.
+     *
+     * @throws UnsupportedOperationException
+     */
     @Override
     public void evict() {
         throw new UnsupportedOperationException("Application does not support account removal!");

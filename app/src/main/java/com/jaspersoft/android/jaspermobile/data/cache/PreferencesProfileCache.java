@@ -35,6 +35,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Implementation of profile cache around {@link SharedPreferences}. This cache used for persisting
+ * currently active profile. Active profile - one use choose to interact across application.
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -50,6 +53,9 @@ public final class PreferencesProfileCache implements ProfileCache {
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Profile get() {
         String key = mPreference.getString(ACCOUNT_NAME_KEY, null);
@@ -59,17 +65,26 @@ public final class PreferencesProfileCache implements ProfileCache {
         return Profile.create(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean put(Profile profile) {
         mPreference.edit().putString(ACCOUNT_NAME_KEY, profile.getKey()).apply();
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasProfile(Profile profile) {
         return !TextUtils.isEmpty(mPreference.getString(ACCOUNT_NAME_KEY, null));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void evict() {
         mPreference.edit().remove(ACCOUNT_NAME_KEY).apply();

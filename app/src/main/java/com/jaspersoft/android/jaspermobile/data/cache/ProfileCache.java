@@ -27,12 +27,39 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 /**
+ * Abstraction around profile cache
+ * <br/>
+ *  Following interface implemented by {@link PreferencesProfileCache} amd {@link ProfileAccountCache}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
 public interface ProfileCache {
+    /**
+     * Retrieves profile from cache
+     *
+     * @return profile stored in cache
+     */
     Profile get();
+
+    /**
+     * Saves profile in cache.
+     *
+     * @param profile profile we are going to persist
+     * @return flag that notifies client about success or fail during persist operation
+     */
     boolean put(Profile profile);
+
+    /**
+     * Notifies either profile in cache or not.
+     *
+     * @param profile  profile we are check for existence in cache
+     * @return flag that speaks about either profile in cache or not
+     */
     boolean hasProfile(Profile profile);
+
+    /**
+     * Removes any profile data from cache
+     */
     void evict();
 }

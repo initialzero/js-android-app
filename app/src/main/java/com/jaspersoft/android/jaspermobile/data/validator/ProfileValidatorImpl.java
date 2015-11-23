@@ -43,6 +43,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
+ * Performs validation on profile.
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -58,6 +60,9 @@ public final class ProfileValidatorImpl implements ProfileValidator {
         mAccountType = accountType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void validate(Profile profile) throws DuplicateProfileException, ProfileReservedException {
         final String profileName = profile.getKey();

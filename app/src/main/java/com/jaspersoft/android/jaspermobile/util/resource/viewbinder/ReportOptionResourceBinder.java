@@ -41,8 +41,8 @@ class ReportOptionResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(TopCropImageView imageView, String uri) {
-        imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
+        imageView.setScaleType(TopCropImageView.ScaleType.TOP_CROP);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        imageView.setImageResource(R.drawable.ic_report_options);
+        imageView.setImageResource(R.drawable.placeholder_report);
     }
 }

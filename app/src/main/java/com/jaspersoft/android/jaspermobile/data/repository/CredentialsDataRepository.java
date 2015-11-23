@@ -24,12 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
+import android.accounts.AccountManager;
+import android.content.Context;
+
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
@@ -44,6 +49,9 @@ import javax.inject.Singleton;
  */
 @Singleton
 public final class CredentialsDataRepository implements CredentialsRepository {
+    /**
+     * Injected by {@link ProfileModule#provideCredentialsCache(Context, AccountManager, AccountDataMapper)}}
+     */
     private final CredentialsCache mCredentialsCache;
 
     @Inject

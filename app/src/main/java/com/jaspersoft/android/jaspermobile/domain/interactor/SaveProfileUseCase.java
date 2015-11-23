@@ -24,6 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
+import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
+import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
+import com.jaspersoft.android.jaspermobile.data.validator.CredentialsValidatorImpl;
+import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
+import com.jaspersoft.android.jaspermobile.data.validator.ServerValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -39,6 +45,8 @@ import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
 
 import javax.inject.Inject;
 
@@ -50,11 +58,29 @@ import rx.functions.Func0;
  * @since 2.3
  */
 public class SaveProfileUseCase {
+    /**
+     * Injected by {@link SaveProfileModule#providesCredentialsValidator(CredentialsValidatorImpl)}
+     */
     private final CredentialsValidator mCredentialsValidator;
+    /**
+     * Injected by {@link SaveProfileModule#providesServerValidator(ServerValidatorImpl)}
+     */
     private final ServerValidator mServerValidator;
+    /**
+     * Injected by {@link SaveProfileModule#provideProfileValidator(ProfileValidatorImpl)}
+     */
     private final ProfileValidator mProfileValidator;
+    /**
+     * Injected by {@link ProfileModule#providesProfileRepository(ProfileDataRepository)}
+     */
     private final ProfileRepository mProfileRepository;
+    /**
+     * Injected by {@link ProfileModule#providesCredentialsRepository(CredentialsDataRepository)}
+     */
     private final CredentialsRepository mCredentialsRepository;
+    /**
+     * Injected by {@link ProfileModule#providesServerRepository(JasperServerDataRepository)}
+     */
     private final JasperServerRepository mServerRepository;
 
     private final CompositeUseCase mCompositeUseCase;

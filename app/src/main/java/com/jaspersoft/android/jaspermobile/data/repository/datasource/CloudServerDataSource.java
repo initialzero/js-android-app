@@ -25,10 +25,14 @@
 package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
 import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCacheImpl;
+import com.jaspersoft.android.jaspermobile.data.network.ServerApiFactory;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
 /**
  * This implementation connects to network to retrieve latest server metadata.
@@ -38,7 +42,13 @@ import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
  */
 public final class CloudServerDataSource implements ServerDataSource {
 
+    /**
+     * Injected by {@link AppModule#providesServerInfoFactory(ServerApiFactory)}}
+     */
     private final ServerApi.Factory mServerApiFactory;
+    /**
+     * Injected by {@link ProfileModule#providesJasperSeverCache(JasperServerCacheImpl)}}
+     */
     private final JasperServerCache mServerCache;
 
     public CloudServerDataSource(ServerApi.Factory serverApiFactory, JasperServerCache serverCache) {

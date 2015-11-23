@@ -26,6 +26,9 @@ package com.jaspersoft.android.jaspermobile.domain.interactor;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
+import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
+import com.jaspersoft.android.jaspermobile.data.repository.TokenDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -34,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsReposito
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.TokenRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,8 +48,17 @@ import javax.inject.Singleton;
  */
 @Singleton
 public final class GetTokenUseCase {
+    /**
+     * Injected by {@link ProfileModule#providesTokenRepository(TokenDataRepository)}
+     */
     private final TokenRepository mTokenRepository;
+    /**
+     * Injected by {@link ProfileModule#providesServerRepository(JasperServerDataRepository)}
+     */
     private final JasperServerRepository mServerRepository;
+    /**
+     * Injected by {@link ProfileModule#providesCredentialsRepository(CredentialsDataRepository)}
+     */
     private final CredentialsRepository mCredentialsRepository;
 
     @Inject

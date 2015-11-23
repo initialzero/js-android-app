@@ -24,9 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,6 +39,9 @@ import javax.inject.Singleton;
  */
 @Singleton
 public final class UpdateServerUseCase {
+    /**
+     * Injected by {@link ProfileModule#providesServerRepository(JasperServerDataRepository)}
+     */
     private final JasperServerRepository mServerRepository;
 
     @Inject

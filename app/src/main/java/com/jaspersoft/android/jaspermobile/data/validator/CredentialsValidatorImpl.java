@@ -24,12 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.jaspersoft.android.jaspermobile.data.network.AuthenticatorFactory;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
 
 import javax.inject.Inject;
 
@@ -41,6 +43,9 @@ import javax.inject.Inject;
  */
 @PerActivity
 public final class CredentialsValidatorImpl implements CredentialsValidator {
+    /**
+     * Injected by {@link AppModule#providesAuthenticatorFactory(AuthenticatorFactory)}}
+     */
     private final Authenticator.Factory mAuthFactory;
 
     @Inject

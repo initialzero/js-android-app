@@ -78,7 +78,7 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     @Inject
     AuthenticationPresenter mPresenter;
     /**
-     * Injected through {@link SaveProfileModule#provideProfileActionListener}
+     * Injected through {@link SaveProfileModule#provideProfileActionListener(AuthenticationPresenter)}
      */
     @Inject
     ProfileActionListener mProfileActionListener;

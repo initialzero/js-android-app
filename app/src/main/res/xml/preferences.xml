@@ -69,7 +69,13 @@
             android:key="pref_crash_reports"
             android:defaultValue="true"
             android:title="@string/st_send_crashes"
-            android:summary="@string/st_send_crashes_note"/>
+            android:summary="@string/st_restart_note"/>
+
+        <CheckBoxPreference
+            android:key="pref_screen_capturing_enabled"
+            android:defaultValue="false"
+            android:title="@string/st_screenshot_enable"
+            android:summary="@string/st_restart_note"/>
 
     </PreferenceCategory>
 

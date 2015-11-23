@@ -32,6 +32,8 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import javax.inject.Inject;
 
 /**
+ * Implementation of server validation
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -41,6 +43,9 @@ public final class ServerValidatorImpl implements ServerValidator {
     public ServerValidatorImpl() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void validate(JasperServer server) throws ServerVersionNotSupportedException {
         double version = server.getVersion();

@@ -27,34 +27,26 @@ package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 import com.jaspersoft.android.jaspermobile.data.cache.TokenCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import static org.mockito.Mockito.verify;
-
 /**
+ * Delegates lookup for toke to the cache
+ *
  * @author Tom Koptel
  * @since 2.3
  */
-public class SystemTokenDataSourceTest {
-    @Mock
-    TokenCache mTokenCache;
-    @Mock
-    Profile mProfile;
+public final class DiskTokenDataSource implements TokenDataSource {
+    private final TokenCache mTokenCache;
+    private final Profile mProfile;
 
-    SystemTokenDataSource dataStore;
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        dataStore = new SystemTokenDataSource(mProfile, mTokenCache);
+    public DiskTokenDataSource(Profile profile, TokenCache tokenCache) {
+        mProfile = profile;
+        mTokenCache = tokenCache;
     }
 
-    @Test
-    public void testRetrieveToken() throws Exception {
-        dataStore.retrieveToken();
-        verify(mTokenCache).get(mProfile);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String retrieveToken() {
+        return mTokenCache.get(mProfile);
     }
 }

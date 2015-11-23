@@ -32,10 +32,11 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
+ * Cache implementation build around {@link AccountManager}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -52,18 +53,27 @@ public final class TokenCacheImpl implements TokenCache {
         mAccountDataMapper = accountDataMapper;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String get(Profile profile) {
         Account account = mAccountDataMapper.transform(profile);
         return mAccountManager.peekAuthToken(account, JASPER_AUTH_TOKEN_TYPE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void put(Profile profile, String token) {
         Account account = mAccountDataMapper.transform(profile);
         mAccountManager.setAuthToken(account, JASPER_AUTH_TOKEN_TYPE, token);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isCached(Profile profile) {
         return !TextUtils.isEmpty(get(profile));

@@ -27,11 +27,35 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 /**
+ * Abstraction around token cache
+ * <br/>
+ * Implemented by {@link TokenCacheImpl}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
 public interface TokenCache {
+    /**
+     * Retrieves toke from cache on the basis of profile
+     *
+     * @param profile associated with token
+     * @return latest cached token
+     */
     String get(Profile profile);
+
+    /**
+     * Saves token on disk
+     *
+     * @param profile associated with token
+     * @param token we are going to save
+     */
     void put(Profile profile, String token);
+
+    /**
+     * Checks weather token exists in cache
+     *
+     * @param profile associated with token
+     * @return flags weather token cached or not
+     */
     boolean isCached(Profile profile);
 }

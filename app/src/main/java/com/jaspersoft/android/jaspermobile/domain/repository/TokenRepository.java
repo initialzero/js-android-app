@@ -24,15 +24,28 @@
 
 package com.jaspersoft.android.jaspermobile.domain.repository;
 
+import com.jaspersoft.android.jaspermobile.data.repository.TokenDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 
 /**
+ * Abstraction of repo pattern for token related CRUD operations.
+ * <br/>
+ * Implemented by {@link TokenDataRepository}
  * @author Tom Koptel
  * @since 2.3
  */
 public interface TokenRepository {
+    /**
+     * Relieves token for profile on the basis of credentials for corresponding server.
+     *
+     * @param profile associated with token
+     * @param server we are requesting token from
+     * @param credentials used to authorize user
+     * @return token which is cookie received from Jasper Server
+     * @throws RestStatusException describes either network exception, http exception or Jasper Server specific error states
+     */
     String getToken(Profile profile, JasperServer server, BaseCredentials credentials) throws RestStatusException;
 }

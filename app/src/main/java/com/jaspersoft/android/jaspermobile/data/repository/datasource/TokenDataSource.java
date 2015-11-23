@@ -35,10 +35,20 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Abstraction around token data source
+ * <br/>
+ * Implemented by {@link DiskTokenDataSource} and {@link CloudTokenDataSource}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
 public interface TokenDataSource {
+    /**
+     * Retrieves token from data source.
+     *
+     * @return token or cookie received from Jasper Server
+     * @throws RestStatusException describes either network exception, http exception or Jasper Server specific error states
+     */
     String retrieveToken() throws RestStatusException;
 
     @Singleton
@@ -52,10 +62,18 @@ public interface TokenDataSource {
             mTokenCache = tokenCache;
         }
 
+        /**
+         * Searches for token in cache, then returns either {@link DiskTokenDataSource} or {@link CloudTokenDataSource}
+         *
+         * @param profile we use for checkup in cache
+         * @param server we use to build {@link CloudTokenDataSource}
+         * @param credentials we use to build {@link CloudTokenDataSource}
+         * @return implementation of data source
+         */
         public TokenDataSource create(Profile profile, JasperServer server, BaseCredentials credentials) {
             boolean hasToken = mTokenCache.isCached(profile);
             if (hasToken) {
-                return new SystemTokenDataSource(profile, mTokenCache);
+                return new DiskTokenDataSource(profile, mTokenCache);
             }
             return new CloudTokenDataSource(mTokenCache, mAuthFactory, profile, server, credentials);
         }

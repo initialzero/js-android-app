@@ -69,7 +69,7 @@ public class TokenSourceFactoryTest {
     public void testFactoryCreatesSystemStoreIfCacheExists() throws Exception {
         when(mTokenCache.isCached(mProfile)).thenReturn(true);
         TokenDataSource dataStore = factory.create(mProfile, mJasperServer, mCredentials);
-        assertThat(dataStore, is(instanceOf(SystemTokenDataSource.class)));
+        assertThat(dataStore, is(instanceOf(DiskTokenDataSource.class)));
     }
     @Test
     public void testFactoryCreatesCloudStoreIfCacheMissing() throws Exception {

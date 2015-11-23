@@ -32,6 +32,8 @@ import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 
 /**
+ * Retrieves token from server and caches it on disk
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -54,6 +56,9 @@ public final class CloudTokenDataSource implements TokenDataSource {
         mCredentials = credentials;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String retrieveToken() throws RestStatusException {
         Authenticator authenticator = mAuthFactory.create(mServer.getBaseUrl());

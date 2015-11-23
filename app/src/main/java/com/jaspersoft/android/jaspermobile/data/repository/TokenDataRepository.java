@@ -35,6 +35,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Delegates work of token retrieval to corresponding {@link TokenDataSource}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -47,6 +49,9 @@ public final class TokenDataRepository implements TokenRepository {
         mTokenDataStoreFactory = tokenFactory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getToken(Profile profile, JasperServer server, BaseCredentials credentials) throws RestStatusException {
         TokenDataSource store = mTokenDataStoreFactory.create(profile, server, credentials);

@@ -28,7 +28,6 @@ import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
-import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
@@ -51,8 +50,7 @@ import rx.functions.Func0;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class SaveProfileUseCase {
-    private final ServerApi.Factory mServerFactory;
+public class SaveProfileUseCase {
     private final CredentialsValidator mCredentialsValidator;
     private final ServerValidator mServerValidator;
     private final ProfileValidator mProfileValidator;
@@ -64,7 +62,6 @@ public final class SaveProfileUseCase {
 
     @Inject
     public SaveProfileUseCase(
-            ServerApi.Factory jasperServerFactory,
             CredentialsValidator credentialsValidator,
             ServerValidator serverValidator,
             ProfileValidator profileValidator,
@@ -72,7 +69,6 @@ public final class SaveProfileUseCase {
             CredentialsRepository credentialsRepository,
             JasperServerRepository serverRepository,
             CompositeUseCase compositeUseCase) {
-        mServerFactory = jasperServerFactory;
         mCredentialsValidator = credentialsValidator;
         mServerValidator = serverValidator;
         mProfileValidator = profileValidator;
@@ -109,7 +105,7 @@ public final class SaveProfileUseCase {
     private Profile performAddition(String baseUrl, Profile profile,
                                     BaseCredentials credentials) throws Exception {
         validateProfile(profile);
-        JasperServer server = mServerFactory.create(baseUrl).requestServer();
+        JasperServer server = loadServerData(baseUrl);
         validateServer(server);
         validateCredentials(server, credentials);
 
@@ -120,6 +116,10 @@ public final class SaveProfileUseCase {
         activateProfile(profile);
 
         return profile;
+    }
+
+    private JasperServer loadServerData(String baseUrl) throws RestStatusException {
+        return mServerRepository.loadServer(baseUrl);
     }
 
     private void validateProfile(Profile profile) throws DuplicateProfileException, ProfileReservedException {

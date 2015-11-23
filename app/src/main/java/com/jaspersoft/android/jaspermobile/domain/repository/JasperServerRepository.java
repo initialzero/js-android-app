@@ -34,6 +34,7 @@ import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
  */
 public interface JasperServerRepository {
     void saveServer(Profile profile, JasperServer jasperServer);
+    JasperServer loadServer(String baseUrl) throws RestStatusException;
     JasperServer getServer(Profile profile) throws RestStatusException;
     boolean updateServer(Profile profile) throws RestStatusException;
 }

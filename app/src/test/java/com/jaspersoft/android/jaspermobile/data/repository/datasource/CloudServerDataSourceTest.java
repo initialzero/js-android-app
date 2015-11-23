@@ -82,4 +82,11 @@ public class CloudServerDataSourceTest {
     public void testSaveServer() throws Exception {
         cloudServerDataSource.saveServer(fakeProfile, mJasperServer);
     }
+
+    @Test
+    public void testLoadServer() throws Exception {
+        cloudServerDataSource.fetchServerData("http://localhost/");
+        verify(mServerApiFactory).create("http://localhost/");
+        verify(mServerApi).requestServer();
+    }
 }

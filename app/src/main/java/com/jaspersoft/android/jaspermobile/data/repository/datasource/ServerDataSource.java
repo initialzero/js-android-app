@@ -39,6 +39,7 @@ import javax.inject.Singleton;
  */
 public interface ServerDataSource {
     JasperServer getServer(Profile profile) throws RestStatusException;
+    JasperServer fetchServerData(String baseUrl) throws RestStatusException;
     void saveServer(Profile profile, JasperServer server) throws RestStatusException;
 
     @Singleton

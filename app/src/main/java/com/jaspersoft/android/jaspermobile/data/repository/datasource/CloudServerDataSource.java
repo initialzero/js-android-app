@@ -48,12 +48,17 @@ public final class CloudServerDataSource implements ServerDataSource {
     public JasperServer getServer(Profile profile) throws RestStatusException {
         JasperServer server = mServerCache.get(profile);
         String baseUrl = server.getBaseUrl();
+        return fetchServerData(baseUrl);
+    }
+
+    @Override
+    public JasperServer fetchServerData(String baseUrl) throws RestStatusException {
         ServerApi serverApi = mServerApiFactory.create(baseUrl);
         return serverApi.requestServer();
     }
 
     @Override
     public void saveServer(Profile profile, JasperServer server) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("There is no way we can save server across network call");
     }
 }

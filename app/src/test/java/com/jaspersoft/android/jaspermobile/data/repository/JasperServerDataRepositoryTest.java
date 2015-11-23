@@ -134,4 +134,11 @@ public class JasperServerDataRepositoryTest {
                 !repoUnderTest.updateServer(fakeProfile)
         );
     }
+
+    @Test
+    public void testLoadServer() throws Exception {
+        repoUnderTest.loadServer("http://localhost");
+        verify(mDataSourceFactory).createCloudDataSource();
+        verify(mCloudDataSource).fetchServerData("http://localhost");
+    }
 }

@@ -60,6 +60,12 @@ public final class JasperServerDataRepository implements JasperServerRepository 
     }
 
     @Override
+    public JasperServer loadServer(String baseUrl) throws RestStatusException {
+        ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
+        return cloudSource.fetchServerData(baseUrl);
+    }
+
+    @Override
     public JasperServer getServer(Profile profile) throws RestStatusException {
         ServerDataSource source = mDataSourceFactory.createDataSource(profile);
         return source.getServer(profile);

@@ -24,16 +24,34 @@
 
 package com.jaspersoft.android.jaspermobile.domain.repository;
 
+import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 
 /**
+ * Abstraction responsible for create and get operations around profile credentials.
+ * Following interface implemented {@link CredentialsDataRepository}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
 public interface CredentialsRepository {
+    /**
+     * Save credentials for corresponding profile.
+     *
+     * @param profile the target profile we use to associate with credentials
+     * @param credentials we are going to put inside repository
+     * @throws FailedToSaveCredentials during save process system could fail to encrypt sensitive data
+     */
     void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials;
+
+    /**
+     * Retrieves cached credentials for corresponding profile
+     * @param profile the target profile we use to associate with credentials
+     * @return credentials for passed profile
+     * @throws FailedToRetrieveCredentials during fetch process system could fail to decrypt sensitive data
+     */
     BaseCredentials getCredentials(Profile profile) throws FailedToRetrieveCredentials;
 }

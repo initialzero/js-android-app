@@ -29,10 +29,27 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 /**
+ * Abstraction around caching of {@link BaseCredentials} instance.
+ * Following interface implemented by {@link CredentialsCacheImpl}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
 public interface CredentialsCache {
+    /**
+     * Saves credentials in cache, presumably encoding sensitive data(e.g. password)
+     *
+     * @param profile the target profile we use to associate with credentials
+     * @param credentials we are going to put inside repository
+     * @throws PasswordManager.EncryptionException thrown if unexpected encoding exception raised
+     */
     void put(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException;
-    BaseCredentials get(Profile fakeProfile) throws PasswordManager.DecryptionException;
+
+    /**
+     * Retrieves credentials from cache, presumably decoding sensitive data(e.g. password)
+     *
+     * @param profile the target profile we use to associate with credentials
+     * @throws PasswordManager.DecryptionException thrown if unexpected decoding exception raised
+     */
+    BaseCredentials get(Profile profile) throws PasswordManager.DecryptionException;
 }

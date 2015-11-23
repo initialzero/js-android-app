@@ -36,6 +36,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Stores credentials data inside {@link AccountManager} on the basis of passed {@link Profile}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -57,6 +59,9 @@ public final class CredentialsCacheImpl implements CredentialsCache {
         mAccountDataMapper = accountDataMapper;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void put(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException {
         Account account = mAccountDataMapper.transform(profile);
@@ -68,6 +73,9 @@ public final class CredentialsCacheImpl implements CredentialsCache {
         mAccountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BaseCredentials get(Profile profile) throws PasswordManager.DecryptionException {
         Account account = mAccountDataMapper.transform(profile);

@@ -36,6 +36,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Implements repository pattern to control CRUD operations around credentials.
+ * Current implementations build around {@link CredentialsCache} abstraction.
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -48,6 +51,9 @@ public final class CredentialsDataRepository implements CredentialsRepository {
         mCredentialsCache = credentialsCache;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials {
         try {
@@ -57,6 +63,9 @@ public final class CredentialsDataRepository implements CredentialsRepository {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BaseCredentials getCredentials(Profile profile) throws FailedToRetrieveCredentials {
         try {

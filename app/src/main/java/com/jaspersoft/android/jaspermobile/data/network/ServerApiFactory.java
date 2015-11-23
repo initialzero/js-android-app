@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Wraps delegates network calls to latest implementation of Jasper Android SDK
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -28,6 +30,9 @@ public final class ServerApiFactory implements ServerApi.Factory {
         mRestStatusExceptionMapper = restStatusExceptionMapper;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ServerApi create(String baseUrl) {
         return new ServerApiImpl(baseUrl, mServerInfoDataMapper, mRestStatusExceptionMapper);
@@ -46,6 +51,9 @@ public final class ServerApiFactory implements ServerApi.Factory {
             mRestStatusExceptionMapper = restStatusExceptionMapper;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public JasperServer requestServer() throws RestStatusException {
             ServerInfoService service = ServerInfoService.create(mBaseUrl);

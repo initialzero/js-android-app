@@ -33,6 +33,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Adapts SDK specific exception application one
+ *
  * @author Tom Koptel
  * @since 2.3
  */

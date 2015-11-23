@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Wraps delegates network calls to latest implementation of Jasper Android SDK
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -23,6 +25,9 @@ public final class AuthenticatorFactory implements Authenticator.Factory {
         mRestStatusExceptionMapper = restStatusExceptionMapper;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Authenticator create(String baseUrl) {
         return new AuthenticatorImpl(baseUrl, mRestStatusExceptionMapper);
@@ -37,6 +42,9 @@ public final class AuthenticatorFactory implements Authenticator.Factory {
             mRestStatusExceptionMapper = restStatusExceptionMapper;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public String authenticate(BaseCredentials credentials) throws RestStatusException {
             SpringCredentials spring = SpringCredentials.builder()

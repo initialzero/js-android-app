@@ -37,7 +37,6 @@ import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator
 import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 
@@ -131,7 +130,7 @@ public class SaveProfileUseCase {
     }
 
     private void validateCredentials(JasperServer server, BaseCredentials credentials)
-            throws RestStatusException, InvalidCredentialsException {
+            throws RestStatusException {
         mCredentialsValidator.validate(server, credentials);
     }
 

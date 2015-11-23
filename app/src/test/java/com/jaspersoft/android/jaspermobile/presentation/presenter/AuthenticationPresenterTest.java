@@ -28,7 +28,6 @@ import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 import com.jaspersoft.android.jaspermobile.presentation.mapper.CredentialsDataMapper;
@@ -168,13 +167,6 @@ public class AuthenticationPresenterTest {
         presenterUnderTest.handleProfileSaveFailure(new ServerVersionNotSupportedException(5.0d));
         verify(mAuthenticationView).hideLoading();
         verify(mAuthenticationView).showServerVersionNotSupported();
-    }
-
-    @Test
-    public void testPresenterHandlesInvalidCredentials() throws Exception {
-        presenterUnderTest.handleProfileSaveFailure(new InvalidCredentialsException(null));
-        verify(mAuthenticationView).hideLoading();
-        verify(mAuthenticationView).showCredentialsError();
     }
 
     @Test

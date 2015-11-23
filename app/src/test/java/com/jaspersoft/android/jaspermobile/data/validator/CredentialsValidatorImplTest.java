@@ -30,7 +30,6 @@ import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -76,15 +75,6 @@ public class CredentialsValidatorImplTest {
     public void testValidate() throws Exception {
         performValidation();
         verify(mAuthenticator).authenticate(credentialsUnderTest);
-    }
-
-    @Test
-    public void shouldThrowCheckedExceptionIfServerEncountered401() throws Exception {
-        mException.expect(InvalidCredentialsException.class);
-        mException.expectMessage("Client has passed either invalid password or username/organization combination");
-
-        mockRestException(RestErrorCodes.AUTHORIZATION_ERROR);
-        performValidation();
     }
 
     @Test

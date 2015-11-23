@@ -192,11 +192,6 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     }
 
     @Override
-    public void showCredentialsError() {
-        showError(getString(R.string.r_error_incorrect_credentials));
-    }
-
-    @Override
     public void showFailedToAddProfile(String message) {
         showError(getString(R.string.failure_add_account, message));
     }

@@ -27,15 +27,15 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
-import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCredentialsException;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import javax.inject.Inject;
 
 /**
+ * Perform network call and authorize user. If passed than user fine to go
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -48,16 +48,11 @@ public final class CredentialsValidatorImpl implements CredentialsValidator {
         mAuthFactory = authFactory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void validate(JasperServer server, BaseCredentials credentials) throws InvalidCredentialsException, RestStatusException {
-        try {
-            mAuthFactory.create(server.getBaseUrl()).authenticate(credentials);
-        } catch (RestStatusException restError) {
-            if (restError.code() == RestErrorCodes.AUTHORIZATION_ERROR) {
-                throw new InvalidCredentialsException(credentials);
-            } else {
-                throw restError;
-            }
-        }
+    public void validate(JasperServer server, BaseCredentials credentials) throws RestStatusException {
+        mAuthFactory.create(server.getBaseUrl()).authenticate(credentials);
     }
 }

@@ -35,6 +35,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.internal.di.components.SaveProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
@@ -76,6 +77,9 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
 
     @Inject
     AuthenticationPresenter mPresenter;
+    /**
+     * Injected through {@link SaveProfileModule#provideProfileActionListener}
+     */
     @Inject
     ProfileActionListener mProfileActionListener;
 

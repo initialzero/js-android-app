@@ -60,8 +60,5 @@ public class ProfileClientValidation {
         } catch (MalformedURLException e) {
             throw new ServerUrlFormatException();
         }
-//        if (!URLUtil.isNetworkUrl(serverUrl)) {
-//            throw new ServerUrlFormatException();
-//        }
     }
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import com.jaspersoft.android.jaspermobile.auth.JasperAuthenticator;
 import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
-import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
@@ -33,7 +32,6 @@ public interface AppComponent {
 
     Context appContext();
     CompositeUseCase compositeUseCase();
-    ServerApi.Factory serverApiFactory();
     Authenticator.Factory authApiFactory();
 
     // Profile dependencies

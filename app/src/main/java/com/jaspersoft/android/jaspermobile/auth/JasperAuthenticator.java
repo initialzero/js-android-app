@@ -41,24 +41,23 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateServerUseCase
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
-
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public class JasperAuthenticator extends AbstractAccountAuthenticator {
-    private static final String SERVER_DATA_WAS_UPDATED = "Server version or edition has been updated";
     private final Context mContext;
-    private final PasswordManager mPasswordManager;
 
+    /**
+     * Injected as downstream dependency. For its dependency declaration take a look into {@link ProfileModule}
+     */
     @Inject
     GetTokenUseCase getToken;
     @Inject
@@ -66,14 +65,8 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
 
     public JasperAuthenticator(Context context) {
         super(context);
-        JasperMobileApplication.getComponent(context).inject(this);
-
         mContext = context;
-
-        String secret = mContext.getString(R.string.password_salt_key);
-        mPasswordManager = PasswordManager.init(mContext, secret);
-
-        Timber.tag(JasperAuthenticator.class.getSimpleName());
+        JasperMobileApplication.getComponent(context).inject(this);
     }
 
     @Override

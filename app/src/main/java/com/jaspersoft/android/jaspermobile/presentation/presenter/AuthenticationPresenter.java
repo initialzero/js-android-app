@@ -1,5 +1,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import android.support.annotation.VisibleForTesting;
+
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
@@ -10,6 +12,7 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.InvalidCre
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.mapper.CredentialsDataMapper;
 import com.jaspersoft.android.jaspermobile.presentation.mapper.ProfileDataMapper;
@@ -42,6 +45,9 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
     private final CredentialsClientValidation mCredentialsClientValidation;
     private final ProfileClientValidation mProfileClientValidation;
 
+    /**
+     * Injected through {@link SaveProfileModule}
+     */
     @Inject
     public AuthenticationPresenter(SaveProfileUseCase saveProfileUseCaseUseCase,
                                    ProfileDataMapper profileDataMapper,
@@ -61,12 +67,10 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void pause() {
-
     }
 
     @Override
@@ -117,10 +121,12 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
         return false;
     }
 
+    @VisibleForTesting
     void handleProfileComplete() {
         mView.hideLoading();
     }
 
+    @VisibleForTesting
     void handleProfileSaveFailure(Throwable e) {
         mView.hideLoading();
         if (e instanceof DuplicateProfileException) {
@@ -140,6 +146,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
         }
     }
 
+    @VisibleForTesting
     void handleProfileSaveSuccess() {
         mView.navigateToApp();
     }

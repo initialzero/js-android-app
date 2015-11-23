@@ -34,13 +34,37 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Abstraction around different data sources application supports.
+ * Following interface implemented by {@link DiskServerDataSource} and {@link CloudServerDataSource}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
 public interface ServerDataSource {
+    /**
+     * Retrieves server from either disk or network.
+     *
+     * @param profile the target profile we use to associate with credentials
+     * @return {@link JasperServer} abstraction that encompass additional server metadata
+     * @throws RestStatusException describes either network exception, http exception or Jasper Server specific error states
+     */
     JasperServer getServer(Profile profile) throws RestStatusException;
-    JasperServer fetchServerData(String baseUrl) throws RestStatusException;
-    void saveServer(Profile profile, JasperServer server) throws RestStatusException;
+
+    /**
+     * Fetches latest available server data on the basis of corresponding http url.
+     *
+     * @param baseUrl represents network address of JasperServer
+     * @return {@link JasperServer} abstraction that encompass additional server metadata
+     * @throws RestStatusException describes either network exception, http exception or Jasper Server specific error states
+     */
+    JasperServer getServer(String baseUrl) throws RestStatusException;
+
+    /**
+     * Updates cached server data.
+     *
+     * @param profile the target profile we use to associate with credentials
+     */
+    void saveServer(Profile profile, JasperServer server);
 
     @Singleton
     class Factory {
@@ -53,6 +77,12 @@ public interface ServerDataSource {
             mServerCache = serverCache;
         }
 
+        /**
+         * Choose strategy for accessing server data on the condition of server availability in cache.
+         *
+         * @param profile the target profile we use to associate with credentials
+         * @return If exists in cache returns {@link DiskServerDataSource}, else {@link CloudServerDataSource}
+         */
         public ServerDataSource createDataSource(Profile profile) {
             if (mServerCache.hasServer(profile)) {
                 return createDiskDataSource();

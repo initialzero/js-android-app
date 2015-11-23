@@ -30,6 +30,8 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 
 /**
+ * This implementation delegates work to corresponding implementation of {@link JasperServerCache}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -40,16 +42,27 @@ public final class DiskServerDataSource implements ServerDataSource {
         mServerCache = serverCache;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JasperServer getServer(Profile profile) {
         return mServerCache.get(profile);
     }
 
+    /**
+     * There is no implementation that can retrieve server data on the basis server url.
+     *
+     * @throws UnsupportedOperationException
+     */
     @Override
-    public JasperServer fetchServerData(String baseUrl) throws RestStatusException {
+    public JasperServer getServer(String baseUrl) throws RestStatusException {
         throw new UnsupportedOperationException("Disk storage has no option for retrieving server data by url");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void saveServer(Profile profile, JasperServer server) {
         mServerCache.put(profile, server);

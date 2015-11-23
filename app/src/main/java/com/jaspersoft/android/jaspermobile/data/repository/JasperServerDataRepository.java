@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
+import com.jaspersoft.android.jaspermobile.data.repository.datasource.CloudServerDataSource;
+import com.jaspersoft.android.jaspermobile.data.repository.datasource.DiskServerDataSource;
 import com.jaspersoft.android.jaspermobile.data.repository.datasource.ServerDataSource;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -34,6 +36,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
+ * Implementation of repository pattern responsible CRUD operations around server meta data.
+ * Corresponding implementation combines two different sources {@link DiskServerDataSource} and {@link CloudServerDataSource}.
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -46,31 +51,36 @@ public final class JasperServerDataRepository implements JasperServerRepository 
         mDataSourceFactory = dataSourceFactory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void saveServer(Profile profile, JasperServer jasperServer) {
         ServerDataSource source = mDataSourceFactory.createDiskDataSource();
-        try {
-            source.saveServer(profile, jasperServer);
-        } catch (RestStatusException e) {
-            /**
-             * This exception literary should not happen at all as soon as disk data source do no network calls
-             */
-            throw new IllegalStateException("Boom! Disk data source threw REST exception!");
-        }
+        source.saveServer(profile, jasperServer);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JasperServer loadServer(String baseUrl) throws RestStatusException {
         ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
-        return cloudSource.fetchServerData(baseUrl);
+        return cloudSource.getServer(baseUrl);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JasperServer getServer(Profile profile) throws RestStatusException {
         ServerDataSource source = mDataSourceFactory.createDataSource(profile);
         return source.getServer(profile);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean updateServer(Profile profile) throws RestStatusException {
         ServerDataSource diskSource = mDataSourceFactory.createDiskDataSource();

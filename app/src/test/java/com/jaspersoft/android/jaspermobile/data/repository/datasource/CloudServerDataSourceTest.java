@@ -85,7 +85,7 @@ public class CloudServerDataSourceTest {
 
     @Test
     public void testLoadServer() throws Exception {
-        cloudServerDataSource.fetchServerData("http://localhost/");
+        cloudServerDataSource.getServer("http://localhost/");
         verify(mServerApiFactory).create("http://localhost/");
         verify(mServerApi).requestServer();
     }

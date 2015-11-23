@@ -24,15 +24,37 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache;
 
-import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 /**
+ * Abstraction around server cache.
+ * Following interface implemented by {@link JasperServerCacheImpl}
+ *
  * @author Tom Koptel
  * @since 2.3
  */
 public interface JasperServerCache {
+    /**
+     * Saves server in cache by associating it with {@link Profile}
+     *
+     * @param profile the target profile we use to associate with server
+     * @param jasperServer metadata for server we are going to put in cache
+     */
     void put(Profile profile, JasperServer jasperServer);
-    JasperServer get(Profile fakeProfile);
-    boolean hasServer(Profile fakeProfile);
+
+    /**
+     * Retrieves server metadata from cache on the basis of associated {@link Profile}
+     * @param profile the target profile we use to associate with server
+     * @return {@link JasperServer} abstraction that encompass additional server metadata
+     */
+    JasperServer get(Profile profile);
+
+    /**
+     * Checks weather server meta data was stored on the basis of associated {@link Profile}
+     *
+     * @param profile the target profile we use to associate with server
+     * @return True if cache retains server, False if not
+     */
+    boolean hasServer(Profile profile);
 }

@@ -37,6 +37,8 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
+ * Implements server cache on the basis of {@link AccountManager}.
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -59,6 +61,9 @@ public final class JasperServerCacheImpl implements JasperServerCache {
         mProfileAccountCache = profileAccountCache;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void put(Profile profile, JasperServer jasperServer) {
         Account accountProfile = mAccountDataMapper.transform(profile);
@@ -67,6 +72,9 @@ public final class JasperServerCacheImpl implements JasperServerCache {
         mAccountManager.setUserData(accountProfile, VERSION_NAME_KEY, String.valueOf(jasperServer.getVersion()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JasperServer get(Profile profile) {
         Account accountProfile = mAccountDataMapper.transform(profile);
@@ -83,6 +91,9 @@ public final class JasperServerCacheImpl implements JasperServerCache {
         return serverBuilder.create();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasServer(Profile profile) {
         if (mProfileAccountCache.hasProfile(profile)) {

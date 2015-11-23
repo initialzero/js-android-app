@@ -31,6 +31,8 @@ import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 
 /**
+ * This implementation connects to network to retrieve latest server metadata.
+ *
  * @author Tom Koptel
  * @since 2.3
  */
@@ -44,19 +46,31 @@ public final class CloudServerDataSource implements ServerDataSource {
         mServerCache = serverCache;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JasperServer getServer(Profile profile) throws RestStatusException {
         JasperServer server = mServerCache.get(profile);
         String baseUrl = server.getBaseUrl();
-        return fetchServerData(baseUrl);
+        return getServer(baseUrl);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public JasperServer fetchServerData(String baseUrl) throws RestStatusException {
+    public JasperServer getServer(String baseUrl) throws RestStatusException {
         ServerApi serverApi = mServerApiFactory.create(baseUrl);
         return serverApi.requestServer();
     }
 
+    /**
+     * We do not support persistence of server on Jasper Server side. It makes no sense for
+     * cloud data source.
+     *
+     * @throws UnsupportedOperationException
+     */
     @Override
     public void saveServer(Profile profile, JasperServer server) {
         throw new UnsupportedOperationException("There is no way we can save server across network call");

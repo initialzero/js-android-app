@@ -2,9 +2,11 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import android.support.annotation.VisibleForTesting;
 
+import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
@@ -43,6 +45,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
     private final CredentialsDataMapper mCredentialsDataMapper;
     private final CredentialsClientValidation mCredentialsClientValidation;
     private final ProfileClientValidation mProfileClientValidation;
+    private final RestErrorAdapter mRestErrorAdapter;
 
     /**
      * Injected through {@link SaveProfileModule}
@@ -52,12 +55,14 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
                                    ProfileDataMapper profileDataMapper,
                                    CredentialsDataMapper credentialsDataMapper,
                                    CredentialsClientValidation credentialsClientValidation,
-                                   ProfileClientValidation profileClientValidation) {
+                                   ProfileClientValidation profileClientValidation,
+                                   RestErrorAdapter restErrorAdapter) {
         mSaveProfileUseCaseUseCase = saveProfileUseCaseUseCase;
         mProfileDataMapper = profileDataMapper;
         mCredentialsDataMapper = credentialsDataMapper;
         mCredentialsClientValidation = credentialsClientValidation;
         mProfileClientValidation = profileClientValidation;
+        mRestErrorAdapter = restErrorAdapter;
     }
 
     public void setView(AuthenticationView view) {
@@ -138,6 +143,9 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
             mView.showFailedToAddProfile(e.getMessage());
         } else if (e instanceof FailedToSaveCredentials) {
             mView.showFailedToAddProfile(e.getMessage());
+        } else if (e instanceof RestStatusException){
+            RestStatusException statusEx = ((RestStatusException) e);
+            mView.showError(mRestErrorAdapter.transform(statusEx));
         } else {
             mView.showError(e.getMessage());
         }

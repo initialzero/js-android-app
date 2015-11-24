@@ -24,9 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
+import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
@@ -77,6 +80,8 @@ public class AuthenticationPresenterTest {
     CredentialsClientValidation credentialsClientValidation;
     @Mock
     ProfileClientValidation profileClientValidation;
+    @Mock
+    RestErrorAdapter mRestErrorAdapter;
 
     // Domain mock components
     @Mock
@@ -91,8 +96,14 @@ public class AuthenticationPresenterTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        presenterUnderTest = new AuthenticationPresenter(mSaveProfileUseCase, mProfileDataMapper, mCredentialsDataMapper,
-                credentialsClientValidation, profileClientValidation);
+        presenterUnderTest = new AuthenticationPresenter(
+                mSaveProfileUseCase,
+                mProfileDataMapper,
+                mCredentialsDataMapper,
+                credentialsClientValidation,
+                profileClientValidation,
+                mRestErrorAdapter
+        );
         presenterUnderTest.setView(mAuthenticationView);
 
         when(uiProfile.getCredentials()).thenReturn(uiCredentials);
@@ -179,6 +190,14 @@ public class AuthenticationPresenterTest {
     public void testPresenterHandlesCompleteProfileSaveEvent() throws Exception {
         presenterUnderTest.handleProfileComplete();
         verify(mAuthenticationView).hideLoading();
+    }
+
+
+    @Test
+    public void testPresenterHandlesRestErrors() throws Exception {
+        when(mRestErrorAdapter.transform(any(RestStatusException.class))).thenReturn("error");
+        presenterUnderTest.handleProfileSaveFailure(new RestStatusException("message", null, RestErrorCodes.UNDEFINED_ERROR));
+        verify(mAuthenticationView).showError("error");
     }
 
     @Test

@@ -1,7 +1,9 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
 import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -38,6 +40,7 @@ import rx.Subscriber;
  */
 @PerActivity
 public final class AuthenticationPresenter implements Presenter, ProfileActionListener {
+    private final Context mContext;
     private AuthenticationView mView;
 
     private final SaveProfileUseCase mSaveProfileUseCaseUseCase;
@@ -51,12 +54,15 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
      * Injected through {@link SaveProfileModule}
      */
     @Inject
-    public AuthenticationPresenter(SaveProfileUseCase saveProfileUseCaseUseCase,
-                                   ProfileDataMapper profileDataMapper,
-                                   CredentialsDataMapper credentialsDataMapper,
-                                   CredentialsClientValidation credentialsClientValidation,
-                                   ProfileClientValidation profileClientValidation,
-                                   RestErrorAdapter restErrorAdapter) {
+    public AuthenticationPresenter(
+            Context context,
+            SaveProfileUseCase saveProfileUseCaseUseCase,
+            ProfileDataMapper profileDataMapper,
+            CredentialsDataMapper credentialsDataMapper,
+            CredentialsClientValidation credentialsClientValidation,
+            ProfileClientValidation profileClientValidation,
+            RestErrorAdapter restErrorAdapter) {
+        mContext = context;
         mSaveProfileUseCaseUseCase = saveProfileUseCaseUseCase;
         mProfileDataMapper = profileDataMapper;
         mCredentialsDataMapper = credentialsDataMapper;
@@ -127,6 +133,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
 
     @VisibleForTesting
     void handleProfileComplete() {
+        initLegacyJsRestClient();
         mView.hideLoading();
     }
 
@@ -143,7 +150,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
             mView.showFailedToAddProfile(e.getMessage());
         } else if (e instanceof FailedToSaveCredentials) {
             mView.showFailedToAddProfile(e.getMessage());
-        } else if (e instanceof RestStatusException){
+        } else if (e instanceof RestStatusException) {
             RestStatusException statusEx = ((RestStatusException) e);
             mView.showError(mRestErrorAdapter.transform(statusEx));
         } else {
@@ -154,6 +161,14 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
     @VisibleForTesting
     void handleProfileSaveSuccess() {
         mView.navigateToApp();
+    }
+
+    /**
+     * This is ugly fix for incompatible versions
+     * TODO: remove as soon as JsRestClient will be dropped from App
+     */
+    private void initLegacyJsRestClient() {
+        ((JasperMobileApplication) mContext.getApplicationContext()).initLegacyJsRestClient();
     }
 
     private class ProfileSaveListener extends Subscriber<Profile> {

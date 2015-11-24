@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.internal.di.components;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.auth.JasperAuthenticator;
+import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
@@ -36,6 +37,8 @@ public interface AppComponent {
 
     // Profile dependencies
     // Repos
+    @Named("profileAccountCache")
+    ProfileCache profileAccountCache();
     ProfileRepository profileRepository();
     CredentialsRepository credentialsRepository();
     JasperServerRepository serverRepository();

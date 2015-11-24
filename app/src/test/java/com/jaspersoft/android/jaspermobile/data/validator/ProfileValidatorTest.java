@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
-import com.jaspersoft.android.jaspermobile.data.FakeAccount;
+import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
@@ -33,16 +33,16 @@ import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.util.Arrays;
-
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Tom Koptel
@@ -54,22 +54,25 @@ public class ProfileValidatorTest {
 
     private ProfileValidatorImpl validator;
 
+    @Mock
+    ProfileCache profileCache;
+
     @Before
     public void setUp() throws Exception {
-        validator = new ProfileValidatorImpl(RuntimeEnvironment.application, JasperSettings.JASPER_ACCOUNT_TYPE);
+        MockitoAnnotations.initMocks(this);
+        validator = new ProfileValidatorImpl(profileCache);
     }
 
     @Test
     public void shouldRejectProfileIfAccountAlreadyRegistered() throws Exception {
-        Profile fakeProfile = Profile.create("name");
-        FakeAccount.injectAccount(fakeProfile).done();
+        when(profileCache.hasProfile(any(Profile.class))).thenReturn(true);
 
+        Profile fakeProfile = Profile.create("name");
         try {
             validator.validate(fakeProfile);
             fail("Account should not be valid");
         } catch (DuplicateProfileException ex) {
             assertThat(ex.requestedProfile(), is("name"));
-            assertThat(Arrays.asList(ex.availableNames()), contains("name"));
         }
     }
 
@@ -84,6 +87,8 @@ public class ProfileValidatorTest {
 
     @Test
     public void shouldAcceptProfileIfUnique() throws Exception {
+        when(profileCache.hasProfile(any(Profile.class))).thenReturn(false);
+
         try {
             Profile fakeProfile = Profile.create("name");
             validator.validate(fakeProfile);

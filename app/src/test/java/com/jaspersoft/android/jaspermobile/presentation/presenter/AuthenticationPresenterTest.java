@@ -115,7 +115,7 @@ public class AuthenticationPresenterTest {
 
     @Test
     public void testPresenterHandlesDuplicateAliasCase() {
-        presenterUnderTest.handleProfileSaveFailure(new DuplicateProfileException("any profile", new String[]{"any"}));
+        presenterUnderTest.handleProfileSaveFailure(new DuplicateProfileException("any profile"));
         verify(mAuthenticationView).hideLoading();
         verify(mAuthenticationView).showAliasDuplicateError();
     }

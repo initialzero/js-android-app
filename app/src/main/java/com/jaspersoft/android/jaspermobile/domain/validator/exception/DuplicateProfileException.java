@@ -32,21 +32,15 @@ import java.util.Locale;
  */
 public class DuplicateProfileException extends Exception {
     private final String profileName;
-    private final String[] availableNames;
 
-    public DuplicateProfileException(String profileName, String[] availableNames) {
+    public DuplicateProfileException(String profileName) {
         super(String.format(Locale.getDefault(),
                 "Profile with name \"%s\" alredy registered in system",
                 profileName));
         this.profileName = profileName;
-        this.availableNames = availableNames;
     }
 
     public String requestedProfile() {
         return profileName;
-    }
-
-    public String[] availableNames() {
-        return availableNames;
     }
 }

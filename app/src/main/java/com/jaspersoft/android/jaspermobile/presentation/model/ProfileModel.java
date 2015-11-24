@@ -102,9 +102,17 @@ public class ProfileModel {
             return this;
         }
 
-        public Builder setBaseUrl(String baseUrl) {
-            mBaseUrl = baseUrl;
+        public Builder setBaseUrl(String url) {
+            mBaseUrl = trimUrl(url);
             return this;
+        }
+
+        @NonNull
+        private String trimUrl(String url) {
+            if ((url != null || url.length() > 0) && url.endsWith("/")) {
+                url = url.substring(0, url.length() - 1);
+            }
+            return url;
         }
 
         public Builder setCredentials(CredentialsModel credentials) {

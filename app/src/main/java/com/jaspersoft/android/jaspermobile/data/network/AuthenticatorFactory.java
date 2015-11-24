@@ -50,6 +50,7 @@ public final class AuthenticatorFactory implements Authenticator.Factory {
             SpringCredentials spring = SpringCredentials.builder()
                     .username(credentials.getUsername())
                     .password(credentials.getPassword())
+                    .organization(credentials.getOrganization())
                     .build();
             try {
                 return JrsAuthenticator.create(mBaseUrl).authenticate(spring);

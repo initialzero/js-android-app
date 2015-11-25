@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -55,14 +55,11 @@ public enum ServerRelease {
     }
 
     public static ServerRelease parseVersion(String versionName) {
-        return parseVersion(versionName, new DefaultVersionParser());
-    }
 
-    public static ServerRelease parseVersion(String versionName, VersionParser parser) {
         if (versionName == null) {
             throw new IllegalArgumentException("Argument 'versionName' should not be null");
         }
-        double versionCode = parser.parse(versionName);
+        double versionCode = DefaultVersionParser.parse(versionName);
         return getByVersionCode(versionCode);
     }
 

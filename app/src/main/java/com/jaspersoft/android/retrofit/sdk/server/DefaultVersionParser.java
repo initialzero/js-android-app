@@ -30,14 +30,14 @@ import java.math.BigDecimal;
  * @author Tom Koptel
  * @since 2.0
  */
-public final class DefaultVersionParser implements VersionParser {
+enum DefaultVersionParser {
+    INSTANCE;
 
-    public static double getVersionCode(String version) {
-        return new DefaultVersionParser().parse(version);
+    public static double parse(String version) {
+        return INSTANCE.toDouble(version);
     }
 
-    @Override
-    public double parse(String version) {
+    private double toDouble(String version) {
         double versionCode = 0d;
         // update version code
         if (version != null) {

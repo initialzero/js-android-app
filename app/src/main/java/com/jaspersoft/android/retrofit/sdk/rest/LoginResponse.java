@@ -22,31 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.util;
+package com.jaspersoft.android.retrofit.sdk.rest;
+
+
+import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 
 /**
- * SDK constants
- *
  * @author Tom Koptel
  * @since 2.0
  */
-public class JasperSettings {
-    // Intent actions
-    public static final String ACTION_AUTHORIZE = "jaspersoft.intent.action.AUTHORIZE";
-    public static final String ACTION_TOKEN_EXPIRED = "jaspersoft.intent.action.TOKEN_EXPIRED";
-    public static final String ACTION_INVALID_PASSWORD = "jaspersoft.intent.action.INVALID_PASSWORD";
-    public static final String ACTION_REST_ERROR = "jaspersoft.intent.action.REST_ERROR";
+public class LoginResponse {
+    private final String mCookie;
+    private final ServerInfo mServerInfo;
 
-    // Auth constants
-    public static final String RESERVED_ACCOUNT_NAME = "com.jaspersoft.account.none";
-    public static final String JASPER_ACCOUNT_TYPE = "com.jaspersoft";
-    public static final String JASPER_AUTH_TOKEN_TYPE = "FULL ACCESS";
-
-    // REST constants
-    public static final String DEFAULT_REST_VERSION = "/rest_v2";
-
-    private JasperSettings() {
-        throw new RuntimeException();
+    public LoginResponse(String mCookie, ServerInfo mServerInfo) {
+        this.mCookie = mCookie;
+        this.mServerInfo = mServerInfo;
     }
 
+    public String getCookie() {
+        return mCookie;
+    }
+
+    public ServerInfo getServerInfo() {
+        return mServerInfo;
+    }
 }

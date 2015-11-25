@@ -52,9 +52,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class JasperServerCacheImplTest {
+public class AccountServerCacheTest {
     AccountManager accountManager;
-    JasperServerCacheImpl cacheUnderTest;
+    AccountServerCache cacheUnderTest;
     Profile fakeProfile;
     JasperServer fakeServer;
 
@@ -73,7 +73,7 @@ public class JasperServerCacheImplTest {
                 .setEdition("CE")
                 .create();
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new JasperServerCacheImpl(accountManager, FakeAccountDataMapper.get(), mProfileCache);
+        cacheUnderTest = new AccountServerCache(accountManager, FakeAccountDataMapper.get(), mProfileCache);
     }
 
     @Test

@@ -30,7 +30,7 @@ import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 /**
  * Abstraction around caching of {@link BaseCredentials} instance.
- * Following interface implemented by {@link CredentialsCacheImpl}
+ * Following interface implemented by {@link AccountCredentialsCache}
  *
  * @author Tom Koptel
  * @since 2.3

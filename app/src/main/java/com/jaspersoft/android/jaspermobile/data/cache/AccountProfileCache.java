@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -46,33 +47,23 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class ProfileAccountCache implements ProfileCache {
+public final class AccountProfileCache implements ProfileCache {
     private static final String ALIAS_KEY = "ALIAS_KEY";
 
     private final AccountManager mAccountManager;
     private final AccountDataMapper mAccountDataMapper;
 
     @Inject
-    public ProfileAccountCache(AccountManager accountManager, AccountDataMapper accountDataMapper) {
+    public AccountProfileCache(AccountManager accountManager, AccountDataMapper accountDataMapper) {
         mAccountManager = accountManager;
         mAccountDataMapper = accountDataMapper;
-    }
-
-    /**
-     * This operation does not supported by {@link AccountManager}, as soon as there is no way to mark account as active
-     *
-     * @throws UnsupportedOperationException
-     */
-    @Override
-    public Profile get() {
-        throw new UnsupportedOperationException("There is no way we can retrieve active account from AccountManager");
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean put(Profile profile) {
+    public boolean put(@NonNull Profile profile) {
         Account accountProfile = mAccountDataMapper.transform(profile);
         Bundle userData = new Bundle();
         userData.putString(ALIAS_KEY, profile.getKey());
@@ -83,21 +74,10 @@ public final class ProfileAccountCache implements ProfileCache {
      * {@inheritDoc}
      */
     @Override
-    public boolean hasProfile(Profile profile) {
+    public boolean hasProfile(@NonNull  Profile profile) {
         Account accountProfile = mAccountDataMapper.transform(profile);
         Account[] accounts = mAccountManager.getAccountsByType(accountProfile.type);
         Set<Account> accountsSet = new HashSet<>(Arrays.asList(accounts));
         return accountsSet.contains(accountProfile);
-    }
-
-    /**
-     * We do not support any delete operation for profiles stored in {@link AccountManager}.
-     * Corresponding functional already shipped with Android OS.
-     *
-     * @throws UnsupportedOperationException
-     */
-    @Override
-    public void evict() {
-        throw new UnsupportedOperationException("Application does not support account removal!");
     }
 }

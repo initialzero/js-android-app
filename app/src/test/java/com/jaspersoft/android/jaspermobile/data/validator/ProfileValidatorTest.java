@@ -55,17 +55,17 @@ public class ProfileValidatorTest {
     private ProfileValidatorImpl validator;
 
     @Mock
-    ProfileCache profileCache;
+    ProfileCache mProfileCache;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        validator = new ProfileValidatorImpl(profileCache);
+        validator = new ProfileValidatorImpl(mProfileCache);
     }
 
     @Test
     public void shouldRejectProfileIfAccountAlreadyRegistered() throws Exception {
-        when(profileCache.hasProfile(any(Profile.class))).thenReturn(true);
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
 
         Profile fakeProfile = Profile.create("name");
         try {
@@ -87,7 +87,7 @@ public class ProfileValidatorTest {
 
     @Test
     public void shouldAcceptProfileIfUnique() throws Exception {
-        when(profileCache.hasProfile(any(Profile.class))).thenReturn(false);
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
 
         try {
             Profile fakeProfile = Profile.create("name");

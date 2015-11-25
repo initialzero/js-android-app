@@ -24,21 +24,21 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 
 /**
- * This implementation delegates work to corresponding implementation of {@link JasperServerCache}
+ * This implementation delegates work to corresponding implementation of {@link ServerCache}
  *
  * @author Tom Koptel
  * @since 2.3
  */
 public final class DiskServerDataSource implements ServerDataSource {
-    private final JasperServerCache mServerCache;
+    private final ServerCache mServerCache;
 
-    public DiskServerDataSource(JasperServerCache serverCache) {
+    public DiskServerDataSource(ServerCache serverCache) {
         mServerCache = serverCache;
     }
 

@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import android.app.Application;
 import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 
@@ -168,7 +169,13 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
      * TODO: remove as soon as JsRestClient will be dropped from App
      */
     private void initLegacyJsRestClient() {
-        ((JasperMobileApplication) mContext.getApplicationContext()).initLegacyJsRestClient();
+        Application application = (Application) mContext.getApplicationContext();
+        if (application instanceof  JasperMobileApplication) {
+            JasperMobileApplication app = ((JasperMobileApplication) mContext.getApplicationContext());
+            if (app != null) {
+                app.initLegacyJsRestClient();
+            }
+        }
     }
 
     private class ProfileSaveListener extends Subscriber<Profile> {

@@ -62,7 +62,8 @@ public final class GetTokenUseCase {
     private final CredentialsRepository mCredentialsRepository;
 
     @Inject
-    public GetTokenUseCase(TokenRepository tokenRepository,
+    public GetTokenUseCase(
+            TokenRepository tokenRepository,
                            JasperServerRepository serverRepository,
                            CredentialsRepository credentialsRepository) {
         mTokenRepository = tokenRepository;

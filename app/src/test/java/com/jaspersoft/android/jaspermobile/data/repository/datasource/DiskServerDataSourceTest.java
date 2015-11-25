@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
 public class DiskServerDataSourceTest {
 
     @Mock
-    JasperServerCache mServerCache;
+    ServerCache mServerCache;
     @Mock
     JasperServer mJasperServer;
 

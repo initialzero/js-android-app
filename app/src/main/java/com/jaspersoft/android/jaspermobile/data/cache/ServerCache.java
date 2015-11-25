@@ -29,12 +29,12 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 /**
  * Abstraction around server cache.
- * Following interface implemented by {@link JasperServerCacheImpl}
+ * Following interface implemented by {@link AccountServerCache}
  *
  * @author Tom Koptel
  * @since 2.3
  */
-public interface JasperServerCache {
+public interface ServerCache {
     /**
      * Saves server in cache by associating it with {@link Profile}
      *

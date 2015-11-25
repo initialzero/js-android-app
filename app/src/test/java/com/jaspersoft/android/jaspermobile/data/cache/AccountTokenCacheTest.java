@@ -24,9 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 
+import com.jaspersoft.android.jaspermobile.data.FakeAccount;
+import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import org.junit.Before;
@@ -44,52 +46,47 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class PreferencesProfileCacheTest {
+public class AccountTokenCacheTest {
 
-    private PreferencesProfileCache cacheUnderTest;
-    private final Profile fakeProfile = Profile.create("name");
-    private SharedPreferences store;
+    private AccountTokenCache cacheUnderTest;
+    private Profile fakeProfile = Profile.create("alias");
 
     @Before
     public void setUp() throws Exception {
-        cacheUnderTest = new PreferencesProfileCache(RuntimeEnvironment.application);
-        store = RuntimeEnvironment.application.getSharedPreferences("JasperAccountManager", Activity.MODE_PRIVATE);
-
-        assertThat("Precondition failed. Store should be empty",
-                store.getAll().isEmpty()
-        );
+        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
+        cacheUnderTest = new AccountTokenCache(accountManager, FakeAccountDataMapper.get());
     }
 
     @Test
     public void testPut() throws Exception {
-        cacheUnderTest.put(fakeProfile);
-        assertThat("Failed to put " + fakeProfile + " in cache",
-                !store.getAll().isEmpty()
+        Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
+
+        cacheUnderTest.put(fakeProfile, "token");
+
+        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
+        String tokenFromAccountManager = accountManager.peekAuthToken(fakeAccount, "FULL ACCESS");
+        assertThat("Failed to put token inside account manager",
+                "token".equals(tokenFromAccountManager)
         );
     }
 
     @Test
     public void testGet() throws Exception {
-        store.edit().putString("ACCOUNT_NAME_KEY", "name").apply();
-        assertThat("Failed to retrieve " + fakeProfile + " back",
-                cacheUnderTest.get().equals(fakeProfile)
+        FakeAccount.injectAccount(fakeProfile)
+                .injectToken("token")
+                .done();
+        assertThat("Failed to retrieve token from AccountManager",
+                "token".equals(cacheUnderTest.get(fakeProfile))
         );
     }
 
     @Test
-    public void testEvict() throws Exception {
-        store.edit().putString("ACCOUNT_NAME_KEY", "name").apply();
-        cacheUnderTest.evict();
-        assertThat("Failed to evict profile",
-                store.getAll().isEmpty()
-        );
-    }
-
-    @Test
-    public void testHasProfile() throws Exception {
-        store.edit().putString("ACCOUNT_NAME_KEY", "name").apply();
-        assertThat("Should contain profile, as soon as preferences has key",
-                cacheUnderTest.hasProfile(fakeProfile)
+    public void testIsCached() throws Exception {
+        FakeAccount.injectAccount(fakeProfile)
+                .injectToken("token")
+                .done();
+        assertThat("Precondition failed token should be retained in AccountManager",
+                cacheUnderTest.hasCache(fakeProfile)
         );
     }
 }

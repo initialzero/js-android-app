@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -42,20 +44,21 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class PreferencesProfileCache implements ProfileCache {
+public final class PreferencesActiveProfileCache implements ActiveProfileCache {
     private static final String PREF_NAME = "JasperAccountManager";
     private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";
 
     private final SharedPreferences mPreference;
 
     @Inject
-    public PreferencesProfileCache(Context context) {
+    public PreferencesActiveProfileCache(Context context) {
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Nullable
     @Override
     public Profile get() {
         String key = mPreference.getString(ACCOUNT_NAME_KEY, null);
@@ -69,24 +72,12 @@ public final class PreferencesProfileCache implements ProfileCache {
      * {@inheritDoc}
      */
     @Override
-    public boolean put(Profile profile) {
+    public void put(@NonNull Profile profile) {
         mPreference.edit().putString(ACCOUNT_NAME_KEY, profile.getKey()).apply();
-        return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public boolean hasProfile(Profile profile) {
+    public boolean hasProfile() {
         return !TextUtils.isEmpty(mPreference.getString(ACCOUNT_NAME_KEY, null));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void evict() {
-        mPreference.edit().remove(ACCOUNT_NAME_KEY).apply();
     }
 }

@@ -56,11 +56,11 @@ import static org.powermock.api.mockito.PowerMockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class CredentialsCacheImplTest {
+public class AccountCredentialsCacheTest {
     @Mock
     PasswordManager mPasswordManager;
 
-    CredentialsCacheImpl cacheUnderTest;
+    AccountCredentialsCache cacheUnderTest;
     Profile fakeProfile;
     BaseCredentials fakeCredentials;
 
@@ -71,7 +71,7 @@ public class CredentialsCacheImplTest {
         when(mPasswordManager.decrypt(anyString())).thenReturn("1234");
 
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new CredentialsCacheImpl(accountManager, mPasswordManager, FakeAccountDataMapper.get());
+        cacheUnderTest = new AccountCredentialsCache(accountManager, mPasswordManager, FakeAccountDataMapper.get());
         fakeProfile = Profile.create("name");
         fakeCredentials = BaseCredentials.builder()
                 .setPassword("1234")

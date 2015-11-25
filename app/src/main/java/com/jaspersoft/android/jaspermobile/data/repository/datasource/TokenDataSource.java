@@ -71,7 +71,7 @@ public interface TokenDataSource {
          * @return implementation of data source
          */
         public TokenDataSource create(Profile profile, JasperServer server, BaseCredentials credentials) {
-            boolean hasToken = mTokenCache.isCached(profile);
+            boolean hasToken = mTokenCache.hasCache(profile);
             if (hasToken) {
                 return new DiskTokenDataSource(profile, mTokenCache);
             }

@@ -41,14 +41,14 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class TokenCacheImpl implements TokenCache {
+public final class AccountTokenCache implements TokenCache {
     private static final String JASPER_AUTH_TOKEN_TYPE = "FULL ACCESS";
 
     private final AccountManager mAccountManager;
     private final AccountDataMapper mAccountDataMapper;
 
     @Inject
-    public TokenCacheImpl(AccountManager accountManager, AccountDataMapper accountDataMapper) {
+    public AccountTokenCache(AccountManager accountManager, AccountDataMapper accountDataMapper) {
         mAccountManager = accountManager;
         mAccountDataMapper = accountDataMapper;
     }
@@ -75,7 +75,7 @@ public final class TokenCacheImpl implements TokenCache {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCached(Profile profile) {
+    public boolean hasCache(Profile profile) {
         return !TextUtils.isEmpty(get(profile));
     }
 }

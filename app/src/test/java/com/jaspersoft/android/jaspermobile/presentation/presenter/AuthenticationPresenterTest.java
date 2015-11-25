@@ -48,8 +48,12 @@ import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import rx.Subscriber;
 
@@ -63,6 +67,8 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @author Tom Koptel
  * @since 2.3
  */
+@RunWith(RobolectricTestRunner.class)
+@Config(manifest = Config.NONE)
 public class AuthenticationPresenterTest {
 
     // Presentation mock components
@@ -97,6 +103,7 @@ public class AuthenticationPresenterTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         presenterUnderTest = new AuthenticationPresenter(
+                RuntimeEnvironment.application,
                 mSaveProfileUseCase,
                 mProfileDataMapper,
                 mCredentialsDataMapper,

@@ -24,8 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.PreferencesProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileAccountCache;
+import com.jaspersoft.android.jaspermobile.data.cache.AccountProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
@@ -33,7 +34,6 @@ import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToS
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -46,17 +46,17 @@ import javax.inject.Singleton;
 public final class ProfileDataRepository implements ProfileRepository {
 
     /**
-     *  Injected by {@link ProfileModule#providesProfileAccountCache(ProfileAccountCache)}}
+     *  Injected by {@link ProfileModule#providesProfileAccountCache(AccountProfileCache)}}
      */
     private final ProfileCache mProfileCache;
     /**
-     *  Injected by {@link ProfileModule#providesPreferencesProfileCache(PreferencesProfileCache)}}
+     *  Injected by {@link ProfileModule#providesPreferencesProfileCache(PreferencesActiveProfileCache)}}
      */
-    private final ProfileCache mProfileActiveCache;
+    private final ActiveProfileCache mProfileActiveCache;
 
     @Inject
-    public ProfileDataRepository(@Named("profileAccountCache") ProfileCache accountProfileCache,
-                                 @Named("profilePreferencesCache") ProfileCache preferencesProfileCache) {
+    public ProfileDataRepository(ProfileCache accountProfileCache,
+                                 ActiveProfileCache preferencesProfileCache) {
         mProfileCache = accountProfileCache;
         mProfileActiveCache = preferencesProfileCache;
     }

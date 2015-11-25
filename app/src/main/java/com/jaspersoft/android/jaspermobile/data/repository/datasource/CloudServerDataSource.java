@@ -24,8 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCacheImpl;
+import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.AccountServerCache;
 import com.jaspersoft.android.jaspermobile.data.network.ServerApiFactory;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -47,11 +47,11 @@ public final class CloudServerDataSource implements ServerDataSource {
      */
     private final ServerApi.Factory mServerApiFactory;
     /**
-     * Injected by {@link ProfileModule#providesJasperSeverCache(JasperServerCacheImpl)}}
+     * Injected by {@link ProfileModule#providesJasperSeverCache(AccountServerCache)}}
      */
-    private final JasperServerCache mServerCache;
+    private final ServerCache mServerCache;
 
-    public CloudServerDataSource(ServerApi.Factory serverApiFactory, JasperServerCache serverCache) {
+    public CloudServerDataSource(ServerApi.Factory serverApiFactory, ServerCache serverCache) {
         mServerApiFactory = serverApiFactory;
         mServerCache = serverCache;
     }

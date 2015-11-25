@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
@@ -69,10 +69,10 @@ public interface ServerDataSource {
     @Singleton
     class Factory {
         private final ServerApi.Factory mServerApiFactory;
-        private final JasperServerCache mServerCache;
+        private final ServerCache mServerCache;
 
         @Inject
-        public Factory(ServerApi.Factory serverApiFactory, JasperServerCache serverCache) {
+        public Factory(ServerApi.Factory serverApiFactory, ServerCache serverCache) {
             mServerApiFactory = serverApiFactory;
             mServerCache = serverCache;
         }

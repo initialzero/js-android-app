@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
+import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
@@ -48,7 +49,7 @@ public class ProfileDataRepositoryTest {
     @Mock
     ProfileCache mAccountCache;
     @Mock
-    ProfileCache mPreferencesCache;
+    ActiveProfileCache mPreferencesCache;
 
     ProfileDataRepository repositoryUnderTest;
     Profile fakeProfile;

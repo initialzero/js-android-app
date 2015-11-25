@@ -24,38 +24,38 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 /**
- * Abstraction around token cache
+ * Abstraction around active profile cache
  * <br/>
- * Implemented by {@link AccountTokenCache}
+ * Following interface implemented by {@link AccountProfileCache}
  *
  * @author Tom Koptel
  * @since 2.3
  */
-public interface TokenCache {
+public interface ActiveProfileCache {
     /**
-     * Retrieves toke from cache on the basis of profile
+     * Retrieves active profile from cache
      *
-     * @param profile associated with token
-     * @return latest cached token
+     * @return profile if exists in cache otherwise null
      */
-    String get(Profile profile);
+    @Nullable
+    Profile get();
 
     /**
-     * Saves token on disk
+     * Saves target profile in cache
      *
-     * @param profile associated with token
-     * @param token we are going to save
+     * @param profile target profile
      */
-    void put(Profile profile, String token);
+    void put(@NonNull Profile profile);
 
     /**
-     * Checks weather token exists in cache
-     *
-     * @param profile associated with token
-     * @return flags weather token cached or not
+     * Checks weather profile exists in cache
+     * @return true if exists
      */
-    boolean hasCache(Profile profile);
+    boolean hasProfile();
 }

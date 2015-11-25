@@ -30,9 +30,12 @@ import android.accounts.AccountManager;
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
@@ -46,47 +49,47 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class TokenCacheImplTest {
+public class AccountProfileCacheTest {
+    AccountProfileCache cacheUnderTest;
+    Profile fakeProfile;
 
-    private TokenCacheImpl cacheUnderTest;
-    private Profile fakeProfile = Profile.create("alias");
+    @Rule
+    public ExpectedException mException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new TokenCacheImpl(accountManager, FakeAccountDataMapper.get());
+        cacheUnderTest = new AccountProfileCache(accountManager, FakeAccountDataMapper.get());
+        fakeProfile = Profile.create("name");
     }
 
     @Test
     public void testPut() throws Exception {
-        Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
-
-        cacheUnderTest.put(fakeProfile, "token");
-
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        String tokenFromAccountManager = accountManager.peekAuthToken(fakeAccount, "FULL ACCESS");
-        assertThat("Failed to put token inside account manager",
-                "token".equals(tokenFromAccountManager)
+        assertThat("Failed precondition. There should be no accounts",
+                accountManager.getAccountsByType(FakeAccount.TYPE).length == 0
+        );
+        assertThat("Failed to put profile in cache",
+                cacheUnderTest.put(fakeProfile)
+        );
+        Account account = new Account("name", JasperSettings.JASPER_ACCOUNT_TYPE);
+        String alias = accountManager.getUserData(account, "ALIAS_KEY");
+        assertThat("Failed to put profile alias in cache",
+                alias != null
         );
     }
 
     @Test
-    public void testGet() throws Exception {
-        FakeAccount.injectAccount(fakeProfile)
-                .injectToken("token")
-                .done();
-        assertThat("Failed to retrieve token from AccountManager",
-                "token".equals(cacheUnderTest.get(fakeProfile))
+    public void testHasProfile() throws Exception {
+        AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
+        assertThat("Failed precondition. Account was not add",
+                accountManager.addAccountExplicitly(new Account("name", FakeAccount.TYPE), null, null)
         );
-    }
-
-    @Test
-    public void testIsCached() throws Exception {
-        FakeAccount.injectAccount(fakeProfile)
-                .injectToken("token")
-                .done();
-        assertThat("Precondition failed token should be retained in AccountManager",
-                cacheUnderTest.isCached(fakeProfile)
+        assertThat("Failed precondition. Account was add but missing",
+                accountManager.getAccountsByType(FakeAccount.TYPE).length > 0
+        );
+        assertThat("Cache should contain profile with key: 'name'",
+                cacheUnderTest.hasProfile(fakeProfile)
         );
     }
 }

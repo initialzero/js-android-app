@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileAccountCache;
+import com.jaspersoft.android.jaspermobile.data.cache.AccountProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
@@ -35,7 +35,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * Performs validation on profile.
@@ -47,12 +46,12 @@ import javax.inject.Named;
 public final class ProfileValidatorImpl implements ProfileValidator {
 
     /**
-     *  Injected by {@link ProfileModule#providesProfileAccountCache(ProfileAccountCache)}}
+     *  Injected by {@link ProfileModule#providesProfileAccountCache(AccountProfileCache)}}
      */
     private final ProfileCache mProfileCache;
 
     @Inject
-    public ProfileValidatorImpl(@Named("profileAccountCache") ProfileCache profileCache) {
+    public ProfileValidatorImpl(ProfileCache profileCache) {
         mProfileCache = profileCache;
     }
 

@@ -28,15 +28,16 @@ import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.data.cache.AccountProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.AccountServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
-import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCacheImpl;
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCacheImpl;
-import com.jaspersoft.android.jaspermobile.data.cache.PreferencesProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileAccountCache;
+import com.jaspersoft.android.jaspermobile.data.cache.AccountCredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.TokenCache;
-import com.jaspersoft.android.jaspermobile.data.cache.TokenCacheImpl;
+import com.jaspersoft.android.jaspermobile.data.cache.AccountTokenCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
@@ -69,27 +70,25 @@ public final class ProfileModule {
 
     @Singleton
     @Provides
-    @Named("profilePreferencesCache")
-    ProfileCache providesPreferencesProfileCache(PreferencesProfileCache profileCache) {
+    ActiveProfileCache providesPreferencesProfileCache(PreferencesActiveProfileCache profileCache) {
         return profileCache;
     }
 
     @Singleton
     @Provides
-    @Named("profileAccountCache")
-    ProfileCache providesProfileAccountCache(ProfileAccountCache profileCache) {
+    ProfileCache providesProfileAccountCache(AccountProfileCache profileCache) {
         return profileCache;
     }
 
     @Singleton
     @Provides
-    JasperServerCache providesJasperSeverCache(JasperServerCacheImpl cache) {
+    ServerCache providesJasperSeverCache(AccountServerCache cache) {
         return cache;
     }
 
     @Singleton
     @Provides
-    TokenCache providesTokenCache(TokenCacheImpl cache) {
+    TokenCache providesTokenCache(AccountTokenCache cache) {
         return cache;
     }
 
@@ -98,7 +97,7 @@ public final class ProfileModule {
     CredentialsCache provideCredentialsCache(Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
         String secret = context.getString(R.string.password_salt_key);
         PasswordManager passwordManager = PasswordManager.init(context, secret);
-        return new CredentialsCacheImpl(accountManager, passwordManager, accountDataMapper);
+        return new AccountCredentialsCache(accountManager, passwordManager, accountDataMapper);
     }
 
     @Singleton

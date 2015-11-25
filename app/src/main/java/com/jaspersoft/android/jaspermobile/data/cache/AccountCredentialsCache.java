@@ -42,7 +42,7 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class CredentialsCacheImpl implements CredentialsCache {
+public final class AccountCredentialsCache implements CredentialsCache {
     public static final String ORGANIZATION_KEY = "ORGANIZATION_KEY";
     public static final String USERNAME_KEY = "USERNAME_KEY";
 
@@ -51,9 +51,9 @@ public final class CredentialsCacheImpl implements CredentialsCache {
     private final AccountDataMapper mAccountDataMapper;
 
     @Inject
-    public CredentialsCacheImpl(AccountManager accountManager,
-                                PasswordManager passwordManager,
-                                AccountDataMapper accountDataMapper) {
+    public AccountCredentialsCache(AccountManager accountManager,
+                                   PasswordManager passwordManager,
+                                   AccountDataMapper accountDataMapper) {
         mAccountManager = accountManager;
         mPasswordManger = passwordManager;
         mAccountDataMapper = accountDataMapper;

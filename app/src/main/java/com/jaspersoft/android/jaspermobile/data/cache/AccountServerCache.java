@@ -33,7 +33,6 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -43,7 +42,7 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class JasperServerCacheImpl implements JasperServerCache {
+public final class AccountServerCache implements ServerCache {
     public static final String SERVER_URL_KEY = "SERVER_URL_KEY";
     public static final String EDITION_KEY = "EDITION_KEY";
     public static final String VERSION_NAME_KEY = "VERSION_NAME_KEY";
@@ -53,9 +52,9 @@ public final class JasperServerCacheImpl implements JasperServerCache {
     private final ProfileCache mProfileAccountCache;
 
     @Inject
-    public JasperServerCacheImpl(AccountManager accountManager,
-                                 AccountDataMapper accountDataMapper,
-                                 @Named("profileAccountCache") ProfileCache profileAccountCache) {
+    public AccountServerCache(AccountManager accountManager,
+                              AccountDataMapper accountDataMapper,
+                              ProfileCache profileAccountCache) {
         mAccountManager = accountManager;
         mAccountDataMapper = accountDataMapper;
         mProfileAccountCache = profileAccountCache;

@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository.datasource;
 
-import com.jaspersoft.android.jaspermobile.data.cache.JasperServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
@@ -53,7 +53,7 @@ public class CloudServerDataSourceTest {
     JasperServer mJasperServer;
 
     @Mock
-    JasperServerCache mServerCache;
+    ServerCache mServerCache;
 
     private CloudServerDataSource cloudServerDataSource;
     private final Profile fakeProfile = Profile.create("alias");

@@ -24,34 +24,58 @@
 
 package com.jaspersoft.android.jaspermobile.network;
 
+import com.jaspersoft.android.sdk.network.AuthenticationRestApi;
+import com.jaspersoft.android.sdk.network.ServerRestApi;
 import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
 import com.jaspersoft.android.sdk.service.server.ServerInfoService;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public final class ServiceRestFactory {
-    private final String serverUrl;
-    private final int mConnectionReadTimeOut;
+public final class RestClient {
+    private final String mServerUrl;
+    private final int mReadTimeOut;
     private final int mConnectionTimeOut;
 
-    ServiceRestFactory(String serverUrl, int connectionReadTimeOut, int connectionTimeOut) {
-        this.serverUrl = serverUrl;
-        mConnectionReadTimeOut = connectionReadTimeOut;
+    private JrsAuthenticator mAuthenticator;
+    private ServerInfoService mInfoService;
+
+    RestClient(String serverUrl, int readTimeOut, int connectionTimeOut) {
+        mServerUrl = serverUrl;
+        mReadTimeOut = readTimeOut;
         mConnectionTimeOut = connectionTimeOut;
     }
 
-    public JrsAuthenticator authenticator() {
-        return JrsAuthenticator.create(serverUrl);
+    public JrsAuthenticator authApi() {
+        if (mAuthenticator == null) {
+            AuthenticationRestApi restApi = new AuthenticationRestApi.Builder()
+                    .connectionTimeOut(mConnectionTimeOut, TimeUnit.MILLISECONDS)
+                    .readTimeout(mReadTimeOut, TimeUnit.MILLISECONDS)
+                    .baseUrl(mServerUrl)
+                    .build();
+
+            mAuthenticator = JrsAuthenticator.create(restApi);
+        }
+        return mAuthenticator;
+    }
+
+    public ServerInfoService infoApi() {
+        if (mInfoService == null) {
+            ServerRestApi restApi = new ServerRestApi.Builder()
+                    .connectionTimeOut(mConnectionTimeOut, TimeUnit.MILLISECONDS)
+                    .readTimeout(mReadTimeOut, TimeUnit.MILLISECONDS)
+                    .baseUrl(mServerUrl)
+                    .build();
+            mInfoService = ServerInfoService.create(restApi);
+        }
+        return mInfoService;
     }
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public ServerInfoService serverApi() {
-        return ServerInfoService.create(serverUrl);
     }
 
     public static class Builder {
@@ -66,16 +90,18 @@ public final class ServiceRestFactory {
             return this;
         }
 
-        public void connectionReadTimeOut(int connectionReadTimeOut) {
+        public Builder connectionReadTimeOut(int connectionReadTimeOut) {
             mConnectionReadTimeOut = connectionReadTimeOut;
+            return this;
         }
 
-        public void connectionTimeOut(int connectionTimeOut) {
+        public Builder connectionTimeOut(int connectionTimeOut) {
             mConnectionTimeOut = connectionTimeOut;
+            return this;
         }
 
-        public ServiceRestFactory create() {
-            return new ServiceRestFactory(mServerUrl, mConnectionReadTimeOut, mConnectionTimeOut);
+        public RestClient create() {
+            return new RestClient(mServerUrl, mConnectionReadTimeOut, mConnectionTimeOut);
         }
     }
 }

@@ -36,7 +36,9 @@ import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.network.ServiceRestFactory;
+import com.jaspersoft.android.jaspermobile.network.RestClient;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
@@ -116,16 +118,14 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
         try {
             AccountServerData serverData = AccountServerData.get(mContext, account);
 
-            ServiceRestFactory restFactory = ServiceRestFactory.builder()
-                    .serverUrl(serverData.getServerUrl())
-                    .create();
+            RestClient restClient = createRestClient(serverData);
             Credentials credentials = SpringCredentials.builder()
                     .password(password)
                     .username(serverData.getUsername())
                     .organization(serverData.getOrganization())
                     .build();
             LoginResponse loginResponse = LoginHelper.login(
-                    restFactory, credentials
+                    restClient, credentials
             );
 
             ServerInfo serverInfo = loginResponse.getServerInfo();
@@ -168,6 +168,15 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
 
             return createErrorBundle(status, message);
         }
+    }
+
+    private RestClient createRestClient(AccountServerData serverData) {
+        DefaultPrefHelper defaultPrefHelper = DefaultPrefHelper_.getInstance_(mContext);
+        return RestClient.builder()
+                .serverUrl(serverData.getServerUrl())
+                .connectionReadTimeOut(defaultPrefHelper.getReadTimeoutValue())
+                .connectionTimeOut(defaultPrefHelper.getConnectTimeoutValue())
+                .create();
     }
 
     @Override

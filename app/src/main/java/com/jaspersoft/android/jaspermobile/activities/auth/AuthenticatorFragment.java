@@ -45,7 +45,7 @@ import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.network.ServiceRestFactory;
+import com.jaspersoft.android.jaspermobile.network.RestClient;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.rest.LoginHelper;
@@ -429,7 +429,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
     @NonNull
     private Observable<LoginResponse> initLogin(String serverUrl, String username, String password, String organization) {
-        ServiceRestFactory restFactory = ServiceRestFactory.builder()
+        RestClient restClient = RestClient.builder()
                 .serverUrl(serverUrl)
                 .create();
         Credentials credentials = SpringCredentials.builder()
@@ -438,7 +438,7 @@ public class AuthenticatorFragment extends RoboFragment {
                 .organization(organization)
                 .build();
         return LoginHelper.loginAsObservable(
-                restFactory, credentials
+                restClient, credentials
         ).subscribeOn(Schedulers.io());
     }
 

@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.retrofit.sdk.rest;
 
-import com.jaspersoft.android.jaspermobile.network.ServiceRestFactory;
+import com.jaspersoft.android.jaspermobile.network.RestClient;
 import com.jaspersoft.android.sdk.service.auth.Credentials;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
@@ -37,7 +37,7 @@ import rx.functions.Func0;
  * @since 2.0
  */
 public class LoginHelper {
-    public static Observable<LoginResponse> loginAsObservable(final ServiceRestFactory restFactory, final Credentials credentials) {
+    public static Observable<LoginResponse> loginAsObservable(final RestClient restFactory, final Credentials credentials) {
         return Observable.defer(new Func0<Observable<LoginResponse>>() {
             @Override
             public Observable<LoginResponse> call() {
@@ -52,9 +52,9 @@ public class LoginHelper {
         });
     }
 
-    public static LoginResponse login(ServiceRestFactory restFactory, Credentials credentials) throws ServiceException {
-        String token = restFactory.authenticator().authenticate(credentials);
-        ServerInfo serverInfo = restFactory.serverApi().requestServerInfo();
+    public static LoginResponse login(RestClient restFactory, Credentials credentials) throws ServiceException {
+        String token = restFactory.authApi().authenticate(credentials);
+        ServerInfo serverInfo = restFactory.infoApi().requestServerInfo();
         return new LoginResponse(token, serverInfo);
     }
 }

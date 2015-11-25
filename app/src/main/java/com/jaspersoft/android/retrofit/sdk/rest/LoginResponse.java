@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.rest.response;
+package com.jaspersoft.android.retrofit.sdk.rest;
 
 
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;

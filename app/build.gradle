@@ -40,7 +40,7 @@ apply plugin: "com.android.application"
 apply plugin: "android-apt"
 apply plugin: "aar-link-sources"
 apply plugin: "io.fabric"
-apply from: "build_utils.gradle"
+//apply from: "build_utils.gradle"
 apply from: "resources.gradle"
 apply plugin: 'com.getkeepsafe.dexcount'
 

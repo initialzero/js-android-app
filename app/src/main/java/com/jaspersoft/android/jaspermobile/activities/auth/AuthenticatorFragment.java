@@ -30,6 +30,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,12 +45,15 @@ import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.network.ServiceRestFactory;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
-import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
+import com.jaspersoft.android.retrofit.sdk.rest.LoginHelper;
+import com.jaspersoft.android.retrofit.sdk.rest.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.sdk.service.auth.Credentials;
+import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 
@@ -190,14 +194,12 @@ public class AuthenticatorFragment extends RoboFragment {
             loginSubscription.unsubscribe();
         }
 
-        String endpoint = trimUrl(serverUrlEdit.getText().toString())
-                + JasperSettings.DEFAULT_REST_VERSION;
-        JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
-        Observable<LoginResponse> loginObservable = restClient.loginObservable(
-                organizationEdit.getText().toString().trim(),
-                usernameEdit.getText().toString(),
-                passwordEdit.getText().toString()
-        ).subscribeOn(Schedulers.io());
+        String serverUrl = trimUrl(serverUrlEdit.getText().toString());
+        String username = usernameEdit.getText().toString();
+        String password = passwordEdit.getText().toString();
+        String organization = organizationEdit.getText().toString().trim();
+
+        Observable<LoginResponse> loginObservable = initLogin(serverUrl, username, password, organization);
 
         loginDemoTask = bindFragment(this, loginObservable.cache());
         requestCustomLogin();
@@ -222,7 +224,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
     private void validateServerVersion(LoginResponse response) {
         double version = response.getServerInfo().getVersion();
-        if (ServerRelease.satisfiesMinVersion(String.valueOf(version))) {
+        if (!ServerRelease.satisfiesMinVersion(String.valueOf(version))) {
             throw new InvalidServerVersionException(version);
         }
     }
@@ -237,12 +239,12 @@ public class AuthenticatorFragment extends RoboFragment {
             demoSubscription.unsubscribe();
         }
 
-        JsRestClient2 restClient = JsRestClient2.forEndpoint(demoServerUrl + JasperSettings.DEFAULT_REST_VERSION);
-        Observable<LoginResponse> tryDemoObservable = restClient.loginObservable(
-                AccountServerData.Demo.ORGANIZATION,
+        Observable<LoginResponse> tryDemoObservable = initLogin(
+                AccountServerData.Demo.SERVER_URL,
                 AccountServerData.Demo.USERNAME,
-                AccountServerData.Demo.PASSWORD
-        ).subscribeOn(Schedulers.io());
+                AccountServerData.Demo.PASSWORD,
+                AccountServerData.Demo.ORGANIZATION
+        );
 
         tryDemoTask = bindFragment(this, tryDemoObservable.cache());
         requestDemoLogin();
@@ -423,6 +425,21 @@ public class AuthenticatorFragment extends RoboFragment {
                 inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
             }
         }
+    }
+
+    @NonNull
+    private Observable<LoginResponse> initLogin(String serverUrl, String username, String password, String organization) {
+        ServiceRestFactory restFactory = ServiceRestFactory.builder()
+                .serverUrl(serverUrl)
+                .create();
+        Credentials credentials = SpringCredentials.builder()
+                .password(password)
+                .username(username)
+                .organization(organization)
+                .build();
+        return LoginHelper.loginAsObservable(
+                restFactory, credentials
+        ).subscribeOn(Schedulers.io());
     }
 
     private static class InvalidServerVersionException extends RuntimeException {

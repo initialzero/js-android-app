@@ -36,13 +36,16 @@ import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.network.ServiceRestFactory;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
-import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
-import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
+import com.jaspersoft.android.retrofit.sdk.rest.LoginHelper;
+import com.jaspersoft.android.retrofit.sdk.rest.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.sdk.service.auth.Credentials;
+import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
@@ -112,10 +115,17 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
 
         try {
             AccountServerData serverData = AccountServerData.get(mContext, account);
-            JsRestClient2 jsRestClient2 = new JsRestClient2();
 
-            LoginResponse loginResponse = jsRestClient2.login(
-                    serverData.getOrganization(), serverData.getUsername(), password
+            ServiceRestFactory restFactory = ServiceRestFactory.builder()
+                    .serverUrl(serverData.getServerUrl())
+                    .create();
+            Credentials credentials = SpringCredentials.builder()
+                    .password(password)
+                    .username(serverData.getUsername())
+                    .organization(serverData.getOrganization())
+                    .build();
+            LoginResponse loginResponse = LoginHelper.login(
+                    restFactory, credentials
             );
 
             ServerInfo serverInfo = loginResponse.getServerInfo();

@@ -35,6 +35,8 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 import com.octo.android.robospice.exception.NetworkException;
 import com.octo.android.robospice.exception.NoNetworkException;
 import com.octo.android.robospice.exception.RequestCancelledException;
@@ -43,8 +45,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import java.net.UnknownHostException;
-
-import retrofit.RetrofitError;
 
 /**
  * @author Ivan Gadzhega
@@ -73,9 +73,14 @@ public class RequestExceptionHandler {
 
 
     @Nullable
-    public static String extractMessage(@NonNull Context context, @Nullable Exception exception) {
+    public static String extractMessage(@NonNull Context context, @Nullable Throwable exception) {
         if (exception == null) {
             throw new IllegalArgumentException("Exception should not be null");
+        }
+
+        if (exception instanceof ServiceException) {
+            ServiceException serviceException = ((ServiceException) exception);
+            return adaptServiceMessage(context, serviceException.code());
         }
 
         int statusCode = extractStatusCode(exception);
@@ -87,10 +92,37 @@ public class RequestExceptionHandler {
         }
     }
 
+    private static String adaptServiceMessage(Context context, int code) {
+        switch (code) {
+            case StatusCodes.NETWORK_ERROR:
+                return context.getString(R.string.no_network);
+            case StatusCodes.AUTHORIZATION_ERROR:
+                return context.getString(R.string.error_http_401);
+            case StatusCodes.PERMISSION_DENIED_ERROR:
+                return context.getString(R.string.error_http_403);
+            case StatusCodes.CLIENT_ERROR:
+                return context.getString(R.string.error_http_404);
+            case StatusCodes.INTERNAL_ERROR:
+                return context.getString(R.string.error_http_500);
+            case StatusCodes.EXPORT_PAGE_OUT_OF_RANGE:
+                return context.getString(R.string.rv_out_of_range);
+            case StatusCodes.REPORT_EXECUTION_CANCELLED:
+                return context.getString(R.string.error_report_cancelled);
+            case StatusCodes.REPORT_EXECUTION_FAILED:
+                return context.getString(R.string.error_report_failed);
+            case StatusCodes.EXPORT_EXECUTION_FAILED:
+                return context.getString(R.string.error_export_failed);
+            case StatusCodes.EXPORT_EXECUTION_CANCELLED:
+                return context.getString(R.string.error_export_cancelled);
+            default:
+                return context.getString(R.string.error_undefined);
+        }
+    }
+
     /**
      * Extracts HttpStatus code otherwise returns 0.
      */
-    public static int extractStatusCode(@NonNull Exception exception) {
+    public static int extractStatusCode(@NonNull Throwable exception) {
         if (exception instanceof NetworkException) {
             Throwable cause = exception.getCause();
             if (cause instanceof HttpStatusCodeException) {
@@ -102,8 +134,6 @@ public class RequestExceptionHandler {
             }else if (tokenCause instanceof UnknownHostException) {
                 return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
             }
-        } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
-            return ((RetrofitError) exception).getResponse().getStatus();
         } else if (exception instanceof JasperAccountManager.TokenException) {
             return ((JasperAccountManager.TokenException) exception).getErrorCode();
         }
@@ -118,7 +148,7 @@ public class RequestExceptionHandler {
      * Extracts Localized message otherwise returns null.
      */
     @Nullable
-    private static String extractMessage(@NonNull Context context, @NonNull Exception exception, int statusCode) {
+    private static String extractMessage(@NonNull Context context, @NonNull Throwable exception, int statusCode) {
         if (statusCode == 0) {
             if (exception instanceof NoNetworkException) {
                 return context.getString(R.string.no_network);

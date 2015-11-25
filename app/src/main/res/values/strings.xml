@@ -218,6 +218,11 @@
     <string name="error_http_502">502 - Bad Gateway.</string>
     <string name="error_http_503">503 - Service Unavailable.</string>
     <string name="error_http_504">504 - Gateway Timeout.</string>
+    <string name="error_report_cancelled" translatable="false">Report execution cancelled</string>
+    <string name="error_report_failed" translatable="false">Report execution failed</string>
+    <string name="error_export_failed" translatable="false">Report export failed</string>
+    <string name="error_export_cancelled" translatable="false">Report export cancelled</string>
+    <string name="error_undefined" translatable="false">Undefined error happened</string>
 
     <!-- Others -->
     <string name="loading_msg">Loading…</string>

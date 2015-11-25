@@ -36,7 +36,6 @@ import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
@@ -44,9 +43,10 @@ import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
-import retrofit.RetrofitError;
 import timber.log.Timber;
 
 /**
@@ -112,30 +112,26 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
 
         try {
             AccountServerData serverData = AccountServerData.get(mContext, account);
-            JsRestClient2 jsRestClient2 = JsRestClient2
-                    .configure()
-                    .setEndpoint(serverData.getServerUrl() + JasperSettings.DEFAULT_REST_VERSION)
-                    .setClient(new DefaultUrlConnectionClient(mContext))
-                    .build();
+            JsRestClient2 jsRestClient2 = new JsRestClient2();
 
             LoginResponse loginResponse = jsRestClient2.login(
                     serverData.getOrganization(), serverData.getUsername(), password
-            ).toBlocking().firstOrDefault(null);
+            );
 
             ServerInfo serverInfo = loginResponse.getServerInfo();
 
             boolean serverInfoEditionUpdated = !serverInfo.getEdition().equals(serverData.getEdition());
-            boolean serverInfoVersionUpdated = !serverInfo.getVersion().equals(serverData.getVersionName());
+            boolean serverInfoVersionUpdated = !String.valueOf(serverInfo.getVersion()).equals(serverData.getVersionName());
 
             Timber.d("Updating user data with server info: " + serverInfo);
-            accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverInfo.getEdition());
-            accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverInfo.getVersion());
+            accountManager.setUserData(account, AccountServerData.EDITION_KEY, String.valueOf(serverInfo.getEdition()));
+            accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, String.valueOf(serverInfo.getVersion()));
 
             if (serverInfoEditionUpdated || serverInfoVersionUpdated) {
                 return createErrorBundle(JasperAccountManager.TokenException.SERVER_UPDATED_ERROR, mContext.getString(R.string.r_error_server_not_found));
             }
 
-            if (!ServerRelease.satisfiesMinVersion(serverInfo.getVersion())) {
+            if (!ServerRelease.satisfiesMinVersion(String.valueOf(serverInfo.getVersion()))) {
                 return createErrorBundle(JasperAccountManager.TokenException.INCORRECT_SERVER_VERSION_ERROR, SERVER_DATA_WAS_UPDATED);
             }
 
@@ -148,16 +144,16 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
 
             return result;
-        } catch (RetrofitError retrofitError) {
-            Timber.d(retrofitError, "We can not log in");
+        } catch (ServiceException serviceException) {
+            Timber.d(serviceException, "We can not log in");
             int status;
             String message;
-            if (retrofitError.getKind() == RetrofitError.Kind.NETWORK) {
+            if (serviceException.code() == StatusCodes.CLIENT_ERROR) {
                 status = JasperAccountManager.TokenException.SERVER_NOT_FOUND;
                 message = mContext.getString(R.string.r_error_server_not_found);
             } else {
-                status = retrofitError.getResponse().getStatus();
-                message = retrofitError.getMessage();
+                status = serviceException.code();
+                message = serviceException.getMessage();
             }
 
             return createErrorBundle(status, message);

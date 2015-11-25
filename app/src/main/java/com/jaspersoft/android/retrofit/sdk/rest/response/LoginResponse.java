@@ -22,25 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.network.endpoint;
+package com.jaspersoft.android.retrofit.sdk.rest.response;
 
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 
-import retrofit.Endpoint;
+import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class DemoEndpoint implements Endpoint {
-    @Override
-    public String getUrl() {
-        return AccountServerData.Demo.SERVER_URL + JasperSettings.DEFAULT_REST_VERSION;
+public class LoginResponse {
+    private final String mCookie;
+    private final ServerInfo mServerInfo;
+
+    public LoginResponse(String mCookie, ServerInfo mServerInfo) {
+        this.mCookie = mCookie;
+        this.mServerInfo = mServerInfo;
     }
 
-    @Override
-    public String getName() {
-        return "Mobile demo endpoint";
+    public String getCookie() {
+        return mCookie;
+    }
+
+    public ServerInfo getServerInfo() {
+        return mServerInfo;
     }
 }

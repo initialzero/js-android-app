@@ -48,9 +48,10 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
+import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -58,7 +59,6 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
-import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +66,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import retrofit.RetrofitError;
 import roboguice.fragment.RoboFragment;
 import rx.Observable;
 import rx.Subscription;
@@ -84,8 +83,7 @@ import static rx.android.app.AppObservable.bindFragment;
  */
 @EFragment(R.layout.add_account_layout)
 public class AuthenticatorFragment extends RoboFragment {
-    @Inject
-    protected JsRestClient legacyRestClient;
+
     @Inject
     @Named("DEMO_ENDPOINT")
     protected String demoServerUrl;
@@ -120,16 +118,10 @@ public class AuthenticatorFragment extends RoboFragment {
             Timber.e(throwable, "Login failed");
 
             String exceptionMessage;
-            int statusCode = RequestExceptionHandler.extractStatusCode((Exception) throwable);
-            if (statusCode == HttpStatus.NOT_FOUND.value()) {
-                boolean isRequestWasForRootFolder = false;
-                if (throwable instanceof RetrofitError) {
-                    // This possible only for JRS lower that 5.5. Reason for that is missing root folder endpoint
-                    isRequestWasForRootFolder = ((RetrofitError) throwable).getUrl().contains("/resources");
-                }
-                exceptionMessage = getString(isRequestWasForRootFolder ? R.string.r_error_server_not_supported : R.string.r_error_server_not_found);
-            } else if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
-                exceptionMessage = getString(R.string.r_error_incorrect_credentials);
+            if (throwable instanceof InvalidServerVersionException) {
+                exceptionMessage = getString(R.string.r_error_server_not_supported);
+            } else if (throwable instanceof ServiceException) {
+                exceptionMessage = RequestExceptionHandler.extractMessage(getContext(), throwable);
             } else {
                 exceptionMessage = getString(R.string.failure_add_account, throwable.getMessage());
             }
@@ -201,7 +193,7 @@ public class AuthenticatorFragment extends RoboFragment {
         String endpoint = trimUrl(serverUrlEdit.getText().toString())
                 + JasperSettings.DEFAULT_REST_VERSION;
         JsRestClient2 restClient = JsRestClient2.forEndpoint(endpoint);
-        Observable<LoginResponse> loginObservable = restClient.login(
+        Observable<LoginResponse> loginObservable = restClient.loginObservable(
                 organizationEdit.getText().toString().trim(),
                 usernameEdit.getText().toString(),
                 passwordEdit.getText().toString()
@@ -221,10 +213,18 @@ public class AuthenticatorFragment extends RoboFragment {
                 .flatMap(new Func1<LoginResponse, Observable<AccountServerData>>() {
                     @Override
                     public Observable<AccountServerData> call(LoginResponse response) {
+                        validateServerVersion(response);
                         return createUserAccountData(response);
                     }
                 })
                 .subscribe(onSuccess, onError);
+    }
+
+    private void validateServerVersion(LoginResponse response) {
+        double version = response.getServerInfo().getVersion();
+        if (ServerRelease.satisfiesMinVersion(String.valueOf(version))) {
+            throw new InvalidServerVersionException(version);
+        }
     }
 
     @Click(R.id.tryDemo)
@@ -238,7 +238,7 @@ public class AuthenticatorFragment extends RoboFragment {
         }
 
         JsRestClient2 restClient = JsRestClient2.forEndpoint(demoServerUrl + JasperSettings.DEFAULT_REST_VERSION);
-        Observable<LoginResponse> tryDemoObservable = restClient.login(
+        Observable<LoginResponse> tryDemoObservable = restClient.loginObservable(
                 AccountServerData.Demo.ORGANIZATION,
                 AccountServerData.Demo.USERNAME,
                 AccountServerData.Demo.PASSWORD
@@ -282,8 +282,8 @@ public class AuthenticatorFragment extends RoboFragment {
                 .setOrganization(organizationEdit.getText().toString().trim())
                 .setUsername(usernameEdit.getText().toString())
                 .setPassword(passwordEdit.getText().toString())
-                .setEdition(serverInfo.getEdition())
-                .setVersionName(serverInfo.getVersion());
+                .setEdition(String.valueOf(serverInfo.getEdition()))
+                .setVersionName(String.valueOf(serverInfo.getVersion()));
 
         return Observable.just(serverData);
     }
@@ -298,8 +298,8 @@ public class AuthenticatorFragment extends RoboFragment {
                 .setOrganization(AccountServerData.Demo.ORGANIZATION)
                 .setUsername(AccountServerData.Demo.USERNAME)
                 .setPassword(AccountServerData.Demo.PASSWORD)
-                .setEdition(serverInfo.getEdition())
-                .setVersionName(serverInfo.getVersion());
+                .setEdition(String.valueOf(serverInfo.getEdition()))
+                .setVersionName(String.valueOf(serverInfo.getVersion()));
 
         return Observable.just(serverData);
     }
@@ -422,6 +422,12 @@ public class AuthenticatorFragment extends RoboFragment {
             if (token != null) {
                 inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
             }
+        }
+    }
+
+    private static class InvalidServerVersionException extends RuntimeException {
+        public InvalidServerVersionException(double code) {
+            super("Minimal server version condition not acquired. Passed version was: " + code);
         }
     }
 }

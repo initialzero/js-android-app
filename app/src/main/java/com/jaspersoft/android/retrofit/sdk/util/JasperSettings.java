@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,12 +22,31 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.server;
+package com.jaspersoft.android.retrofit.sdk.util;
 
 /**
+ * SDK constants
+ *
  * @author Tom Koptel
  * @since 2.0
  */
-public interface VersionParser {
-    double parse(String version);
+public class JasperSettings {
+    // Intent actions
+    public static final String ACTION_AUTHORIZE = "jaspersoft.intent.action.AUTHORIZE";
+    public static final String ACTION_TOKEN_EXPIRED = "jaspersoft.intent.action.TOKEN_EXPIRED";
+    public static final String ACTION_INVALID_PASSWORD = "jaspersoft.intent.action.INVALID_PASSWORD";
+    public static final String ACTION_REST_ERROR = "jaspersoft.intent.action.REST_ERROR";
+
+    // Auth constants
+    public static final String RESERVED_ACCOUNT_NAME = "com.jaspersoft.account.none";
+    public static final String JASPER_ACCOUNT_TYPE = "com.jaspersoft";
+    public static final String JASPER_AUTH_TOKEN_TYPE = "FULL ACCESS";
+
+    // REST constants
+    public static final String DEFAULT_REST_VERSION = "/rest_v2";
+
+    private JasperSettings() {
+        throw new RuntimeException();
+    }
+
 }

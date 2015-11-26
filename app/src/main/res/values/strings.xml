@@ -161,6 +161,10 @@
     <!-- Saved Files Activity -->
     <string name="sdr_ab_title">Saved Files</string>
     <string name="sdr_ab_list_msg">No saved files</string>
+    <string name="sdr_saving_multiply_msg" translatable="false">%s reports downloading</string>
+    <string name="sdr_starting_downloading_msg" translatable="false">Starting downloading…</string>
+    <string name="sdr_saving_msg" translatable="false">Downloading report…</string>
+    <string name="sdr_saving_error_msg" translatable="false">Failed to save report</string>
 
     <!-- Context Menu -->
     <string name="action_mode_title">Selected item</string>

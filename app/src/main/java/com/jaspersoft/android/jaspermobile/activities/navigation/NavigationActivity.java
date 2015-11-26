@@ -111,6 +111,13 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        currentSelection = intent.getIntExtra(NavigationActivity_.CURRENT_SELECTION_EXTRA, R.id.vg_library);
+        navigateToCurrentSelection();
+    }
+
+    @Override
     protected void onAccountsChanged() {
         navigationPanelLayout.notifyAccountChange();
     }

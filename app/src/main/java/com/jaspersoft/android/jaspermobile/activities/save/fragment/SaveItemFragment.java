@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.activities.save.fragment;
 
 import android.accounts.Account;
 import android.app.ActionBar;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.MenuItem;
@@ -74,13 +73,6 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
 
     private final static int FROM_PAGE_REQUEST_CODE = 1243;
     private final static int TO_PAGE_REQUEST_CODE = 2243;
-
-    public final static String RESOURCE_LOOKUP_ARG = "resource_lookup";
-    public final static String REPORT_FILE_ARG = "report_file";
-    public final static String OUTPUT_FORMAT_ARG = "output_format";
-    public final static String FROM_PAGE_ARG = "from_page";
-    public final static String TO_PAGE_ARG = "to_page";
-    public final static String SAVED_REPORT_ARG = "saved_report_name";
 
     @ViewById(R.id.output_format_spinner)
     Spinner formatSpinner;
@@ -141,17 +133,10 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                     // show validation message
                     reportNameInput.setError(getString(R.string.sr_error_report_exists));
                 } else {
-                    Intent savedReportIntent = new Intent(getActivity(), SaveReportService_.class)
-                                        .putExtra(RESOURCE_LOOKUP_ARG, resource)
-                                        .putExtra(REPORT_FILE_ARG, reportFile.toString())
-                                        .putExtra(OUTPUT_FORMAT_ARG, outputFormat)
-                                        .putExtra(FROM_PAGE_ARG, mFromPage)
-                                        .putExtra(TO_PAGE_ARG, mToPage)
-                                        .putExtra(SAVED_REPORT_ARG, reportNameInput.getText().toString());
-
-                                getActivity().startService(savedReportIntent);
-                        Toast.makeText(getActivity().getApplicationContext(), getString(R.string.sdr_starting_downloading_msg), Toast.LENGTH_SHORT).show();
-                        getActivity().finish();
+                    SaveReportService_.intent(getActivity()).saveReport(resource, outputFormat,
+                            reportFile, mFromPage, mToPage, reportNameInput.getText().toString()).start();
+                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.sdr_starting_downloading_msg), Toast.LENGTH_SHORT).show();
+                    getActivity().finish();
                 }
             }
         }

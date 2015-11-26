@@ -1,11 +1,11 @@
 package com.jaspersoft.android.jaspermobile.activities.save;
 
 import android.accounts.Account;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.inject.Inject;
@@ -23,19 +23,23 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EIntentService;
+import org.androidannotations.annotations.ServiceAction;
+import org.androidannotations.annotations.SystemService;
 import org.springframework.web.client.RestClientException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 import roboguice.service.RoboIntentService;
-import timber.log.Timber;
 
 /**
  * @author Andrew Tivodar
@@ -56,48 +60,60 @@ public class SaveReportService extends RoboIntentService {
     @Inject
     protected ReportParamsStorage paramsStorage;
 
-    private int reportToSaveCount;
+    @SystemService
+    NotificationManager mNotificationManager;
+
+    private Queue<Uri> mRecordUrisQe;
 
     public SaveReportService() {
         super(TAG);
-        reportToSaveCount = 0;
+        mRecordUrisQe = new LinkedList<>();
     }
 
     @Override
-    public void onStart(Intent saveReportIntent, int startId) {
-        super.onStart(saveReportIntent, startId);
+    public void onCreate() {
+        super.onCreate();
+        startForegroundNotification();
+    }
 
-        String savedReportName = saveReportIntent.getStringExtra(SaveItemFragment.SAVED_REPORT_ARG);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Uri savedItemRecord = addSavedItemRecord(intent.getExtras());
+        mRecordUrisQe.add(savedItemRecord);
 
-        reportToSaveCount++;
-        updateReportsSavingNotification(savedReportName);
+        notifyNewDownloading();
+
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     protected void onHandleIntent(Intent saveReportIntent) {
-        ResourceLookup resourceLookup = saveReportIntent.getParcelableExtra(SaveItemFragment.RESOURCE_LOOKUP_ARG);
-        SaveItemFragment.OutputFormat outputFormat = (SaveItemFragment.OutputFormat) saveReportIntent.getSerializableExtra(SaveItemFragment.OUTPUT_FORMAT_ARG);
-        File reportFile = new File(saveReportIntent.getStringExtra(SaveItemFragment.REPORT_FILE_ARG));
-        int fromPage = saveReportIntent.getIntExtra(SaveItemFragment.FROM_PAGE_ARG, 1);
-        int toPage = saveReportIntent.getIntExtra(SaveItemFragment.TO_PAGE_ARG, 1);
-        String savedReportName = saveReportIntent.getStringExtra(SaveItemFragment.SAVED_REPORT_ARG);
+    }
+
+    @ServiceAction
+    protected void saveReport(ResourceLookup resourceLookup, SaveItemFragment.OutputFormat outputFormat,
+                              File reportFile, int fromPage, int toPage, String savedReportName) {
+
+        notifyDownloadingStarted(savedReportName);
         List<ReportParameter> reportParameters = getReportParams(resourceLookup.getUri());
 
+        Uri itemUri = mRecordUrisQe.peek();
         try {
             ReportExecutionRequest runReportExecutionRequest = createReportExecutionRequest(resourceLookup, outputFormat, reportParameters, fromPage, toPage);
             ReportExecutionResponse runReportResponse = jsRestClient.runReportExecution(runReportExecutionRequest);
+
             ExportExecution execution = runReportResponse.getExports().get(0);
+            waitForExportDone(runReportResponse.getRequestId(), execution.getId());
 
             saveReport(reportFile, outputFormat, execution.getAttachments(), execution.getId(), runReportResponse.getRequestId());
+            updateSavedItemRecordToDownloaded(mRecordUrisQe.peek());
 
-            addSavedItemRecord(reportFile, outputFormat, resourceLookup, savedReportName);
             notifySaveResult(savedReportName, android.R.drawable.stat_sys_download_done, getString(R.string.sr_t_report_saved));
-        } catch (RestClientException ex) {
+        } catch (RestClientException|IllegalStateException ex) {
             notifySaveResult(savedReportName, android.R.drawable.ic_dialog_alert, getString(R.string.sdr_saving_error_msg));
-            removeIncorrectlySavedFiles(reportFile);
+            savedItemHelper.deleteSavedItem(reportFile, itemUri);
         } finally {
-            reportToSaveCount--;
-            updateReportsSavingNotification(savedReportName);
+            mRecordUrisQe.poll();
         }
     }
 
@@ -121,6 +137,7 @@ public class SaveReportService extends RoboIntentService {
         executionData.setReportUnitUri(resource.getUri());
         executionData.setInteractive(false);
         executionData.setOutputFormat(outputFormat.toString());
+        executionData.setAsync(true);
         executionData.setEscapedAttachmentsPrefix("./");
 
         boolean pagesNumbersIsValid = fromPage > 0 && toPage > 0 && toPage >= fromPage;
@@ -138,6 +155,20 @@ public class SaveReportService extends RoboIntentService {
         }
 
         return executionData;
+    }
+
+    private void waitForExportDone(String reportExecutionId, String exportId) {
+        ReportStatus reportStatus;
+        do {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            reportStatus = jsRestClient.runExportStatusCheck(reportExecutionId, exportId).getReportStatus();
+            if (reportStatus == ReportStatus.failed) throw new IllegalStateException("Report export failed!");
+        }
+        while (reportStatus != ReportStatus.ready);
     }
 
     private int createNotificationId() {
@@ -161,37 +192,65 @@ public class SaveReportService extends RoboIntentService {
         }
     }
 
-    private Uri addSavedItemRecord(File reportFile, SaveItemFragment.OutputFormat fileFormat, ResourceLookup resourceLookup, String savedReportName) {
+    private Uri addSavedItemRecord(Bundle reportBundle) {
         Account currentAccount = JasperAccountManager.get(this).getActiveAccount();
-        SavedItems savedItemsEntry = new SavedItems();
 
-        savedItemsEntry.setName(savedReportName);
-        savedItemsEntry.setFilePath(reportFile.getPath());
-        savedItemsEntry.setFileFormat(fileFormat.toString());
-        savedItemsEntry.setDescription(resourceLookup.getDescription());
-        savedItemsEntry.setWstype(resourceLookup.getResourceType().toString());
+        ResourceLookup resourceLookupExtra = reportBundle.getParcelable(SaveReportService_.RESOURCE_LOOKUP_EXTRA);
+        SaveItemFragment.OutputFormat outputFormatExtra = ((SaveItemFragment.OutputFormat) reportBundle.getSerializable(SaveReportService_.OUTPUT_FORMAT_EXTRA));
+        File reportFileExtra = ((File) reportBundle.getSerializable(SaveReportService_.REPORT_FILE_EXTRA));
+        String savedReportNameExtra = reportBundle.getString(SaveReportService_.SAVED_REPORT_NAME_EXTRA);
+
+        SavedItems savedItemsEntry = new SavedItems();
+        savedItemsEntry.setName(savedReportNameExtra);
+        savedItemsEntry.setFilePath(reportFileExtra.getPath());
+        savedItemsEntry.setFileFormat(outputFormatExtra.toString());
+        savedItemsEntry.setDescription(resourceLookupExtra.getDescription());
+        savedItemsEntry.setWstype(resourceLookupExtra.getResourceType().toString());
         savedItemsEntry.setCreationTime(new Date().getTime());
         savedItemsEntry.setAccountName(currentAccount.name);
+        savedItemsEntry.setDownloaded(false);
 
         return getContentResolver().insert(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
                 savedItemsEntry.getContentValues());
     }
 
-    private void updateReportsSavingNotification(String reportName) {
-        Notification.Builder mBuilder = new Notification.Builder(this)
+    private boolean updateSavedItemRecordToDownloaded(Uri recordUri) {
+        SavedItems savedItemsEntry = new SavedItems();
+        savedItemsEntry.setDownloaded(true);
+
+        return getContentResolver().update(recordUri, savedItemsEntry.getContentValues(), null, null) == 1;
+    }
+
+    private void startForegroundNotification() {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
-                .setContentText(getString(R.string.sdr_saving_msg));
+                .setContentTitle(getString(R.string.sdr_starting_downloading_msg));
+        startForeground(LOADING_NOTIFICATION_ID, mBuilder.build());
+    }
 
-        if (reportToSaveCount == 1) {
-            mBuilder.setContentTitle(reportName);
-            startForeground(LOADING_NOTIFICATION_ID, mBuilder.build());
-        } else {
-            mBuilder.setContentTitle(getString(R.string.sdr_saving_multiply_msg, reportToSaveCount));
-            NotificationManager mNotifyMgr =
-                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+    private void notifyDownloadingStarted(String reportName) {
+        if (mRecordUrisQe.size() != 1) return;
 
-            mNotifyMgr.notify(LOADING_NOTIFICATION_ID, mBuilder.build());
-        }
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setContentText(getString(R.string.sdr_saving_msg))
+                .setContentTitle(reportName)
+                .setContentIntent(getSavedItemIntent());
+
+        mNotificationManager.notify(LOADING_NOTIFICATION_ID, mBuilder.build());
+
+    }
+
+    private void notifyNewDownloading() {
+        if (mRecordUrisQe.size() < 2) return;
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setContentText(getString(R.string.sdr_saving_msg))
+                .setContentTitle(getString(R.string.sdr_saving_multiply_msg, mRecordUrisQe.size()))
+                .setContentIntent(getSavedItemIntent());
+
+        mNotificationManager.notify(LOADING_NOTIFICATION_ID, mBuilder.build());
     }
 
     private void notifySaveResult(String reportName, int iconId, String message) {
@@ -203,19 +262,6 @@ public class SaveReportService extends RoboIntentService {
                 .setContentIntent(getSavedItemIntent())
                 .setAutoCancel(true);
 
-        NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        mNotifyMgr.notify(createNotificationId(), mBuilder.build());
-    }
-
-    private void removeIncorrectlySavedFiles(File reportFile) {
-        if (reportFile == null) return;
-
-        File dir = reportFile.getParentFile();
-        try {
-            org.apache.commons.io.FileUtils.deleteDirectory(dir);
-        } catch (IOException e) {
-            Timber.w(TAG, "Failed to remove template file", e);
-        }
+        mNotificationManager.notify(createNotificationId(), mBuilder.build());
     }
 }

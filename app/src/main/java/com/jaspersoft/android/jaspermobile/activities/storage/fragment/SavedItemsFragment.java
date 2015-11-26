@@ -148,7 +148,12 @@ public class SavedItemsFragment extends RoboFragment
     @ItemClick(android.R.id.list)
     public void onItemClick(int position) {
         mAdapter.finishActionMode();
-        openReportFile(position);
+
+        if (isDownloaded(position)) {
+            openReportFile(position);
+        } else {
+            showFileNotReadyMessage();
+        }
     }
 
     @UiThread
@@ -179,6 +184,13 @@ public class SavedItemsFragment extends RoboFragment
         cursor.moveToPosition(position);
 
         return new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+    }
+
+    private boolean isDownloaded(int position) {
+        Cursor cursor = mAdapter.getCursor();
+        cursor.moveToPosition(position);
+
+        return cursor.getInt(cursor.getColumnIndex(SavedItemsTable.DOWNLOADED)) == 1;
     }
 
     private long getIndexByPosition(int position) {
@@ -218,6 +230,10 @@ public class SavedItemsFragment extends RoboFragment
                         getString(R.string.sdr_t_no_app_available, extension), Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void showFileNotReadyMessage(){
+        Toast.makeText(getActivity(), getString(R.string.sdr_loading_msg), Toast.LENGTH_SHORT).show();
     }
 
     //---------------------------------------------------------------------
@@ -300,7 +316,12 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onRename(File itemFile, Uri recordUri, String fileExtension) {
+    public void onRename(File itemFile, Uri recordUri, String fileExtension, boolean downloaded) {
+        if (!downloaded) {
+            showFileNotReadyMessage();
+            return;
+        }
+
         RenameDialogFragment.createBuilder(getFragmentManager())
                 .setSelectedFile(itemFile)
                 .setExtension(fileExtension)
@@ -310,7 +331,12 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     @Override
-    public void onDelete(File itemFile, Uri recordUri) {
+    public void onDelete(File itemFile, Uri recordUri, boolean downloaded) {
+        if (!downloaded) {
+            showFileNotReadyMessage();
+            return;
+        }
+
         DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
                 .setFile(itemFile)
                 .setRecordUri(recordUri)

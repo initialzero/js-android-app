@@ -33,7 +33,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
@@ -60,11 +59,15 @@ public class JasperAccountManager {
     private final Context mContext;
     private final AccountManager mDelegateManager;
     private final ActiveAccountCache mAccountCache;
+    private final PasswordManager mPasswordManager;
 
-    JasperAccountManager(Context context, AccountManager delegateManager, ActiveAccountCache accountCache) {
+    JasperAccountManager(Context context,
+                         AccountManager delegateManager,
+                         ActiveAccountCache accountCache, PasswordManager passwordManager) {
         mContext = context;
         mDelegateManager = delegateManager;
         mAccountCache = accountCache;
+        mPasswordManager = passwordManager;
     }
 
     public static JasperAccountManager get(Context context) {
@@ -74,8 +77,9 @@ public class JasperAccountManager {
 
         AccountManager accountManager = AccountManager.get(context);
         ActiveAccountCache accountCache = ActiveAccountCache.create(context);
+        PasswordManager passwordManager = PasswordManager.init(context);
 
-        return new JasperAccountManager(context, accountManager, accountCache);
+        return new JasperAccountManager(context, accountManager, accountCache, passwordManager);
     }
 
     public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
@@ -117,7 +121,7 @@ public class JasperAccountManager {
         return mAccountCache.get();
     }
 
-    public boolean isActiveAccountRegistered(){
+    public boolean isActiveAccountRegistered() {
         Account account = getActiveAccount();
         Account[] accounts = getAccounts();
         return Lists.newArrayList(accounts).contains(account);
@@ -145,9 +149,8 @@ public class JasperAccountManager {
         updateAccountPassword(getActiveAccount(), newPassword);
     }
 
-    public void updateAccountPassword(Account account , String newPassword) {
-        String encrypted = encryptPassword(newPassword);
-        mDelegateManager.setPassword(account, encrypted);
+    public void updateAccountPassword(Account account, String newPassword) {
+        mPasswordManager.put(account, newPassword);
     }
 
     public Account[] getAccounts() {
@@ -182,11 +185,10 @@ public class JasperAccountManager {
                     Account account = new Account(serverData.getAlias(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
 
-                    String encrypted = encryptPassword(serverData.getPassword());
-                    mDelegateManager.addAccountExplicitly(account,
-                            encrypted, null);
+                    mDelegateManager.addAccountExplicitly(account, null, null);
+                    mPasswordManager.put(account, serverData.getPassword());
                     setUserData(account, serverData);
-                    
+
                     if (!subscriber.isUnsubscribed()) {
                         subscriber.onNext(account);
                         subscriber.onCompleted();
@@ -270,10 +272,11 @@ public class JasperAccountManager {
 
     /**
      * Due to bug in AccountManager this is the only way to set account user data
-     * @param account for adding data
+     *
+     * @param account    for adding data
      * @param serverData data
      */
-    private void setUserData(Account account, AccountServerData serverData){
+    private void setUserData(Account account, AccountServerData serverData) {
         AccountManager accountManager = AccountManager.get(mContext);
         accountManager.setUserData(account, AccountServerData.ALIAS_KEY, serverData.getAlias());
         accountManager.setUserData(account, AccountServerData.SERVER_URL_KEY, serverData.getServerUrl());
@@ -281,12 +284,6 @@ public class JasperAccountManager {
         accountManager.setUserData(account, AccountServerData.USERNAME_KEY, serverData.getUsername());
         accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverData.getEdition());
         accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverData.getVersionName());
-    }
-
-    private String encryptPassword(String newPassword) {
-        String salt = mContext.getResources().getString(R.string.password_salt_key);
-        PasswordManager passwordManager = PasswordManager.init(mContext, salt);
-        return passwordManager.encrypt(newPassword);
     }
 
     public String getPassword(Account account) {

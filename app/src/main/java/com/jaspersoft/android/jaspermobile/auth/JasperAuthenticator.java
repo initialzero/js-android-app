@@ -61,10 +61,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     public JasperAuthenticator(Context context) {
         super(context);
         mContext = context;
-
-        String secret = mContext.getString(R.string.password_salt_key);
-        mPasswordManager = PasswordManager.init(mContext, secret);
-
+        mPasswordManager = PasswordManager.init(mContext);
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }
 
@@ -97,15 +94,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
-        String encrypted = accountManager.getPassword(account);
-        Timber.d(String.format("Encrypted Password for account[%s] : %s", account.name, encrypted));
-
-        String password = null;
-        if (!TextUtils.isEmpty(encrypted)) {
-            password = mPasswordManager.decrypt(encrypted);
-            Timber.d(String.format("Password for account[%s] : %s", account.name, password));
-        }
-
+        String password = mPasswordManager.get(account);
         if (TextUtils.isEmpty(password)) {
             return createErrorBundle(JasperAccountManager.TokenException.NO_PASSWORD_ERROR, mContext.getString(R.string.r_error_incorrect_credentials));
         }

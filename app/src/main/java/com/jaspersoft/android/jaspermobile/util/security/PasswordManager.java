@@ -24,95 +24,56 @@
 
 package com.jaspersoft.android.jaspermobile.util.security;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.provider.Settings;
-import android.text.TextUtils;
-import android.util.Base64;
+import android.support.annotation.Nullable;
 
-import java.io.UnsupportedEncodingException;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.KeySpec;
-import java.util.Arrays;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
+import com.orhanobut.hawk.Hawk;
+import com.orhanobut.hawk.HawkBuilder;
 
 /**
  * @author Tom Koptel
  * @since 2.1.2
  */
 public final class PasswordManager {
-    protected static final String UTF8 = "utf-8";
-    private static int ITERATION_COUNT = 1000;
+    static final String KEY = "PASSWORD_KEY";
 
-    private final char[] mSecret;
+    private final String mStoragePassword;
     private final Context mContext;
 
-    private PasswordManager(Context context, String secret) {
+    private PasswordManager(Context context, String storagePassword) {
         mContext = context;
-        mSecret = secret.toCharArray();
+        mStoragePassword = storagePassword;
     }
 
-    public static PasswordManager init(Context context, String secret) {
-        if (TextUtils.isEmpty(secret)) {
-            throw new IllegalArgumentException("Secret should not be null or empty");
-        }
-        return new PasswordManager(context, secret);
+    public static PasswordManager init(Context context) {
+        String storagePassword = Settings.Secure.getString(context.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        return new PasswordManager(context, storagePassword);
     }
 
-    public String encrypt(String value) {
+    public void put(Account account, String plainPassword) {
+        initHawk(account);
+        Hawk.put(KEY, plainPassword);
+    }
+
+    @Nullable
+    public String get(Account account) {
+        initHawk(account);
         try {
-            final byte[] bytes = value != null ? value.getBytes(UTF8) : new byte[0];
-
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-            KeySpec keySpec = new PBEKeySpec(mSecret);
-            SecretKey key = keyFactory.generateSecret(keySpec);
-
-            Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
-            AlgorithmParameterSpec spec = new PBEParameterSpec(fetchSalt(), ITERATION_COUNT);
-
-            pbeCipher.init(Cipher.ENCRYPT_MODE, key, spec);
-
-            return toBase64(pbeCipher.doFinal(bytes));
+            return Hawk.get(KEY);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public String decrypt(String value) {
-        try {
-            final byte[] bytes = value != null ? fromBase64(value) : new byte[0];
-
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-            KeySpec keySpec = new PBEKeySpec(mSecret);
-            SecretKey key = keyFactory.generateSecret(keySpec);
-
-            Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
-            AlgorithmParameterSpec spec = new PBEParameterSpec(fetchSalt(), ITERATION_COUNT);
-
-            pbeCipher.init(Cipher.DECRYPT_MODE, key, spec);
-
-            return new String(pbeCipher.doFinal(bytes), UTF8);
-        } catch (Exception ex) {
+            // Swallow any exception that pop ups
             return null;
         }
     }
 
-    private static String toBase64(byte[] bytes) throws UnsupportedEncodingException {
-        return new String(Base64.encode(bytes, Base64.NO_WRAP), UTF8);
-    }
-
-    private static byte[] fromBase64(String base64) {
-        return Base64.decode(base64, Base64.DEFAULT);
-    }
-
-    private byte[] fetchSalt() throws UnsupportedEncodingException {
-        String id = Settings.Secure.getString(mContext.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-
-        return Arrays.copyOf(id.getBytes(UTF8), 8);
+    private void initHawk(Account account) {
+        Hawk.init(mContext)
+                .setEncryptionMethod(HawkBuilder.EncryptionMethod.HIGHEST)
+                .setStorage(AccountStorage.create(mContext, account))
+                .setPassword(mStoragePassword)
+                .build();
     }
 }

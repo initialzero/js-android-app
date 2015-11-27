@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -64,9 +63,7 @@ public class AccountStorageTest {
     public void setUp() throws Exception {
         accountManager = AccountManager.get(RuntimeEnvironment.application);
         fakeAccount = new Account("test", "com.test");
-
-        when(mActiveAccountCache.get()).thenReturn(fakeAccount);
-        accountStorage = new AccountStorage(accountManager, mActiveAccountCache);
+        accountStorage = new AccountStorage(accountManager, fakeAccount);
     }
 
     @Test
@@ -74,6 +71,13 @@ public class AccountStorageTest {
         accountStorage.put("bar", "foo");
         String bar = accountManager.getUserData(fakeAccount, "bar");
         assertThat("Failed to put single value in account storage", bar != null);
+    }
+
+    @Test
+    public void testPutPassword() throws Exception {
+        accountStorage.put(PasswordManager.KEY, "foo");
+        String bar = accountManager.getPassword(fakeAccount);
+        assertThat("Failed to put password account storage", bar != null);
     }
 
     @Test
@@ -101,12 +105,34 @@ public class AccountStorageTest {
     }
 
     @Test
+    public void testGetPassword() throws Exception {
+        accountManager.setPassword(fakeAccount, "foo");
+        String bar = accountStorage.get(PasswordManager.KEY);
+        assertThat(
+                "Failed to get password from account storage",
+                bar != null
+        );
+    }
+
+    @Test
     public void testRemove() throws Exception {
         accountManager.setUserData(fakeAccount, "foo", "bar");
         accountStorage.remove("foo");
         String foo = accountManager.getUserData(fakeAccount, "foo");
         assertThat(
                 "Failed to remove value from account storage",
+                foo == null
+        );
+    }
+
+
+    @Test
+    public void testRemovePassword() throws Exception {
+        accountManager.setPassword(fakeAccount, "foo");
+        accountStorage.remove(PasswordManager.KEY);
+        String foo = accountManager.getPassword(fakeAccount);
+        assertThat(
+                "Failed to remove password from account storage",
                 foo == null
         );
     }
@@ -128,8 +154,17 @@ public class AccountStorageTest {
     public void testContains() throws Exception {
         accountManager.setUserData(fakeAccount, "foo", "bar");
         assertThat(
-                "Contains condition failed",
+                "Contains 'foo' key condition failed",
                 accountStorage.contains("foo")
+        );
+    }
+
+    @Test
+    public void testContainsPassword() throws Exception {
+        accountManager.setPassword(fakeAccount, "foo");
+        assertThat(
+                "Contains password condition failed",
+                accountStorage.contains(PasswordManager.KEY)
         );
     }
 }

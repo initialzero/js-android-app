@@ -24,12 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.util.security;
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 import android.util.Pair;
 
-import com.jaspersoft.android.jaspermobile.util.account.ActiveAccountCache;
 import com.orhanobut.hawk.Storage;
 
 import java.util.List;
@@ -40,30 +40,33 @@ import java.util.List;
  */
 public class AccountStorage implements Storage {
     private final AccountManager mAccountManager;
-    private final ActiveAccountCache mAccountCache;
+    private final Account mAccount;
 
     @VisibleForTesting
-    AccountStorage(AccountManager accountManager, ActiveAccountCache accountCache) {
+    AccountStorage(AccountManager accountManager, Account account) {
         mAccountManager = accountManager;
-        mAccountCache = accountCache;
+        mAccount = account;
     }
 
-    public static AccountStorage create(Context context) {
-        ActiveAccountCache activeAccountCache = ActiveAccountCache.create(context);
+    public static AccountStorage create(Context context, Account account) {
         AccountManager accountManager = AccountManager.get(context);
-        return new AccountStorage(accountManager, activeAccountCache);
+        return new AccountStorage(accountManager, account);
     }
 
     @Override
     public <T> boolean put(String key, T value) {
-        mAccountManager.setUserData(mAccountCache.get(), key, String.valueOf(value));
+        if (isPasswordKey(key)) {
+            mAccountManager.setPassword(mAccount, String.valueOf(value));
+        } else {
+            mAccountManager.setUserData(mAccount, key, String.valueOf(value));
+        }
         return true;
     }
 
     @Override
     public boolean put(List<Pair<String, ?>> items) {
         for (Pair<String, ?> item : items) {
-            mAccountManager.setUserData(mAccountCache.get(), item.first, String.valueOf(item.second));
+            put(item.first, String.valueOf(item.second));
         }
         return true;
     }
@@ -71,19 +74,27 @@ public class AccountStorage implements Storage {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
-        return (T) mAccountManager.getUserData(mAccountCache.get(), key);
+        if (isPasswordKey(key)) {
+            return (T) mAccountManager.getPassword(mAccount);
+        } else {
+            return (T) mAccountManager.getUserData(mAccount, key);
+        }
     }
 
     @Override
     public boolean remove(String key) {
-        mAccountManager.setUserData(mAccountCache.get(), key, null);
+        if (isPasswordKey(key)) {
+            mAccountManager.setPassword(mAccount, null);
+        } else {
+            mAccountManager.setUserData(mAccount, key, null);
+        }
         return true;
     }
 
     @Override
     public boolean remove(String... keys) {
         for (String key : keys) {
-            mAccountManager.setUserData(mAccountCache.get(), key, null);
+            remove(key);
         }
         return true;
     }
@@ -102,6 +113,13 @@ public class AccountStorage implements Storage {
 
     @Override
     public boolean contains(String key) {
-        return mAccountManager.getUserData(mAccountCache.get(), key) != null;
+        if (isPasswordKey(key)) {
+            return mAccountManager.getPassword(mAccount) != null;
+        }
+        return mAccountManager.getUserData(mAccount, key) != null;
+    }
+
+    private boolean isPasswordKey(String key) {
+        return PasswordManager.KEY.equals(key);
     }
 }

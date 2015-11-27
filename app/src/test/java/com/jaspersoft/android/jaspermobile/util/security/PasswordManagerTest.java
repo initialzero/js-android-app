@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.security;
 
+import android.accounts.Account;
 import android.provider.Settings;
 
 import org.junit.Before;
@@ -33,44 +34,34 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Tom Koptel
  * @since 2.1.1
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, sdk = 21)
 public class PasswordManagerTest {
 
     private PasswordManager passwordManager;
+    private Account fakeAccount;
 
     @Before
     public void setup() {
-        passwordManager = PasswordManager.init(RuntimeEnvironment.application, "secret");
-        Settings.Secure.putString(RuntimeEnvironment.application.getContentResolver(), Settings.Secure.ANDROID_ID, "ROBOLECTRICYOUAREBAD");
+        Settings.Secure.putString(
+                RuntimeEnvironment.application.getContentResolver(),
+                Settings.Secure.ANDROID_ID,
+                "ROBOLECTRICYOUAREBAD"
+        );
+        passwordManager = PasswordManager.init(RuntimeEnvironment.application);
+        fakeAccount = new Account("test", "com.test");
     }
 
     @Test
-    public void shouldEncryptPassword() {
-        String encrypted = passwordManager.encrypt("1234");
-        assertThat(encrypted, is(notNullValue()));
-    }
-
-    @Test
-    public void shouldDecryptPassword() {
-        String decrypted = passwordManager.decrypt("eUu9sU6Ah6c=");
-        assertThat(decrypted, is("1234"));
-    }
-
-    @Test
-    public void shouldReturnNullIfErrorEncountered() {
-        PasswordManager passwordManager2 = PasswordManager.init(RuntimeEnvironment.application, "secret2");
-        String encrypted = passwordManager.encrypt("1234");
-        String decrypted = passwordManager2.decrypt(encrypted);
-        assertThat(decrypted, is(nullValue()));
+    public void shouldEncryptDecryptPassword() {
+        passwordManager.put(fakeAccount, "1234");
+        String pass = passwordManager.get(fakeAccount);
+        assertThat("Password manager failed to encrypt/decrypt pass", "1234".equals(pass));
     }
 }

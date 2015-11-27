@@ -108,6 +108,7 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         long creationTime = cursor.getLong(cursor.getColumnIndex(SavedItemsTable.CREATION_TIME));
         String fileFormat = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
         String fileName = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
+        boolean downloaded = cursor.getInt(cursor.getColumnIndex(SavedItemsTable.DOWNLOADED)) == 1;
 
         TopCropImageView iconView = (TopCropImageView) itemView.getImageView();
         if (iconView != null) {
@@ -117,8 +118,13 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         }
 
         itemView.setTitle(fileName);
-        itemView.setInfo(getHumanReadableFileSize(file));
-        itemView.setSubTitle(getFormattedDateModified(creationTime));
+
+        if (downloaded) {
+            itemView.setInfo(getHumanReadableFileSize(file));
+            itemView.setSubTitle(getFormattedDateModified(creationTime));
+        } else {
+            itemView.setSubTitle(getContext().getString(R.string.loading_msg));
+        }
 
         return (View) itemView;
     }
@@ -143,16 +149,19 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         File itemFile = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
         long recordId = cursor.getLong(cursor.getColumnIndex(SavedItemsTable._ID));
         Uri recordUri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI, String.valueOf(recordId));
+        boolean downloaded = cursor.getInt(cursor.getColumnIndex(SavedItemsTable.DOWNLOADED)) == 1;
+
+
         switch (item.getItemId()) {
             case R.id.renameItem:
                 if (fileInteractionListener != null) {
                     String fileExtension = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
-                    fileInteractionListener.onRename(itemFile.getParentFile(), recordUri, fileExtension);
+                    fileInteractionListener.onRename(itemFile.getParentFile(), recordUri, fileExtension, downloaded);
                 }
                 break;
             case R.id.deleteItem:
                 if (fileInteractionListener != null) {
-                    fileInteractionListener.onDelete(itemFile, recordUri);
+                    fileInteractionListener.onDelete(itemFile, recordUri, downloaded);
                 }
                 break;
             case R.id.showAction:
@@ -207,10 +216,10 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     // Nested Classes
     //---------------------------------------------------------------------
 
-    public static interface FileInteractionListener {
-        void onRename(File itemFile, Uri recordUri, String fileExtension);
+    public interface FileInteractionListener {
+        void onRename(File itemFile, Uri recordUri, String fileExtension, boolean downloaded);
 
-        void onDelete(File itemFile, Uri recordUri);
+        void onDelete(File itemFile, Uri recordUri, boolean downloaded);
 
         void onInfo(String itemTitle, String itemDescription);
     }

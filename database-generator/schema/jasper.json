@@ -115,6 +115,11 @@
           "type": "long",
           "name": "creation_time",
           "not_null": true
+        },
+        {
+          "type": "boolean",
+          "name": "downloaded",
+          "not_null": true
         }
       ]
     }

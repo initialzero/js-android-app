@@ -227,6 +227,10 @@
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
             android:exported="false" />
 
+        <service
+        android:name=".activities.save.SaveReportService_"
+        android:exported="false" />
+
         <!-- SDK external components -->
         <service
             android:name=".auth.JasperAuthenticatorService"

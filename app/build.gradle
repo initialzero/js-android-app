@@ -54,8 +54,8 @@ android {
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
 
-        versionCode 2_02_01_000
-        versionName "2.2.1"
+        versionCode 2_02_02_000
+        versionName "2.2.2"
 
         if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
             resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID

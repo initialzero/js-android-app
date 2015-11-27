@@ -38,22 +38,22 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
  * @author Tom Koptel
  * @since 2.2.2
  */
-public class ActiveAccountCache {
+public class ActiveAccountStorage {
     public static final String KEY = "ACCOUNT_NAME_KEY";
     private static final String PREF_NAME = "JasperAccountManager";
 
     private final SharedPreferences mPreference;
     private final String mAccountType;
 
-    ActiveAccountCache(SharedPreferences preference, String accountType) {
+    ActiveAccountStorage(SharedPreferences preference, String accountType) {
         mPreference = preference;
         mAccountType = accountType;
     }
 
     @NonNull
-    public static ActiveAccountCache create(Context context) {
+    public static ActiveAccountStorage create(Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
-        return new ActiveAccountCache(pref, JasperSettings.JASPER_ACCOUNT_TYPE);
+        return new ActiveAccountStorage(pref, JasperSettings.JASPER_ACCOUNT_TYPE);
     }
 
     public void put(Account account) {

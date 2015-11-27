@@ -58,12 +58,12 @@ public class JasperAccountManager {
 
     private final Context mContext;
     private final AccountManager mDelegateManager;
-    private final ActiveAccountCache mAccountCache;
+    private final ActiveAccountStorage mAccountCache;
     private final PasswordManager mPasswordManager;
 
     JasperAccountManager(Context context,
                          AccountManager delegateManager,
-                         ActiveAccountCache accountCache, PasswordManager passwordManager) {
+                         ActiveAccountStorage accountCache, PasswordManager passwordManager) {
         mContext = context;
         mDelegateManager = delegateManager;
         mAccountCache = accountCache;
@@ -76,8 +76,8 @@ public class JasperAccountManager {
         }
 
         AccountManager accountManager = AccountManager.get(context);
-        ActiveAccountCache accountCache = ActiveAccountCache.create(context);
-        PasswordManager passwordManager = PasswordManager.init(context);
+        ActiveAccountStorage accountCache = ActiveAccountStorage.create(context);
+        PasswordManager passwordManager = PasswordManager.create(context);
 
         return new JasperAccountManager(context, accountManager, accountCache, passwordManager);
     }

@@ -28,7 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.util.Pair;
 
-import com.jaspersoft.android.jaspermobile.util.account.ActiveAccountCache;
+import com.jaspersoft.android.jaspermobile.util.account.ActiveAccountStorage;
 import com.orhanobut.hawk.Storage;
 
 import org.junit.Before;
@@ -57,7 +57,7 @@ public class AccountStorageTest {
     private Account fakeAccount;
 
     @Mock
-    private ActiveAccountCache mActiveAccountCache;
+    private ActiveAccountStorage mActiveAccountStorage;
 
     @Before
     public void setUp() throws Exception {

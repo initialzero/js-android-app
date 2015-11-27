@@ -61,7 +61,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     public JasperAuthenticator(Context context) {
         super(context);
         mContext = context;
-        mPasswordManager = PasswordManager.init(mContext);
+        mPasswordManager = PasswordManager.create(mContext);
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }
 

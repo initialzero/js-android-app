@@ -54,7 +54,7 @@ public class PasswordManagerTest {
                 Settings.Secure.ANDROID_ID,
                 "ROBOLECTRICYOUAREBAD"
         );
-        passwordManager = PasswordManager.init(RuntimeEnvironment.application);
+        passwordManager = PasswordManager.create(RuntimeEnvironment.application);
         fakeAccount = new Account("test", "com.test");
     }
 

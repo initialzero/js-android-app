@@ -47,7 +47,7 @@ public final class PasswordManager {
         mStoragePassword = storagePassword;
     }
 
-    public static PasswordManager init(Context context) {
+    public static PasswordManager create(Context context) {
         String storagePassword = Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
         return new PasswordManager(context, storagePassword);

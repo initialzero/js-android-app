@@ -44,27 +44,27 @@ import static org.hamcrest.core.Is.is;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class ActiveAccountCacheTest {
+public class ActiveAccountStorageTest {
 
     private SharedPreferences fakePref;
-    private ActiveAccountCache cache;
+    private ActiveAccountStorage cache;
 
     @Before
     public void setUp() throws Exception {
         fakePref = RuntimeEnvironment.application.getSharedPreferences("test", Activity.MODE_PRIVATE);
-        cache = new ActiveAccountCache(fakePref, "com.test");
+        cache = new ActiveAccountStorage(fakePref, "com.test");
     }
 
     @Test
     public void testPut() throws Exception {
         cache.put(new Account("test", "com.test"));
-        String name = fakePref.getString(ActiveAccountCache.KEY, null);
+        String name = fakePref.getString(ActiveAccountStorage.KEY, null);
         assertThat("Failed to save account in cache", "test".equals(name));
     }
 
     @Test
     public void testGet() throws Exception {
-        fakePref.edit().putString(ActiveAccountCache.KEY, "foo").apply();
+        fakePref.edit().putString(ActiveAccountStorage.KEY, "foo").apply();
         Account account = cache.get();
         assertThat("Failed to retrieve account from cache", account != null);
         assertThat(account.name, is("foo"));
@@ -79,9 +79,9 @@ public class ActiveAccountCacheTest {
 
     @Test
     public void testClear() throws Exception {
-        fakePref.edit().putString(ActiveAccountCache.KEY, "foo").apply();
+        fakePref.edit().putString(ActiveAccountStorage.KEY, "foo").apply();
         cache.clear();
-        String name = fakePref.getString(ActiveAccountCache.KEY, null);
+        String name = fakePref.getString(ActiveAccountStorage.KEY, null);
         assertThat("Failed to remove account from cache", name == null);
     }
 }

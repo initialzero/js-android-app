@@ -62,12 +62,6 @@ android {
         } else {
             resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
         }
-
-        if (project.hasProperty('PASSWORD_SALT_KEY')) {
-            resValue "string", "password_salt_key", PASSWORD_SALT_KEY
-        } else {
-            resValue "string", "password_salt_key", "salt"
-        }
     }
     if (project.hasProperty('JMA_STORE_FILE')) {
         signingConfigs {

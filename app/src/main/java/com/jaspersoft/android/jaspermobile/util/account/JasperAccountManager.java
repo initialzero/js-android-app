@@ -28,12 +28,9 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OnAccountsUpdateListener;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
@@ -59,25 +56,26 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class JasperAccountManager {
-    private static final String PREF_NAME = JasperAccountManager.class.getSimpleName();
-    private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";
 
     private final Context mContext;
-    private final SharedPreferences mPreference;
     private final AccountManager mDelegateManager;
+    private final ActiveAccountCache mAccountCache;
+
+    JasperAccountManager(Context context, AccountManager delegateManager, ActiveAccountCache accountCache) {
+        mContext = context;
+        mDelegateManager = delegateManager;
+        mAccountCache = accountCache;
+    }
 
     public static JasperAccountManager get(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("Context should not be null");
         }
-        return new JasperAccountManager(context);
-    }
 
-    private JasperAccountManager(Context context) {
-        mContext = context;
-        mDelegateManager = AccountManager.get(context);
-        mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
-        Timber.tag(PREF_NAME);
+        AccountManager accountManager = AccountManager.get(context);
+        ActiveAccountCache accountCache = ActiveAccountCache.create(context);
+
+        return new JasperAccountManager(context, accountManager, accountCache);
     }
 
     public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
@@ -116,39 +114,30 @@ public class JasperAccountManager {
     }
 
     public Account getActiveAccount() {
-        String accountName = mPreference.getString(ACCOUNT_NAME_KEY, "");
-        if (TextUtils.isEmpty(accountName)) {
-            return null;
-        }
-        return new Account(accountName, JasperSettings.JASPER_ACCOUNT_TYPE);
+        return mAccountCache.get();
     }
 
     public boolean isActiveAccountRegistered(){
         Account account = getActiveAccount();
         Account[] accounts = getAccounts();
-        boolean activeAccountExists = Lists.newArrayList(accounts).contains(account);
-        return activeAccountExists;
+        return Lists.newArrayList(accounts).contains(account);
     }
 
     public void activateAccount(Account account) {
-        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        invalidateToken(tokenToInvalidate);
-        mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
-
+        invalidateToken(account);
+        mAccountCache.put(account);
         syncJsRestClient();
     }
 
     public void activateFirstAccount() {
         Account account = getAccounts()[0];
-        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        invalidateToken(tokenToInvalidate);
-        mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
-
+        invalidateToken(account);
+        mAccountCache.put(account);
         syncJsRestClient();
     }
 
     public void deactivateAccount() {
-        mPreference.edit().putString(ACCOUNT_NAME_KEY, "").apply();
+        mAccountCache.clear();
     }
 
     public void updateActiveAccountPassword(String newPassword) {
@@ -217,12 +206,12 @@ public class JasperAccountManager {
     }
 
     public void invalidateActiveToken() {
-        String tokenToInvalidate = mDelegateManager.peekAuthToken(getActiveAccount(), JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        invalidateToken(tokenToInvalidate);
+        invalidateToken(mAccountCache.get());
     }
 
-    public void invalidateToken(String token) {
-        mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
+    public void invalidateToken(Account account) {
+        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
     }
 
     //---------------------------------------------------------------------

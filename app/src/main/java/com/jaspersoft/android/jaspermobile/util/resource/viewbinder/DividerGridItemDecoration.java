@@ -14,8 +14,8 @@ public class DividerGridItemDecoration extends RecyclerView.ItemDecoration {
 
     private int spanCount;
 
-    public DividerGridItemDecoration(int spanCount) {
-        this.spanCount = spanCount;
+    public DividerGridItemDecoration() {
+        this.spanCount = 1;
     }
 
     public void setSpanCount(int spanCount) {

@@ -44,10 +44,6 @@
         <item name="android:checkboxStyle">@style/Widget.JasperMobile.CheckBox</item>
         <item name="android:scrollbarThumbVertical">@drawable/im_scrollbar_thumb</item>
 
-        <!--App reference styles-->
-        <item name="listLayoutStyle">@style/list2.item.layout</item>
-        <item name="gridLayoutStyle">@style/grid.item.layout</item>
-
         <!-- For Action Mode http://stackoverflow.com/questions/26450936/actionmode-with-toolbar-offsetting-content-->
         <item name="windowActionModeOverlay">true</item>
     </style>

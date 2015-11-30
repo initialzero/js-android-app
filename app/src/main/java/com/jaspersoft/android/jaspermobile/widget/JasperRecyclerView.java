@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.DividerGridItemDecoration;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.DividerListItemDecoration;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 
 /**
@@ -64,28 +63,49 @@ public class JasperRecyclerView extends RecyclerView {
     }
 
     public void setViewType(ViewType viewType) {
-        final RecyclerView.LayoutManager listLayoutManager;
-        removeItemDecoration(decoration);
+        final RecyclerView.LayoutManager layoutManager;
 
         if (viewType == ViewType.LIST) {
-            listLayoutManager = new LinearLayoutManager(getContext());
-            decoration = new DividerListItemDecoration();
+            layoutManager = new LinearLayoutManager(getContext());
         } else {
-            listLayoutManager = new GridLayoutManager(getContext(), MIN_COLUMN_COUNT);
-            ((GridLayoutManager) listLayoutManager).setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            layoutManager = new GridLayoutManagerWithLoading(getContext(), MIN_COLUMN_COUNT);
+        }
+
+        setLayoutManager(layoutManager);
+        if (decoration == null) {
+            decoration = new DividerGridItemDecoration();
+            addItemDecoration(decoration);
+        }
+    }
+
+    private class GridLayoutManagerWithLoading extends GridLayoutManager {
+
+        public GridLayoutManagerWithLoading(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            super(context, attrs, defStyleAttr, defStyleRes);
+            init();
+        }
+
+        public GridLayoutManagerWithLoading(Context context, int spanCount) {
+            super(context, spanCount);
+            init();
+        }
+
+        public GridLayoutManagerWithLoading(Context context, int spanCount, int orientation, boolean reverseLayout) {
+            super(context, spanCount, orientation, reverseLayout);
+            init();
+        }
+
+        private void init(){
+            setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
                     RecyclerView.Adapter adapter = getAdapter();
                     if (adapter != null) {
-                        return adapter.getItemViewType(position) == JasperResourceAdapter.LOADING_TYPE ? ((GridLayoutManager) listLayoutManager).getSpanCount() : 1 ;
+                        return adapter.getItemViewType(position) == JasperResourceAdapter.LOADING_TYPE ? getSpanCount() : 1 ;
                     }
                     return 1;
                 }
             });
-            decoration = new DividerGridItemDecoration(MIN_COLUMN_COUNT);
         }
-
-        setLayoutManager(listLayoutManager);
-        addItemDecoration(decoration);
     }
 }

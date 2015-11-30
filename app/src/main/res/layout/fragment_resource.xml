@@ -7,7 +7,7 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:columnWidth="@dimen/grid_item_size" />
+        android:columnWidth="@dimen/grid_item_width" />
 
     <TextView
         android:id="@android:id/empty"

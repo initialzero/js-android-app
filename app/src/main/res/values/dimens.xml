@@ -32,8 +32,9 @@
     <dimen name="info_content_side_margin_port">6dp</dimen>
     <dimen name="info_content_side_margin_land">50dp</dimen>
     
-    <dimen name="resource_item_padding">5dp</dimen>
-    <dimen name="grid_item_size">180dp</dimen>
+    <dimen name="resource_item_padding">4dp</dimen>
+    <dimen name="grid_item_width">180dp</dimen>
+    <dimen name="grid_item_metadata_height">48dp</dimen>
     <dimen name="list_item_height">72dp</dimen>
     <dimen name="list_item_image_width">96dp</dimen>
     

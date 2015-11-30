@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -29,6 +28,27 @@
     <style name="Widget.JasperMobile.TextView" parent="android:Widget.Holo.TextView">
         <item name="android:textColor">@color/default_text</item>
         <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Widget.JasperMobile.TextView.List.Title" parent="android:Widget.Holo.TextView">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/list_label_grey</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="Widget.JasperMobile.TextView.List.SubTitle" parent="android:Widget.Holo.TextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/list_label_light_grey</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="Widget.JasperMobile.TextView.Grid.Title" parent="android:Widget.Holo.TextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/list_label_grey</item>
+        <item name="android:lines">2</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="Widget.JasperMobile.EditText" parent="android:Widget.Holo.EditText">
@@ -68,11 +88,9 @@
         <item name="cardElevation">4dp</item>
     </style>
 
-    <style name="CardView.Auth.AddAccount">
-    </style>
+    <style name="CardView.Auth.AddAccount"></style>
 
-    <style name="CardView.Auth.TryDemo">
-    </style>
+    <style name="CardView.Auth.TryDemo"></style>
 
     <style name="CardView.Auth.Container">
         <item name="android:layout_marginLeft">-4dp</item>
@@ -228,62 +246,6 @@
     <style name="saveReport.outputFormat" />
 
     <style name="saveReport.outputFormat.label" parent="inputControl.label" />
-
-    <style name="list2" />
-
-    <style name="list2.item" />
-
-    <style name="list2.item.layout">
-        <item name="android:background">@drawable/bg_item_resource</item>
-    </style>
-
-    <style name="list2.item.title">
-        <item name="android:textColor">@color/list_label_grey</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="list2.item.subTitle">
-        <item name="android:textColor">@color/list_label_light_grey</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="list2.item.metadata">
-        <item name="android:textColor">@color/list_label_light_grey</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="grid" />
-
-    <style name="grid.item" />
-
-    <style name="grid.layout">
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
-    </style>
-
-    <style name="grid.item.layout">
-        <item name="android:background">@drawable/bg_item_resource</item>
-    </style>
-
-    <style name="grid.item.context">
-        <item name="android:padding">8dp</item>
-    </style>
-
-    <style name="grid.item.title">
-        <item name="android:textColor">@color/list_label_grey</item>
-        <item name="android:layout_margin">4dp</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:lines">2</item>
-    </style>
-
-    <style name="grid.item.subTitle">
-        <item name="android:textColor">@color/list_label_light_grey</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:maxLines">2</item>
-    </style>
 
     <!--Add account page-->
 

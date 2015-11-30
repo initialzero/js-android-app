@@ -45,7 +45,7 @@
     <color name="js_dark_gray">#2e3136</color>
     <color name="js_night_gray">#23262c</color>
 
-    <color name="js_text_gray">#7d7d7d</color>
-    <color name="js_text_light_gray">#949494</color>
+    <color name="js_text_gray">#b9000000</color>
+    <color name="js_text_light_gray">#8a000000</color>
 
 </resources>

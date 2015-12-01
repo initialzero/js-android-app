@@ -48,12 +48,13 @@ import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
-import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ErrorDescriptor;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
+import com.jaspersoft.android.sdk.service.server.VersionParser;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -103,7 +104,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
     private ExportResultListener exportResultListener;
     private OnPageLoadListener onPageLoadListener;
     private RequestExecutor requestExecutor;
-    private ServerRelease mRelease;
+    private double mVersionCode;
     private Subscription fetchReportSubscription;
     private boolean mIsFetching;
 
@@ -118,7 +119,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
 
         Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         AccountServerData serverData = AccountServerData.get(getActivity(), account);
-        mRelease = ServerRelease.parseVersion(serverData.getVersionName());
+        mVersionCode = VersionParser.toDouble(serverData.getVersionName());
 
         exportResultListener = new ExportResultListener();
         requestExecutor = RequestExecutor.builder()
@@ -312,7 +313,7 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
                 @Override
                 public void onPagesLoaded(int totalPage) {
                     boolean notFinal = !outputFinal;
-                    boolean isEmerald3OrHigher = mRelease.code() >= ServerRelease.EMERALD_MR3.code();
+                    boolean isEmerald3OrHigher = mVersionCode >= ServerVersionCodes.v5_6;
                     boolean hasPages = totalPage != 0;
                     if (notFinal && isEmerald3OrHigher && hasPages) {
                         subscribeFetchReport();

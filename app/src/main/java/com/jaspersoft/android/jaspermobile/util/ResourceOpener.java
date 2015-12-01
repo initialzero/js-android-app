@@ -43,8 +43,9 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
+import com.jaspersoft.android.sdk.service.server.VersionParser;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -61,14 +62,14 @@ public class ResourceOpener {
     FragmentActivity activity;
 
     ResourceFilter resourceFilter;
-    private ServerRelease serverRelease;
+    private double versionCode;
     private boolean isCeJrs;
 
     @AfterInject
     final void init() {
         Account account = JasperAccountManager.get(activity).getActiveAccount();
         AccountServerData accountServerData = AccountServerData.get(activity, account);
-        serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+        versionCode = VersionParser.toDouble(accountServerData.getVersionName());
         isCeJrs = accountServerData.getEdition().equals("CE");
 
         resourceFilter = RepositoryResourceFilter_.getInstance_(activity);
@@ -114,7 +115,7 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        boolean isRestEngine = serverRelease.code() < ServerRelease.AMBER.code();
+        boolean isRestEngine = versionCode < ServerVersionCodes.v6;
         if (isCeJrs || isRestEngine) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
@@ -125,12 +126,11 @@ public class ResourceOpener {
     }
 
     private void runDashboard(ResourceLookup resource) {
-        double code = serverRelease.code();
         boolean isLegacyDashboard = (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard);
 
-        boolean isLegacyEngine = code < ServerRelease.AMBER.code();
-        boolean isFlowEngine = code >= ServerRelease.AMBER.code() && code < ServerRelease.AMBER_MR2.code();
-        boolean isVisualizeEngine = code >= ServerRelease.AMBER_MR2.code();
+        boolean isLegacyEngine = versionCode < ServerVersionCodes.v6;
+        boolean isFlowEngine = versionCode >= ServerVersionCodes.v6 && versionCode < ServerVersionCodes.v6_1;
+        boolean isVisualizeEngine = versionCode >= ServerVersionCodes.v6_1;
 
         if (isLegacyDashboard || isLegacyEngine) {
             LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();

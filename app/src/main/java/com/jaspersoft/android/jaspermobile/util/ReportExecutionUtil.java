@@ -29,11 +29,12 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.oxm.report.ExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
+import com.jaspersoft.android.sdk.service.server.VersionParser;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -50,8 +51,8 @@ public class ReportExecutionUtil {
     @RootContext
     Context context;
 
-    private ServerRelease mServerRelease;
     private AccountServerData mServerData;
+    private Double mVersionCode;
 
     @AfterInject
     void injectRoboGuiceDependencies() {
@@ -60,12 +61,11 @@ public class ReportExecutionUtil {
 
         Account account = JasperAccountManager.get(context).getActiveAccount();
         mServerData = AccountServerData.get(context, account);
-        mServerRelease = ServerRelease.parseVersion(mServerData.getVersionName());
+        mVersionCode = VersionParser.toDouble(mServerData.getVersionName());
     }
 
     public void setupInteractiveness(ReportExecutionRequest executionData) {
-        double currentVersion = mServerRelease.code();
-        boolean interactive = (currentVersion != ServerRelease.EMERALD_MR3.code());
+        boolean interactive = (mVersionCode != ServerVersionCodes.v5_6);
         executionData.setInteractive(interactive);
     }
 
@@ -88,7 +88,7 @@ public class ReportExecutionUtil {
     }
 
     private boolean isEmeraldMr2() {
-        return mServerRelease == ServerRelease.EMERALD_MR2;
+        return mVersionCode == ServerVersionCodes.v5_5;
     }
 
 }

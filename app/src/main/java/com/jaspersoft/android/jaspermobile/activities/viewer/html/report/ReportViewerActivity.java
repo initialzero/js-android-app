@@ -87,11 +87,12 @@ import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
+import com.jaspersoft.android.sdk.service.server.VersionParser;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
@@ -618,9 +619,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     private void loadFlow() {
-        ServerRelease release = ServerRelease.parseVersion(accountServerData.getVersionName());
+        double versionCode = VersionParser.toDouble(accountServerData.getVersionName());
         // For JRS 6.0 and 6.0.1 we are fixing regression by removing optimization flag
-        boolean optimized = !(release.code() >= ServerRelease.AMBER.code() && release.code() <= ServerRelease.AMBER_MR1.code());
+        boolean optimized = !(versionCode >= ServerVersionCodes.v6 && versionCode <= ServerVersionCodes.v6_0_1);
 
         InputStream stream = null;
         try {

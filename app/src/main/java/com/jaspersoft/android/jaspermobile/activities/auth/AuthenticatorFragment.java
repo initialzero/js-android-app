@@ -50,11 +50,11 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.rest.LoginHelper;
 import com.jaspersoft.android.retrofit.sdk.rest.LoginResponse;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.service.auth.Credentials;
 import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 
 import org.androidannotations.annotations.Click;
@@ -224,7 +224,7 @@ public class AuthenticatorFragment extends RoboFragment {
 
     private void validateServerVersion(LoginResponse response) {
         double version = response.getServerInfo().getVersion();
-        if (!ServerRelease.satisfiesMinVersion(String.valueOf(version))) {
+        if (version < ServerVersionCodes.v5_5) {
             throw new InvalidServerVersionException(version);
         }
     }

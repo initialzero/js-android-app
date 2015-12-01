@@ -30,10 +30,11 @@ import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
+import com.jaspersoft.android.sdk.service.server.VersionParser;
 
 import java.util.List;
 
@@ -81,10 +82,10 @@ public final class JasperPrintJobFactory {
         }
 
         ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(webView.getContext());
-        ServerRelease serverRelease = ServerRelease.parseVersion(serverInfoProvider.getServerVersion());
+        double versionCode = VersionParser.toDouble(serverInfoProvider.getServerVersion());
 
         String printName = resource.getLabel();
-        if (resource.getResourceType() != ResourceLookup.ResourceType.legacyDashboard || serverRelease.code() >= ServerRelease.AMBER.code()) {
+        if (resource.getResourceType() != ResourceLookup.ResourceType.legacyDashboard || versionCode >= ServerVersionCodes.v6) {
             return new DashboardPicturePrintJob(webView, printName);
         } else {
             return new DashboardWebViewPrintJob(webView, printName);

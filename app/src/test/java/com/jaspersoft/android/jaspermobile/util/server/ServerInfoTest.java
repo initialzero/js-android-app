@@ -25,14 +25,16 @@
 package com.jaspersoft.android.jaspermobile.util.server;
 
 import android.accounts.Account;
+import android.provider.Settings;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
@@ -43,14 +45,15 @@ import static org.junit.Assert.assertThat;
  * @author Tom Koptel
  * @since 2.1
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class ServerInfoTest {
 
     AccountServerData fakeServerData;
 
     @Before
     public void setup() {
+        Settings.Secure.putString(RuntimeEnvironment.application.getContentResolver(), Settings.Secure.ANDROID_ID, "ROBOLECTRICYOUAREBAD");
         fakeServerData = new AccountServerData()
                 .setAlias("alias")
                 .setServerUrl("")

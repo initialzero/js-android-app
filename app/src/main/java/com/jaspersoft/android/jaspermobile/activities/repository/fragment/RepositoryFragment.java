@@ -378,7 +378,7 @@ public class RepositoryFragment extends RoboSpiceFragment
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetRootFolderDataRequestListener extends SimpleRequestListener<FolderDataResponse> {
+    private class GetRootFolderDataRequestListener extends SimpleRequestListener<List<FolderDataResponse>> {
 
         @Override
         protected Context getContext() {
@@ -393,20 +393,14 @@ public class RepositoryFragment extends RoboSpiceFragment
         }
 
         @Override
-        public void onRequestSuccess(FolderDataResponse folderDataResponse) {
+        public void onRequestSuccess(List<FolderDataResponse> folderDataResponse) {
             // Do this for explicit refresh during pull to refresh interaction
             if (mLoaderState == LOAD_FROM_NETWORK) {
                 mAdapter.setNotifyOnChange(false);
                 mAdapter.clear();
             }
 
-            mAdapter.add(folderDataResponse);
-
-            ResourceLookup publicLookup = new ResourceLookup();
-            publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
-            publicLookup.setLabel("Public");
-            publicLookup.setUri("/public");
-            mAdapter.add(publicLookup);
+            mAdapter.addAll(folderDataResponse);
 
             mAdapter.setNotifyOnChange(true);
             mAdapter.notifyDataSetChanged();

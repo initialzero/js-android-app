@@ -19,6 +19,7 @@ import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
+import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
@@ -98,14 +99,17 @@ public class SaveReportService extends RoboIntentService {
         List<ReportParameter> reportParameters = getReportParams(resourceLookup.getUri());
 
         Uri itemUri = mRecordUrisQe.peek();
+        String calculatePages = calculatePages(fromPage, toPage);
         try {
-            ReportExecutionRequest runReportExecutionRequest = createReportExecutionRequest(resourceLookup, outputFormat, reportParameters, fromPage, toPage);
+            ReportExecutionRequest runReportExecutionRequest = createReportExecutionRequest(resourceLookup, outputFormat, reportParameters, calculatePages);
             ReportExecutionResponse runReportResponse = jsRestClient.runReportExecution(runReportExecutionRequest);
+            waitForExecutionDone(runReportResponse.getRequestId());
 
-            ExportExecution execution = runReportResponse.getExports().get(0);
-            waitForExportDone(runReportResponse.getRequestId(), execution.getId());
+            ExportsRequest executionData = createReportExportRequest(outputFormat, calculatePages);
+            ExportExecution export = jsRestClient.runExportForReport(runReportResponse.getRequestId(), executionData);
+            waitForExportDone(runReportResponse.getRequestId(), export.getId());
 
-            saveReport(reportFile, outputFormat, execution.getAttachments(), execution.getId(), runReportResponse.getRequestId());
+            saveReport(reportFile, outputFormat, export.getAttachments(), export.getId(), runReportResponse.getRequestId());
             updateSavedItemRecordToDownloaded(mRecordUrisQe.peek());
 
             notifySaveResult(savedReportName, android.R.drawable.stat_sys_download_done, getString(R.string.sr_t_report_saved));
@@ -131,7 +135,7 @@ public class SaveReportService extends RoboIntentService {
     }
 
     private ReportExecutionRequest createReportExecutionRequest(ResourceLookup resource, SaveItemFragment.OutputFormat outputFormat,
-                                                                List<ReportParameter> reportParameters, int fromPage, int toPage) {
+                                                                List<ReportParameter> reportParameters, String pageRange) {
 
         ReportExecutionRequest executionData = new ReportExecutionRequest();
         executionData.setReportUnitUri(resource.getUri());
@@ -139,16 +143,7 @@ public class SaveReportService extends RoboIntentService {
         executionData.setOutputFormat(outputFormat.toString());
         executionData.setAsync(true);
         executionData.setEscapedAttachmentsPrefix("./");
-
-        boolean pagesNumbersIsValid = fromPage > 0 && toPage > 0 && toPage >= fromPage;
-        if (pagesNumbersIsValid) {
-            boolean isRange = fromPage < toPage;
-            if (isRange) {
-                executionData.setPages(fromPage + "-" + toPage);
-            } else {
-                executionData.setPages(String.valueOf(fromPage));
-            }
-        }
+        executionData.setPages(pageRange);
 
         if (!reportParameters.isEmpty()) {
             executionData.setParameters(reportParameters);
@@ -157,18 +152,56 @@ public class SaveReportService extends RoboIntentService {
         return executionData;
     }
 
+    private ExportsRequest createReportExportRequest(SaveItemFragment.OutputFormat outputFormat, String pageRange) {
+        ExportsRequest exportsRequest = new ExportsRequest();
+        exportsRequest.setOutputFormat(outputFormat.toString());
+        exportsRequest.setEscapedAttachmentsPrefix("./");
+        exportsRequest.setPages(pageRange);
+
+        return exportsRequest;
+    }
+
+    private String calculatePages(int fromPage, int toPage){
+        boolean pagesNumbersIsValid = fromPage > 0 && toPage > 0 && toPage >= fromPage;
+        if (pagesNumbersIsValid) {
+            boolean isRange = fromPage < toPage;
+            if (isRange) {
+                return  fromPage + "-" + toPage;
+            } else {
+                return String.valueOf(fromPage);
+            }
+        }
+        return "";
+    }
+
+    private void waitForExecutionDone(String reportExecutionId) {
+        ReportStatus reportStatus;
+        do {
+            sleep();
+            reportStatus = jsRestClient.runReportStatusCheck(reportExecutionId).getReportStatus();
+            if (reportStatus == ReportStatus.failed) throw new IllegalStateException("Report execution failed!");
+            if (reportStatus == ReportStatus.cancelled) throw new IllegalStateException("Report execution canceled!");
+        }
+        while (reportStatus != ReportStatus.ready);
+    }
+
     private void waitForExportDone(String reportExecutionId, String exportId) {
         ReportStatus reportStatus;
         do {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            sleep();
             reportStatus = jsRestClient.runExportStatusCheck(reportExecutionId, exportId).getReportStatus();
             if (reportStatus == ReportStatus.failed) throw new IllegalStateException("Report export failed!");
+            if (reportStatus == ReportStatus.cancelled) throw new IllegalStateException("Report export canceled!");
         }
         while (reportStatus != ReportStatus.ready);
+    }
+
+    private void sleep(){
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private int createNotificationId() {

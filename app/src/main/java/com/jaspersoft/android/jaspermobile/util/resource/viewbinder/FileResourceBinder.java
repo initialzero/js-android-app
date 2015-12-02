@@ -91,6 +91,9 @@ public class FileResourceBinder extends ResourceBinder {
                     case pdf:
                         resId = R.drawable.ic_file_pdf;
                         break;
+                    case rtf:
+                        resId = R.drawable.ic_file_rtf;
+                        break;
                     case pptx:
                         resId = R.drawable.ic_file_pptx;
                         break;

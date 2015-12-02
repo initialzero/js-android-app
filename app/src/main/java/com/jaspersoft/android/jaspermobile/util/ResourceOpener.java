@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
-import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -39,15 +38,14 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Ambe
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
-import com.jaspersoft.android.sdk.service.server.VersionParser;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
@@ -60,18 +58,13 @@ public class ResourceOpener {
 
     @RootContext
     FragmentActivity activity;
+    @Bean
+    InfoProvider mInfoProvider;
 
     ResourceFilter resourceFilter;
-    private double versionCode;
-    private boolean isCeJrs;
 
     @AfterInject
     final void init() {
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(activity, account);
-        versionCode = VersionParser.toDouble(accountServerData.getVersionName());
-        isCeJrs = accountServerData.getEdition().equals("CE");
-
         resourceFilter = RepositoryResourceFilter_.getInstance_(activity);
     }
 
@@ -115,8 +108,8 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        boolean isRestEngine = versionCode < ServerVersionCodes.v6;
-        if (isCeJrs || isRestEngine) {
+        boolean isRestEngine = mInfoProvider.getVersion().lessThan(ServerVersion.v6);
+        if (mInfoProvider.isPro() || isRestEngine) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
         } else {
@@ -128,9 +121,10 @@ public class ResourceOpener {
     private void runDashboard(ResourceLookup resource) {
         boolean isLegacyDashboard = (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard);
 
-        boolean isLegacyEngine = versionCode < ServerVersionCodes.v6;
-        boolean isFlowEngine = versionCode >= ServerVersionCodes.v6 && versionCode < ServerVersionCodes.v6_1;
-        boolean isVisualizeEngine = versionCode >= ServerVersionCodes.v6_1;
+        ServerVersion version = mInfoProvider.getVersion();
+        boolean isLegacyEngine = version.lessThan(ServerVersion.v6);
+        boolean isFlowEngine = version.greaterThanOrEquals(ServerVersion.v6) && version.lessThan(ServerVersion.v6_1);
+        boolean isVisualizeEngine = version.greaterThanOrEquals(ServerVersion.v6_1);
 
         if (isLegacyDashboard || isLegacyEngine) {
             LegacyDashboardViewerActivity_.intent(activity).resource(resource).start();

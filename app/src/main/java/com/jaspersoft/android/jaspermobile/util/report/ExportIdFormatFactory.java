@@ -26,8 +26,7 @@ package com.jaspersoft.android.jaspermobile.util.report;
 
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
-import com.jaspersoft.android.sdk.service.server.VersionParser;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
@@ -47,9 +46,8 @@ public class ExportIdFormatFactory {
         return new Builder();
     }
 
-    public ExportIdFormat createAdapter(String serverVersion) {
-        double versionCode = VersionParser.toDouble(serverVersion);
-        if (versionCode == ServerVersionCodes.v5_5) {
+    public ExportIdFormat createAdapter(ServerVersion version) {
+        if (version.equals(ServerVersion.v5_5)) {
             return new AmberExportIdFormat(exportsRequest);
         } else {
             return new DefaultExportIdFormat(exportExecution);

@@ -25,7 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import java.util.ArrayList;
 
@@ -48,8 +48,8 @@ public class JasperResources {
         return JasperFilter.REPORT.getAsList();
     }
 
-    public static ArrayList<String> dashboard(double versionCode) {
-        boolean isPreAmber = versionCode < ServerVersionCodes.v6;
+    public static ArrayList<String> dashboard(ServerVersion version) {
+        boolean isPreAmber = version.lessThan(ServerVersion.v6);
         if (isPreAmber) {
             return JasperFilter.DASHBOARD_PRE_AMBER.getAsList();
         } else {

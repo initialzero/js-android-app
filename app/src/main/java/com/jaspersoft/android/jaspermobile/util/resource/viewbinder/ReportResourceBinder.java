@@ -34,10 +34,11 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
-import com.jaspersoft.android.sdk.service.server.VersionParser;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -57,11 +58,8 @@ class ReportResourceBinder extends ResourceBinder {
     public ReportResourceBinder(Context context) {
         super(context);
         RoboGuice.getInjector(context).injectMembersWithoutViews(this);
-
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(context, account);
-        double versionCode = VersionParser.toDouble(serverData.getVersionName());
-        isAmberOrHigher = versionCode >= ServerVersionCodes.v6;
+        ServerInfoProvider infoProvider = new InfoProvider(context);
+        isAmberOrHigher = infoProvider.getVersion().greaterThanOrEquals(ServerVersion.v6);
     }
 
     @Override

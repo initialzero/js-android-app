@@ -29,11 +29,12 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
-import com.jaspersoft.android.sdk.service.server.VersionParser;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
@@ -56,13 +57,12 @@ public class ScriptTagFactory {
             return new EmeraldDashboardScriptTagCreator(token);
         }
 
-        Account account = JasperAccountManager.get(mContext).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(mContext, account);
+        ServerInfoProvider infoProvider = new InfoProvider(mContext);
+        ServerVersion version = infoProvider.getVersion();
 
-        double versionCode = VersionParser.toDouble(accountServerData.getVersionName());
-        if (versionCode <= ServerVersionCodes.v5_6_1) {
+        if (version.lessThanOrEquals(ServerVersion.v5_6_1)) {
             return new EmeraldDashboardScriptTagCreator(token);
-        } else if (versionCode >= ServerVersionCodes.v6 && versionCode < ServerVersionCodes.v6_1) {
+        } else if (version.greaterThanOrEquals(ServerVersion.v6) && version.lessThan(ServerVersion.v6_1)) {
             return new AmberDashboardScriptTagCreator(token);
         } else {
             return new Amber2DashboardScriptTagCreator(token);

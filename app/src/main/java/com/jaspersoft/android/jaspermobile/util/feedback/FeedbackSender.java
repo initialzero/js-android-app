@@ -29,7 +29,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 
 import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
@@ -50,7 +50,7 @@ public final class FeedbackSender {
     }
 
     public static FeedbackSender get(Context context) {
-        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(context);
+        ServerInfoProvider serverInfoProvider = new InfoProvider(context);
         Message feedback = new Message(context, serverInfoProvider);
         return new FeedbackSender(context, feedback);
     }

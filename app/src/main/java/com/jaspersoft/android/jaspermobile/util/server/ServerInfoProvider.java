@@ -25,7 +25,8 @@
 package com.jaspersoft.android.jaspermobile.util.server;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
@@ -37,15 +38,14 @@ public interface ServerInfoProvider {
      *
      * @return null if app is in consistent state otherwise current value
      */
-    @Nullable
-    String getServerVersion();
+    @NonNull
+    ServerVersion getVersion();
     /**
-     * Returns current selected server version. For instance it could be CE or PRO
+     * Checks either server PRO or not
      *
      * @return null if app is in consistent state otherwise current value
      */
-    @Nullable
-    String getServerEdition();
+    boolean isPro();
     /**
      * Returns current selected server organization. For instance it could be 'organization_1'
      *
@@ -61,10 +61,24 @@ public interface ServerInfoProvider {
     @NonNull
     String getUsername();
     /**
+     * This property identifies user password.
+     *
+     * @return user password.
+     */
+    @NonNull
+    String getPassword();
+    /**
      * This property internal app identifier. For instance that could be name of account
      *
      * @return internal app identifier.
      */
     @NonNull
     String getAlias();
+   /**
+     * This property identifies serverUrl
+     *
+     * @return internal server url of current profile.
+     */
+    @NonNull
+    String getServerUrl();
 }

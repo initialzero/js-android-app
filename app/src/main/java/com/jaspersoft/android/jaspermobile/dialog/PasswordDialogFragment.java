@@ -41,7 +41,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 
 import org.androidannotations.annotations.Background;
@@ -84,7 +84,7 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
         View dialogView = inflater.inflate(R.layout.dialog_password, null);
-        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(getActivity());
+        ServerInfoProvider serverInfoProvider = new InfoProvider(getActivity());
         String alias = serverInfoProvider.getAlias();
         String username = serverInfoProvider.getUsername();
         String organization = serverInfoProvider.getOrganization();

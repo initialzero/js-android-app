@@ -27,44 +27,43 @@ package com.jaspersoft.android.jaspermobile.util.server;
 import android.accounts.Account;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
+
+import org.androidannotations.annotations.EBean;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-public class ServerInfo implements ServerInfoProvider {
-    private final AccountServerData serverData;
+@EBean
+public class InfoProvider implements ServerInfoProvider {
+    private AccountServerData serverData;
 
-    private ServerInfo(Context context) {
+    public InfoProvider(Context context) {
         JasperAccountManager accountManager = JasperAccountManager.get(context);
         Account account = accountManager.getActiveAccount();
         serverData = AccountServerData.get(context, account);
     }
 
-    public static ServerInfoProvider newInstance(Context context) {
-        return new ServerInfo(context);
+    /**
+     * {@inheritDoc}
+     */
+    @NonNull
+    @Override
+    public ServerVersion getVersion() {
+        return ServerVersion.valueOf(serverData.getVersionName());
     }
 
     /**
      * {@inheritDoc}
      */
-    @Nullable
     @Override
-    public String getServerVersion() {
-        return serverData.getVersionName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Nullable
-    @Override
-    public String getServerEdition() {
-        return serverData.getEdition();
+    public boolean isPro() {
+        return Boolean.valueOf(serverData.getEdition());
     }
 
     /**
@@ -73,7 +72,7 @@ public class ServerInfo implements ServerInfoProvider {
     @NonNull
     @Override
     public String getOrganization() {
-        return serverData.getOrganization();
+        return TextUtils.isEmpty(serverData.getOrganization()) ? "" : serverData.getOrganization();
     }
 
     /**
@@ -90,7 +89,22 @@ public class ServerInfo implements ServerInfoProvider {
      */
     @NonNull
     @Override
+    public String getPassword() {
+        return serverData.getPassword();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NonNull
+    @Override
     public String getAlias() {
         return serverData.getAlias();
+    }
+
+    @NonNull
+    @Override
+    public String getServerUrl() {
+        return serverData.getServerUrl();
     }
 }

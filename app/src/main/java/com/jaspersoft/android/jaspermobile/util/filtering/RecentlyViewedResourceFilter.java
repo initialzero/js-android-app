@@ -24,16 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.service.server.VersionParser;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 
-import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
@@ -47,10 +44,11 @@ import java.util.List;
 @EBean
 public class RecentlyViewedResourceFilter extends ResourceFilter {
 
-    private double versionCode;
 
     @RootContext
     protected FragmentActivity activity;
+    @Bean
+    protected InfoProvider infoProvider;
 
     private enum RecentlyViewedFilterCategory {
         all(R.string.s_fd_option_all);
@@ -64,13 +62,6 @@ public class RecentlyViewedResourceFilter extends ResourceFilter {
         public String getLocalizedTitle(Context context) {
             return context.getString(this.mTitleId);
         }
-    }
-
-    @AfterInject
-    protected void initFilter() {
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(activity, account);
-        this.versionCode = VersionParser.toDouble(accountServerData.getVersionName());
     }
 
     @Override
@@ -100,7 +91,7 @@ public class RecentlyViewedResourceFilter extends ResourceFilter {
     private Filter getFilterAll() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
-        filterValues.addAll(JasperResources.dashboard(versionCode));
+        filterValues.addAll(JasperResources.dashboard(infoProvider.getVersion()));
 
         return new Filter(RecentlyViewedFilterCategory.all.name(), filterValues);
     }

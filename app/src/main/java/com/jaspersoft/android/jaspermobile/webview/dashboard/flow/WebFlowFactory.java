@@ -29,9 +29,10 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
-import com.jaspersoft.android.sdk.service.server.VersionParser;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
@@ -49,25 +50,23 @@ public final class WebFlowFactory {
     }
 
     public WebFlowStrategy createFlow(ResourceLookup resource) {
-        Account account = JasperAccountManager.get(mContext).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(mContext, account);
-        return createFlow(accountServerData.getVersionName(), resource);
+        ServerInfoProvider infoProvider = new InfoProvider(mContext);
+        return createFlow(infoProvider.getVersion(), resource);
     }
 
     /**
      * Creates most appropriate strategy
      *
-     * @param versionName represents double string to identify current JRS version
+     * @param version represents double string to identify current JRS version
      * @return specific web flow strategy which varies between JRS releases
      */
-    public WebFlowStrategy createFlow(String versionName, ResourceLookup resource) {
+    public WebFlowStrategy createFlow(ServerVersion version, ResourceLookup resource) {
         WebFlow webFlow;
-        double versionCode = VersionParser.toDouble(versionName);
 
         if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
             webFlow = new EmeraldWebFlow();
         } else {
-            if (versionCode <= ServerVersionCodes.v5_6_1) {
+            if (version.lessThanOrEquals(ServerVersion.v5_6_1)) {
                 webFlow = new EmeraldWebFlow();
             } else {
                 webFlow = new AmberWebFlow();

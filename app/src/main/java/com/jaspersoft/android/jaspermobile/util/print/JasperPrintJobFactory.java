@@ -28,13 +28,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.webkit.WebView;
 
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersionCodes;
-import com.jaspersoft.android.sdk.service.server.VersionParser;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import java.util.List;
 
@@ -51,9 +50,9 @@ public final class JasperPrintJobFactory {
      * <br/>
      * Throws {@link IllegalArgumentException} if {@link ResourceLookup} type is not reportUnit
      *
-     * @param resource SDK object which wraps resource metadata
-     * @param context context which represents current {@link Activity}
-     * @param jsRestClient SDK rest client
+     * @param resource         SDK object which wraps resource metadata
+     * @param context          context which represents current {@link Activity}
+     * @param jsRestClient     SDK rest client
      * @param reportParameters report parameters user chooses before printing report
      * @return common abstraction around resource printing
      */
@@ -62,7 +61,7 @@ public final class JasperPrintJobFactory {
             throw new IllegalArgumentException("Incorrect resource type. It should be 'reportUnit' but was: " + String.valueOf(resource.getResourceType()));
         }
 
-        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(context);
+        ServerInfoProvider serverInfoProvider = new InfoProvider(context);
         PrintUnit reportPrintUnit = new ReportPrintUnit(jsRestClient, resource, reportParameters, serverInfoProvider);
         return new ReportPrintJob(context, reportPrintUnit, resource.getLabel());
     }
@@ -72,7 +71,7 @@ public final class JasperPrintJobFactory {
      * <br/>
      * Throws {@link IllegalArgumentException} if {@link ResourceLookup} type is not dashboard
      *
-     * @param webView target {@link WebView} instance we would like to print from
+     * @param webView  target {@link WebView} instance we would like to print from
      * @param resource SDK object which wraps resource metadata
      * @return common abstraction around resource printing
      */
@@ -81,11 +80,11 @@ public final class JasperPrintJobFactory {
             throw new IllegalArgumentException("Incorrect resource type. It should be 'dashboard' or 'legacyDashboard' but was: " + String.valueOf(resource.getResourceType()));
         }
 
-        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(webView.getContext());
-        double versionCode = VersionParser.toDouble(serverInfoProvider.getServerVersion());
+        ServerInfoProvider serverInfoProvider = new InfoProvider(webView.getContext());
+        ServerVersion version = serverInfoProvider.getVersion();
 
         String printName = resource.getLabel();
-        if (resource.getResourceType() != ResourceLookup.ResourceType.legacyDashboard || versionCode >= ServerVersionCodes.v6) {
+        if (resource.getResourceType() != ResourceLookup.ResourceType.legacyDashboard || version.greaterThanOrEquals(ServerVersion.v6)) {
             return new DashboardPicturePrintJob(webView, printName);
         } else {
             return new DashboardWebViewPrintJob(webView, printName);

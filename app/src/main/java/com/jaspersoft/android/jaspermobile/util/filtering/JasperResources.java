@@ -45,10 +45,6 @@ public class JasperResources {
         return JasperFilter.REPORT.getAsList();
     }
 
-    public static ArrayList<String> savedValues() {
-        return JasperFilter.SAVED_VALUES.getAsList();
-    }
-
     public static ArrayList<String> files() {
         return JasperFilter.FILES.getAsList();
     }
@@ -62,18 +58,12 @@ public class JasperResources {
         }
     }
 
-    public static ArrayList<String> unknown() {
-        return JasperFilter.UNKNOWN.getAsList();
-    }
-
     private enum JasperFilter {
         FOLDER(folder),
         REPORT(reportUnit),
-        SAVED_VALUES(reportOptions),
         DASHBOARD_PRE_AMBER(dashboard),
         DASHBOARD_AMBER(legacyDashboard, dashboard),
-        FILES(file),
-        UNKNOWN(unknown);
+        FILES(file);
 
         private final ArrayList<String> mTypes = new ArrayList<String>();
 

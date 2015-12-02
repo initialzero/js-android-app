@@ -56,7 +56,6 @@ public class FavoritesResourceFilter extends ResourceFilter {
     private enum FavoritesFilterCategory {
         all(R.string.s_fd_option_all),
         reports(R.string.s_fd_option_reports),
-        saved_values(R.string.s_fd_option_saved_values),
         dashboards(R.string.s_fd_option_dashboards),
         folders(R.string.f_fd_option_folders),
         files(R.string.s_fd_option_files),
@@ -93,13 +92,11 @@ public class FavoritesResourceFilter extends ResourceFilter {
 
         availableFilters.add(getFilterAll());
         availableFilters.add(getFilterReport());
-        availableFilters.add(getFilterSavedValues());
         if (isProEdition) {
             availableFilters.add(getFilterDashboard());
         }
         availableFilters.add(getFilterFolder());
         availableFilters.add(getFilterFiles());
-        availableFilters.add(getFilterOther());
 
         return availableFilters;
     }
@@ -117,11 +114,9 @@ public class FavoritesResourceFilter extends ResourceFilter {
     private Filter getFilterAll() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
-        filterValues.addAll(JasperResources.savedValues());
         filterValues.addAll(JasperResources.dashboard(serverRelease));
         filterValues.addAll(JasperResources.files());
         filterValues.addAll(JasperResources.folder());
-        filterValues.addAll(JasperResources.unknown());
 
         return new Filter(FavoritesFilterCategory.all.name(), filterValues);
     }
@@ -131,13 +126,6 @@ public class FavoritesResourceFilter extends ResourceFilter {
         filterValues.addAll(JasperResources.report());
 
         return new Filter(FavoritesFilterCategory.reports.name(), filterValues);
-    }
-
-    private Filter getFilterSavedValues() {
-        ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.addAll(JasperResources.savedValues());
-
-        return new Filter(FavoritesFilterCategory.saved_values.name(), filterValues);
     }
 
     private Filter getFilterDashboard() {
@@ -159,12 +147,5 @@ public class FavoritesResourceFilter extends ResourceFilter {
         filterValues.addAll(JasperResources.folder());
 
         return new Filter(FavoritesFilterCategory.folders.name(), filterValues);
-    }
-
-    private Filter getFilterOther() {
-        ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.addAll(JasperResources.unknown());
-
-        return new Filter(FavoritesFilterCategory.others.name(), filterValues);
     }
 }

@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
-import java.util.List;
-
 /**
  * @author Andrew Tivodar
  * @since 2.0

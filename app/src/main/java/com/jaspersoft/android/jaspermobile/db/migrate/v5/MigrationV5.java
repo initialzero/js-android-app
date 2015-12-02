@@ -22,43 +22,39 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db;
+package com.jaspersoft.android.jaspermobile.db.migrate.v5;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
-import com.jaspersoft.android.jaspermobile.db.migrate.v2.MigrationV2;
-import com.jaspersoft.android.jaspermobile.db.migrate.v3.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.migrate.v4.MigrationV4;
-import com.jaspersoft.android.jaspermobile.db.migrate.v5.MigrationV5;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.1.2
  */
-public class JSDatabaseHelper extends JasperMobileDbDatabase {
-    private final Context mContext;
+public final class MigrationV5 implements Migration {
+    private static final String EDITION_KEY = "EDITION_KEY";
 
-    public JSDatabaseHelper(Context context) {
-        super(context);
-        mContext = context;
+    private final AccountManager mAccountManager;
+
+    public MigrationV5(Context context) {
+        mAccountManager = AccountManager.get(context);
     }
 
     @Override
-    public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-        executePragmas(db);
-        switch (oldVersion) {
-            case 1:
-            case 2:
-                new MigrationV2().migrate(db);
-            case 3:
-                new MigrationV3(mContext).migrate(db);
-            case 4:
-                new MigrationV4(mContext).migrate(db);
-            case 5:
-                new MigrationV5(mContext).migrate(db);
-                break;
+    public void migrate(SQLiteDatabase database) {
+        Account[] accounts = mAccountManager.getAccountsByType("com.jaspersoft");
+        for (Account account : accounts) {
+            adaptEdition(account);
         }
+    }
+
+    private void adaptEdition(Account account) {
+        String edition = mAccountManager.getUserData(account, EDITION_KEY);
+        boolean isPro = "PRO".equals(edition);
+        mAccountManager.setUserData(account, EDITION_KEY, String.valueOf(isPro));
     }
 }

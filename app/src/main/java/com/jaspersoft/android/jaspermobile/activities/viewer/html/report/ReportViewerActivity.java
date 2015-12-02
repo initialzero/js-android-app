@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
-import android.accounts.Account;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -67,11 +66,10 @@ import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
@@ -87,11 +85,11 @@ import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
@@ -148,6 +146,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected ScreenUtil screenUtil;
     @Bean
     protected HyperlinkHelper hyperlinkHelper;
+    @Bean
+    protected InfoProvider infoProvider;
 
     @ViewById
     protected WebView webView;
@@ -184,7 +184,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Inject
     protected Analytics analytics;
 
-    private AccountServerData accountServerData;
     private boolean mShowSaveAndPrintMenuItems, mShowRefreshMenuItem;
     private boolean mHasInitialParameters;
     private JasperChromeClientListenerImpl chromeClientListener;
@@ -211,9 +210,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (savedInstanceState == null) {
             favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
         }
-
-        Account account = JasperAccountManager.get(this).getActiveAccount();
-        accountServerData = AccountServerData.get(this, account);
     }
 
     @AfterViews
@@ -618,9 +614,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     private void loadFlow() {
-        ServerRelease release = ServerRelease.parseVersion(accountServerData.getVersionName());
+        ServerVersion version = infoProvider.getVersion();
         // For JRS 6.0 and 6.0.1 we are fixing regression by removing optimization flag
-        boolean optimized = !(release.code() >= ServerRelease.AMBER.code() && release.code() <= ServerRelease.AMBER_MR1.code());
+        boolean optimized = !(version.greaterThanOrEquals(ServerVersion.v6) && version.lessThan(ServerVersion.v6_1));
 
         InputStream stream = null;
         try {
@@ -629,7 +625,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             IOUtils.copy(stream, writer, "UTF-8");
 
 
-            String baseUrl = accountServerData.getServerUrl();
+            String baseUrl = infoProvider.getServerUrl();
             VisualizeEndpoint visualizeEndpoint = VisualizeEndpoint.forBaseUrl(baseUrl)
                     .setOptimized(optimized)
                     .build();
@@ -646,7 +642,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
             isFlowLoaded = true;
             webView.setVisibility(View.VISIBLE);
-            webView.loadDataWithBaseURL(accountServerData.getServerUrl(), html, "text/html", "utf-8", null);
+            webView.loadDataWithBaseURL(infoProvider.getServerUrl(), html, "text/html", "utf-8", null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -661,9 +657,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     private void runReport(String params) {
-        String organization = TextUtils.isEmpty(accountServerData.getOrganization())
-                ? "" : accountServerData.getOrganization();
-
         StringBuilder builder = new StringBuilder();
         builder.append("javascript:MobileReport.configure")
                 .append("({ \"auth\": ")
@@ -679,9 +672,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .append("\"params\": %s")
                 .append("})");
         String executeScript = String.format(builder.toString(),
-                accountServerData.getUsername(),
-                accountServerData.getPassword(),
-                organization,
+                infoProvider.getUsername(),
+                infoProvider.getPassword(),
+                infoProvider.getOrganization(),
                 screenUtil.getDiagonal(),
                 resource.getUri(),
                 params

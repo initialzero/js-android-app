@@ -32,6 +32,7 @@ import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
 
@@ -88,17 +89,13 @@ class Message {
 
     @VisibleForTesting
     String generateServerVersion() {
-        String serverVersion = mInfoProvider.getServerVersion();
-        if (TextUtils.isEmpty(serverVersion)) {
-            return null;
-        } else {
-            return mContext.getString(R.string.jrs_version_data, serverVersion);
-        }
+        ServerVersion serverVersion = mInfoProvider.getVersion();
+        return mContext.getString(R.string.jrs_version_data, serverVersion);
     }
 
     @VisibleForTesting
     String generateServerEdition() {
-        String serverEdition = mInfoProvider.getServerEdition();
+        String serverEdition = mInfoProvider.isProEdition() ? "PRO" : "CE";
         if (TextUtils.isEmpty(serverEdition)) {
             return null;
         } else {

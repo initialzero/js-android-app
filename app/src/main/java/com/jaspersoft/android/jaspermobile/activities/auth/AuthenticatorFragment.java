@@ -50,11 +50,11 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.rest.LoginHelper;
 import com.jaspersoft.android.retrofit.sdk.rest.LoginResponse;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.service.auth.Credentials;
 import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 
 import org.androidannotations.annotations.Click;
@@ -223,9 +223,9 @@ public class AuthenticatorFragment extends RoboFragment {
     }
 
     private void validateServerVersion(LoginResponse response) {
-        double version = response.getServerInfo().getVersion();
-        if (!ServerRelease.satisfiesMinVersion(String.valueOf(version))) {
-            throw new InvalidServerVersionException(version);
+        ServerVersion version = response.getServerInfo().getVersion();
+        if (version.lessThan(ServerVersion.v5_5)) {
+            throw new InvalidServerVersionException(version.toString());
         }
     }
 
@@ -284,7 +284,7 @@ public class AuthenticatorFragment extends RoboFragment {
                 .setOrganization(organizationEdit.getText().toString().trim())
                 .setUsername(usernameEdit.getText().toString())
                 .setPassword(passwordEdit.getText().toString())
-                .setEdition(String.valueOf(serverInfo.getEdition()))
+                .setEdition(String.valueOf(serverInfo.isEditionPro()))
                 .setVersionName(String.valueOf(serverInfo.getVersion()));
 
         return Observable.just(serverData);
@@ -300,7 +300,7 @@ public class AuthenticatorFragment extends RoboFragment {
                 .setOrganization(AccountServerData.Demo.ORGANIZATION)
                 .setUsername(AccountServerData.Demo.USERNAME)
                 .setPassword(AccountServerData.Demo.PASSWORD)
-                .setEdition(String.valueOf(serverInfo.getEdition()))
+                .setEdition(String.valueOf(serverInfo.isEditionPro()))
                 .setVersionName(String.valueOf(serverInfo.getVersion()));
 
         return Observable.just(serverData);
@@ -443,7 +443,7 @@ public class AuthenticatorFragment extends RoboFragment {
     }
 
     private static class InvalidServerVersionException extends RuntimeException {
-        public InvalidServerVersionException(double code) {
+        public InvalidServerVersionException(String code) {
             super("Minimal server version condition not acquired. Passed version was: " + code);
         }
     }

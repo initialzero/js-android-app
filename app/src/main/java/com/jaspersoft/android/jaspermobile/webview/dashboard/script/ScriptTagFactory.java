@@ -24,15 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.script;
 
-import android.accounts.Account;
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
@@ -55,26 +54,15 @@ public class ScriptTagFactory {
             return new EmeraldDashboardScriptTagCreator(token);
         }
 
-        Account account = JasperAccountManager.get(mContext).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(mContext, account);
-        String versionName = accountServerData.getVersionName();
-        ServerRelease serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+        ServerInfoProvider infoProvider = new InfoProvider(mContext);
+        ServerVersion version = infoProvider.getVersion();
 
-        switch (serverRelease) {
-            case EMERALD:
-            case EMERALD_MR1:
-            case EMERALD_MR2:
-            case EMERALD_MR3:
-            case EMERALD_MR4:
-                return new EmeraldDashboardScriptTagCreator(token);
-            case AMBER:
-            case AMBER_MR1:
-                return new AmberDashboardScriptTagCreator(token);
-            case AMBER_MR2:
-            case AMBER_MR3:
-                return new Amber2DashboardScriptTagCreator(token);
-            default:
-                throw new UnsupportedOperationException("Could not script creator for current versionName: " + versionName);
+        if (version.lessThanOrEquals(ServerVersion.v5_6_1)) {
+            return new EmeraldDashboardScriptTagCreator(token);
+        } else if (version.greaterThanOrEquals(ServerVersion.v6) && version.lessThan(ServerVersion.v6_1)) {
+            return new AmberDashboardScriptTagCreator(token);
+        } else {
+            return new Amber2DashboardScriptTagCreator(token);
         }
     }
 }

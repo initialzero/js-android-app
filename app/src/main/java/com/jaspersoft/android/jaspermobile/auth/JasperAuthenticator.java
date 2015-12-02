@@ -44,11 +44,11 @@ import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.retrofit.sdk.rest.LoginHelper;
 import com.jaspersoft.android.retrofit.sdk.rest.LoginResponse;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.service.auth.Credentials;
 import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
@@ -130,18 +130,19 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
 
             ServerInfo serverInfo = loginResponse.getServerInfo();
 
-            boolean serverInfoEditionUpdated = !serverInfo.getEdition().equals(serverData.getEdition());
+            boolean oldEdition = Boolean.valueOf(serverData.getEdition());
+            boolean serverInfoEditionUpdated = serverInfo.isEditionPro() != oldEdition;
             boolean serverInfoVersionUpdated = !String.valueOf(serverInfo.getVersion()).equals(serverData.getVersionName());
 
             Timber.d("Updating user data with server info: " + serverInfo);
-            accountManager.setUserData(account, AccountServerData.EDITION_KEY, String.valueOf(serverInfo.getEdition()));
+            accountManager.setUserData(account, AccountServerData.EDITION_KEY, String.valueOf(serverInfo.isEditionPro()));
             accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, String.valueOf(serverInfo.getVersion()));
 
             if (serverInfoEditionUpdated || serverInfoVersionUpdated) {
                 return createErrorBundle(JasperAccountManager.TokenException.SERVER_UPDATED_ERROR, mContext.getString(R.string.r_error_server_not_found));
             }
 
-            if (!ServerRelease.satisfiesMinVersion(String.valueOf(serverInfo.getVersion()))) {
+            if (serverInfo.getVersion().lessThan(ServerVersion.v5_5)) {
                 return createErrorBundle(JasperAccountManager.TokenException.INCORRECT_SERVER_VERSION_ERROR, SERVER_DATA_WAS_UPDATED);
             }
 

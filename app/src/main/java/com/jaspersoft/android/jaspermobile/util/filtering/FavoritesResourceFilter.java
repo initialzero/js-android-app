@@ -24,16 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 
-import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
@@ -47,11 +44,13 @@ import java.util.List;
 @EBean
 public class FavoritesResourceFilter extends ResourceFilter {
 
-    private ServerRelease serverRelease;
+    private double versionCode;
     private boolean isProEdition;
 
     @RootContext
     protected FragmentActivity activity;
+    @Bean
+    protected InfoProvider infoProvider;
 
     private enum FavoritesFilterCategory {
         all(R.string.s_fd_option_all),
@@ -70,13 +69,7 @@ public class FavoritesResourceFilter extends ResourceFilter {
         }
     }
 
-    @AfterInject
-    protected void initFilter() {
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(activity, account);
-        this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
-        this.isProEdition = accountServerData.getEdition().equals("PRO");
-    }
+
 
     @Override
     protected String getFilterLocalizedTitle(Filter filter) {
@@ -111,7 +104,7 @@ public class FavoritesResourceFilter extends ResourceFilter {
     private Filter getFilterAll() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
-        filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.dashboard(infoProvider.getVersion()));
         filterValues.addAll(JasperResources.folder());
 
         return new Filter(FavoritesFilterCategory.all.name(), filterValues);
@@ -126,7 +119,7 @@ public class FavoritesResourceFilter extends ResourceFilter {
 
     private Filter getFilterDashboard() {
         ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.dashboard(infoProvider.getVersion()));
 
         return new Filter(FavoritesFilterCategory.dashboards.name(), filterValues);
     }

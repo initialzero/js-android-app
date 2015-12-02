@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.util.report;
 
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,13 +57,13 @@ public class ExportIdFormatImplTest {
                 .setExportExecution(exportExecution)
                 .setExportsRequest(exportRequest)
                 .build()
-                .createAdapter("5.5");
+                .createAdapter(ServerVersion.v5_5);
         assertThat(adapter.format(), is("PDF;pages=1-5"));
     }
 
     @Test
-    @Parameters({"5.6", "5.6.1", "6.0", "6.0.1", "6.1"})
-    public void shouldAdaptExportIdByDefault(String serverVersion) {
+    @Parameters({"v5_6", "v5_6_1", "v6", "v6_0_1", "v6_1"})
+    public void shouldAdaptExportIdByDefault(String serverVersion) throws Exception {
         ExportsRequest exportRequest = new ExportsRequest();
         exportRequest.setPages("1-5");
         exportRequest.setOutputFormat("PDF");
@@ -70,11 +71,12 @@ public class ExportIdFormatImplTest {
         ExportExecution exportExecution = new ExportExecution();
         exportExecution.setId("1234");
 
+        ServerVersion version = (ServerVersion) ServerVersion.class.getField(serverVersion).get(null);
         ExportIdFormat adapter = ExportIdFormatFactory.builder()
                 .setExportExecution(exportExecution)
                 .setExportsRequest(exportRequest)
                 .build()
-                .createAdapter(serverVersion);
+                .createAdapter(version);
         assertThat(adapter.format(), is("1234"));
     }
 

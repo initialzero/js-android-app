@@ -41,6 +41,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportStatusResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.client.ClientHttpResponse;
@@ -234,7 +235,7 @@ final class ReportPrintUnit implements PrintUnit {
         RunReportExportsRequest request = new RunReportExportsRequest(mJsRestClient, exportsRequest, executionId);
         ExportExecution exportExecutionResponse = request.loadDataFromNetwork();
 
-        String serverVersion = mServerInfoProvider.getServerVersion();
+        ServerVersion serverVersion = mServerInfoProvider.getVersion();
         ExportIdFormat exportIdFormat = ExportIdFormatFactory.builder()
                 .setExportsRequest(exportsRequest)
                 .setExportExecution(exportExecutionResponse)

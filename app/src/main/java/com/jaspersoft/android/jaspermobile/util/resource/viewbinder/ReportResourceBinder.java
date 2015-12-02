@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.View;
@@ -32,11 +31,11 @@ import android.widget.ImageView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -56,11 +55,8 @@ class ReportResourceBinder extends ResourceBinder {
     public ReportResourceBinder(Context context) {
         super(context);
         RoboGuice.getInjector(context).injectMembersWithoutViews(this);
-
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(context, account);
-        ServerRelease serverRelease = ServerRelease.parseVersion(serverData.getVersionName());
-        isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
+        ServerInfoProvider infoProvider = new InfoProvider(context);
+        isAmberOrHigher = infoProvider.getVersion().greaterThanOrEquals(ServerVersion.v6);
     }
 
     @Override

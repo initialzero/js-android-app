@@ -30,6 +30,7 @@ import android.content.pm.PackageManager;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,20 +71,8 @@ public class FeedbackMessageTest {
     public void shouldCreateValidFeedbackMessage() {
         mockPackageManager();
 
-        when(serverInfoProvider.getServerVersion()).thenReturn("6.1");
-        when(serverInfoProvider.getServerEdition()).thenReturn("CE");
-
-        String message = feedbackMessage.create();
-
-        assertThat(message, is(notNullValue()));
-    }
-
-    @Test
-    public void shouldOmitServerDataIfMissing() {
-        mockPackageManager();
-
-        when(serverInfoProvider.getServerVersion()).thenReturn(null);
-        when(serverInfoProvider.getServerEdition()).thenReturn(null);
+        when(serverInfoProvider.getVersion()).thenReturn(ServerVersion.v6_1);
+        when(serverInfoProvider.isProEdition()).thenReturn(false);
 
         String message = feedbackMessage.create();
 
@@ -109,30 +98,16 @@ public class FeedbackMessageTest {
 
     @Test
     public void shouldGenerateJrsVersionInfo() {
-        when(serverInfoProvider.getServerVersion()).thenReturn("6.1");
+        when(serverInfoProvider.getVersion()).thenReturn(ServerVersion.v6_1);
         String message = feedbackMessage.generateServerVersion();
         assertThat(message, containsString("JRS version: 6.1"));
     }
 
     @Test
-    public void shouldGenerateNullForJrsVersion() {
-        when(serverInfoProvider.getServerVersion()).thenReturn(null);
-        String message = feedbackMessage.generateServerVersion();
-        assertThat(message, is(nullValue()));
-    }
-
-    @Test
     public void shouldGenerateJrsEditionInfo() {
-        when(serverInfoProvider.getServerEdition()).thenReturn("CE");
+        when(serverInfoProvider.isProEdition()).thenReturn(false);
         String message = feedbackMessage.generateServerEdition();
         assertThat(message, containsString("JRS edition: CE"));
-    }
-
-    @Test
-    public void shouldGenerateNullForEdition() {
-        when(serverInfoProvider.getServerEdition()).thenReturn(null);
-        String message = feedbackMessage.generateServerEdition();
-        assertThat(message, is(nullValue()));
     }
 
     //---------------------------------------------------------------------

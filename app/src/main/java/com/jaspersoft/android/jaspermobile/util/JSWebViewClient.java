@@ -34,9 +34,9 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;

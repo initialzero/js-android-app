@@ -24,9 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.util.report;
 
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
@@ -46,13 +46,11 @@ public class ExportIdFormatFactory {
         return new Builder();
     }
 
-    public ExportIdFormat createAdapter(String serverVersion) {
-        ServerRelease release = ServerRelease.parseVersion(serverVersion);
-        switch (release) {
-            case EMERALD_MR2:
-                return new AmberExportIdFormat(exportsRequest);
-            default:
-                return new DefaultExportIdFormat(exportExecution);
+    public ExportIdFormat createAdapter(ServerVersion version) {
+        if (version.equals(ServerVersion.v5_5)) {
+            return new AmberExportIdFormat(exportsRequest);
+        } else {
+            return new DefaultExportIdFormat(exportExecution);
         }
     }
 

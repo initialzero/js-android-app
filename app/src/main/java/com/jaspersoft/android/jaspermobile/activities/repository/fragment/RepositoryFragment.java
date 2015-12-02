@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,7 +43,6 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
@@ -54,12 +52,11 @@ import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
@@ -67,6 +64,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -147,10 +145,11 @@ public class RepositoryFragment extends RoboSpiceFragment
     protected ResourceOpener resourceOpener;
     @Bean
     protected FavoritesHelper favoritesHelper;
+    @Bean
+    protected InfoProvider infoProvider;
 
     private ResourceAdapter mAdapter;
     private PaginationPolicy mPaginationPolicy;
-    private AccountServerData mServerData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -176,10 +175,6 @@ public class RepositoryFragment extends RoboSpiceFragment
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        mServerData = AccountServerData.get(getActivity(), account);
-
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.js_blue,
@@ -274,13 +269,12 @@ public class RepositoryFragment extends RoboSpiceFragment
     }
 
     private void updatePaginationPolicy() {
-        ServerRelease release = ServerRelease.parseVersion(mServerData.getVersionName());
-        double versionCode = release.code();
+        ServerVersion version = infoProvider.getVersion();
 
-        if (versionCode <= ServerRelease.EMERALD_MR2.code()) {
+        if (version.lessThanOrEquals(ServerVersion.v5_5)) {
             mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
         }
-        if (versionCode > ServerRelease.EMERALD_MR2.code()) {
+        if (version.greaterThan(ServerVersion.v5_5)) {
             mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
         }
 
@@ -346,7 +340,7 @@ public class RepositoryFragment extends RoboSpiceFragment
 
     private void loadPage() {
         boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = mServerData.getEdition().equals("PRO");
+        boolean isProJrs = infoProvider.isProEdition();
         if (isRoot && isProJrs) {
             loadRootFolders();
         } else {

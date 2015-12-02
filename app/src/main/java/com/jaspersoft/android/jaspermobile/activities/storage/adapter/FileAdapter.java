@@ -70,9 +70,9 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     private static final Map<FileType, Integer> DRAWABLE_IDS_MAP = new EnumMap<FileType, Integer>(FileType.class);
 
     static {
-        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.bg_saved_html);
-        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.bg_saved_pdf);
-        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.bg_saved_xls);
+        DRAWABLE_IDS_MAP.put(FileType.HTML, R.drawable.ic_file_html);
+        DRAWABLE_IDS_MAP.put(FileType.PDF, R.drawable.ic_file_pdf);
+        DRAWABLE_IDS_MAP.put(FileType.XLS, R.drawable.ic_file_xls);
         DRAWABLE_IDS_MAP.put(FileType.UNKNOWN, R.drawable.bg_gradient_grey);
     }
 
@@ -109,11 +109,11 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         String fileFormat = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
         String fileName = cursor.getString(cursor.getColumnIndex(SavedItemsTable.NAME));
 
-        TopCropImageView iconView = (TopCropImageView) itemView.getImageView();
+        TopCropImageView iconView = itemView.getImageView();
         if (iconView != null) {
             iconView.setImageResource(getFileIconByExtension(fileFormat));
             iconView.setBackgroundResource(R.drawable.bg_gradient_grey);
-            iconView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+            iconView.setScaleType(TopCropImageView.ScaleType.CENTER);
         }
 
         itemView.setTitle(fileName);

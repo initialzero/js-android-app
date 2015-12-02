@@ -62,7 +62,7 @@ public class InfoProvider implements ServerInfoProvider {
      * {@inheritDoc}
      */
     @Override
-    public boolean isPro() {
+    public boolean isProEdition() {
         return Boolean.valueOf(serverData.getEdition());
     }
 

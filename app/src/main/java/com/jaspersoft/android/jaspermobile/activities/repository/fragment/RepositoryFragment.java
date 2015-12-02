@@ -340,7 +340,7 @@ public class RepositoryFragment extends RoboSpiceFragment
 
     private void loadPage() {
         boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = infoProvider.isPro();
+        boolean isProJrs = infoProvider.isProEdition();
         if (isRoot && isProJrs) {
             loadRootFolders();
         } else {

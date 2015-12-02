@@ -72,7 +72,7 @@ public class FeedbackMessageTest {
         mockPackageManager();
 
         when(serverInfoProvider.getVersion()).thenReturn(ServerVersion.v6_1);
-        when(serverInfoProvider.isPro()).thenReturn(false);
+        when(serverInfoProvider.isProEdition()).thenReturn(false);
 
         String message = feedbackMessage.create();
 
@@ -105,7 +105,7 @@ public class FeedbackMessageTest {
 
     @Test
     public void shouldGenerateJrsEditionInfo() {
-        when(serverInfoProvider.isPro()).thenReturn(false);
+        when(serverInfoProvider.isProEdition()).thenReturn(false);
         String message = feedbackMessage.generateServerEdition();
         assertThat(message, containsString("JRS edition: CE"));
     }

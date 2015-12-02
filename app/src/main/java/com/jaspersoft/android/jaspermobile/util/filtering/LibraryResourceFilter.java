@@ -80,7 +80,7 @@ public class LibraryResourceFilter extends ResourceFilter {
         availableFilters.add(getFilterAll());
 
         // Filtration is not available for CE servers
-        if (mInfoProvider.isPro()) {
+        if (mInfoProvider.isProEdition()) {
             availableFilters.add(getFilterReport());
             availableFilters.add(getFilterDashboard());
         }

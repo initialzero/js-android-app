@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.library.fragment;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,8 +51,6 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;

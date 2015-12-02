@@ -24,11 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.script;
 
-import android.accounts.Account;
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;

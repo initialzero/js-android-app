@@ -45,7 +45,7 @@ public interface ServerInfoProvider {
      *
      * @return null if app is in consistent state otherwise current value
      */
-    boolean isPro();
+    boolean isProEdition();
     /**
      * Returns current selected server organization. For instance it could be 'organization_1'
      *

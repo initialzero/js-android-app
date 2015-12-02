@@ -95,7 +95,7 @@ class Message {
 
     @VisibleForTesting
     String generateServerEdition() {
-        String serverEdition = mInfoProvider.isPro() ? "PRO" : "CE";
+        String serverEdition = mInfoProvider.isProEdition() ? "PRO" : "CE";
         if (TextUtils.isEmpty(serverEdition)) {
             return null;
         } else {

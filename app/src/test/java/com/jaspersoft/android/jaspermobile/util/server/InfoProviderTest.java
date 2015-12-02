@@ -90,7 +90,7 @@ public class InfoProviderTest {
 
     @Test
     public void shouldProvideServerEdition() {
-        boolean retrievedEdition = serverInfoProvider.isPro();
+        boolean retrievedEdition = serverInfoProvider.isProEdition();
         assertThat(retrievedEdition, is(true));
     }
 

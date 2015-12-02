@@ -109,7 +109,8 @@ public class ResourceOpener {
 
     private void runReport(final ResourceLookup resource) {
         boolean isRestEngine = mInfoProvider.getVersion().lessThan(ServerVersion.v6);
-        if (mInfoProvider.isPro() || isRestEngine) {
+        boolean isCeJrs = !mInfoProvider.isProEdition();
+        if (isCeJrs || isRestEngine) {
             ReportHtmlViewerActivity_.intent(activity)
                     .resource(resource).start();
         } else {

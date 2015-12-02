@@ -31,15 +31,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
-import java.math.BigDecimal;
-
 /**
  * @author Tom Koptel
  * @since 2.1.2
  */
 public final class MigrationV5 implements Migration {
     private static final String EDITION_KEY = "EDITION_KEY";
-    private static final String VERSION_NAME_KEY = "VERSION_NAME_KEY";
 
     private final AccountManager mAccountManager;
 

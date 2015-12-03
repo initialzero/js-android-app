@@ -24,9 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.network;
 
-import com.jaspersoft.android.sdk.network.AuthenticationRestApi;
 import com.jaspersoft.android.sdk.network.ServerRestApi;
-import com.jaspersoft.android.sdk.service.auth.JrsAuthenticator;
+import com.jaspersoft.android.sdk.service.auth.AuthenticationService;
 import com.jaspersoft.android.sdk.service.server.ServerInfoService;
 
 import java.util.concurrent.TimeUnit;
@@ -40,7 +39,7 @@ public final class RestClient {
     private final int mReadTimeOut;
     private final int mConnectionTimeOut;
 
-    private JrsAuthenticator mAuthenticator;
+    private AuthenticationService mAuthenticator;
     private ServerInfoService mInfoService;
 
     RestClient(String serverUrl, int readTimeOut, int connectionTimeOut) {
@@ -49,15 +48,16 @@ public final class RestClient {
         mConnectionTimeOut = connectionTimeOut;
     }
 
-    public JrsAuthenticator authApi() {
+    public AuthenticationService authApi() {
         if (mAuthenticator == null) {
-            AuthenticationRestApi restApi = new AuthenticationRestApi.Builder()
-                    .connectionTimeOut(mConnectionTimeOut, TimeUnit.MILLISECONDS)
-                    .readTimeout(mReadTimeOut, TimeUnit.MILLISECONDS)
-                    .baseUrl(mServerUrl)
-                    .build();
+            com.jaspersoft.android.sdk.service.RestClient client =
+                    com.jaspersoft.android.sdk.service.RestClient.builder()
+                    .serverUrl(mServerUrl)
+                    .connectionTimeOut(mConnectionTimeOut, TimeUnit.MICROSECONDS)
+                    .readTimeOut(mReadTimeOut, TimeUnit.MICROSECONDS)
+                    .create();
 
-            mAuthenticator = JrsAuthenticator.create(restApi);
+            mAuthenticator = AuthenticationService.create(client);
         }
         return mAuthenticator;
     }

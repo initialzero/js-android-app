@@ -230,7 +230,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
         navigationPanelLayout.setListener(new NavigationPanelLayout.NavigationListener() {
             @Override
             public void onNavigate(int viewId) {
-                handleNavigationAction(viewId, true);
+                handleNavigationAction(viewId);
                 drawerLayout.closeDrawer(navigationPanelLayout);
             }
 
@@ -243,40 +243,32 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
 
     private void navigateToCurrentSelection() {
         navigationPanelLayout.setItemSelected(currentSelection);
-        handleNavigationAction(currentSelection, false);
     }
 
-    private void handleNavigationAction(int viewId, boolean isUserAction) {
-        String catalogName = "";
+    private void handleNavigationAction(int viewId) {
         switch (viewId) {
             case R.id.vg_library:
                 currentSelection = R.id.vg_library;
                 commitContent(LibraryPageFragment_.builder().build());
-                catalogName = Analytics.EventLabel.LIBRARY.getValue();
                 break;
             case R.id.vg_repository:
                 currentSelection = R.id.vg_repository;
                 commitContent(RepositoryPageFragment_.builder().build());
-                catalogName = Analytics.EventLabel.REPOSITORY.getValue();
                 break;
             case R.id.vg_recent:
                 currentSelection = R.id.vg_recent;
                 commitContent(RecentPageFragment_.builder().build());
-                catalogName = Analytics.EventLabel.RECENTLY_VIEWED.getValue();
                 break;
             case R.id.vg_saved_items:
                 currentSelection = R.id.vg_saved_items;
                 commitContent(SavedReportsFragment_.builder().build());
-                catalogName = Analytics.EventLabel.SAVED_ITEMS.getValue();
                 break;
             case R.id.vg_favorites:
                 currentSelection = R.id.vg_favorites;
                 commitContent(FavoritesPageFragment_.builder().build());
-                catalogName = Analytics.EventLabel.FAVORITES.getValue();
                 break;
             case R.id.vg_add_account:
                 startActivityForResult(new Intent(this, AuthenticatorActivity.class), NEW_ACCOUNT);
-                catalogName = Analytics.EventLabel.ADD_ACCOUNT.getValue();
                 break;
             case R.id.vg_manage_accounts:
                 String[] authorities = {getString(R.string.jasper_account_authority)};
@@ -287,22 +279,15 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(this, getString(R.string.wrong_action), Toast.LENGTH_SHORT).show();
                 }
-                catalogName = Analytics.EventLabel.MANAGE_ACCOUNT.getValue();
                 break;
             case R.id.tv_settings:
                 SettingsActivity_.intent(this).start();
-                catalogName = Analytics.EventLabel.SETTINGS.getValue();
                 break;
             case R.id.tv_feedback:
                 sendFeedback();
-                catalogName = Analytics.EventLabel.FEEDBACK.getValue();
                 break;
             case R.id.tv_about:
                 AboutDialogFragment.createBuilder(this, getSupportFragmentManager()).show();
-                catalogName = Analytics.EventLabel.ABOUT.getValue();
-        }
-        if (isUserAction) {
-            analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICKED.getValue(), catalogName);
         }
     }
 

@@ -74,14 +74,10 @@ public class RecentPageFragment extends RoboFragment {
             }
 
             transaction.commit();
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.RECENTLY_VIEWED.getValue());
         }
 
         ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        analytics.sendScreenView(Analytics.ScreenName.RECENTLY_VIEWED.getValue());
     }
 }

@@ -43,9 +43,8 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
-import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
@@ -55,8 +54,10 @@ import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
-import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.FileUtils;
@@ -71,6 +72,7 @@ import org.androidannotations.annotations.UiThread;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -95,6 +97,8 @@ public class SavedItemsFragment extends RoboFragment
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected Analytics analytics;
 
     @InjectView(android.R.id.list)
     protected AbsListView listView;
@@ -109,13 +113,19 @@ public class SavedItemsFragment extends RoboFragment
     @InstanceState
     protected SortOrder sortOrder;
 
-
     @Bean
     protected StorageResourceFilter storageResourceFilter;
     @Bean
     protected SavedItemHelper savedItemHelper;
 
     private FileAdapter mAdapter;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        analytics.setScreenName(Analytics.ScreenName.SAVED_ITEMS.getValue());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -145,6 +155,16 @@ public class SavedItemsFragment extends RoboFragment
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_KEY, storageResourceFilter.getCurrent().getName()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
+        analytics.sendScreenView(viewDimension);
+    }
+
     @ItemClick(android.R.id.list)
     public void onItemClick(int position) {
         mAdapter.finishActionMode();
@@ -162,10 +182,14 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     public void showSavedItemsByFilter() {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.FILTERED.getValue(), storageResourceFilter.getCurrent().getName());
+
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }
 
     public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.SORTED.getValue(), sortOrder.name());
+
         sortOrder = selectedSortOrder;
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }

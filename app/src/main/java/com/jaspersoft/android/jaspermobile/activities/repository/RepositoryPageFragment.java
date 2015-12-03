@@ -76,15 +76,10 @@ public class RepositoryPageFragment extends RoboFragment {
                             .build();
             transaction.replace(R.id.search_controller, searchControllerFragment);
             transaction.commit();
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.REPOSITORY.getValue());
         }
 
         ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        analytics.sendScreenView(Analytics.ScreenName.REPOSITORY.getValue());
     }
 }

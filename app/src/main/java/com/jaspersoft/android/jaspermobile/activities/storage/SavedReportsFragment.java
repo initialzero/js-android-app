@@ -99,6 +99,8 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
             transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.SAVED_ITEMS.getValue());
         } else {
             savedItemsController = (SavedItemsControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(SavedItemsControllerFragment.TAG);
@@ -118,7 +120,6 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
         if (actionBar != null) {
             actionBar.setTitle(R.string.sdr_ab_title);
         }
-        analytics.sendScreenView(Analytics.ScreenName.SAVED_ITEMS.getValue());
     }
 
     @OptionsItem(R.id.sort)

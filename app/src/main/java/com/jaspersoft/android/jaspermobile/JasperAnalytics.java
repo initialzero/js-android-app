@@ -52,41 +52,39 @@ public class JasperAnalytics implements Analytics {
     }
 
     @Override
-    public void sendScreenView(String screenName) {
+    public void setScreenName(String screenName) {
         checkTracker();
 
         mTracker.setScreenName(screenName);
-        mTracker.send(new HitBuilders.ScreenViewBuilder()
-                .build());
+    }
+
+    @Override
+    public void sendScreenView(List<Dimension> dimensions) {
+        checkTracker();
+
+        HitBuilders.ScreenViewBuilder screenHitBuilder = new HitBuilders.ScreenViewBuilder();
+
+        if (dimensions != null) {
+            for (Dimension dimension : dimensions) {
+                screenHitBuilder.setCustomDimension(dimension.getKey(), dimension.getValue());
+            }
+        }
+
+        mTracker.send(screenHitBuilder.build());
     }
 
     @Override
     public void sendEvent(String eventCategory, String eventAction, String eventLabel) {
         checkTracker();
 
-        mTracker.send(new HitBuilders.EventBuilder()
-                .setCategory(eventCategory)
-                .setAction(eventAction)
-                .setLabel(eventLabel)
-                .build());
-    }
-
-    @Override
-    public void sendEvent(String eventCategory, String eventAction, String eventLabel, List<Dimension> dimensions) {
-        checkTracker();
-
-        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                .setCategory(eventCategory)
-                .setAction(eventAction)
-                .setLabel(eventLabel);
-
-        if (dimensions != null) {
-            for (Dimension dimension : dimensions) {
-                eventBuilder.setCustomDimension(dimension.getKey(), dimension.getValue());
-            }
+        HitBuilders.EventBuilder eventHitBuilder = new HitBuilders.EventBuilder();
+        eventHitBuilder.setCategory(eventCategory);
+        eventHitBuilder.setAction(eventAction);
+        if (eventLabel != null) {
+            eventHitBuilder.setLabel(eventLabel);
         }
 
-        mTracker.send(eventBuilder.build());
+        mTracker.send(eventHitBuilder.build());
     }
 
     @Override

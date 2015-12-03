@@ -71,16 +71,11 @@ public class FavoritesPageFragment extends RoboFragment {
             transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.FAVORITES.getValue());
         } else {
             favoritesController = (FavoritesControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        analytics.sendScreenView(Analytics.ScreenName.FAVORITES.getValue());
     }
 }

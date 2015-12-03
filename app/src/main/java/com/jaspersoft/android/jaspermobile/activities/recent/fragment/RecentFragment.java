@@ -39,6 +39,7 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
@@ -63,6 +64,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.ItemClick;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -89,6 +91,8 @@ public class RecentFragment extends RoboSpiceFragment
     protected JsRestClient jsRestClient;
     @Inject
     protected ResourceLookupSearchCriteria mSearchCriteria;
+    @Inject
+    protected Analytics analytics;
 
     @FragmentArg
     protected ViewType viewType;
@@ -111,6 +115,8 @@ public class RecentFragment extends RoboSpiceFragment
         mSearchCriteria.setTypes(recentlyViewedResourceFilter.getCurrent().getValues());
         mSearchCriteria.setSortBy(SortOrder.ACCESS_TIME.getValue());
         mSearchCriteria.setFolderUri(ROOT_URI);
+
+        analytics.setScreenName(Analytics.ScreenName.RECENTLY_VIEWED.getValue());
     }
 
     @Override
@@ -144,6 +150,10 @@ public class RecentFragment extends RoboSpiceFragment
         if (actionBar != null) {
             actionBar.setTitle(getString(R.string.recent_card_label));
         }
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
+        analytics.sendScreenView(viewDimension);
     }
 
     @Override
@@ -173,6 +183,8 @@ public class RecentFragment extends RoboSpiceFragment
     @Override
     public void onRefresh() {
         loadResources();
+
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), null);
     }
 
     //---------------------------------------------------------------------

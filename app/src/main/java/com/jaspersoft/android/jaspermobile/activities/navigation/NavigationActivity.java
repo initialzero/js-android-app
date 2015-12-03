@@ -215,7 +215,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.OPEN.getValue(), null);
+                analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.OPENED.getValue(), null);
 
                 invalidateOptionsMenu();
                 customToolbarDisplayEnabled = false;
@@ -302,7 +302,7 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
                 catalogName = Analytics.EventLabel.ABOUT.getValue();
         }
         if (isUserAction) {
-            analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICK.getValue(), catalogName);
+            analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICKED.getValue(), catalogName);
         }
     }
 

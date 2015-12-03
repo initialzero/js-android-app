@@ -50,9 +50,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import roboguice.fragment.RoboFragment;
 
 
@@ -82,6 +79,8 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        analytics.setScreenName(Analytics.ScreenName.LIBRARY.getValue());
     }
 
     @Override
@@ -104,7 +103,7 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
             transaction.replace(R.id.search_controller, searchControllerFragment);
             transaction.commit();
 
-
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.LIBRARY.getValue());
         } else {
             libraryControllerFragment = (LibraryControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(LibraryControllerFragment.TAG);
@@ -119,13 +118,6 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
         } else {
             ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        analytics.sendScreenView(Analytics.ScreenName.LIBRARY.getValue());
     }
 
     @OptionsItem(R.id.sort)

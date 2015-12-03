@@ -34,9 +34,9 @@ import java.util.List;
  */
 public interface Analytics {
     void init(Application appContext);
-    void sendScreenView(String screenName);
+    void setScreenName(String screenName);
+    void sendScreenView(List<Dimension> dimension);
     void sendEvent(String eventCategory, String eventAction, String eventLabel);
-    void sendEvent(String eventCategory, String eventAction, String eventLabel, List<Dimension> dimension);
     void sendUserChangedEvent();
     void setServerInfo(String serverVersion, String serverEdition);
 
@@ -62,7 +62,6 @@ public interface Analytics {
         MENU("Menu"),
         ACCOUNT("Account"),
         CATALOG("Catalog"),
-        SETTINGS("Settings"),
         RESOURCE("Resource");
 
         String mName;
@@ -77,16 +76,16 @@ public interface Analytics {
     }
 
     enum EventAction {
-        OPEN("Open"),
-        CLICK("Click"),
+        OPENED("Opened"),
+        CLICKED("Clicked"),
         VIEWED("Viewed"),
-        SORT("Sort"),
-        FILTER("Filter"),
-        VIEW_TYPE("Change view type"),
-        ADD("Add"),
-        MANAGE("Manage"),
+        REFRESHED("Refreshed"),
+        LOADED_NEXT("Loaded next"),
+        SORTED("Sorted"),
+        FILTERED("Filtered"),
+        CHANGED_VIEW_TYPE("Changed view type"),
         CHANGED("Changed"),
-        PRINT("Print");
+        PRINTED("Printed");
 
         String mName;
 
@@ -111,9 +110,7 @@ public interface Analytics {
         ABOUT("About"),
         MANAGE_ACCOUNT("Manage account"),
         REPORT("Report"),
-        DASHBOARD("Dashboard"),
-        FOLDER("Folder"),
-        SHOWN("Shown");
+        DASHBOARD("Dashboard");
 
         String mName;
 
@@ -127,7 +124,7 @@ public interface Analytics {
     }
 
     class Dimension {
-        public static final int SORT_TYPE_KEY = 3;
+        public static final int FILTER_TYPE_KEY = 3;
         public static final int RESOURCE_VIEW_KEY = 4;
 
         private int mKey;

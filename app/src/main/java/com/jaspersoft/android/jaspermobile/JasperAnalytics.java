@@ -48,7 +48,7 @@ public class JasperAnalytics implements Analytics {
         GoogleAnalytics analytics = GoogleAnalytics.getInstance(appContext);
 
         mTracker = analytics.newTracker(appContext.getString(R.string.google_analytics_tracking_id));
-        mTracker.setSessionTimeout(600);
+        mTracker.setSessionTimeout(900);
     }
 
     @Override
@@ -59,8 +59,9 @@ public class JasperAnalytics implements Analytics {
     }
 
     @Override
-    public void sendScreenView(List<Dimension> dimensions) {
+    public void sendScreenView(String screenName, List<Dimension> dimensions) {
         checkTracker();
+        setScreenName(screenName);
 
         HitBuilders.ScreenViewBuilder screenHitBuilder = new HitBuilders.ScreenViewBuilder();
 

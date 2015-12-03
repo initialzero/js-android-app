@@ -35,7 +35,7 @@ import java.util.List;
 public interface Analytics {
     void init(Application appContext);
     void setScreenName(String screenName);
-    void sendScreenView(List<Dimension> dimension);
+    void sendScreenView(String screenName, List<Dimension> dimension);
     void sendEvent(String eventCategory, String eventAction, String eventLabel);
     void sendUserChangedEvent();
     void setServerInfo(String serverVersion, String serverEdition);

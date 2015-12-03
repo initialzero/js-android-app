@@ -168,8 +168,6 @@ public class RepositoryFragment extends RoboSpiceFragment
         if (!TextUtils.isEmpty(query)) {
             mSearchCriteria.setQuery(query);
         }
-
-        analytics.setScreenName(Analytics.ScreenName.REPOSITORY.getValue());
     }
 
     @Override
@@ -224,7 +222,7 @@ public class RepositoryFragment extends RoboSpiceFragment
 
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
-        analytics.sendScreenView(viewDimension);
+        analytics.sendScreenView(Analytics.ScreenName.REPOSITORY.getValue(), viewDimension);
     }
 
     @Override

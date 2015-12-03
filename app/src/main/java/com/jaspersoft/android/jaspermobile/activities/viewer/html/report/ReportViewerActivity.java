@@ -306,6 +306,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
         paramsStorage.clearInputControlHolder(resource.getUri());
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_rvs_v);
+    }
+
     //---------------------------------------------------------------------
     // Menu items callbacks
     //---------------------------------------------------------------------

@@ -198,7 +198,7 @@ public class FavoritesFragment extends RoboFragment
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_KEY, favoritesResourceFilter.getCurrent().getName()));
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
-        analytics.sendScreenView(viewDimension);
+        analytics.sendScreenView(Analytics.ScreenName.FAVORITES.getValue(),viewDimension);
     }
 
     @Override

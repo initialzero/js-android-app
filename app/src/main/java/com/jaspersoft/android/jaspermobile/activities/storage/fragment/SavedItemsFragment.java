@@ -162,7 +162,7 @@ public class SavedItemsFragment extends RoboFragment
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_KEY, storageResourceFilter.getCurrent().getName()));
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
-        analytics.sendScreenView(viewDimension);
+        analytics.sendScreenView(Analytics.ScreenName.SAVED_ITEMS.getValue(),viewDimension);
     }
 
     @ItemClick(android.R.id.list)

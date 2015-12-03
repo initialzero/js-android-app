@@ -229,6 +229,8 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @ItemClick(R.id.lv_accounts_menu)
     public void onAccountSelect(AccountServerData accountsData) {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.SWITCH_ACCOUNT.getValue());
+
         Account[] accounts = JasperAccountManager.get(getContext()).getAccounts();
         for (Account account : accounts) {
             if (accountsData.getAlias().equals(account.name))

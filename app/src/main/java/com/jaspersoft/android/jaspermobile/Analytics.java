@@ -105,6 +105,7 @@ public interface Analytics {
         FAVORITES("Favorites"),
         SAVED_ITEMS("Saved items"),
         ADD_ACCOUNT("Add account"),
+        SWITCH_ACCOUNT("Switch account"),
         SETTINGS("Settings"),
         FEEDBACK("Feedback"),
         ABOUT("About"),

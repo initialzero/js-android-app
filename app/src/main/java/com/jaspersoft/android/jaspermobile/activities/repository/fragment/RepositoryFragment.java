@@ -262,7 +262,7 @@ public class RepositoryFragment extends RoboSpiceFragment
         mLoaderState = LOAD_FROM_NETWORK;
         loadPage();
 
-        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), null);
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.REPOSITORY.getValue());
     }
 
     //---------------------------------------------------------------------
@@ -475,7 +475,7 @@ public class RepositoryFragment extends RoboSpiceFragment
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
 
-                analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(), null);
+                analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(),  Analytics.EventLabel.REPOSITORY.getValue());
             }
             enableRefreshLayout(listView);
         }

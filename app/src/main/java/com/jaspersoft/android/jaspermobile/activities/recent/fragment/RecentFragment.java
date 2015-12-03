@@ -184,7 +184,7 @@ public class RecentFragment extends RoboSpiceFragment
     public void onRefresh() {
         loadResources();
 
-        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), null);
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.RECENTLY_VIEWED.getValue());
     }
 
     //---------------------------------------------------------------------

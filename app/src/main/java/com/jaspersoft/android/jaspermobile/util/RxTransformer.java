@@ -22,16 +22,27 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.view;
+package com.jaspersoft.android.jaspermobile.util;
+
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface ReportView extends LoadDataView {
-    void setFilterActionVisible(boolean showFilterActionVisible);
+public final class RxTransformer {
 
-    void showFiltersPage();
+    private RxTransformer() {}
 
-    void showPage(String page);
+    public static <T> Observable.Transformer<T, T> applySchedulers() {
+        return new Observable.Transformer<T, T>() {
+            @Override
+            public Observable<T> call(Observable<T> observable) {
+                return observable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread());
+            }
+        };
+    }
 }

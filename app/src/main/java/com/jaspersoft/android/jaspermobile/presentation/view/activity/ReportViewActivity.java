@@ -30,8 +30,10 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportViewFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportViewFragment_;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 
 /**
  * @author Tom Koptel
@@ -39,14 +41,20 @@ import org.androidannotations.annotations.EActivity;
  */
 @EActivity(R.layout.report_viewer_layout)
 public class ReportViewActivity extends RoboToolbarActivity {
+    @Extra
+    protected ResourceLookup resource;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            ReportViewFragment viewFragment = ReportViewFragment_.builder().build();
+            ReportViewFragment viewFragment = ReportViewFragment_.builder()
+                    .resource(resource)
+                    .build();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.control, viewFragment, ReportViewFragment.TAG).commit();
+                    .add(R.id.control, viewFragment, ReportViewFragment.TAG)
+                    .commit();
         }
     }
 }

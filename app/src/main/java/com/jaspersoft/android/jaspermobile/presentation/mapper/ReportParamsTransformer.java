@@ -22,20 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.view;
+package com.jaspersoft.android.jaspermobile.presentation.mapper;
+
+import android.support.annotation.NonNull;
+
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface ReportView extends LoadDataView {
-    void setFilterActionVisibility(boolean visibilityFlag);
+public final class ReportParamsTransformer {
 
-    void setSaveActionVisibility(boolean visibilityFlag);
-
-    void reloadMenu();
-
-    void showInitialFiltersPage();
-
-    void showPage(String page);
+    @NonNull
+    public Map<String, Set<String>> transform(List<ReportParameter> list) {
+        HashMap<String, Set<String>> params = new HashMap<>();
+        for (ReportParameter parameter : list) {
+            params.put(parameter.getName(), parameter.getValues());
+        }
+        return params;
+    }
 }

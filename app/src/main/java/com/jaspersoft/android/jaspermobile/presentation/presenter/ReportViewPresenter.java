@@ -28,7 +28,6 @@ import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.ReportModel;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.RxTransformer;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
@@ -50,15 +49,12 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     private final ReportModel mReportModel;
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
-    private ReportParamsStorage mReportParamsStorage;
     private RequestExceptionHandler mExceptionHandler;
     private ReportView mView;
 
     public ReportViewPresenter(
-            ReportParamsStorage reportParamsStorage,
             RequestExceptionHandler exceptionHandler,
             ReportModel reportModel) {
-        mReportParamsStorage = reportParamsStorage;
         mExceptionHandler = exceptionHandler;
         mReportModel = reportModel;
     }
@@ -72,22 +68,38 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         loadInputControls();
     }
 
+    @Override
     public void loadPage(int page) {
         mView.showLoading();
         loadExport(page);
+    }
+
+    @Override
+    public void runReport() {
+        mView.setSaveActionVisibility(false);
+        mView.setFilterActionVisibility(false);
+        mView.reloadMenu();
+
+        Subscription subscription = mReportModel.runReport()
+                .compose(RxTransformer.<ReportExecution>applySchedulers())
+                .subscribe(new RunReportListener());
+        mCompositeSubscription.add(subscription);
+    }
+
+    @Override
+    public void updateReport() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public int getPageCount() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private void loadInputControls() {
         Subscription subscription = mReportModel.loadInputControls()
                 .compose(RxTransformer.<InputControlsList>applySchedulers())
                 .subscribe(new InputControlsListener());
-        mCompositeSubscription.add(subscription);
-    }
-
-    private void runReport() {
-        Subscription subscription = mReportModel.runReport()
-                .compose(RxTransformer.<ReportExecution>applySchedulers())
-                .subscribe(new RunReportListener());
         mCompositeSubscription.add(subscription);
     }
 
@@ -129,15 +141,16 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         @Override
         public void onNext(InputControlsList controlsList) {
             List<InputControl> icList = new ArrayList<>(controlsList.getInputControls());
-            mReportParamsStorage.getInputControlHolder(mReportModel.getUri()).setInputControls(icList);
+            mReportModel.setControls(icList);
             boolean showFilterActionVisible = !icList.isEmpty();
 
             mView.hideError();
-            mView.setFilterActionVisible(showFilterActionVisible);
+            mView.setFilterActionVisibility(showFilterActionVisible);
+            mView.reloadMenu();
 
             if (showFilterActionVisible) {
                 mView.hideLoading();
-                mView.showFiltersPage();
+                mView.showInitialFiltersPage();
             } else {
                 runReport();
             }

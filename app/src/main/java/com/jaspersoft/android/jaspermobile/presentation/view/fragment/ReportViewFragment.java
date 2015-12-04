@@ -24,22 +24,35 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.mapper.ReportParamsTransformer;
 import com.jaspersoft.android.jaspermobile.presentation.model.ReportModel;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
@@ -48,12 +61,16 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.RestClient;
 import com.jaspersoft.android.sdk.service.Session;
+import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.OnActivityResult;
+import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import roboguice.fragment.RoboFragment;
@@ -63,12 +80,15 @@ import roboguice.fragment.RoboFragment;
  * @since 2.3
  */
 @EFragment(R.layout.report_html_viewer)
-@OptionsMenu({R.menu.report_filter_manager_menu, R.menu.webview_menu})
+@OptionsMenu({R.menu.report_filter_manager_menu, R.menu.webview_menu, R.menu.retrofit_report_menu})
 public class ReportViewFragment extends RoboFragment implements ReportView {
 
     public static final String TAG = "report-view";
     private static final String MIME = "text/html";
     private static final String UTF_8 = "utf-8";
+
+    private static final int REQUEST_INITIAL_REPORT_PARAMETERS = 100;
+    private static final int REQUEST_NEW_REPORT_PARAMETERS = 200;
 
     @FragmentArg
     protected ResourceLookup resource;
@@ -79,6 +99,13 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
     protected TextView errorView;
     @ViewById
     protected ProgressBar progressBar;
+
+    @OptionsMenuItem
+    protected MenuItem saveReport;
+    @OptionsMenuItem (R.id.printAction)
+    protected MenuItem printReport;
+    @OptionsMenuItem
+    protected MenuItem showFilters;
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
@@ -95,10 +122,22 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
     private ReportViewPresenter mPresenter;
     private ReportActionListener mActionListener;
 
+    protected boolean filtersMenuItemVisibilityFlag, saveMenuItemVisibilityFlag;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        saveReport.setVisible(saveMenuItemVisibilityFlag);
+        showFilters.setVisible(filtersMenuItemVisibilityFlag);
+
+        if (printReport != null) {
+            printReport.setVisible(filtersMenuItemVisibilityFlag);
+        }
     }
 
     @Override
@@ -109,9 +148,16 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
     }
 
     private void injectComponents() {
-        ReportModel reportModel = new ReportModel(jsRestClient, session, resource.getUri());
+        ReportParamsTransformer paramsTransformer = new ReportParamsTransformer();
+        ReportModel reportModel = new ReportModel(
+                jsRestClient,
+                session,
+                resource.getUri(),
+                paramsStorage,
+                paramsTransformer
+        );
         RequestExceptionHandler exceptionHandler = new RequestExceptionHandler(getActivity());
-        mPresenter = new ReportViewPresenter(paramsStorage, exceptionHandler, reportModel);
+        mPresenter = new ReportViewPresenter(exceptionHandler, reportModel);
         mPresenter.setView(this);
         mActionListener = mPresenter;
     }
@@ -132,6 +178,26 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
     public void onDestroyView() {
         super.onDestroyView();
         mPresenter.destroy();
+    }
+
+    @OnActivityResult(REQUEST_INITIAL_REPORT_PARAMETERS)
+    final void onInitialsParametersResult(int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            mActionListener.runReport();
+        } else {
+            getActivity().finish();
+        }
+    }
+
+    @OnActivityResult(REQUEST_NEW_REPORT_PARAMETERS)
+    final void onNewParametersResult(int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            boolean isNewParamsEqualOld = data.getBooleanExtra(
+                    InputControlsActivity.RESULT_SAME_PARAMS, false);
+            if (!isNewParamsEqualOld) {
+                mActionListener.updateReport();
+            }
+        }
     }
 
     @AfterViews
@@ -168,17 +234,60 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
     }
 
     @Override
-    public void setFilterActionVisible(boolean showFilterActionVisible) {
-
+    public void setFilterActionVisibility(boolean visibilityFlag) {
+        filtersMenuItemVisibilityFlag = visibilityFlag;
     }
 
     @Override
-    public void showFiltersPage() {
+    public void setSaveActionVisibility(boolean visibilityFlag) {
+        saveMenuItemVisibilityFlag = visibilityFlag;
+    }
 
+    @Override
+    public void reloadMenu() {
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
+    @Override
+    public void showInitialFiltersPage() {
+        InputControlsActivity_.intent(this)
+                .reportUri(resource.getUri())
+                .startForResult(REQUEST_INITIAL_REPORT_PARAMETERS);
     }
 
     @Override
     public void showPage(String page) {
         webView.loadDataWithBaseURL(restClient.getServerUrl(), page, MIME, UTF_8, null);
+    }
+
+    @OptionsItem
+    final void saveReport() {
+        if (FileUtils.isExternalStorageWritable()) {
+            SaveReportActivity_.intent(this)
+                    .resource(resource)
+                    .pageCount(mActionListener.getPageCount())
+                    .start();
+        } else {
+            Toast.makeText(getActivity(),
+                    R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @OptionsItem
+    public void showFilters() {
+        InputControlsActivity_.intent(this)
+                .reportUri(resource.getUri())
+                .startForResult(REQUEST_NEW_REPORT_PARAMETERS);
+    }
+
+    @OptionsItem
+    final void printAction() {
+        ResourcePrintJob job = JasperPrintJobFactory.createReportPrintJob(
+                getActivity(),
+                jsRestClient,
+                resource,
+                paramsStorage.getInputControlHolder(resource.getUri()).getReportParams()
+        );
+        JasperPrinter.print(job);
     }
 }

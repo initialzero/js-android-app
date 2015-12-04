@@ -24,9 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.model;
 
+import com.jaspersoft.android.jaspermobile.presentation.mapper.ReportParamsTransformer;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.Session;
 import com.jaspersoft.android.sdk.service.data.report.ReportOutput;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
@@ -40,6 +44,9 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import rx.Observable;
 import rx.functions.Func0;
@@ -54,13 +61,19 @@ public final class ReportModel {
     private final String mReportUri;
 
     public ReportExecution mExecution;
+    private final ReportParamsStorage mReportParamsStorage;
+    private final ReportParamsTransformer mReportParamsTransformer;
 
     public ReportModel(JsRestClient jsRestClient,
                        Session session,
-                       String reportUri) {
+                       String reportUri,
+                       ReportParamsStorage reportParamsStorage,
+                       ReportParamsTransformer reportParamsTransformer) {
         mJsRestClient = jsRestClient;
         mSession = session;
         mReportUri = reportUri;
+        mReportParamsStorage = reportParamsStorage;
+        mReportParamsTransformer = reportParamsTransformer;
     }
 
     public Observable<InputControlsList> loadInputControls() {
@@ -83,7 +96,10 @@ public final class ReportModel {
 
             @Override
             public Observable<ReportExecution> call() {
+                List<ReportParameter> params = mReportParamsStorage.getInputControlHolder(mReportUri).getReportParams();
+                Map<String, Set<String>> repoParams = mReportParamsTransformer.transform(params);
                 RunReportCriteria reportCriteria = RunReportCriteria.builder()
+                        .params(repoParams)
                         .create();
                 try {
                     ReportExecution execution = mSession.reportApi().run(mReportUri, reportCriteria);
@@ -120,7 +136,7 @@ public final class ReportModel {
         });
     }
 
-    public String getUri() {
-        return mReportUri;
+    public void setControls(List<InputControl> controls) {
+        mReportParamsStorage.getInputControlHolder(mReportUri).setInputControls(controls);
     }
 }

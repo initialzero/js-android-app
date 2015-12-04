@@ -40,6 +40,7 @@ import com.jaspersoft.android.sdk.service.report.ReportExecution;
 import com.jaspersoft.android.sdk.service.report.ReportExport;
 import com.jaspersoft.android.sdk.service.report.RunExportCriteria;
 import com.jaspersoft.android.sdk.service.report.RunReportCriteria;
+import com.octo.android.robospice.persistence.memory.LruCache;
 
 import org.apache.commons.io.IOUtils;
 
@@ -50,6 +51,7 @@ import java.util.Map;
 import java.util.Set;
 
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func0;
 
 /**
@@ -64,6 +66,8 @@ public final class ReportModel {
     public ReportExecution mExecution;
     private final ReportParamsStorage mReportParamsStorage;
     private final ReportParamsTransformer mReportParamsTransformer;
+
+    private final LruCache<Integer, String> mPageCache = new LruCache<>(10);
 
     public ReportModel(JsRestClient jsRestClient,
                        Session session,
@@ -114,6 +118,12 @@ public final class ReportModel {
     }
 
     public Observable<String> downloadExport(final int page) {
+        Observable<String> memory = makeExportMemorySource(page);
+        Observable<String> network = makeExportNetworkSource(page);
+        return Observable.concat(memory, network).first();
+    }
+
+    private Observable<String> makeExportNetworkSource(final int page) {
         return Observable.defer(new Func0<Observable<String>>() {
             @Override
             public Observable<String> call() {
@@ -133,6 +143,24 @@ public final class ReportModel {
                 } catch (IOException e) {
                     return Observable.error(e);
                 }
+            }
+        }).doOnNext(new Action1<String>() {
+            @Override
+            public void call(String pageContent) {
+                mPageCache.put(page, pageContent);
+            }
+        });
+    }
+
+    private Observable<String> makeExportMemorySource(final int page) {
+        return Observable.defer(new Func0<Observable<String>>() {
+            @Override
+            public Observable<String> call() {
+                String pageContent = mPageCache.get(page);
+                if (pageContent == null) {
+                    return Observable.empty();
+                }
+                return Observable.just(pageContent);
             }
         });
     }

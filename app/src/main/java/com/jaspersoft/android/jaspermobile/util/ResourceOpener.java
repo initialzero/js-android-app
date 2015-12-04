@@ -36,8 +36,7 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Reposi
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportViewActivity_;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
@@ -108,15 +107,9 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        boolean isRestEngine = mInfoProvider.getVersion().lessThan(ServerVersion.v6);
-        boolean isCeJrs = !mInfoProvider.isProEdition();
-        if (isCeJrs || isRestEngine) {
-            ReportHtmlViewerActivity_.intent(activity)
-                    .resource(resource).start();
-        } else {
-            ReportViewerActivity_.intent(activity)
-                    .resource(resource).start();
-        }
+        ReportViewActivity_.intent(activity)
+                .resource(resource)
+                .start();
     }
 
     private void runDashboard(ResourceLookup resource) {

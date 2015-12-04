@@ -41,6 +41,10 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
+import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
@@ -81,7 +85,7 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment(R.layout.report_html_viewer)
 @OptionsMenu({R.menu.report_filter_manager_menu, R.menu.webview_menu, R.menu.retrofit_report_menu})
-public class ReportViewFragment extends RoboFragment implements ReportView {
+public class ReportViewFragment extends RoboFragment implements ReportView, NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener{
 
     public static final String TAG = "report-view";
     private static final String MIME = "text/html";
@@ -99,6 +103,8 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
     protected TextView errorView;
     @ViewById
     protected ProgressBar progressBar;
+    @ViewById
+    protected PaginationBarView paginationControl;
 
     @OptionsMenuItem
     protected MenuItem saveReport;
@@ -144,6 +150,37 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         injectComponents();
+        setupPaginationControl();
+        runReport();
+    }
+
+    private void setupPaginationControl() {
+        paginationControl.setOnPageChangeListener(new AbstractPaginationView.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int currentPage) {
+                mActionListener.loadPage(currentPage);
+            }
+
+            @Override
+            public void onPagePickerRequested() {
+                if (paginationControl.isTotalPagesLoaded()) {
+                    NumberDialogFragment.createBuilder(getFragmentManager())
+                            .setMinValue(1)
+                            .setCurrentValue(paginationControl.getCurrentPage())
+                            .setMaxValue(paginationControl.getTotalPages())
+                            .setTargetFragment(ReportViewFragment.this)
+                            .show();
+                } else {
+                    PageDialogFragment.createBuilder(getFragmentManager())
+                            .setMaxValue(Integer.MAX_VALUE)
+                            .setTargetFragment(ReportViewFragment.this)
+                            .show();
+                }
+            }
+        });
+    }
+
+    private void runReport() {
         mPresenter.init();
     }
 
@@ -260,6 +297,16 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
         webView.loadDataWithBaseURL(restClient.getServerUrl(), page, MIME, UTF_8, null);
     }
 
+    @Override
+    public void showPaginationControl() {
+        paginationControl.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showTotalPages(int totalPages) {
+        paginationControl.updateTotalCount(totalPages);
+    }
+
     @OptionsItem
     final void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
@@ -289,5 +336,20 @@ public class ReportViewFragment extends RoboFragment implements ReportView {
                 paramsStorage.getInputControlHolder(resource.getUri()).getReportParams()
         );
         JasperPrinter.print(job);
+    }
+
+    @Override
+    public void onPageSelected(int page, int requestCode) {
+        updatePage(page);
+    }
+
+    @Override
+    public void onPageSelected(int page) {
+        updatePage(page);
+    }
+
+    private void updatePage(int page) {
+        paginationControl.updateCurrentPage(page);
+        mActionListener.loadPage(page);
     }
 }

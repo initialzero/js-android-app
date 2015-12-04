@@ -71,7 +71,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     @Override
     public void loadPage(int page) {
         mView.showLoading();
-        loadExport(page);
+        loadExport(page, new DownloadExportListener());
     }
 
     @Override
@@ -103,10 +103,21 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mCompositeSubscription.add(subscription);
     }
 
-    private void loadExport(int page) {
+    private void loadExport(int page, Subscriber<String> listener) {
         Subscription subscription = mReportModel.downloadExport(page)
                 .compose(RxTransformer.<String>applySchedulers())
-                .subscribe(new DownloadExportListener());
+                .subscribe(listener);
+        mCompositeSubscription.add(subscription);
+    }
+
+    private void checkIsMultiPageReport() {
+        loadExport(2, new IsMultiPageListener());
+    }
+
+    private void loadTotalPagesCount() {
+        Subscription subscription = mReportModel.loadTotalPages()
+                .compose(RxTransformer.<Integer>applySchedulers())
+                .subscribe(new TotalPagesListener());
         mCompositeSubscription.add(subscription);
     }
 
@@ -171,6 +182,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         public void onNext(ReportExecution reportExecution) {
             mView.hideError();
             loadPage(1);
+            checkIsMultiPageReport();
         }
     }
 
@@ -189,6 +201,39 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         public void onNext(String page) {
             mView.hideError();
             mView.showPage(page);
+        }
+    }
+
+    private class IsMultiPageListener extends Subscriber<String> {
+        @Override
+        public void onCompleted() {
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            showErrorMessage(e);
+        }
+
+        @Override
+        public void onNext(String s) {
+            mView.showPaginationControl();
+            loadTotalPagesCount();
+        }
+    }
+
+    private class TotalPagesListener extends Subscriber<Integer> {
+        @Override
+        public void onCompleted() {
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            showErrorMessage(e);
+        }
+
+        @Override
+        public void onNext(Integer totalPages) {
+            mView.showTotalPages(totalPages);
         }
     }
 }

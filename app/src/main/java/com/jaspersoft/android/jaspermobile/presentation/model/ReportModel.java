@@ -32,6 +32,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.Session;
+import com.jaspersoft.android.sdk.service.data.report.ReportMetadata;
 import com.jaspersoft.android.sdk.service.data.report.ReportOutput;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.report.ExecutionCriteria;
@@ -130,6 +131,20 @@ public final class ReportModel {
                 } catch (ServiceException e) {
                     return Observable.error(e);
                 } catch (IOException e) {
+                    return Observable.error(e);
+                }
+            }
+        });
+    }
+
+    public Observable<Integer> loadTotalPages() {
+        return Observable.defer(new Func0<Observable<Integer>>() {
+            @Override
+            public Observable<Integer> call() {
+                try {
+                    ReportMetadata metadata = mExecution.waitForReportCompletion();
+                    return Observable.just(metadata.getTotalPages());
+                } catch (ServiceException e) {
                     return Observable.error(e);
                 }
             }

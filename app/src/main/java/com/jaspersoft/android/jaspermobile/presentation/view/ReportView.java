@@ -38,4 +38,8 @@ public interface ReportView extends LoadDataView {
     void showInitialFiltersPage();
 
     void showPage(String page);
+
+    void showPaginationControl();
+
+    void showTotalPages(int totalPages);
 }

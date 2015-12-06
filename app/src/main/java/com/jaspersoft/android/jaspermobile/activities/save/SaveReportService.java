@@ -82,7 +82,7 @@ public class SaveReportService extends RoboIntentService {
         Uri savedItemRecord = addSavedItemRecord(intent.getExtras());
         mRecordUrisQe.add(savedItemRecord);
 
-        notifyNewDownloading();
+        notifyDownloadingCount();
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -95,7 +95,7 @@ public class SaveReportService extends RoboIntentService {
     protected void saveReport(ResourceLookup resourceLookup, SaveItemFragment.OutputFormat outputFormat,
                               File reportFile, int fromPage, int toPage, String savedReportName) {
 
-        notifyDownloadingStarted(savedReportName);
+        notifyDownloadingName(savedReportName);
         List<ReportParameter> reportParameters = getReportParams(resourceLookup.getUri());
 
         Uri itemUri = mRecordUrisQe.peek();
@@ -118,6 +118,7 @@ public class SaveReportService extends RoboIntentService {
             savedItemHelper.deleteSavedItem(reportFile, itemUri);
         } finally {
             mRecordUrisQe.poll();
+            notifyDownloadingCount();
         }
     }
 
@@ -261,7 +262,7 @@ public class SaveReportService extends RoboIntentService {
         startForeground(LOADING_NOTIFICATION_ID, mBuilder.build());
     }
 
-    private void notifyDownloadingStarted(String reportName) {
+    private void notifyDownloadingName(String reportName) {
         if (mRecordUrisQe.size() != 1) return;
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
@@ -274,9 +275,7 @@ public class SaveReportService extends RoboIntentService {
 
     }
 
-    private void notifyNewDownloading() {
-        if (mRecordUrisQe.size() < 2) return;
-
+    private void notifyDownloadingCount() {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentText(getString(R.string.sdr_saving_msg))

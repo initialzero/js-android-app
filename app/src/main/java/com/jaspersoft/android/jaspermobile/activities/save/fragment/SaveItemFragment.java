@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.save.fragment;
 
 import android.accounts.Account;
 import android.app.ActionBar;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.MenuItem;
@@ -37,14 +38,24 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService_;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
+import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -58,6 +69,7 @@ import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -90,6 +102,11 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     ResourceLookup resource;
     @FragmentArg
     int pageCount;
+
+    @Inject
+    JsRestClient jsRestClient;
+    @Inject
+    protected ReportParamsStorage paramsStorage;
 
     @OptionsMenuItem
     MenuItem saveAction;
@@ -133,10 +150,17 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                     // show validation message
                     reportNameInput.setError(getString(R.string.sr_error_report_exists));
                 } else {
-                    SaveReportService_.intent(getActivity()).saveReport(resource, outputFormat,
-                            reportFile, mFromPage, mToPage, reportNameInput.getText().toString()).start();
-                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.sdr_starting_downloading_msg), Toast.LENGTH_SHORT).show();
-                    getActivity().finish();
+                    String pageRange = calculatePages(mFromPage, mToPage);
+                    ReportExecutionRequest executionData = createReportExecutionRequest(resource, outputFormat, pageRange);
+
+                    RunReportExecutionRequest request =
+                            new RunReportExecutionRequest(jsRestClient, executionData);
+                    getSpiceManager().execute(request,
+                            new RunReportExecutionListener(outputFormat, reportFile, pageRange));
+
+                    ProgressDialogFragment.builder(getFragmentManager())
+                            .setLoadingMessage(R.string.loading_msg)
+                            .show();
                 }
             }
         }
@@ -248,6 +272,38 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         return new File(accountReportDir, reportName);
     }
 
+    private ReportExecutionRequest createReportExecutionRequest(ResourceLookup resource, SaveItemFragment.OutputFormat outputFormat,
+                                                                String pageRange) {
+
+        ReportExecutionRequest executionData = new ReportExecutionRequest();
+        executionData.setReportUnitUri(resource.getUri());
+        executionData.setInteractive(false);
+        executionData.setOutputFormat(outputFormat.toString());
+        executionData.setAsync(true);
+        executionData.setEscapedAttachmentsPrefix("./");
+        executionData.setPages(pageRange);
+
+        List<ReportParameter> reportParameters = paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
+        if (!reportParameters.isEmpty()) {
+            executionData.setParameters(reportParameters);
+        }
+
+        return executionData;
+    }
+
+    private String calculatePages(int fromPage, int toPage) {
+        boolean pagesNumbersIsValid = fromPage > 0 && toPage > 0 && toPage >= fromPage;
+        if (pagesNumbersIsValid) {
+            boolean isRange = fromPage < toPage;
+            if (isRange) {
+                return fromPage + "-" + toPage;
+            } else {
+                return String.valueOf(fromPage);
+            }
+        }
+        return "";
+    }
+
     //---------------------------------------------------------------------
     // Page Select Listeners
     //---------------------------------------------------------------------
@@ -270,6 +326,43 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                 mToPage = page;
                 toPageControl.setText(String.valueOf(mToPage));
             }
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Nested Classes
+    //---------------------------------------------------------------------
+
+    private class RunReportExecutionListener extends SimpleRequestListener<ReportExecutionResponse> {
+        private OutputFormat outputFormat;
+        private File reportFile;
+        private String pageRange;
+
+        public RunReportExecutionListener(OutputFormat outputFormat, File reportFile, String pageRange) {
+            this.outputFormat = outputFormat;
+            this.reportFile = reportFile;
+            this.pageRange = pageRange;
+        }
+
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            super.onRequestFailure(exception);
+            ProgressDialogFragment.dismiss(getFragmentManager());
+        }
+
+        @Override
+        public void onRequestSuccess(ReportExecutionResponse response) {
+            ProgressDialogFragment.dismiss(getFragmentManager());
+
+            SaveReportService_.intent(getActivity()).saveReport(reportNameInput.getText().toString(), resource.getDescription(), outputFormat,
+                    reportFile, pageRange, response.getRequestId()).start();
+            Toast.makeText(getActivity().getApplicationContext(), getString(R.string.sdr_starting_downloading_msg), Toast.LENGTH_SHORT).show();
+            getActivity().finish();
         }
     }
 }

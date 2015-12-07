@@ -306,6 +306,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
         paramsStorage.clearInputControlHolder(resource.getUri());
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_rvs_v);
+    }
+
     //---------------------------------------------------------------------
     // Menu items callbacks
     //---------------------------------------------------------------------
@@ -361,7 +366,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINTED.getValue(), Analytics.EventLabel.REPORT.getValue());
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(this, jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);

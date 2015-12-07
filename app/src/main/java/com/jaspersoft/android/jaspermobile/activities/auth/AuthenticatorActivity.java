@@ -30,9 +30,12 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
-
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 
+import roboguice.RoboGuice;
 import roboguice.activity.RoboFragmentActivity;
 
 /**
@@ -43,6 +46,9 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
 
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
+
+    @Inject
+    protected Analytics analytics;
 
     /**
      * Set the result that is to be sent as the result of the request that caused this
@@ -63,6 +69,8 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        RoboGuice.getInjector(this).injectMembersWithoutViews(this);
+        analytics.setScreenName(getString(R.string.ja_aas));
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
@@ -81,6 +89,13 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
                     .add(android.R.id.content, AuthenticatorFragment_.builder().build())
                     .commit();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        analytics.sendScreenView(getString(R.string.ja_aas), null);
     }
 
     /**

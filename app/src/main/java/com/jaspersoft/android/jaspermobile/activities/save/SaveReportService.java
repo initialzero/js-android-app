@@ -18,6 +18,7 @@ import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.ReportAttachment;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
@@ -103,17 +104,20 @@ public class SaveReportService extends RoboIntentService {
         try {
             ReportExecutionRequest runReportExecutionRequest = createReportExecutionRequest(resourceLookup, outputFormat, reportParameters, calculatePages);
             ReportExecutionResponse runReportResponse = jsRestClient.runReportExecution(runReportExecutionRequest);
-            waitForExecutionDone(runReportResponse.getRequestId());
+            waitForExecutionBegin(runReportResponse.getRequestId());
 
             ExportsRequest executionData = createReportExportRequest(outputFormat, calculatePages);
             ExportExecution export = jsRestClient.runExportForReport(runReportResponse.getRequestId(), executionData);
             waitForExportDone(runReportResponse.getRequestId(), export.getId());
 
-            saveReport(reportFile, outputFormat, export.getAttachments(), export.getId(), runReportResponse.getRequestId());
+            saveReport(reportFile, export.getId(), runReportResponse.getRequestId());
+            if (SaveItemFragment.OutputFormat.HTML == outputFormat) {
+                saveAttachments(reportFile, export.getId(), runReportResponse.getRequestId());
+            }
             updateSavedItemRecordToDownloaded(mRecordUrisQe.peek());
 
             notifySaveResult(savedReportName, android.R.drawable.stat_sys_download_done, getString(R.string.sr_t_report_saved));
-        } catch (RestClientException|IllegalStateException ex) {
+        } catch (RestClientException | IllegalStateException ex) {
             notifySaveResult(savedReportName, android.R.drawable.ic_dialog_alert, getString(R.string.sdr_saving_error_msg));
             savedItemHelper.deleteSavedItem(reportFile, itemUri);
         } finally {
@@ -161,12 +165,12 @@ public class SaveReportService extends RoboIntentService {
         return exportsRequest;
     }
 
-    private String calculatePages(int fromPage, int toPage){
+    private String calculatePages(int fromPage, int toPage) {
         boolean pagesNumbersIsValid = fromPage > 0 && toPage > 0 && toPage >= fromPage;
         if (pagesNumbersIsValid) {
             boolean isRange = fromPage < toPage;
             if (isRange) {
-                return  fromPage + "-" + toPage;
+                return fromPage + "-" + toPage;
             } else {
                 return String.valueOf(fromPage);
             }
@@ -174,15 +178,17 @@ public class SaveReportService extends RoboIntentService {
         return "";
     }
 
-    private void waitForExecutionDone(String reportExecutionId) {
+    private void waitForExecutionBegin(String reportExecutionId) {
         ReportStatus reportStatus;
         do {
             sleep();
             reportStatus = jsRestClient.runReportStatusCheck(reportExecutionId).getReportStatus();
-            if (reportStatus == ReportStatus.failed) throw new IllegalStateException("Report execution failed!");
-            if (reportStatus == ReportStatus.cancelled) throw new IllegalStateException("Report execution canceled!");
+            if (reportStatus == ReportStatus.failed)
+                throw new IllegalStateException("Report execution failed!");
+            if (reportStatus == ReportStatus.cancelled)
+                throw new IllegalStateException("Report execution canceled!");
         }
-        while (reportStatus != ReportStatus.ready);
+        while (reportStatus != ReportStatus.ready && reportStatus != ReportStatus.execution);
     }
 
     private void waitForExportDone(String reportExecutionId, String exportId) {
@@ -190,13 +196,15 @@ public class SaveReportService extends RoboIntentService {
         do {
             sleep();
             reportStatus = jsRestClient.runExportStatusCheck(reportExecutionId, exportId).getReportStatus();
-            if (reportStatus == ReportStatus.failed) throw new IllegalStateException("Report export failed!");
-            if (reportStatus == ReportStatus.cancelled) throw new IllegalStateException("Report export canceled!");
+            if (reportStatus == ReportStatus.failed)
+                throw new IllegalStateException("Report export failed!");
+            if (reportStatus == ReportStatus.cancelled)
+                throw new IllegalStateException("Report export canceled!");
         }
         while (reportStatus != ReportStatus.ready);
     }
 
-    private void sleep(){
+    private void sleep() {
         try {
             TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException e) {
@@ -211,17 +219,28 @@ public class SaveReportService extends RoboIntentService {
         return Integer.valueOf(last5Str);
     }
 
-    private void saveReport(File reportFile, SaveItemFragment.OutputFormat outputFormat, List<ReportOutputResource> attachments, String exportOutput, String executionId) throws RestClientException {
+    private void saveReport(File reportFile, String exportOutput, String executionId) throws RestClientException {
         jsRestClient.saveExportOutputToFile(executionId, exportOutput, reportFile);
+    }
 
-        // save attachments
-        if (SaveItemFragment.OutputFormat.HTML == outputFormat) {
-            for (ReportOutputResource attachment : attachments) {
-                String attachmentName = attachment.getFileName();
-                File attachmentFile = new File(reportFile.getParentFile(), attachmentName);
+    private void saveAttachments(File reportFile, String exportId, String executionId) {
+        ReportExecutionResponse executionMetadata = jsRestClient.runReportDetailsRequest(executionId);
+        if (executionMetadata.getExports().isEmpty()) return;
 
-                jsRestClient.saveExportAttachmentToFile(executionId, exportOutput, attachmentName, attachmentFile);
+        List<ReportOutputResource> attachments = null;
+        for (ExportExecution exportExecution : executionMetadata.getExports()) {
+            if (exportExecution.getId().equals(exportId)) {
+                attachments = exportExecution.getAttachments();
             }
+        }
+
+        if (attachments == null) return;
+
+        for (ReportOutputResource attachment : attachments) {
+            String attachmentName = attachment.getFileName();
+            File attachmentFile = new File(reportFile.getParentFile(), attachmentName);
+
+            jsRestClient.saveExportAttachmentToFile(executionId, exportId, attachmentName, attachmentFile);
         }
     }
 

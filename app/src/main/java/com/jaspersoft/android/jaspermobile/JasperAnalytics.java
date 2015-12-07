@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile;
 
-import android.app.Application;
+import android.content.Context;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
@@ -38,13 +38,12 @@ import java.util.List;
  */
 public class JasperAnalytics implements Analytics {
 
-    private static final String SERVER_VERSION_KEY = "&cd1";
-    private static final String SERVER_EDITION_KEY = "&cd2";
+    private static final String SERVER_VERSION_PERMANENT_KEY = "&cd1";
+    private static final String SERVER_EDITION__PERMANENT_KEY = "&cd2";
 
     private Tracker mTracker;
 
-    @Override
-    public void init(Application appContext) {
+    public JasperAnalytics(Context appContext) {
         GoogleAnalytics analytics = GoogleAnalytics.getInstance(appContext);
 
         mTracker = analytics.newTracker(appContext.getString(R.string.google_analytics_tracking_id));
@@ -53,14 +52,11 @@ public class JasperAnalytics implements Analytics {
 
     @Override
     public void setScreenName(String screenName) {
-        checkTracker();
-
         mTracker.setScreenName(screenName);
     }
 
     @Override
     public void sendScreenView(String screenName, List<Dimension> dimensions) {
-        checkTracker();
         setScreenName(screenName);
 
         HitBuilders.ScreenViewBuilder screenHitBuilder = new HitBuilders.ScreenViewBuilder();
@@ -76,8 +72,6 @@ public class JasperAnalytics implements Analytics {
 
     @Override
     public void sendEvent(String eventCategory, String eventAction, String eventLabel) {
-        checkTracker();
-
         HitBuilders.EventBuilder eventHitBuilder = new HitBuilders.EventBuilder();
         eventHitBuilder.setCategory(eventCategory);
         eventHitBuilder.setAction(eventAction);
@@ -90,8 +84,6 @@ public class JasperAnalytics implements Analytics {
 
     @Override
     public void sendUserChangedEvent() {
-        checkTracker();
-
         mTracker.send(new HitBuilders.EventBuilder()
                 .setNewSession()
                 .setCategory(EventCategory.ACCOUNT.getValue())
@@ -101,15 +93,7 @@ public class JasperAnalytics implements Analytics {
 
     @Override
     public void setServerInfo(String serverVersion, String serverEdition) {
-        checkTracker();
-
-        mTracker.set(SERVER_VERSION_KEY, serverVersion);
-        mTracker.set(SERVER_EDITION_KEY, serverEdition);
-    }
-
-    private void checkTracker() {
-        if (mTracker == null) {
-            throw new IllegalStateException("Analytics mTracker has not been initialized");
-        }
+        mTracker.set(SERVER_VERSION_PERMANENT_KEY, serverVersion);
+        mTracker.set(SERVER_EDITION__PERMANENT_KEY, serverEdition);
     }
 }

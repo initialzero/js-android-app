@@ -217,8 +217,8 @@ public class LibraryFragment extends RoboSpiceFragment
         }
 
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
-        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_KEY, libraryResourceFilter.getCurrent().getName()));
-        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_HIT_KEY, libraryResourceFilter.getCurrent().getName()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
         analytics.sendScreenView(Analytics.ScreenName.LIBRARY.getValue(),viewDimension);
     }
 

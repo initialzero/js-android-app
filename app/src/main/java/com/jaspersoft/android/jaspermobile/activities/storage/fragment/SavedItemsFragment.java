@@ -160,8 +160,8 @@ public class SavedItemsFragment extends RoboFragment
         super.onResume();
 
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
-        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_KEY, storageResourceFilter.getCurrent().getName()));
-        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_HIT_KEY, storageResourceFilter.getCurrent().getName()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
         analytics.sendScreenView(Analytics.ScreenName.SAVED_ITEMS.getValue(),viewDimension);
     }
 

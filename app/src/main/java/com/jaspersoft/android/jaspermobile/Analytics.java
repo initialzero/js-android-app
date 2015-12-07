@@ -33,7 +33,6 @@ import java.util.List;
  * @since 2.1
  */
 public interface Analytics {
-    void init(Application appContext);
     void setScreenName(String screenName);
     void sendScreenView(String screenName, List<Dimension> dimension);
     void sendEvent(String eventCategory, String eventAction, String eventLabel);
@@ -125,8 +124,8 @@ public interface Analytics {
     }
 
     class Dimension {
-        public static final int FILTER_TYPE_KEY = 3;
-        public static final int RESOURCE_VIEW_KEY = 4;
+        public static final int FILTER_TYPE_HIT_KEY = 3;
+        public static final int RESOURCE_VIEW_HIT_KEY = 4;
 
         private int mKey;
         private String mValue;

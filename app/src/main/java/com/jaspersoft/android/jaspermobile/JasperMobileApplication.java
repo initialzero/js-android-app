@@ -66,7 +66,6 @@ public class JasperMobileApplication extends Application {
         super.onCreate();
         RoboGuice.getInjector(this).injectMembers(this);
 
-        analytics.init(this);
         initLegacyJsRestClient();
 
         forceDatabaseUpdate();

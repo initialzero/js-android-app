@@ -221,7 +221,7 @@ public class RepositoryFragment extends RoboSpiceFragment
         }
 
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
-        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_KEY, viewType.name()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
         analytics.sendScreenView(Analytics.ScreenName.REPOSITORY.getValue(), viewDimension);
     }
 

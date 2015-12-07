@@ -59,8 +59,6 @@ public class SaveReportService extends RoboIntentService {
 
     @Inject
     protected JsRestClient jsRestClient;
-    @Inject
-    protected ReportParamsStorage paramsStorage;
 
     @SystemService
     NotificationManager mNotificationManager;
@@ -93,26 +91,21 @@ public class SaveReportService extends RoboIntentService {
     }
 
     @ServiceAction
-    protected void saveReport(ResourceLookup resourceLookup, SaveItemFragment.OutputFormat outputFormat,
-                              File reportFile, int fromPage, int toPage, String savedReportName) {
+    protected void saveReport(String savedReportName, String reportDescription, SaveItemFragment.OutputFormat outputFormat, File reportFile, String pageRange, String requestId) {
 
         notifyDownloadingName(savedReportName);
-        List<ReportParameter> reportParameters = getReportParams(resourceLookup.getUri());
 
         Uri itemUri = mRecordUrisQe.peek();
-        String calculatePages = calculatePages(fromPage, toPage);
         try {
-            ReportExecutionRequest runReportExecutionRequest = createReportExecutionRequest(resourceLookup, outputFormat, reportParameters, calculatePages);
-            ReportExecutionResponse runReportResponse = jsRestClient.runReportExecution(runReportExecutionRequest);
-            waitForExecutionBegin(runReportResponse.getRequestId());
+            waitForExecutionBegin(requestId);
 
-            ExportsRequest executionData = createReportExportRequest(outputFormat, calculatePages);
-            ExportExecution export = jsRestClient.runExportForReport(runReportResponse.getRequestId(), executionData);
-            waitForExportDone(runReportResponse.getRequestId(), export.getId());
+            ExportsRequest executionData = createReportExportRequest(outputFormat, pageRange);
+            ExportExecution export = jsRestClient.runExportForReport(requestId, executionData);
+            waitForExportDone(requestId, export.getId());
 
-            saveReport(reportFile, export.getId(), runReportResponse.getRequestId());
+            saveReport(reportFile, export.getId(), requestId);
             if (SaveItemFragment.OutputFormat.HTML == outputFormat) {
-                saveAttachments(reportFile, export.getId(), runReportResponse.getRequestId());
+                saveAttachments(reportFile, export.getId(), requestId);
             }
             updateSavedItemRecordToDownloaded(mRecordUrisQe.peek());
 
@@ -126,10 +119,6 @@ public class SaveReportService extends RoboIntentService {
         }
     }
 
-    private List<ReportParameter> getReportParams(String reportUri) {
-        return paramsStorage.getInputControlHolder(reportUri).getReportParams();
-    }
-
     private PendingIntent getSavedItemIntent() {
         Intent notificationIntent = NavigationActivity_.intent(this)
                 .currentSelection(R.id.vg_saved_items)
@@ -139,24 +128,6 @@ public class SaveReportService extends RoboIntentService {
         return PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private ReportExecutionRequest createReportExecutionRequest(ResourceLookup resource, SaveItemFragment.OutputFormat outputFormat,
-                                                                List<ReportParameter> reportParameters, String pageRange) {
-
-        ReportExecutionRequest executionData = new ReportExecutionRequest();
-        executionData.setReportUnitUri(resource.getUri());
-        executionData.setInteractive(false);
-        executionData.setOutputFormat(outputFormat.toString());
-        executionData.setAsync(true);
-        executionData.setEscapedAttachmentsPrefix("./");
-        executionData.setPages(pageRange);
-
-        if (!reportParameters.isEmpty()) {
-            executionData.setParameters(reportParameters);
-        }
-
-        return executionData;
-    }
-
     private ExportsRequest createReportExportRequest(SaveItemFragment.OutputFormat outputFormat, String pageRange) {
         ExportsRequest exportsRequest = new ExportsRequest();
         exportsRequest.setOutputFormat(outputFormat.toString());
@@ -164,19 +135,6 @@ public class SaveReportService extends RoboIntentService {
         exportsRequest.setPages(pageRange);
 
         return exportsRequest;
-    }
-
-    private String calculatePages(int fromPage, int toPage) {
-        boolean pagesNumbersIsValid = fromPage > 0 && toPage > 0 && toPage >= fromPage;
-        if (pagesNumbersIsValid) {
-            boolean isRange = fromPage < toPage;
-            if (isRange) {
-                return fromPage + "-" + toPage;
-            } else {
-                return String.valueOf(fromPage);
-            }
-        }
-        return "";
     }
 
     private void waitForExecutionBegin(String reportExecutionId) {
@@ -248,7 +206,7 @@ public class SaveReportService extends RoboIntentService {
     private Uri addSavedItemRecord(Bundle reportBundle) {
         Account currentAccount = JasperAccountManager.get(this).getActiveAccount();
 
-        ResourceLookup resourceLookupExtra = reportBundle.getParcelable(SaveReportService_.RESOURCE_LOOKUP_EXTRA);
+        String descriptionExtra = reportBundle.getString(SaveReportService_.REPORT_DESCRIPTION_EXTRA);
         SaveItemFragment.OutputFormat outputFormatExtra = ((SaveItemFragment.OutputFormat) reportBundle.getSerializable(SaveReportService_.OUTPUT_FORMAT_EXTRA));
         File reportFileExtra = ((File) reportBundle.getSerializable(SaveReportService_.REPORT_FILE_EXTRA));
         String savedReportNameExtra = reportBundle.getString(SaveReportService_.SAVED_REPORT_NAME_EXTRA);
@@ -257,8 +215,8 @@ public class SaveReportService extends RoboIntentService {
         savedItemsEntry.setName(savedReportNameExtra);
         savedItemsEntry.setFilePath(reportFileExtra.getPath());
         savedItemsEntry.setFileFormat(outputFormatExtra.toString());
-        savedItemsEntry.setDescription(resourceLookupExtra.getDescription());
-        savedItemsEntry.setWstype(resourceLookupExtra.getResourceType().toString());
+        savedItemsEntry.setDescription(descriptionExtra);
+        savedItemsEntry.setWstype(ResourceLookup.ResourceType.reportUnit.toString());
         savedItemsEntry.setCreationTime(new Date().getTime());
         savedItemsEntry.setAccountName(currentAccount.name);
         savedItemsEntry.setDownloaded(false);

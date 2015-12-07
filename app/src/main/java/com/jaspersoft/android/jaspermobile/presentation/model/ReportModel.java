@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -93,6 +93,11 @@ public final class ReportModel {
                     return Observable.error(e);
                 }
             }
+        }).doOnNext(new Action1<InputControlsList>() {
+            @Override
+            public void call(InputControlsList controls) {
+                mReportParamsStorage.getInputControlHolder(mReportUri).setInputControls(controls.getInputControls());
+            }
         });
     }
 
@@ -108,11 +113,15 @@ public final class ReportModel {
                         .create();
                 try {
                     ReportExecution execution = mSession.reportApi().run(mReportUri, reportCriteria);
-                    mExecution = execution;
                     return Observable.just(execution);
                 } catch (ServiceException e) {
                     return Observable.error(e);
                 }
+            }
+        }).doOnNext(new Action1<ReportExecution>() {
+            @Override
+            public void call(ReportExecution reportExecution) {
+                mExecution = reportExecution;
             }
         });
     }
@@ -177,9 +186,5 @@ public final class ReportModel {
                 }
             }
         });
-    }
-
-    public void setControls(List<InputControl> controls) {
-        mReportParamsStorage.getInputControlHolder(mReportUri).setInputControls(controls);
     }
 }

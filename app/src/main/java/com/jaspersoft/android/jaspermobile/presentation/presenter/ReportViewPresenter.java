@@ -152,7 +152,6 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         @Override
         public void onNext(InputControlsList controlsList) {
             List<InputControl> icList = new ArrayList<>(controlsList.getInputControls());
-            mReportModel.setControls(icList);
             boolean showFilterActionVisible = !icList.isEmpty();
 
             mView.hideError();

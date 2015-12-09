@@ -162,6 +162,7 @@ public class JasperResourceConverter {
         resource.setDescription(cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION)));
         resource.setUri(cursor.getString(cursor.getColumnIndex(FavoritesTable.URI)));
         resource.setResourceType(cursor.getString(cursor.getColumnIndex(FavoritesTable.WSTYPE)));
+        resource.setCreationDate(cursor.getString(cursor.getColumnIndex(FavoritesTable.CREATION_TIME)));
 
         return resource;
     }

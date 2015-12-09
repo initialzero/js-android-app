@@ -7,6 +7,7 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,7 +72,7 @@ public class ExternalOpenFragment extends FileLoadFragment {
     }
 
     private boolean canBeOpened() {
-        String mimeType = "application/" + fileType.name();
+        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileType.name());
 
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.setDataAndType(null, mimeType);
@@ -81,7 +82,8 @@ public class ExternalOpenFragment extends FileLoadFragment {
     }
 
     private void openFile(File file) {
-        String mimeType = "application/" + fileType.name();
+        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileType.name());
+
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.setDataAndType(Uri.fromFile(file), mimeType);
         openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -99,9 +99,12 @@ public class SaveReportService extends RoboIntentService {
         try {
             waitForExecutionBegin(requestId);
 
-            ExportsRequest executionData = createReportExportRequest(outputFormat, pageRange);
-            ExportExecution export = jsRestClient.runExportForReport(requestId, executionData);
-            waitForExportDone(requestId, export.getId());
+            ExportExecution export;
+            try {
+                export = exportReport(requestId, outputFormat, pageRange);
+            } catch (RestClientException | IllegalStateException ex) {
+                export = exportReport(requestId, outputFormat, pageRange);
+            }
 
             saveReport(reportFile, export.getId(), requestId);
             if (SaveItemFragment.OutputFormat.HTML == outputFormat) {
@@ -117,6 +120,13 @@ public class SaveReportService extends RoboIntentService {
             mRecordUrisQe.poll();
             notifyDownloadingCount();
         }
+    }
+
+    private ExportExecution exportReport(String requestId, SaveItemFragment.OutputFormat outputFormat, String pageRange) {
+        ExportsRequest executionData = createReportExportRequest(outputFormat, pageRange);
+        ExportExecution export = jsRestClient.runExportForReport(requestId, executionData);
+        waitForExportDone(requestId, export.getId());
+        return export;
     }
 
     private PendingIntent getSavedItemIntent() {

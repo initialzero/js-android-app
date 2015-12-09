@@ -75,6 +75,8 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -253,6 +255,7 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     }
 
     private void addData(List<ResourceLookup> data) {
+        Collections.sort(data, new OrderingByType());
         JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
         mResourceLookupHashMap.putAll(jasperResourceConverter.convertToDataMap(data));
         mAdapter.addAll(jasperResourceConverter.convertToJasperResource(data));
@@ -373,6 +376,19 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
+
+    private static class OrderingByType implements Comparator<ResourceLookup> {
+        @Override
+        public int compare(ResourceLookup res1, ResourceLookup res2) {
+            int lhs = res1.getResourceType() == ResourceLookup.ResourceType.folder ? 0 : 1;
+            int rhs = res2.getResourceType() == ResourceLookup.ResourceType.folder ? 0 : 1;
+            return compare(lhs, rhs);
+        }
+
+        private static int compare(int lhs, int rhs) {
+            return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
+        }
+    }
 
     private class GetRootFolderDataRequestListener extends SimpleRequestListener<FolderDataResponse> {
 

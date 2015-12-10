@@ -29,11 +29,9 @@ package com.jaspersoft.android.jaspermobile.presentation.action;
  * @since 2.3
  */
 public interface ReportActionListener {
-    void loadPage(int page);
+    void loadPage(String pageRange);
 
     void runReport();
 
     void updateReport();
-
-    int getPageCount();
 }

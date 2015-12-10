@@ -22,29 +22,15 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.mapper;
+package com.jaspersoft.android.jaspermobile.domain.service;
 
-import android.support.annotation.NonNull;
-
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import rx.Observable;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class ReportParamsTransformer {
-
-    @NonNull
-    public Map<String, Set<String>> transform(List<ReportParameter> list) {
-        HashMap<String, Set<String>> params = new HashMap<>();
-        for (ReportParameter parameter : list) {
-            params.put(parameter.getName(), parameter.getValues());
-        }
-        return params;
-    }
+public interface ReportExecutionService {
+    Observable<String> downloadExport(String pageRange);
+    Observable<Integer> loadTotalPages();
 }

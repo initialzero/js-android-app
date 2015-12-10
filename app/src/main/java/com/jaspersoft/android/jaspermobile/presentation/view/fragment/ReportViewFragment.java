@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -43,13 +44,20 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControl
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
+import com.jaspersoft.android.jaspermobile.data.repository.InMemoryReportRepository;
+import com.jaspersoft.android.jaspermobile.data.service.RestReportService;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
+import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.mapper.ReportParamsTransformer;
-import com.jaspersoft.android.jaspermobile.presentation.model.ReportModel;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -158,7 +166,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         paginationControl.setOnPageChangeListener(new AbstractPaginationView.OnPageChangeListener() {
             @Override
             public void onPageSelected(int currentPage) {
-                mActionListener.loadPage(currentPage);
+                mActionListener.loadPage(String.valueOf(currentPage));
             }
 
             @Override
@@ -185,16 +193,25 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     private void injectComponents() {
-        ReportParamsTransformer paramsTransformer = new ReportParamsTransformer();
-        ReportModel reportModel = new ReportModel(
-                jsRestClient,
-                session,
-                resource.getUri(),
-                paramsStorage,
-                paramsTransformer
-        );
         RequestExceptionHandler exceptionHandler = new RequestExceptionHandler(getActivity());
-        mPresenter = new ReportViewPresenter(exceptionHandler, reportModel);
+
+        String reportUri = resource.getUri();
+        ReportParamsTransformer paramsTransformer = new ReportParamsTransformer();
+        ReportService reportService = new RestReportService(jsRestClient, session);
+        ReportRepository reportRepository = new InMemoryReportRepository(reportUri, reportService, paramsStorage, paramsTransformer);
+
+        GetReportControlsCase getReportControlsCase = new GetReportControlsCase(reportRepository);
+        GetReportPageCase getReportPageCase = new GetReportPageCase(reportRepository);
+        GetReportTotalPagesCase getReportTotalPagesCase = new GetReportTotalPagesCase(reportRepository);
+        IsReportMultiPageCase isReportMultiPageCase = new IsReportMultiPageCase(reportRepository);
+
+        mPresenter = new ReportViewPresenter(
+                exceptionHandler,
+                getReportControlsCase,
+                getReportPageCase,
+                getReportTotalPagesCase,
+                isReportMultiPageCase
+        );
         mPresenter.setView(this);
         mActionListener = mPresenter;
     }
@@ -251,11 +268,19 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     @Override
     public void showLoading() {
-        ProgressDialogFragment.builder(getFragmentManager()).show();
+        ProgressDialogFragment.builder(getFragmentManager())
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        getActivity().finish();
+                    }
+                })
+                .show();
     }
 
     @Override
     public void hideLoading() {
+        progressBar.setVisibility(View.GONE);
         ProgressDialogFragment.dismiss(getFragmentManager());
     }
 
@@ -312,7 +337,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         if (FileUtils.isExternalStorageWritable()) {
             SaveReportActivity_.intent(this)
                     .resource(resource)
-                    .pageCount(mActionListener.getPageCount())
+                    .pageCount(paginationControl.getTotalPages())
                     .start();
         } else {
             Toast.makeText(getActivity(),
@@ -350,6 +375,6 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     private void updatePage(int page) {
         paginationControl.updateCurrentPage(page);
-        mActionListener.loadPage(page);
+        mActionListener.loadPage(String.valueOf(page));
     }
 }

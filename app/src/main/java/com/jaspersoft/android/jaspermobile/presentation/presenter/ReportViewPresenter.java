@@ -24,21 +24,18 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
-import com.jaspersoft.android.jaspermobile.presentation.model.ReportModel;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
-import com.jaspersoft.android.jaspermobile.util.RxTransformer;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.service.report.ReportExecution;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import rx.Subscriber;
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author Tom Koptel
@@ -46,17 +43,25 @@ import rx.subscriptions.CompositeSubscription;
  */
 public final class ReportViewPresenter implements ReportActionListener, Presenter {
 
-    private final ReportModel mReportModel;
-    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+    private final GetReportPageCase mGetReportPageCase;
+    private final GetReportControlsCase mGetReportControlsCase;
+    private final GetReportTotalPagesCase mGetReportTotalPagesCase;
+    private final IsReportMultiPageCase mIsReportMultiPageCase;
 
     private RequestExceptionHandler mExceptionHandler;
     private ReportView mView;
 
     public ReportViewPresenter(
             RequestExceptionHandler exceptionHandler,
-            ReportModel reportModel) {
+            GetReportControlsCase getReportControlsCase,
+            GetReportPageCase getReportPageCase,
+            GetReportTotalPagesCase getReportTotalPagesCase,
+            IsReportMultiPageCase isReportMultiPageCase) {
         mExceptionHandler = exceptionHandler;
-        mReportModel = reportModel;
+        mGetReportPageCase = getReportPageCase;
+        mGetReportControlsCase = getReportControlsCase;
+        mGetReportTotalPagesCase = getReportTotalPagesCase;
+        mIsReportMultiPageCase = isReportMultiPageCase;
     }
 
     public void setView(ReportView view) {
@@ -69,9 +74,10 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     }
 
     @Override
-    public void loadPage(int page) {
+    public void loadPage(String pageRange) {
         mView.showLoading();
-        loadExport(page, new DownloadExportListener());
+        mGetReportPageCase.setPageRange(pageRange);
+        mGetReportPageCase.execute(new PageResultListener());
     }
 
     @Override
@@ -80,10 +86,9 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mView.setFilterActionVisibility(false);
         mView.reloadMenu();
 
-        Subscription subscription = mReportModel.runReport()
-                .compose(RxTransformer.<ReportExecution>applySchedulers())
-                .subscribe(new RunReportListener());
-        mCompositeSubscription.add(subscription);
+        mView.showLoading();
+        mGetReportPageCase.setPageRange("1");
+        mGetReportPageCase.execute(new FirstRunListener());
     }
 
     @Override
@@ -91,34 +96,16 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    @Override
-    public int getPageCount() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
     private void loadInputControls() {
-        Subscription subscription = mReportModel.loadInputControls()
-                .compose(RxTransformer.<InputControlsList>applySchedulers())
-                .subscribe(new InputControlsListener());
-        mCompositeSubscription.add(subscription);
-    }
-
-    private void loadExport(int page, Subscriber<String> listener) {
-        Subscription subscription = mReportModel.downloadExport(page)
-                .compose(RxTransformer.<String>applySchedulers())
-                .subscribe(listener);
-        mCompositeSubscription.add(subscription);
+        mGetReportControlsCase.execute(new InputControlsListener());
     }
 
     private void checkIsMultiPageReport() {
-        loadExport(2, new IsMultiPageListener());
+        mIsReportMultiPageCase.execute(new IsMultiPageListener());
     }
 
     private void loadTotalPagesCount() {
-        Subscription subscription = mReportModel.loadTotalPages()
-                .compose(RxTransformer.<Integer>applySchedulers())
-                .subscribe(new TotalPagesListener());
-        mCompositeSubscription.add(subscription);
+        mGetReportTotalPagesCase.execute(new TotalPagesListener());
     }
 
     @Override
@@ -131,7 +118,10 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
     @Override
     public void destroy() {
-        mCompositeSubscription.unsubscribe();
+        mGetReportPageCase.unsubscribe();
+        mGetReportControlsCase.unsubscribe();
+        mGetReportTotalPagesCase.unsubscribe();
+        mIsReportMultiPageCase.unsubscribe();
     }
 
     private void showErrorMessage(Throwable error) {
@@ -139,7 +129,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mView.showError(mExceptionHandler.extractMessage(error));
     }
 
-    private class InputControlsListener extends Subscriber<InputControlsList> {
+    private class InputControlsListener extends Subscriber<List<InputControl>> {
         @Override
         public void onCompleted() {
         }
@@ -150,9 +140,8 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
 
         @Override
-        public void onNext(InputControlsList controlsList) {
-            List<InputControl> icList = new ArrayList<>(controlsList.getInputControls());
-            boolean showFilterActionVisible = !icList.isEmpty();
+        public void onNext(List<InputControl> controls) {
+            boolean showFilterActionVisible = !controls.isEmpty();
 
             mView.hideError();
             mView.setFilterActionVisibility(showFilterActionVisible);
@@ -167,9 +156,10 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
     }
 
-    private class RunReportListener extends Subscriber<ReportExecution> {
+    private class FirstRunListener extends Subscriber<String> {
         @Override
         public void onCompleted() {
+            mView.hideLoading();
         }
 
         @Override
@@ -178,14 +168,14 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
 
         @Override
-        public void onNext(ReportExecution reportExecution) {
+        public void onNext(String page) {
             mView.hideError();
-            loadPage(1);
+            mView.showPage(page);
             checkIsMultiPageReport();
         }
     }
 
-    private class DownloadExportListener extends Subscriber<String> {
+    private class PageResultListener extends Subscriber<String> {
         @Override
         public void onCompleted() {
             mView.hideLoading();
@@ -203,7 +193,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
     }
 
-    private class IsMultiPageListener extends Subscriber<String> {
+    private class IsMultiPageListener extends Subscriber<Boolean> {
         @Override
         public void onCompleted() {
         }
@@ -214,9 +204,11 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
 
         @Override
-        public void onNext(String s) {
-            mView.showPaginationControl();
-            loadTotalPagesCount();
+        public void onNext(Boolean isMultiPage) {
+            if (isMultiPage) {
+                mView.showPaginationControl();
+                loadTotalPagesCount();
+            }
         }
     }
 

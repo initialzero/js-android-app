@@ -22,29 +22,33 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.mapper;
+package com.jaspersoft.android.jaspermobile.domain.interactor;
 
-import android.support.annotation.NonNull;
+import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import rx.Observable;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class ReportParamsTransformer {
+public final class GetReportPageCase extends AbstractUseCase<String> {
+    public static final String DEFAULT_PAGE = "1";
 
-    @NonNull
-    public Map<String, Set<String>> transform(List<ReportParameter> list) {
-        HashMap<String, Set<String>> params = new HashMap<>();
-        for (ReportParameter parameter : list) {
-            params.put(parameter.getName(), parameter.getValues());
-        }
-        return params;
+    private final ReportRepository mReportRepository;
+
+    private String mPageRange = DEFAULT_PAGE;
+
+    public GetReportPageCase(ReportRepository reportRepository) {
+        mReportRepository = reportRepository;
+    }
+
+    public void setPageRange(String pageRange) {
+        mPageRange = pageRange;
+    }
+
+    @Override
+    protected Observable<String> buildUseCaseObservable() {
+        return mReportRepository.getPage(mPageRange);
     }
 }

@@ -27,10 +27,16 @@ package com.jaspersoft.android.jaspermobile.util.security;
 import android.accounts.Account;
 import android.content.Context;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
 
 import com.orhanobut.hawk.Hawk;
 import com.orhanobut.hawk.HawkBuilder;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
@@ -41,6 +47,7 @@ public final class PasswordManager {
 
     private final String mStoragePassword;
     private final Context mContext;
+    private final Map<Account, Boolean> mInitializedMap = new HashMap<>();
 
     private PasswordManager(Context context, String storagePassword) {
         mContext = context;
@@ -53,27 +60,50 @@ public final class PasswordManager {
         return new PasswordManager(context, storagePassword);
     }
 
-    public void put(Account account, String plainPassword) {
-        initHawk(account);
-        Hawk.put(KEY, plainPassword);
+    public Observable<Boolean> put(Account account, final String plainPassword) {
+        Observable<Boolean> initOperation = initHawk(account);
+        return initOperation.flatMap(new Func1<Boolean, Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call(Boolean aBoolean) {
+                return Hawk.putObservable(KEY, plainPassword);
+            }
+        }).onErrorReturn(new Func1<Throwable, Boolean>() {
+            @Override
+            public Boolean call(Throwable throwable) {
+                return false;
+            }
+        });
     }
 
-    @Nullable
-    public String get(Account account) {
-        initHawk(account);
-        try {
-            return Hawk.get(KEY);
-        } catch (Exception ex) {
-            // Swallow any exception that pop ups
-            return null;
+    public Observable<String> get(Account account) {
+        Observable<Boolean> initOperation = initHawk(account);
+        return initOperation.flatMap(new Func1<Boolean, Observable<String>>() {
+            @Override
+            public Observable<String> call(Boolean aBoolean) {
+                return Hawk.getObservable(KEY);
+            }
+        }).onErrorReturn(new Func1<Throwable, String>() {
+            @Override
+            public String call(Throwable throwable) {
+                return null;
+            }
+        });
+    }
+
+    private Observable<Boolean> initHawk(final Account account) {
+        if (!mInitializedMap.containsKey(account)) {
+            return Hawk.init(mContext)
+                    .setEncryptionMethod(HawkBuilder.EncryptionMethod.HIGHEST)
+                    .setStorage(AccountStorage.create(mContext, account))
+                    .setPassword(mStoragePassword)
+                    .buildRx()
+                    .doOnNext(new Action1<Boolean>() {
+                        @Override
+                        public void call(Boolean isInitialized) {
+                            mInitializedMap.put(account, isInitialized);
+                        }
+                    });
         }
-    }
-
-    private void initHawk(Account account) {
-        Hawk.init(mContext)
-                .setEncryptionMethod(HawkBuilder.EncryptionMethod.HIGHEST)
-                .setStorage(AccountStorage.create(mContext, account))
-                .setPassword(mStoragePassword)
-                .build();
+        return Observable.just(mInitializedMap.get(account));
     }
 }

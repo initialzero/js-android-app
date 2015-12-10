@@ -45,6 +45,7 @@ import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func0;
 import rx.functions.Func1;
 import timber.log.Timber;
 
@@ -144,13 +145,19 @@ public class JasperAccountManager {
         mAccountCache.clear();
     }
 
-    public void updateActiveAccountPassword(String newPassword) {
-        invalidateActiveToken();
-        updateAccountPassword(getActiveAccount(), newPassword);
+    public Observable<Boolean> updateActiveAccountPassword(String newPassword) {
+        Observable<Boolean> invalidateOperation = invalidateActiveToken();
+        final Observable<Boolean> updateOperation = updateAccountPassword(getActiveAccount(), newPassword);
+        return invalidateOperation.flatMap(new Func1<Boolean, Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call(Boolean aBoolean) {
+                return updateOperation;
+            }
+        });
     }
 
-    public void updateAccountPassword(Account account, String newPassword) {
-        mPasswordManager.put(account, newPassword);
+    private Observable<Boolean> updateAccountPassword(Account account, String newPassword) {
+        return mPasswordManager.put(account, newPassword);
     }
 
     public Account[] getAccounts() {
@@ -186,7 +193,8 @@ public class JasperAccountManager {
                             JasperSettings.JASPER_ACCOUNT_TYPE);
 
                     mDelegateManager.addAccountExplicitly(account, null, null);
-                    mPasswordManager.put(account, serverData.getPassword());
+                    mPasswordManager.put(account, serverData.getPassword())
+                            .toBlocking().firstOrDefault(false);
                     setUserData(account, serverData);
 
                     if (!subscriber.isUnsubscribed()) {
@@ -207,13 +215,32 @@ public class JasperAccountManager {
         return getAuthToken(activeAccount);
     }
 
-    public void invalidateActiveToken() {
-        invalidateToken(mAccountCache.get());
+    public Observable<String> getActiveAuthTokenObservable()  {
+        return Observable.defer(new Func0<Observable<String>>() {
+            @Override
+            public Observable<String> call() {
+                try {
+                    return Observable.just(getActiveAuthToken());
+                } catch (JasperAccountManager.TokenException e) {
+                    return Observable.error(e);
+                }
+            }
+        });
     }
 
-    public void invalidateToken(Account account) {
-        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+    public Observable<Boolean> invalidateActiveToken() {
+        return invalidateToken(mAccountCache.get());
+    }
+
+    public Observable<Boolean> invalidateToken(final Account account) {
+        return Observable.defer(new Func0<Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call() {
+                String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+                mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+                return Observable.just(true);
+            }
+        });
     }
 
     //---------------------------------------------------------------------

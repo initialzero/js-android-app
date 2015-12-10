@@ -34,7 +34,10 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import rx.observers.TestSubscriber;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
 /**
  * @author Tom Koptel
@@ -60,8 +63,15 @@ public class PasswordManagerTest {
 
     @Test
     public void shouldEncryptDecryptPassword() {
-        passwordManager.put(fakeAccount, "1234");
-        String pass = passwordManager.get(fakeAccount);
-        assertThat("Password manager failed to encrypt/decrypt pass", "1234".equals(pass));
+        TestSubscriber<Boolean> putSubscriber = new TestSubscriber<>();
+        TestSubscriber<String> getSubscriber = new TestSubscriber<>();
+
+        passwordManager.put(fakeAccount, "1234").subscribe(putSubscriber);
+        putSubscriber.assertNoErrors();
+
+        passwordManager.get(fakeAccount).subscribe(getSubscriber);
+        getSubscriber.assertNoErrors();
+
+        assertThat("Password manager failed to encrypt/decrypt pass", getSubscriber.getOnNextEvents(), hasItem("1234"));
     }
 }

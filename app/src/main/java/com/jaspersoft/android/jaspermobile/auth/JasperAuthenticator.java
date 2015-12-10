@@ -47,6 +47,7 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import retrofit.RetrofitError;
+import rx.Observable;
 import timber.log.Timber;
 
 /**
@@ -94,7 +95,9 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
-        String password = mPasswordManager.get(account);
+        Observable<String> getPasswordOperation = mPasswordManager.get(account);
+        String password = getPasswordOperation.toBlocking().firstOrDefault(null);
+
         if (TextUtils.isEmpty(password)) {
             return createErrorBundle(JasperAccountManager.TokenException.NO_PASSWORD_ERROR, mContext.getString(R.string.r_error_incorrect_credentials));
         }

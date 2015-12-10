@@ -34,6 +34,9 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
+import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -48,7 +51,6 @@ import roboguice.RoboGuice;
  * @since 1.9
  */
 class ReportResourceBinder extends ResourceBinder {
-    private final boolean isAmberOrHigher;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -56,28 +58,23 @@ class ReportResourceBinder extends ResourceBinder {
     public ReportResourceBinder(Context context) {
         super(context);
         RoboGuice.getInjector(context).injectMembersWithoutViews(this);
-
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(context, account);
-        ServerRelease serverRelease = ServerRelease.parseVersion(serverData.getVersionName());
-        isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
     }
 
     @Override
-    public void setIcon(ImageView imageView, String uri) {
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        loadFromNetwork(imageView, uri);
+
+        if (jasperResource.getResourceType() == JasperResourceType.report) {
+            String thumbnailUri = ((ReportResource) jasperResource).getThumbnailUri();
+            loadFromNetwork(imageView, thumbnailUri);
+        }
     }
 
     private void loadFromNetwork(ImageView imageView, String uri) {
-        String path = "";
-        if (isAmberOrHigher) {
-            path = jsRestClient.generateThumbNailUri(uri);
-        }
         ImageLoader.getInstance().displayImage(
-                path, imageView, getDisplayImageOptions(),
-                new ImageLoadingListener()
+                uri, imageView, getDisplayImageOptions(),
+                new ThumbnailLoadingListener()
         );
     }
 
@@ -92,7 +89,7 @@ class ReportResourceBinder extends ResourceBinder {
                 .build();
     }
 
-    private static class ImageLoadingListener extends SimpleImageLoadingListener {
+    private static class ThumbnailLoadingListener extends SimpleImageLoadingListener {
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
             if (view != null) {

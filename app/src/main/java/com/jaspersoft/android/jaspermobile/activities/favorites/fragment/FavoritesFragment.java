@@ -51,6 +51,8 @@ import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
@@ -71,6 +73,7 @@ import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -89,7 +92,6 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
 @OptionsMenu(R.menu.sort_menu)
 public class FavoritesFragment extends RoboFragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        DeleteDialogFragment.DeleteDialogClickListener,
         SortDialogFragment.SortDialogClickListener {
 
     public static final String TAG = FavoritesFragment.class.getSimpleName();
@@ -109,9 +111,6 @@ public class FavoritesFragment extends RoboFragment
     TextView emptyText;
     @OptionsMenuItem(R.id.sort)
     MenuItem sortAction;
-
-    @Inject
-    JsRestClient jsRestClient;
 
     @Bean
     ResourceOpener resourceOpener;
@@ -200,21 +199,20 @@ public class FavoritesFragment extends RoboFragment
     }
 
     private void setDataAdapter() {
-        Cursor cursor = null;
-        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(cursor, null, null), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity(), Collections.<JasperResource> emptyList(), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
-                ResourceLookup resource = jasperResourceConverter.convertToResourceLookup(id, getActivity());
+                ResourceLookup resource = jasperResourceConverter.convertFavoriteToResourceLookup(id, getActivity());
                 onViewSingleClick(resource);
             }
 
             @Override
-            public void onResourceInfoClicked(String id) {
-                ResourceLookup resource = jasperResourceConverter.convertToResourceLookup(id, getActivity());
+            public void onResourceInfoClicked(JasperResource jasperResource) {
+                jasperResource.setId(jasperResourceConverter.convertFavoriteIdToResourceUri(jasperResource.getId(), getActivity()));
 
                 ResourceInfoActivity_.intent(getActivity())
-                        .resourceLookup(resource)
+                        .jasperResource(jasperResource)
                         .start();
             }
         });
@@ -297,22 +295,6 @@ public class FavoritesFragment extends RoboFragment
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mAdapter.clear();
         mAdapter.notifyDataSetChanged();
-    }
-
-    //---------------------------------------------------------------------
-    // Implements DeleteDialogFragment.DeleteDialogClickListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onDeleteConfirmed(List<String> recordsUri, List<File> itemsFile) {
-        for (String recordUri : recordsUri) {
-            getActivity().getContentResolver().delete(Uri.parse(recordUri), null, null);
-        }
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
-    }
-
-    @Override
-    public void onDeleteCanceled() {
     }
 
     //---------------------------------------------------------------------

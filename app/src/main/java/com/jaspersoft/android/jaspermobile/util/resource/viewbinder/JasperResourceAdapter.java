@@ -1,11 +1,13 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
@@ -17,44 +19,46 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public class JasperResourceAdapter extends SelectableAdapter<String> {
+public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceViewHolder> {
 
     public final static int LOADING_TYPE = -1;
+    public final static int LIST_TYPE = 1;
+    public final static int GRID_TYPE = 2;
 
     private OnResourceInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
     private ViewType viewType;
     private boolean mNextPageIsLoading;
+    private ResourceViewHolderFactory mResourceViewHolderFactory;
+    private ResourceBinderFactory mResourceBinderFactory;
 
-    public JasperResourceAdapter(List<JasperResource> jasperResources, ViewType viewType) {
+    public JasperResourceAdapter(Context context, List<JasperResource> jasperResources, ViewType viewType) {
         if (jasperResources != null) {
             this.jasperResources = jasperResources;
         } else {
             this.jasperResources = new ArrayList<>();
         }
         this.viewType = viewType;
+
+        mResourceViewHolderFactory = new ResourceViewHolderFactory(context);
+        mResourceBinderFactory = new ResourceBinderFactory(context);
     }
 
     @Override
-    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int resourceType) {
-        if (resourceType == LOADING_TYPE) {
-            View itemView = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.item_resource_list_loading, parent, false);
-            return new LoadingViewHolder(itemView);
-        }
-        ResourceViewBinder resourceViewBinder = getResViewBinderForResType(parent.getContext(), JasperResourceType.values()[resourceType], viewType);
-        BaseViewHolder itemViewHolder = resourceViewBinder.buildViewHolder(parent);
+    public BaseResourceViewHolder onCreateViewHolder(ViewGroup parent, int resourceType) {
+        BaseResourceViewHolder itemViewHolder = mResourceViewHolderFactory.create(parent, resourceType);
         itemViewHolder.setOnItemInteractionListener(new OnResourceItemClickListener());
         return itemViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(BaseViewHolder baseViewHolder, int position) {
+    public void onBindViewHolder(BaseResourceViewHolder baseViewHolder, int position) {
         if (position == jasperResources.size()) {
             return;
         }
-        boolean isSelected = mResourceSelector != null && mResourceSelector.isSelected(position);
-        baseViewHolder.populateView(jasperResources.get(position), isSelected);
+        JasperResource jasperResource = jasperResources.get(position);
+        ResourceBinder resourceBinder = mResourceBinderFactory.create(jasperResource.getResourceType());
+        resourceBinder.bindView(baseViewHolder, jasperResource);
     }
 
     @Override
@@ -70,9 +74,10 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
     public int getItemViewType(int position) {
         if (position >= jasperResources.size()) {
             return LOADING_TYPE;
+        } else if (viewType == ViewType.LIST) {
+            return LIST_TYPE;
         }
-        JasperResource resource = jasperResources.get(position);
-        return resource.getResourceType().ordinal();
+        return GRID_TYPE;
     }
 
     public void setOnItemInteractionListener(OnResourceInteractionListener itemInteractionListener) {
@@ -100,41 +105,15 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
         notifyItemInserted(jasperResources.size());
     }
 
-    private ResourceViewBinder getResViewBinderForResType(Context context, JasperResourceType jasperResourceType, ViewType viewType) {
-        switch (jasperResourceType) {
-            case report:
-                return new ReportViewBinder(context, viewType);
-            case dashboard:
-                return new DashboardViewBinder(context, viewType);
-            case folder:
-                return new FolderViewBinder(context, viewType);
-            case saved_item:
-                return new SavedItemViewBinder(context, viewType);
-            default:
-                return new UndefinedViewBinder(context, viewType);
-        }
-    }
-
-    @Override
-    public String getItemKey(int position) {
-        if (jasperResources.size() <= position) return null;
-
-        JasperResource jasperResource = jasperResources.get(position);
-        if (jasperResource != null) {
-            return jasperResources.get(position).getId();
-        }
-        return null;
-    }
-
     //---------------------------------------------------------------------
     // Base adapter interaction listener
     //---------------------------------------------------------------------
     public interface OnResourceInteractionListener {
         void onResourceItemClicked(String id);
-        void onResourceInfoClicked(String id);
+        void onResourceInfoClicked(JasperResource jasperResource);
     }
 
-    private class OnResourceItemClickListener implements BaseViewHolder.OnViewClickListener {
+    private class OnResourceItemClickListener implements BaseResourceViewHolder.OnViewClickListener {
 
         @Override
         public void onViewSingleClick(int position) {
@@ -146,20 +125,11 @@ public class JasperResourceAdapter extends SelectableAdapter<String> {
         @Override
         public void onViewInfoClick(int position) {
             if (mItemInteractionListener != null) {
-                mItemInteractionListener.onResourceInfoClicked(jasperResources.get(position).getId());
+                JasperResource jasperResource = jasperResources.get(position);
+                mItemInteractionListener.onResourceInfoClicked(jasperResource);
             }
         }
     }
 
-    private class LoadingViewHolder extends BaseViewHolder {
 
-        public LoadingViewHolder(View itemView) {
-            super(itemView);
-        }
-
-        @Override
-        public void populateView(JasperResource resource, boolean isSelected) {
-
-        }
-    }
 }

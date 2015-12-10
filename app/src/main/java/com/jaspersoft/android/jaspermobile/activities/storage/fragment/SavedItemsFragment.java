@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
@@ -49,12 +50,15 @@ import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.Bean;
@@ -65,6 +69,8 @@ import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -80,8 +86,7 @@ import roboguice.inject.InjectView;
  */
 @EFragment(R.layout.fragment_resource)
 public class SavedItemsFragment extends RoboFragment
-        implements DeleteDialogFragment.DeleteDialogClickListener,
-        LoaderManager.LoaderCallbacks<Cursor>, RenameDialogFragment.RenameDialogClickListener {
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String TAG = SavedItemsFragment.class.getSimpleName();
     private final int SAVED_ITEMS_LOADER_ID = 10;
@@ -107,8 +112,6 @@ public class SavedItemsFragment extends RoboFragment
 
     @Bean
     protected StorageResourceFilter storageResourceFilter;
-    @Bean
-    protected SavedItemHelper savedItemHelper;
 
     private JasperResourceAdapter mAdapter;
     private JasperResourceConverter jasperResourceConverter;
@@ -183,8 +186,7 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     private void setDataAdapter() {
-        Cursor cursor = null;
-        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(cursor, null, null), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity(), Collections.<JasperResource> emptyList(), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
@@ -193,7 +195,10 @@ public class SavedItemsFragment extends RoboFragment
             }
 
             @Override
-            public void onResourceInfoClicked(String id) {
+            public void onResourceInfoClicked(JasperResource jasperResource) {
+                ResourceInfoActivity_.intent(getActivity())
+                        .jasperResource(jasperResource)
+                        .start();
             }
         });
 
@@ -278,37 +283,5 @@ public class SavedItemsFragment extends RoboFragment
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mAdapter.clear();
         mAdapter.notifyDataSetChanged();
-    }
-
-    //---------------------------------------------------------------------
-    // Implements DeleteDialogFragment.DeleteDialogClickListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onDeleteConfirmed(List<String> itemsToDelete, List<File> filesToDelete) {
-        for (int i = 0; i < filesToDelete.size(); i++) {
-            long id = Long.valueOf(Uri.parse(itemsToDelete.get(i)).getLastPathSegment());
-            savedItemHelper.deleteSavedItem(filesToDelete.get(i), id);
-        }
-
-        getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
-    }
-
-    @Override
-    public void onDeleteCanceled() {
-    }
-
-    //---------------------------------------------------------------------
-    // Implements RenameDialogFragment.RenameDialogClickListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onRenamed(String newFileName, String newFilePath, Uri recordUri) {
-        SavedItems savedItemsEntry = new SavedItems();
-        savedItemsEntry.setName(newFileName);
-        savedItemsEntry.setFilePath(newFilePath);
-        getActivity().getContentResolver().update(recordUri, savedItemsEntry.getContentValues(), null, null);
-
-        getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }
 }

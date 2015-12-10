@@ -12,13 +12,13 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public class SimpleListViewHolder extends BaseViewHolder {
+public class ListResourceViewHolder extends BaseResourceViewHolder {
     protected TopCropImageView ivIcon;
     protected TextView tvName;
     protected TextView tvDescription;
     protected ImageButton btnInfo;
 
-    public SimpleListViewHolder(View itemView) {
+    public ListResourceViewHolder(View itemView) {
         super(itemView);
 
         this.ivIcon = (TopCropImageView) itemView.findViewById(android.R.id.icon);
@@ -45,16 +45,18 @@ public class SimpleListViewHolder extends BaseViewHolder {
         });
     }
 
-    /**
-     * Fill resource view with data. This method does not contain setting of item icon.
-     *
-     * @param resource data to be displayed in UI
-     * @param isSelected is item selected
-     */
     @Override
-    public void populateView(JasperResource resource, boolean isSelected) {
-        tvName.getRootView().setSelected(isSelected);
-        tvName.setText(resource.getLabel());
-        tvDescription.setText(resource.getDescription());
+    public void setTitle(CharSequence title) {
+        tvName.setText(title);
+    }
+
+    @Override
+    public void setSubTitle(CharSequence subTitle) {
+        tvDescription.setText(subTitle);
+    }
+
+    @Override
+    public TopCropImageView getImageView() {
+        return ivIcon;
     }
 }

@@ -176,8 +176,12 @@ public class JasperResourceConverter {
 
     public String convertFavoriteIdToResourceUri(String id, Context context) {
         Cursor cursor = context.getContentResolver().query(Uri.parse(id), null, null, null, null);
-        cursor.moveToFirst();
-        return cursor.getString(cursor.getColumnIndex(FavoritesTable.URI));
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+            return cursor.getString(cursor.getColumnIndex(FavoritesTable.URI));
+        }
+        return id;
     }
 
     public File convertToFile(String id, Context context) {

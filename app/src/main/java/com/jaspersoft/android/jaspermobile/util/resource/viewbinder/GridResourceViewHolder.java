@@ -16,12 +16,12 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 /**
  * Simple View Holder for grid representation of resource item. View consist of icon and title.
  */
-public class SimpleGridViewHolder extends BaseViewHolder {
+public class GridResourceViewHolder extends BaseResourceViewHolder {
     protected TopCropImageView ivIcon;
     protected TextView tvName;
     protected ImageButton btnInfo;
 
-    public SimpleGridViewHolder(View itemView) {
+    public GridResourceViewHolder(View itemView) {
         super(itemView);
 
         this.ivIcon = (TopCropImageView) itemView.findViewById(android.R.id.icon);
@@ -47,14 +47,18 @@ public class SimpleGridViewHolder extends BaseViewHolder {
         });
     }
 
-    /**
-     * Fill resource view with data. This method does not contain setting of item icon.
-     * @param resource data to be displayed in UI
-     * @param isSelected is item selected
-     */
     @Override
-    public void populateView(JasperResource resource, boolean isSelected) {
-        tvName.getRootView().setSelected(isSelected);
-        tvName.setText(resource.getLabel());
+    public void setTitle(CharSequence title) {
+        tvName.setText(title);
+    }
+
+    @Override
+    public void setSubTitle(CharSequence subTitle) {
+
+    }
+
+    @Override
+    public TopCropImageView getImageView() {
+        return ivIcon;
     }
 }

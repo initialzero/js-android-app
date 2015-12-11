@@ -51,6 +51,8 @@ import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
@@ -275,7 +277,7 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
 
         List<ResourceLookup> resourceLookupList = null;
-        mAdapter = new JasperResourceAdapter(jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
@@ -283,9 +285,9 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
             }
 
             @Override
-            public void onResourceInfoClicked(String id) {
+            public void onResourceInfoClicked(JasperResource jasperResource) {
                 ResourceInfoActivity_.intent(getActivity())
-                        .resourceLookup(mResourceLookupHashMap.get(id))
+                        .jasperResource(jasperResource)
                         .start();
             }
         });

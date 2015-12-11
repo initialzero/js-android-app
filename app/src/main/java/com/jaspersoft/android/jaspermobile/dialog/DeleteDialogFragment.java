@@ -42,8 +42,8 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
 
     private final static String RECORD_URI_ARG = "record_uri";
     private final static String FILE_URI_ARG = "file_uri";
-    private List<String> recordsUri;
-    private List<File> itemsFile;
+    private String recordsUri;
+    private File itemsFile;
 
     @Override
     protected Class<DeleteDialogClickListener> getDialogCallbackClass() {
@@ -57,16 +57,11 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
         Bundle args = getArguments();
         if (args != null) {
             if (args.containsKey(RECORD_URI_ARG)) {
-                recordsUri = args.getStringArrayList(RECORD_URI_ARG);
+                recordsUri = args.getString(RECORD_URI_ARG);
             }
             if (args.containsKey(FILE_URI_ARG)) {
-                Parcelable[] filesParcel = args.getParcelableArray(FILE_URI_ARG);
-                itemsFile = new ArrayList<>();
-
-                for (Parcelable parcelable : filesParcel) {
-                    File itemFile = new File(((Uri) parcelable).getPath());
-                    itemsFile.add(itemFile);
-                }
+                Parcelable filesParcel = args.getParcelable(FILE_URI_ARG);
+                itemsFile = new File(((Uri) filesParcel).getPath());
             }
         }
     }
@@ -95,17 +90,13 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
             super(context, fragmentManager);
         }
 
-        public DeleteDialogFragmentBuilder setRecordsUri(ArrayList<String> recordsUri) {
-            args.putStringArrayList(RECORD_URI_ARG, recordsUri);
+        public DeleteDialogFragmentBuilder setRecordsUri(String recordsUri) {
+            args.putString(RECORD_URI_ARG, recordsUri);
             return this;
         }
 
-        public DeleteDialogFragmentBuilder setFiles(List<File> files) {
-            List<Uri> filesUriList = new ArrayList<>();
-            for (File file : files) {
-                filesUriList.add(Uri.fromFile(file));
-            }
-            args.putParcelableArray(FILE_URI_ARG, filesUriList.toArray(new Uri[filesUriList.size()]));
+        public DeleteDialogFragmentBuilder setFile(File file) {
+            args.putParcelable(FILE_URI_ARG, Uri.fromFile(file));
             return this;
         }
 
@@ -120,7 +111,7 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
     //---------------------------------------------------------------------
 
     public interface DeleteDialogClickListener extends DialogClickListener {
-        void onDeleteConfirmed(List<String> itemToDelete, List<File> fileToDelete);
+        void onDeleteConfirmed(String itemToDelete, File fileToDelete);
 
         void onDeleteCanceled();
     }

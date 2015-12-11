@@ -26,11 +26,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/showAction"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_menu_info"
-        android:title="@string/r_cm_view_details" />
-    <item
         android:id="@+id/renameItem"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_menu_edit"

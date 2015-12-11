@@ -1,10 +1,12 @@
 package com.jaspersoft.android.jaspermobile.util.resource;
 
+import java.io.Serializable;
+
 /**
  * @author Andrew Tivodar
  * @since 2.0
  */
-public abstract class JasperResource {
+public abstract class JasperResource implements Serializable {
     private String id;
     private String label;
     private String description;

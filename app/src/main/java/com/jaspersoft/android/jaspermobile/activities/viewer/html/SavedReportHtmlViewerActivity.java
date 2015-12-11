@@ -92,8 +92,8 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
         Uri uri = Uri.parse(recordUri);
 
         DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setFiles(Collections.singletonList(reportFile))
-                .setRecordsUri(new ArrayList<>(Collections.singletonList(uri.toString())))
+                .setFile(reportFile)
+                .setRecordsUri(uri.toString())
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -107,8 +107,8 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(List<String> itemsToDelete, List<File> filesToDelete) {
-        long id = Long.valueOf(Uri.parse(itemsToDelete.get(0)).getLastPathSegment());
+    public void onDeleteConfirmed(String itemsToDelete, File filesToDelete) {
+        long id = Long.valueOf(Uri.parse(itemsToDelete).getLastPathSegment());
         savedItemHelper.deleteSavedItem(reportFile, id);
         finish();
     }

@@ -13,6 +13,7 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.DashboardResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
 import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
 import com.jaspersoft.android.jaspermobile.util.resource.UndefinedResource;
@@ -21,7 +22,9 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,13 +80,34 @@ public class JasperResourceConverter {
         return jasperResourceList;
     }
 
+    public ResourceLookup.ResourceType convertToResourceType(JasperResourceType jasperResourceType) {
+        if (jasperResourceType == null) return null;
+
+        ResourceLookup.ResourceType resourceType;
+        switch (jasperResourceType) {
+            case folder:
+                resourceType = ResourceLookup.ResourceType.folder;
+                break;
+            case dashboard:
+                resourceType = ResourceLookup.ResourceType.dashboard;
+                break;
+            case report:
+                resourceType = ResourceLookup.ResourceType.reportUnit;
+                break;
+            default:
+                resourceType = ResourceLookup.ResourceType.unknown;
+                break;
+        }
+        return resourceType;
+    }
+
     public List<JasperResource> convertToJasperResource(Cursor cursor, String tableId, Uri tableContentUri) {
         List<JasperResource> jasperResourceList = new ArrayList<>();
         if (cursor == null) return jasperResourceList;
 
         if (cursor.moveToFirst()) {
             do {
-                ResourceLookup resourceLookup = convertFromCursorToLookup(cursor);
+                ResourceLookup resourceLookup = convertFromFavoritesCursorToLookup(cursor);
                 JasperResource resource;
 
                 String id = cursor.getString(cursor.getColumnIndex(tableId));
@@ -144,19 +168,29 @@ public class JasperResourceConverter {
         return jasperResourceMap;
     }
 
-    public ResourceLookup convertToResourceLookup(String id, Context context) {
+    public ResourceLookup convertFavoriteToResourceLookup(String id, Context context) {
         Cursor cursor = context.getContentResolver().query(Uri.parse(id), null, null, null, null);
         cursor.moveToFirst();
-        return convertFromCursorToLookup(cursor);
+        return convertFromFavoritesCursorToLookup(cursor);
     }
 
-    public File convertToFile(String id, Context context){
+    public String convertFavoriteIdToResourceUri(String id, Context context) {
+        Cursor cursor = context.getContentResolver().query(Uri.parse(id), null, null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+            return cursor.getString(cursor.getColumnIndex(FavoritesTable.URI));
+        }
+        return id;
+    }
+
+    public File convertToFile(String id, Context context) {
         Cursor cursor = context.getContentResolver().query(Uri.parse(id), null, null, null, null);
         cursor.moveToFirst();
         return new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
     }
 
-    private ResourceLookup convertFromCursorToLookup(Cursor cursor) {
+    private ResourceLookup convertFromFavoritesCursorToLookup(Cursor cursor) {
         ResourceLookup resource = new ResourceLookup();
         resource.setLabel(cursor.getString(cursor.getColumnIndex(FavoritesTable.TITLE)));
         resource.setDescription(cursor.getString(cursor.getColumnIndex(FavoritesTable.DESCRIPTION)));
@@ -166,5 +200,4 @@ public class JasperResourceConverter {
 
         return resource;
     }
-
 }

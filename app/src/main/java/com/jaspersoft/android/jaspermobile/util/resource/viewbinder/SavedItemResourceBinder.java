@@ -28,18 +28,33 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
+import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-class UnknownResourceBinder extends ResourceBinder {
-    public UnknownResourceBinder(Context context) {
+class SavedItemResourceBinder extends ResourceBinder {
+
+    private static final Map<SavedItemResource.FileType, Integer> DRAWABLE_IDS_MAP = new EnumMap<SavedItemResource.FileType, Integer>(SavedItemResource.FileType.class);
+
+    static {
+        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.HTML, R.drawable.bg_saved_html);
+        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.PDF, R.drawable.bg_saved_pdf);
+        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.XLS, R.drawable.bg_saved_xls);
+        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.UNKNOWN, R.drawable.bg_gradient_grey);
+    }
+
+    public SavedItemResourceBinder(Context context) {
         super(context);
     }
 
@@ -47,12 +62,17 @@ class UnknownResourceBinder extends ResourceBinder {
     public void setIcon(ImageView imageView, JasperResource jasperResource) {
         ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions());
+
+        if (jasperResource.getResourceType() == JasperResourceType.saved_item) {
+            SavedItemResource.FileType fileType = ((SavedItemResource) jasperResource).getFileType();
+            int iconRes = DRAWABLE_IDS_MAP.get(fileType);
+            ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions(iconRes));
+        }
     }
 
-    private DisplayImageOptions getDisplayImageOptions() {
+    private DisplayImageOptions getDisplayImageOptions(int iconRes) {
         return new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(android.R.drawable.ic_menu_help)
+                .showImageForEmptyUri(iconRes)
                 .build();
     }
 

@@ -28,6 +28,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCa
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
@@ -47,6 +48,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     private final GetReportControlsCase mGetReportControlsCase;
     private final GetReportTotalPagesCase mGetReportTotalPagesCase;
     private final IsReportMultiPageCase mIsReportMultiPageCase;
+    private final UpdateReportExecutionCase mUpdateReportExecutionCase;
 
     private RequestExceptionHandler mExceptionHandler;
     private ReportView mView;
@@ -56,12 +58,14 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
             GetReportControlsCase getReportControlsCase,
             GetReportPageCase getReportPageCase,
             GetReportTotalPagesCase getReportTotalPagesCase,
-            IsReportMultiPageCase isReportMultiPageCase) {
+            IsReportMultiPageCase isReportMultiPageCase,
+            UpdateReportExecutionCase updateReportExecutionCase) {
         mExceptionHandler = exceptionHandler;
         mGetReportPageCase = getReportPageCase;
         mGetReportControlsCase = getReportControlsCase;
         mGetReportTotalPagesCase = getReportTotalPagesCase;
         mIsReportMultiPageCase = isReportMultiPageCase;
+        mUpdateReportExecutionCase = updateReportExecutionCase;
     }
 
     public void setView(ReportView view) {
@@ -83,7 +87,6 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     @Override
     public void runReport() {
         mView.setSaveActionVisibility(false);
-        mView.setFilterActionVisibility(false);
         mView.reloadMenu();
 
         mView.showLoading();
@@ -93,7 +96,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
     @Override
     public void updateReport() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        mUpdateReportExecutionCase.execute(new UpdateExecutionListener());
     }
 
     private void loadInputControls() {
@@ -122,6 +125,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mGetReportControlsCase.unsubscribe();
         mGetReportTotalPagesCase.unsubscribe();
         mIsReportMultiPageCase.unsubscribe();
+        mUpdateReportExecutionCase.unsubscribe();
     }
 
     private void showErrorMessage(Throwable error) {
@@ -208,6 +212,9 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
             if (isMultiPage) {
                 mView.showPaginationControl();
                 loadTotalPagesCount();
+            } else {
+                mView.setSaveActionVisibility(true);
+                mView.reloadMenu();
             }
         }
     }
@@ -224,7 +231,26 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onNext(Integer totalPages) {
+            mView.setSaveActionVisibility(true);
+            mView.reloadMenu();
             mView.showTotalPages(totalPages);
+        }
+    }
+
+    private class UpdateExecutionListener extends Subscriber<Void> {
+        @Override
+        public void onCompleted() {
+        }
+        @Override
+        public void onError(Throwable e) {
+            showErrorMessage(e);
+        }
+
+        @Override
+        public void onNext(Void Void) {
+            mView.resetPaginationControl();
+            checkIsMultiPageReport();
+            loadPage("1");
         }
     }
 }

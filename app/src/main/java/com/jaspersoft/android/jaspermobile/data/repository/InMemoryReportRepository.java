@@ -75,6 +75,16 @@ public final class InMemoryReportRepository implements ReportRepository {
         return rx.Observable.concat(memory, network).first();
     }
 
+    @Override
+    public Observable<Void> updateReport() {
+        return mExecutionCache.update(getParameters()).doOnNext(new Action1<Void>() {
+            @Override
+            public void call(Void aVoid) {
+                mPagesCache.evictAll();
+            }
+        });
+    }
+
     @NonNull
     private List<ReportParameter> getParameters() {
         List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> params = 

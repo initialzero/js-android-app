@@ -37,6 +37,7 @@ import rx.Observable;
  */
 public interface ReportRepository {
     Observable<String> getPage(String pages);
+    Observable<Void> updateReport();
     Observable<List<InputControl>> getControls();
     Observable<Integer> getTotalPages();
 }

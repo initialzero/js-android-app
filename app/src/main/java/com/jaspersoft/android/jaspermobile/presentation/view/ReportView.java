@@ -41,5 +41,7 @@ public interface ReportView extends LoadDataView {
 
     void showPaginationControl();
 
+    void resetPaginationControl();
+
     void showTotalPages(int totalPages);
 }

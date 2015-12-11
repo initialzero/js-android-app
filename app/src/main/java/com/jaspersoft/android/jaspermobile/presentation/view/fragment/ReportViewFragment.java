@@ -53,6 +53,7 @@ import com.jaspersoft.android.jaspermobile.data.service.RestReportService;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
@@ -204,14 +205,15 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         GetReportPageCase getReportPageCase = new GetReportPageCase(reportRepository);
         GetReportTotalPagesCase getReportTotalPagesCase = new GetReportTotalPagesCase(reportRepository);
         IsReportMultiPageCase isReportMultiPageCase = new IsReportMultiPageCase(reportRepository);
+        UpdateReportExecutionCase updateReportExecutionCase = new UpdateReportExecutionCase(reportRepository);
 
         mPresenter = new ReportViewPresenter(
                 exceptionHandler,
                 getReportControlsCase,
                 getReportPageCase,
                 getReportTotalPagesCase,
-                isReportMultiPageCase
-        );
+                isReportMultiPageCase,
+                updateReportExecutionCase);
         mPresenter.setView(this);
         mActionListener = mPresenter;
     }
@@ -328,6 +330,11 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     @Override
+    public void resetPaginationControl() {
+        paginationControl.updateTotalCount(AbstractPaginationView.UNDEFINED_PAGE_NUMBER);
+    }
+
+    @Override
     public void showTotalPages(int totalPages) {
         paginationControl.updateTotalCount(totalPages);
     }
@@ -335,9 +342,14 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     @OptionsItem
     final void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
+            boolean isTotalPagesDefined =
+                    paginationControl.getTotalPages() != AbstractPaginationView.UNDEFINED_PAGE_NUMBER;
+            int pages = isTotalPagesDefined ? paginationControl.getTotalPages() :
+                    AbstractPaginationView.FIRST_PAGE;
+
             SaveReportActivity_.intent(this)
                     .resource(resource)
-                    .pageCount(paginationControl.getTotalPages())
+                    .pageCount(pages)
                     .start();
         } else {
             Toast.makeText(getActivity(),

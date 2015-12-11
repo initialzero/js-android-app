@@ -40,6 +40,7 @@ import android.widget.RelativeLayout;
  */
 public abstract class AbstractPaginationView extends RelativeLayout {
     public static final int FIRST_PAGE = 1;
+    public static final int UNDEFINED_PAGE_NUMBER = -1;
 
     private static final String INSTANCE_STATE = "INSTANCE_STATE";
     private static final String CURRENT_PAGE = "CURRENT_PAGE";
@@ -48,7 +49,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     protected OnPageChangeListener onPageChangeListener;
 
     private int currentPage = FIRST_PAGE;
-    private int mTotalPages = -1;
+    private int mTotalPages = UNDEFINED_PAGE_NUMBER;
 
     public AbstractPaginationView(Context context) {
         super(context);

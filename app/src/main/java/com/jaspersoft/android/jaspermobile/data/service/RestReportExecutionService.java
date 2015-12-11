@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.data.service;
 
 import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.data.report.ReportMetadata;
 import com.jaspersoft.android.sdk.service.data.report.ReportOutput;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
@@ -37,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import rx.Observable;
 import rx.functions.Func0;
@@ -88,6 +90,21 @@ final class RestReportExecutionService implements ReportExecutionService {
                 } catch (ServiceException e) {
                     return Observable.error(e);
                 }
+            }
+        });
+    }
+
+    @Override
+    public Observable<Void> update(final List<ReportParameter> newParameters) {
+        return Observable.defer(new Func0<Observable<Void>>() {
+            @Override
+            public Observable<Void> call() {
+                try {
+                    mExecution.updateExecution(newParameters);
+                } catch (ServiceException e) {
+                    return Observable.error(e);
+                }
+                return Observable.just(null);
             }
         });
     }

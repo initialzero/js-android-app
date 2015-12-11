@@ -56,6 +56,8 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     private final LruCache<String, String> mPagesCache = new LruCache<>(10);
     private ReportExecutionService mExecutionCache;
+    private Integer mPagesCountCache;
+    private Boolean mIsMultiPage;
 
     public InMemoryReportRepository(
             String reportUri,
@@ -80,6 +82,8 @@ public final class InMemoryReportRepository implements ReportRepository {
         return mExecutionCache.update(getParameters()).doOnNext(new Action1<Void>() {
             @Override
             public void call(Void aVoid) {
+                mPagesCountCache = null;
+                mIsMultiPage = null;
                 mPagesCache.evictAll();
             }
         });
@@ -87,7 +91,7 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     @NonNull
     private List<ReportParameter> getParameters() {
-        List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> params = 
+        List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> params =
                 mReportParamsStorage.getInputControlHolder(mReportUri).getReportParams();
         return mReportParamsTransformer.transform(params);
     }
@@ -104,11 +108,70 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     @Override
     public Observable<Integer> getTotalPages() {
-        List<ReportParameter> repoParams = getParameters();
-        return getExecution(repoParams).flatMap(new Func1<ReportExecutionService, Observable<Integer>>() {
+        Observable<Integer> memory = createTotalPagesMemorySource();
+        Observable<Integer> network = createTotalPagesNetworkSource();
+        return Observable.concat(memory, network).first();
+    }
+
+    @Override
+    public Observable<Boolean> isMultiPage() {
+        Observable<Boolean> memory = createIsMultiPageMemorySource();
+        Observable<Boolean> network = createIsMultiPageNetworkSource();
+        return Observable.concat(memory, network).first();
+    }
+
+    private Observable<Boolean> createIsMultiPageMemorySource() {
+        if (mIsMultiPage == null) {
+            return Observable.empty();
+        }
+        return Observable.just(mIsMultiPage);
+    }
+
+    private Observable<Boolean> createIsMultiPageNetworkSource() {
+        return mExecutionCache.downloadExport("2")
+                .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
+                    @Override
+                    public Observable<? extends String> call(Throwable throwable) {
+                        return Observable.just(null);
+                    }
+                }).doOnNext(new Action1<String>() {
+                    @Override
+                    public void call(String page) {
+                        if (page != null) {
+                            mPagesCache.put("2", page);
+                        }
+                    }
+                })
+                .flatMap(new Func1<String, Observable<Boolean>>() {
+                    @Override
+                    public Observable<Boolean> call(String page) {
+                        return Observable.just(page != null);
+                    }
+                }).doOnNext(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean multiPageFlag) {
+                        mIsMultiPage = multiPageFlag;
+                    }
+                });
+    }
+
+    private Observable<Integer> createTotalPagesMemorySource() {
+        if (mPagesCountCache == null) {
+            return Observable.empty();
+        }
+        return Observable.just(mPagesCountCache);
+    }
+
+    private Observable<Integer> createTotalPagesNetworkSource() {
+        return getExecution(getParameters()).flatMap(new Func1<ReportExecutionService, Observable<Integer>>() {
             @Override
             public Observable<Integer> call(ReportExecutionService reportExecutionService) {
                 return reportExecutionService.loadTotalPages();
+            }
+        }).doOnNext(new Action1<Integer>() {
+            @Override
+            public void call(Integer pagesCount) {
+                mPagesCountCache = pagesCount;
             }
         });
     }

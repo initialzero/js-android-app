@@ -40,4 +40,5 @@ public interface ReportRepository {
     Observable<Void> updateReport();
     Observable<List<InputControl>> getControls();
     Observable<Integer> getTotalPages();
+    Observable<Boolean> isMultiPage();
 }

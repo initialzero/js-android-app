@@ -94,7 +94,7 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment(R.layout.report_html_viewer)
 @OptionsMenu({R.menu.report_filter_manager_menu, R.menu.webview_menu, R.menu.retrofit_report_menu})
-public class ReportViewFragment extends RoboFragment implements ReportView, NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener{
+public class ReportViewFragment extends RoboFragment implements ReportView, NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener {
 
     public static final String TAG = "report-view";
     private static final String MIME = "text/html";
@@ -117,7 +117,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     @OptionsMenuItem
     protected MenuItem saveReport;
-    @OptionsMenuItem (R.id.printAction)
+    @OptionsMenuItem(R.id.printAction)
     protected MenuItem printReport;
     @OptionsMenuItem
     protected MenuItem showFilters;
@@ -136,6 +136,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     private ReportViewPresenter mPresenter;
     private ReportActionListener mActionListener;
+    private String mCurrentPage;
 
     protected boolean filtersMenuItemVisibilityFlag, saveMenuItemVisibilityFlag;
 
@@ -164,6 +165,9 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     private void setupPaginationControl() {
+        if (mCurrentPage != null) {
+            paginationControl.updateCurrentPage(Integer.valueOf(mCurrentPage));
+        }
         paginationControl.setOnPageChangeListener(new AbstractPaginationView.OnPageChangeListener() {
             @Override
             public void onPageSelected(int currentPage) {
@@ -190,10 +194,12 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     private void runReport() {
-        mPresenter.init();
+        mPresenter.init(mCurrentPage);
     }
 
     private void injectComponents() {
+        if (mPresenter != null) return;
+
         RequestExceptionHandler exceptionHandler = new RequestExceptionHandler(getActivity());
 
         String reportUri = resource.getUri();
@@ -320,8 +326,9 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     @Override
-    public void showPage(String page) {
-        webView.loadDataWithBaseURL(restClient.getServerUrl(), page, MIME, UTF_8, null);
+    public void showPage(String page, String pageContent) {
+        mCurrentPage = page;
+        webView.loadDataWithBaseURL(restClient.getServerUrl(), pageContent, MIME, UTF_8, null);
     }
 
     @Override

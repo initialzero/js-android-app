@@ -72,16 +72,21 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mView = view;
     }
 
-    public void init() {
-        mView.showLoading();
-        loadInputControls();
+    public void init(String page) {
+        if (page == null) {
+            mView.showLoading();
+            loadInputControls();
+        } else {
+            loadPage(page);
+            checkIsMultiPageReport();
+        }
     }
 
     @Override
     public void loadPage(String pageRange) {
         mView.showLoading();
         mGetReportPageCase.setPageRange(pageRange);
-        mGetReportPageCase.execute(new PageResultListener());
+        mGetReportPageCase.execute(new PageResultListener(pageRange));
     }
 
     @Override
@@ -174,12 +179,18 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         @Override
         public void onNext(String page) {
             mView.hideError();
-            mView.showPage(page);
+            mView.showPage("1", page);
             checkIsMultiPageReport();
         }
     }
 
     private class PageResultListener extends Subscriber<String> {
+        private final String pagePosition;
+
+        private PageResultListener(String pagePosition) {
+            this.pagePosition = pagePosition;
+        }
+
         @Override
         public void onCompleted() {
             mView.hideLoading();
@@ -191,9 +202,9 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
 
         @Override
-        public void onNext(String page) {
+        public void onNext(String pageContent) {
             mView.hideError();
-            mView.showPage(page);
+            mView.showPage(pagePosition, pageContent);
         }
     }
 

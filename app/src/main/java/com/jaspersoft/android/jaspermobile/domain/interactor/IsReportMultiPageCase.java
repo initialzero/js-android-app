@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.domain.interactor;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 
 import rx.Observable;
-import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
@@ -42,18 +41,6 @@ public final class IsReportMultiPageCase extends AbstractUseCase<Boolean> {
 
     @Override
     protected Observable<Boolean> buildUseCaseObservable() {
-        return mReportRepository.getPage("2")
-                .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
-                    @Override
-                    public Observable<? extends String> call(Throwable throwable) {
-                        return Observable.just(null);
-                    }
-                })
-                .flatMap(new Func1<String, Observable<Boolean>>() {
-                    @Override
-                    public Observable<Boolean> call(String page) {
-                        return Observable.just(page != null);
-                    }
-                });
+        return mReportRepository.isMultiPage();
     }
 }

@@ -103,7 +103,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">About</string>
-    <string name="sa_about_info" translatable="false"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Management tool and report viewer for TIBCO JasperReports® Server 5.5 and greater.<br><br>For more information visit:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>For privacy policy information visit:<br><a href="http://www.tibco.com/company/privacy-cma">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>For latest update information visit:<br><a href="https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new">https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
+    <string name="sa_about_info" translatable="false"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Management tool and report viewer for TIBCO JasperReports® Server 5.5 and greater.<br><br>For more information visit:<br><a href="http://community.jaspersoft.com/project/tibco-jaspermobile-android">http://community.jaspersoft.com/project/tibco-jaspermobile-android</a><br><br>For privacy policy information visit:<br><a href="http://www.tibco.com/company/privacy-cma">http://www.tibco.com/company/privacy-cma</a><br><br>For latest update information visit:<br><a href="https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new">https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Privacy Policy</string>
     <string name="sa_show_feedback">Feedback</string>
 

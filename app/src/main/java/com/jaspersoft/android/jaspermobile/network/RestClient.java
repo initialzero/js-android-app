@@ -53,8 +53,8 @@ public final class RestClient {
             com.jaspersoft.android.sdk.service.RestClient client =
                     com.jaspersoft.android.sdk.service.RestClient.builder()
                     .serverUrl(mServerUrl)
-                    .connectionTimeOut(mConnectionTimeOut, TimeUnit.MICROSECONDS)
-                    .readTimeOut(mReadTimeOut, TimeUnit.MICROSECONDS)
+                    .connectionTimeOut(mConnectionTimeOut, TimeUnit.MILLISECONDS)
+                    .readTimeOut(mReadTimeOut, TimeUnit.MILLISECONDS)
                     .create();
 
             mAuthenticator = AuthenticationService.create(client);

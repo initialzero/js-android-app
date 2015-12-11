@@ -29,15 +29,13 @@ import android.support.annotation.NonNull;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
-import com.jaspersoft.android.jaspermobile.presentation.mapper.ReportParamsTransformer;
+import com.jaspersoft.android.jaspermobile.data.mapper.ReportParamsTransformer;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.octo.android.robospice.persistence.memory.LruCache;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import rx.Observable;
 import rx.functions.Action1;
@@ -71,15 +69,16 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     @Override
     public Observable<String> getPage(String range) {
-        Map<String, Set<String>> repoParams = getParameters();
+        List<ReportParameter> repoParams = getParameters();
         Observable<String> memory = createPagesMemorySource(range);
         Observable<String> network = createPagesNetworkSource(range, repoParams);
         return rx.Observable.concat(memory, network).first();
     }
 
     @NonNull
-    private Map<String, Set<String>> getParameters() {
-        List<ReportParameter> params = mReportParamsStorage.getInputControlHolder(mReportUri).getReportParams();
+    private List<ReportParameter> getParameters() {
+        List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> params = 
+                mReportParamsStorage.getInputControlHolder(mReportUri).getReportParams();
         return mReportParamsTransformer.transform(params);
     }
 
@@ -95,7 +94,7 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     @Override
     public Observable<Integer> getTotalPages() {
-        Map<String, Set<String>> repoParams = getParameters();
+        List<ReportParameter> repoParams = getParameters();
         return getExecution(repoParams).flatMap(new Func1<ReportExecutionService, Observable<Integer>>() {
             @Override
             public Observable<Integer> call(ReportExecutionService reportExecutionService) {
@@ -104,7 +103,7 @@ public final class InMemoryReportRepository implements ReportRepository {
         });
     }
 
-    private Observable<String> createPagesNetworkSource(final String range, final Map<String, Set<String>> params) {
+    private Observable<String> createPagesNetworkSource(final String range, final List<ReportParameter> params) {
         return getExecution(params)
                 .switchMap(new Func1<ReportExecutionService, Observable<String>>() {
                     @Override
@@ -132,7 +131,7 @@ public final class InMemoryReportRepository implements ReportRepository {
         });
     }
 
-    private Observable<ReportExecutionService> getExecution(Map<String, Set<String>> params) {
+    private Observable<ReportExecutionService> getExecution(List<ReportParameter> params) {
         Observable<ReportExecutionService> network = createNetworkExecutionSource(params);
         Observable<ReportExecutionService> memory = createMemoryExecutionSource();
         return Observable.concat(memory, network).first();
@@ -145,7 +144,7 @@ public final class InMemoryReportRepository implements ReportRepository {
         return Observable.just(mExecutionCache);
     }
 
-    private Observable<ReportExecutionService> createNetworkExecutionSource(Map<String, Set<String>> params) {
+    private Observable<ReportExecutionService> createNetworkExecutionSource(List<ReportParameter> params) {
         return mReportService.runReport(mReportUri, params)
                 .doOnNext(new Action1<ReportExecutionService>() {
                     @Override

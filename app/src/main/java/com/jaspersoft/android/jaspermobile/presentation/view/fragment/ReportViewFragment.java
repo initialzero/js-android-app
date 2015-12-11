@@ -57,7 +57,7 @@ import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
-import com.jaspersoft.android.jaspermobile.presentation.mapper.ReportParamsTransformer;
+import com.jaspersoft.android.jaspermobile.data.mapper.ReportParamsTransformer;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;

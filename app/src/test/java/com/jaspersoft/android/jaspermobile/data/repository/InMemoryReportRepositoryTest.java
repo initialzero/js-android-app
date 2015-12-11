@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 
 import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
-import com.jaspersoft.android.jaspermobile.presentation.mapper.ReportParamsTransformer;
+import com.jaspersoft.android.jaspermobile.data.mapper.ReportParamsTransformer;
 import com.jaspersoft.android.jaspermobile.util.InputControlHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;

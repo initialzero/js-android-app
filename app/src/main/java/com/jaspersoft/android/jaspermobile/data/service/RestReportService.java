@@ -28,14 +28,13 @@ import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService
 import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.Session;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.report.ReportExecution;
 import com.jaspersoft.android.sdk.service.report.RunReportCriteria;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import rx.Observable;
 import rx.functions.Func0;
@@ -66,7 +65,7 @@ public final class RestReportService implements ReportService {
     }
 
     @Override
-    public Observable<ReportExecutionService> runReport(final String reportUri, final Map<String, Set<String>> params) {
+    public Observable<ReportExecutionService> runReport(final String reportUri, final List<ReportParameter> params) {
         return Observable.defer(new Func0<Observable<ReportExecutionService>>() {
             @Override
             public Observable<ReportExecutionService> call() {

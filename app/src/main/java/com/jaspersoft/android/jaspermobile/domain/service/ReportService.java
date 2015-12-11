@@ -26,10 +26,9 @@ package com.jaspersoft.android.jaspermobile.domain.service;
 
 
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import rx.Observable;
 
@@ -39,5 +38,5 @@ import rx.Observable;
  */
 public interface ReportService {
     Observable<List<InputControl>> loadControls(String reportUri);
-    Observable<ReportExecutionService> runReport(String reportUri, Map<String, Set<String>> params);
+    Observable<ReportExecutionService> runReport(String reportUri, List<ReportParameter> params);
 }

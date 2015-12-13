@@ -122,8 +122,11 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         if (downloaded) {
             itemView.setInfo(getHumanReadableFileSize(file));
             itemView.setSubTitle(getFormattedDateModified(creationTime));
+            itemView.setAction(0, null);
         } else {
             itemView.setSubTitle(getContext().getString(R.string.loading_msg));
+            int itemId = cursor.getInt(cursor.getColumnIndex(SavedItemsTable._ID));
+            itemView.setAction(R.drawable.ic_menu_close, new CancelSavingListener(itemId));
         }
 
         return (View) itemView;
@@ -215,6 +218,19 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
+
+
+    private class CancelSavingListener implements ResourceView.ResourceActionListener {
+        private int mItemId;
+
+        public CancelSavingListener(int itemId) {
+            this.mItemId = itemId;
+        }
+
+        @Override
+        public void onResourceActionClick() {
+        }
+    }
 
     public interface FileInteractionListener {
         void onRename(File itemFile, Uri recordUri, String fileExtension, boolean downloaded);

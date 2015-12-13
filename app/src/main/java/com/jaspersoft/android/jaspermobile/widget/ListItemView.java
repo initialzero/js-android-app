@@ -110,12 +110,11 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
 
     @Override
     public void setAction(int actionImage, final ResourceActionListener resourceActionListener) {
-        boolean isListenerProvided = resourceActionListener == null;
+        boolean isListenerProvided = resourceActionListener != null;
 
         mActionButton.setVisibility(isListenerProvided ? VISIBLE : GONE);
-        if (isListenerProvided) return;
+        if (!isListenerProvided) return;
 
-        mActionButton.setVisibility(VISIBLE);
         mActionButton.setImageResource(actionImage);
         mActionButton.setOnClickListener(new OnClickListener() {
             @Override

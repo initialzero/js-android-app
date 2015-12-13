@@ -6,7 +6,9 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.OperationCanceledException;
 import android.support.v4.app.NotificationCompat;
+import android.util.ArraySet;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -35,10 +37,12 @@ import org.androidannotations.annotations.SystemService;
 import org.springframework.web.client.RestClientException;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import roboguice.service.RoboIntentService;
@@ -64,10 +68,13 @@ public class SaveReportService extends RoboIntentService {
     NotificationManager mNotificationManager;
 
     private Queue<Uri> mRecordUrisQe;
+    private Set<Uri> mRecordsToDel;
+    private Uri mCurrent;
 
     public SaveReportService() {
         super(TAG);
         mRecordUrisQe = new LinkedList<>();
+        mRecordsToDel = new ArraySet<>();
     }
 
     @Override
@@ -78,6 +85,12 @@ public class SaveReportService extends RoboIntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent.getAction();
+        if (SaveReportService_.ACTION_CANCEL_SAVING.equals(action)) {
+            cancelSavingReport(intent.getExtras());
+            return super.onStartCommand(intent, flags, startId);
+        }
+
         Uri savedItemRecord = addSavedItemRecord(intent.getExtras());
         mRecordUrisQe.add(savedItemRecord);
 
@@ -93,9 +106,16 @@ public class SaveReportService extends RoboIntentService {
     @ServiceAction
     protected void saveReport(String savedReportName, String reportDescription, SaveItemFragment.OutputFormat outputFormat, File reportFile, String pageRange, String requestId) {
 
+        mCurrent = mRecordUrisQe.peek();
+        if (mRecordsToDel.contains(mCurrent)) {
+            mCurrent = null;
+            mRecordUrisQe.poll();
+            mRecordsToDel.remove(mCurrent);
+            return;
+        }
+
         notifyDownloadingName(savedReportName);
 
-        Uri itemUri = mRecordUrisQe.peek();
         try {
             waitForExecutionBegin(requestId);
 
@@ -115,11 +135,17 @@ public class SaveReportService extends RoboIntentService {
             notifySaveResult(savedReportName, android.R.drawable.stat_sys_download_done, getString(R.string.sr_t_report_saved));
         } catch (RestClientException | IllegalStateException ex) {
             notifySaveResult(savedReportName, android.R.drawable.ic_dialog_alert, getString(R.string.sdr_saving_error_msg));
-            savedItemHelper.deleteSavedItem(reportFile, itemUri);
+            savedItemHelper.deleteSavedItem(reportFile, mRecordUrisQe.peek());
+        } catch (OperationCanceledException ex) {
+            savedItemHelper.deleteSavedItem(reportFile, mRecordUrisQe.peek());
         } finally {
             mRecordUrisQe.poll();
             notifyDownloadingCount();
         }
+    }
+
+    @ServiceAction
+    protected void cancelSaving(int reportId, File reportFile) {
     }
 
     private ExportExecution exportReport(String requestId, SaveItemFragment.OutputFormat outputFormat, String pageRange) {
@@ -150,6 +176,9 @@ public class SaveReportService extends RoboIntentService {
     private void waitForExecutionBegin(String reportExecutionId) {
         ReportStatus reportStatus;
         do {
+            if (mCurrent == null)
+                throw new OperationCanceledException("Saving canceled!");
+
             sleep();
             reportStatus = jsRestClient.runReportStatusCheck(reportExecutionId).getReportStatus();
             if (reportStatus == ReportStatus.failed)
@@ -163,6 +192,9 @@ public class SaveReportService extends RoboIntentService {
     private void waitForExportDone(String reportExecutionId, String exportId) {
         ReportStatus reportStatus;
         do {
+            if (mCurrent == null)
+                throw new OperationCanceledException("Saving canceled!");
+
             sleep();
             reportStatus = jsRestClient.runExportStatusCheck(reportExecutionId, exportId).getReportStatus();
             if (reportStatus == ReportStatus.failed)
@@ -235,7 +267,26 @@ public class SaveReportService extends RoboIntentService {
                 savedItemsEntry.getContentValues());
     }
 
+    private void cancelSavingReport(Bundle reportBundle) {
+        int reportId = reportBundle.getInt(SaveReportService_.REPORT_ID_EXTRA);
+        Uri reportUri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI, String.valueOf(reportId));
+
+        if (reportUri.equals(mCurrent)) {
+            mCurrent = null;
+            return;
+        }
+
+        if (mRecordsToDel.add(reportUri)) {
+            File reportFile = ((File) reportBundle.getSerializable(SaveReportService_.REPORT_FILE_EXTRA));
+            savedItemHelper.deleteSavedItem(reportFile, reportId);
+            notifyDownloadingCount();
+        }
+    }
+
     private boolean updateSavedItemRecordToDownloaded(Uri recordUri) {
+        if (mCurrent == null)
+            throw new OperationCanceledException("Saving canceled!");
+
         SavedItems savedItemsEntry = new SavedItems();
         savedItemsEntry.setDownloaded(true);
 
@@ -250,7 +301,7 @@ public class SaveReportService extends RoboIntentService {
     }
 
     private void notifyDownloadingName(String reportName) {
-        if (mRecordUrisQe.size() != 1) return;
+        if (mRecordUrisQe.size() - mRecordsToDel.size() != 1) return;
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -259,14 +310,13 @@ public class SaveReportService extends RoboIntentService {
                 .setContentIntent(getSavedItemIntent());
 
         mNotificationManager.notify(LOADING_NOTIFICATION_ID, mBuilder.build());
-
     }
 
     private void notifyDownloadingCount() {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentText(getString(R.string.sdr_saving_msg))
-                .setContentTitle(getString(R.string.sdr_saving_multiply_msg, mRecordUrisQe.size()))
+                .setContentTitle(getString(R.string.sdr_saving_multiply_msg, mRecordUrisQe.size() - mRecordsToDel.size()))
                 .setContentIntent(getSavedItemIntent());
 
         mNotificationManager.notify(LOADING_NOTIFICATION_ID, mBuilder.build());

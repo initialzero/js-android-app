@@ -55,13 +55,33 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
     protected abstract void showErrorMessage();
 
     protected void loadFile() {
-        File resourceFile = getResourceFile();
+        File resourceFile = getResourceFile(fileUri);
 
         if (resourceFile != null) {
             loadFile(resourceFile);
         } else {
             showErrorMessage();
         }
+    }
+
+    protected File getResourceFile(String resourceUri){
+        boolean cacheEnabled = isCachingEnabled();
+        if (cacheEnabled) {
+            return getCacheFile(resourceUri);
+        } else {
+            return getTempFile();
+        }
+    }
+
+    protected boolean isFileValid(File cacheFile) {
+        boolean cacheEnabled = isCachingEnabled();
+        if (cacheEnabled) {
+            long currentDate = new Date().getTime();
+            long cacheExpiration = prefHelper.getRepoCacheExpirationValue();
+            long lastModifiedDate = cacheFile.lastModified();
+            return lastModifiedDate + cacheExpiration >= currentDate;
+        }
+        return false;
     }
 
     private void loadFile(File resourceFile) {
@@ -76,15 +96,6 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
         GetFileContentRequest fileContentRequest = new GetFileContentRequest(jsRestClient, resourceFile, fileUri);
         getSpiceManager().execute(fileContentRequest, new FileContentListener());
         showProgressDialog();
-    }
-
-    private File getResourceFile(){
-        boolean cacheEnabled = isCachingEnabled();
-        if (cacheEnabled) {
-            return getCacheFile(fileUri);
-        } else {
-            return getTempFile();
-        }
     }
 
     private File getCacheFile(String resourceUri) {
@@ -111,17 +122,6 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
 
     private boolean isCachingEnabled() {
         return prefHelper.getRepoCacheExpirationValue() != -1;
-    }
-
-    private boolean isFileValid(File cacheFile) {
-        boolean cacheEnabled = isCachingEnabled();
-        if (cacheEnabled) {
-            long currentDate = new Date().getTime();
-            long cacheExpiration = prefHelper.getRepoCacheExpirationValue();
-            long lastModifiedDate = cacheFile.lastModified();
-            return lastModifiedDate + cacheExpiration >= currentDate;
-        }
-        return false;
     }
 
     private void showProgressDialog() {

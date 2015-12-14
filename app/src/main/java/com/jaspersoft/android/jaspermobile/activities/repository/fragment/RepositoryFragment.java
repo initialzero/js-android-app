@@ -62,6 +62,7 @@ import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
+import com.jaspersoft.android.sdk.client.async.request.GetRootFoldersDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -298,7 +299,7 @@ public class RepositoryFragment extends RoboSpiceFragment
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
         // Fetch default URI
-        GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
+        GetRootFoldersDataRequest request = new GetRootFoldersDataRequest(jsRestClient);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,

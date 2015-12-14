@@ -34,6 +34,8 @@ import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
 import java.util.List;
 
@@ -54,6 +56,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
     private RequestExceptionHandler mExceptionHandler;
     private ReportView mView;
+    private String mCurrentPage;
 
     public ReportViewPresenter(
             RequestExceptionHandler exceptionHandler,
@@ -76,12 +79,12 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mView = view;
     }
 
-    public void init(String page) {
-        if (page == null) {
+    public void init() {
+        if (mCurrentPage == null) {
             mView.showLoading();
             loadInputControls();
         } else {
-            loadPage(page);
+            loadPage(mCurrentPage);
             checkIsMultiPageReport();
         }
     }
@@ -151,7 +154,6 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         public void onError(Throwable e) {
             showErrorMessage(e);
         }
-
         @Override
         public void onNext(List<InputControl> controls) {
             boolean showFilterActionVisible = !controls.isEmpty();
@@ -179,7 +181,6 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         public void onError(Throwable e) {
             showErrorMessage(e);
         }
-
         @Override
         public void onNext(Void aVoid) {
             mView.hideError();
@@ -202,11 +203,23 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onError(Throwable e) {
-            showErrorMessage(e);
+            if (e instanceof ServiceException) {
+                ServiceException serviceException = (ServiceException) e;
+                int errorCode = serviceException.code();
+                if (errorCode == StatusCodes.EXPORT_EXECUTION_FAILED) {
+                    mView.showPageOutOfRangeError();
+                    loadPage(mCurrentPage);
+                } else {
+                    showErrorMessage(e);
+                }
+            } else {
+                showErrorMessage(e);
+            }
         }
 
         @Override
         public void onNext(String pageContent) {
+            mCurrentPage = pagePosition;
             mView.hideError();
             mView.showPage(pagePosition, pageContent);
         }

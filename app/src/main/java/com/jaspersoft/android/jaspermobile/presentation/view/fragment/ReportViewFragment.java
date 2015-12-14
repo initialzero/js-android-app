@@ -137,7 +137,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     private ReportViewPresenter mPresenter;
     private ReportActionListener mActionListener;
-    private String mCurrentPage;
+    private Toast mToast;
 
     protected boolean filtersMenuItemVisibilityFlag, saveMenuItemVisibilityFlag;
 
@@ -145,6 +145,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        mToast = Toast.makeText(getActivity(), "", Toast.LENGTH_LONG);
     }
 
     @Override
@@ -166,9 +167,6 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     private void setupPaginationControl() {
-        if (mCurrentPage != null) {
-            paginationControl.updateCurrentPage(Integer.valueOf(mCurrentPage));
-        }
         paginationControl.setOnPageChangeListener(new AbstractPaginationView.OnPageChangeListener() {
             @Override
             public void onPageSelected(int currentPage) {
@@ -195,7 +193,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     private void runReport() {
-        mPresenter.init(mCurrentPage);
+        mPresenter.init();
     }
 
     private void injectComponents() {
@@ -243,6 +241,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     public void onDestroyView() {
         super.onDestroyView();
         mPresenter.destroy();
+        mToast.cancel();
     }
 
     @OnActivityResult(REQUEST_INITIAL_REPORT_PARAMETERS)
@@ -302,6 +301,12 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     @Override
+    public void showNotification(String message) {
+        mToast.setText(message);
+        mToast.show();
+    }
+
+    @Override
     public void hideError() {
         errorView.setVisibility(View.INVISIBLE);
     }
@@ -330,7 +335,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     @Override
     public void showPage(String page, String pageContent) {
-        mCurrentPage = page;
+        paginationControl.updateCurrentPage(Integer.valueOf(page));
         webView.loadDataWithBaseURL(restClient.getServerUrl(), pageContent, MIME, UTF_8, null);
     }
 
@@ -347,6 +352,11 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     @Override
     public void showTotalPages(int totalPages) {
         paginationControl.updateTotalCount(totalPages);
+    }
+
+    @Override
+    public void showPageOutOfRangeError() {
+        showNotification(getString(R.string.rv_out_of_range));
     }
 
     @OptionsItem
@@ -396,7 +406,6 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     private void updatePage(int page) {
-        paginationControl.updateCurrentPage(page);
         mActionListener.loadPage(String.valueOf(page));
     }
 }

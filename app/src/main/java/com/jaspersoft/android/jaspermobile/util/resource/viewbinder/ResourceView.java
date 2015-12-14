@@ -38,5 +38,11 @@ public interface ResourceView {
 
     void setInfo(CharSequence timestamp);
 
+    void setAction(int actionImage, ResourceActionListener resourceActionListener);
+
     ImageView getImageView();
+
+    interface ResourceActionListener {
+        void onResourceActionClick();
+    }
 }

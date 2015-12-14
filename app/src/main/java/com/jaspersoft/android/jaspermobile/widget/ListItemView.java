@@ -27,8 +27,10 @@ package com.jaspersoft.android.jaspermobile.widget;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewStub;
 import android.widget.AbsListView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -52,11 +54,10 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
     protected TextView mSubTitle;
     @ViewById(R.id.timestampStub)
     protected ViewStub mTimestampStub;
-    @ViewById(R.id.miscStub)
-    protected ViewStub mMiscStub;
+    @ViewById(R.id.action)
+    protected ImageButton mActionButton;
 
     protected TextView mTimestampTxt;
-    protected TextView mMiscTxt;
 
     @DimensionPixelSizeRes(R.dimen.list_item_height)
     protected int mHeight;
@@ -105,6 +106,22 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
             params.addRule(LEFT_OF, mTimestampTxt.getId());
             mTitleTxt.setLayoutParams(params);
         }
+    }
+
+    @Override
+    public void setAction(int actionImage, final ResourceActionListener resourceActionListener) {
+        boolean isListenerProvided = resourceActionListener != null;
+
+        mActionButton.setVisibility(isListenerProvided ? VISIBLE : GONE);
+        if (!isListenerProvided) return;
+
+        mActionButton.setImageResource(actionImage);
+        mActionButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    resourceActionListener.onResourceActionClick();
+            }
+        });
     }
 
 

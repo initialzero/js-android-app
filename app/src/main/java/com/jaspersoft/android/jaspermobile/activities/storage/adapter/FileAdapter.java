@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
@@ -122,8 +123,11 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
         if (downloaded) {
             itemView.setInfo(getHumanReadableFileSize(file));
             itemView.setSubTitle(getFormattedDateModified(creationTime));
+            itemView.setAction(0, null);
         } else {
             itemView.setSubTitle(getContext().getString(R.string.loading_msg));
+            int reportId = cursor.getInt(cursor.getColumnIndex(SavedItemsTable._ID));
+            itemView.setAction(R.drawable.ic_menu_close, new CancelSavingListener(reportId, file));
         }
 
         return (View) itemView;
@@ -215,6 +219,22 @@ public class FileAdapter extends SingleChoiceSimpleCursorAdapter {
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
+
+
+    private class CancelSavingListener implements ResourceView.ResourceActionListener {
+        private int mReportId;
+        private File mReportFile;
+
+        public CancelSavingListener(int mReportId, File mReportFile) {
+            this.mReportId = mReportId;
+            this.mReportFile = mReportFile;
+        }
+
+        @Override
+        public void onResourceActionClick() {
+            SaveReportService_.intent(getContext()).cancelSaving(mReportId, mReportFile).start();
+        }
+    }
 
     public interface FileInteractionListener {
         void onRename(File itemFile, Uri recordUri, String fileExtension, boolean downloaded);

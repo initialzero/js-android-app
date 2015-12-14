@@ -41,7 +41,7 @@
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginTop="8dp"
-        android:layout_toEndOf="@android:id/icon"
+        android:layout_toLeftOf="@+id/action"
         android:layout_toRightOf="@android:id/icon"
         android:ellipsize="end"
         android:textColor="@color/list_label_grey"
@@ -56,10 +56,8 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
-        android:layout_toEndOf="@android:id/icon"
-        android:layout_toLeftOf="@+id/miscStub"
+        android:layout_toLeftOf="@+id/action"
         android:layout_toRightOf="@android:id/icon"
-        android:layout_toStartOf="@+id/miscStub"
         android:ellipsize="end"
         android:textColor="@color/list_label_light_grey"
         tools:text="Small Text" />
@@ -77,17 +75,14 @@
         android:inflatedId="@+id/timestamp"
         android:layout="@layout/res_metadata" />
 
-    <ViewStub
-        android:id="@+id/miscStub"
+    <ImageButton
+        android:id="@+id/action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:inflatedId="@+id/misc"
-        android:layout="@layout/res_metadata" />
+        android:layout_centerInParent="true"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/bg_cancel_saving"
+        android:visibility="gone" />
 
 </merge>

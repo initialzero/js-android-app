@@ -115,8 +115,6 @@ public class FavoritesFragment extends RoboFragment
     MenuItem sortAction;
 
     @Inject
-    protected JsRestClient jsRestClient;
-    @Inject
     protected Analytics analytics;
 
     @Bean

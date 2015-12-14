@@ -28,6 +28,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCa
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
@@ -48,6 +49,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     private final GetReportControlsCase mGetReportControlsCase;
     private final GetReportTotalPagesCase mGetReportTotalPagesCase;
     private final IsReportMultiPageCase mIsReportMultiPageCase;
+    private final RunReportExecutionCase mRunReportExecutionCase;
     private final UpdateReportExecutionCase mUpdateReportExecutionCase;
 
     private RequestExceptionHandler mExceptionHandler;
@@ -59,12 +61,14 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
             GetReportPageCase getReportPageCase,
             GetReportTotalPagesCase getReportTotalPagesCase,
             IsReportMultiPageCase isReportMultiPageCase,
+            RunReportExecutionCase runReportExecutionCase,
             UpdateReportExecutionCase updateReportExecutionCase) {
         mExceptionHandler = exceptionHandler;
         mGetReportPageCase = getReportPageCase;
         mGetReportControlsCase = getReportControlsCase;
         mGetReportTotalPagesCase = getReportTotalPagesCase;
         mIsReportMultiPageCase = isReportMultiPageCase;
+        mRunReportExecutionCase = runReportExecutionCase;
         mUpdateReportExecutionCase = updateReportExecutionCase;
     }
 
@@ -95,8 +99,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mView.reloadMenu();
 
         mView.showLoading();
-        mGetReportPageCase.setPageRange("1");
-        mGetReportPageCase.execute(new FirstRunListener());
+        mRunReportExecutionCase.execute(new RunReportListener());
     }
 
     @Override
@@ -130,6 +133,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mGetReportControlsCase.unsubscribe();
         mGetReportTotalPagesCase.unsubscribe();
         mIsReportMultiPageCase.unsubscribe();
+        mRunReportExecutionCase.unsubscribe();
         mUpdateReportExecutionCase.unsubscribe();
     }
 
@@ -165,7 +169,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
     }
 
-    private class FirstRunListener extends Subscriber<String> {
+    private class RunReportListener extends Subscriber<Void> {
         @Override
         public void onCompleted() {
             mView.hideLoading();
@@ -177,10 +181,10 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
 
         @Override
-        public void onNext(String page) {
+        public void onNext(Void aVoid) {
             mView.hideError();
-            mView.showPage("1", page);
             checkIsMultiPageReport();
+            loadPage("1");
         }
     }
 

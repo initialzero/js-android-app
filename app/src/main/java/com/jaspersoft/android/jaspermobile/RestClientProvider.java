@@ -9,6 +9,8 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.service.RestClient;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Tom Koptel
  * @since 2.3
@@ -24,6 +26,7 @@ final class RestClientProvider implements Provider<RestClient> {
         AccountServerData serverData = AccountServerData.get(mContext, account);
         return RestClient.builder()
                 .serverUrl(serverData.getServerUrl())
+                .pollTimeOut(200, TimeUnit.MILLISECONDS)
                 .create();
     }
 }

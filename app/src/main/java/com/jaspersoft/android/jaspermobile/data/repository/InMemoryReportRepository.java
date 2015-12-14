@@ -78,6 +78,14 @@ public final class InMemoryReportRepository implements ReportRepository {
     }
 
     @Override
+    public Observable<ReportExecutionService> runReport() {
+        List<ReportParameter> params = getParameters();
+        Observable<ReportExecutionService> network = createNetworkExecutionSource(params);
+        Observable<ReportExecutionService> memory = createMemoryExecutionSource();
+        return Observable.concat(memory, network).first();
+    }
+
+    @Override
     public Observable<Void> updateReport() {
         return mExecutionCache.update(getParameters()).doOnNext(new Action1<ReportExecutionService>() {
             @Override
@@ -169,7 +177,7 @@ public final class InMemoryReportRepository implements ReportRepository {
     }
 
     private Observable<Integer> createTotalPagesNetworkSource() {
-        return getExecution(getParameters()).flatMap(new Func1<ReportExecutionService, Observable<Integer>>() {
+        return runReport().flatMap(new Func1<ReportExecutionService, Observable<Integer>>() {
             @Override
             public Observable<Integer> call(ReportExecutionService reportExecutionService) {
                 return reportExecutionService.loadTotalPages();
@@ -183,7 +191,7 @@ public final class InMemoryReportRepository implements ReportRepository {
     }
 
     private Observable<String> createPagesNetworkSource(final String range, final List<ReportParameter> params) {
-        return getExecution(params)
+        return runReport()
                 .switchMap(new Func1<ReportExecutionService, Observable<String>>() {
                     @Override
                     public Observable<String> call(ReportExecutionService reportExecutionService) {
@@ -210,11 +218,6 @@ public final class InMemoryReportRepository implements ReportRepository {
         });
     }
 
-    private Observable<ReportExecutionService> getExecution(List<ReportParameter> params) {
-        Observable<ReportExecutionService> network = createNetworkExecutionSource(params);
-        Observable<ReportExecutionService> memory = createMemoryExecutionSource();
-        return Observable.concat(memory, network).first();
-    }
 
     private Observable<ReportExecutionService> createMemoryExecutionSource() {
         if (mExecutionCache == null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -53,6 +53,7 @@ import com.jaspersoft.android.jaspermobile.data.service.RestReportService;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
@@ -211,6 +212,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         GetReportPageCase getReportPageCase = new GetReportPageCase(reportRepository);
         GetReportTotalPagesCase getReportTotalPagesCase = new GetReportTotalPagesCase(reportRepository);
         IsReportMultiPageCase isReportMultiPageCase = new IsReportMultiPageCase(reportRepository);
+        RunReportExecutionCase runReportExecutionCase = new RunReportExecutionCase(reportRepository);
         UpdateReportExecutionCase updateReportExecutionCase = new UpdateReportExecutionCase(reportRepository);
 
         mPresenter = new ReportViewPresenter(
@@ -219,6 +221,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
                 getReportPageCase,
                 getReportTotalPagesCase,
                 isReportMultiPageCase,
+                runReportExecutionCase,
                 updateReportExecutionCase);
         mPresenter.setView(this);
         mActionListener = mPresenter;

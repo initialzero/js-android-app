@@ -95,16 +95,17 @@ final class RestReportExecutionService implements ReportExecutionService {
     }
 
     @Override
-    public Observable<Void> update(final List<ReportParameter> newParameters) {
-        return Observable.defer(new Func0<Observable<Void>>() {
+    public Observable<ReportExecutionService> update(final List<ReportParameter> newParameters) {
+        return Observable.defer(new Func0<Observable<ReportExecutionService>>() {
             @Override
-            public Observable<Void> call() {
+            public Observable<ReportExecutionService> call() {
                 try {
-                    mExecution.updateExecution(newParameters);
+                    ReportExecution result = mExecution.updateExecution(newParameters);
+                    ReportExecutionService executionService = new RestReportExecutionService(result);
+                    return Observable.just(executionService);
                 } catch (ServiceException e) {
                     return Observable.error(e);
                 }
-                return Observable.just(null);
             }
         });
     }

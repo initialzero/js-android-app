@@ -79,12 +79,18 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     @Override
     public Observable<Void> updateReport() {
-        return mExecutionCache.update(getParameters()).doOnNext(new Action1<Void>() {
+        return mExecutionCache.update(getParameters()).doOnNext(new Action1<ReportExecutionService>() {
             @Override
-            public void call(Void aVoid) {
+            public void call(ReportExecutionService executionService) {
+                mExecutionCache = executionService;
                 mPagesCountCache = null;
                 mIsMultiPage = null;
                 mPagesCache.evictAll();
+            }
+        }).flatMap(new Func1<ReportExecutionService, Observable<Void>>() {
+            @Override
+            public Observable<Void> call(ReportExecutionService executionService) {
+                return Observable.just(null);
             }
         });
     }

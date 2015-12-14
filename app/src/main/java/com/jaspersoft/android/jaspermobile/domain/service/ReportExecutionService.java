@@ -37,5 +37,5 @@ import rx.Observable;
 public interface ReportExecutionService {
     Observable<String> downloadExport(String pageRange);
     Observable<Integer> loadTotalPages();
-    Observable<Void> update(List<ReportParameter> parameters);
+    Observable<ReportExecutionService> update(List<ReportParameter> parameters);
 }

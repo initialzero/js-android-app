@@ -1,19 +1,8 @@
 package com.jaspersoft.android.jaspermobile.activities.file;
 
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.net.http.SslError;
 import android.os.Bundle;
-import android.os.Message;
-import android.support.annotation.UiThread;
-import android.util.Log;
-import android.view.InputEvent;
-import android.view.KeyEvent;
 import android.view.View;
-import android.webkit.ClientCertRequest;
-import android.webkit.HttpAuthHandler;
-import android.webkit.SslErrorHandler;
-import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -30,11 +19,13 @@ import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.EFragment;
 import org.apache.commons.io.FileUtils;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.client.RestClientException;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -134,13 +125,44 @@ public class HtmlFileViewFragment extends FileLoadFragment {
         return jsRestClient.getServerProfile().getServerUrl() + "/fileview/fileview" + fileUri.subSequence(0, (fileUri.lastIndexOf('/') + 1));
     }
 
-    private WebResourceResponse getResourceResponse(WebResourceRequest request) throws LoginException, RestClientException {
-        WebResourceResponse webResourceResponse = null;
-        byte[] resourceBinary = jsRestClient.getResourceBinaryData(request.getUrl().toString());
-        ByteArrayInputStream bs = new ByteArrayInputStream(resourceBinary);
-        webResourceResponse = new WebResourceResponse("image/*", "UTF-8", bs);
+    private String getAttachmentUrl(String fullResourceUri) {
+        return fullResourceUri.replace(jsRestClient.getServerProfile().getServerUrl() + "/fileview/fileview", "");
+    }
 
-        return webResourceResponse;
+    private void cacheAttachment(File file, byte[] attachment) {
+        try {
+            File parentFolder = file.getParentFile();
+            if (parentFolder.exists() || parentFolder.mkdirs()) {
+                FileCopyUtils.copy(attachment, file);
+            }
+        } catch (IOException e) {
+            // do nothing if attachment can not be cached
+        }
+    }
+
+    private InputStream getCachedAttachment(File attachmentFile) {
+        if (attachmentFile.exists() && isFileValid(attachmentFile)) {
+            try {
+                return new FileInputStream(attachmentFile);
+            } catch (FileNotFoundException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private WebResourceResponse fetchAttachment(WebResourceRequest request) throws LoginException, RestClientException {
+        File attachmentFile = getResourceFile(getAttachmentUrl(request.getUrl().toString()));
+        InputStream attachmentInputStream = getCachedAttachment(attachmentFile);
+
+        if (attachmentInputStream == null) {
+            String attachmentUri = request.getUrl().toString();
+            byte[] attachmentBinary = jsRestClient.getResourceBinaryData(attachmentUri);
+            cacheAttachment(attachmentFile, attachmentBinary);
+            attachmentInputStream = new ByteArrayInputStream(attachmentBinary);
+        }
+
+        return new WebResourceResponse("image/*", "UTF-8", attachmentInputStream);
     }
 
     private void reLogin() throws JasperAccountManager.TokenException {
@@ -157,11 +179,11 @@ public class HtmlFileViewFragment extends FileLoadFragment {
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
             WebResourceResponse webResourceResponse = null;
             try {
-                webResourceResponse = getResourceResponse(request);
+                webResourceResponse = fetchAttachment(request);
             } catch (LoginException ex) {
                 try {
                     reLogin();
-                    webResourceResponse = getResourceResponse(request);
+                    webResourceResponse = fetchAttachment(request);
                 } catch (LoginException exception) {
                     return webResourceResponse;
                 } catch (JasperAccountManager.TokenException e) {

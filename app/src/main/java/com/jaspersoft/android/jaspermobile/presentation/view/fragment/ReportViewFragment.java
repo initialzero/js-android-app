@@ -345,6 +345,11 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     @Override
+    public void hidePaginationControl() {
+        paginationControl.setVisibility(View.GONE);
+    }
+
+    @Override
     public void resetPaginationControl() {
         paginationControl.updateTotalCount(AbstractPaginationView.UNDEFINED_PAGE_NUMBER);
     }
@@ -357,6 +362,11 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     @Override
     public void showPageOutOfRangeError() {
         showNotification(getString(R.string.rv_out_of_range));
+    }
+
+    @Override
+    public void showEmptyPageMessage() {
+        showError(getString(R.string.rv_error_empty_report));
     }
 
     @OptionsItem

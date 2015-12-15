@@ -154,6 +154,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         public void onError(Throwable e) {
             showErrorMessage(e);
         }
+
         @Override
         public void onNext(List<InputControl> controls) {
             boolean showFilterActionVisible = !controls.isEmpty();
@@ -181,6 +182,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         public void onError(Throwable e) {
             showErrorMessage(e);
         }
+
         @Override
         public void onNext(Void aVoid) {
             mView.hideError();
@@ -259,9 +261,23 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onNext(Integer totalPages) {
-            mView.setSaveActionVisibility(true);
+            boolean hasNoPages = (totalPages == 0);
+            if (hasNoPages) {
+                mView.setSaveActionVisibility(false);
+                mView.showEmptyPageMessage();
+                mView.hidePaginationControl();
+            } else {
+                mView.setSaveActionVisibility(true);
+                mView.showTotalPages(totalPages);
+
+                boolean hasMoreThanOnePage = (totalPages == 1);
+                if (hasMoreThanOnePage) {
+                    mView.showPaginationControl();
+                } else {
+                    mView.hidePaginationControl();
+                }
+            }
             mView.reloadMenu();
-            mView.showTotalPages(totalPages);
         }
     }
 
@@ -269,6 +285,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         @Override
         public void onCompleted() {
         }
+
         @Override
         public void onError(Throwable e) {
             showErrorMessage(e);

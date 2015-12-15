@@ -50,4 +50,6 @@ public interface ReportView extends LoadDataView {
     void showPageOutOfRangeError();
 
     void showEmptyPageMessage();
+
+    void showReloadMessage();
 }

@@ -135,6 +135,20 @@ public final class InMemoryReportRepository implements ReportRepository {
         return Observable.concat(memory, network).first();
     }
 
+    @Override
+    public Observable<Void> reset() {
+        return Observable.defer(new Func0<Observable<Void>>() {
+            @Override
+            public Observable<Void> call() {
+                mExecutionCache = null;
+                mPagesCountCache = null;
+                mIsMultiPage = null;
+                mPagesCache.evictAll();
+                return Observable.just(null);
+            }
+        });
+    }
+
     private Observable<Boolean> createIsMultiPageMemorySource() {
         if (mIsMultiPage == null) {
             return Observable.empty();

@@ -55,6 +55,7 @@ import com.jaspersoft.android.jaspermobile.data.service.RestReportService;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.interactor.ReloadReportCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
@@ -222,6 +223,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         IsReportMultiPageCase isReportMultiPageCase = new IsReportMultiPageCase(reportRepository);
         RunReportExecutionCase runReportExecutionCase = new RunReportExecutionCase(reportRepository);
         UpdateReportExecutionCase updateReportExecutionCase = new UpdateReportExecutionCase(reportRepository);
+        ReloadReportCase reloadReportCase = new ReloadReportCase(reportRepository);
 
         mPresenter = new ReportViewPresenter(
                 exceptionHandler,
@@ -230,7 +232,9 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
                 getReportTotalPagesCase,
                 isReportMultiPageCase,
                 runReportExecutionCase,
-                updateReportExecutionCase);
+                updateReportExecutionCase,
+                reloadReportCase
+        );
         mPresenter.setView(this);
         mActionListener = mPresenter;
     }
@@ -378,6 +382,11 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     @Override
     public void showEmptyPageMessage() {
         showError(getString(R.string.rv_error_empty_report));
+    }
+
+    @Override
+    public void showReloadMessage() {
+        showNotification("Restoring report");
     }
 
     @OptionsItem

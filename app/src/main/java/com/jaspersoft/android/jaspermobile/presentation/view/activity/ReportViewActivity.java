@@ -30,8 +30,10 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportViewFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportViewFragment_;
+import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 
@@ -43,10 +45,13 @@ import org.androidannotations.annotations.Extra;
 public class ReportViewActivity extends RoboToolbarActivity {
     @Extra
     protected ResourceLookup resource;
+    @Bean
+    protected ScrollableTitleHelper scrollableTitleHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        scrollableTitleHelper.injectTitle(resource.getLabel());
 
         if (savedInstanceState == null) {
             ReportViewFragment viewFragment = ReportViewFragment_.builder()

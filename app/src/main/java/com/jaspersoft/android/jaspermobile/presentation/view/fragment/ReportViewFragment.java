@@ -45,16 +45,17 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControl
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
+import com.jaspersoft.android.jaspermobile.data.mapper.ReportParamsTransformer;
 import com.jaspersoft.android.jaspermobile.data.repository.InMemoryReportRepository;
 import com.jaspersoft.android.jaspermobile.data.service.RestReportService;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.ReloadReportCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
@@ -62,12 +63,10 @@ import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
-import com.jaspersoft.android.jaspermobile.data.mapper.ReportParamsTransformer;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
@@ -131,8 +130,6 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     @OptionsMenuItem
     protected MenuItem aboutAction;
 
-    @Bean
-    protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
     protected FavoritesHelper favoritesHelper;
 
@@ -281,7 +278,6 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     @AfterViews
     final void init() {
-        scrollableTitleHelper.injectTitle(resource.getLabel());
         progressBar.setVisibility(View.VISIBLE);
 
         SystemChromeClient systemChromeClient = SystemChromeClient.from(getActivity())

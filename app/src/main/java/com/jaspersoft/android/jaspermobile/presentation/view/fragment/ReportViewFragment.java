@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
@@ -44,6 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControl
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
@@ -62,6 +64,7 @@ import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListe
 import com.jaspersoft.android.jaspermobile.data.mapper.ReportParamsTransformer;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
@@ -122,9 +125,15 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     protected MenuItem printReport;
     @OptionsMenuItem
     protected MenuItem showFilters;
+    @OptionsMenuItem
+    protected MenuItem favoriteAction;
+    @OptionsMenuItem
+    protected MenuItem aboutAction;
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
+    @Bean
+    protected FavoritesHelper favoritesHelper;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -137,6 +146,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     private ReportViewPresenter mPresenter;
     private ReportActionListener mActionListener;
+    private Uri favoriteEntryUri;
     private Toast mToast;
 
     protected boolean filtersMenuItemVisibilityFlag, saveMenuItemVisibilityFlag;
@@ -146,16 +156,16 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         mToast = Toast.makeText(getActivity(), "", Toast.LENGTH_LONG);
+        favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
+        favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+
         saveReport.setVisible(saveMenuItemVisibilityFlag);
         showFilters.setVisible(filtersMenuItemVisibilityFlag);
-
-        if (printReport != null) {
-            printReport.setVisible(filtersMenuItemVisibilityFlag);
-        }
     }
 
     @Override
@@ -242,6 +252,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         super.onDestroyView();
         mPresenter.destroy();
         mToast.cancel();
+        favoritesHelper.getToast().cancel();
     }
 
     @OnActivityResult(REQUEST_INITIAL_REPORT_PARAMETERS)
@@ -403,6 +414,22 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
                 paramsStorage.getInputControlHolder(resource.getUri()).getReportParams()
         );
         JasperPrinter.print(job);
+    }
+
+    @OptionsItem
+    final void favoriteAction() {
+        favoriteEntryUri = favoritesHelper.
+                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+    }
+
+    @OptionsItem
+    final void aboutAction() {
+        SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                .setTitle(resource.getLabel())
+                .setMessage(resource.getDescription())
+                .setNegativeButtonText(R.string.ok)
+                .setTargetFragment(this)
+                .show();
     }
 
     @Override

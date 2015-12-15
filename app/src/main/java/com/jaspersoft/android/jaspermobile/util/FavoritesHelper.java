@@ -178,7 +178,7 @@ public class FavoritesHelper {
     }
 
     @SuppressWarnings("ShowToast")
-    private Toast getToast() {
+    public Toast getToast() {
         if (mToast == null) {
             mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
         }

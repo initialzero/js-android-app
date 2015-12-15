@@ -301,7 +301,6 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     @Override
     public void hideLoading() {
-        progressBar.setVisibility(View.GONE);
         ProgressDialogFragment.dismiss(getFragmentManager());
     }
 

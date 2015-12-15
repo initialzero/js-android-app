@@ -200,7 +200,6 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     private class RunReportListener extends Subscriber<Void> {
         @Override
         public void onCompleted() {
-            mView.hideLoading();
         }
 
         @Override

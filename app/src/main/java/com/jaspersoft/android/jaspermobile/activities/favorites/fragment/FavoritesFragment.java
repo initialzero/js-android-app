@@ -176,7 +176,7 @@ public class FavoritesFragment extends RoboFragment
         mAdapter.setFavoritesInteractionListener(this);
         listView.setAdapter(mAdapter);
 
-        getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
+        getActivity().getSupportLoaderManager().initLoader(FAVORITES_LOADER_ID, null, this);
     }
 
     @Override

@@ -24,20 +24,24 @@
 
 package com.jaspersoft.android.jaspermobile.util.rx;
 
-import rx.functions.Action1;
-import timber.log.Timber;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.3
  */
-public class RxActions {
-    public static Action1<Throwable> createLogErrorAction(String tag) {
-        Timber.tag(tag);
-        return new Action1<Throwable>() {
+public final class RxTransformer {
+
+    private RxTransformer() {}
+
+    public static <T> Observable.Transformer<T, T> applySchedulers() {
+        return new Observable.Transformer<T, T>() {
             @Override
-            public void call(Throwable throwable) {
-                Timber.e(throwable, "Failed to load subscriptions");
+            public Observable<T> call(Observable<T> observable) {
+                return observable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread());
             }
         };
     }

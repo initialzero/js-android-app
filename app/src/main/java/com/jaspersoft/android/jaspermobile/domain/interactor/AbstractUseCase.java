@@ -23,7 +23,7 @@
  */
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
-import com.jaspersoft.android.jaspermobile.util.RxTransformer;
+import com.jaspersoft.android.jaspermobile.util.rx.RxTransformer;
 
 import rx.Observable;
 import rx.Subscriber;

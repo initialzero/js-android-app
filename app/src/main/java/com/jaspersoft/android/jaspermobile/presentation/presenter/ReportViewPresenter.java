@@ -38,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecuti
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
+import com.jaspersoft.android.jaspermobile.util.rx.DefaultSubscriber;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
@@ -202,11 +203,78 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mReloadReportCase.execute(new ReloadReportListener(page));
     }
 
-    private class InputControlsListener extends Subscriber<List<InputControl>> {
-        @Override
-        public void onCompleted() {
-        }
+    private void onControlsLoaded(List<InputControl> controls) {
+        boolean showFilterActionVisible = !controls.isEmpty();
 
+        mView.hideError();
+        mView.setFilterActionVisibility(showFilterActionVisible);
+        mView.reloadMenu();
+
+        if (showFilterActionVisible) {
+            mView.hideLoading();
+            mView.showInitialFiltersPage();
+        } else {
+            runReport();
+        }
+    }
+
+    private void onRunStarted() {
+        mView.hideError();
+        checkIsMultiPageReport();
+        loadPage(FIRST_PAGE);
+    }
+
+    private void onPageLoaded(String pagePosition, ReportPage page) {
+        mCurrentPage = pagePosition;
+        mView.hideError();
+        mView.showCurrentPage(Integer.valueOf(pagePosition));
+        mView.showPage(page.getContent());
+    }
+
+    private void onMultiPageCheckFinished(Boolean isMultiPage) {
+        if (isMultiPage) {
+            mView.showPaginationControl();
+            loadTotalPagesCount();
+        } else {
+            mView.setSaveActionVisibility(true);
+            mView.reloadMenu();
+        }
+    }
+
+    private void onTotalPagesLoaded(Integer totalPages) {
+        boolean hasNoPages = (totalPages == 0);
+        if (hasNoPages) {
+            mView.setSaveActionVisibility(false);
+            mView.showEmptyPageMessage();
+            mView.hidePaginationControl();
+        } else {
+            mView.setSaveActionVisibility(true);
+            mView.showTotalPages(totalPages);
+            loadCurrentPage();
+
+            boolean hasMoreThanOnePage = (totalPages > 1);
+            if (hasMoreThanOnePage) {
+                mView.showPaginationControl();
+            } else {
+                mView.hidePaginationControl();
+            }
+        }
+        mView.reloadMenu();
+    }
+
+    private void onExecutionUpdated() {
+        mView.resetPaginationControl();
+        checkIsMultiPageReport();
+        loadPage(FIRST_PAGE);
+    }
+
+    private void onReloadFinished(String pagePosition) {
+        mView.hideError();
+        checkIsMultiPageReport();
+        loadPage(pagePosition);
+    }
+
+    private class InputControlsListener extends DefaultSubscriber<List<InputControl>> {
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Request for input controls crashed");
@@ -215,26 +283,11 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onNext(List<InputControl> controls) {
-            boolean showFilterActionVisible = !controls.isEmpty();
-
-            mView.hideError();
-            mView.setFilterActionVisibility(showFilterActionVisible);
-            mView.reloadMenu();
-
-            if (showFilterActionVisible) {
-                mView.hideLoading();
-                mView.showInitialFiltersPage();
-            } else {
-                runReport();
-            }
+            onControlsLoaded(controls);
         }
     }
 
-    private class RunReportListener extends Subscriber<Void> {
-        @Override
-        public void onCompleted() {
-        }
-
+    private class RunReportListener extends DefaultSubscriber<Void> {
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Run report operation crashed");
@@ -243,9 +296,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onNext(Void aVoid) {
-            mView.hideError();
-            checkIsMultiPageReport();
-            loadPage(FIRST_PAGE);
+            onRunStarted();
         }
     }
 
@@ -269,41 +320,24 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onNext(ReportPage page) {
-            mCurrentPage = pagePosition;
-            mView.hideError();
-            mView.showCurrentPage(Integer.valueOf(pagePosition));
-            mView.showPage(page.getContent());
+            onPageLoaded(pagePosition, page);
         }
     }
 
-    private class IsMultiPageListener extends Subscriber<Boolean> {
-        @Override
-        public void onCompleted() {
-        }
-
+    private class IsMultiPageListener extends DefaultSubscriber<Boolean> {
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Is multi page request operation crashed");
-            showErrorMessage(e);
+            handleErrorForPage(mCurrentPage, e);
         }
 
         @Override
         public void onNext(Boolean isMultiPage) {
-            if (isMultiPage) {
-                mView.showPaginationControl();
-                loadTotalPagesCount();
-            } else {
-                mView.setSaveActionVisibility(true);
-                mView.reloadMenu();
-            }
+            onMultiPageCheckFinished(isMultiPage);
         }
     }
 
-    private class TotalPagesListener extends Subscriber<Integer> {
-        @Override
-        public void onCompleted() {
-        }
-
+    private class TotalPagesListener extends DefaultSubscriber<Integer> {
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Total pages request operation crashed");
@@ -312,32 +346,11 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onNext(Integer totalPages) {
-            boolean hasNoPages = (totalPages == 0);
-            if (hasNoPages) {
-                mView.setSaveActionVisibility(false);
-                mView.showEmptyPageMessage();
-                mView.hidePaginationControl();
-            } else {
-                mView.setSaveActionVisibility(true);
-                mView.showTotalPages(totalPages);
-                loadCurrentPage();
-
-                boolean hasMoreThanOnePage = (totalPages > 1);
-                if (hasMoreThanOnePage) {
-                    mView.showPaginationControl();
-                } else {
-                    mView.hidePaginationControl();
-                }
-            }
-            mView.reloadMenu();
+            onTotalPagesLoaded(totalPages);
         }
     }
 
-    private class UpdateExecutionListener extends Subscriber<Void> {
-        @Override
-        public void onCompleted() {
-        }
-
+    private class UpdateExecutionListener extends DefaultSubscriber<Void> {
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Update execution operation crashed");
@@ -346,21 +359,15 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onNext(Void Void) {
-            mView.resetPaginationControl();
-            checkIsMultiPageReport();
-            loadPage(FIRST_PAGE);
+            onExecutionUpdated();
         }
     }
 
-    private class ReloadReportListener extends Subscriber<Void> {
+    private class ReloadReportListener extends DefaultSubscriber<Void> {
         private final String mPage;
 
         public ReloadReportListener(String page) {
             mPage = page;
-        }
-
-        @Override
-        public void onCompleted() {
         }
 
         @Override
@@ -371,10 +378,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onNext(Void aVoid) {
-            mView.hideError();
-
-            checkIsMultiPageReport();
-            loadPage(mPage);
+            onReloadFinished(mPage);
         }
     }
 }

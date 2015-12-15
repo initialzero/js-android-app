@@ -24,6 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
@@ -49,6 +52,8 @@ import timber.log.Timber;
  * @since 2.3
  */
 public final class ReportViewPresenter implements ReportActionListener, Presenter {
+
+    private static final String FIRST_PAGE = "1";
 
     private final GetReportPageCase mGetReportPageCase;
     private final GetReportControlsCase mGetReportControlsCase;
@@ -119,19 +124,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     @Override
     public void refresh() {
         mView.showCurrentPage(1);
-        reloadReport("1");
-    }
-
-    private void loadInputControls() {
-        mGetReportControlsCase.execute(new InputControlsListener());
-    }
-
-    private void checkIsMultiPageReport() {
-        mIsReportMultiPageCase.execute(new IsMultiPageListener());
-    }
-
-    private void loadTotalPagesCount() {
-        mGetReportTotalPagesCase.execute(new TotalPagesListener());
+        reloadReport(FIRST_PAGE);
     }
 
     @Override
@@ -153,9 +146,49 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mReloadReportCase.unsubscribe();
     }
 
+    private void loadInputControls() {
+        mGetReportControlsCase.execute(new InputControlsListener());
+    }
+
+    private void checkIsMultiPageReport() {
+        mIsReportMultiPageCase.execute(new IsMultiPageListener());
+    }
+
+    private void loadTotalPagesCount() {
+        mGetReportTotalPagesCase.execute(new TotalPagesListener());
+    }
+
     private void showErrorMessage(Throwable error) {
         mView.hideLoading();
         mView.showError(mExceptionHandler.extractMessage(error));
+    }
+
+    private void handleErrorForPage(@Nullable String pagePosition, @NonNull Throwable e) {
+        if (pagePosition == null) {
+            pagePosition = FIRST_PAGE;
+        }
+
+        if (e instanceof ServiceException) {
+            ServiceException serviceException = (ServiceException) e;
+            int errorCode = serviceException.code();
+            switch (errorCode) {
+                case StatusCodes.EXPORT_EXECUTION_FAILED:
+                    mView.showPageOutOfRangeError();
+                    loadCurrentPage();
+                    break;
+                case StatusCodes.RESOURCE_NOT_FOUND:
+                    mView.showLoading();
+                    mView.showReloadMessage();
+                    reloadReport(pagePosition);
+                    break;
+                default:
+                    Timber.e(e, "Page request operation crashed with SDK exception");
+                    showErrorMessage(e);
+            }
+        } else {
+            Timber.e(e, "Page request operation crashed");
+            showErrorMessage(e);
+        }
     }
 
     private void loadCurrentPage() {
@@ -205,14 +238,14 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Run report operation crashed");
-            showErrorMessage(e);
+            handleErrorForPage(mCurrentPage, e);
         }
 
         @Override
         public void onNext(Void aVoid) {
             mView.hideError();
             checkIsMultiPageReport();
-            loadPage("1");
+            loadPage(FIRST_PAGE);
         }
     }
 
@@ -230,27 +263,8 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onError(Throwable e) {
-            if (e instanceof ServiceException) {
-                ServiceException serviceException = (ServiceException) e;
-                int errorCode = serviceException.code();
-                switch (errorCode) {
-                    case StatusCodes.EXPORT_EXECUTION_FAILED:
-                        mView.showPageOutOfRangeError();
-                        loadCurrentPage();
-                        break;
-                    case StatusCodes.RESOURCE_NOT_FOUND:
-                        mView.showLoading();
-                        mView.showReloadMessage();
-                        reloadReport(pagePosition);
-                        break;
-                    default:
-                        Timber.e(e, "Page request operation crashed with SDK exception");
-                        showErrorMessage(e);
-                }
-            } else {
-                Timber.e(e, "Page request operation crashed");
-                showErrorMessage(e);
-            }
+            Timber.e(e, "Page request operation crashed");
+            handleErrorForPage(pagePosition, e);
         }
 
         @Override
@@ -293,7 +307,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Total pages request operation crashed");
-            showErrorMessage(e);
+            handleErrorForPage(mCurrentPage, e);
         }
 
         @Override
@@ -327,14 +341,14 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Update execution operation crashed");
-            showErrorMessage(e);
+            handleErrorForPage(mCurrentPage, e);
         }
 
         @Override
         public void onNext(Void Void) {
             mView.resetPaginationControl();
             checkIsMultiPageReport();
-            loadPage("1");
+            loadPage(FIRST_PAGE);
         }
     }
 

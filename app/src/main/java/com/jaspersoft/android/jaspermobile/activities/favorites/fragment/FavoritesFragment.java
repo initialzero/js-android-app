@@ -200,6 +200,12 @@ public class FavoritesFragment extends RoboFragment
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getActivity().getSupportLoaderManager().destroyLoader(FAVORITES_LOADER_ID);
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         mAdapter.save(outState);
         super.onSaveInstanceState(outState);

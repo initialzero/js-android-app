@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.service;
 
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
 import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.data.report.ReportMetadata;
@@ -55,10 +56,10 @@ final class RestReportExecutionService implements ReportExecutionService {
     }
 
     @Override
-    public Observable<String> downloadExport(final String pageRange) {
-        return Observable.defer(new Func0<Observable<String>>() {
+    public Observable<ReportPage> downloadExport(final String pageRange) {
+        return Observable.defer(new Func0<Observable<ReportPage>>() {
             @Override
-            public Observable<String> call() {
+            public Observable<ReportPage> call() {
                 try {
                     RunExportCriteria criteria = RunExportCriteria.builder()
                             .pages(pageRange)
@@ -69,7 +70,9 @@ final class RestReportExecutionService implements ReportExecutionService {
                     InputStream stream = reportOutput.getStream();
                     String page = IOUtils.toString(reportOutput.getStream());
                     IOUtils.closeQuietly(stream);
-                    return Observable.just(page);
+
+                    ReportPage reportPage = new ReportPage(page, reportOutput.isFinal());
+                    return Observable.just(reportPage);
                 } catch (ServiceException e) {
                     return Observable.error(e);
                 } catch (IOException e) {

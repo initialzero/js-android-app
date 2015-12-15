@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 
 import rx.Observable;
@@ -32,7 +33,7 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class GetReportPageCase extends AbstractUseCase<String> {
+public final class GetReportPageCase extends AbstractUseCase<ReportPage> {
     public static final String DEFAULT_PAGE = "1";
 
     private final ReportRepository mReportRepository;
@@ -48,7 +49,7 @@ public final class GetReportPageCase extends AbstractUseCase<String> {
     }
 
     @Override
-    protected Observable<String> buildUseCaseObservable() {
+    protected Observable<ReportPage> buildUseCaseObservable() {
         return mReportRepository.getPage(mPageRange);
     }
 }

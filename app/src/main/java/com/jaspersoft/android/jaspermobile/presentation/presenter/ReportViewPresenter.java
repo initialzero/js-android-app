@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
@@ -84,7 +85,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
             mView.showLoading();
             loadInputControls();
         } else {
-            loadPage(mCurrentPage);
+            reloadCurrentPage();
             checkIsMultiPageReport();
         }
     }
@@ -145,6 +146,10 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mView.showError(mExceptionHandler.extractMessage(error));
     }
 
+    private void reloadCurrentPage() {
+        loadPage(mCurrentPage);
+    }
+
     private class InputControlsListener extends Subscriber<List<InputControl>> {
         @Override
         public void onCompleted() {
@@ -191,7 +196,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
     }
 
-    private class PageResultListener extends Subscriber<String> {
+    private class PageResultListener extends Subscriber<ReportPage> {
         private final String pagePosition;
 
         private PageResultListener(String pagePosition) {
@@ -210,7 +215,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
                 int errorCode = serviceException.code();
                 if (errorCode == StatusCodes.EXPORT_EXECUTION_FAILED) {
                     mView.showPageOutOfRangeError();
-                    loadPage(mCurrentPage);
+                    reloadCurrentPage();
                 } else {
                     showErrorMessage(e);
                 }
@@ -220,10 +225,10 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         }
 
         @Override
-        public void onNext(String pageContent) {
+        public void onNext(ReportPage page) {
             mCurrentPage = pagePosition;
             mView.hideError();
-            mView.showPage(pagePosition, pageContent);
+            mView.showPage(pagePosition, page.getContent());
         }
     }
 
@@ -269,8 +274,9 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
             } else {
                 mView.setSaveActionVisibility(true);
                 mView.showTotalPages(totalPages);
+                reloadCurrentPage();
 
-                boolean hasMoreThanOnePage = (totalPages == 1);
+                boolean hasMoreThanOnePage = (totalPages > 1);
                 if (hasMoreThanOnePage) {
                     mView.showPaginationControl();
                 } else {

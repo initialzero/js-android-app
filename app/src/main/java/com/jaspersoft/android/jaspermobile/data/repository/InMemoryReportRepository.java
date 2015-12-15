@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
 import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
@@ -54,7 +55,7 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     private final ReportService mReportService;
 
-    private final LruCache<String, String> mPagesCache = new LruCache<>(10);
+    private final LruCache<String, ReportPage> mPagesCache = new LruCache<>(10);
     private ReportExecutionService mExecutionCache;
     private Integer mPagesCountCache;
     private Boolean mIsMultiPage;
@@ -70,10 +71,10 @@ public final class InMemoryReportRepository implements ReportRepository {
     }
 
     @Override
-    public Observable<String> getPage(String range) {
+    public Observable<ReportPage> getPage(String range) {
         List<ReportParameter> repoParams = getParameters();
-        Observable<String> memory = createPagesMemorySource(range);
-        Observable<String> network = createPagesNetworkSource(range, repoParams);
+        Observable<ReportPage> memory = createPagesMemorySource(range);
+        Observable<ReportPage> network = createPagesNetworkSource(range, repoParams);
         return rx.Observable.concat(memory, network).first();
     }
 
@@ -143,22 +144,22 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     private Observable<Boolean> createIsMultiPageNetworkSource() {
         return mExecutionCache.downloadExport("2")
-                .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
+                .onErrorResumeNext(new Func1<Throwable, Observable<? extends ReportPage>>() {
                     @Override
-                    public Observable<? extends String> call(Throwable throwable) {
+                    public Observable<? extends ReportPage> call(Throwable throwable) {
                         return Observable.just(null);
                     }
-                }).doOnNext(new Action1<String>() {
+                }).doOnNext(new Action1<ReportPage>() {
                     @Override
-                    public void call(String page) {
+                    public void call(ReportPage page) {
                         if (page != null) {
                             mPagesCache.put("2", page);
                         }
                     }
                 })
-                .flatMap(new Func1<String, Observable<Boolean>>() {
+                .flatMap(new Func1<ReportPage, Observable<Boolean>>() {
                     @Override
-                    public Observable<Boolean> call(String page) {
+                    public Observable<Boolean> call(ReportPage page) {
                         return Observable.just(page != null);
                     }
                 }).doOnNext(new Action1<Boolean>() {
@@ -190,30 +191,34 @@ public final class InMemoryReportRepository implements ReportRepository {
         });
     }
 
-    private Observable<String> createPagesNetworkSource(final String range, final List<ReportParameter> params) {
+    private Observable<ReportPage> createPagesNetworkSource(final String range, final List<ReportParameter> params) {
         return runReport()
-                .switchMap(new Func1<ReportExecutionService, Observable<String>>() {
+                .switchMap(new Func1<ReportExecutionService, Observable<ReportPage>>() {
                     @Override
-                    public Observable<String> call(ReportExecutionService reportExecutionService) {
+                    public Observable<ReportPage> call(ReportExecutionService reportExecutionService) {
                         return reportExecutionService.downloadExport(range);
                     }
-                }).doOnNext(new Action1<String>() {
+                }).doOnNext(new Action1<ReportPage>() {
                     @Override
-                    public void call(String page) {
+                    public void call(ReportPage page) {
                         mPagesCache.put(range, page);
                     }
                 });
     }
 
-    private Observable<String> createPagesMemorySource(final String pages) {
-        return Observable.defer(new Func0<Observable<String>>() {
+    private Observable<ReportPage> createPagesMemorySource(final String pages) {
+        return Observable.defer(new Func0<Observable<ReportPage>>() {
             @Override
-            public Observable<String> call() {
-                String page = mPagesCache.get(pages);
+            public Observable<ReportPage> call() {
+                ReportPage page = mPagesCache.get(pages);
                 if (page == null) {
                     return Observable.empty();
+                } else {
+                    if (page.isFinal()) {
+                        return Observable.just(page);
+                    }
+                    return Observable.empty();
                 }
-                return Observable.just(page);
             }
         });
     }

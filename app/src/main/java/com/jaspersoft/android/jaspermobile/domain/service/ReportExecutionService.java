@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.domain.service;
 
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 
 import java.util.List;
@@ -35,7 +36,7 @@ import rx.Observable;
  * @since 2.3
  */
 public interface ReportExecutionService {
-    Observable<String> downloadExport(String pageRange);
+    Observable<ReportPage> downloadExport(String pageRange);
     Observable<Integer> loadTotalPages();
     Observable<ReportExecutionService> update(List<ReportParameter> parameters);
 }

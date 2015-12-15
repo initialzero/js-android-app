@@ -116,6 +116,12 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         mUpdateReportExecutionCase.execute(new UpdateExecutionListener());
     }
 
+    @Override
+    public void refresh() {
+        mView.showCurrentPage(1);
+        reloadReport("1");
+    }
+
     private void loadInputControls() {
         mGetReportControlsCase.execute(new InputControlsListener());
     }
@@ -159,6 +165,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     }
 
     private void reloadReport(String page) {
+        mView.resetPaginationControl();
         mReloadReportCase.execute(new ReloadReportListener(page));
     }
 
@@ -251,7 +258,8 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
         public void onNext(ReportPage page) {
             mCurrentPage = pagePosition;
             mView.hideError();
-            mView.showPage(pagePosition, page.getContent());
+            mView.showCurrentPage(Integer.valueOf(pagePosition));
+            mView.showPage(page.getContent());
         }
     }
 

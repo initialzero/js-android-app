@@ -34,4 +34,6 @@ public interface ReportActionListener {
     void runReport();
 
     void updateReport();
+
+    void refresh();
 }

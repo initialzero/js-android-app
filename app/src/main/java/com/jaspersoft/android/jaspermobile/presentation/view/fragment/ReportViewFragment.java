@@ -349,8 +349,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     @Override
-    public void showPage(String page, String pageContent) {
-        paginationControl.updateCurrentPage(Integer.valueOf(page));
+    public void showPage(String pageContent) {
         webView.loadDataWithBaseURL(restClient.getServerUrl(), pageContent, MIME, UTF_8, null);
     }
 
@@ -372,6 +371,11 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     @Override
     public void showTotalPages(int totalPages) {
         paginationControl.updateTotalCount(totalPages);
+    }
+
+    @Override
+    public void showCurrentPage(int page) {
+        paginationControl.updateCurrentPage(page);
     }
 
     @Override
@@ -439,6 +443,11 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
                 .setNegativeButtonText(R.string.ok)
                 .setTargetFragment(this)
                 .show();
+    }
+
+    @OptionsItem
+    final void refreshAction() {
+        mActionListener.refresh();
     }
 
     @Override

@@ -37,7 +37,7 @@ public interface ReportView extends LoadDataView {
 
     void showInitialFiltersPage();
 
-    void showPage(String page, String pageContent);
+    void showPage(String pageContent);
 
     void showPaginationControl();
 
@@ -46,6 +46,8 @@ public interface ReportView extends LoadDataView {
     void resetPaginationControl();
 
     void showTotalPages(int totalPages);
+
+    void showCurrentPage(int page);
 
     void showPageOutOfRangeError();
 

@@ -45,6 +45,9 @@ public final class GetReportPageCase extends AbstractUseCase<ReportPage> {
     }
 
     public void setPageRange(String pageRange) {
+        if (pageRange == null) {
+            throw new IllegalArgumentException("Page can not be null");
+        }
         mPageRange = pageRange;
     }
 

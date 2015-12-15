@@ -41,6 +41,7 @@ import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 import java.util.List;
 
 import rx.Subscriber;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -147,7 +148,9 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     }
 
     private void reloadCurrentPage() {
-        loadPage(mCurrentPage);
+        if (mCurrentPage != null) {
+            loadPage(mCurrentPage);
+        }
     }
 
     private class InputControlsListener extends Subscriber<List<InputControl>> {
@@ -157,6 +160,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onError(Throwable e) {
+            Timber.e(e, "Request for input controls crashed");
             showErrorMessage(e);
         }
 
@@ -185,6 +189,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onError(Throwable e) {
+            Timber.e(e, "Run report operation crashed");
             showErrorMessage(e);
         }
 
@@ -217,9 +222,11 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
                     mView.showPageOutOfRangeError();
                     reloadCurrentPage();
                 } else {
+                    Timber.e(e, "Page request operation crashed with SDK exception");
                     showErrorMessage(e);
                 }
             } else {
+                Timber.e(e, "Page request operation crashed");
                 showErrorMessage(e);
             }
         }
@@ -239,6 +246,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onError(Throwable e) {
+            Timber.e(e, "Is multi page request operation crashed");
             showErrorMessage(e);
         }
 
@@ -261,6 +269,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onError(Throwable e) {
+            Timber.e(e, "Total pages request operation crashed");
             showErrorMessage(e);
         }
 
@@ -294,6 +303,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
         @Override
         public void onError(Throwable e) {
+            Timber.e(e, "Update execution operation crashed");
             showErrorMessage(e);
         }
 

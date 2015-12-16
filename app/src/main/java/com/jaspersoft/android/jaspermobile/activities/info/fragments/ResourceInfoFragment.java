@@ -12,25 +12,22 @@ import android.view.View;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment_;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinder;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinderFactory;
+import com.jaspersoft.android.jaspermobile.widget.InfoView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetResourceDescriptorRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.ViewById;
 
 /**
  * @author Andrew Tivodar
@@ -39,6 +36,9 @@ import org.androidannotations.annotations.OptionsMenuItem;
 @OptionsMenu(R.menu.favorite_menu)
 @EFragment(R.layout.fragment_resource_info)
 public class ResourceInfoFragment extends SimpleInfoFragment {
+
+    @ViewById(R.id.infoDetailsView)
+    protected InfoView infoView;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -59,7 +59,7 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         
         mJasperResourceConverter = new JasperResourceConverter(getActivity());
 
-        requestAdditionalInfo();
+        requestInfo();
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         }
     }
 
-    private void requestAdditionalInfo() {
+    private void requestInfo() {
         final GetResourceDescriptorRequest request = new GetResourceDescriptorRequest(jsRestClient, jasperResource.getId(),
                 mJasperResourceConverter.convertToResourceType(jasperResource.getResourceType()));
         getSpiceManager().execute(request, new GetResourceDescriptorListener());
@@ -104,15 +104,10 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
                 .show();
     }
 
-    final protected void fillWithAdditionalData() {
-        String resUriString = mResourceLookup.getUri();
-        resUri.setText(resUriString == null || resUriString.isEmpty() ? EMPTY_TEXT : resUriString);
-
-        String resUpdateDateString = mResourceLookup.getUpdateDate();
-        resModifiedDate.setText(resUpdateDateString == null || resUpdateDateString.isEmpty() ? EMPTY_TEXT : resUpdateDateString);
-
-        String resCreationDateString = mResourceLookup.getCreationDate();
-        resCreationDate.setText(resCreationDateString == null || resCreationDateString.isEmpty() ? EMPTY_TEXT : resCreationDateString);
+    final protected void fillWithData() {
+        infoView.fillWithBaseData(mResourceLookup.getResourceType().name(), mResourceLookup.getLabel(),
+                mResourceLookup.getDescription(), mResourceLookup.getUri(),
+                mResourceLookup.getCreationDate(), mResourceLookup.getUpdateDate());
     }
 
     private class GetResourceDescriptorListener extends SimpleRequestListener<ResourceLookup> {
@@ -133,7 +128,10 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         @Override
         public void onRequestSuccess(ResourceLookup resourceLookup) {
             mResourceLookup = resourceLookup;
-            fillWithAdditionalData();
+            jasperResource.setLabel(resourceLookup.getLabel());
+
+            fillWithData();
+            updateHeaderView();
 
             if (favoriteAction != null) {
                 alterFavoriteIcon();

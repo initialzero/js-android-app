@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -23,23 +22,21 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <!-- Minimum width for an action button in the menu area of an action bar -->
-    <dimen name="abs__action_button_min_width">56dip</dimen>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
 
-    <dimen name="info_content_side_margin_port">6dp</dimen>
-    <dimen name="info_content_side_margin_land">50dp</dimen>
-    <dimen name="info_content_ite_distance">12dp</dimen>
-    
-    <dimen name="resource_item_padding">4dp</dimen>
-    <dimen name="grid_item_width">180dp</dimen>
-    <dimen name="grid_item_metadata_height">48dp</dimen>
-    <dimen name="list_item_height">72dp</dimen>
-    <dimen name="list_item_image_width">96dp</dimen>
-    
-    <dimen name="sample_image_padding">5dp</dimen>
-    <dimen name="ic_top_padding">32dp</dimen>
-    <dimen name="ic_divider_height">8dp</dimen>
-</resources>
+    <TextView
+        android:id="@+id/infoTitle"
+        style="@style/inputControl.label"
+        android:text="@string/ri_type_title" />
+
+    <TextView
+        android:id="@+id/infoValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp" />
+
+</LinearLayout>

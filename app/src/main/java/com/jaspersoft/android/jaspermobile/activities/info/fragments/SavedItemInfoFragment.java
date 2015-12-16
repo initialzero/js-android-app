@@ -1,6 +1,5 @@
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,12 +11,14 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.jaspermobile.widget.InfoView;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -31,6 +32,9 @@ import java.util.Date;
 @EFragment(R.layout.fragment_resource_info)
 public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteDialogFragment.DeleteDialogClickListener, RenameDialogFragment.RenameDialogClickListener {
 
+    @ViewById(R.id.infoDetailsView)
+    protected InfoView infoView;
+
     @Bean
     protected SavedItemHelper savedItemHelper;
 
@@ -42,7 +46,13 @@ public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteD
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         fetchSavedItemMetadata();
-        fillWithAdditionalData();
+    }
+
+    @AfterViews
+    protected void showSavedItemInfo(){
+        infoView.fillWithBaseData(jasperResource.getResourceType().name(), jasperResource.getLabel(),
+                jasperResource.getDescription(), mFileUri,
+                mCreationTime, null);
     }
 
     @OptionsItem(R.id.renameItem)
@@ -85,14 +95,6 @@ public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteD
         mCreationTime = simpleDateFormat.format(creationDate);
     }
 
-    final protected void fillWithAdditionalData() {
-        resUri.setText(mFileUri == null || mFileUri.isEmpty() ? EMPTY_TEXT : mFileUri);
-
-        resModifiedDate.setText(EMPTY_TEXT);
-
-        resCreationDate.setText(mCreationTime == null || mCreationTime.isEmpty() ? EMPTY_TEXT : mCreationTime);
-    }
-
     //---------------------------------------------------------------------
     // Implements DeleteDialogFragment.DeleteDialogClickListener
     //---------------------------------------------------------------------
@@ -121,7 +123,8 @@ public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteD
 
         jasperResource.setLabel(newFileName);
         mFileUri = newFilePath;
-        fillWithBaseData();
-        fillWithAdditionalData();
+
+        updateHeaderView();
+        showSavedItemInfo();
     }
 }

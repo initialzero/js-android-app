@@ -5,7 +5,17 @@
         android:id="@+id/infoDetailsContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/info_content_text_margin"
         android:orientation="vertical" />
+
+    <ProgressBar
+        android:id="@+id/infoProgress"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="50dp"
+        android:paddingTop="50dp"
+        android:visibility="gone" />
 
 </merge>

@@ -39,8 +39,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:contentScrim="@color/js_gray"
-            app:expandedTitleMarginEnd="@dimen/info_content_side_margin_land"
-            app:expandedTitleMarginStart="@dimen/info_content_side_margin_land"
+            app:expandedTitleMarginEnd="@dimen/info_content_header_margin"
+            app:expandedTitleMarginStart="@dimen/info_content_header_margin"
             app:expandedTitleTextAppearance="@style/Widget.JasperMobile.TextView.Info"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
@@ -70,7 +70,7 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/info_content_side_margin_port"
+        android:fillViewport="true"
         android:paddingLeft="@dimen/info_content_side_margin_land"
         android:paddingRight="@dimen/info_content_side_margin_land"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">

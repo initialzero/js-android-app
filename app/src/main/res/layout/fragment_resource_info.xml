@@ -62,7 +62,6 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/info_content_side_margin_port"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <com.jaspersoft.android.jaspermobile.widget.InfoView_ xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -70,6 +69,8 @@
             style="@style/CardView.Auth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/info_content_side_margin_port"
+            android:layout_marginRight="@dimen/info_content_side_margin_port"
             card_view:cardBackgroundColor="@color/js_dark_gray"
             card_view:cardCornerRadius="3dp"
             card_view:cardElevation="4dp" />

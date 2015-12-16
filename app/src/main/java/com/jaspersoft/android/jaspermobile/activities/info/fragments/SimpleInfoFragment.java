@@ -38,18 +38,27 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
     @InjectView(R.id.info_collapsing_toolbar)
     protected CollapsingToolbarLayout toolbarLayout;
 
+    private InfoHeaderView infoHeaderView;
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         setToolbar(view);
-        updateHeaderView();
+        showHeaderView();
     }
 
-    final protected void updateHeaderView() {
+    final protected void updateHeaderViewLabel(String label) {
+        jasperResource.setLabel(label);
+        infoHeaderView.setTitle(label);
+    }
+
+    private void showHeaderView(){
         ResourceBinderFactory mResourceBinderFactory = new ResourceBinderFactory(getActivity());
         ResourceBinder resourceBinder = mResourceBinderFactory.create(jasperResource.getResourceType());
-        resourceBinder.bindView(new InfoHeaderView(toolbarImage, toolbarLayout), jasperResource);
+
+        infoHeaderView = new InfoHeaderView(toolbarImage, toolbarLayout);
+        resourceBinder.bindView(infoHeaderView, jasperResource);
     }
 
     private void setToolbar(View infoView) {

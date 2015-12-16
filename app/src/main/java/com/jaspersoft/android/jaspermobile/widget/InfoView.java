@@ -29,10 +29,12 @@ import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 
@@ -50,23 +52,25 @@ public class InfoView extends CardView {
     @ViewById(R.id.infoDetailsContainer)
     protected LinearLayout infoDataContainer;
 
+    @ViewById(R.id.infoProgress)
+    protected ProgressBar infoProgress;
+
     public InfoView(Context context) {
         super(context);
-        init(context);
     }
 
     public InfoView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
     }
 
     public InfoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
     }
 
-    private void init(Context context) {
-        mLayoutInflater = LayoutInflater.from(context);
+    @AfterViews
+    protected void init() {
+        mLayoutInflater = LayoutInflater.from(getContext());
+        updateVisibility();
     }
 
     public void fillWithBaseData(String type, String label, String description, String uri, String creationDate, String modifiedDate) {
@@ -86,8 +90,8 @@ public class InfoView extends CardView {
         LinearLayout itemContainer = (LinearLayout) mLayoutInflater.inflate(R.layout.item_info, infoDataContainer, false);
         if (infoDataContainer.getChildCount() > 0) {
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            int itemMargin = (int) getResources().getDimension(R.dimen.info_content_ite_distance);
-            layoutParams.setMargins(layoutParams.leftMargin, itemMargin, layoutParams.topMargin, layoutParams.bottomMargin);
+            int itemMargin = (int) getResources().getDimension(R.dimen.info_content_items_distance);
+            layoutParams.setMargins(layoutParams.leftMargin, itemMargin, layoutParams.rightMargin, layoutParams.bottomMargin);
             itemContainer.setLayoutParams(layoutParams);
         }
 
@@ -98,5 +102,10 @@ public class InfoView extends CardView {
         infoValue.setText(value.isEmpty() ? EMPTY_TEXT : value);
 
         infoDataContainer.addView(itemContainer);
+        updateVisibility();
+    }
+
+    private void updateVisibility() {
+        infoProgress.setVisibility(infoDataContainer.getChildCount() > 0 ? INVISIBLE : VISIBLE);
     }
 }

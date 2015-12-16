@@ -121,10 +121,9 @@ public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteD
         savedItemsEntry.setFilePath(newFilePath);
         getActivity().getContentResolver().update(recordUri, savedItemsEntry.getContentValues(), null, null);
 
-        jasperResource.setLabel(newFileName);
         mFileUri = newFilePath;
 
-        updateHeaderView();
+        updateHeaderViewLabel(newFileName);
         showSavedItemInfo();
     }
 }

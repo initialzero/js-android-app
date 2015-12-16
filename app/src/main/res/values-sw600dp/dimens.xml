@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -28,5 +27,7 @@
     <dimen name="abs__action_button_min_width">64dip</dimen>
 
     <dimen name="info_content_side_margin_port">9dp</dimen>
-    <dimen name="info_content_side_margin_land">75dp</dimen>
+    <dimen name="info_content_text_margin">12dp</dimen>
+    <dimen name="info_content_header_margin">75dp</dimen>
+    <dimen name="info_content_side_margin_land">60dp</dimen>
 </resources>

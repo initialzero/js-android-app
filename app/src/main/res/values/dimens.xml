@@ -30,8 +30,10 @@
     <dimen name="abs__action_button_min_width">56dip</dimen>
 
     <dimen name="info_content_side_margin_port">6dp</dimen>
-    <dimen name="info_content_side_margin_land">50dp</dimen>
-    <dimen name="info_content_ite_distance">12dp</dimen>
+    <dimen name="info_content_side_margin_land">40dp</dimen>
+    <dimen name="info_content_header_margin">50dp</dimen>
+    <dimen name="info_content_text_margin">8dp</dimen>
+    <dimen name="info_content_items_distance">12dp</dimen>
     
     <dimen name="resource_item_padding">4dp</dimen>
     <dimen name="grid_item_width">180dp</dimen>

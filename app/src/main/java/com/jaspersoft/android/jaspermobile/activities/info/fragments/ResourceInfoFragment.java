@@ -20,6 +20,7 @@ import com.jaspersoft.android.jaspermobile.widget.InfoView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetResourceDescriptorRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.AfterViews;
@@ -29,6 +30,8 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
+
+import java.io.File;
 
 /**
  * @author Andrew Tivodar
@@ -94,7 +97,7 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         }
     }
 
-    final protected void fillWithData() {
+    private void fillWithData() {
         infoView.fillWithBaseData(mResourceLookup.getResourceType().name(), mResourceLookup.getLabel(),
                 mResourceLookup.getDescription(), mResourceLookup.getUri(),
                 mResourceLookup.getCreationDate(), mResourceLookup.getUpdateDate());
@@ -121,7 +124,7 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
             jasperResource.setLabel(resourceLookup.getLabel());
 
             fillWithData();
-                    updateHeaderViewLabel(resourceLookup.getLabel());
+            updateHeaderViewLabel(resourceLookup.getLabel());
 
             if (favoriteAction != null) {
                 alterFavoriteIcon();

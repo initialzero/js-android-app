@@ -28,6 +28,8 @@ import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -73,6 +75,28 @@ public class InfoView extends CardView {
         updateVisibility();
     }
 
+    public void addInfoItem(String title, String value, int index) {
+        if (title == null || value == null) return;
+
+        LinearLayout itemContainer = (LinearLayout) mLayoutInflater.inflate(R.layout.item_info, infoDataContainer, false);
+        if (index > 0) {
+            int itemMargin = (int) getResources().getDimension(R.dimen.info_content_items_distance);
+            setItemDistance(itemContainer, itemMargin);
+            if (infoDataContainer.getChildCount() > 0) {
+                setItemDistance(infoDataContainer.getChildAt(0), 0);
+            }
+        }
+
+        TextView infoTitle = (TextView) itemContainer.findViewById(R.id.infoTitle);
+        TextView infoValue = (TextView) itemContainer.findViewById(R.id.infoValue);
+
+        infoTitle.setText(title);
+        infoValue.setText(value.isEmpty() ? EMPTY_TEXT : value);
+
+        infoDataContainer.addView(itemContainer, index);
+        updateVisibility();
+    }
+
     public void fillWithBaseData(String type, String label, String description, String uri, String creationDate, String modifiedDate) {
         infoDataContainer.removeAllViews();
 
@@ -84,25 +108,14 @@ public class InfoView extends CardView {
         addInfoItem(getContext().getString(R.string.ri_modified_title), modifiedDate);
     }
 
-    public void addInfoItem(String title, String value) {
-        if (title == null || value == null) return;
+    private void addInfoItem(String title, String value) {
+        addInfoItem(title, value, infoDataContainer.getChildCount());
+    }
 
-        LinearLayout itemContainer = (LinearLayout) mLayoutInflater.inflate(R.layout.item_info, infoDataContainer, false);
-        if (infoDataContainer.getChildCount() > 0) {
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            int itemMargin = (int) getResources().getDimension(R.dimen.info_content_items_distance);
-            layoutParams.setMargins(layoutParams.leftMargin, itemMargin, layoutParams.rightMargin, layoutParams.bottomMargin);
-            itemContainer.setLayoutParams(layoutParams);
-        }
-
-        TextView infoTitle = (TextView) itemContainer.findViewById(R.id.infoTitle);
-        TextView infoValue = (TextView) itemContainer.findViewById(R.id.infoValue);
-
-        infoTitle.setText(title);
-        infoValue.setText(value.isEmpty() ? EMPTY_TEXT : value);
-
-        infoDataContainer.addView(itemContainer);
-        updateVisibility();
+    private void setItemDistance(View viewGroup, int distance) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(layoutParams.leftMargin, distance, layoutParams.rightMargin, layoutParams.bottomMargin);
+        viewGroup.setLayoutParams(layoutParams);
     }
 
     private void updateVisibility() {

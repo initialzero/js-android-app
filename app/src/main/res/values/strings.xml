@@ -126,13 +126,15 @@
     <string name="ro_search" translatable="false">Search list…</string>
 
     <!-- Resource Info Activity -->
-    <string name="ri_report_option_title">Report options:</string>
-    <string name="ri_type_title">Type:</string>
-    <string name="ri_label_title">Label:</string>
-    <string name="ri_description_title">Description:</string>
-    <string name="ri_uri_title">URI:</string>
-    <string name="ri_modified_title">Modified date:</string>
-    <string name="ri_creation_title">Creation date:</string>
+    <string name="ri_report_option_title" translatable="false">Report options:</string>
+    <string name="ri_type_title" translatable="false">Type:</string>
+    <string name="ri_label_title" translatable="false">Label:</string>
+    <string name="ri_description_title" translatable="false">Description:</string>
+    <string name="ri_uri_title" translatable="false">URI:</string>
+    <string name="ri_modified_title" translatable="false">Modified date:</string>
+    <string name="ri_creation_title" translatable="false">Creation date:</string>
+    <string name="ri_file_format" translatable="false">File format:</string>
+    <string name="ri_file_size" translatable="false">File size:</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

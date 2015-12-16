@@ -12,6 +12,7 @@ import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.widget.InfoView;
+import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -49,10 +50,13 @@ public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteD
     }
 
     @AfterViews
-    protected void showSavedItemInfo(){
+    protected void showSavedItemInfo() {
         infoView.fillWithBaseData(jasperResource.getResourceType().name(), jasperResource.getLabel(),
                 jasperResource.getDescription(), mFileUri,
                 mCreationTime, null);
+
+        infoView.addInfoItem(getString(R.string.ri_file_format), mFileExtension, 1);
+        infoView.addInfoItem(getString(R.string.ri_file_size), getHumanReadableFileSize(new File(mFileUri)), 5);
     }
 
     @OptionsItem(R.id.renameItem)
@@ -81,7 +85,7 @@ public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteD
                 .show();
     }
 
-    public void fetchSavedItemMetadata() {
+    private void fetchSavedItemMetadata() {
         Cursor cursor = getActivity().getContentResolver().query(Uri.parse(jasperResource.getId()), null, null, null, null);
         cursor.moveToFirst();
 
@@ -93,6 +97,11 @@ public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteD
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
         mCreationTime = simpleDateFormat.format(creationDate);
+    }
+
+    private String getHumanReadableFileSize(File file) {
+        long byteSize = FileUtils.calculateFileSize(file.getParentFile());
+        return FileUtils.getHumanReadableByteCount(byteSize);
     }
 
     //---------------------------------------------------------------------

@@ -22,12 +22,21 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<resources>
-    <!-- Minimum width for an action button in the menu area of an action bar -->
-    <dimen name="abs__action_button_min_width">64dip</dimen>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
 
-    <dimen name="info_content_side_margin_port">9dp</dimen>
-    <dimen name="info_content_text_margin">12dp</dimen>
-    <dimen name="info_content_header_margin">75dp</dimen>
-    <dimen name="info_content_side_margin_land">60dp</dimen>
-</resources>
+    <TextView
+        android:id="@+id/infoTitle"
+        style="@style/inputControl.label"
+        android:text="@string/ri_type_title" />
+
+    <TextView
+        android:id="@+id/infoValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp" />
+
+</LinearLayout>

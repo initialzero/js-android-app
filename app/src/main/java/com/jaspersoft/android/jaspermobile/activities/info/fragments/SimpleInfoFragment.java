@@ -6,7 +6,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
@@ -29,7 +28,6 @@ import roboguice.inject.InjectView;
 public class SimpleInfoFragment extends RoboSpiceFragment {
 
     public static final String TAG = ResourceInfoFragment.class.getSimpleName();
-    protected static final String EMPTY_TEXT = "---";
 
     @FragmentArg
     protected JasperResource jasperResource;
@@ -40,47 +38,27 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
     @InjectView(R.id.info_collapsing_toolbar)
     protected CollapsingToolbarLayout toolbarLayout;
 
-    @InjectView(R.id.ri_type)
-    protected TextView resType;
-
-    @InjectView(R.id.ri_label)
-    protected TextView resLabel;
-
-    @InjectView(R.id.ri_descritpion)
-    protected TextView resDescription;
-
-    @InjectView(R.id.ri_uri)
-    protected TextView resUri;
-
-    @InjectView(R.id.ri_modified_date)
-    protected TextView resModifiedDate;
-
-    @InjectView(R.id.ri_creation_date)
-    protected TextView resCreationDate;
-
-    private ResourceBinderFactory mResourceBinderFactory;
+    private InfoHeaderView infoHeaderView;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         setToolbar(view);
-        fillWithBaseData();
+        showHeaderView();
     }
 
-    final protected void fillWithBaseData() {
-        String resTypeString = jasperResource.getResourceType().name();
-        resType.setText(resTypeString.isEmpty() ? EMPTY_TEXT : resTypeString);
+    final protected void updateHeaderViewLabel(String label) {
+        jasperResource.setLabel(label);
+        infoHeaderView.setTitle(label);
+    }
 
-        String resLabelString = jasperResource.getLabel();
-        resLabel.setText(resLabelString == null || resLabelString.isEmpty() ? EMPTY_TEXT : resLabelString);
-
-        String resDescriptionString = jasperResource.getDescription();
-        resDescription.setText(resDescriptionString == null || resDescriptionString.isEmpty() ? EMPTY_TEXT : resDescriptionString);
-
-        mResourceBinderFactory = new ResourceBinderFactory(getActivity());
+    private void showHeaderView(){
+        ResourceBinderFactory mResourceBinderFactory = new ResourceBinderFactory(getActivity());
         ResourceBinder resourceBinder = mResourceBinderFactory.create(jasperResource.getResourceType());
-        resourceBinder.bindView(new InfoHeaderView(toolbarImage, toolbarLayout), jasperResource);
+
+        infoHeaderView = new InfoHeaderView(toolbarImage, toolbarLayout);
+        resourceBinder.bindView(infoHeaderView, jasperResource);
     }
 
     private void setToolbar(View infoView) {

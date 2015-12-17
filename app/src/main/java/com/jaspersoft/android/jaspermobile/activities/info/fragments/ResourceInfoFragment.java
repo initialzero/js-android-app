@@ -1,10 +1,10 @@
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,25 +12,26 @@ import android.view.View;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment_;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinder;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinderFactory;
+import com.jaspersoft.android.jaspermobile.widget.InfoView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetResourceDescriptorRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.ViewById;
+
+import java.io.File;
 
 /**
  * @author Andrew Tivodar
@@ -39,6 +40,9 @@ import org.androidannotations.annotations.OptionsMenuItem;
 @OptionsMenu(R.menu.favorite_menu)
 @EFragment(R.layout.fragment_resource_info)
 public class ResourceInfoFragment extends SimpleInfoFragment {
+
+    @ViewById(R.id.infoDetailsView)
+    protected InfoView infoView;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -54,12 +58,17 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
     protected ResourceLookup mResourceLookup;
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        
-        mJasperResourceConverter = new JasperResourceConverter(getActivity());
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        requestAdditionalInfo();
+        mJasperResourceConverter = new JasperResourceConverter(getActivity());
+    }
+
+    @AfterViews
+    protected void requestInfo() {
+        final GetResourceDescriptorRequest request = new GetResourceDescriptorRequest(jsRestClient, jasperResource.getId(),
+                mJasperResourceConverter.convertToResourceType(jasperResource.getResourceType()));
+        getSpiceManager().execute(request, new GetResourceDescriptorListener());
     }
 
     @Override
@@ -88,31 +97,10 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         }
     }
 
-    private void requestAdditionalInfo() {
-        final GetResourceDescriptorRequest request = new GetResourceDescriptorRequest(jsRestClient, jasperResource.getId(),
-                mJasperResourceConverter.convertToResourceType(jasperResource.getResourceType()));
-        getSpiceManager().execute(request, new GetResourceDescriptorListener());
-
-        ProgressDialogFragment.builder(getFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        getActivity().finish();
-                    }
-                })
-                .show();
-    }
-
-    final protected void fillWithAdditionalData() {
-        String resUriString = mResourceLookup.getUri();
-        resUri.setText(resUriString == null || resUriString.isEmpty() ? EMPTY_TEXT : resUriString);
-
-        String resUpdateDateString = mResourceLookup.getUpdateDate();
-        resModifiedDate.setText(resUpdateDateString == null || resUpdateDateString.isEmpty() ? EMPTY_TEXT : resUpdateDateString);
-
-        String resCreationDateString = mResourceLookup.getCreationDate();
-        resCreationDate.setText(resCreationDateString == null || resCreationDateString.isEmpty() ? EMPTY_TEXT : resCreationDateString);
+    private void fillWithData() {
+        infoView.fillWithBaseData(mResourceLookup.getResourceType().name(), mResourceLookup.getLabel(),
+                mResourceLookup.getDescription(), mResourceLookup.getUri(),
+                mResourceLookup.getCreationDate(), mResourceLookup.getUpdateDate());
     }
 
     private class GetResourceDescriptorListener extends SimpleRequestListener<ResourceLookup> {
@@ -131,15 +119,16 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         }
 
         @Override
-        public void onRequestSuccess(ResourceLookup resourceLookup) {
+        public void onRequestSuccess(final ResourceLookup resourceLookup) {
             mResourceLookup = resourceLookup;
-            fillWithAdditionalData();
+            jasperResource.setLabel(resourceLookup.getLabel());
+
+            fillWithData();
+            updateHeaderViewLabel(resourceLookup.getLabel());
 
             if (favoriteAction != null) {
                 alterFavoriteIcon();
             }
-
-            ProgressDialogFragment.dismiss(getFragmentManager());
         }
     }
 }

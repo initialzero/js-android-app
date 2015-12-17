@@ -135,6 +135,8 @@
     <string name="ri_creation_title" translatable="false">Creation date:</string>
     <string name="ri_file_format" translatable="false">File format:</string>
     <string name="ri_file_size" translatable="false">File size:</string>
+    <string name="ri_version_title" translatable="false">Version:</string>
+    <string name="ri_permissions_title" translatable="false">User Access:</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
